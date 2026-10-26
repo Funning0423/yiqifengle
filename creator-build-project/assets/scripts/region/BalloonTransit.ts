@@ -23,7 +23,7 @@ import {seatFromBench} from './TransportLeg';
 import {isTransitionPlaceholder} from './TransitionProps';
 import {setMooringRopes} from './SkyMooringRopes';
 import {basketObstacleEvent} from './BasketObstacles';
-import {b1PreWalk,b1DoorPath} from './BalloonB1Start';
+import {b1PreWalk,b1DoorPath,b1PreWalkLens,type PreWalkLensState} from './BalloonB1Start';
 import {M6_LOCAL} from './BalloonFlight'/* full8: one basket-anchor M6 (was a second literal here) */;
 import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe} from './CamTraceLog';
@@ -587,10 +587,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
       if(pre){const t0=Date.now();emitTransitCue('node-walk-start',{t:0,region:'meadow',node:'gate'});guardBeforeWalk(anim,'B1 pre-walk to the gate');
        // lens: continuous follow — starts from the live world camera (blend 1 s), follows her (eased), lands on the B1 first lens
        // (plan.camera(0) = cam0 below) over the last 1.5 s so B1 starts with no step. No cut.
-       const live=liveWorldPose(),fs0=(view as any)?.getFrameSize?.(),fw=fs0?.width||390,fh=fs0?.height||844,c0=plan.camera(0);let pt=0,fol:Pose|null=null;
+       const live=liveWorldPose(),fs0=(view as any)?.getFrameSize?.(),fw=fs0?.width||390,fh=fs0?.height||844,c0=plan.camera(0);let pt=0,fol:PreWalkLensState|null=null;
        const preDraw=()=>{if(dead||!girl||!isValid(girl,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));pt+=dt;const g=girl.worldPosition,e=girl.eulerAngles;
-        const want=followPose([g.x,g.y,g.z],e.y*Math.PI/180,fw,fh);fol=fol?blendPose(fol,want,1-Math.exp(-dt*3)):want;let p=fol;
-        if(live&&pt<1)p=blendPose(live,p,minJerk(pt/1));const left=pre.durationS-pt;if(left<1.5)p=blendPose(p,c0,minJerk(1-Math.max(0,left)/1.5));camTag('BalloonTransit:prewalk');world.setCamera(p);};
+        /* 运镜bot full7-cam: lens = BalloonB1Start.b1PreWalkLens (critically damped heading follow, same in/out blends) */const L=b1PreWalkLens({her:[g.x,g.y,g.z],yawRad:e.y*Math.PI/180,w:fw,h:fh,dt,t:pt,durationS:pre.durationS,live,c0,prev:fol});fol=L.state;const p=L.pose;
+        camTag('BalloonTransit:prewalk');world.setCamera(p);};
        director.on(Director.EVENT_BEFORE_DRAW,preDraw);
        try{await actor.perform({kind:'walk',path:pre.path.map(l=>worldOf(meadow,l)),duration:pre.durationS,stopAtEnd:true} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);}rideToken.check();
        emitTransitCue('node-arrive',{t:0,region:'meadow',node:'gate'});{const r3=(v:any)=>v?[+(+v.x).toFixed(3),+(+v.y).toFixed(3),+(+v.z).toFixed(3)]:null,rv=(v:readonly number[]|undefined)=>v?v.map(x=>+x.toFixed(3)):null,live=liveWorldPose(),p0=plan.camera(0);

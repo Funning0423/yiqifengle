@@ -1,0 +1,33 @@
+┌─────────┬────────────────────────────┬────────────┬────────┬───────┬─────────┬────────────┐
+│ (index) │ shot                       │ scr        │ frames │ solid │ firstAt │ minHitRays │
+├─────────┼────────────────────────────┼────────────┼────────┼───────┼─────────┼────────────┤
+│ 0       │ 'sail island→meadow'       │ '390x844'  │ 170    │ 0     │ '-'     │ 87         │
+│ 1       │ 'sail island→meadow'       │ '414x896'  │ 170    │ 0     │ '-'     │ 87         │
+│ 2       │ 'sail island→meadow'       │ '360x780'  │ 170    │ 0     │ '-'     │ 87         │
+│ 3       │ 'sail island→meadow'       │ '375x667'  │ 170    │ 0     │ '-'     │ 88         │
+│ 4       │ 'sail island→meadow'       │ '320x568'  │ 170    │ 0     │ '-'     │ 89         │
+│ 5       │ 'sail island→meadow'       │ '390x520'  │ 170    │ 0     │ '-'     │ 91         │
+│ 6       │ 'sail island→meadow'       │ '768x1024' │ 170    │ 0     │ '-'     │ 91         │
+│ 7       │ 'balloon meadow→skycity'   │ '390x844'  │ 145    │ 0     │ '-'     │ 9          │
+│ 8       │ 'balloon meadow→skycity'   │ '414x896'  │ 145    │ 0     │ '-'     │ 9          │
+│ 9       │ 'balloon meadow→skycity'   │ '360x780'  │ 145    │ 0     │ '-'     │ 9          │
+│ 10      │ 'balloon meadow→skycity'   │ '375x667'  │ 145    │ 0     │ '-'     │ 5          │
+│ 11      │ 'balloon meadow→skycity'   │ '320x568'  │ 145    │ 0     │ '-'     │ 5          │
+│ 12      │ 'balloon meadow→skycity'   │ '390x520'  │ 145    │ 0     │ '-'     │ 6          │
+│ 13      │ 'balloon meadow→skycity'   │ '768x1024' │ 145    │ 0     │ '-'     │ 6          │
+│ 14      │ 'balloon skycity→lakeside' │ '390x844'  │ 137    │ 0     │ '-'     │ 127        │
+│ 15      │ 'balloon skycity→lakeside' │ '414x896'  │ 137    │ 0     │ '-'     │ 127        │
+│ 16      │ 'balloon skycity→lakeside' │ '360x780'  │ 137    │ 0     │ '-'     │ 127        │
+│ 17      │ 'balloon skycity→lakeside' │ '375x667'  │ 137    │ 0     │ '-'     │ 126        │
+│ 18      │ 'balloon skycity→lakeside' │ '320x568'  │ 137    │ 0     │ '-'     │ 126        │
+│ 19      │ 'balloon skycity→lakeside' │ '390x520'  │ 137    │ 0     │ '-'     │ 128        │
+│ 20      │ 'balloon skycity→lakeside' │ '768x1024' │ 137    │ 0     │ '-'     │ 128        │
+│ 21      │ 'windmill-balloon'         │ '390x844'  │ 159    │ 0     │ '-'     │ 34         │
+│ 22      │ 'windmill-balloon'         │ '414x896'  │ 159    │ 0     │ '-'     │ 34         │
+│ 23      │ 'windmill-balloon'         │ '360x780'  │ 159    │ 0     │ '-'     │ 34         │
+│ 24      │ 'windmill-balloon'         │ '375x667'  │ 159    │ 0     │ '-'     │ 35         │
+│ 25      │ 'windmill-balloon'         │ '320x568'  │ 159    │ 0     │ '-'     │ 35         │
+│ 26      │ 'windmill-balloon'         │ '390x520'  │ 159    │ 0     │ '-'     │ 36         │
+│ 27      │ 'windmill-balloon'         │ '768x1024' │ 159    │ 0     │ '-'     │ 36         │
+└─────────┴────────────────────────────┴────────────┴────────┴───────┴─────────┴────────────┘
+{"test":"solid-frame","mode":"gate","falsePositiveRows":0,"windmillBalloonRows":7,"repro":{"skyOnly":true,"regionSwapGrey":true,"approvedFrameHits":85},"status":"PASS"}
