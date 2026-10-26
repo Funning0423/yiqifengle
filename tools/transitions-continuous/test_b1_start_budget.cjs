@@ -5,7 +5,7 @@
 // BalloonTransit B1 formula (walkS = max(toBasket*min(1,L/6), L/walkMps); + doorReach + intoBasket + sitDown).
 const assert=require('node:assert/strict'),path=require('node:path');
 const H=require('../board-ui/harness.cjs').createHarness();
-const TS=H.load('region/TransitionStaging.ts'),TL=H.load('region/TransportLeg.ts');
+const TS=H.load('region/TransitionStaging.ts'),TL=H.load('region/TransportLeg.ts'),PW=H.load('region/BalloonB1Start.ts'),NW=H.load('region/NodeWalker.ts');
 const S=TS.TRANSITION_STAGING,D=TS.TRANSITION_DURATIONS.seg3,M=S.meadow,B=S.basket;
 const yaw=M.basketYawLocalDeg*Math.PI/180,c=Math.cos(yaw),s=Math.sin(yaw);
 const W=l=>[M.launch[0]+l[0]*c+l[2]*s,M.launch[1]+l[1],M.launch[2]-l[0]*s+l[2]*c];
@@ -13,7 +13,15 @@ const len=p=>{let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0]
 const nodes=require('../region-nodes/region-nodes.json'),N=Object.fromEntries((nodes.regions||nodes).meadow.nodes.map(n=>[n.key,n.at]));
 const starts={'M6 (M4→M6 reward walk, live-start)':N.M6,'A6 end = sail M1 (chained island→skycity, no meadow level)':TL.SAIL_M1_LOCAL};
 const BUDGET=11.3+0.5,out={};let fail=[];
-for(const [k,p] of Object.entries(starts)){const toDoor=[p,W(B.outside),W(B.doorOut)],L=len(toDoor),walkS=Math.max(D.toBasket*Math.min(1,L/6),L/S.walkMps);
+// full6 (Grok Bot 2026-10-26 decision a): far from M6 she first walks the node graph to M6 (region walking, 1.2 m/s, not in the cap); B1 starts at M6.
+const pre={};
+for(const [k,p0] of Object.entries(starts)){const pw=PW.b1PreWalk(p0);pre[k]=pw?{from:pw.fromKey,m:+pw.lengthM.toFixed(2),s:+pw.durationS.toFixed(2)}:null;const p=pw?pw.path[pw.path.length-1]:p0;const toDoor=[p,W(B.outside),W(B.doorOut)],L=len(toDoor),walkS=Math.max(D.toBasket*Math.min(1,L/6),L/S.walkMps);
  const b1=walkS+D.doorReach+D.intoBasket+D.sitDown;out[k]={start:p,walkM:+L.toFixed(2),walkS:+walkS.toFixed(2),b1S:+b1.toFixed(2)};if(b1>BUDGET)fail.push(k);}
-console.log(JSON.stringify({status:fail.length?'FAIL':'PASS',budgetS:BUDGET,b1:out},null,1));
+console.log(JSON.stringify({status:fail.length?'FAIL':'PASS',budgetS:BUDGET,preWalk:pre,b1:out},null,1));
+// normal flow (L5–L8 played, L8 reward walk M4→M6 ends at M6): NO pre-walk; only the chained save (A6 end M1) walks M1→M6
+assert.equal(PW.b1PreWalk(N.M6),null,'normal flow must not pre-walk');
+const pm=PW.b1PreWalk(TL.SAIL_M1_LOCAL);assert(pm&&JSON.stringify(pm.path.at(-1))===JSON.stringify(N.M6),'chained save ends at M6');
+assert.equal(NW.WALK_SPEED_MPS,1.2,'natural speed, no speed-up');assert(Math.abs(pm.durationS-pm.lengthM/1.2)<1e-9);
+// never through the yard fence (z −20.8…−21.3): any crossing of that band must be within the gate x∈[2.2,3.0] (gate 2.6,−20.8)
+for(let i=1;i<pm.path.length;i++){const a=pm.path[i-1],b=pm.path[i];if((a[2]-(-21.05))*(b[2]-(-21.05))<0){const t=(-21.05-a[2])/(b[2]-a[2]),x=a[0]+(b[0]-a[0])*t;assert(x>=2.2&&x<=3.0,'fence crossed at x='+x.toFixed(2));}}
 assert.equal(fail.length,0,'B1 over budget from: '+fail.join('; '));
