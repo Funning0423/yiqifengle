@@ -1,0 +1,4 @@
+{"unclear":0,"poses":786,"pulledIn":594,"boxes":1}
+REPORT step {"m2":{"maxStepM":1.533,"at":141.227},"cleared":{"maxStepM":6.836,"at":127.271}}
+{"m2":{"violations":302,"enclosed":115},"cleared":{"violations":0,"enclosed":0,"windmillFrames":0,"residualSpans":[]}}
+PASS prewalk-lens-clear (m2 replay 0 violations / 0 enclosed)
