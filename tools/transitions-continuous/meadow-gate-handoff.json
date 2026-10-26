@@ -1,0 +1,175 @@
+{
+ "format": "meadow-gate-handoff/1",
+ "frame": "meadow model-local (env_meadow.glb root, Y-up, metres). world = meadowRootWorld * p",
+ "bodyRadiusM": 0.3,
+ "maxTurnDeg": 90,
+ "note": "b19 gate-handoff. continuous journey: pre-walk ends at gate, B1 starts at gate (b1Path). normal flow: walk from current node straight along the route to doorOut (no stop at gate). basket disc (meadow_basket r+clearM 1.43) does not affect these explicit paths (B1 perform does not query walkFloorY); min distance noted per point.",
+ "points": {
+  "gate": [
+   2.6,
+   6.315,
+   -20.8
+  ],
+  "outside": [
+   2.964,
+   6.423,
+   -21.762
+  ],
+  "doorOut": [
+   3.186,
+   6.478,
+   -22.218
+  ]
+ },
+ "routes": {
+  "normal_M4": {
+   "desc": "normal M4→gate→outside→doorOut",
+   "points": [
+    [
+     3,
+     5.808,
+     -16.4
+    ],
+    [
+     2.6,
+     6.315,
+     -20.8
+    ],
+    [
+     2.964,
+     6.423,
+     -21.762
+    ],
+    [
+     3.186,
+     6.478,
+     -22.218
+    ]
+   ],
+   "lengthM": 5.991,
+   "turnsDeg": [
+    -25.9,
+    -5.2
+   ]
+  },
+  "normal_M5": {
+   "desc": "normal M5→outside→doorOut",
+   "points": [
+    [
+     6.6,
+     6.46,
+     -21.2
+    ],
+    [
+     4,
+     6.248,
+     -19.4
+    ],
+    [
+     2.85,
+     6.219,
+     -19.8
+    ],
+    [
+     2.6,
+     6.315,
+     -20.8
+    ],
+    [
+     2.964,
+     6.423,
+     -21.762
+    ],
+    [
+     3.186,
+     6.478,
+     -22.218
+    ]
+   ],
+   "lengthM": 6.967,
+   "turnsDeg": [
+    -53.9,
+    -56.8,
+    -34.8,
+    -5.2
+   ]
+  },
+  "normal_M6": {
+   "desc": "normal M6(new)→outside→doorOut",
+   "points": [
+    [
+     0.2,
+     6.49,
+     -24.8
+    ],
+    [
+     0.9,
+     6.135,
+     -21
+    ],
+    [
+     1.8,
+     6.133,
+     -20.2
+    ],
+    [
+     2.6,
+     6.315,
+     -20.8
+    ],
+    [
+     2.964,
+     6.423,
+     -21.762
+    ],
+    [
+     3.186,
+     6.478,
+     -22.218
+    ]
+   ],
+   "lengthM": 7.645,
+   "turnsDeg": [
+    37.9,
+    78.5,
+    32.4,
+    -5.2
+   ]
+  },
+  "continuous_prewalk": {
+   "desc": "continuous pre-walk M1→gate (NodeWalker 1.2 m/s, region walk, not in 50 s)",
+   "points": [
+    [
+     2.6,
+     2.187,
+     11.6
+    ],
+    [
+     2.6,
+     6.315,
+     -20.8
+    ]
+   ]
+  },
+  "b1_from_gate": {
+   "desc": "B1 approach gate→outside→doorOut",
+   "points": [
+    [
+     2.6,
+     6.315,
+     -20.8
+    ],
+    [
+     2.964,
+     6.423,
+     -21.762
+    ],
+    [
+     3.186,
+     6.478,
+     -22.218
+    ]
+   ]
+  }
+ }
+}

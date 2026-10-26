@@ -6,6 +6,7 @@ const ROOT=path.resolve(__dirname,'../..'),out=path.join(__dirname,'reports');fs
 const tests=[
  ['skycity-continue-tap','tools/journey-integration/test-skycity-continue-tap.cjs'],
  ['b1-start-budget','tools/transitions-continuous/test_b1_start_budget.cjs'],
+ ['meadow-path-turns','tools/transitions-continuous/test_meadow_path_turns.cjs'],
  ['one-ccclass-per-file','tools/journey-integration/test-one-ccclass-per-file.cjs'],
  ['production-integrity','tools/journey-integration/test-production-integrity.cjs'],
  ['journey-types','tools/journey-integration/test-journey-types.cjs'],
