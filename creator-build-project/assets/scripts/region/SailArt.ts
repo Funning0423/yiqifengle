@@ -1,4 +1,5 @@
-import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Quat, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
+import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Quat, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils, view} from 'cc';
+import {SEA_LOWLAND,SEA_PREWARM_FRAMES,SEA_STANDIN,SEA_STANDIN_PREFAB,SEA_REEF_PREFAB,boxInFrustum,SEA_ALWAYS_DRAWN,seaClipLowland,seaRevealEnabled,createSeaReveal,lowlandY,seaReefSlots,type Box as SeaBox} from './SeaReveal';
 import {onRealModel} from './TransitionProps';
 import {continuousTransitions} from './TransitionChain';
 import type {Vec} from '../world-r1/WorldFlowCore';
@@ -80,6 +81,12 @@ function digChannel(renderer:MeshRenderer,samples:readonly Vec[]){
  if(!changed)return;
  writeMeshPositions(mesh,renderer,pos);
 }
+/** full8 E: world z < SEA_LOWLAND.zMax verts down to SEA_LOWLAND.y on a COPY of the mesh (the original is kept by the caller). */
+function sinkLowland(renderer:MeshRenderer):boolean{
+ const mesh=sailMeshReady(renderer.mesh);if(!mesh)return false;const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);if(!(src instanceof Float32Array))return false;
+ const wm=renderer.node.worldMatrix,inv=new Mat4();if(!Mat4.invert(inv,wm))return false;const pos=new Float32Array(src);let changed=false;const w=new Vec3(),l=new Vec3();
+ for(let i=0;i<pos.length;i+=3){Vec3.transformMat4(w,new Vec3(pos[i],pos[i+1],pos[i+2]),wm);const y=lowlandY(w.x,w.y,w.z);if(y===w.y)continue;Vec3.transformMat4(l,new Vec3(w.x,y,w.z),inv);pos[i]=l.x;pos[i+1]=l.y;pos[i+2]=l.z;changed=true;}
+ if(changed)writeMeshPositions(mesh,renderer,pos);return changed;}
 function writeMeshPositions(mesh:Mesh,renderer:MeshRenderer,pos:Float32Array){
  const struct=mesh.struct;
  const bundles=struct.vertexBundles.map(b=>({...b,view:{...b.view},attributes:b.attributes.map(a=>({...a}))}));
@@ -247,7 +254,7 @@ function syncWakeTrail(fx:WakeFx|null,anchor:Node|null,boat:Node,speed:number,dt
  if(fx.dynamic&&m&&m.struct&&m.struct.dynamic&&typeof m.updateSubMesh==='function')m.updateSubMesh(0,{positions:b.positions,uvs:b.uvs,colors:b.colors,indices16:b.indices,minPos:mn,maxPos:mx});
  else utils.createMesh({positions:Array.prototype.slice.call(b.positions),uvs:Array.prototype.slice.call(b.uvs),colors:Array.prototype.slice.call(b.colors),indices:Array.prototype.slice.call(b.indices),minPos:mn,maxPos:mx},fx.mesh);
 }
-export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean,aim?:Vec)=>void;dispose:()=>void};
+export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean,aim?:Vec,t?:number)=>void;dispose:()=>void};
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
 /** Sole under the authored floor, following the inner hull. No walls, nothing past the foredeck bulkhead. */
 function mountCockpitSole(boat:Node):Node{
@@ -260,9 +267,9 @@ function mountCockpitSole(boat:Node):Node{
  return node;
 }
 export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt>{
- const names=['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth','transit_landing'];
+ const names=['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth','transit_landing',SEA_STANDIN_PREFAB,SEA_REEF_PREFAB];
  const prefabs=await Promise.all(names.map(n=>loadPrefab(n).catch(()=>null)));
- const [boatP,seaP,propsP,farP,cloudP,mouthP,landingP]=prefabs;
+ const [boatP,seaP,propsP,farP,cloudP,mouthP,landingP,standinP,reefP]=prefabs;
  if(!boatP||!seaP||!propsP||!farP||!cloudP||!mouthP)throw Error('transport_sail missing core prefab');
  const root=new Node('SailArt');parent.addChild(root);
  const boat=instantiate(boatP);boat.name='sailboat';root.addChild(boat);
@@ -294,9 +301,12 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const route=sailRoute().samples,end=route[route.length-1],start=route[0],berth=sailBerthWorld();
  const seaHome=route[Math.floor(route.length/2)];
  if(plane)plane.setWorldPosition(seaHome[0],SAIL_SEA_Y,seaHome[2]);
+ const planE=seaRevealEnabled();try{console.info('[QF_SEA_REVEAL] '+(planE?'plan E on':'off (needs ?seaReveal=1 until the open-sea camera lands)'));}catch{}
+ const lowlandHome:{r:MeshRenderer;mesh:Mesh}[]=[];
  if(meadow){
   for(const r of meadow.getComponentsInChildren(MeshRenderer)){
    if(CHANNEL_MESH.test(r.node.name))safeEdit('dig '+r.node.name,()=>digChannel(r,route));
+   if(planE&&SEA_LOWLAND.meshes.test(r.node.name))safeEdit('lowland '+r.node.name,()=>{const before=r.mesh;if(sinkLowland(r)&&before)lowlandHome.push({r,mesh:before});})/* full8 E: south lowland under the sea while sailing */;
    if(GRASS_MESH.test(r.node.name))safeEdit('grass '+r.node.name,()=>{grassCleared+=clearLandingGrass(r,meadow);});
   }
   // landing_path UVs are authored for transit_palette; sharing meadow_path's albedo
@@ -343,7 +353,16 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  place(findNode(far,'far_islet_b'),start[0]-90,SAIL_SEA_Y,start[2]+40);
  place(findNode(far,'far_islet_c'),end[0]+80,SAIL_SEA_Y,end[2]+30);
  const coast=findNode(far,'far_meadow_coast');
- if(coast)coast.active=!meadow?.active;
+ // full8 plan E: ONE far stand-in on the horizon in the meadow's bearing (−11.6,−0.91,492.0), scale 0.7, yaw 180. It replaces
+ // far_meadow_coast and the (already off) far_island_lighthouse. Until 场景设计部's far_meadow_impostor mesh lands, the coast card
+ // is the placeholder at the same transform.
+ let standin:Node|null=null;
+ if(!planE){if(coast)coast.active=!meadow?.active;}
+ else if(standinP){standin=instantiate(standinP);standin.name=SEA_STANDIN_PREFAB;root.addChild(standin);if(coast)coast.active=false;}
+ else if(coast){standin=coast;standin.active=true;}
+ if(planE&&standin){standin.setWorldPosition(SEA_STANDIN.pos[0],SEA_STANDIN.pos[1],SEA_STANDIN.pos[2]);standin.setWorldScale(SEA_STANDIN.scale,SEA_STANDIN.scale,SEA_STANDIN.scale);standin.setWorldRotationFromEuler(0,SEA_STANDIN.yawDeg,0);}
+ // reef clusters: 场景设计部's structured cluster when delivered, else the existing sea rocks re-used (0 B) at the same slots
+ const reefs:Node[]=[];for(const at of planE?seaReefSlots(start,end):[]){const src=reefP||findNode(props,'sea_rock_b');if(!src)break;const n=instantiate(src as any) as Node;n.name='sea_reef_cluster';root.addChild(n);n.setWorldPosition(at[0],SAIL_SEA_Y,at[2]);n.setRotationFromEuler(0,at[1]*57.3,0);reefs.push(n);}
  const mid:Vec=[(start[0]+end[0])*0.5,0,(start[2]+end[2])*0.5];
  ['cloud_a','cloud_b','cloud_c','cloud_d','cloud_e','cloud_f'].forEach((name,i)=>{
   const a=i/6*Math.PI*2;place(findNode(clouds,name),mid[0]+Math.cos(a)*150,38+(i%3)*12,mid[2]+Math.sin(a)*150);
@@ -470,6 +489,25 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  };
  const worldNight=()=>{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}};
  if(worldNight())nightLook(true);
+ const reveal=createSeaReveal();let prewarmLeft=SEA_PREWARM_FRAMES,lastT=0,moved=false,lowlandRestored=false;
+ const meadowRenderers=meadow?meadow.getComponentsInChildren(MeshRenderer).filter(r=>!SEA_ALWAYS_DRAWN.test(r.node.name)):[];
+ const showMeadow=(on:boolean)=>{for(const r of meadowRenderers){const m:any=(r as any).model;if(r.isValid&&m&&m.enabled!==on&&r.enabled)m.enabled=on;}};
+ const boxOf=(r:MeshRenderer):SeaBox|null=>{const b=(r as any).model?.worldBounds;if(!b)return null;const c=b.center,h=b.halfExtents;return {min:[c.x-h.x,c.y-h.y,c.z-h.z],max:[c.x+h.x,c.y+h.y,c.z+h.z]};};
+ // per-renderer boxes; sunk lowland meshes only count north of SEA_LOWLAND.zMax (south of it they are under the sea)
+ const boundsOf=(rs:MeshRenderer[]):SeaBox[]=>rs.map(r=>{const b=boxOf(r);if(b&&planE&&SEA_LOWLAND.meshes.test(r.node.name))return seaClipLowland(b);return b;}).filter((b):b is SeaBox=>!!b);
+ let realBox:SeaBox[]|null=null,standinBox:SeaBox[]|null=null;
+ const restoreLowland=()=>{if(lowlandRestored)return;lowlandRestored=true;for(const h of lowlandHome)if(h.r.isValid)h.r.mesh=h.mesh;};
+ const revealStep=(t:number,cam:Vec,aim:Vec|undefined)=>{
+  if(!meadow||!planE)return;
+  if(prewarmLeft>0){prewarmLeft--;showMeadow(true);if(standin)standin.active=true;return;}/* set-off cover is black: draw the real meadow once */
+  if(reveal.phase!=='real'){
+   if(!realBox)realBox=boundsOf(meadowRenderers);if(!standinBox&&standin)standinBox=boundsOf(standin.getComponentsInChildren(MeshRenderer));
+   const vs=view.getVisibleSize(),asp=vs.width/Math.max(1,vs.height),pose={position:cam,target:aim||[cam[0],cam[1],cam[2]+1] as Vec,fovVerticalDeg:worldCam?.fov??45};
+   const ph=reveal.step(t,!!standinBox&&standinBox.some(b=>boxInFrustum(pose,asp,b)),!!realBox&&realBox.some(b=>boxInFrustum(pose,asp,b)));
+   if(ph==='real'){if(standin)standin.active=false;showMeadow(true);try{console.info('[QF_SEA_REVEAL] '+JSON.stringify({t:+t.toFixed(2),deferredS:+reveal.deferredS.toFixed(2)}));}catch{}}
+   else{showMeadow(false);if(standin)standin.active=true;}
+  }
+ };
  let time=0,cruise=4.4,savedNear:number|null=null,savedFar:number|null=null,worldCam:Camera|null=null;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
  const shoreHidden:MeshRenderer[]=[];
@@ -519,7 +557,7 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  try{director.on(Director.EVENT_BEFORE_DRAW,applyOverride);director.on(Director.EVENT_BEFORE_DRAW,traceCloud);}catch{/* QA stills only */}
  return {
   boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
-  sync(v,cam,dt,night,aim?:Vec){
+  sync(v,cam,dt,night,aim?:Vec,t?:number){
    (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=true;
    takeIslandSea();
    time+=Math.max(0,dt);
@@ -567,9 +605,12 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
    if(cloudLayer&&cloudLayer.active)cloudLayer.setWorldPosition(cam[0],layerHome?layerHome[1]:cloudLayer.worldPosition.y,cam[2]);
    if(sole.isValid)sole.active=(globalThis as any).__QF_SAIL_SOLE!==0;
    hideCloseShore(cam);
+   if(Number.isFinite(t))lastT=t!;revealStep(lastT,cam,aim);
+   if(v.speed>0.05)moved=true;else if(moved&&reveal.phase==='real')restoreLowland()/* docked: original vertices back exactly */;
   },
   dispose(){
    (globalThis as any).__QF_SAIL_HOLD_ISLAND_FX=false;
+   restoreLowland();showMeadow(true);
    try{director.off(Director.EVENT_BEFORE_DRAW,applyOverride);director.off(Director.EVENT_BEFORE_DRAW,traceCloud);}catch{/* already torn down */}
    for(const r of shoreHidden)if(r.isValid)r.enabled=true;
    for(const r of hidden)if(r.isValid)r.enabled=true;

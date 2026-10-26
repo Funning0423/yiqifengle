@@ -228,7 +228,7 @@ export function createSailDriver(opts:{
   if(opts.boat)placeBoat(opts.boat,v.pos,v.yaw,v.roll);
   if(seated()&&opts.rider){opts.rider.setPosition(0,0,0);opts.rider.setRotationFromEuler(0,0,0);drawSeated();}
   const pose=sailCamera(opts.timeline,opts.route,t,viewSize());
-  opts.art?.sync(v,pose.position,dt,sailNight(),pose.target);
+  opts.art?.sync(v,pose.position,dt,sailNight(),pose.target,t);
  };
  return {
   get t(){return t;},
