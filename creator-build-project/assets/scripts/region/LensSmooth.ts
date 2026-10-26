@@ -42,8 +42,11 @@ export class OffsetSmoother{
   const dy=wrapDeg(ty-this.y);/* p0drag11: yawDir ±1 = go round that way (detour past a wall) */
   {const d=yawDir&&Math.sign(dy)!==yawDir?dy+360*yawDir:dy,A=this.capA||LENS_SMOOTH.yawAccDegS2,V=this.capV||LENS_SMOOTH.yawOursDegS;
    /* p0drag13: eased + capped yaw — target speed is what can still stop in time (√(2A|d|)), the speed changes by ≤ A·t */
-   const want=Math.sign(d)*Math.min(V,Math.sqrt(2*A*Math.abs(d))),nv=this.vy+Math.max(-A*t,Math.min(A*t,want-this.vy));
-   let ny=this.y+nv*t;if(Math.abs(d)<0.05&&Math.abs(nv)<A*t){ny=this.y+d;this.vy=0;}else this.vy=nv;this.y=ny;void yawBoost;void yawMaxDegS;}/* p0drag11: the yaw spring is also stiffer while she is hidden *//* p0drag10: yaw alone may go ×yawBoost while she is hidden (yaw is not a user-felt pitch/height limit) */
+   /* full9 (p0drag13 K1 skxd_pock accPeak 671): the continuous √(2A|d|) brake overshot by a fraction of a degree in discrete steps, reversed
+    * (−7 °/s) and was then snapped onto the target (+3 °/s → 0 in one 15 ms frame). Discrete-exact brake: the speed that still stops
+    * within d when it may drop by A·t per step (v = A·t·(√(¼ + 2|d|/(A·t²)) − ½)); never step past the target (land on it, v → 0, |Δv| ≤ A·t). */
+   const ad=Math.abs(d),Ab=0.8*A/* brake profile at 0.8 A: the frame dt varies (12–21 ms), so the last step still lands within A·t */,vs=Ab*t*(Math.sqrt(0.25+2*ad/(Ab*t*t))-0.5),want=Math.sign(d)*Math.min(V,vs),nv=this.vy+Math.max(-A*t,Math.min(A*t,want-this.vy));
+   let ny=this.y+nv*t;if((ad<0.05&&Math.abs(nv)<=A*t)||(Math.sign(nv)===Math.sign(d)&&Math.abs(nv*t)>=ad&&Math.abs(nv)<=A*t)){ny=this.y+d;this.vy=0;}else this.vy=nv;this.y=ny;void yawBoost;void yawMaxDegS;}/* p0drag11: the yaw spring is also stiffer while she is hidden *//* p0drag10: yaw alone may go ×yawBoost while she is hidden (yaw is not a user-felt pitch/height limit) */
   [this.e,this.ve]=f(this.e,this.ve,te,LENS_SMOOTH.elevDegS*boost);
   [this.a,this.va]=f(this.a,this.va,ta,LENS_SMOOTH.armMS*boost);
   return [this.y,this.e,this.a];}
