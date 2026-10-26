@@ -4,7 +4,11 @@ import { warmButtonPairGeometry } from './WarmButtonGeometry';
 const LAYER=1<<18;
 const MAX_BYTES=8*1024*1024;
 type Frames=[SpriteFrame,SpriteFrame];
-type Entry={key:string,width:number,height:number,ivory:boolean,refs:number,texture:RenderTexture|null,frames:Frames|null,bytes:number,clients:Set<(f:Frames)=>void>};
+/** Extra frames a bake may wait for the RT before the flat fallback (full6 P2). */
+export const WARM_BAKE_RETRIES=2;
+/** Middle row of the side-by-side RT: both faces (centre of each half) must be opaque. Pure. */
+export function warmFacesOpaque(row:ArrayLike<number>|null|undefined,w?:number):boolean{if(!row)return false;const half=w??Math.floor(row.length/8);if(row.length<half*2*4)return false;return row[Math.floor(half/2)*4+3]>=250&&row[Math.floor(half*1.5)*4+3]>=250;}
+type Entry={key:string,width:number,height:number,ivory:boolean,refs:number,texture:RenderTexture|null,frames:Frames|null,bytes:number,clients:Set<(f:Frames)=>void>,tries?:number};
 const caches=new WeakMap<Node,SkinCache>();
 
 /** One serial offscreen baker per scene, one paired RT per shared style. No update loop. */
@@ -65,14 +69,19 @@ class SkinCache {
   }
   private finish(){
     const e=this.current;if(this.dead||!e)return;
+    // P2 (Mac full5 06:01:04, home→island crossing-out): on a heavy frame (scene/camera set changing) the bake camera enabled
+    // this frame may not have rendered into the RT yet by AFTER_DRAW → transparent readback → flat fallback + warn. Give the
+    // SAME bake up to WARM_BAKE_RETRIES more frames before giving up (camera stays on, still one readback per frame, bounded).
+    const live=!!(e.refs&&isValid(this.scene,true)&&e.texture),row0=live?this.readRow(e):null;
+    if(live&&(e.tries||0)<WARM_BAKE_RETRIES&&!warmFacesOpaque(row0)){e.tries=(e.tries||0)+1;director.once(Director.EVENT_AFTER_DRAW,this.finish,this);return;}
     this.stopDraw();this.current=null;
     if(e.refs&&isValid(this.scene,true)&&e.texture){
       try{
         const w=e.texture.width/2,h=e.texture.height;
         // One bounded GPU readback per style, never per press/frame. A shader that failed
         // silently must not clear the still-clickable fallback and leave an invisible button.
-        const row=e.texture.readPixels(0,Math.floor(h/2),w*2,1);
-        if(!row||row.length<w*2*4||row[Math.floor(w/2)*4+3]<250||row[Math.floor(w*1.5)*4+3]<250)throw Error('Button RT did not produce both opaque faces');
+        const row=row0;
+        if(!warmFacesOpaque(row,w))throw Error('Button RT did not produce both opaque faces');
         const frames=[] as SpriteFrame[];
         // Assign early so partially failed frame allocation is also owned and released.
         e.frames=frames as Frames;
@@ -86,6 +95,7 @@ class SkinCache {
     }else this.drop(e);
     this.pump();
   }
+  private readRow(e:Entry):ArrayLike<number>|null{try{const t=e.texture!;return t.readPixels(0,Math.floor(t.height/2),t.width,1) as any;}catch{return null;}}
   private stopDraw(){
     director.off(Director.EVENT_AFTER_DRAW,this.finish,this);
     if(isValid(this.camera,true)){this.camera.enabled=false;this.camera.targetTexture=null;}
