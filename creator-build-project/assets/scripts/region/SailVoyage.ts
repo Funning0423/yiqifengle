@@ -11,7 +11,7 @@ import {sailBeats, sailCamera, sailM0World, sailSpeed, sailVehicle, type SailScr
  * OFF by default (SAIL_VOYAGE.enabled): the approved sailCamera and its gold stills are untouched until Grok Bot signs off.
  * Continuity: S-a/S-b and the first `blendS` of S-c are blended from sailCamera (first frame = live K1 lens). No cuts.
  */
-export const SAIL_VOYAGE={enabled:false,extraCruiseS:3.6/* 45 s cap − 41.4 s measured whole transition */,blendS:2.0,
+export const SAIL_VOYAGE={enabled:false,extraCruiseS:3.6/* 45 s cap − 41.4 s measured whole transition */,blendS:2.0,destScale:1/* 场景设计部: apparent scale of the destination (stand-in) vs the full meadow */,
  dest:null as Vec|null/* override; default sailM0World() = meadow mouth from the node anchors */} ;
 type Off={back:number;side:number;up:number;fov:number;look:number};
 // back: along boat→dest bearing (negative = between her and the destination); side: + = left of the bearing.
@@ -20,24 +20,31 @@ const DEP:Off={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8};
 /** Port bow, low, looking back-starboard across her: open water + horizon, the destination behind the lens (scan 2026-10-26). */
 const SEA:Off={back:-6,side:8.5,up:3.6,fov:52,look:0.2};
 /** Port quarter astern on the destination line: the meadow grows ahead over her shoulder. */
-const APP:Off={back:9.2,side:2,up:4.6,fov:46,look:3.2};
+const APP_FULL:Off={back:12,side:2,up:3,fov:66,look:3.2};
+/** Small / scaled destination: higher, tighter, so it still lands ~30–40 % of frame height at the berth. */
+const APP_SMALL:Off={back:9.2,side:2,up:7,fov:46,look:3.2};
+/** Approach pose by destination scale k (SAIL_VOYAGE.destScale; 1 = the full-size meadow, 0.25 = scaled stand-in). */
+function appOff(k:number=SAIL_VOYAGE.destScale):Off{const u=clamp((1-k)/0.75),f=(a:number,b:number)=>lerp(a,b,u);
+ return {back:f(APP_FULL.back,APP_SMALL.back),side:2,up:f(APP_FULL.up,APP_SMALL.up),fov:f(APP_FULL.fov,APP_SMALL.fov),look:3.2};}
 /** Progress windows (fraction of route length). Swings are long so the bearing turn stays ≤ 90°/s on short routes. */
 export const SAIL_VOYAGE_P={dep1:0.06,sea0:0.30,sea1:0.70,app0:0.90} as const;
 const clamp=(x:number)=>Math.min(1,Math.max(0,x));
 const sm=(u:number)=>{const t=clamp(u);return t*t*t*(t*(t*6-15)+10);};
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
-function arc(a:Off,b:Off,u:number):Off{
+function arc(a:Off,b:Off,u:number,fovLead=1):Off{
  const s=sm(u);let ta=Math.atan2(a.side,a.back),tb=Math.atan2(b.side,b.back),d=tb-ta;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
  const th=ta+d*s,r=lerp(Math.hypot(a.back,a.side),Math.hypot(b.back,b.side),s);
- return {back:Math.cos(th)*r,side:Math.sin(th)*r,up:lerp(a.up,b.up,s),fov:lerp(a.fov,b.fov,s),look:lerp(a.look,b.look,s)};
+ // Mid-swing the look point pulls onto her seat (−0.55 m), so the off-axis bearing cannot push her head past the frame edge.
+ const w=0.6*Math.sin(Math.PI*s)**2,sf=sm(u/fovLead);
+ return {back:Math.cos(th)*r,side:Math.sin(th)*r,up:lerp(a.up,b.up,s),fov:lerp(a.fov,b.fov,sf),look:lerp(a.look,b.look,s)*(1-w)-0.55*w};
 }
 export function voyageOffset(p:number):Off{
  const P=SAIL_VOYAGE_P;
  if(p<=P.dep1)return DEP;
  if(p<P.sea0)return arc(DEP,SEA,(p-P.dep1)/(P.sea0-P.dep1));
  if(p<=P.sea1)return SEA;
- if(p<P.app0)return arc(SEA,APP,(p-P.sea1)/(P.app0-P.sea1));
- return APP;
+ if(p<P.app0)return arc(SEA,appOff(),(p-P.sea1)/(P.app0-P.sea1),0.25)/* FOV settles before the meadow enters: widening on approach would shrink it */;
+ return appOff();
 }
 /** Voyage timeline: same beats as sailBeats, S-d cruise longer by extraCruiseS (slower hull, never faster). */
 export function voyageBeats(routeM:number,extra:number=SAIL_VOYAGE.extraCruiseS):SailTimeline{

@@ -23,10 +23,10 @@ function raster(cam,screen,v,sc={},res=4){
  // sea: concentric rings so near-plane clipping stays accurate
  const cx=o[0],cz=o[2];for(const [r0,r1] of [[0,20],[20,120],[120,2000]])for(let a=0;a<32;a++){const a0=a/32*Math.PI*2,a1=(a+1)/32*Math.PI*2,P=(rr,aa)=>[cx+Math.sin(aa)*rr,SEA,cz+Math.cos(aa)*rr];soup(quad(P(r0,a0),P(r1,a0),P(r1,a1),P(r0,a1)),4);}
  if(sc.occluder){const {z,h,w}=sc.occluder;soup(quad([-w,SEA,z],[w,SEA,z],[w,SEA+h,z],[-w,SEA+h,z]),5);}
- if(v)for(const m of L.scene().boat)soup(m.tris,3,p=>L.boatWorld(v,p));
+ if(v&&!sc.noBoat)for(const m of L.scene().boat)soup(m.tris,3,p=>L.boatWorld(v,p));
  let n=0,y0=1e9,y1=-1,horizon=null;for(let y=0;y<H;y++){let seaRow=false;for(let x=0;x<W;x++){const c=id[y*W+x];if(c===1){n++;if(y<y0)y0=y;if(y>y1)y1=y;}if(c===4)seaRow=true;}if(seaRow&&horizon==null)horizon=y/H;}
  let sea=0;for(let i=0;i<W*H;i++)if(id[i]===4)sea++;
  const head=v?toCam(L.boatWorld(v,L.GIRL.head)):null,ndc=head&&head[2]>0?[head[0]/(head[2]*th*asp),head[1]/(head[2]*th)]:null;
- return {islandH:n?(y1+1-y0)/H:0,islandArea:n/(W*H),seaArea:sea/(W*H),horizon,headNdc:ndc};
+ return {islandBox:n?[y0/H,(y1+1)/H]:null,islandH:n?(y1+1-y0)/H:0,islandArea:n/(W*H),seaArea:sea/(W*H),horizon,headNdc:ndc};
 }
 module.exports={L,leg,raster,meadowTris,SEA};
