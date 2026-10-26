@@ -25,6 +25,8 @@ import {setMooringRopes} from './SkyMooringRopes';
 import {basketObstacleEvent} from './BasketObstacles';
 import {b1PreWalk,b1DoorPath} from './BalloonB1Start';
 import {followPose} from './ExploreCameraCore';
+import {camTag} from './CamTraceLog';
+import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -293,6 +295,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token,VEHICLE_ASSET_WAIT_MS);token.check();
  prefab.addRef();
  const owned:Array<{destroy():void}>=[],rig=new Node('RegionJourney-skycity');rig.active=false;opts.parent.addChild(rig);
+  let boardSrc:RegionBoardSource|null=null;
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
   const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
@@ -300,7 +303,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const domeYaw0=new Map<Node,[number,number,number]>();
   let restoreSailLeft=()=>{};
   let landRopeOn=false;
-  const release=()=>{if(dead)return;dead=true;try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  const release=()=>{if(dead)return;dead=true;if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
@@ -311,12 +314,18 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   publishFlight(json);
   const postFrame=postSeamFrame(json);
   model=mountRegion(REGIONS.skycity,prefab,rig);
+  // full6-cam P1 (Mac 45f601b1 L11 810→811): the board copy's own root transform, for the skycity board source below
+  const boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);
   model.getComponent(SkycityCloudsea)!.setFlightHidden(true);
   for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
   const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');
   await waitRegionAsset(ambient.prepare(),token,VEHICLE_ASSET_WAIT_MS);token.check();
   model.setRotationFromEuler(0,0,0);model.setPosition(0,0,0);
   const city=placeLiveSkycity(model,meadow,opts.start);
+  // full6-cam P1: the balloon lease never registered the skycity board source (only the sail/meadow builder does), so on arrival
+  // regionBoardHandoff and regionLandingToBoard both returned 'no-board-pose' and enter-level played the generic push-in = the
+  // basket-door close-up hard-cut to the board (L9 / L11, any stage entered from the balloon arrival). Same map as the adapter's.
+  try{boardSrc=balloonBoardSource(model,boardLocal);setRegionBoardSource('skycity',boardSrc);}catch(e){boardSrc=null;console.error('[QF_REGION] skycity board source unavailable: '+String(e));}
   const mp=meadow.worldPosition,meadowFrame:Rigid={yawDeg:meadow.eulerAngles.y,origin:[mp.x,mp.y,mp.z]};
   model.active=false;
   showNamed(model,ALWAYS_HIDDEN,false);
@@ -563,7 +572,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
        const live=liveWorldPose(),fs0=(view as any)?.getFrameSize?.(),fw=fs0?.width||390,fh=fs0?.height||844,c0=plan.camera(0);let pt=0,fol:Pose|null=null;
        const preDraw=()=>{if(dead||!girl||!isValid(girl,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));pt+=dt;const g=girl.worldPosition,e=girl.eulerAngles;
         const want=followPose([g.x,g.y,g.z],e.y*Math.PI/180,fw,fh);fol=fol?blendPose(fol,want,1-Math.exp(-dt*3)):want;let p=fol;
-        if(live&&pt<1)p=blendPose(live,p,minJerk(pt/1));const left=pre.durationS-pt;if(left<1.5)p=blendPose(p,c0,minJerk(1-Math.max(0,left)/1.5));world.setCamera(p);};
+        if(live&&pt<1)p=blendPose(live,p,minJerk(pt/1));const left=pre.durationS-pt;if(left<1.5)p=blendPose(p,c0,minJerk(1-Math.max(0,left)/1.5));camTag('BalloonTransit:prewalk');world.setCamera(p);};
        director.on(Director.EVENT_BEFORE_DRAW,preDraw);
        try{await actor.perform({kind:'walk',path:pre.path.map(l=>worldOf(meadow,l)),duration:pre.durationS,stopAtEnd:true} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);}rideToken.check();
        emitTransitCue('node-arrive',{t:0,region:'meadow',node:'gate'});console.info('[QF_B1_PREWALK] '+JSON.stringify({from:pre.fromKey,m:+pre.lengthM.toFixed(2),planS:+pre.durationS.toFixed(2),realS:(Date.now()-t0)/1000}));}
@@ -577,7 +586,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,transitionOccluderBoxes() as any,undefined,[cam0]);}catch{spotB1=null;}
     const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
     const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
-    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));world.setCamera(b1Lens());paint(0);if(flame)flame.active=false;
+    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));camTag('BalloonTransit:B1');world.setCamera(b1Lens());paint(0);if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
@@ -610,7 +619,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const sample=plan.vehicle(t);
     vehicle.setWorldPosition(sample.pos[0],sample.pos[1],sample.pos[2]);
     const qq=balloonQuat(sample.yaw*180/Math.PI,sample.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
-    const fs=(view as any)?.getFrameSize?.(),pose=plan.camera(t,fs?{w:fs.width,h:fs.height}:undefined)/* b19: seam framing is aspect-aware */;world.setCamera(pose);
+    const fs=(view as any)?.getFrameSize?.(),pose=plan.camera(t,fs?{w:fs.width,h:fs.height}:undefined)/* b19: seam framing is aspect-aware */;camTag('BalloonTransit:flight');world.setCamera(pose);
     const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
     paint(t);
@@ -656,7 +665,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
     try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
     const b5Lens=():Pose|null=>{if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/BASKET_CLOSE.blendOutS));};
-    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p)world.setCamera(p);}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
+    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
      const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);
@@ -689,6 +698,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
 /** full6: the live 3D world camera pose (lowest-priority enabled camera rendering the DEFAULT layer), for a no-step lens start. */
 function liveWorldPose():Pose|null{try{const cams=(director.getScene()?.getComponentsInChildren(Camera)||[]).filter(c=>c.enabledInHierarchy&&(c.visibility&Layers.Enum.DEFAULT)).sort((a,b)=>a.priority-b.priority);const c=cams[0];if(!c)return null;
  const p=c.node.worldPosition,f=c.node.forward;return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:c.fov};}catch{return null;}}
+/** full6-cam P1: board copy (board rig coords, boardLocal = prefab root transform) ↔ this placed journey copy (world), as
+ *  RegionJourneyAdapter.journeyBoardSource: toJourney = J·B⁻¹, toBoard = its inverse; skycity framing anchors from the journey copy. */
+export function balloonBoardSource(model:Node,boardLocal:Mat4):RegionBoardSource{
+ const J=new Mat4();Mat4.copy(J,model.worldMatrix);const Bi=new Mat4();Mat4.invert(Bi,boardLocal);const M=new Mat4();Mat4.multiply(M,J,Bi);const Mi=new Mat4();Mat4.invert(Mi,M);
+ const tf=(m:Mat4)=>(p:Vec):Vec=>{const v=new Vec3(p[0],p[1],p[2]);Vec3.transformMat4(v,v,m);return [v.x,v.y,v.z];};
+ const mm=M as any;for(let i=0;i<16;i++)if(!Number.isFinite(mm['m'+String(i).padStart(2,'0')]))throw Error('region-board-map-invalid');
+ return {region:'skycity',map:{toJourney:tf(M),toBoard:tf(Mi)},anchors:{spawn:anchor(model,'anchor_spawn_girl'),court:anchor(model,'anchor_starcourt_center')}};
+}
 function worldOf(model:Node,local:Vec):Vec{const v=new Vec3(local[0],local[1],local[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];}
 function findCamera():Node|null{const scene=director.getScene();if(!scene)return null;const cams=scene.getComponentsInChildren(Camera);const world=cams.find(c=>c.node.name!=='WorldNavigationCamera'&&c.visibility!==0);return (world??cams[0])?.node??null;}
 function loadGradeEffect():Promise<EffectAsset|null>{

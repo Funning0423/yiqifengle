@@ -2,6 +2,7 @@ import { DEBUG } from 'cc/env';
 /** Full world-snapshot console line: debug builds or explicit opt-in only. */
 export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{return !!debug||optIn===true;}
 import { createRegionJourney } from '../region/RegionJourneyAdapter';
+import { camTag } from '../region/CamTraceLog';
 import type { JourneyRegion } from './RegionJourneyCore';
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
 import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry, view } from 'cc';
@@ -473,7 +474,7 @@ export class WorldFlowComponent extends Component {
           let path:Pose[]|null=null;try{path=this.enterLevelLook();}catch(error){console.warn('enter-level shot skipped',String(error));}
           if(!path)return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});
           const track=createCameraTrack(camera,path,'world.enterLevel',{easeIn:0.14,easeOut:0.4});
-          return this.run(ENTER_LEVEL_SHOT_S,token,p=>{this.noteCinematic();track.tick(p);});
+          return this.run(ENTER_LEVEL_SHOT_S,token,p=>{this.noteCinematic();camTag('enter-level');track.tick(p);});
         },
         animateCamera:(path,seconds,t,options,progress,onSample)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
