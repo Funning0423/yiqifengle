@@ -18,8 +18,12 @@ Object.assign(console,orig);
 ok(on0===false,'default off');ok(CP.cameraWriteHook.log===null,'off: no hook installed');ok(L.camLog.tag==='','off: camTag inert');
 ok(logs.filter(l=>/QF_CAM_TRACE/.test(l[1])).length===0&&logs.length===0,'off: no console output '+JSON.stringify(logs));
 ok(L.camLogStart('?camTrace=1',{})===false,'switch read once per page');
+// full8: __QF_CAM_TRACE accepts exactly true / 1 / '1' ('true'); everything else stays off
+for(const v of [true,1,'1','true'])ok(L.camLogEnabled('',{__QF_CAM_TRACE:v})===true,'switch on for '+JSON.stringify(v));
+for(const v of [false,0,'0','false','',null,undefined,2,'yes',{}])ok(L.camLogEnabled('',{__QF_CAM_TRACE:v})===false,'switch off for '+JSON.stringify(v));
+ok(L.camLogEnabled('?camTrace=1',{})===true&&L.camLogEnabled('?camTrace=0',{})===false&&L.camLogEnabled('',null)===false,'query switch');
 // ON (query) and ON (global)
-for(const [qs,g] of [['?a=2&camTrace=1',{}],['',{__QF_CAM_TRACE:1}]]){
+for(const [qs,g] of [['?a=2&camTrace=1',{}],['',{__QF_CAM_TRACE:1}],['',{__QF_CAM_TRACE:true}],['',{__QF_CAM_TRACE:'1'}]]){
  logs.length=0;L.camLogReset();console.log=cap('log');console.warn=cap('warn');console.error=cap('error');
  const on=L.camLogStart(qs,g);
  L.camTag('BalloonTransit:B1');write(P(0,0),'world.setCamera');
