@@ -23,4 +23,4 @@
 │ 19      │ 'S5' │ '390x520'  │ 9     │ 10.8 │ 0.1    │ 0      │ 0.039 │ 0.806     │ 0       │ 0       │ 0         │ 0         │ 0        │ 0          │ 180     │
 │ 20      │ 'S5' │ '768x1024' │ 9     │ 10.8 │ 0.1    │ 0      │ 0.039 │ 0.806     │ 0       │ 0       │ 0         │ 0         │ 0        │ 0          │ 180     │
 └─────────┴──────┴────────────┴───────┴──────┴────────┴────────┴───────┴───────────┴─────────┴─────────┴───────────┴───────────┴──────────┴────────────┴─────────┘
-{"test":"sky-resume-follow","lens":"SkyResumeLens.planSkyResume (shipped, 1.1 m vs real-mesh voxels)","mode":"gate","rowsFailing":0,"bakedMiss":0,"marginMin":0.08,"yawRowsFailing":0,"status":"PASS"}
+{"test":"sky-resume-follow","lens":"SkyResumeLens baked plan (SkyResumePlans) + damped heading, 1.1 m vs real-mesh voxels","mode":"gate","rowsFailing":0,"bakedMiss":0,"marginMin":0.08,"yawRowsFailing":0,"status":"PASS"}
