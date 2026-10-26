@@ -61,10 +61,18 @@ export function routeKeys(region:RegionId,fromKey:string,toKey:string):{keys:str
  for(let i=1;i<keys.length;i++){const e=undirected(region,keys[i-1],keys[i])!;if(path.length)path.pop();for(let p=0;p<e.path.length;p++)path.push(e.path[p]);lengthM+=e.lengthM;}
  return {keys,path,lengthM};
 }
+/** full9c (Grok Bot / 运镜bot finale S6): edge lengthM is the DECLARED (baked) length and differs from the polyline by up to 1.05 m
+ *  (skycity S4–S6 31.12 vs 32.168). Slicing at the declared length stopped walks short of the target node (finale: 1.048 m before S6)
+ *  and the fixed CUT_RUN_M duration made the real speed ≠ WALK_SPEED_MPS. Root fix, shared walker: the last run ENDS ON THE TARGET NODE
+ *  (snap — no skipped interior vertex is re-added, so the arrival heading of the final run is kept) and every run's duration is its measured
+ *  polyline length / WALK_SPEED_MPS (speed unchanged). Head runs / start points are unchanged. */
+function endOn(seg:Vec[],node:Vec):Vec[]{const out=seg.slice();if(segLen(out[out.length-1],node)>1e-6){if(out.length>1)out[out.length-1]=node;else out.push(node);}return out;}
+function run(path:Vec[]):WalkSegment{return {path,duration:pathLength(path)/WALK_SPEED_MPS};}
 function clip(path:readonly Vec[],lengthM:number):WalkPlan{
- if(lengthM<=DIRECT_MAX_M)return {segments:[{path,duration:lengthM/WALK_SPEED_MPS}],cut:false,fades:0,lengthM};
- const head=slicePath(path,0,CUT_RUN_M),tail=slicePath(path,Math.max(0,lengthM-CUT_RUN_M),lengthM);
- return {segments:[{path:head,duration:CUT_RUN_M/WALK_SPEED_MPS},{path:tail,duration:CUT_RUN_M/WALK_SPEED_MPS}],cut:true,fades:1,lengthM};
+ const node=path[path.length-1];
+ if(lengthM<=DIRECT_MAX_M){const p=path.slice();return {segments:[run(p)],cut:false,fades:0,lengthM:pathLength(p)};}
+ const head=slicePath(path,0,CUT_RUN_M),tail=endOn(slicePath(path,Math.max(0,lengthM-CUT_RUN_M),lengthM),node);
+ return {segments:[run(head),run(tail)],cut:true,fades:1,lengthM};
 }
 export function planWalk(region:RegionId,fromKey:string,toKey:string):WalkPlan{
  const route=routeKeys(region,fromKey,toKey);return clip(route.path,route.lengthM);
@@ -73,8 +81,8 @@ export function planWalk(region:RegionId,fromKey:string,toKey:string):WalkPlan{
 export function planSkip(region:RegionId,fromKey:string,toKey:string):WalkPlan{
  const route=routeKeys(region,fromKey,toKey);
  const start=Math.max(0,route.lengthM-SKIP_REMAIN_M);
- const path=slicePath(route.path,start,route.lengthM);
- const remain=Math.max(0,route.lengthM-start);
+ const path=endOn(slicePath(route.path,start,route.lengthM),route.path[route.path.length-1])/* full9c: ends on the node */;
+ const remain=pathLength(path);
  return {segments:[{path,duration:remain/WALK_SPEED_MPS}],cut:true,fades:1,lengthM:remain};
 }
 function closestOnPath(path:readonly Vec[],p:Vec):{dist:number;along:number;point:Vec}{

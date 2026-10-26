@@ -3,7 +3,7 @@
 // HARD: stand = S6 node; stand ≤ 0.3 m from the mooring walk start (S6) and skyLakePreWalk(stand) === null (SKY_LAKE_AT_S6_M 0.6 m);
 //       held T-02 pose (SKY_FINALE_POSE_LOCAL) on all 7 screens: her margin ≥ 0.08, face not under the WeChat capsule, head + chest seen
 //       (real mesh), lens ≥ 1.1 m from the real mesh (26 rays) and nothing within 0.35 m.
-// REPORT (until GGbot's playFinale end change lands; QF_FINALE_STAND_STRICT=1 makes it hard): where playFinale's planWalk tail ends today.
+// HARD (GGbot full9c): playFinale's planWalk tail ends ≤ 0.3 m from S6 and triggers no prewalk.
 // Real mesh = route-legs skyJ (Cw frame = skyMooring5a), poses mapped skycity-local → world through skyMooring5a.
 const ROOT=process.cwd();const {createHarness}=require(ROOT+'/tools/board-ui/harness.cjs');const H=createHarness();
 const F=H.load('region/SkyFinaleShot.ts'),NW=H.load('region/NodeWalker.ts'),RN=H.load('region/RegionNodes.ts'),SP=H.load('region/SkyLakePreWalk.ts'),S=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),LS=H.load('region/LensSmooth.ts');
@@ -20,5 +20,5 @@ const D26=[];for(const x of[-1,0,1])for(const y of[-1,0,1])for(const z of[-1,0,1
   playFinaleEndToday:{local:today.map(v=>+v.toFixed(3)),distToS6M:+todayD.toFixed(3),prewalk:SP.skyLakePreWalk(W(today),M)===null?'none':'TRIGGERED',note:'GGbot moves this end to S6 (ggbot/full9c-skyframe)'},
   held:{pose:P,screens:scr,headBlockedBy:hit(pw,head)||'',chestBlockedBy:hit(pw,chest)||'',clr11Rays:clr11,within035Rays:w035}};
  const hard=res.stand.distToS6M<=0.3&&res.stand.prewalk==='none'&&scr.every(s=>s.herMargin>=0.08&&!s.underCapsule)&&!res.held.headBlockedBy&&!res.held.chestBlockedBy&&clr11===0&&w035===0;
- const strict=process.env.QF_FINALE_STAND_STRICT==='1',todayOk=todayD<=0.6&&res.playFinaleEndToday.prewalk==='none';
+ const strict=true/* GGbot full9c: playFinale end now on S6 (NodeWalker end-on-node) — hard */,todayOk=todayD<=0.3&&res.playFinaleEndToday.prewalk==='none';
  const ok=hard&&(!strict||todayOk);console.log(JSON.stringify({test:'finale-stand',...res,todayOk,strict,status:ok?'PASS':'FAIL'},null,1));process.exit(ok?0:1);})().catch(e=>{console.error(e);process.exit(1);});

@@ -2,8 +2,7 @@
 /* full9c skyframe gate (运镜bot: sail chain put env_skycity at seam+Δ, Δ≈(−0.386,−0.187,+26.619); every downstream consumer — post-seam
  * flight keys, touchdown, S0_GAME, skyMooring5a, the baked sky plans — is in flightpath seam.skycityRootWorld).
  * 1) placeLiveSkycity (real code, real GLB anchors) with the meadow at the bridge root AND at sailMeadowRoot(): root == seam within 1 cm, yaw within 0.05°.
- * 2) the real runSkyFinale end vs skyMooring5a S6 is REPORTED (toS6M); its ≤0.3 m assertion lands with the playFinale end-pose change
- *    (运镜bot's recommended pose), set SKYFRAME_FINALE_MAX_M to enforce early.
+ * 2) the real runSkyFinale walk ends ≤ 0.3 m from skyMooring5a's S6 in both chains (no lakeside prewalk step).
  * SKYFRAME_SCRIPTS=<dir> runs it against another scripts tree (fail-before evidence). */
 const J=require('./journey-scene.cjs');const {H,meadowNodes,skyNodes,nodePos,rotY,assert}=J;
 // harness cc has no Vec3.transformQuat (worldYawDeg): standard quaternion rotate
@@ -33,8 +32,8 @@ let walks=[];const ch={perform:(a)=>{walks.push(a.path);return Promise.resolve('
   const d=sub(r.origin,seam.translation),dy=((r.yawDeg-seam.yawDeg)%360+540)%360-180;
   const endW=add(rotY(r.yawDeg,endL),r.origin),pre=len(sub(endW,s6)),preM=pre<=SP.SKY_LAKE_AT_S6_M?0:pre;
   out[k]={meadowRoot:root.map(v=>+v.toFixed(3)),skyRoot:r.origin.map(v=>+v.toFixed(3)),deltaM:d.map(v=>+v.toFixed(3)),errM:+len(d).toFixed(4),yawErrDeg:+dy.toFixed(3),finaleEndLocal:endL.map(v=>+v.toFixed(3)),finaleEndWorld:endW.map(v=>+v.toFixed(3)),toS6M:+pre.toFixed(3),prewalkM:+preM.toFixed(3)};
-  const fm=process.env.SKYFRAME_FINALE_MAX_M?+process.env.SKYFRAME_FINALE_MAX_M:Infinity;if(!(len(d)<=0.01&&Math.abs(dy)<=0.05&&pre<=fm))ok=false;}
+  const fm=process.env.SKYFRAME_FINALE_MAX_M?+process.env.SKYFRAME_FINALE_MAX_M:0.3/* hard since the NodeWalker end-on-node fix */;if(!(len(d)<=0.01&&Math.abs(dy)<=0.05&&pre<=fm))ok=false;}
  console.log(JSON.stringify(out,null,1));
- assert(ok,'skycity root must equal seam.skycityRootWorld (≤1 cm, ≤0.05°) in every chain (and finale ≤ SKYFRAME_FINALE_MAX_M from S6 when set)');
+ assert(ok,'skycity root must equal seam.skycityRootWorld (≤1 cm, ≤0.05°) in every chain and the finale must end ≤ 0.3 m from S6');
  console.log('skycity-root-frame: PASS');
 })().catch(e=>{console.error(e.message);process.exit(1);});
