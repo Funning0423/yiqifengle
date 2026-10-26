@@ -1,7 +1,7 @@
 'use strict';
 // 运镜bot full7-cam: ?camTrace=1 / __QF_CAM_TRACE console trace. Off by default: no hook, no output, camTag inert.
 // On: one well-formed console.log line per write, writer names, CHANGE / JUMP flags. Wiring: every named writer tags itself.
-const fs=require('fs');const {H,S}=require('./journey-scene.cjs');
+const fs=require('fs');const src0=f=>fs.readFileSync(require('./journey-scene.cjs').S+f,'utf8');const {H,S}=require('./journey-scene.cjs');
 const L=H.load(S+'region/CamTraceLog.ts'),CP=H.load(S+'world-r1/CameraPose.ts');
 let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
 const logs=[];const orig={log:console.log,warn:console.warn,error:console.error,info:console.info};
@@ -37,14 +37,22 @@ for(const [qs,g] of [['?a=2&camTrace=1',{}],['',{__QF_CAM_TRACE:1}]]){
  ok(/JUMP=/.test(logs[3][1])&&/CHANGE<-regionBoardHandoff/.test(logs[3][1]),'cut flagged as JUMP');
  const y=+logs[3][1].match(/yaw=(-?[\d.]+)/)[1];ok(Math.abs(Math.abs(y)-40)<1e-3,'yaw decoded '+y);
 }
+// per-frame state lines (camera disabled / world layer off)
+{const out=[];L.camLogReset();L.camLogStart('?camTrace=1',{});L.camLog.out=x=>out.push(x);
+ const c={node:{isValid:true},enabledInHierarchy:true,visibility:(1<<30)|1};L.camLogFrame(c);
+ c.enabledInHierarchy=false;L.camLogFrame(c);c.enabledInHierarchy=true;c.visibility=1;L.camLogFrame(c);c.visibility=(1<<30);L.camLogFrame(c);L.camLogFrame(null);
+ ok(out.length===4&&/^\[QF_CAM_TRACE\] frame=2 CAM_OFF/.test(out[0])&&/frame=3 WORLD_LAYER_OFF vis=0x1$/.test(out[1])&&/frame=4 CAM_OK<-WORLD_LAYER_OFF/.test(out[2])&&/frame=5 CAM_MISSING/.test(out[3]),'state lines '+JSON.stringify(out));
+ L.camLog.out=s=>console.log(s);}
 L.camLogReset();
+{let n=0;const out=[];L.camLog.out=x=>out.push(x);L.camLogFrame(null);ok(out.length===0,'off: camLogFrame silent');L.camLog.out=s=>console.log(s);}
+ok(/lateUpdate\(dt:number\):void \{if\(camLog\.on\)camLogFrame\(this\.worldCamera\);/.test(src0('world-r1/WorldFlowComponent.ts')),'wiring: lateUpdate probe behind camLog.on');
 // wiring
 const src=f=>fs.readFileSync(S+f,'utf8');
 const need={'region/BalloonTransit.ts':['BalloonTransit:prewalk','BalloonTransit:B1','BalloonTransit:flight','BalloonTransit:B5'],'world-r1/RegionJourneyCore.ts':['TransitionCamera','LiveHandoff','RegionJourneyCore:onFrame'],
  'region/RegionJourneyAdapter.ts':['SkyWalkShot'],'world-r1/WorldFlowComponent.ts':['enter-level'],'region/RegionBoardLanding.ts':['regionBoardHandoff','regionLandingToBoard']};
 for(const [f,names] of Object.entries(need)){const s=src(f);for(const n of names)ok(s.includes("camTag('"+n+"')")||s.includes("CT()?.t('"+n+"')")||s.includes("CT()?.d('"+n+"')"),`wiring ${f} tags ${n}`);}
 ok(/\ncamLogStart\(\);\s*$/.test(src('region/CamTraceLog.ts')),'wiring: switch read once at module load');
-ok(/import \{ camTag \} from '\.\.\/region\/CamTraceLog'/.test(src('world-r1/WorldFlowComponent.ts')),'wiring: WorldFlowComponent loads CamTraceLog (init)');
+ok(/import \{ camTag[^}]*\} from '\.\.\/region\/CamTraceLog'/.test(src('world-r1/WorldFlowComponent.ts')),'wiring: WorldFlowComponent loads CamTraceLog (init)');
 {const g={};L.camLogReset();L.camLogStart('',g);ok(g.__qfCamTag===undefined,'off: no __qfCamTag published');L.camLogReset();L.camLogStart('?camTrace=1',g);ok(typeof g.__qfCamTag?.t==='function','on: __qfCamTag published');L.camLogReset();}
 ok(!/console\.(warn|error)/.test(src('region/CamTraceLog.ts')),'CamTraceLog never warns/errors');
 ok(fs.existsSync(S+'region/CamTraceLog.ts.meta'),'meta present');

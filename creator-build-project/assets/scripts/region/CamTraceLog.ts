@@ -32,6 +32,18 @@ export function camLogWrite(camera:any,pose:{position:readonly number[];rotation
  camLog.has=true;camLog.last=w;camLog.lp[0]=x;camLog.lp[1]=y;camLog.lp[2]=z;camLog.ly=yaw;camLog.lpi=pitch;
  camLog.out(s);
 }
+/** Default world layer bit (cc Layers.Enum.DEFAULT = 1<<30). */
+export const CAM_LOG_WORLD_LAYER=1<<30;
+const st={fr:0,bad:''};
+/** Per-frame state probe (WorldFlowComponent.lateUpdate, only inside `if(camLog.on)`): one line per frame while the world camera
+ *  is disabled / missing or its visibility lacks the world layer, and one line when it recovers. */
+export function camLogFrame(camera:any):void{
+ if(!camLog.on)return;st.fr++;
+ const bad=!camera||!camera.node||(camera.node.isValid===false)?'CAM_MISSING':camera.enabledInHierarchy===false||camera.enabled===false?'CAM_OFF':(((camera.visibility|0)&CAM_LOG_WORLD_LAYER)===0?'WORLD_LAYER_OFF':'');
+ if(bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' '+bad+(camera&&typeof camera.visibility==='number'?' vis=0x'+(camera.visibility>>>0).toString(16):''));
+ else if(st.bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' CAM_OK<-'+st.bad);
+ st.bad=bad;
+}
 let started=false;
 /** Read the switch once. Returns whether tracing is on. */
 export function camLogStart(query?:string,g:any=globalThis):boolean{
@@ -42,6 +54,6 @@ export function camLogStart(query?:string,g:any=globalThis):boolean{
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 camLogStart();
