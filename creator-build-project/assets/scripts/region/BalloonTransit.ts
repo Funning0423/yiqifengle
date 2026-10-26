@@ -654,7 +654,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const cues:Array<[number,string]>=Object.entries(json.cues).map(([name,t])=>[t,name]).sort((a,b)=>a[0]-b[0]);
    let dcWorst=0,dcAt=0,frames=0,lastFade=-1;
    let flightFrom:Pose|null|undefined=undefined,flightBlendS=0;
-   const apply=()=>{
+   const apply=(writeCam=true)=>{
     const t=Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)));/* transitions: 30 s ride clock → 36 s flight file */
     const sample=plan.vehicle(t);
     vehicle.setWorldPosition(sample.pos[0],sample.pos[1],sample.pos[2]);
@@ -662,7 +662,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const fs=(view as any)?.getFrameSize?.(),plan0=plan.camera(t,fs?{w:fs.width,h:fs.height}:undefined)/* b19: seam framing is aspect-aware */;
     // full8 P1-a: the flight starts from the LIVE lens (B1 close-up / lens-cleared pose), not a step onto plan.camera(0) (m2: 1.72 m in one 77 ms frame)
     if(flightFrom===undefined){flightFrom=liveWorldPose();const g=flightFrom?Math.hypot(flightFrom.position[0]-plan0.position[0],flightFrom.position[1]-plan0.position[1],flightFrom.position[2]-plan0.position[2]):0;flightBlendS=flightBlendSeconds(g);}
-    const pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;camTag('BalloonTransit:flight');world.setCamera(pose);
+    const pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
     const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
     paint(t);
@@ -683,7 +683,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      const hidden=typeof document!=='undefined'&&!!document.hidden;
      if(inflateT<INFLATE.durationS){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}if(!hidden)inflateT=Math.min(INFLATE.durationS,inflateT+Math.max(0,Math.min(.1,dt)));}
      else if(!(hold!=null&&rideToFlightT(clock.t)>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
-     const t=apply();if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
+     const t=apply(Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)))>=plan.total&&hold==null)/* full9b single writer: beforeDraw writes the lens; the step only on its last frame (beforeDraw is removed below) */;if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
      {const m=t>=LAND_T;if(m!==landRopeOn){landRopeOn=m;setMooringRopes(model,'landing',m);}}/* cand7: landing rope only with the basket down */
      if(contChain&&inflateT>=INFLATE.durationS&&!flightMarked){flightMarked=true;chainMark('balloon','B3-flight');}
      if(contChain&&!settleMarked&&clock.t>=BALLOON_DOOR.settleT0){settleMarked=true;chainMark('balloon','B4-settle');}
