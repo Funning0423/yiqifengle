@@ -3131,8 +3131,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 62074,
-    "sha256": "e8ad43c5d840bdbfa9aa8012dffa6825a72dde52ed34e36f027b0dc79f4df80a"
+    "bytes": 62155,
+    "sha256": "8eefcba3682e756e74b552e29af0db0c1b4bea9f900e7b9c8b82ef9ec6eb983e"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3651,8 +3651,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts",
-    "bytes": 13513,
-    "sha256": "b01666239ef507f0d30a57cbf4f1311eef1991647fad75528a38547ab7b406f3"
+    "bytes": 15351,
+    "sha256": "4946c98287d3551032b977f06f362e532146256925e1f24b881ef27b7d5728cf"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts.meta",
@@ -3661,8 +3661,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts",
-    "bytes": 2292,
-    "sha256": "2c5f169e25abe8bd359a7a5c9c38034486e51d6500741110b9cbc2f015029648"
+    "bytes": 4479,
+    "sha256": "c67b861e05081c09c9d8adb187f24fc7beca2aac9b558a11ffcd7d689ab76596"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts.meta",
@@ -4766,8 +4766,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts",
-    "bytes": 12291,
-    "sha256": "fbbac2e3eeb17fd9c7bc5f6954b07ee6da27186d4c51f61a760ed2caf4c95aed"
+    "bytes": 12447,
+    "sha256": "7ee7e0b5e3285979ee7cb7604ad634c328320bfe0fecf6e911355027df1d2459"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts.meta",
@@ -4866,8 +4866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 55490,
-    "sha256": "30b660654dce1a153735c6b3e26e2c7acc5f357569c2b78e049053cb942c18b5"
+    "bytes": 55762,
+    "sha256": "636dc62ff129f08277c14d5a34fd767c30d0a01cfd1e036818dc738062275b51"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4996,8 +4996,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 25622,
-    "sha256": "5a3f55d488d260895cb03ee4d1b10a0c5ccf0f8e6c7493dc4ffeed9b8e055d91"
+    "bytes": 25686,
+    "sha256": "5cf47cf218f17d704268336ee3df2978d329c932e82340e8acfbf6af974f54d2"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
