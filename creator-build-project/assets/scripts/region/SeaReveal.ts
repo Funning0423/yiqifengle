@@ -1,5 +1,6 @@
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import {debugSearch} from './DebugQuery';
+import {SEA_HANDOFF_REAL,SEA_HANDOFF_STANDIN} from './SeaHandoffBounds';
 /** full8 plan E (场景设计部 PROPOSAL 2026-10-26 sea-distance, Grok Bot approved): the island→meadow sail reads as open sea.
  *  The real meadow is not drawn from the set-off; a small far stand-in sits on the horizon in the meadow's bearing (~480 m).
  *  Handoff stand-in → real meadow at SEA_HANDOFF_T (sail timeline seconds) ONLY when both boxes are outside the camera frustum;
@@ -68,7 +69,7 @@ export function aboveWaterBox(pts:ArrayLike<number>,waterY:number):Box|null{
  for(let i=0;i+2<pts.length;i+=3){if(pts[i+1]<=waterY)continue;any=true;for(let k=0;k<3;k++){a[k]=Math.min(a[k],pts[i+k]);b[k]=Math.max(b[k],pts[i+k]);}}
  return any?{min:a as unknown as Vec,max:b as unknown as Vec}:null;}
 /** Optional fixed bounds from 场景设计部's asset-branch integration notes (world space). null until delivered. */
-export const SEA_BOUNDS_NOTE:{standin:Box[]|null;real:Box[]|null}={standin:null,real:null};
+export const SEA_BOUNDS_NOTE:{standin:Box[]|null;real:Box[]|null}={standin:SEA_HANDOFF_STANDIN as Box[],real:SEA_HANDOFF_REAL as Box[]}/* 73 + 1 boxes, handoff_bounds.json */;
 /** Above-water verts binned into cell×cell m xz tiles, one box per tile: conservative like a bbox but tight enough that the
  *  far-off parts of one big mesh (terrain spans 160 m) do not keep the handoff waiting. */
 export const SEA_TILE_M=4;
@@ -77,3 +78,6 @@ export function aboveWaterTiles(pts:ArrayLike<number>,waterY:number,cell=SEA_TIL
  for(let i=0;i+2<pts.length;i+=3){const y=pts[i+1];if(y<=waterY)continue;const x=pts[i],z=pts[i+2],k=Math.floor(x/cell)+','+Math.floor(z/cell);
   let b=m.get(k);if(!b){b={min:[x,y,z],max:[x,y,z]};m.set(k,b);}else{if(x<b.min[0])b.min[0]=x;if(y<b.min[1])b.min[1]=y;if(z<b.min[2])b.min[2]=z;if(x>b.max[0])b.max[0]=x;if(y>b.max[1])b.max[1]=y;if(z>b.max[2])b.max[2]=z;}}
  return Array.from(m.values()) as unknown as Box[];}
+/** The river stays drawn through the reveal (INTEGRATION.md §2): south of z 45 it is sunk under the sea, north of it is the dug channel
+ *  the boat sails into — water, not island — so it neither hides nor pops at the swap (and is not in the handoff bounds). */
+export const SEA_ALWAYS_DRAWN=/^meadow_river$/;

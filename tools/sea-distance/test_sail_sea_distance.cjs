@@ -11,7 +11,7 @@
 const assert=require('node:assert/strict'),fs=require('fs'),path=require('path');
 const L=require('../transitions/sail_farsea_lib.cjs'),leg=L.leg,voy=L.load('region/SailVoyage.ts',s=>s.includes('TransportLeg')?leg:{});
 const ROOT=path.resolve(__dirname,'../..'),SRC=path.join(ROOT,'creator-build-project/assets/scripts/region');
-const sea=L.load('region/SeaReveal.ts');
+const sea=L.load('region/SeaReveal.ts',s=>s.includes('SeaHandoffBounds')?L.load('region/SeaHandoffBounds.ts'):s.includes('DebugQuery')?{debugSearch:()=>''}:{});
 assert.deepEqual([...sea.SEA_STANDIN.pos],[-5.6,-0.91,242.0]);assert.equal(sea.SEA_STANDIN.scale,.335);assert.equal(sea.SEA_STANDIN.yawDeg,180);
 assert.equal(sea.SEA_HANDOFF_T,17.4);
 // state machine: no swap before 17.4, defers while either box is visible
@@ -30,17 +30,20 @@ for(const m of sc.meadow){const t=m.tris;for(let i=0;i<t.length;i+=3)sp.push(S.p
 const standinT=sea.aboveWaterTiles(sp,SEA_Y,sea.SEA_TILE_M*S.scale),standin=sea.aboveWaterBox(sp,SEA_Y);assert.ok(standin&&standinT.length,'stand-in above water');
 const route=leg.sailRoute(),tl=leg.sailBeats(route.length),st=leg.sailStillTimes(tl);
 assert.ok(tl.build05S<=45,'sail leg '+tl.build05S);
+// runtime uses 场景设计部's handoff bounds (73 real boxes + stand-in) when present — the gate uses exactly those
+if(sea.SEA_BOUNDS_NOTE.real){boxes.length=0;boxes.push(...sea.SEA_BOUNDS_NOTE.real);}
+const standinT2=sea.SEA_BOUNDS_NOTE.standin||null;
 const anyIn=(c,asp,bs)=>bs.some(b=>sea.boxInFrustum(c,asp,b));
 // Lens used for the sweep: shipped sailCamera, with the PROPOSAL §2.2 prototype open-sea lateral shot in 11.4–18.0 s (运镜bot owns the
 // final framing). Also recorded: whether the shipped camera alone ever allows a frustum-safe handoff (it does not → plan E stays opt-in).
 const lens=(t,s,proto)=>proto?voy.sailVoyageCamera(tl,route.samples,t,s)/* 运镜bot 4012da49 plan E lens */:leg.sailCamera(tl,route.samples,t,s);
 const report=[];let shippedHandoff=0;
 for(const s of leg.SAIL_SCREENS){
- const asp=s.w/s.h,sweep=proto=>{const r=sea.createSeaReveal();for(let t=0;t<=tl.build05S+1e-9;t+=1/60){const c=lens(t,s,proto),a=anyIn(c,asp,standinT),b=anyIn(c,asp,boxes);const p=r.phase;r.step(t,a,b);if(p!=='real'&&r.phase==='real')return {t,a,b,r};}return null;};
+ const asp=s.w/s.h,sweep=proto=>{const r=sea.createSeaReveal();for(let t=0;t<=tl.build05S+1e-9;t+=1/60){const c=lens(t,s,proto),a=anyIn(c,asp,standinT2||standinT),b=anyIn(c,asp,boxes);const p=r.phase;r.step(t,a,b);if(p!=='real'&&r.phase==='real')return {t,a,b,r};}return null;};
  const handoff=sweep(true);if(sweep(false))shippedHandoff++;
  assert.ok(handoff,'no handoff on '+s.w+'x'+s.h);
  assert.ok(!handoff.a&&!handoff.b,'swap on screen '+s.w+'x'+s.h);
- assert.ok(handoff.t>=17.4-1e-9&&handoff.t<=18.0,'handoff outside window '+handoff.t);
+ assert.ok(Math.abs(handoff.t-17.4)<1/60+1e-9,'handoff not at 17.400 s: '+handoff.t+' '+s.w+'x'+s.h);
  const frac=(t,b)=>sea.boxScreenFrac(lens(t,s,true),asp,b);
  report.push({screen:s.w+'x'+s.h,handoffT:+handoff.t.toFixed(3),deferredS:+handoff.r.deferredS.toFixed(3),
   standinDock:+frac(0,standin).toFixed(5),standinK2:+frac(st.k2,standin).toFixed(5),realDockMaxTile:+Math.max(...boxes.map(b=>frac(tl.build05S,b))).toFixed(4)});
@@ -57,6 +60,7 @@ assert.match(art,/h\.r\.mesh=h\.mesh/,'restore = original mesh object');
 assert.doesNotMatch(art,/fog/i,'no fog');
 assert.match(art,/mid\[0\]\+Math\.cos\(a\)\*150,38\+\(i%3\)\*12,mid\[2\]\+Math\.sin\(a\)\*150/,'clouds unchanged');
 assert.ok(sea.SEA_LOWLAND.meshes.test('meadow_river'),'river sunk + restored too');
+assert.match(art,/filter\(r=>!SEA_ALWAYS_DRAWN\.test/,'river stays drawn');
 assert.match(art,/far_island_lighthouse/,'lighthouse card still off');
 // sail subpackage
 const DIR=path.join(ROOT,'creator-build-project/assets/bundles/transport_sail');let bytes=0;

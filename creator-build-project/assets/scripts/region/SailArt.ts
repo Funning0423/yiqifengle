@@ -1,5 +1,5 @@
 import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Quat, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils, view} from 'cc';
-import {SEA_LOWLAND,SEA_PREWARM_FRAMES,SEA_STANDIN,SEA_STANDIN_PREFAB,SEA_REEF_PREFAB,boxInFrustum,SEA_BOUNDS_NOTE,aboveWaterTiles,seaRevealEnabled,createSeaReveal,lowlandY,seaReefSlots,type Box as SeaBox} from './SeaReveal';
+import {SEA_LOWLAND,SEA_PREWARM_FRAMES,SEA_STANDIN,SEA_STANDIN_PREFAB,SEA_REEF_PREFAB,boxInFrustum,SEA_ALWAYS_DRAWN,SEA_BOUNDS_NOTE,aboveWaterTiles,seaRevealEnabled,createSeaReveal,lowlandY,seaReefSlots,type Box as SeaBox} from './SeaReveal';
 import {onRealModel} from './TransitionProps';
 import {continuousTransitions} from './TransitionChain';
 import type {Vec} from '../world-r1/WorldFlowCore';
@@ -490,7 +490,7 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  const worldNight=()=>{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}};
  if(worldNight())nightLook(true);
  const reveal=createSeaReveal();let prewarmLeft=SEA_PREWARM_FRAMES,lastT=0,moved=false,lowlandRestored=false;
- const meadowRenderers=meadow?meadow.getComponentsInChildren(MeshRenderer):[];
+ const meadowRenderers=meadow?meadow.getComponentsInChildren(MeshRenderer).filter(r=>!SEA_ALWAYS_DRAWN.test(r.node.name)):[];
  const showMeadow=(on:boolean)=>{for(const r of meadowRenderers){const m:any=(r as any).model;if(r.isValid&&m&&m.enabled!==on&&r.enabled)m.enabled=on;}};
  // handoff test on ABOVE-WATER geometry only (world verts with y > SAIL_SEA_Y, after the lowland sink); notes bounds win
  const boundsOf=(rs:MeshRenderer[]):SeaBox[]=>{const out:SeaBox[]=[];for(const r of rs){if(!r.isValid||!r.enabled)continue;const m=sailMeshReady(r.mesh);if(!m)continue;
