@@ -1,4 +1,4 @@
-import {BASKET_CLOSE,b1InS,basketClosePose,basketCloseSpot} from './BasketCloseShot';
+import {BASKET_CLOSE,b1InS,basketClosePose,basketCloseSpot,meadowLensBoxesWorld,speedSafeS} from './BasketCloseShot';
 import {transitionOccluderBoxes} from './TransitionAnchorData';
 import {blendPose,minJerk} from './TransitionCamera';
 import {Mat4, Layers, Camera, Color, Component, Director, DirectionalLight, EffectAsset, JsonAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid, view} from 'cc';
@@ -604,10 +604,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // full2-cam E (d3fe578e P2): close-up of the boarding — lens beside the door (BasketCloseShot, her ≈30 % of the frame), panning to
     // her live; once she is in, min-jerk onto the ride's first pose before she is seated (the ride then continues from it, no step).
     const cam0=plan.camera(0),oB:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],doorB1=basketToWorld(oB,vYawDeg(),TRANSITION_STAGING.basket.doorOut);
-    // full8 P1-a: the close spot itself is 运镜bot's (basketCloseSpot avoiding windmill/trees, in progress) — unchanged here. Ours:
-    // the cam0→spot blend is paced by distance (≤ B1_LENS_MPS; m2 dragged ≈10 m in ≈1.1 s) and M6 comes from the walk graph.
-    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,transitionOccluderBoxes() as any,undefined,[cam0]);}catch{spotB1=null;}
-    const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0;
+    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,[...transitionOccluderBoxes() as any,...(meadow&&isValid(meadow,true)?meadowLensBoxesWorld(l=>worldOf(meadow,l)):[])]/* full8: + meadow windmill / trees from the node */,undefined,[cam0]);}catch{spotB1=null;}
+    const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0/* full8 ours: ≤ B1_LENS_MPS pacing */;
     const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
     const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
     let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));camTag('BalloonTransit:B1');world.setCamera(b1Lens());if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');}paint(0);if(flame)flame.active=false;
@@ -617,7 +615,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     try{
      const B=TRANSITION_STAGING.basket,D3=TRANSITION_DURATIONS.seg3,o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),W=(l:Vec)=>basketToWorld(o,y,l);
      const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=b1DoorPath(here,W(B.outside),W(B.doorOut))/* full6: no in-place turn > 90° */;
-     const walkS=Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps);b1In=Math.max(b1InS(walkS),b1Dist/B1_LENS_MPS);
+     const walkS=Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps);b1In=Math.max(spotB1?speedSafeS(cam0.position,spotB1.position,b1InS(walkS)):b1InS(walkS),b1Dist/B1_LENS_MPS)/* full8: 运镜bot ≤11 m/s + ours ≤2.5 m/s */;
      guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,walkS);rideToken.check();
      doorAt=b1;const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();await reach;rideToken.check();
      guardBeforeWalk(anim,'B1 step into basket');await walkTo([W(B.doorOut),W(B.threshold),W(B.p0)],D3.intoBasket);rideToken.check();inAt=b1;
@@ -688,7 +686,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // panning with her down the step to S0; the ride ends on it (RegionJourneyCore keeps a ride's last lens; D hands it to the board).
     const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
     try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
-    const b5Lens=():Pose|null=>{if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/BASKET_CLOSE.blendOutS));};
+    const b5Lens=():Pose|null=>{if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
     let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{

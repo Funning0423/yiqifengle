@@ -11,11 +11,11 @@
 //      on all 7 screens, t 3.0–4.5 s — open air, a false positive; 20 m = no room in these scenes is larger.
 //  (3) AABB (report column): lens inside a solid object's world AABB (meadow + island named objects only; terrain / grass / flower /
 //      path / river sheets excluded because their AABB is the whole map — listed as known false positives, not counted).
-// Mode: REPORT-ONLY until Grok Bot approves (QF_COLLISION_GATE=gate makes (1)+(2) hard). Soft geometry tags (grass/flower cards,
+// Mode: HARD for (1)+(2) (approved by Grok Bot 2026-10-26); QF_COLLISION_GATE=report for a report-only run; (3) never fails. Soft geometry tags (grass/flower cards,
 // transit clouds) are listed per hit but counted — the sweep reports them so the gate definition can be decided, not tuned here.
 const R=require('../journey-integration/route/route-legs.cjs'),J=R.J,{add}=R.J;const WB=require('./lib-prewalk-cams.cjs');
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]],CLR_M=1.1,ENC_M=20;
-const GATE=process.env.QF_COLLISION_GATE==='gate';
+const GATE=(process.env.QF_COLLISION_GATE||'gate')==='gate';// Grok Bot 2026-10-26 07:37 EDT: rules (1)+(2) HARD; (3) AABB report-only
 const dirs=(k)=>{const o=[];for(const x of[-1,0,1])for(const y of[-1,0,1])for(const z of[-1,0,1]){const n=Math.abs(x)+Math.abs(y)+Math.abs(z);if(!n)continue;if(k==='enc'&&n===2)continue;const L=Math.hypot(x,y,z);o.push([x/L,y/L,z/L]);}return o;};
 const D26=dirs('clr'),D14=dirs('enc');
 const SHEET=/terrain|grass|flower|meadow_path|river|_sea|ocean|water/i;
