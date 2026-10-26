@@ -23,7 +23,8 @@ const aabbs=[...J.meadow,...J.island].filter(o=>o.tris&&o.tris.length&&!SHEET.te
 function check(los,t,p){let clr=null;for(const d of D26){const h=los(t,p,add(p,d.map(v=>v*(CLR_M+.05))));if(h){clr=h;break;}}
  let esc=false;for(const d of D14){if(!los(t,p,add(p,d.map(v=>v*ENC_M)))){esc=true;break;}}
  const inBox=aabbs.filter(b=>p.every((v,a)=>v>b.m[a]&&v<b.M[a])).map(b=>b.name);return {clr,enc:!esc,inBox};}
-(async()=>{const geo=await R.geometry(),rows=[],viol=[];
+module.exports={check,CLR_M,ENC_M};
+if(require.main===module)(async()=>{const geo=await R.geometry(),rows=[],viol=[];
  const legsFor=scr=>[...R.legs.map(mk=>{const l=mk(geo,scr),poses=[];for(let t=0;t<=l.T+1e-9;t+=.25){if(l.black&&l.black(t))continue;poses.push({t,pose:l.cam(t)});}return {id:l.id,poses,los:l.los};}),WB.windmillBalloonLeg(geo,scr)];
  for(const scr of SCREENS)for(const leg of legsFor(scr)){let n=0,c=0,e=0,b=0;const tags={};
   for(const q of leg.poses){n++;const r=check(leg.los,q.t,q.pose.position);if(r.clr){c++;tags[r.clr.split(/[:@ ]/)[0]+':'+(r.clr.split(':')[1]||'').slice(0,28)]=1;}if(r.enc)e++;if(r.inBox.length){b++;r.inBox.forEach(x=>tags['aabb:'+x]=1);}
