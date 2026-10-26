@@ -421,13 +421,13 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_meadow.png",
-    "bytes": 23380,
-    "sha256": "3a42844a46378e057244eb25a620574a3aa530e2d8c202b3802acd16b093f4a4"
+    "bytes": 21668,
+    "sha256": "92af3e252ca186cc4c71ca38060b2fd4ee468a3f918209515e7168a40f09df11"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_sky.png",
-    "bytes": 14143,
-    "sha256": "dd1450567722fd9029dcb7bab2fd4715ae9a8ce7154625106319ee6d5fa943f5"
+    "bytes": 13295,
+    "sha256": "295c825b745f9a738b3e85cdbb8a4fc1d29ac9789e3f45731393f15d81f98f32"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_tide.png",
@@ -956,8 +956,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_lakeside/post/T_LK_grade_lut_32.png",
-    "bytes": 9050,
-    "sha256": "bb3400d47190f7fb66137759ffa3d7143e4c6cfd6f88e83c01d54cdc3f906a18"
+    "bytes": 7872,
+    "sha256": "2eb938036c51f165b53d2291154ab81d56a010ae1cee22afefd1f40d74467d05"
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/audio/amb_meadow_birds_loop.mp3",
