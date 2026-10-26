@@ -38,6 +38,7 @@ import { runRewardWalk, runSkyResumeToS6 } from '../region/RegionNodePlay';
 import { SKY_PRE_FOLLOW, skyLakePreWalk, skyPreFollowPose, skyResumeAtS6 } from '../region/SkyLakePreWalk';
 import { TRANSITION_STAGING } from '../region/TransitionStaging';
 import { blendPose as lakeBlendPose } from '../region/LakesideBalloon';
+import { skyPreFollowLens } from '../region/SkyPreFollow';
 import { qaUnlocked } from '../region/ExploreGate';
 import { RegionNodeStage } from './RegionNodeStage';
 import { ExploreInput } from './ExploreInput';
@@ -286,8 +287,7 @@ export class WorldNativeComposition extends Component {
       const camera=this.worldCamera;let st=0,smooth:any=null;const P=pre.path,c0=camera?{position:[camera.node.worldPosition.x,camera.node.worldPosition.y,camera.node.worldPosition.z],target:(()=>{const q=camera.node.forward;const p=camera.node.worldPosition;return [p.x+q.x*8,p.y+q.y*8,p.z+q.z*8];})(),fovVerticalDeg:camera.fov}:null;
       const draw=()=>{if(!camera||!camera.node?.isValid||!node.isValid)return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const w=node.worldPosition,her:[number,number,number]=[w.x,w.y,w.z];
         let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
-        const want=skyPreFollowPose(her,[P[k+1][0]-P[k][0],0,P[k+1][2]-P[k][2]]);smooth=smooth?lakeBlendPose(smooth,want,1-Math.pow(.5,dt/SKY_PRE_FOLLOW.halfLifeS)):want;
-        const pose=c0&&st<SKY_PRE_FOLLOW.blendInS?lakeBlendPose(c0 as any,smooth,st/SKY_PRE_FOLLOW.blendInS):smooth;applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),'skycity.resume-s6');};
+        void k;const L=skyPreFollowLens({her,path:P,dt,t:st,live:c0 as any,prev:smooth});smooth=L.state;const pose=L.pose/* 运镜bot full8: critically damped heading (yaw 172→72 °/s) */;applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),'skycity.resume-s6');};
       director.on(Director.EVENT_BEFORE_DRAW,draw);
       try{console.info('[QF_SKY_RESUME] '+JSON.stringify({to:'S6',keys:pre.keys,lengthM:+pre.lengthM.toFixed(2),durationS:+pre.durationS.toFixed(2)}));}catch{}
       try{await runSkyResumeToS6(actor,P,pre.durationS);}finally{director.off(Director.EVENT_BEFORE_DRAW,draw);}
