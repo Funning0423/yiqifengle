@@ -19,7 +19,7 @@ def h(x,z):
   hit=terr.ray_cast(B(x,200,z),Vector((0,0,-1)))
   return hit[0].z if hit[0] else -10
 # ---------- aerial perspective (baked): sky-horizon blue, saturated, haze stronger near the sea line
-HAZE=Vector((0.50,0.72,0.92))   # clear horizon blue (TransitBackdrop sky, no grey)
+HAZE=Vector((0.40,0.66,0.94))   # clear horizon blue (TransitBackdrop sky, no grey)
 SUN=Vector((0.45,0.80,0.40)).normalized()  # light from the south-east-ish, above (blender space)
 def aerial(base,zc,nrm,k=0.50):
   f=k+0.16*max(0,1-(zc-SEA)/10)       # lower = hazier
@@ -105,12 +105,12 @@ for v in bm.verts[nv0:]:v.co=Vector((wc.x+(v.co.x-wc.x)*WM,wc.y+(v.co.y-wc.y)*WM
 bmesh.ops.triangulate(bm,faces=bm.faces[:])
 bmesh.ops.recalc_face_normals(bm,faces=[f for f in bm.faces if f.material_index in (1,2,3)])
 bm.transform(__import__('mathutils').Matrix.Translation((0,0,-SEA)))   # local y=0 = sea line
-GRASS,CLIFF,TREE,WALL,ROOF,SAIL=(0.40,0.66,0.24),(0.62,0.52,0.36),(0.14,0.40,0.18),(0.96,0.93,0.86),(0.70,0.24,0.16),(0.98,0.95,0.88)
+GRASS,CLIFF,TREE,WALL,ROOF,SAIL=(0.34,0.70,0.16),(0.66,0.50,0.30),(0.10,0.42,0.16),(0.96,0.93,0.86),(0.70,0.24,0.16),(0.98,0.95,0.88)
 def imp_col(p,zc,me):
   m=p.material_index;nz=p.normal.z
   if m==0:base=GRASS if nz>0.55 else CLIFF
   else:base=(None,TREE,WALL,ROOF,SAIL)[m]
-  k={0:0.48,1:0.46,2:0.30,3:0.32,4:0.26}[m]   # windmill keeps more contrast so it reads at 480 m
+  k={0:0.34,1:0.34,2:0.22,3:0.24,4:0.18}[m]   # windmill keeps more contrast so it reads at 480 m
   return aerial(base,zc+SEA,p.normal,k)
 imp=finish(bm,'far_meadow_impostor',imp_col)
 json.dump([{'tag':['terrain','tree','tower','cap','sail'][p.material_index],'v':[[imp.data.vertices[i].co.x,imp.data.vertices[i].co.z,-imp.data.vertices[i].co.y] for i in p.vertices]} for p in imp.data.polygons],open(OUT+'/impostor_tris.json','w'))
@@ -133,7 +133,7 @@ for cx,cy,s in [(-2.4,-1.0,0.75),(3.3,1.6,0.6)]:
 # foam collar: annulus hugging the stack at the water line (+5 cm; the sea is a flat plane)
 NF=16;inner=[];outer=[]
 for k in range(NF):
-  t=k*2*math.pi/NF;ri=2.1+0.5*math.sin(3*t+1);ro=ri+1.1+0.4*math.sin(5*t)
+  t=k*2*math.pi/NF;ri=2.1+0.5*math.sin(3*t+1);ro=ri+0.55+0.25*math.sin(5*t)
   inner.append(bm.verts.new((ri*math.cos(t)*1.25+0.4,ri*math.sin(t),0.05)));outer.append(bm.verts.new((ro*math.cos(t)*1.25+0.4,ro*math.sin(t),0.05)))
 foam=[bm.faces.new((inner[k],outer[k],outer[(k+1)%NF],inner[(k+1)%NF])) for k in range(NF)]
 for f in foam:f.material_index=1
@@ -144,10 +144,10 @@ for f in bm.faces:
 def reef_col(p,zc,me):
   if p.material_index==1:return (0.93,0.97,0.98,1)
   nz=p.normal.z
-  if zc<-0.05:return (0.12,0.15,0.16,1)            # wet base under the line
-  if zc<0.32:return (0.86,0.85,0.77,1)             # barnacle / salt line
-  if nz>0.6:return (0.34,0.56,0.20,1)              # moss / grass caps
-  return (0.27,0.24,0.23,1) if int(zc/0.45)%2 else (0.40,0.34,0.30,1)  # strata
+  if zc<-0.05:return (0.10,0.20,0.20,1)            # wet base under the line (algae teal)
+  if zc<0.32 and abs(nz)<0.6:return (0.84,0.80,0.66,1)  # barnacle / salt line (vertical faces only)
+  if nz>0.6:return (0.30,0.62,0.18,1)              # moss / grass caps
+  return (0.36,0.22,0.17,1) if int(zc/0.45)%2 else (0.58,0.40,0.26,1)  # strata: red-brown basalt / ochre tuff
 reef=finish(bm,'sea_reef_cluster',reef_col)
 # ---------- material: white base x COLOR_0, rough, no spec (Creator turns USE_VERTEX_COLOR on for COLOR_0 primitives)
 def vc_mat(name):

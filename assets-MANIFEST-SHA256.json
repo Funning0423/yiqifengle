@@ -1171,8 +1171,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/transport_sail/far_meadow_impostor.glb",
-    "bytes": 14308,
-    "sha256": "78e4a76a75fe40962ce5df702e46e698523c515121f965844fdbbd426f3377e6"
+    "bytes": 14612,
+    "sha256": "f42c531f7956b271a35c40509cc1f473efa9e9c360656f66fc7945f7159cde90"
   },
   {
     "path": "creator-build-project/assets/bundles/transport_sail/sailboat.glb",
@@ -1181,8 +1181,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/transport_sail/sea_reef_cluster.glb",
-    "bytes": 6384,
-    "sha256": "f2e62ad3c471f997fd9a1d8dcfdfec73c1740b0bfad01e108b0ee0241419d1e6"
+    "bytes": 6432,
+    "sha256": "d022d7a2b73e6c55b7abb2bbda1f4898798101f692bac95605c68a8dc0a6ea01"
   },
   {
     "path": "creator-build-project/assets/bundles/transport_sail/textures/foam_strip_512x128.png",

@@ -5,8 +5,8 @@ Branch `scene/b19-sail-sea-distance` (on `ggbot/full8-sea-distance` eb71dc73). S
 ## Files
 | file | tris | bytes | notes |
 |---|---|---|---|
-| `bundles/transport_sail/far_meadow_impostor.glb` | 701 (≤800) | 14,308 | one mesh node `far_meadow_impostor`, Draco, COLOR_0 (aerial perspective baked: blue-green, not grey), no texture, material `M_far_impostor_vc` (white, rough 1, spec 0) |
-| `bundles/transport_sail/sea_reef_cluster.glb` | 294 (≤300) | 6,384 | one mesh node `sea_reef_cluster`; 5 basalt columns with strata, a tilted slab, 2 boulders, foam collar at +5 cm; the base goes down to −1.6 m (not floating) |
+| `bundles/transport_sail/far_meadow_impostor.glb` | 701 (≤800) | 14,612 | one mesh node `far_meadow_impostor`, Draco, COLOR_0 (aerial perspective baked: blue-green, not grey), no texture, material `M_far_impostor_vc` (white, rough 1, spec 0) |
+| `bundles/transport_sail/sea_reef_cluster.glb` | 294 (≤300) | 6,432 | one mesh node `sea_reef_cluster`; 5 basalt columns with strata, a tilted slab, 2 boulders, foam collar at +5 cm; the base goes down to −1.6 m (not floating) |
 | `tools/sea-distance/handoff_bounds.json` | — | — | above-water bounds for the handoff test (see §3) |
 | `tools/sea-distance/test_sea_assets.cjs` | — | — | gate `sea-assets` (tri limits, COLOR_0 incl. Draco, no textures, names, reef below the water line, stand-in inside the sky dome) |
 | `tools/sea-distance/src/*` | — | — | Blender build script + measuring scripts (re-runnable) |
@@ -36,4 +36,4 @@ The `meadow_terrain` node AABB contains the boat, so `boxInFrustum` never goes f
 `sea_reef_cluster` origin = water line; place at `SAIL_SEA_Y` as now. The foam collar is at +0.05 m above the flat sea plane (no z-fight in renders). The `seaReefSlots` positions are 46–64 m off the lane. With the final lens, slot 0 sits about 13° off the frame edge in the mid shot. Move a slot if 运镜bot wants it in frame.
 
 ## 5. Package
-transport_sail source 999,071 B ≤ 1,048,576 (49.5 KB left). Delta +20,692 B. All asset sources 27.81 MB.
+transport_sail source 999331 B ≤ 1,048,576 (49245 B left). Delta +21,044 B (the other 7 glbs in asset-budget unchanged; 6,856 → 7,851 tris counting both). All asset sources ≈27.81 MB.
