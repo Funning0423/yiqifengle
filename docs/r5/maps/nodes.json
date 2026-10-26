@@ -274,8 +274,8 @@
     "name": "台阶顶 stair plinth — mainline-12",
     "at": [
      0.2,
-     3.31,
-     -5.8
+     2.98,
+     -5.4
     ]
    },
    {
@@ -322,16 +322,16 @@
    {
     "from": "S3",
     "to": "S4",
-    "walkM": 17.4,
-    "walkS": 14.5,
-    "climbM": 3.32
+    "walkM": 17.0,
+    "walkS": 14.2,
+    "climbM": 2.99
    },
    {
     "from": "S4",
     "to": "S5",
-    "walkM": 20.7,
-    "walkS": 17.3,
-    "climbM": -3.23
+    "walkM": 20.3,
+    "walkS": 16.9,
+    "climbM": -2.9
    },
    {
     "from": "S5",
@@ -341,7 +341,7 @@
     "climbM": -0.05
    }
   ],
-  "totalWalkM": 99.3,
+  "totalWalkM": 95.3,
   "reachableAreaM2": 4493,
   "heightRange": [
    -3.4,
