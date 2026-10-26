@@ -1096,8 +1096,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-    "bytes": 1145028,
-    "sha256": "0437fc6ab688ab7566e88a00a80b0ad1005c0664741f60a620705ab63118b3a1"
+    "bytes": 1139700,
+    "sha256": "7b8787596c21cea7d3cc354e401217ef6dab8a50b0f710ecc83be17badff9bc7"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/sky_mooring_props.glb",

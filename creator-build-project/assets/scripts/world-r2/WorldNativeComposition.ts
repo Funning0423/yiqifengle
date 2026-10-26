@@ -39,6 +39,7 @@ import { SKY_PRE_FOLLOW, skyLakePreWalk, skyPreFollowPose, skyResumeAtS6 } from 
 import { TRANSITION_STAGING } from '../region/TransitionStaging';
 import { blendPose as lakeBlendPose } from '../region/LakesideBalloon';
 import { skyPreFollowLens } from '../region/SkyPreFollow';
+import { skyResumePlanFor, skyResumeLens, skyWorldToLocal, type SkyResumeState } from '../region/SkyResumeLens';
 import { qaUnlocked } from '../region/ExploreGate';
 import { RegionNodeStage } from './RegionNodeStage';
 import { ExploreInput } from './ExploreInput';
@@ -284,10 +285,10 @@ export class WorldNativeComposition extends Component {
       if(!skyResumeAtS6((RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'lakeside')))return null;
       const actor=this.boundCharacter as any,node=actor?.node;if(!node?.isValid)return null;const g=node.worldPosition;
       const pre=skyLakePreWalk([g.x,g.y,g.z],TRANSITION_STAGING.skyMooring5a as any);if(!pre)return null;
-      const camera=this.worldCamera;let st=0,smooth:any=null;const P=pre.path,c0=camera?{position:[camera.node.worldPosition.x,camera.node.worldPosition.y,camera.node.worldPosition.z],target:(()=>{const q=camera.node.forward;const p=camera.node.worldPosition;return [p.x+q.x*8,p.y+q.y*8,p.z+q.z*8];})(),fovVerticalDeg:camera.fov}:null;
+      const camera=this.worldCamera;let st=0,smooth:any=null,rs:SkyResumeState|null=null;const P=pre.path;let plan:any=null;try{const M5=TRANSITION_STAGING.skyMooring5a as any;const t0=Date.now(),R=skyResumePlanFor(P as any,q=>skyWorldToLocal(M5,q));plan=R.plan;try{const info=JSON.stringify({baked:R.baked,key:R.key,ms:Date.now()-t0,samples:plan.back.length,feasible:plan.feasible,worst:plan.worst});if(R.baked)console.info('[QF_SKY_RESUME] lens-plan '+info);else console.warn('[QF_SKY_RESUME] lens-plan LIVE FALLBACK (no baked plan for this walk) '+info);}catch{}}catch(e){console.warn('[QF_SKY_RESUME] lens-plan failed, full8 lens: '+String(e));plan=null;}const c0=camera?{position:[camera.node.worldPosition.x,camera.node.worldPosition.y,camera.node.worldPosition.z],target:(()=>{const q=camera.node.forward;const p=camera.node.worldPosition;return [p.x+q.x*8,p.y+q.y*8,p.z+q.z*8];})(),fovVerticalDeg:camera.fov}:null;
       const draw=()=>{if(!camera||!camera.node?.isValid||!node.isValid)return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const w=node.worldPosition,her:[number,number,number]=[w.x,w.y,w.z];
         let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
-        void k;const L=skyPreFollowLens({her,path:P,dt,t:st,live:c0 as any,prev:smooth});smooth=L.state;const pose=L.pose/* 运镜bot full8: critically damped heading (yaw 172→72 °/s) */;applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),'skycity.resume-s6');};
+        void k;let pose:any;if(plan){const L=skyResumeLens(plan,her,st,c0 as any,dt,rs);rs=L.state;pose=L.pose;}else{const L=skyPreFollowLens({her,path:P,dt,t:st,live:c0 as any,prev:smooth});smooth=L.state;pose=L.pose;}/* 运镜bot full9: planned lens, 1.1 m clear of the real skycity mesh (SkyLensVoxels) + clear sightline; fallback = full8 lens */applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),'skycity.resume-s6');};
       director.on(Director.EVENT_BEFORE_DRAW,draw);
       try{console.info('[QF_SKY_RESUME] '+JSON.stringify({to:'S6',keys:pre.keys,lengthM:+pre.lengthM.toFixed(2),durationS:+pre.durationS.toFixed(2)}));}catch{}
       try{await runSkyResumeToS6(actor,P,pre.durationS);}finally{director.off(Director.EVENT_BEFORE_DRAW,draw);}
