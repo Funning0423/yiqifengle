@@ -212,7 +212,7 @@
   {
    "id": "skycity",
    "glb": "region_skycity/env_skycity.glb",
-   "sha256": "ac050692ec9b6ebcc88de6aa072f0c45d881eb9c18d9244e153c8084f82ef83b",
+   "sha256": "7b8787596c21cea7d3cc354e401217ef6dab8a50b0f710ecc83be17badff9bc7",
    "box": [
     [
      -90,
@@ -332,7 +332,7 @@
   {
    "id": "skycity_frame",
    "glb": "region_skycity/env_skycity.glb",
-   "sha256": "ac050692ec9b6ebcc88de6aa072f0c45d881eb9c18d9244e153c8084f82ef83b",
+   "sha256": "7b8787596c21cea7d3cc354e401217ef6dab8a50b0f710ecc83be17badff9bc7",
    "box": null,
    "keep": "/^env_sky_static_palette$|^env_sky_static_rock_strata$|^env_sky_floatingrocks_[0-9]$|^env_sky_ruins$|^env_sky_island_vines$/",
    "objects": [
@@ -359,21 +359,21 @@
     {
      "name": "env_sky_ruins",
      "offset": 2495340,
-     "count": 6801
+     "count": 6783
     },
     {
      "name": "env_sky_static_palette",
-     "offset": 2740176,
+     "offset": 2739528,
      "count": 22863
     },
     {
      "name": "env_sky_static_rock_strata",
-     "offset": 3563244,
+     "offset": 3562596,
      "count": 1868
     }
    ]
   }
  ],
- "bytes": 3630492,
- "binSha256": "5c3979e06423e2584fc1c49dc6f36691811b083dc1ac68ce599ac889593f7e91"
+ "bytes": 3629844,
+ "binSha256": "154fef1c89889e343471805948f4bff33447e65e35d9f343da62bb275491bca6"
 }
