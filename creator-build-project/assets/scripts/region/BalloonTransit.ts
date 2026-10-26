@@ -225,6 +225,17 @@ export function restoreCityNight(cache:CityNightCache):number{
  cache.clear();return n;}
 /** Ground / island body: dimmed to (38,44,58) it reads as sky at night, so it is never silhouetted (gradeSkycityNight still darkens it). */
 export const CITY_NIGHT_KEEP=/^(env_sky_static_palette|env_sky_floor_seal)$/;
+/** full8 P1-a: B1 lens speed cap (m/s) and clearance to occluders along its blend path (运镜bot camera clearance 1.1 m). */
+export const B1_LENS_MPS=2.5,B1_LENS_CLEAR_M=1.1;
+/** World AABBs [x0,y0,z0,x1,y1,z1] of the meadow windmill renderers (live model; empty if not mounted). */
+function meadowMillBoxes(root:Node|null):number[][]{const out:number[][]=[];if(!root||!isValid(root,true))return out;
+ eachNamed(root,n=>{if(!/windmill/i.test(n.name))return;for(const r of n.getComponents(MeshRenderer)){const b=(r as any).model?.worldBounds;if(!b)continue;const c=b.center,h=b.halfExtents;out.push([c.x-h.x,c.y-h.y,c.z-h.z,c.x+h.x,c.y+h.y,c.z+h.z]);}});return out;}
+/** Does the straight segment a→b pass within clear m of any box? (sampled every 0.1 m; pure) */
+export function b1PathBlocked(a:Vec,b:Vec,boxes:readonly (readonly number[])[],clear=B1_LENS_CLEAR_M):boolean{
+ const d=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]),n=Math.max(1,Math.ceil(d/0.1));
+ for(let i=0;i<=n;i++){const u=i/n,p=[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
+  for(const x of boxes){const dx=Math.max(x[0]-p[0],0,p[0]-x[3]),dy=Math.max(x[1]-p[1],0,p[1]-x[4]),dz=Math.max(x[2]-p[2],0,p[2]-x[5]);if(Math.hypot(dx,dy,dz)<clear)return true;}}
+ return false;}
 /** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
  'env_sky_island_vine_cards','env_sky_island_windcore',
@@ -599,7 +610,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // full2-cam E (d3fe578e P2): close-up of the boarding — lens beside the door (BasketCloseShot, her ≈30 % of the frame), panning to
     // her live; once she is in, min-jerk onto the ride's first pose before she is seated (the ride then continues from it, no step).
     const cam0=plan.camera(0),oB:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],doorB1=basketToWorld(oB,vYawDeg(),TRANSITION_STAGING.basket.doorOut);
-    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,transitionOccluderBoxes() as any,undefined,[cam0]);}catch{spotB1=null;}
+    // full8 P1-a (Mac m2 f588–594: B1 dragged the lens ~9.5 m in 0.5 s THROUGH the windmill, then grey frames). Root cause: the
+    // windmill is not in TRANSITION_OCCLUDERS (only dock/gangway/basket/mooring boxes), so after the M6 move the close spot and the
+    // straight cam0→spot blend were never checked against it. Add the live windmill bounds; reject a spot whose blend path passes
+    // within B1_LENS_CLEAR_M of any box (then the lens holds cam0, the live prewalk end); blend time from distance (≤ B1_LENS_MPS).
+    const b1Boxes=[...(transitionOccluderBoxes() as any[]),...meadowMillBoxes(meadow)];
+    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,b1Boxes as any,undefined,[cam0]);}catch{spotB1=null;}
+    if(spotB1&&b1PathBlocked(cam0.position,spotB1.position,b1Boxes)){try{console.info('[QF_B1_LENS] close spot behind an occluder → hold the prewalk lens');}catch{}spotB1=null;}
+    const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0;
     const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
     const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
     let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));camTag('BalloonTransit:B1');world.setCamera(b1Lens());if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');}paint(0);if(flame)flame.active=false;
@@ -609,7 +627,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     try{
      const B=TRANSITION_STAGING.basket,D3=TRANSITION_DURATIONS.seg3,o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),W=(l:Vec)=>basketToWorld(o,y,l);
      const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=b1DoorPath(here,W(B.outside),W(B.doorOut))/* full6: no in-place turn > 90° */;
-     const walkS=Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps);b1In=b1InS(walkS);
+     const walkS=Math.max(D3.toBasket*Math.min(1,pathLength(toDoor)/6),pathLength(toDoor)/TRANSITION_STAGING.walkMps);b1In=Math.max(b1InS(walkS),b1Dist/B1_LENS_MPS);
      guardBeforeWalk(anim,'B1 walk to basket');await walkTo(toDoor,walkS);rideToken.check();
      doorAt=b1;const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();await reach;rideToken.check();
      guardBeforeWalk(anim,'B1 step into basket');await walkTo([W(B.doorOut),W(B.threshold),W(B.p0)],D3.intoBasket);rideToken.check();inAt=b1;
