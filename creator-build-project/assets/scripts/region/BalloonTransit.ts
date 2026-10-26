@@ -611,24 +611,35 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
         meadowPos:r3(meadow.worldPosition),meadowEuler:r3(meadow.eulerAngles),meadowWorldYaw:+worldYawDeg(meadow).toFixed(3),meadowScale:r3(meadow.worldScale),herStart:r3(gp0),m6Local:rv(M6_LOCAL),m6World:rv(m6),
         c0:live?rv(live.position):null,plan0:rv(p0.position)}));}}
     }catch(error){if(String(error).includes('ancel'))throw error;console.warn('[QF_B1_PREWALK] skipped '+String(error));}}
-    chainMark('balloon','B1-basket-in');
+    // full9c B1-gap (Grok Bot): [QF_B1_PREWALK] → B1's first camera write. m2: 0.34 s with no camera write = gray frames 591–593.
+    // One summary line per run (on by default): [QF_B1_GAP] totalMs / frames / maxDtMs / phases{sync ms per B1 setup step}.
+    // Per-frame dt only with camTrace on, ≤ 30 lines (well under CAM_LOG_BUDGET.linesPerS).
+    const gapNow=()=>typeof performance!=='undefined'&&performance.now?performance.now():Date.now();
+    const b1Gap={t0:gapNow(),pt:gapNow(),f0:((director as any).getTotalFrames?.()??0),maxDt:0,lines:0,done:false,ph:{} as Record<string,number>};
+    const gapPh=(k:string)=>{if(b1Gap.done)return;const n=gapNow();b1Gap.ph[k]=+((b1Gap.ph[k]||0)+n-b1Gap.pt).toFixed(1);b1Gap.pt=n;};
+    const gapProbe=()=>{if(b1Gap.done)return;const dt=director.getDeltaTime();b1Gap.maxDt=Math.max(b1Gap.maxDt,dt);gapPh('frame');
+     if(camLog.on&&b1Gap.lines<30){b1Gap.lines++;camLog.out('[QF_B1_GAP_FRAME] '+JSON.stringify({fr:((director as any).getTotalFrames?.()??0),dtMs:+(dt*1000).toFixed(1),sinceMs:+(gapNow()-b1Gap.t0).toFixed(1)}));}};
+    const gapEnd=(end:string)=>{if(b1Gap.done)return;gapPh('end');b1Gap.done=true;director.off(Director.EVENT_BEFORE_DRAW,gapProbe);
+     console.info('[QF_B1_GAP] '+JSON.stringify({totalMs:+(gapNow()-b1Gap.t0).toFixed(1),frames:((director as any).getTotalFrames?.()??0)-b1Gap.f0,maxDtMs:+(b1Gap.maxDt*1000).toFixed(1),phases:b1Gap.ph,end}));};
+    director.on(Director.EVENT_BEFORE_DRAW,gapProbe);
+    chainMark('balloon','B1-basket-in');gapPh('chainMark');
     const v0=plan.vehicle(0);vehicle.setWorldPosition(v0.pos[0],v0.pos[1],v0.pos[2]);{const qq=balloonQuat(v0.yaw*180/Math.PI,v0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);}
-    if(flame)flame.active=false;
+    if(flame)flame.active=false;gapPh('vehicleT0');
     // full2-cam E (d3fe578e P2): close-up of the boarding — lens beside the door (BasketCloseShot, her ≈30 % of the frame), panning to
     // her live; once she is in, min-jerk onto the ride's first pose before she is seated (the ride then continues from it, no step).
     const cam0=plan.camera(0),oB:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],doorB1=basketToWorld(oB,vYawDeg(),TRANSITION_STAGING.basket.doorOut);
-    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,[...transitionOccluderBoxes() as any,...(meadow&&isValid(meadow,true)?meadowLensBoxesWorld(l=>worldOf(meadow,l)):[])]/* full8: + meadow windmill / trees from the node */,undefined,[cam0]);}catch{spotB1=null;}
+    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,[...transitionOccluderBoxes() as any,...(meadow&&isValid(meadow,true)?meadowLensBoxesWorld(l=>worldOf(meadow,l)):[])]/* full8: + meadow windmill / trees from the node */,undefined,[cam0]);}catch{spotB1=null;}gapPh('closeSpot');
     const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0/* full8 ours: ≤ B1_LENS_MPS pacing */;
     const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
     const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
     // full8 P1-a: the B1 lens gets the same 1.1 m clearance (occupancy grid + sails sweep + walk floor) as the pre-walk (m2: terrain t 141.3 / 147.8)
     const b1Inv=new Mat4();if(meadow&&isValid(meadow,true))Mat4.invert(b1Inv,meadow.worldMatrix);const b1Y0=meadow&&isValid(meadow,true)?meadow.worldPosition.y:0,b1Clr:LensClearState={pull:0};
-    const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];
+    const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];gapPh('lensSolid');
     const b1Ground=(w:Vec):number|null=>{if(!b1Solid)return null;const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+b1Y0;};
-    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');world.setCamera(b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens());if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
+    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
-    let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
+    let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);gapPh('b1Register');
     try{
      const B=TRANSITION_STAGING.basket,D3=TRANSITION_DURATIONS.seg3,o:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],y=vYawDeg(),W=(l:Vec)=>basketToWorld(o,y,l);
      const gp=girl.worldPosition,here:Vec=[gp.x,gp.y,gp.z],toDoor=b1DoorPath(here,W(B.outside),W(B.doorOut))/* full6: no in-place turn > 90° */;
@@ -640,7 +651,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      seatDef=seatFromBench(W(B.seat),(y+B.seatYawDeg)*Math.PI/180);
      try{await actor.perform({kind:'sit',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B1 sit skipped: '+String(e));}
      rideToken.check();seated=true;
-    }finally{b1On=false;director.off(Director.EVENT_BEFORE_DRAW,b1Draw);}
+    }finally{b1On=false;director.off(Director.EVENT_BEFORE_DRAW,b1Draw);gapEnd('b1-ended-without-write');}
    }
    if(girl&&isValid(girl,true)){if(seated)girl.setParent(vehicle,true)/* seated root kept where sit_down put it */;else{girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}}
    if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);if(doorB&&isValid(doorB,true)&&contChain)doorB.setRotationFromEuler(0,0,0);
