@@ -383,7 +383,7 @@
       "name": "env_sky_ruins.mesh",
       "userData": {
         "gltfIndex": 16,
-        "triangleCount": 6637
+        "triangleCount": 6783
       },
       "ver": "1.1.1",
       "imported": true,
@@ -437,7 +437,7 @@
       "name": "env_sky_static_foliage_cards.mesh",
       "userData": {
         "gltfIndex": 19,
-        "triangleCount": 8720
+        "triangleCount": 8716
       },
       "ver": "1.1.1",
       "imported": true,
@@ -455,7 +455,7 @@
       "name": "env_sky_static_palette.mesh",
       "userData": {
         "gltfIndex": 20,
-        "triangleCount": 22892
+        "triangleCount": 22863
       },
       "ver": "1.1.1",
       "imported": true,
