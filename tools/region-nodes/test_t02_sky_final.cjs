@@ -16,7 +16,7 @@ const F=X.H.load(X.S('region/SkyFinaleShot.ts')),C=X.H.load(X.S('region/ExploreC
 const LS=X.H.load(X.S('region/LensSmooth.ts')),LA=X.H.load(X.S('region/LensAvoid.ts'));
 const ROOT=path.resolve(__dirname,'../..');
 const B=X.SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));
-const segs=NW.planWalk('skycity','S4','S6').segments,last=segs[segs.length-1].path,pa=last[last.length-2],feet=last[last.length-1],face=Math.atan2(feet[0]-pa[0],feet[2]-pa[2]);
+/* full9c (Grok Bot A): her finale stand = the S6 node (planWalk's clipped tail used to stop 1.048 m short of it); she arrives on the tail's own chord heading */const segs=NW.planWalk('skycity','S4','S6').segments,last=segs[segs.length-1].path,pa=last[last.length-2],feet=NW.routeKeys('skycity','S4','S6').path.slice(-1)[0],face=Math.atan2(feet[0]-pa[0],feet[2]-pa[2]);
 const res={};let all=true;const ok=(k,v,d)=>{res[k]={ok:!!v,...d};all=all&&!!v;};
 const NEW=F.SKY_FINALE_POSE_LOCAL,OLD=F.SKY_FINALE_POSE_LOCAL_C/* before = option C (86437547) */;
 // F2
