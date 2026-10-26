@@ -25,6 +25,7 @@ import {setMooringRopes} from './SkyMooringRopes';
 import {basketObstacleEvent} from './BasketObstacles';
 import {b1PreWalk,B1_START_NODE} from './BalloonB1Start';
 import {followPose} from './ExploreCameraCore';
+import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -293,6 +294,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token,VEHICLE_ASSET_WAIT_MS);token.check();
  prefab.addRef();
  const owned:Array<{destroy():void}>=[],rig=new Node('RegionJourney-skycity');rig.active=false;opts.parent.addChild(rig);
+  let boardSrc:RegionBoardSource|null=null;
   let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
   let mainLight:DirectionalLight|null=null,mainShadow0=true,mainIllum0=0;
   const skyHome:Array<{r:MeshRenderer;shared:Material|null}>=[];
@@ -300,7 +302,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const domeYaw0=new Map<Node,[number,number,number]>();
   let restoreSailLeft=()=>{};
   let landRopeOn=false;
-  const release=()=>{if(dead)return;dead=true;try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  const release=()=>{if(dead)return;dead=true;if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
@@ -311,12 +313,18 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   publishFlight(json);
   const postFrame=postSeamFrame(json);
   model=mountRegion(REGIONS.skycity,prefab,rig);
+  // full6-cam P1 (Mac 45f601b1 L11 810→811): the board copy's own root transform, for the skycity board source below
+  const boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);
   model.getComponent(SkycityCloudsea)!.setFlightHidden(true);
   for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
   const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');
   await waitRegionAsset(ambient.prepare(),token,VEHICLE_ASSET_WAIT_MS);token.check();
   model.setRotationFromEuler(0,0,0);model.setPosition(0,0,0);
   const city=placeLiveSkycity(model,meadow,opts.start);
+  // full6-cam P1: the balloon lease never registered the skycity board source (only the sail/meadow builder does), so on arrival
+  // regionBoardHandoff and regionLandingToBoard both returned 'no-board-pose' and enter-level played the generic push-in = the
+  // basket-door close-up hard-cut to the board (L9 / L11, any stage entered from the balloon arrival). Same map as the adapter's.
+  try{boardSrc=balloonBoardSource(model,boardLocal);setRegionBoardSource('skycity',boardSrc);}catch(e){boardSrc=null;console.error('[QF_REGION] skycity board source unavailable: '+String(e));}
   const mp=meadow.worldPosition,meadowFrame:Rigid={yawDeg:meadow.eulerAngles.y,origin:[mp.x,mp.y,mp.z]};
   model.active=false;
   showNamed(model,ALWAYS_HIDDEN,false);
@@ -688,6 +696,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
 /** full6: the live 3D world camera pose (lowest-priority enabled camera rendering the DEFAULT layer), for a no-step lens start. */
 function liveWorldPose():Pose|null{try{const cams=(director.getScene()?.getComponentsInChildren(Camera)||[]).filter(c=>c.enabledInHierarchy&&(c.visibility&Layers.Enum.DEFAULT)).sort((a,b)=>a.priority-b.priority);const c=cams[0];if(!c)return null;
  const p=c.node.worldPosition,f=c.node.forward;return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:c.fov};}catch{return null;}}
+/** full6-cam P1: board copy (board rig coords, boardLocal = prefab root transform) ↔ this placed journey copy (world), as
+ *  RegionJourneyAdapter.journeyBoardSource: toJourney = J·B⁻¹, toBoard = its inverse; skycity framing anchors from the journey copy. */
+export function balloonBoardSource(model:Node,boardLocal:Mat4):RegionBoardSource{
+ const J=new Mat4();Mat4.copy(J,model.worldMatrix);const Bi=new Mat4();Mat4.invert(Bi,boardLocal);const M=new Mat4();Mat4.multiply(M,J,Bi);const Mi=new Mat4();Mat4.invert(Mi,M);
+ const tf=(m:Mat4)=>(p:Vec):Vec=>{const v=new Vec3(p[0],p[1],p[2]);Vec3.transformMat4(v,v,m);return [v.x,v.y,v.z];};
+ const mm=M as any;for(let i=0;i<16;i++)if(!Number.isFinite(mm['m'+String(i).padStart(2,'0')]))throw Error('region-board-map-invalid');
+ return {region:'skycity',map:{toJourney:tf(M),toBoard:tf(Mi)},anchors:{spawn:anchor(model,'anchor_spawn_girl'),court:anchor(model,'anchor_starcourt_center')}};
+}
 function worldOf(model:Node,local:Vec):Vec{const v=new Vec3(local[0],local[1],local[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];}
 function findCamera():Node|null{const scene=director.getScene();if(!scene)return null;const cams=scene.getComponentsInChildren(Camera);const world=cams.find(c=>c.node.name!=='WorldNavigationCamera'&&c.visibility!==0);return (world??cams[0])?.node??null;}
 function loadGradeEffect():Promise<EffectAsset|null>{
