@@ -58,7 +58,8 @@ export function skyFinaleShot(feet:readonly number[],faceYawRad:number,ring:read
  *  under the canopy, rear 3/4 (25° off her back), lens 1.5 m up, pitched 2° UP toward the distant city, her on the left third with
  *  lead room toward the city. Proxy (env_skycity.glb rays): sky 40.9–48 %, underside ≤ 21.9 % of the upper half, 7 screens.
  *  Old option C pose kept as SKY_FINALE_POSE_LOCAL_C for before/after. */
-export const SKY_FINALE_POSE_LOCAL={position:[1.972,1.542,-18.668] as V3,target:[0.377,1.839,-27.012] as V3,fovVerticalDeg:45};
+/** full9c: shifted by the stand move old planWalk end (0.941,0.044,-27.059) → S6 node (0.2,0.034,-27.8): Δ (−0.741,−0.0095,−0.741), rigid (same arm, angle, fov). Was position [1.972,1.542,-18.668] target [0.377,1.839,-27.012]. */
+export const SKY_FINALE_POSE_LOCAL={position:[1.231,1.532,-19.409] as V3,target:[-0.364,1.829,-27.753] as V3,fovVerticalDeg:45};
 export const SKY_FINALE_POSE_LOCAL_C={position:[6.845,1.342,-26.291] as V3,target:[-3.199,2.342,-26.649] as V3,fovVerticalDeg:45};
 /** Approach seconds from the walk lens to the shot under the standing yaw cap: blendPose is smootherstep (peak rate 1.875·Δ/T,
  * peak acceleration ≈ 5.77·Δ/T²), so T ≥ 1.875·Δ/V and T ≥ √(5.77·Δ/A) with V = 90°/s, A = 200°/s² (5 % margin). Δ = the larger of
