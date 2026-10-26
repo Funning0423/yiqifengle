@@ -88,7 +88,7 @@ const NODES={
   {key:'S1',at:[0.2,0.04,30.2],role:'mainline',stageId:'mainline-09'},
   {key:'S2',at:[-7,-0.06,19],role:'mainline',stageId:'mainline-10'/* b19 s2s3-edge: was -6.6 (0.2 m from an unwalkable cell) */},
   {key:'S3',at:[6.2,-0.01,8.2],role:'mainline',stageId:'mainline-11'},
-  {key:'S4',at:[0.2,3.31,-5.8],role:'mainline',stageId:'mainline-12'},
+  {key:'S4',at:[0.2,2.98,-5.4],role:'mainline',stageId:'mainline-12'/* b19 s4-clearance: was [0.2,3.31,-5.8] (0.2 m from the parapet) */},
   {key:'S5',at:[0.2,0.08,-17],role:'optional',opens:'challenge-sky'},
   {key:'S6',at:[0.2,0.03,-27.8],role:'finale'},
  ],
@@ -164,7 +164,17 @@ function nearest(M,p,ytol=1.5){
 function pathOf(M,k){const out=[];let cur=k;while(cur!==null&&cur!==undefined){const ci=(cur/8)|0,li=cur%8;out.push([+(M.x0+(ci%M.W+.5)*M.c).toFixed(3),+M.layers[ci][li].toFixed(3),+(M.z0+(((ci/M.W)|0)+.5)*M.c).toFixed(3)]);cur=M.parent.get(cur);}return out.reverse();}
 function distPointSeg(p,a,b){const ab=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],tMax=ab[0]*ab[0]+ab[1]*ab[1]+ab[2]*ab[2]||1,t=Math.max(0,Math.min(1,((p[0]-a[0])*ab[0]+(p[1]-a[1])*ab[1]+(p[2]-a[2])*ab[2])/tMax));
  const q=[a[0]+ab[0]*t,a[1]+ab[1]*t,a[2]+ab[2]*t];return Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2]);}
-function simplify(path,eps=.15){if(path.length<3)return path;const keep=[0];let i=0;while(i<path.length-1){let j=i+1;for(let k=i+2;k<path.length;k++){let ok=true;for(let t=i+1;t<k;t++)if(distPointSeg(path[t],path[i],path[k])>eps){ok=false;break;}if(!ok)break;j=k;}keep.push(j);i=j;}return keep.map(i=>path[i]);}
+// b19 s4-clearance: segOk(a,b) (optional) vetoes a shortcut whose straight segment loses clearance (GGbot full8: S4-S5/S4-S6
+// simplified a diagonal across the corner at (10.4,-9.6) to 0 m). Clear edges pass segClear(minM) built on the runtime walk grid.
+function simplify(path,eps=.15,segOk=null){if(path.length<3)return path;const keep=[0];let i=0;while(i<path.length-1){let j=i+1;for(let k=i+2;k<path.length;k++){let ok=true;for(let t=i+1;t<k;t++)if(distPointSeg(path[t],path[i],path[k])>eps){ok=false;break;}if(ok&&segOk&&!segOk(path[i],path[k]))ok=false;if(!ok)break;j=k;}keep.push(j);i=j;}return keep.map(i=>path[i]);}
+/** min box distance (m) from segment a-b (xz) to runtime-unwalkable 0.4 m cells ≥ minM. */
+function segClear(id,minM){const RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts'),C=0.4,memo=new Map();
+ // same probe as tools/skycity-walk/test_sky_s2s3_edge_clearance.cjs: 0.4 m boxes centred on the 0.4 m lattice, 5 cm samples
+ const isNull=(cx,cz)=>{const k=cx+','+cz;if(!memo.has(k))memo.set(k,RW.walkFloorY(id,cx,cz)===null);return memo.get(k);};
+ const clearAt=(x,z)=>{const r=Math.ceil((minM+C)/C)+1,gx=Math.round(x/C)*C,gz=Math.round(z/C)*C;
+  for(let i=-r;i<=r;i++)for(let j=-r;j<=r;j++){const cx=+(gx+i*C).toFixed(2),cz=+(gz+j*C).toFixed(2);if(!isNull(cx,cz))continue;
+   if(Math.hypot(Math.max(0,Math.abs(x-cx)-C/2),Math.max(0,Math.abs(z-cz)-C/2))<minM-1e-9)return false;}return true;};
+ return (a,b)=>{const n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[2]-a[2])/0.05));for(let s=0;s<=n;s++)if(!clearAt(a[0]+(b[0]-a[0])*s/n,a[2]+(b[2]-a[2])*s/n))return false;return true;};}
 function faceDeg(from,to){const dx=to[0]-from[0],dz=to[2]-from[2];return +((Math.atan2(dx,dz)*180/Math.PI)).toFixed(2);}
 async function decodeDraco(file,spec){
  const dir=dracoDir();if(!dir){
@@ -216,10 +226,19 @@ function emit(baked){
    // Reconstruct A* from A to B by flooding a second time is expensive; walk parent chains via a targeted BFS from A.
    // b19 s2s3-edge: listed edges keep one free 0.4 m cell from every unwalkable cell (exempt within EXEMPT_M of either node); fallback = plain
    const clearEdge=(CLEAR_EDGES[id]||[]).some(([p,q])=>(p===a&&q===b)||(p===b&&q===a));
-   const path=(clearEdge&&bfs(g,A,B,clearBuffer(g,A,B,id)))||bfs(g,A,B);
+   const leg=(P,Q)=>(clearEdge&&bfs(g,P,Q,clearBuffer(g,P,Q,id)))||bfs(g,P,Q);
+   // b19 s4-clearance: optional pinned waypoints (EDGE_VIA) so a re-routed edge keeps its old arrival heading into the node
+   const via=(EDGE_VIA[id]||{})[a+'-'+b];let path;
+   if(!via)path=leg(A,B);else{const pts=[A,...via.map(v=>[v[0],0,v[1]]),B];path={path:[],len:0};for(let i=0;i<pts.length-1;i++){const q=leg(pts[i],pts[i+1]);if(!q){path=null;break;}path.path.push(...(i?q.path.slice(1):q.path));path.len+=q.len;}}
    if(!path)throw Error('no-path '+a+' '+b);
-   const simp=simplify(path.path,.15);
-   edges.push({a,b,path:simp,lengthM:round3(path.len)});
+   let simp=simplify(path.path,.15,clearEdge?segClear(id,CLEAR_M):null),len=path.len;
+   const tail=(EDGE_TAIL[id]||{})[a+'-'+b];
+   if(tail){const ok=segClear(id,CLEAR_M),RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts'),E=simp[simp.length-1];
+    const k=simp.findIndex(p=>Math.hypot(p[0]-tail.from[0],p[2]-tail.from[1])<1e-6);if(k<0)throw Error('tail-from '+a+b);
+    const mid=tail.via.map(([x,z])=>{const y=RW.walkFloorY(id,x,z);if(y===null)throw Error('tail-via-null '+x+','+z);return [x,round3(y),z];});
+    const cand=[...simp.slice(0,k+1),...mid,E];for(let q=k;q<cand.length-1;q++)if(!ok(cand[q],cand[q+1]))throw Error('tail-unclear '+a+b+' '+cand[q]+'->'+cand[q+1]);
+    simp=cand;/* lengthM stays the grid-route length like every other edge */}
+   edges.push({a,b,path:simp,lengthM:round3(len)});
   }
   for(const n of nodes){const out=edges.find(e=>e.a===n.key)||edges.find(e=>e.b===n.key);if(!out){n.faceDeg=0;continue;}
    const forward=out.a===n.key?out.path:[...out.path].reverse();n.faceDeg=faceDeg(forward[0],forward[Math.min(1,forward.length-1)]);}
@@ -227,7 +246,10 @@ function emit(baked){
  }
  return body;
 }
-const CLEAR_EDGES={skycity:[['S1','S2'],['S2','S3'],['S3','S4']]},EXEMPT_M=0.45;
+const CLEAR_EDGES={skycity:[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4','S6']]},EXEMPT_M=0.45,CLEAR_M=0.4;
+// S4-S6: after the new gap at (2.6,-7) rejoin the pre-b19 x=3 lane with straight clear segments and keep the pre-b19 arrival
+// (3,-25)→S6 (the T-02 finale shot F1/F4 is tuned to that arrival heading; the grid route arrived at -135° and failed F1/F4).
+const EDGE_VIA={},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
 function clearBuffer(M,A,B,id){// unwalkable = the RUNTIME walk grid (RegionWalkableData via RegionWalkable.walkFloorY), which is what she and the tests walk on
  const RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts');
  const blockedXZ=(x,z)=>RW.walkFloorY(id,x,z)===null,buf=new Set(),pad=6;

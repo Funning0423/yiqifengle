@@ -212,7 +212,7 @@
   {
    "id": "skycity",
    "glb": "region_skycity/env_skycity.glb",
-   "sha256": "7a9150c4ea6930a6ced3c221a7e03057aaf46b3bae09d1a5ad9f1ff9422cdc5b",
+   "sha256": "0437fc6ab688ab7566e88a00a80b0ad1005c0664741f60a620705ab63118b3a1",
    "box": [
     [
      -90,
@@ -332,7 +332,7 @@
   {
    "id": "skycity_frame",
    "glb": "region_skycity/env_skycity.glb",
-   "sha256": "7a9150c4ea6930a6ced3c221a7e03057aaf46b3bae09d1a5ad9f1ff9422cdc5b",
+   "sha256": "0437fc6ab688ab7566e88a00a80b0ad1005c0664741f60a620705ab63118b3a1",
    "box": null,
    "keep": "/^env_sky_static_palette$|^env_sky_static_rock_strata$|^env_sky_floatingrocks_[0-9]$|^env_sky_ruins$|^env_sky_island_vines$/",
    "objects": [
@@ -375,5 +375,5 @@
   }
  ],
  "bytes": 3626676,
- "binSha256": "f806ae6f2c5de06a7368a0d4e0c5bdf926987d252d6ef468a47306df82b820bb"
+ "binSha256": "4403db850cb38c73b1e658aea7c6d2cdbb1fe74507cdb2afcaf533db3bbd74cf"
 }

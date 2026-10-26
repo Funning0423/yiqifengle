@@ -6,7 +6,7 @@ const base=read('env_skycity.glb'),soft=read('env_sky_cloudsea_soft.glb');
 assert.equal(crypto.createHash('sha256').update(soft.b).digest('hex'),'5e21d6c05aef8dd3cbcd821a25c438e2fd7c1b485067f0ca8e6df10e0d6e9a94','accepted r3fix handoff');
 assert.equal(soft.b.length,29632,'accepted r3fix bytes');
 assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,'env_sky_cloudsea_soft.glb.meta'))).digest('hex'),'3b27fa7581159a2a0860758ddb29dec3a34ca4612b4ce0b02a2c739e1b380c9a','r3fix meta handoff');
-assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'7a9150c4ea6930a6ced3c221a7e03057aaf46b3bae09d1a5ad9f1ff9422cdc5b','b19 face budget: 1,809 never-seen static faces dropped (tools/scene-design/skycity-facebudget)');
+assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'0437fc6ab688ab7566e88a00a80b0ad1005c0664741f60a620705ab63118b3a1','b19 face budget: 1,809 never-seen static faces dropped (tools/scene-design/skycity-facebudget)');
 let triangles=0,primitives=0;
 for(const {j} of [base,soft])for(const n of j.nodes){
  if(n.mesh===undefined||['env_sky_cloudsea','env_sky_cumulus_far'].includes(n.name))continue;

@@ -1,0 +1,3 @@
+[QF_SKY_RESUME] {"to":"S6","keys":["S0","S1","S2","S3","S4","S6"],"lengthM":81.3,"durationS":67.75}
+{"l12":{"at":[83.32,18.85,130.79],"walkM":81.3,"walkS":67.8,"keys":"S0>S1>S2>S3>S4>S6"},"l11":{"at":[20.97,18.73,102.22]}}
+PASS reload → skycity: L12 done resumes on S6, before L12 unchanged
