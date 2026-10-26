@@ -34,7 +34,7 @@ import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './R
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, balloonIllumFactor, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, balloonIllumFactor, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skycityRootWorldFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
  if(name==='sky-city-enable'||name==='sky-islets-enable'||name==='balloon-cloud-exit'||name==='balloon-land')return 'skycity';
@@ -297,17 +297,23 @@ function dampSeaSpecular(sea:Node|null,on:boolean):void{
  }});
 }
 /** Live env_skycity placement: the skycity placement offset and heading (RegionJourneyLayout). The art balloonSkyOffset is not applied. */
-export function placeLiveSkycity(model:Node,meadow:Node,start:Vec):Rigid{
+export function placeLiveSkycity(model:Node,meadow:Node,start:Vec,seam?:FlightDoc|null):Rigid{
  model.setRotationFromEuler(0,0,0);
  model.setRotationFromEuler(0,skycityYawDeg(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),0);
  const exit:Vec[]=[];for(let i=2;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)exit.push(anchor(meadow,'walk_path_'+String(i).padStart(2,'0')));
  const edge=meadowExitFrom(start,exit).at(-1)??exit.at(-1)??start;
  const placed=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start'));
  const landing=plus(edge,REGION_JOURNEY_LAYOUT.skycityOffset);
- const p=model.worldPosition;
- model.setWorldPosition(...plus([p.x,p.y,p.z],[landing[0]-placed.rim[0],landing[1]-placed.rim[1],landing[2]-placed.rim[2]]));
- const w=model.worldPosition;
- return {yawDeg:worldYawDeg(model)/* full8: world yaw, not the local euler read-back */,origin:[w.x,w.y,w.z]};
+ const p=model.worldPosition,live:Vec=plus([p.x,p.y,p.z],[landing[0]-placed.rim[0],landing[1]-placed.rim[1],landing[2]-placed.rim[2]]);
+ // full9c skyframe (运镜bot: sail chain landed the city at live+Δ, Δ=(−0.386,−0.187,+26.619), vs the bridge frame every downstream consumer uses):
+ // the rim-from-live-meadow translation followed sailMeadowRoot, but post-seam flight keys / touchdown / S0_GAME / skyMooring5a / baked plans are
+ // in seam.skycityRootWorld. Place there; the live-meadow rim result is only logged as the deviation.
+ const cw=skycityRootWorldFrame(seam);
+ model.setWorldPosition(cw.origin[0],cw.origin[1],cw.origin[2]);
+ const w=model.worldPosition,yawDeg=worldYawDeg(model)/* full8: world yaw, not the local euler read-back */,dy=((yawDeg-cw.yawDeg)%360+540)%360-180;
+ try{console.info('[QF_SKY_FRAME] '+JSON.stringify({root:[w.x,w.y,w.z].map(v=>+v.toFixed(3)),seam:cw.origin,liveRimDelta:[live[0]-cw.origin[0],live[1]-cw.origin[1],live[2]-cw.origin[2]].map(v=>+v.toFixed(3)),yawDeg:+yawDeg.toFixed(3),yawErrDeg:+dy.toFixed(3)}));}catch{}
+ if(Math.abs(dy)>.05)console.error('[QF_SKY_FRAME] skycity yaw '+yawDeg.toFixed(3)+' != seam '+cw.yawDeg+' (anchor yaw drifted from flightpath data)');
+ return {yawDeg,origin:[w.x,w.y,w.z]};
 }
 function publishFlight(doc:FlightDoc):void{(globalThis as any).__QF_BALLOON_FLIGHT=doc;}
 /**
@@ -347,7 +353,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');
   await waitRegionAsset(ambient.prepare(),token,VEHICLE_ASSET_WAIT_MS);token.check();
   model.setRotationFromEuler(0,0,0);model.setPosition(0,0,0);
-  const city=placeLiveSkycity(model,meadow,opts.start);
+  const city=placeLiveSkycity(model,meadow,opts.start,json);
   // full6-cam P1: the balloon lease never registered the skycity board source (only the sail/meadow builder does), so on arrival
   // regionBoardHandoff and regionLandingToBoard both returned 'no-board-pose' and enter-level played the generic push-in = the
   // basket-door close-up hard-cut to the board (L9 / L11, any stage entered from the balloon arrival). Same map as the adapter's.

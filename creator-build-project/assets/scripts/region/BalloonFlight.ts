@@ -110,6 +110,9 @@ export function rigidFromSeam(block:{yawDeg:number;translation:Vec}|undefined,fa
  if(!block)return fallback;
  return {yawDeg:block.yawDeg,origin:[block.translation[0],block.translation[1],block.translation[2]]};
 }
+/** full9c skyframe: THE skycity world placement (one source of truth, every chain): flightpath seam.skycityRootWorld. The post-seam
+ *  flight keys, the touchdown, S0_GAME, skyMooring5a and every baked sky plan live in this frame. */
+export function skycityRootWorldFrame(doc?:FlightDoc|null):Rigid{return rigidFromSeam(doc?.seam?.skycityRootWorld,CW_JSON);}
 export function postSeamFrame(doc?:FlightDoc|null):Rigid{
  return rigidFromSeam(doc?.seam?.meadowToWorld_postSeam,P_SEAM);
 }
