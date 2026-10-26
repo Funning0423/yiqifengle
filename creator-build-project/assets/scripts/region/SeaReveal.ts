@@ -76,4 +76,4 @@ export function aboveWaterTiles(pts:ArrayLike<number>,waterY:number,cell=SEA_TIL
  const m=new Map<string,{min:number[];max:number[]}>();
  for(let i=0;i+2<pts.length;i+=3){const y=pts[i+1];if(y<=waterY)continue;const x=pts[i],z=pts[i+2],k=Math.floor(x/cell)+','+Math.floor(z/cell);
   let b=m.get(k);if(!b){b={min:[x,y,z],max:[x,y,z]};m.set(k,b);}else{if(x<b.min[0])b.min[0]=x;if(y<b.min[1])b.min[1]=y;if(z<b.min[2])b.min[2]=z;if(x>b.max[0])b.max[0]=x;if(y>b.max[1])b.max[1]=y;if(z>b.max[2])b.max[2]=z;}}
- return [...m.values()] as unknown as Box[];}
+ return Array.from(m.values()) as unknown as Box[];}
