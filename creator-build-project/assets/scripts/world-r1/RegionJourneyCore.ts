@@ -7,7 +7,10 @@ import { CHAIN_FALLBACK, LiveHandoff, continuousTransitions, fallbackDecision, r
 import { beginTransition, shotLength, type TransitionRun } from '../region/TransitionCamera';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
-export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
+export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd;
+ /** full8b: UNCOUNTED lead-in from the checkpoint to path[0] (skycity→lakeside: her stand → node path → S6, walked by the ride
+  *  before the counted leg). When present it must start at the checkpoint and end at path[0] (same 1e-4 continuity). */
+ entry?:readonly Vec[] }>;
 /** progress (optional, build05-next): walked distance along route.path, every observed frame and once at the stop. */
 export interface JourneySceneLease { route:JourneyRoute; /** b16 ride set-off (运镜bot): the ride's first camera pose. A ride lease that has it never cuts from the live camera in view: the controller holds the live lens (no onFrame writes) until walk(), fades to black, writes this pose under the cover and fades in as the ride starts. */ startPose?():Pose; show(visible:boolean):void; dispose():void; progress?(distance:number):void; /** Sail/balloon only. Bridge leases omit both, so observe/walk stay on the old path. */ onFrame?(dt:number):Pose|void; ride?(actor:CharacterAdapter, world:WorldLease, token:Cancellation):Promise<void>; }
 export interface JourneySceneAdapter {
@@ -26,6 +29,8 @@ export function remainingRoute(path:readonly Vec[],distance:number):Vec[] {
 }
 export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  if(!route.path||route.path.length<2||route.path.some(p=>p.length!==3||p.some(n=>!Number.isFinite(n))))throw Error('journey-invalid-path');
+ if(route.entry!==undefined){const e=route.entry;if(e.length<2||e.some(p=>p.length!==3||p.some(n=>!Number.isFinite(n))))throw Error('journey-invalid-path');
+  if(dist(start,e[0])>1e-4||dist(e[e.length-1],route.path[0])>1e-4)throw Error('journey-invalid-continuity');start=route.path[0];}
  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
  if(!journeyRegionOrderOk(route.from,route.to))throw Error('journey-region-order');
  if(route.timing!==undefined&&!journeyTimingOk(routeLength(route.path),route.timing))throw Error('journey-invalid-timing');

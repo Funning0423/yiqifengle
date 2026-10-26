@@ -9,6 +9,7 @@ import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from '
 import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
 import {camTag,camLog,camActorProbe} from './CamTraceLog';
 import {SKY_PRE_FOLLOW,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
+import {skyLakeEntry} from './SkyLakeEntry';
 import {startLegClock} from './LegTiming';
 import {blendPose as lakeBlendPose} from './LakesideBalloon';
 import {SKY_WALK_SHOT,finaleCity,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
@@ -236,7 +237,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const shore=L.arrival[L.arrival.length-1],v4Stop=L.toWorld([...LAKESIDE_CAMERA_LAYOUT.stopLocal] as Vec),E=arrivalPose([shore,v4Stop],L.focus,L.landing)/* b18: solved from the v4 stop, = this screen's board lens */,landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
   // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
   const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),M5=TRANSITION_STAGING.skyMooring5a,atC=continuousTransitions()&&M5.option==='C'/* full2-cam task 4: the game rides from mooring C (data), not T-03's launch-point walk */,R=lakesideBalloonRide(atC?[[M5.walkWorld[0][0],M5.walkWorld[0][1],M5.walkWorld[0][2]] as Vec/* full7 (a): the counted leg starts at S6; ride() walks the node path there first */,...M5.walkWorld.slice(1).map(p=>[p[0],p[1],p[2]] as Vec)]:[start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
-  let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
+  const entry=atC?skyLakeEntry(start,M5 as any):null/* full8b: checkpoint → S6 lead-in (uncounted, walked by the ride) */;
+  let route:JourneyRoute={from,to:'lakeside',...(entry?{entry}:{}),path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
   const total=routeLength(path);route={...route,timing:lakesideRouteTiming(total,R.T+moored.timing.durationS,K.walkEaseS,moored.timing.easeOutS)};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
   token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);vehicle.name='LakesideMooredBalloon';

@@ -139,6 +139,10 @@ export class WarmButtonSkin {
     const key=`${width}:${height}:${ivory?1:0}`;if(key===this.key){if(this.frames)ready();return;}
     this.key=key;const generation=++this.generation;this.sprite.spriteFrame=null;this.frames=null;this.release?.();this.release=null;
     this.node.getComponent(UITransform)!.setContentSize(width,height);
+    // full8b (Mac afb9a70c: 'Button RT did not produce both opaque faces' rt [2,1], alpha [0,0]): the caller laid the button out at
+    // 0×0 (collapsed / not yet sized) → scale·0 → max(1,…) = a 1 px face that no geometry covers. A sub-pixel button has nothing to
+    // bake: wait for the real size (the next configure with ≥1×1 re-keys and bakes). The Graphics fallback stays meanwhile.
+    if(!(width>=1&&height>=1))return;
     const scene=director.getScene();if(!scene){this.key='';return;}
     let cache=caches.get(scene);if(!cache){cache=new SkinCache(scene);caches.set(scene,cache);}
     this.release=cache.acquire(width,height,ivory,frames=>{
