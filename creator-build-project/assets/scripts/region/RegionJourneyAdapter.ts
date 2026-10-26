@@ -306,14 +306,14 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false,...(atC?{liftTraj:SKY_5A_LIFT_KEYS,walkCam,boardClose}:{})});
     boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,boardEndTau-D5.inflate)/* ignition + fill overlap boarding and sit_down, full as she is seated */;inflate(0);if(lflame)lflame.active=false;
     chainMark('lakeside','C1-basket-in');guardBeforeWalk((actor as any).anim,'C1 walk to basket');}
-   const boardIn=async()=>{
+   const boardIn=async()=>{legClock.mark('door');
     let dt0=0;const dStep=()=>{dt0+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,BALLOON_DOOR.openDeg*Math.min(1,Math.max(0,(dt0-BALLOON_DOOR.openDelayS)/BALLOON_DOOR.openS)),0);};
     director.on(Director.EVENT_BEFORE_DRAW,dStep);
     try{if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});rideToken.check();
      const g=girl&&isValid(girl,true)?girl.worldPosition:null,sp=seat.worldPosition;
-     if(g){guardBeforeWalk((actor as any).anim,'C1 step into basket');const here:Vec=[g.x,g.y,g.z],to:Vec=[sp.x,g.y,sp.z],L=Math.hypot(to[0]-here[0],to[2]-here[2]);
+     if(g){legClock.mark('stepIn');guardBeforeWalk((actor as any).anim,'C1 step into basket');const here:Vec=[g.x,g.y,g.z],to:Vec=[sp.x,g.y,sp.z],L=Math.hypot(to[0]-here[0],to[2]-here[2]);
       if(L>.05)await actor.perform({kind:'walk',path:[here,to],duration:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken);
-      try{await actor.perform({kind:'sit',seat:seatFromBench([sp.x,sp.y+BASKET_RIDE_POSE.lakeside.offset[1],sp.z],moored.startYawRad)} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;}}
+      legClock.mark('sit');try{await actor.perform({kind:'sit',seat:seatFromBench([sp.x,sp.y+BASKET_RIDE_POSE.lakeside.offset[1],sp.z],moored.startYawRad)} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;}}
      rideToken.check();boardFn();legHide.apply(director.getScene());
     }finally{director.off(Director.EVENT_BEFORE_DRAW,dStep);if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,0,0);}
     boarded=true;};
@@ -321,7 +321,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    // T-03 (GGbot): arrival trace + board preload from the set-off (P1 45 s: the board preload used to start only at atmosphere
    // weight 0.9, i.e. at the very end of the route, so the board mount ran after the landing instead of during the flight)
-   arrivalMark('ride-start');void preloadLakesideBoard();
+   arrivalMark('ride-start');legClock.mark('walk');void preloadLakesideBoard();
    // T-03 skip API: the skip badge (2nd viewing on) runs a WindWipe 'ride'; under the cover it calls this, which jumps the
    // ride clock to touchdown (R.T) on the next tick; resolves once the touchdown frame has been applied.
    const flightAt=R.cutT+K.boardBlackS/2;let skipReq=false,skipped=false,landedOk:()=>void=()=>{};const landed=new Promise<void>(r=>{landedOk=r;});
@@ -358,7 +358,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      if(sl){const d=hidden?0:Math.max(0,Math.min(.1,dt));
       if(tau<sl.walkS)tau=Math.min(sl.walkS,tau+d);
       else if(!boarded){if(walkDone&&!boardStarted){boardStarted=true;void boardIn().catch(bad);}tau=Math.min(boardEndTau-1e-3,tau+d);}
-      else{const prevTau=tau;tau=Math.max(tau,boardEndTau)+d;if(prevTau<sl.flightAt&&tau>=sl.flightAt){inflate(INFLATE.durationS);if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}chainMark('lakeside','C3-flight');}}
+      else{const prevTau=tau;tau=Math.max(tau,boardEndTau)+d;if(prevTau<sl.flightAt&&tau>=sl.flightAt){inflate(INFLATE.durationS);if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}chainMark('lakeside','C3-flight');legClock.mark('flight');}}
       if(tau<sl.flightAt&&tau>=inflateTau0){if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}inflate(tau-inflateTau0);}
       clock.t=sl.rideT(tau);if(!(clock.t+1e-4<R.T)&&!c4){c4=true;chainMark('lakeside','C4-settle');}
       apply();pub(clock.t,false);
@@ -385,7 +385,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
    // T-03: touchdown hook for the place-name sign (GGbot): ride.T s after the segment start
    // T-03 sign (GGbot LakesideArrivalUI): the event carries the sign timing, so a retimed landing only changes LAKESIDE_TOUCHDOWN
-   pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.stop({to:'touchdown',designS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
+   pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.mark('touchdown');legClock.stop({to:'touchdown',designS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
    try{(globalThis as any).__qfLakesideTouchdownAt=R.T;director.emit(LAKESIDE_TOUCHDOWN.event,{atS:R.T,skipped,signAtS:LAKESIDE_TOUCHDOWN.signAtS,signS:LAKESIDE_TOUCHDOWN.signS,boardByS:lakesideBoardByS()/* option B: board blend START (touchdown +5.3); board reached when her walk is in, ≈ +12.0 */});}catch{/* listeners only */}
    landedOk();
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);

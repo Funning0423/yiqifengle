@@ -2651,8 +2651,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 7082,
-    "sha256": "4f3fa05ac53f43d6330903f600af1a7354a9e2f07a3617a2e6ee5851df292917"
+    "bytes": 7650,
+    "sha256": "19818864db195682564106cc73a06d074773cce1641dd3504160cd5acf7b434b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -2961,8 +2961,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LegTiming.ts",
-    "bytes": 1497,
-    "sha256": "d7ae620daf72d6efbd92ecbce50f075bcef2fe09b2ee9d0f7eaea9f3700b66c9"
+    "bytes": 1910,
+    "sha256": "3a5fa01328290da6cb7ab4c4589094c20a7aec9ca23584c4e1da7c51c9ac505d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LegTiming.ts.meta",
@@ -3131,8 +3131,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 61934,
-    "sha256": "47da8aff52e487fdd498d7ed96a6b070a9b621a06765bedc450029fa6b4eb89f"
+    "bytes": 62074,
+    "sha256": "7bd1974c46fcd12da0c68733a5e419349c242176ed6df749746afb89674861b2"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",

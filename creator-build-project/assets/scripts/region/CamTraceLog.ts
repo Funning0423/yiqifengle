@@ -10,7 +10,7 @@
 import { cameraWriteHook } from '../world-r1/CameraPose';
 import {debugSearch} from './DebugQuery';
 export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
-export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,out:(s:string)=>console.log(s)};
+export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,out:(s:string)=>console.log(s)};
 export function camLogEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTrace=1(?:&|$)/.test(query||'')||camFlagOn(g&&g.__QF_CAM_TRACE);}
 /** Global switch accepts exactly true / 1 / '1' (also 'true'); '0', 'false', '' and others stay off. */
 export function camFlagOn(v:unknown):boolean{return v===true||v===1||v==='1'||v==='true';}
@@ -32,6 +32,10 @@ export function camLogWrite(camera:any,pose:{position:readonly number[];rotation
   const dm=Math.hypot(x-camLog.lp[0],y-camLog.lp[1],z-camLog.lp[2]);let dy=Math.abs(yaw-camLog.ly);if(dy>180)dy=360-dy;const dd=Math.max(dy,Math.abs(pitch-camLog.lpi));
   if(dm>CAM_LOG_CAP.m||dd>CAM_LOG_CAP.deg)s+=' JUMP='+f3(dm)+'m/'+f3(dd)+'deg';
  }
+ {/* full9b: writers per frame (gate: ==1). The 2nd+ write in one engine frame names its caller (stack) so an extra writer is traceable. */
+  let fr=-1;try{const d=(globalThis as any).cc?.director;fr=d&&typeof d.getTotalFrames==='function'?d.getTotalFrames():-1;}catch{fr=-1;}
+  if(fr>=0&&fr===camLog.fr){camLog.fw++;let caller='';try{caller=String(new Error().stack||'').split('\n').slice(3,6).map(x=>x.trim()).join(' < ');}catch{}s+=' MULTI='+camLog.fw+' CALLER='+caller;}else{camLog.fr=fr;camLog.fw=1;}
+  if(fr>=0)s+=' fr='+fr;}
  camLog.has=true;camLog.last=w;camLog.lp[0]=x;camLog.lp[1]=y;camLog.lp[2]=z;camLog.ly=yaw;camLog.lpi=pitch;
  camLog.out(s);
 }
@@ -76,6 +80,6 @@ export function camLogStart(query?:string,g:any=globalThis):boolean{
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 camLogStart();
