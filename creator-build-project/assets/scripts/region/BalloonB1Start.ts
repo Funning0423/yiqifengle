@@ -19,3 +19,21 @@ export function b1PreWalk(here:Vec):B1PreWalk{
  let L=0;for(let i=1;i<path.length;i++)L+=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1],path[i][2]-path[i-1][2]);
  return {path,lengthM:L,durationS:L/WALK_SPEED_MPS,fromKey:near.key};
 }
+/** 运镜bot full7-cam: the pre-walk follow lens (was inline in BalloonTransit preDraw). Her heading flips at every node corner, and a
+ *  first-order pose ease of followPose made the lens yaw accel spike (p99 ≈1000 °/s² at the corners). Now the lens heading is a
+ *  critically damped follower of hers (ω PREWALK_LENS.omega, rate ≤ yawDegS, accel ≤ accDegS2). Start: min-jerk from the live lens over
+ *  inS. End: min-jerk onto the B1 first lens c0 over the last outS (B1 then starts with no step). Pure; positions/headings in world. */
+import type {Pose} from '../world-r1/WorldFlowCore';
+import {followPose} from './ExploreCameraCore';
+import {blendPose,minJerk} from './TransitionCamera';
+export const PREWALK_LENS=Object.freeze({omega:2.2,yawDegS:100,accDegS2:240,inS:1,outS:1.5});
+export type PreWalkLensState={yaw:number;v:number};
+export function b1PreWalkLens(a:{her:Vec;yawRad:number;w:number;h:number;dt:number;t:number;durationS:number;live:Pose|null;c0:Pose;prev:PreWalkLensState|null}):{pose:Pose;state:PreWalkLensState}{
+ const K=PREWALK_LENS,D=Math.PI/180,s=a.prev?{...a.prev}:{yaw:a.yawRad,v:0};
+ if(a.prev&&a.dt>0){let e=a.yawRad-s.yaw;e=Math.atan2(Math.sin(e),Math.cos(e));
+  const acc=Math.max(-K.accDegS2*D,Math.min(K.accDegS2*D,K.omega*K.omega*e-2*K.omega*s.v));s.v=Math.max(-K.yawDegS*D,Math.min(K.yawDegS*D,s.v+acc*a.dt));s.yaw+=s.v*a.dt;}
+ let p:Pose=followPose(a.her,s.yaw,a.w,a.h);
+ if(a.live&&a.t<K.inS)p=blendPose(a.live,p,minJerk(a.t/K.inS));
+ const left=a.durationS-a.t;if(left<K.outS)p=blendPose(p,a.c0,minJerk(1-Math.max(0,left)/K.outS));
+ return {pose:p,state:s};
+}
