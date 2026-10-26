@@ -2551,8 +2551,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonB1Start.ts",
-    "bytes": 1706,
-    "sha256": "7a88ecf120751e19f4adef75c99ddcd6f095223c862695c804d6fa927db2691f"
+    "bytes": 3862,
+    "sha256": "7341114e4d48e646e0fa88937192983e49cc83e53bbe15b9ea493ea2dace8d70"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonB1Start.ts.meta",
@@ -2591,8 +2591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 57540,
-    "sha256": "b169dd144c296a1bedd64f65ac08b766a0c9c144bf2b9895b21ddc9e11b40424"
+    "bytes": 57872,
+    "sha256": "6e76c6927c2c57b97dc989b2d96c6b8840d2e62b1c2454e5d936ee418b131ae0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -3091,8 +3091,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 5125,
-    "sha256": "ab71f5c9fb6d41477335c9e5a554123ded9b0354e2ea75886ddabe098945df15"
+    "bytes": 5826,
+    "sha256": "8d094e631dc4cb3ed27549d17109648b4f6e2ea7b7438461dc29afa8bfd09364"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -4171,8 +4171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WarmButtonSkin.ts",
-    "bytes": 9161,
-    "sha256": "19f062b010414be799c4de249ed3c1d199bfa0bd32c70ea246aea46724e33cd9"
+    "bytes": 10349,
+    "sha256": "beb7a043feb116cfafbe7d80e5ac0b8913cd18d54d8c9eee88c1edd8d4ce49f9"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WarmButtonSkin.ts.meta",
@@ -4591,8 +4591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 8742,
-    "sha256": "c860398ef4e2c4746b2bf20be5afe3f077d7acb37c6bf6dafa13181458ee2805"
+    "bytes": 9148,
+    "sha256": "8e390a2c9c79bc44e75b4cc0fe13c4825e7f4949e4ac8d538927c712f5c8db50"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
@@ -4861,8 +4861,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 23293,
-    "sha256": "6f97eaac4fbbdfbad149d9285c9dc0ef5c4be77dbb14d9b7c4bc9ef85b99b316"
+    "bytes": 23678,
+    "sha256": "2b0680613c2b93b8a50047652109689493a89f8c7626cf2e70013ed1876bd43c"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
