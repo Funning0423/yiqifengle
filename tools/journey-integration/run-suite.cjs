@@ -10,6 +10,7 @@ const tests=[
  ['warm-button-bake-retry','tools/board-ui/test_warm_button_bake_retry.cjs'],
  ['meadow-walk-no-uturn','tools/meadow-walk/test_meadow_walk_no_uturn.cjs'],
   ['sky-resume-s6','tools/skycity-walk/test_sky_resume_s6.cjs'],
+  ['sky-s2s3-edge-clearance','tools/skycity-walk/test_sky_s2s3_edge_clearance.cjs'],
   ['sky-lake-prewalk','tools/skycity-walk/test_sky_lake_prewalk.cjs'],
   ['full6-lake-fixes','tools/full6-lake/test_full6_lake_fixes.cjs'],
  ['meadow-walk-colliders','tools/meadow-walk/test_meadow_walk_colliders.cjs'],/* M6 moved to (0.2,6.49,-24.8) by 场景设计部: 1.003 m */

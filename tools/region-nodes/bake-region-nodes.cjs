@@ -61,6 +61,8 @@ const REGIONS={
   // moored baskets at the landing and at 5a: state-toggled (BasketObstacles), routed round, not baked
   extras:[{file:'creator-build-project/assets/bundles/region_skycity/sky_mooring_props.glb',floor:/sky_mooring_deck|balloon_step_stool/,solid:/sky_mooring_deck|sky_mooring_posts|sky_mooring_5a_stakes|balloon_step_stool/}],
   routeDiscs:'skycity',
+  // GGbot full7: S3→S4 grazed the stump cells (local x 4.6–6.2, z 0.2–1.4; reported at (4.8,1.2)) by ~0.28 m for a 0.3 m body
+  routeAvoid:[[5.4,0.8,1.3]],
  },
 };
 const NODES={
@@ -84,7 +86,7 @@ const NODES={
  skycity:[
   {key:'S0',at:[5.25,-0.084,40.6],role:'arrival'},
   {key:'S1',at:[0.2,0.04,30.2],role:'mainline',stageId:'mainline-09'},
-  {key:'S2',at:[-6.6,-0.05,19],role:'mainline',stageId:'mainline-10'},
+  {key:'S2',at:[-7,-0.06,19],role:'mainline',stageId:'mainline-10'/* b19 s2s3-edge: was -6.6 (0.2 m from an unwalkable cell) */},
   {key:'S3',at:[6.2,-0.01,8.2],role:'mainline',stageId:'mainline-11'},
   {key:'S4',at:[0.2,3.31,-5.8],role:'mainline',stageId:'mainline-12'},
   {key:'S5',at:[0.2,0.08,-17],role:'optional',opens:'challenge-sky'},
@@ -131,6 +133,8 @@ function buildGrid(spec,stamp){
   if(x>=ax&&x<=bx&&z>=az&&z<=bz)ls.forEach((y,li)=>{if(y>ymin)ok[ci][li]=false;});});
  const route=new Set();
  if(spec.routeDiscs)for(const o of BASKET_DISCS().filter(o=>o.region===spec.routeDiscs))layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-o.at[0],z-o.at[1])<=o.r+o.clearM+ROUTE_MARGIN)route.add(ci);});
+ // b19 s2s3-edge (场景设计部): route-only keep-outs (walkability unchanged) — node edges keep ≥0.4 m from these unwalkable blobs
+ if(spec.routeAvoid)for(const [ax,az,ar] of spec.routeAvoid)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-ax,z-az)<=ar)route.add(ci);});
  if(spec.walls)for(const [ax,az,bx,bz,hw] of spec.walls)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
   const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));if(Math.hypot(x-ax-dx*t,z-az-dz*t)<=hw)ls.forEach((y,li)=>{ok[ci][li]=false;});});
  if(spec.sea!==undefined)layers.forEach((ls,ci)=>ls.forEach((y,li)=>{if(y<spec.sea)ok[ci][li]=false;}));
@@ -210,7 +214,9 @@ function emit(baked){
    const A=by[a].at,B=by[b].at,ka=nearest(g,A,0.6),kb=nearest(g,B,0.6);
    if(!ka||!kb)throw Error('edge-endpoint '+a+b);
    // Reconstruct A* from A to B by flooding a second time is expensive; walk parent chains via a targeted BFS from A.
-   const path=bfs(g,A,B);
+   // b19 s2s3-edge: listed edges keep one free 0.4 m cell from every unwalkable cell (exempt within EXEMPT_M of either node); fallback = plain
+   const clearEdge=(CLEAR_EDGES[id]||[]).some(([p,q])=>(p===a&&q===b)||(p===b&&q===a));
+   const path=(clearEdge&&bfs(g,A,B,clearBuffer(g,A,B,id)))||bfs(g,A,B);
    if(!path)throw Error('no-path '+a+' '+b);
    const simp=simplify(path.path,.15);
    edges.push({a,b,path:simp,lengthM:round3(path.len)});
@@ -221,7 +227,16 @@ function emit(baked){
  }
  return body;
 }
-function bfs(M,from,to){
+const CLEAR_EDGES={skycity:[['S1','S2'],['S2','S3'],['S3','S4']]},EXEMPT_M=0.45;
+function clearBuffer(M,A,B,id){// unwalkable = the RUNTIME walk grid (RegionWalkableData via RegionWalkable.walkFloorY), which is what she and the tests walk on
+ const RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts');
+ const blockedXZ=(x,z)=>RW.walkFloorY(id,x,z)===null,buf=new Set(),pad=6;
+ const x0=Math.min(A[0],B[0])-pad,x1=Math.max(A[0],B[0])+pad,z0=Math.min(A[2],B[2])-pad,z1=Math.max(A[2],B[2])+pad;
+ for(let gz=0;gz<M.H;gz++)for(let gx=0;gx<M.W;gx++){const x=M.x0+(gx+.5)*M.c,z=M.z0+(gz+.5)*M.c;if(x<x0||x>x1||z<z0||z>z1)continue;
+  let near=false;for(let dz=-1;dz<=1&&!near;dz++)for(let dx=-1;dx<=1&&!near;dx++)if(blockedXZ(x+dx*M.c,z+dz*M.c))near=true;
+  if(near&&Math.hypot(x-A[0],z-A[2])>=EXEMPT_M&&Math.hypot(x-B[0],z-B[2])>=EXEMPT_M)buf.add(gz*M.W+gx);}
+ return buf;}
+function bfs(M,from,to,avoid){
  const start=nearest(M,from,0.8),goal=nearest(M,to,0.8);if(!start||!goal)return null;
  if(start.k===goal.k){const p=pathOf(M,start.k);return {path:[p[p.length-1]],len:0};}
  const seen=new Set(),parent=new Map(),dist=new Map();
@@ -230,6 +245,7 @@ function bfs(M,from,to){
  while(qi<q.length){const k=q[qi++];if(k===goal.k)break;const ci=(k/8)|0,li=k%8,y=M.layers[ci][li],gx=ci%W,gz=(ci/W)|0,d0=dist.get(k);
   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx,lim=STEP*Math.hypot(dx,dz)*(c/.4);
    if(M.route&&M.route.has(nc))continue;
+   if(avoid&&avoid.has(nc))continue;
    M.layers[nc].forEach((y2,l2)=>{if(!M.ok[nc][l2]||Math.abs(y2-y)>lim)return;const nk=M.key(nc,l2);if(seen.has(nk))return;seen.add(nk);parent.set(nk,k);dist.set(nk,d0+Math.hypot(dx,dz)*c);q.push(nk);});}}
  if(!parent.has(goal.k)&&start.k!==goal.k)return null;
  const pts=[];let cur=goal.k;while(cur!==null){const ci=(cur/8)|0,li=cur%8;pts.push([round3(M.x0+(ci%W+.5)*c),round3(M.layers[ci][li]),round3(M.z0+(((ci/W)|0)+.5)*c)]);cur=parent.get(cur);} 

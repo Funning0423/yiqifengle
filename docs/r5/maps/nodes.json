@@ -255,8 +255,8 @@
     "k": "S2",
     "name": "西花园 west garden — mainline-10",
     "at": [
-     -6.6,
-     -0.05,
+     -7,
+     -0.06,
      19
     ]
    },
@@ -308,22 +308,22 @@
    {
     "from": "S1",
     "to": "S2",
-    "walkM": 14,
-    "walkS": 11.7,
+    "walkM": 14.2,
+    "walkS": 11.9,
     "climbM": -0.1
    },
    {
     "from": "S2",
     "to": "S3",
-    "walkM": 19,
-    "walkS": 15.8,
+    "walkM": 20.1,
+    "walkS": 16.7,
     "climbM": 0.04
    },
    {
     "from": "S3",
     "to": "S4",
-    "walkM": 16.8,
-    "walkS": 14,
+    "walkM": 17.4,
+    "walkS": 14.5,
     "climbM": 3.32
    },
    {
@@ -341,7 +341,7 @@
     "climbM": -0.05
    }
   ],
-  "totalWalkM": 97.4,
+  "totalWalkM": 99.3,
   "reachableAreaM2": 4493,
   "heightRange": [
    -3.4,
