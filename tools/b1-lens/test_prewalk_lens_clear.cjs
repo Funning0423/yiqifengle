@@ -6,7 +6,7 @@
  *  (planAgree gap ≈30 m, local-vs-world meadow yaw), which needs a Mac run with [QF_B1_FRAME] to confirm. */
 const assert=require('node:assert/strict'),cp=require('child_process'),path=require('path'),os=require('os');
 const T=path.join(__dirname,'..','transitions-continuous','fixtures','m2-camtrace-full.txt'),O=path.join(os.tmpdir(),'m2-cleared-'+process.pid+'.txt');
-const fs=require('fs');const gate=f=>{const j=f+'.gate.json';const r=cp.spawnSync(process.execPath,[path.join(__dirname,'..','journey-integration','collision-gate.cjs'),'--trace',f,'--json',j],{encoding:'utf8'});const d=JSON.parse(fs.readFileSync(j,'utf8'));fs.rmSync(j,{force:true});d.spans=d.spans||[];return {code:r.status,d};};
+const fs=require('fs');const gate=f=>{const j=f+'.gate.json';const r=cp.spawnSync(process.execPath,[path.join(__dirname,'..','journey-integration','collision-gate.cjs'),'--trace',f,'--json',j,'--meadow-frame','bridge'],{encoding:'utf8'});const d=JSON.parse(fs.readFileSync(j,'utf8'));fs.rmSync(j,{force:true});d.spans=d.spans||[];return {code:r.status,d};};
 cp.execFileSync(process.execPath,[path.join(__dirname,'make_cleared_trace.cjs'),T,O],{stdio:'inherit'});
 const a=gate(T),b=gate(O);
 assert.notEqual(a.code,0,'m2 original must fail the gate');

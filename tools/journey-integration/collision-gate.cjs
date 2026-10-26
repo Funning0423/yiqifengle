@@ -14,13 +14,20 @@ const file=arg('--trace'),expectFail=process.argv.includes('--expect-fail');if(!
 const MEADOW=/^BalloonTransit:(prewalk|B1)$/;
 (async()=>{const geo=await R.geometry(),bl=R.balloonLeg(geo,[390,844]);
  const L=fs.readFileSync(file,'utf8').split('\n').map(l=>l.match(/\[QF_CAM_TRACE\] f=(\d+) t=([\d.]+) pos=([-\d.e,]+).*? w=(\S+)/)).filter(Boolean).map(m=>({f:+m[1],t:+m[2],p:m[3].split(',').map(Number),w:m[4]}));
+ /* full9c: the meadow has TWO runtime placements — bridge/level frame (journey-scene mOff, meadowOffset [0,0,24]) and the SAIL frame
+  * (TransportLeg.sailMeadowRoot, sailMeadowOffset [0,0,52] + sink 1.35; RegionJourneyAdapter.ts:126) used by the chained island→skycity
+  * journey. Both are yaw 180, so they differ by a pure translation D. The frame is detected from the trace (first B1 write = plan c0 in that
+  * frame, ≤ PLAN_TOL_M) and meadow writes are mapped into the proxy frame. A trace matching neither frame still fails --require-plan-agree. */
+ const TL=R.J.H.load(R.J.S+'region/TransportLeg.ts'),SR=TL.sailMeadowRoot(),D=SR.map((v,i)=>v-R.J.mOff[i]),c00=bl.cam(0).position,b10=L.find(q=>q.w==='BalloonTransit:B1');
+ const gap=(p,o)=>Math.hypot(p[0]-o[0]-c00[0],p[1]-o[1]-c00[1],p[2]-o[2]-c00[2]),frame=arg('--meadow-frame')||(b10&&gap(b10.p,D)<gap(b10.p,[0,0,0])?'sail':'bridge'),off=frame==='sail'?D:[0,0,0];
+ for(const q of L)if(MEADOW.test(q.w))q.p=q.p.map((v,i)=>v-off[i]);
  const viol=[],unchecked={};let checked=0,aabb=0;
  for(const q of L){if(!MEADOW.test(q.w)){unchecked[q.w]=(unchecked[q.w]||0)+1;continue;}checked++;const r=C.check(bl.los,0,q.p);if(r.inBox.length)aabb++;
   if(r.clr||r.enc)viol.push({f:q.f,t:q.t,w:q.w,pos:q.p,clr:r.clr,enc:r.enc,inBox:r.inBox});}
  const spans=[];for(const v of viol){const s=spans[spans.length-1];if(s&&v.t-s.t1<0.3&&s.w===v.w)Object.assign(s,{t1:v.t,f1:v.f,n:s.n+1,enc:s.enc+(v.enc?1:0),tags:[...new Set([...s.tags,(v.clr||'').split(':')[1]||'',...v.inBox.filter(b=>/windmill/.test(b))])]});else spans.push({w:v.w,t0:v.t,t1:v.t,f0:v.f,f1:v.f,n:1,enc:v.enc?1:0,tags:[(v.clr||'').split(':')[1]||'',...v.inBox.filter(b=>/windmill/.test(b))]});}
  // proxy ↔ Mac agreement: first B1 write vs route-legs plan.camera(0) (runtime c0). --require-plan-agree fails when > PLAN_TOL_M.
  const PLAN_TOL_M=0.5,b1=L.find(q=>q.w==='BalloonTransit:B1'),c0=bl.cam(0).position,planGapM=b1?+Math.hypot(...b1.p.map((v,i)=>v-c0[i])).toFixed(3):null;
- const out={tool:'collision-gate',planAgree:{traceB1First:b1?b1.p:null,proxyC0:c0.map(v=>+v.toFixed(3)),gapM:planGapM,tolM:PLAN_TOL_M,ok:planGapM!==null&&planGapM<=PLAN_TOL_M},trace:file,writes:L.length,checked,unchecked,violations:viol.length,enclosed:viol.filter(v=>v.enc).length,aabbReport:aabb,spans:spans.map(s=>({...s,tags:s.tags.filter(Boolean)}))};
+ const out={tool:'collision-gate',meadowFrame:{frame,offsetM:off.map(v=>+v.toFixed(3))},planAgree:{traceB1First:b1?b1.p:null,proxyC0:c0.map(v=>+v.toFixed(3)),gapM:planGapM,tolM:PLAN_TOL_M,ok:planGapM!==null&&planGapM<=PLAN_TOL_M},trace:file,writes:L.length,checked,unchecked,violations:viol.length,enclosed:viol.filter(v=>v.enc).length,aabbReport:aabb,spans:spans.map(s=>({...s,tags:s.tags.filter(Boolean)}))};
  console.log(JSON.stringify(out,null,1));if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({...out,viol},null,1));
  const failed=viol.length>0||(process.argv.includes('--require-plan-agree')&&!out.planAgree.ok);
  if(expectFail){const ok=failed&&out.enclosed>0;console.log(JSON.stringify({status:ok?'PASS (must-fail trace is caught)':'FAIL (gate misses a known penetration)'}));process.exit(ok?0:1);}
