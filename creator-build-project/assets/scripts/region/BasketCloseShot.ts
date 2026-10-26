@@ -4,6 +4,15 @@
  *  side angle whose lens clears every occluder box by clearM and sees her face + chest (HerShot.lensOk). Pure (no cc). */
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import {HER_SHOT,lensOk,type Box} from './HerShot';
+import {MEADOW_LENS_BOXES} from './MeadowLensBoxes';
+/** full8 (Mac m2 B5: 1.88 m step on a 77 ms frame; B1: 9.5 m in ≈0.5 s): a min-jerk blend peaks at 1.875·D/T, so the blend is never
+ *  shorter than 1.875·D/lensMaxMps (11 m/s ⇒ ≤0.85 m on a 77 ms frame). */
+export const LENS_MAX_MPS=11;
+export function speedSafeS(a:readonly number[],b:readonly number[],baseS:number,vMax=LENS_MAX_MPS):number{return Math.max(baseS,1.875*Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])/vMax);}
+/** full8 (Mac m2: B1 end blend through a meadow tree, pre-walk through the windmill): meadow solid boxes (windmill_static_merged,
+ *  windmill_sails, one per tree) in world, from the meadow node transform `toWorld` (meadow-local → world). */
+export function meadowLensBoxesWorld(toWorld:(p:Vec)=>Vec):Box[]{const out:Box[]=[];for(const list of Object.values(MEADOW_LENS_BOXES))for(const b of list){const m=[1e9,1e9,1e9],M=[-1e9,-1e9,-1e9];
+ for(const x of[b[0],b[3]])for(const y of[b[1],b[4]])for(const z of[b[2],b[5]]){const w=toWorld([x,y,z]);for(let a=0;a<3;a++){m[a]=Math.min(m[a],w[a]);M[a]=Math.max(M[a],w[a]);}}out.push([m[0],m[1],m[2],M[0],M[1],M[2]]);}return out;}
 export const BASKET_CLOSE=Object.freeze({heightFrac:.30,herM:1.7253,fovDeg:46,upM:1.55,lookUpM:.95,
  /** side angles (°) round her from the basket→her line (+ = her left); first clear wins */sideDeg:[50,-50,70,-70,35,-35,90,-90,110,-110] as readonly number[],
  clearM:1.1,blendS:1.2,blendOutS:1.8/* B5: ride last lens → close-up (p99 accel ≤200°/s²) */});

@@ -28,21 +28,22 @@ const dBox=(p,b)=>{const lo=b.slice(0,3),hi=b.slice(3,6);let s=0,inside=true;for
  const city=l=>add(rotY(J.yaw,l),J.sOff);
  for(const [w,h] of RL.SCREENS){const shots=[];
   {// B1
-   const v=plan.vehicle(0),o=v.pos,y=v.yaw*R2D,W=l=>TM.basketToWorld(o,y,l),cam0=plan.camera(0,{w,h}),sp=BC.basketCloseSpot(W(B.doorOut),o,boxes,undefined,[cam0]);
+   const v=plan.vehicle(0),o=v.pos,y=v.yaw*R2D,W=l=>TM.basketToWorld(o,y,l),cam0=plan.camera(0,{w,h}),mBoxes=BC.meadowLensBoxesWorld(l=>add(rotY(180,l),J.mOff))/* full8: as runtime (meadow node) */,sp=BC.basketCloseSpot(W(B.doorOut),o,[...boxes,...mBoxes],undefined,[cam0]);
    const toDoor=[m6,W(B.outside),W(B.doorOut)],len=toDoor.slice(1).reduce((s,p,i)=>s+Math.hypot(p[0]-toDoor[i][0],p[2]-toDoor[i][2]),0),walkS=Math.max(D3.toBasket*Math.min(1,len/6),len/TS.TRANSITION_STAGING.walkMps);
    const t1=walkS+D3.doorReach,inAt=t1+D3.intoBasket,bl=Math.min(BC.BASKET_CLOSE.blendS,D3.sitDown*.9),end=inAt+D3.sitDown;
    const feet=t=>t<walkS?lerpPath(toDoor,t/walkS):t<t1?W(B.doorOut):t<inAt?lerpPath([W(B.doorOut),W(B.threshold),W(B.p0)],(t-t1)/D3.intoBasket):W(B.p0);
-   const bin=BC.b1InS(walkS),cam=t=>{const c=TC.blendPose(cam0,BC.basketClosePose(sp.position,feet(t)),TC.minJerk(t/bin));return t<inAt?c:TC.blendPose(c,cam0,TC.minJerk((t-inAt)/bl));};
-   shots.push({id:'B1 meadow in',sp,cam,feet,end,hold:[walkS,inAt],walk:t=>t<walkS||(t>=t1&&t<inAt),los:(a,b)=>RL.hit(G.meadow,a,b)||RL.balHit(o,y,v.roll,a,b),
+   const bin=sp?BC.speedSafeS(cam0.position,sp.position,BC.b1InS(walkS)):BC.b1InS(walkS),cam=t=>{const c=TC.blendPose(cam0,BC.basketClosePose(sp.position,feet(t)),TC.minJerk(t/bin));return t<inAt?c:TC.blendPose(c,cam0,TC.minJerk((t-inAt)/bl));};
+   shots.push({id:'B1 meadow in',sp,cam,feet,end,hold:[walkS,inAt],stepUntil:inAt/* full8: 77 ms step is HARD up to the step-in; the close→cam0 return (≤ sitDown·.9 so the flight starts on cam0) is reported (st77back) */,walk:t=>t<walkS||(t>=t1&&t<inAt),los:(a,b)=>RL.hit(G.meadow,a,b)||RL.balHit(o,y,v.roll,a,b),
     tail:()=>{const p=cam(end),q=cam0;return Math.max(...[0,1,2].map(i=>Math.abs(p.position[i]-q.position[i])));}});}
   {// B5
    const v=plan.vehicle(plan.total),o=v.pos,y=v.yaw*R2D,W=l=>TM.basketToWorld(o,y,l),camEnd=plan.camera(plan.total,{w,h}),sp=BC.basketCloseSpot(W(B.doorOutB),o,boxes,undefined,[camEnd]);
    const seat=W([0,0,0]),st=D4.standUp+D4.pause,t1=st+D4.doorReach,t2=t1+D4.stepDown+1,p2=[city(K.stepDown),city(K.deckEdge),city(K.s0New)],l2=Math.hypot(p2[1][0]-p2[0][0],p2[1][2]-p2[0][2])+Math.hypot(p2[2][0]-p2[1][0],p2[2][2]-p2[1][2]);
    const end=t2+Math.min(D4.toPath,Math.max(1.5,l2/TS.TRANSITION_STAGING.walkMps));
    const feet=t=>t<t1?seat:t<t2?lerpPath([seat,W(B.thresholdB),W(B.doorOutB),city(K.stepDown)],(t-t1)/(t2-t1)):lerpPath(p2,(t-t2)/(end-t2));
-   const cam=t=>TC.blendPose(camEnd,BC.basketClosePose(sp.position,feet(t)),TC.minJerk(t/BC.BASKET_CLOSE.blendOutS));
-   shots.push({id:'B5 skycity out',sp,cam,feet,end,hold:[Math.max(st,BC.BASKET_CLOSE.blendOutS),t2],walk:t=>t>=t1,los:(a,b)=>RL.hit(G.cityB,a,b)||RL.balHit(o,y,v.roll,a,b),tail:()=>0});}
+   const cam=t=>TC.blendPose(camEnd,BC.basketClosePose(sp.position,feet(t)),TC.minJerk(t/(sp?BC.speedSafeS(camEnd.position,sp.position,BC.BASKET_CLOSE.blendOutS):BC.BASKET_CLOSE.blendOutS)));
+   shots.push({id:'B5 skycity out',sp,cam,feet,end,hold:[Math.max(st,sp?BC.speedSafeS(camEnd.position,sp.position,BC.BASKET_CLOSE.blendOutS):BC.BASKET_CLOSE.blendOutS),t2],walk:t=>t>=t1,los:(a,b)=>RL.hit(G.cityB,a,b)||RL.balHit(o,y,v.roll,a,b),tail:()=>0});}
   for(const S of shots){if(!S.sp){ok(false,`${S.id} ${w}x${h} no clear close-up spot`);continue;}
+   {/* full8: lens step on a dropped 77 ms frame ≤ 0.875 m (≤ ~11 m/s) */let st77=0,stB=0;for(let t=0;t+.077<=S.end+1e-9;t+=DT){const a=S.cam(t).position,b=S.cam(t+.077).position,d=Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);if(S.stepUntil===undefined||t+.077<=S.stepUntil)st77=Math.max(st77,d);else stB=Math.max(stB,d);}S.st77=+st77.toFixed(3);S.st77back=+stB.toFixed(3);ok(st77<=.875,`${S.id} ${w}x${h} 77 ms step ${st77.toFixed(3)} m > 0.875`);}
    let herMin=9,ys=[],prevY=null,prevV=null,maxW=0,maxS=0,accW=[],accS=[],run=0,runMax=0,clr=99,inBox=false;
    for(let t=0;t<=S.end+1e-9;t+=DT){const p=S.cam(t),f=S.feet(t),yy=yawOf(p);
     if(t>=S.hold[0]&&t<=S.hold[1])herMin=Math.min(herMin,BC.herHeightFrac(p,f));
@@ -50,7 +51,7 @@ const dBox=(p,b)=>{const lo=b.slice(0,3),hi=b.slice(3,6);let s=0,inside=true;for
      if(prevV!==null)(wk?accW:accS).push(Math.abs(vv-prevV)/DT);prevV=vv;}prevY=yy;
     const pts=RL.standPts(f),hid=S.los(p.position,pts.face)||S.los(p.position,pts.chest);run=hid?run+DT:0;runMax=Math.max(runMax,run);
     for(const b of boxes){const d=dBox(p.position,b);if(d<0)inBox=true;else clr=Math.min(clr,d);}}
-   const r={id:S.id,scr:`${w}x${h}`,her:+(herMin*100).toFixed(1),yawS:+maxS.toFixed(1),p99S:+pct(accS,.99).toFixed(0),yawW:+maxW.toFixed(1),p99W:+pct(accW,.99).toFixed(0),hid:+runMax.toFixed(2),clr:+clr.toFixed(2),tail:+S.tail().toFixed(4)};rows.push(r);
+   const r={id:S.id,scr:`${w}x${h}`,her:+(herMin*100).toFixed(1),yawS:+maxS.toFixed(1),p99S:+pct(accS,.99).toFixed(0),yawW:+maxW.toFixed(1),p99W:+pct(accW,.99).toFixed(0),hid:+runMax.toFixed(2),clr:+clr.toFixed(2),tail:+S.tail().toFixed(4),st77:S.st77,st77back:S.st77back};rows.push(r);
    ok(herMin>=.25,`${r.id} ${r.scr} her ${r.her}% <25`);ok(maxS<=90&&pct(accS,.99)<=200,`${r.id} ${r.scr} standing yaw ${r.yawS}°/s p99 ${r.p99S}`);
    ok(maxW<=120&&pct(accW,.99)<=300,`${r.id} ${r.scr} walking yaw ${r.yawW}°/s p99 ${r.p99W}`);ok(runMax<=.5,`${r.id} ${r.scr} hidden ${r.hid}s`);
    ok(!inBox&&clr>=1.1,`${r.id} ${r.scr} clearance ${r.clr}`);ok(r.tail<=.001,`${r.id} ${r.scr} B1 end ≠ ride lens (${r.tail} m)`);}}
