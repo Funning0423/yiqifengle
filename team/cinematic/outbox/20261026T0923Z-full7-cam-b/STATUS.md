@@ -5,10 +5,10 @@ It prints `[QF_CAM_TRACE] frame=<n> CAM_OFF | WORLD_LAYER_OFF vis=0x.. | CAM_MIS
 Suite at 4bda3728: 227 PASS / 0 FAIL / 3 BLOCKED (env). Visibility --full: no camera pose changed since d5cdba58 (235,257 cams, 0 holes).
 
 ## 1 Stuck region-travel lens — diagnosed, NOT changed (GGbot area for the stall)
-Writer during the stall = the lakeside lease's beforeDraw apply(), RegionJourneyAdapter.ts:328
+Writer during the stall = the lakeside lease's beforeDraw apply(), RegionJourneyAdapter.ts:330
 (`lastPose=sl.cam(tau,…);world.setCamera(c2Lens(…))`). It writes every frame, so the lens is not stale. It is frozen because tau is
-clamped by ticker.step, RegionJourneyAdapter.ts:337–338: `tau<walkS → tau+=d`, then `!boarded → wait walkDone/boardIn,
-tau≤boardEndTau-1e-3`. The C1 walk (`actor.perform(walk)`, :305) or boardIn (:296–302: performDoorReach / walk / sit) did not
+clamped by ticker.step, RegionJourneyAdapter.ts:342–343: `tau<walkS → tau+=d`, then `!boarded → wait walkDone/boardIn,
+tau≤boardEndTau-1e-3`. The C1 walk (`actor.perform(walk)`, :305) or boardIn (:293–303: performDoorReach / walk / sit) did not
 resolve for about 80 s. Mac s2: C1-basket-in 07:44:06.905Z = ride-start, then nothing until the C2 entry.
 So the lens holds the C1 walk / SkyWalkShot pose on skycity ground (grass and a rock), and the sky is green from the sky TypeError.
 Proposed GGbot fix: find the awaited actor call that stalls (likely the walk, while the lakeside assets load). Camera-side
