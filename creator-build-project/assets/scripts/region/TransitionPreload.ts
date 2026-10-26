@@ -33,7 +33,7 @@ let skyArmed=false;let skyStaged:Promise<boolean>|null=null;
 export function armSkycityWarmOnSailRide():void{skyArmed=true;}
 export function sailRideStarted():void{if(!skyArmed)return;skyArmed=false;void warmSkycityLegStaged();}
 function bundleAsset(bundleName:string,name:string,type:any):Promise<boolean>{
- return new Promise(ok=>assetManager.loadBundle(bundleName,(err,b)=>{if(err||!b){ok(false);return;}b.load(name,type,(e:any,a:any)=>ok(!e&&!!a));}));
+ return new Promise(ok=>assetManager.loadBundle(bundleName,(err,b)=>{if(err||!b||typeof (b as any).load!=='function'){ok(false);return;}b.load(name,type,(e:any,a:any)=>ok(!e&&!!a));}));
 }
 export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
  if(skyStaged)return skyStaged;
