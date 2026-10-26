@@ -9,10 +9,16 @@
  *  JUMP = position step > CAM_LOG_CAP.m (TRANSITION_CAM per-frame lens cap ·1.05) or view step > CAM_LOG_CAP.deg in one write. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
 import {debugSearch} from './DebugQuery';
+/** full9b P0 (Mac A/B: camTrace ON froze the renderer, OFF completed): bounded trace. ≤ linesPerS write lines per wall second
+ *  (over budget: counted, the next line carries DROPPED=<n>); ≤ maxStacks CALLER stacks per session; re-entry never writes. */
+export const CAM_LOG_BUDGET=Object.freeze({linesPerS:60,maxStacks:200});
 export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
-export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,out:(s:string)=>console.log(s)};
+export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,stacks:false,busy:false,reentry:0,dropped:0,stackN:0,win:-1,winN:0,out:(s:string)=>console.log(s)};
 export function camLogEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTrace=1(?:&|$)/.test(query||'')||camFlagOn(g&&g.__QF_CAM_TRACE);}
 /** Global switch accepts exactly true / 1 / '1' (also 'true'); '0', 'false', '' and others stay off. */
+/** full9b: CALLER stacks (new Error().stack on the 2nd+ write of a frame) only with camTrace on AND `?camTraceStacks=1` or
+ *  `globalThis.__QF_CAM_TRACE_STACKS` = true/1/'1'. Plain camTrace prints MULTI=<n> without the stack (cheap). */
+export function camStacksEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTraceStacks=1(?:&|$)/.test(query||'')||camFlagOn(g&&g.__QF_CAM_TRACE_STACKS);}
 export function camFlagOn(v:unknown):boolean{return v===true||v===1||v==='1'||v==='true';}
 /** Writers name themselves just before world.setCamera; no-op when off. */
 export function camTag(name:string):void{if(camLog.on)camLog.tag=name;}
@@ -21,6 +27,14 @@ export function camTagDefault(name:string):void{if(camLog.on&&!camLog.tag)camLog
 const f3=(v:number)=>(Math.round(v*1000)/1000).toString();
 export function camLogWrite(camera:any,pose:{position:readonly number[];rotation:readonly number[];fovVerticalDeg:number},source:string):void{
  if(!camLog.on)return;
+ /* full9b: re-entrancy guard — a write that arrives while a trace line is being built/printed (console hook, getter, stack
+  * formatter) is counted, never traced (no recursion, no feedback loop) */
+ if(camLog.busy){camLog.reentry++;publishStats();return;}
+ camLog.busy=true;try{camLogWriteInner(camera,pose,source);}finally{camLog.busy=false;}
+}
+function publishStats():void{try{(globalThis as any).__qfCamTraceStats={reentry:camLog.reentry,dropped:camLog.dropped,stacks:camLog.stackN,lines:camLog.n};}catch{}}
+function camLogWriteInner(camera:any,pose:{position:readonly number[];rotation:readonly number[];fovVerticalDeg:number},source:string):void{
+ void camera;
  const [x,y,z]=pose.position,[qx,qy,qz,qw]=pose.rotation;
  const fx=-2*(qx*qz+qw*qy),fy=-2*(qy*qz-qw*qx),fz=-(1-2*(qx*qx+qy*qy));// forward = q·(0,0,-1)
  const yaw=Math.atan2(fx,-fz)*180/Math.PI,pitch=Math.asin(Math.max(-1,Math.min(1,fy)))*180/Math.PI;
@@ -34,10 +48,13 @@ export function camLogWrite(camera:any,pose:{position:readonly number[];rotation
  }
  {/* full9b: writers per frame (gate: ==1). The 2nd+ write in one engine frame names its caller (stack) so an extra writer is traceable. */
   let fr=-1;try{const d=(globalThis as any).cc?.director;fr=d&&typeof d.getTotalFrames==='function'?d.getTotalFrames():-1;}catch{fr=-1;}
-  if(fr>=0&&fr===camLog.fr){camLog.fw++;let caller='';try{caller=String(new Error().stack||'').split('\n').slice(3,6).map(x=>x.trim()).join(' < ');}catch{}s+=' MULTI='+camLog.fw+' CALLER='+caller;}else{camLog.fr=fr;camLog.fw=1;}
+  if(fr>=0&&fr===camLog.fr){camLog.fw++;s+=' MULTI='+camLog.fw;if(camLog.stacks&&camLog.stackN<CAM_LOG_BUDGET.maxStacks){camLog.stackN++;let caller='';try{caller=String(new Error().stack||'').split('\n').slice(3,6).map(x=>x.trim()).join(' < ');}catch{}s+=' CALLER='+caller;}}else{camLog.fr=fr;camLog.fw=1;}
   if(fr>=0)s+=' fr='+fr;}
  camLog.has=true;camLog.last=w;camLog.lp[0]=x;camLog.lp[1]=y;camLog.lp[2]=z;camLog.ly=yaw;camLog.lpi=pitch;
- camLog.out(s);
+ {const sec=Math.floor(t);if(sec!==camLog.win){camLog.win=sec;camLog.winN=0;}
+  if(++camLog.winN>CAM_LOG_BUDGET.linesPerS){camLog.dropped++;publishStats();return;}}
+ if(camLog.dropped)s+=' DROPPED='+camLog.dropped;if(camLog.reentry)s+=' REENTRY='+camLog.reentry;
+ camLog.out(s);if((camLog.n&63)===0)publishStats();
 }
 /** Default world layer bit (cc Layers.Enum.DEFAULT = 1<<30). */
 export const CAM_LOG_WORLD_LAYER=1<<30;
@@ -75,11 +92,11 @@ let started=false;
 export function camLogStart(query?:string,g:any=globalThis):boolean{
  if(started)return camLog.on;started=true;
  let q=query;if(q===undefined)q=debugSearch(g)/* full8: + wx launch/enter query + __qfQuery */;
- camLog.on=camLogEnabled(q,g);
+ camLog.on=camLogEnabled(q,g);camLog.stacks=camLog.on&&camStacksEnabled(q,g);
  if(camLog.on){camLog.t0=typeof performance!=='undefined'?performance.now():Date.now();cameraWriteHook.log=camLogWrite;try{(g||globalThis).__qfCamTag={t:camTag,d:camTagDefault};}catch{}}
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 camLogStart();
