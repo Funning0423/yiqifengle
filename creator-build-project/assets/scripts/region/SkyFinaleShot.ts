@@ -59,6 +59,8 @@ export function skyFinaleShot(feet:readonly number[],faceYawRad:number,ring:read
  *  lead room toward the city. Proxy (env_skycity.glb rays): sky 40.9–48 %, underside ≤ 21.9 % of the upper half, 7 screens.
  *  Old option C pose kept as SKY_FINALE_POSE_LOCAL_C for before/after. */
 /** full9c: shifted by the stand move old planWalk end (0.941,0.044,-27.059) → S6 node (0.2,0.034,-27.8): Δ (−0.741,−0.0095,−0.741), rigid (same arm, angle, fov). Was position [1.972,1.542,-18.668] target [0.377,1.839,-27.012]. */
+/** full9c: the walk lens city aim point (finaleCity of the composed finale lens) is a fixed landmark — moving her stand must not drag it (it drove SKY_5A_WALK_PLAN arm -1.2→-2.2) */
+export const SKY_FINALE_CITY_LOCAL:V3=[-9.286,3.638,-77.565];
 export const SKY_FINALE_POSE_LOCAL={position:[1.231,1.532,-19.409] as V3,target:[-0.364,1.829,-27.753] as V3,fovVerticalDeg:45};
 export const SKY_FINALE_POSE_LOCAL_C={position:[6.845,1.342,-26.291] as V3,target:[-3.199,2.342,-26.649] as V3,fovVerticalDeg:45};
 /** Approach seconds from the walk lens to the shot under the standing yaw cap: blendPose is smootherstep (peak rate 1.875·Δ/T,

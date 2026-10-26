@@ -22,7 +22,7 @@ let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
   const M=LB.lakesideBalloonMooring(shore,L.toWorld),R=LB.lakesideBalloonRide([S6,...M5.walkWorld.slice(1).map(p=>[...p])],L.toWorld([...K.launchLocal]),M.mooring,land);
   const wide=LB.lakesideDoorWideLens(M.walk,M.mooring,land,w/h,{...BL.boardSafeInsets(w,h),h}),door=wide?wide.lens:LB.lakesideDoorLens(M.walk,M.mooring,w/h,undefined,undefined,{...BL.boardSafeInsets(w,h),h});
   const stepInS=(D5.intoBasket||TS.lakeBoardS())+D5.turn180+D5.sitDown,inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
-  const Wk=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,[...boxes,...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,M5.walkWorld)],SW.finaleCity(fin),{...SW.SKY_WALK_SHOT,plan:AD.SKY_5A_WALK_PLAN},fin),walkCam=tau=>Wk.pose(Wk.gazeS+tau*Wk.walkS/R.walkS);
+  const Wk=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,[...boxes,...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,M5.walkWorld)],SW.skyLocalToWorld(M5,FS.SKY_FINALE_CITY_LOCAL),{...SW.SKY_WALK_SHOT,plan:AD.SKY_5A_WALK_PLAN},fin),walkCam=tau=>Wk.pose(Wk.gazeS+tau*Wk.walkS/R.walkS);
   const S00=SL.skyLakeContinuous(R,door,{...SL.SKY_LAKE_CONT,doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TS.TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:AD.SKY_5A_LIFT_KEYS,walkCam});
   const dS=M5.walkWorld.at(-1),spot=BC.basketCloseSpot(dS,M5.world,[...boxes,...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,[dS])],undefined,[walkCam(R.walkS),S00.cam(S00.flightAt,null)]);ok(!!spot,'E C1 close spot');
   const boardClose=spot?tau=>BC.basketClosePose(spot.position,BC.boardFeetAt(dS,M5.seat,tau-R.walkS,D5.doorReach,stepInS-D5.sitDown)):null;

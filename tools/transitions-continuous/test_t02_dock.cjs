@@ -16,7 +16,7 @@ const DT=1/60;let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}}
  const O=AD.TRANSITION_OCCLUDERS,dockBoxes=[...O.sky_mooring_deck,...O.sky_mooring_5a,...O.basket_skycity_5a];
  const B=SO.SKYCITY_LENS_OCCLUDERS.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]})),segs=NW.planWalk('skycity','S4','S6').segments,last=segs[segs.length-1].path,pa=last[last.length-2],feetL=last[last.length-1],face=Math.atan2(feetL[0]-pa[0],feetL[2]-pa[2]);
  const NEW=FS.SKY_FINALE_POSE_LOCAL,fin=wp(NEW),boxes=AD.transitionOccluderBoxes();
- const Wk=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,[...boxes,...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,M5.walkWorld)],SW.finaleCity(fin),{...SW.SKY_WALK_SHOT,plan:AD.SKY_5A_WALK_PLAN},fin);
+ const Wk=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,[...boxes,...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,M5.walkWorld)],SW.skyLocalToWorld(M5,FS.SKY_FINALE_CITY_LOCAL),{...SW.SKY_WALK_SHOT,plan:AD.SKY_5A_WALK_PLAN},fin);
  const rows=[];
  for(const [w,h] of RL.SCREENS){const from=C.followPose(feetL,face,w,h,8),ap=FS.skyFinaleApproach(from,NEW,feetL,B);
   const shots={approach:{T:ap.T,cam:t=>wp(FS.skyFinaleApproachPose(from,NEW,feetL,t,ap.T,ap.dir)),her:()=>RL.standPts(W(feetL))},
