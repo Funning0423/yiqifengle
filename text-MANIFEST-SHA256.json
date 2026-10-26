@@ -3651,8 +3651,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts",
-    "bytes": 15351,
-    "sha256": "4946c98287d3551032b977f06f362e532146256925e1f24b881ef27b7d5728cf"
+    "bytes": 17139,
+    "sha256": "de9a37bba8f90f94f7eabed46a9f0ab2cf330fa46999d78f8d3d0ad3abda55ed"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts.meta",
@@ -3661,8 +3661,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts",
-    "bytes": 4479,
-    "sha256": "c67b861e05081c09c9d8adb187f24fc7beca2aac9b558a11ffcd7d689ab76596"
+    "bytes": 4516,
+    "sha256": "c754ae5f177c93a4543a19ae8a40745e49f3a0b1ef4ba960a5f264567381bb83"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts.meta",
@@ -4866,8 +4866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 55762,
-    "sha256": "636dc62ff129f08277c14d5a34fd767c30d0a01cfd1e036818dc738062275b51"
+    "bytes": 57054,
+    "sha256": "f8dd3e5b412d9ae5e337adf354d29552bc25ddba69a4513b1b3d05b2b213ac69"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
