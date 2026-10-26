@@ -1,4 +1,0 @@
-PASS no imported vertex-colour material is shared with a colourless primitive (meadow handled at runtime: true)
-PASS sky_mooring_props: 6/6 primitives carry COLOR_0 (in the Draco stream) for the runtime M_sky_palette rebind (20 palette primitives in env_skycity, all with COLOR_0)
-PASS landing deck centre 0.50 m from the landing basket (5.4,43.8); max corner fraction in the last 4 s landing frustum (7 screens): {"sky_mooring_deck":1,"sky_mooring_posts":1,"sky_mooring_rope":1}
-{"result":"PASS","pass":3,"frustum":{"sky_mooring_deck":1,"sky_mooring_posts":1,"sky_mooring_rope":1}}

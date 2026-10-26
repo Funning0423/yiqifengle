@@ -1,1 +1,0 @@
-PASS b1-lens-pacing {"dragM":12.9,"minS":5.16}

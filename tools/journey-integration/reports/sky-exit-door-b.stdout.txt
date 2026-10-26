@@ -1,1 +1,0 @@
-{"status":"PASS","landingYawWorld":-112.253,"landingYawCityLocal":6.582,"doorB_out_world":[19.247,18.708,101.292],"stepDown_world":[19.538,18.798,101.378],"dot":0.9998,"outB_to_step":0.303,"entryHinge_to_step":2.43,"hingeB_to_step":0.802}
