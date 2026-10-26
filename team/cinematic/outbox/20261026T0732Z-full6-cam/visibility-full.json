@@ -1,0 +1,21 @@
+{
+ "status": "PASS",
+ "canary": "detected (ok)",
+ "mode": "full",
+ "seconds": 302.6,
+ "removedFaces": 1800,
+ "samples": 12600,
+ "solidTris": 53193,
+ "glbSha": "7a9150c4ea6930a6ced3c221a7e03057aaf46b3bae09d1a5ad9f1ff9422cdc5b",
+ "cams": 235257,
+ "camsByTag": {
+  "board": 7,
+  "finale": 2,
+  "flightkey": 247,
+  "arrival": 686,
+  "depart": 441,
+  "orbit": 233874
+ },
+ "holesSeenBy": 0,
+ "hits": []
+}
