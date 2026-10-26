@@ -3111,8 +3111,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 5826,
-    "sha256": "8d094e631dc4cb3ed27549d17109648b4f6e2ea7b7438461dc29afa8bfd09364"
+    "bytes": 6796,
+    "sha256": "7bec2501366ac609572fec209d850e5cb84d4cb675a55d065ebaff0597b3c629"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -3341,8 +3341,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakePreWalk.ts",
-    "bytes": 2764,
-    "sha256": "224c228a43b5668864aa62f93b3fb3664a2d3e6dd57c2dc2af6d76626216ac2b"
+    "bytes": 3047,
+    "sha256": "f222cb5b4cf811c899ac74776682425352da92acc051cab6a37b23565eda863c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyLakePreWalk.ts.meta",
@@ -4761,8 +4761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 51509,
-    "sha256": "5bce1a1f134ca786ce3ca0c5b73beb9f43db6a4dd71a07d942b341b042368422"
+    "bytes": 54357,
+    "sha256": "e2ceb142ed5ad6b8e7baab1299570b288cf5f418af5add7b1d7c550dd3e39124"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4891,8 +4891,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 23937,
-    "sha256": "5cb3dfbb32b8c0e39ccf61be7d666ec58132f9a789ba8cb52f3e985c5aa2928f"
+    "bytes": 24002,
+    "sha256": "0d675f74f8c05bb49d22a87d0fab8e4232158499dc85781340d57e6bbcdd3b5e"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
