@@ -6,3 +6,6 @@ PASS malformed, unavailable, read-only and sparse counter projections fail close
 PASS boundary winning-journal failures cannot unlock meadow/sky; cold retry records exactly once
 PASS mid-level cold reopen preserves board and needs explicit resume; late tokens do not write
 PASS meadow/sky chest and region-gift writes: before/after faults, retry, duplicate and cold claims
+PASS meadow/sky challenges progress in order, recover proof receipts and claim one regional memento
+PASS corrupt journey/checkpoint and stale concurrent writer preserve original bytes and lock regions
+PASS 10 region-level suites
