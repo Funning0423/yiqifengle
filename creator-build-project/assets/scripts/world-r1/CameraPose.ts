@@ -228,7 +228,7 @@ export type CameraLike = { node: CameraNodeLike; fov: number };
 export type CameraWriteLog = { writes: number; last: CameraPose | null; lastSource: string; rejected: number; trackAborts: number; lastAbort: string };
 export const cameraWriteLog: CameraWriteLog = { writes: 0, last: null, lastSource: '', rejected: 0, trackAborts: 0, lastAbort: '' };
 /** Test-only ?camTrace=1 (region/CamTrace.ts sets it); null = off. */
-export const cameraWriteHook: { trace: ((source: string) => void) | null } = { trace: null };
+export const cameraWriteHook: { trace: ((source: string) => void) | null; log: ((camera: any, pose: CameraPose, source: string) => void) | null } = { trace: null, log: null };
 /** THE single writer: position, rotation, then fov. Invalid poses are rejected (logged, camera untouched). */
 export function applyCameraPose(camera: CameraLike, pose: CameraPose, source: string, opts?: { allowRoll?: boolean }): boolean {
   let bad = validateCameraPose(pose); if (bad === 'roll-not-zero' && opts?.allowRoll) bad = null;
@@ -238,6 +238,7 @@ export function applyCameraPose(camera: CameraLike, pose: CameraPose, source: st
   camera.fov = pose.fovVerticalDeg;
   cameraWriteLog.writes++; cameraWriteLog.last = pose; cameraWriteLog.lastSource = source;
   if (cameraWriteHook.trace) cameraWriteHook.trace(source);
+  if (cameraWriteHook.log) cameraWriteHook.log(camera, pose, source); // region/CamTraceLog (?camTrace=1 / __QF_CAM_TRACE)
   return true;
 }
 

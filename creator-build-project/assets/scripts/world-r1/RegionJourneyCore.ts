@@ -1,6 +1,8 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
 import { coverAudioIn, coverAudioOut, coverContent, coverReady, emitWipeCovered, emitWipeRevealed, newWipeEvent, startWipeBeforeReveal, type WipeEvent } from './ScreenCover';
 import { WINDWIPE, wipeContentFor } from '../world-r2/WindWipeCore';
+/** region/CamTraceLog publishes __qfCamTag only when ?camTrace=1 / __QF_CAM_TRACE is on (else undefined: one lookup). */
+const CT=():{t:(n:string)=>void;d:(n:string)=>void}|undefined=>(globalThis as any).__qfCamTag;
 import { CHAIN_FALLBACK, LiveHandoff, continuousTransitions, fallbackDecision, recordFallback } from '../region/TransitionChain';
 import { beginTransition, shotLength, type TransitionRun } from '../region/TransitionCamera';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
@@ -248,7 +250,7 @@ export class RegionJourneyController {
  observe(actor:CharacterAdapter,world:WorldLease,dt:number=0):void{
   // b17r7: a held ride (set-off cover pending) gets NO onFrame at all, not just no camera write: the sail driver's step dresses
   // its scene (SailArt.sync hides the island sea) and that showed as a grey sea under the half-faded cover (audit 0.31-0.40 s).
-  if(this.lease?.onFrame&&!this.rideHold){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target){this.camera=pose;world.setCamera(pose);}}catch{}}
+  if(this.lease?.onFrame&&!this.rideHold){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target){this.camera=pose;CT()?.d('RegionJourneyCore:onFrame');world.setCamera(pose);}}catch{}}
   if(!this.activePath||!this.lease||!this.startCamera)return;
   const f=actor.walkProgress?.();if(typeof f!=='number'||!Number.isFinite(f))return;
   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
@@ -272,8 +274,8 @@ export class RegionJourneyController {
   try{run=beginTransition(shotId,{pose:from});}catch{run=null;}
   let last=journeyNow(),latest:Pose|null=first;
   const patched=(p:Pose)=>{const t=journeyNow(),dt=Math.max(0,Math.min(.1,t-last||1/60));last=t;latest=p;let out=p;
-   if(run){if(run.phase==='shot'&&run.t>=shotLength(run.spec))run.handTo(()=>latest||p);out=run.step(dt);if(run.phase==='done')run=null;}
-   else if(hand){out=hand.step(p,dt);if(hand.done)hand=null;}
+   CT()?.d('RegionJourneyCore');if(run){CT()?.t('TransitionCamera');if(run.phase==='shot'&&run.t>=shotLength(run.spec))run.handTo(()=>latest||p);out=run.step(dt);if(run.phase==='done')run=null;}
+   else if(hand){CT()?.t('LiveHandoff');out=hand.step(p,dt);if(hand.done)hand=null;}
    this.camera=out;orig.call(world,out);};
   (world as any).setCamera=patched;
   this.unpatch=()=>{if((world as any).setCamera===patched)(world as any).setCamera=orig;this.unpatch=null;};

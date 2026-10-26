@@ -8,6 +8,7 @@ import {boardLayout,boardSafeInsets,toolSlots,type SafeArea} from '../ui/BoardLa
 import {REGION_NODES} from './RegionNodes';
 import {REGION_CAMERA} from '../world-r1/RegionCameraData';
 import {TRANSITION_CAM,beginTransitionSpec} from './TransitionCamera';
+import {camTag} from './CamTraceLog';
 /** 运镜bot: LANDING → BOARD for 04→05 (meadow) and 08→09 (skycity), same approach as 风铃湖畔 (LakesideLandingHook). Pure
  *  (no engine imports): RegionJourneyAdapter gives the map between the journey copy of the region model and the board copy,
  *  WorldNativeComposition injects the camera and the frame clock.
@@ -129,10 +130,10 @@ export async function regionLandingToBoard(context:Readonly<{region:BoardLanding
  try{
   const from=d.readCamera();if(!from)return done(false,'no-camera');const v=d.viewport(),to=d.boardPose(v);if(!to)return done(false,'no-board-pose');
   const gap=poseGap(from,to),X=REGION_BOARD_LANDING.exact,M=REGION_BOARD_LANDING.match;
-  if(gap.positionM<=X.positionM&&gap.viewDeg<=X.viewDeg&&Math.abs(gap.fovDeg)<=X.fovDeg){stage='write';return d.setCamera(to)?done(true,'on-board-pose',{gap}):done(false,'camera-rejected',{gap});}
+  if(gap.positionM<=X.positionM&&gap.viewDeg<=X.viewDeg&&Math.abs(gap.fovDeg)<=X.fovDeg){stage='write';return (camTag('regionLandingToBoard'),d.setCamera)(to)?done(true,'on-board-pose',{gap}):done(false,'camera-rejected',{gap});}
   if(!(gap.positionM<=M.positionM&&gap.viewDeg<=M.viewDeg&&Math.abs(gap.fovDeg)<=M.fovDeg))return done(false,'not-at-landing',{gap});
   stage='blend';const R=REGION_BOARD_LANDING,seconds=Math.min(R.residualS[1],Math.max(R.residualS[0],gap.positionM/R.residualMps)),at=poseBlend(from,to,seconds);let t=0,frames=0;
-  for(;;){if(!d.setCamera(at(t)))return done(false,'camera-rejected',{gap,frames});if(t>=seconds)break;const dt=await d.nextFrame();frames++;t+=Number.isFinite(dt)&&dt>0?Math.min(.1,dt):0;}
+  for(;;){if(!(camTag('regionLandingToBoard'),d.setCamera)(at(t)))return done(false,'camera-rejected',{gap,frames});if(t>=seconds)break;const dt=await d.nextFrame();frames++;t+=Number.isFinite(dt)&&dt>0?Math.min(.1,dt):0;}
   return done(true,'blended',{gap,seconds,frames,frame:{width:v.width,height:v.height}});
  }catch(error){return done(false,'error',{stage,error:String((error as any)?.message||error)});}
 }
@@ -156,8 +157,8 @@ export async function regionBoardHandoff(context:Readonly<{region:BoardLandingRe
   let frames=0;
   for(;;){const dt=await d.nextFrame();frames++;const p=run.step(Number.isFinite(dt)&&dt>0?Math.min(.1,dt):1/60);
    if(run.t>=run.blendIn&&poseGap(p,to).viewDeg<.05&&Math.abs(poseGap(p,to).fovDeg)<.02)break;
-   if(!d.setCamera(p))return done(false,'camera-rejected',{gap,frames});if(run.t>=BOARD_HANDOFF.maxS+run.blendIn)break;}
-  if(!d.setCamera(to))return done(false,'camera-rejected',{gap,frames});
+   if(!(camTag('regionBoardHandoff'),d.setCamera)(p))return done(false,'camera-rejected',{gap,frames});if(run.t>=BOARD_HANDOFF.maxS+run.blendIn)break;}
+  if(!(camTag('regionBoardHandoff'),d.setCamera)(to))return done(false,'camera-rejected',{gap,frames});
   return done(true,'handed',{gap,seconds:run.t,frames});
  }catch(error){return done(false,'error',{error:String((error as any)?.message||error)});}
 }
