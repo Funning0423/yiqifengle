@@ -24,6 +24,7 @@ import {isTransitionPlaceholder} from './TransitionProps';
 import {setMooringRopes} from './SkyMooringRopes';
 import {basketObstacleEvent} from './BasketObstacles';
 import {b1PreWalk,b1DoorPath} from './BalloonB1Start';
+import {M6_LOCAL} from './BalloonFlight'/* full8: one basket-anchor M6 (was a second literal here) */;
 import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe} from './CamTraceLog';
 import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
@@ -37,7 +38,6 @@ function balloonCueRegion(name:string):string{
  if(name==='meadow-unload'||name==='far-meadow-card-on')return 'meadow';
  return 'balloon';
 }
-const M6_LOCAL:Vec=[0.2,6.5,-25.6];
 const GIRL_YAW=-76.6;
 /** Plan B: ShoreBreak / RoomLightingRig rewrite env_sea_surface every frame, so teleport×6 (plan A) cannot stick. */
 const SEA_PLAN:'A'|'B'='B';
@@ -225,17 +225,8 @@ export function restoreCityNight(cache:CityNightCache):number{
  cache.clear();return n;}
 /** Ground / island body: dimmed to (38,44,58) it reads as sky at night, so it is never silhouetted (gradeSkycityNight still darkens it). */
 export const CITY_NIGHT_KEEP=/^(env_sky_static_palette|env_sky_floor_seal)$/;
-/** full8 P1-a: B1 lens speed cap (m/s) and clearance to occluders along its blend path (运镜bot camera clearance 1.1 m). */
-export const B1_LENS_MPS=2.5,B1_LENS_CLEAR_M=1.1;
-/** World AABBs [x0,y0,z0,x1,y1,z1] of the meadow windmill renderers (live model; empty if not mounted). */
-function meadowMillBoxes(root:Node|null):number[][]{const out:number[][]=[];if(!root||!isValid(root,true))return out;
- eachNamed(root,n=>{if(!/windmill/i.test(n.name))return;for(const r of n.getComponents(MeshRenderer)){const b=(r as any).model?.worldBounds;if(!b)continue;const c=b.center,h=b.halfExtents;out.push([c.x-h.x,c.y-h.y,c.z-h.z,c.x+h.x,c.y+h.y,c.z+h.z]);}});return out;}
-/** Does the straight segment a→b pass within clear m of any box? (sampled every 0.1 m; pure) */
-export function b1PathBlocked(a:Vec,b:Vec,boxes:readonly (readonly number[])[],clear=B1_LENS_CLEAR_M):boolean{
- const d=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]),n=Math.max(1,Math.ceil(d/0.1));
- for(let i=0;i<=n;i++){const u=i/n,p=[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
-  for(const x of boxes){const dx=Math.max(x[0]-p[0],0,p[0]-x[3]),dy=Math.max(x[1]-p[1],0,p[1]-x[4]),dz=Math.max(x[2]-p[2],0,p[2]-x[5]);if(Math.hypot(dx,dy,dz)<clear)return true;}}
- return false;}
+/** full8 P1-a: B1 lens blend speed cap (m/s). */
+export const B1_LENS_MPS=2.5;
 /** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
  'env_sky_island_vine_cards','env_sky_island_windcore',
@@ -602,7 +593,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
         if(live&&pt<1)p=blendPose(live,p,minJerk(pt/1));const left=pre.durationS-pt;if(left<1.5)p=blendPose(p,c0,minJerk(1-Math.max(0,left)/1.5));camTag('BalloonTransit:prewalk');world.setCamera(p);};
        director.on(Director.EVENT_BEFORE_DRAW,preDraw);
        try{await actor.perform({kind:'walk',path:pre.path.map(l=>worldOf(meadow,l)),duration:pre.durationS,stopAtEnd:true} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);}rideToken.check();
-       emitTransitCue('node-arrive',{t:0,region:'meadow',node:'gate'});console.info('[QF_B1_PREWALK] '+JSON.stringify({from:pre.fromKey,m:+pre.lengthM.toFixed(2),planS:+pre.durationS.toFixed(2),realS:(Date.now()-t0)/1000}));}
+       emitTransitCue('node-arrive',{t:0,region:'meadow',node:'gate'});{const r3=(v:any)=>v?[+(+v.x).toFixed(3),+(+v.y).toFixed(3),+(+v.z).toFixed(3)]:null,rv=(v:readonly number[]|undefined)=>v?v.map(x=>+x.toFixed(3)):null,live=liveWorldPose(),p0=plan.camera(0);
+       console.info('[QF_B1_PREWALK] '+JSON.stringify({from:pre.fromKey,m:+pre.lengthM.toFixed(2),planS:+pre.durationS.toFixed(2),realS:(Date.now()-t0)/1000,
+        meadowPos:r3(meadow.worldPosition),meadowEuler:r3(meadow.eulerAngles),meadowScale:r3(meadow.worldScale),herStart:r3(gp0),m6Local:rv(M6_LOCAL),m6World:rv(m6),
+        c0:live?rv(live.position):null,plan0:rv(p0.position)}));}}
     }catch(error){if(String(error).includes('ancel'))throw error;console.warn('[QF_B1_PREWALK] skipped '+String(error));}}
     chainMark('balloon','B1-basket-in');
     const v0=plan.vehicle(0);vehicle.setWorldPosition(v0.pos[0],v0.pos[1],v0.pos[2]);{const qq=balloonQuat(v0.yaw*180/Math.PI,v0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);}
@@ -610,13 +604,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // full2-cam E (d3fe578e P2): close-up of the boarding — lens beside the door (BasketCloseShot, her ≈30 % of the frame), panning to
     // her live; once she is in, min-jerk onto the ride's first pose before she is seated (the ride then continues from it, no step).
     const cam0=plan.camera(0),oB:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],doorB1=basketToWorld(oB,vYawDeg(),TRANSITION_STAGING.basket.doorOut);
-    // full8 P1-a (Mac m2 f588–594: B1 dragged the lens ~9.5 m in 0.5 s THROUGH the windmill, then grey frames). Root cause: the
-    // windmill is not in TRANSITION_OCCLUDERS (only dock/gangway/basket/mooring boxes), so after the M6 move the close spot and the
-    // straight cam0→spot blend were never checked against it. Add the live windmill bounds; reject a spot whose blend path passes
-    // within B1_LENS_CLEAR_M of any box (then the lens holds cam0, the live prewalk end); blend time from distance (≤ B1_LENS_MPS).
-    const b1Boxes=[...(transitionOccluderBoxes() as any[]),...meadowMillBoxes(meadow)];
-    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,b1Boxes as any,undefined,[cam0]);}catch{spotB1=null;}
-    if(spotB1&&b1PathBlocked(cam0.position,spotB1.position,b1Boxes)){try{console.info('[QF_B1_LENS] close spot behind an occluder → hold the prewalk lens');}catch{}spotB1=null;}
+    // full8 P1-a: the close spot itself is 运镜bot's (basketCloseSpot avoiding windmill/trees, in progress) — unchanged here. Ours:
+    // the cam0→spot blend is paced by distance (≤ B1_LENS_MPS; m2 dragged ≈10 m in ≈1.1 s) and M6 comes from the walk graph.
+    let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,transitionOccluderBoxes() as any,undefined,[cam0]);}catch{spotB1=null;}
     const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0;
     const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
     const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};

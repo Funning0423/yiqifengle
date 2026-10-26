@@ -2,6 +2,9 @@ import type {Vec} from '../world-r1/WorldFlowCore';
 import {TRANSITION_RETIME} from './TransitionStaging';
 /** GGbot flightpath 2.2: meadow keys until the seam, world keys after. City placement is untouched. */
 export const FLIGHT_FORMAT='r5-balloon-flightpath/2.2';
+/** Balloon/basket anchor M6 (meadow-local) — the ONE copy (BalloonTransit imports it). NOTE full8: the walk-graph M6 node moved to
+ *  (0.2,6.493,−24.8) (场景设计部 e4ae91c1); this anchor stays pre-move because balloonBeats places the basket from it (moving it moves
+ *  the basket: basket-close fails). Decision pending (Grok Bot / 场景设计部); m6-single-source reports the 0.80 m delta. */
 export const M6_LOCAL:Vec=[0.2,6.5,-25.6];
 export const S0_LOCAL:Vec=[5.4,-0.11,43.8];
 export const S0_GAME:Vec=[18.09,18.7084,100.8184];
