@@ -11,7 +11,7 @@ const SHOTS={S0:[38,58.5,71.2],S3:[0.8,16.5,30.2]};
  const T=[];for(const o of sky){const t=o.tris;for(let i=0;i<t.length;i+=9){const a=S.skyLocalToWorld(M,[t[i],t[i+1],t[i+2]]),b=S.skyLocalToWorld(M,[t[i+3],t[i+4],t[i+5]]),c=S.skyLocalToWorld(M,[t[i+6],t[i+7],t[i+8]]);T.push([a,b,c,/ruins/.test(o.name)?[200,190,160]:/state_ring/.test(o.name)?[150,170,210]:[185,200,185]]);}}
  const frames=[];
  for(const K of Object.keys(SHOTS)){const P=SP.skyLakePreWalk(S.skyLocalToWorld(M,RN.REGION_NODES.skycity.nodes.find(n=>n.key===K).at),M).path,A=RS.arcOf(P);
-  const c0=SP.skyPreFollowPose(P[0],[P[1][0]-P[0][0],0,P[1][2]-P[0][2]]),pl=RS.planSkyResume(P,q=>RS.skyWorldToLocal(M,q));let so=null,sn=null,st=0;const dt=1/60,want=[...SHOTS[K]];
+  const c0=SP.skyPreFollowPose(P[0],[P[1][0]-P[0][0],0,P[1][2]-P[0][2]]),pl=RS.skyResumePlanFor(P,q=>RS.skyWorldToLocal(M,q)).plan;let so=null,sn=null,st=0;const dt=1/60,want=[...SHOTS[K]];
   for(let t=0;want.length&&t<200;t+=dt){st+=dt;const her=RS.arcAt(P,A,Math.min(A[A.length-1],t*NW.WALK_SPEED_MPS));
    const o=PF.skyPreFollowLens({her,path:P,dt,t:st,live:c0,prev:so});so=o.state;const n=RS.skyResumeLens(pl,her,st,c0,dt,sn);sn=n.state;
    if(t*NW.WALK_SPEED_MPS>=want[0]){const arc=want.shift();for(const [tag,cam] of [['old',o.pose],['new',n.pose]]){const f=`${K}_${arc}_${tag}`;render(cam,her,OUT+'/'+f+'.ppm');frames.push({f,K,arc,t:+t.toFixed(2),lens:cam.position.map(v=>+v.toFixed(2))});}}}}
