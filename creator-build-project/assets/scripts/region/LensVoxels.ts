@@ -9,9 +9,10 @@ export type VoxGrid={size:number,origin:readonly number[],dims:readonly number[]
 let meadowGrid:VoxGrid|null=null;
 export function meadowVox():VoxGrid{if(!meadowGrid){const v=MEADOW_LENS_VOX;meadowGrid={size:v.size,origin:v.origin,dims:v.dims,bits:b64Bytes(v.bits)};}return meadowGrid;}
 /** true when every occupied voxel is ≥ clr (box distance) from p. Outside the grid counts as clear. */
-export function voxClear(g:VoxGrid,p:Vec,clr:number):boolean{const s=g.size,o=g.origin,N=g.dims,r=Math.ceil(clr/s)+1;
- const ci=Math.floor((p[0]-o[0])/s),cj=Math.floor((p[1]-o[1])/s),ck=Math.floor((p[2]-o[2])/s);
- for(let k=ck-r;k<=ck+r;k++){if(k<0||k>=N[2])continue;for(let j=cj-r;j<=cj+r;j++){if(j<0||j>=N[1])continue;for(let i=ci-r;i<=ci+r;i++){if(i<0||i>=N[0])continue;
+export function voxClear(g:VoxGrid,p:Vec,clr:number):boolean{const s=g.size,o=g.origin,N=g.dims;
+ // only the cells overlapping the clr-ball's bounding box (≈27 cells for 1.1 m on a 1 m grid)
+ const i0=Math.max(0,Math.floor((p[0]-clr-o[0])/s)),i1=Math.min(N[0]-1,Math.floor((p[0]+clr-o[0])/s)),j0=Math.max(0,Math.floor((p[1]-clr-o[1])/s)),j1=Math.min(N[1]-1,Math.floor((p[1]+clr-o[1])/s)),k0=Math.max(0,Math.floor((p[2]-clr-o[2])/s)),k1=Math.min(N[2]-1,Math.floor((p[2]+clr-o[2])/s));
+ for(let k=k0;k<=k1;k++){for(let j=j0;j<=j1;j++){for(let i=i0;i<=i1;i++){
   const n=(k*N[1]+j)*N[0]+i;if(!(g.bits[n>>3]&(1<<(n&7))))continue;
   const x0=o[0]+i*s,y0=o[1]+j*s,z0=o[2]+k*s,dx=Math.max(x0-p[0],0,p[0]-x0-s),dy=Math.max(y0-p[1],0,p[1]-y0-s),dz=Math.max(z0-p[2],0,p[2]-z0-s);
   if(dx*dx+dy*dy+dz*dz<clr*clr)return false;}}}return true;}
