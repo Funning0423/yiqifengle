@@ -2591,8 +2591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 66819,
-    "sha256": "45a0be2fecc40f6494efd4abedb164f650120b777ca86a3b341a0f2e867ea930"
+    "bytes": 67042,
+    "sha256": "263d544ce7a9da7af70055692bb76abd21a807f3fc67cf07e65cf78f31f1311a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -2651,8 +2651,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 7650,
-    "sha256": "19818864db195682564106cc73a06d074773cce1641dd3504160cd5acf7b434b"
+    "bytes": 9659,
+    "sha256": "0d6f68479ac73a090dd85bb7de53bbe06d3d6451ba0e48f545e98cfbb63f1ab0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -3131,8 +3131,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 62074,
-    "sha256": "e8ad43c5d840bdbfa9aa8012dffa6825a72dde52ed34e36f027b0dc79f4df80a"
+    "bytes": 62537,
+    "sha256": "43efd4c82d0cefb2c347afefcb7263b8adb4c502d45259e5b92a6554feaa9fb3"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4996,8 +4996,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 25701,
-    "sha256": "c270e7dc38f9e717976ba7830ab0a43439cc0a6ba005d94c874af57f476c138a"
+    "bytes": 26015,
+    "sha256": "2961e9dcb34029721211588b0ef103abb08d782aa2d3c57e39559eb674b3f04c"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

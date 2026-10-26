@@ -249,10 +249,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
   const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
   const clock={t:0,hiddenFor:0,fade:0};
-  let lastPose:Pose|null=null;let ropes5a=false;
+  let lastPose:Pose|null=null;let ropes5a=false;let rideCam=false/* full9b single writer: true while the ride's own before-draw writers own the lens; lease.onFrame stays silent */;
   const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
   const doorVs=view.getVisibleSize(),doorWide=lakesideDoorWideLens(moored.walk,moored.mooring,landPose,doorVs.width/Math.max(1,doorVs.height),{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* T-03: pulled back, lake + her whole body in frame, held under the place-name sign, option B */,doorLens=doorWide?doorWide.lens:lakesideDoorLens(moored.walk,moored.mooring,doorVs.width/Math.max(1,doorVs.height),undefined,undefined,{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* b16 item 6: safe insets (route F3) *//* b15 door shot: where the ride lens arrives at touchdown */;
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
+   rideCam=true;
    // full7 (a): region walk to S6 (not counted) with a continuous follow lens, then the counted leg from S6
    const g00=((actor as any).node as Node|undefined)?.worldPosition,skyPre=atC?skyLakePreWalk(g00?[g00.x,g00.y,g00.z]:start,M5 as any):null;
    if(skyPre){const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:Pose|null=null;const P=skyPre.path;
@@ -336,7 +337,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      // 0.032,-0.1,-0.099; basket floor board top = basket y 0), so the stand_up root motion ends on P0 with no turn.
      {const S=TRANSITION_STAGING.basket.seat;girl.setPosition(S[0],-.1,S[2]);}/* door2: seat (−0.032,0,0.099) facing exit door B */girl.setRotationFromEuler(0,moored.seatYawDeg(moored.startYawRad*180/Math.PI),0);};
     boardFn=()=>board();
-    const apply=()=>{
+    const apply=(writeCam=true)=>{
      const t=Math.min(clock.t,R.T),pos=sl&&atC&&tau<sl.touchdownAt?sl.basket(tau):sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
      if(sl&&atC&&isValid(vehicle,true))vehicle.setRotationFromEuler(0,lakeBasketYaw(sl,tau,M5.worldYawDeg,moored.doorYawDeg),0)/* moored −68.19 → landing (door B exit) */;
      {const m=t<R.liftT;if(m!==ropes5a){ropes5a=m;setMooringRopes(director.getScene(),'5a',m);}}/* cand7: 5a rope while the basket is moored, stowed at lift-off */
@@ -344,7 +345,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
      if(t>=R.cutT)legHide.apply(director.getScene())/* b17: island env_cloud_layer, day and night; skycity untouched */;
      if(camLog.on&&sl&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,!boarded,'C1');}
-     lastPose=sl?sl.cam(tau,from):lakesideDoorRideCamera(R,doorLens,t,from);world.setCamera(sl?c2Lens(tau-sl.touchdownAt,lastPose):lastPose)/* C2 close-up starts before touchdown */;if(t>=R.cutT&&placed<9)placed++;
+     lastPose=sl?sl.cam(tau,from):lakesideDoorRideCamera(R,doorLens,t,from);if(writeCam)world.setCamera(sl?c2Lens(tau-sl.touchdownAt,lastPose):lastPose)/* C2 close-up starts before touchdown */;if(t>=R.cutT&&placed<9)placed++;
      // Web diagnostics (Mac bisect, night lakeside blocker): ?hideNode=a,b hides by exact name every frame of THIS leg too (the
      // BalloonTransit hook only runs on the meadow→skycity leg); ?diagDump=1&lakeDiagAt=t logs every active renderer once at ride time t.
      if(diag.hide.length){const sc=director.getScene();if(sc){const hideIn=(n:Node)=>{if(diag.hide.includes(n.name))n.active=false;for(const c of n.children)hideIn(c);};hideIn(sc);}}
@@ -361,7 +362,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       else{const prevTau=tau;tau=Math.max(tau,boardEndTau)+d;if(prevTau<sl.flightAt&&tau>=sl.flightAt){inflate(INFLATE.durationS);if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}chainMark('lakeside','C3-flight');legClock.mark('flight');}}
       if(tau<sl.flightAt&&tau>=inflateTau0){if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}inflate(tau-inflateTau0);}
       clock.t=sl.rideT(tau);if(!(clock.t+1e-4<R.T)&&!c4){c4=true;chainMark('lakeside','C4-settle');}
-      apply();pub(clock.t,false);
+      apply(clock.t+1e-4>=R.T)/* full9b single writer: beforeDraw writes the lens; the ticker only on its last step (beforeDraw is removed below) */;pub(clock.t,false);
       if(clock.t+1e-4>=R.T){off();unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
       return;}
      const next=stepTransitClock(clock,dt,hidden);
@@ -372,7 +373,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      clock.t=t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;
      if(fade&&walkDone&&!fadingOut&&t>=R.fadeOutAt){fadingOut=true;void runWipe();}
      if(resumed&&fade&&(!fadingOut||fadingIn)){try{void fade(next.fade,0.35);}catch{/* cover optional */}}
-     apply();pub(clock.t,false);
+     apply(clock.t+1e-4>=R.T);pub(clock.t,false);
      if(clock.t+1e-4>=R.T){off();unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
     };
    });
@@ -510,13 +511,13 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      ticker.step=(dt)=>{if(!tailDone)prevStep(dt);el+=dt;const w=(actor as any).walkProgress?.(),walked=typeof w==='number'?w*moored.length:entryM;
       void walked;u=Math.min(1,el/durS)/* b18: pure game time → C2 smooth */;const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=tailDone?()=>{}:prevStep;offB();ok();}};});
    }finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
-   rideToken.check();rideOver=true;arrivalMark('ride-resolved');publishLakesideRide(null);
+   rideToken.check();rideOver=true;rideCam=false;arrivalMark('ride-resolved');publishLakesideRide(null);
   };
   // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
   let showSerial=0,shown=false;
   const showScene=(s:number)=>{if(dead||s!==showSerial)return;rig.active=true;shown=true;};
   const lease:JourneySceneLease={route,show(visible){if(dead)return;const s=++showSerial;if(!visible){rig.active=false;return;}atmosphere.prime();warmWater();
-    if(shown){showScene(s);return;}let fired=false;const go=()=>{if(fired)return;fired=true;showScene(s);};try{director.once('director_after_draw' as any,go);}catch{}setTimeout(go,50)/* paused game: never stall */;},progress(d){if(dead)return;const w=lakesideAtmosphereWeight(route,total,d);atmosphere.apply(w);if(lakesideFillStep(fillW,w)){fillW=w;applyLakesideLandFill(model,lakesideDayNightMode(),w);}},onFrame(){return lastPose||undefined;}/* keeps the controller from re-applying its set-off camera after the ride */,dispose:release,ride};
+    if(shown){showScene(s);return;}let fired=false;const go=()=>{if(fired)return;fired=true;showScene(s);};try{director.once('director_after_draw' as any,go);}catch{}setTimeout(go,50)/* paused game: never stall */;},progress(d){if(dead)return;const w=lakesideAtmosphereWeight(route,total,d);atmosphere.apply(w);if(lakesideFillStep(fillW,w)){fillW=w;applyLakesideLandFill(model,lakesideDayNightMode(),w);}},onFrame(){return rideCam?undefined:(lastPose||undefined);}/* keeps the controller from re-applying its set-off camera after the ride; full9b: silent while the ride writes (was a 2nd writer every frame, lastPose without the C2 close-up) */,dispose:release,ride};
   // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
   const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
   return lease;
