@@ -1,4 +1,5 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
+import {sailRideStarted} from './TransitionPreload';
 import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME,lakeBoardS} from './TransitionStaging';
@@ -180,7 +181,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT));mounted.set(to,model);progress(.98);
     if(boardSrc&&route.board)setRegionBoardSource(to as BoardLandingRegion,boardSrc);
     const lease:JourneySceneLease={route,show(visible){if(dead)return;if(!visible)hidePlaceholders(rig)/* cand7: off with the meadow lease; SailRide re-shows on cue */;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
-     ...(sailDriver&&sailPlan?{onFrame:(dt:number)=>sailDriver!.onFrame(dt,false),startPose:()=>{const v=view.getFrameSize();return sailDriver!.pose({w:v.width,h:v.height});},ride:(actor,world,token)=>playSailBeats(sailDriver!,actor,world,token,sailPlan!)}:{})};
+     ...(sailDriver&&sailPlan?{onFrame:(dt:number)=>sailDriver!.onFrame(dt,false),startPose:()=>{const v=view.getFrameSize();return sailDriver!.pose({w:v.width,h:v.height});},ride:(actor,world,token)=>{sailRideStarted();return playSailBeats(sailDriver!,actor,world,token,sailPlan!);}}:{})};
     return lease;
    }catch(error){release();throw error;}
   }
