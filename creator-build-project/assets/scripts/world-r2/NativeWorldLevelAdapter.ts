@@ -10,7 +10,8 @@ import { boardFadeOpacity } from '../world-r1/WorldFlowCore';
 import { createManagedBoardSession } from './ManagedBoardSession';
 import type { Selection, DisposableStores } from './ManagedBoardSession';
 import { paintRegionalOverlay } from './RegionalOverlay';
-import { requiresLakesideScene } from './LevelRegion';
+/** P2 full6: world boards resume a restored attempt on reveal (all regions). */
+export const WORLD_BOARD_RESUMES_RESTORED=true;
 /** Direct adapter to the ACTUAL NativeBoardUI with the managed-mode patch. No idealized boardFactory. */
 export function createNativeWorldLevelAdapter(options:{
   uiParent:Node; select:(stageId:string)=>Selection; fixture:any;
@@ -73,7 +74,10 @@ export function createNativeWorldLevelAdapter(options:{
       // Hold touches until WorldFlow reveals, after the shot and a finger-ready board. Test boards leave this unset.
       (ui as any).deferPresentation=true;
       // r4-prep: 风铃湖畔 is entered by landing from the journey; a restored attempt resumes on reveal (no 「暂停一下」 first).
-      (ui as any).resumeRestoredOnPresent=requiresLakesideScene(selection);
+      // P2 full6 (运镜bot decision, Mac full5 frame 815): every world board (island / meadow / skycity / lakeside) is entered by
+      // walking or riding into it, so a restored attempt resumes on reveal everywhere; 「暂停一下」 stays for the pause button and
+      // for returning from the background (boardWasHidden edge).
+      (ui as any).resumeRestoredOnPresent=WORLD_BOARD_RESUMES_RESTORED;
       (ui as any).initializeManaged(options.fixture,session.binding,background.frame,()=>background.diagnostics());token.check();
       // These existing local dialogs do not change the controller's run state.
       // Observe their active event once, so original boardTime also freezes for bag/restart dialogs.

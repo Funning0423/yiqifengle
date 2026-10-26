@@ -24,6 +24,6 @@ async function restoredBoard(seen,flag){
  {const {u,restored}=await restoredBoard(['starlight','windbell','tidebottle'],false);u.presentForPlay();u.update(1/60);
   assert(u.popups.find('PausePanel'),'other boards keep the explicit Resume');assert.equal(restored.snapshot().state,'run.paused');u.onDestroy();console.log('PASS boards without the flag keep 「暂停一下」 (existing behaviour)');}
  const S=path.join(__dirname,'../../creator-build-project/assets/scripts/'),ad=fs.readFileSync(S+'world-r2/NativeWorldLevelAdapter.ts','utf8'),lr=fs.readFileSync(S+'world-r2/LevelRegion.ts','utf8');
- assert.match(ad,/\(ui as any\)\.resumeRestoredOnPresent=requiresLakesideScene\(selection\);\s*\n\s*\(ui as any\)\.initializeManaged\(/,'adapter sets the flag for 风铃湖畔 before initializeManaged');
- assert.match(lr,/\^r0\[45\]-lake-\\d\+\$/,'flag only for r04/r05-lake-* stages');console.log('PASS wiring: adapter flag = requiresLakesideScene(selection)');
+ assert.match(ad,/\(ui as any\)\.resumeRestoredOnPresent=WORLD_BOARD_RESUMES_RESTORED;\s*\n\s*\(ui as any\)\.initializeManaged\(/,'adapter sets the flag (all world boards incl. 风铃湖畔, P2 full6) before initializeManaged');assert.match(ad,/export const WORLD_BOARD_RESUMES_RESTORED=true;/);
+ assert.match(lr,/\^r0\[45\]-lake-\\d\+\$/,'flag only for r04/r05-lake-* stages');console.log('PASS wiring: adapter flag = WORLD_BOARD_RESUMES_RESTORED (all regions)');
 })().catch(e=>{console.error(e);process.exitCode=1});
