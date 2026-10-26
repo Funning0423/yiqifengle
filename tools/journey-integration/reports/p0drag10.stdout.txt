@@ -2,7 +2,7 @@
  "test": "p0drag10",
  "ok": true,
  "Q1": {
-  "boxes": 3077,
+  "boxes": 2717,
   "ro": {
    "her": [
     8.59,
@@ -26,22 +26,23 @@
    },
    "after": {
     "frames": 3600,
-    "maxPitchStepDeg": 0.51,
-    "maxHeightStepM": 0.058,
+    "maxPitchStepDeg": 0.42,
+    "maxHeightStepM": 0.039,
     "pitchOverLimitDeg": 0,
     "heightOverLimitM": 0,
     "max025sPitchDeg": 5.5,
-    "max025sHeightM": 0.67,
+    "max025sHeightM": 0.49,
     "framesInsideGeometry": 0,
-    "longestFaceChestOcclusionS": 0.48,
+    "longestFaceChestOcclusionS": 0.33,
     "longestOcclusionFromQaHookS": 0.81,
     "minHerMargin": 0.61,
     "minArmM": 6.76,
-    "minViewPitchDeg": -51
+    "minViewPitchDeg": -25.4,
+    "hookRelease": null
    },
    "perf": {
-    "avgMs": 0.126,
-    "p99Ms": 1.11
+    "avgMs": 0.16,
+    "p99Ms": 0.91
    }
   },
   "pock": {
@@ -59,7 +60,7 @@
     "max025sPitchDeg": 41.1,
     "max025sHeightM": 5.2,
     "framesInsideGeometry": 0,
-    "longestFaceChestOcclusionS": 0.26,
+    "longestFaceChestOcclusionS": 0,
     "longestOcclusionFromQaHookS": 0,
     "minHerMargin": 0.6,
     "minArmM": 7.25,
@@ -67,22 +68,23 @@
    },
    "after": {
     "frames": 1731,
-    "maxPitchStepDeg": 0.48,
-    "maxHeightStepM": 0.057,
+    "maxPitchStepDeg": 0,
+    "maxHeightStepM": 0,
     "pitchOverLimitDeg": 0,
     "heightOverLimitM": 0,
-    "max025sPitchDeg": 5.5,
-    "max025sHeightM": 0.67,
+    "max025sPitchDeg": 0,
+    "max025sHeightM": 0,
     "framesInsideGeometry": 0,
-    "longestFaceChestOcclusionS": 0.48,
+    "longestFaceChestOcclusionS": 0.02,
     "longestOcclusionFromQaHookS": 0,
     "minHerMargin": 0.61,
     "minArmM": 7.34,
-    "minViewPitchDeg": -54
+    "minViewPitchDeg": -12,
+    "hookRelease": null
    },
    "perf": {
-    "avgMs": 0.098,
-    "p99Ms": 0.7
+    "avgMs": 0.196,
+    "p99Ms": 1.01
    }
   },
   "ok": true
@@ -110,7 +112,7 @@
    "pitch": 12
   },
   "maxYawDriftDeg3s": 0,
-  "yawOffAfterManualDrag15sDeg": 0,
+  "yawOffAfterManualDrag15sDeg": 17.1,
   "ok": true
  },
  "Q3": {
@@ -118,25 +120,25 @@
    "ok": true,
    "region": "island",
    "at": [
-    -1.9,
-    -0.597,
-    10.1
+    -1.5,
+    -0.181,
+    9.3
    ],
-   "yaw": 4.600095666263279,
+   "yaw": 1.8087393224920658,
    "pitch": 12,
    "signShot": {
-    "armM": 26.4,
-    "textDeg": 40.1,
-    "minTextPx": 39.4
+    "armM": 18.9,
+    "textDeg": 56,
+    "minTextPx": 136.2
    }
   },
-  "lensFrontOfPanelM": 14.04,
+  "lensFrontOfPanelM": 6.33,
   "signAheadOfLens": true,
   "signRect": [
-   5,
-   -132,
-   348,
-   326
+   -34,
+   -215,
+   601,
+   581
   ],
   "ok": true
  },

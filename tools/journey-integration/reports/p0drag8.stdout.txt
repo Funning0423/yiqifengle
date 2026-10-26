@@ -8,8 +8,8 @@
    1.65,
    7.1
   ],
-  "boxes": 3077,
-  "nearBoxes": 501,
+  "boxes": 2717,
+  "nearBoxes": 439,
   "macWrittenMinArmM": 0.8,
   "minArmM": 7.34,
   "minViewPitchDeg": -55,
@@ -17,9 +17,9 @@
   "avoidElevStepOverLimitDeg": 0,
   "rawDragElevStepMaxDeg": 10.7,
   "perf": {
-   "avgMsPerFrame": 0.099,
-   "p99Ms": 0.47,
-   "maxMs": 7.37
+   "avgMsPerFrame": 0.202,
+   "p99Ms": 0.82,
+   "maxMs": 10.28
   },
   "worst": [],
   "ok": true
@@ -34,12 +34,12 @@
   "bootGatesOffscreenSign": true,
   "entryYawPosesOffscreen": "78/78",
   "onScreenYawsByNode": {
-   "I1": "180,185,190",
-   "I2": "160,165",
-   "I3": "140,145,150",
-   "I4": "160,165,170",
-   "I5": "185,190,195",
-   "I6": "180,185"
+   "I1": "160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280",
+   "I2": "130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255",
+   "I3": "120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240",
+   "I4": "150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255",
+   "I5": "170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280",
+   "I6": "145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285"
   },
   "ok": true
  },
@@ -64,62 +64,62 @@
    "ok": true,
    "region": "island",
    "at": [
-    -1.9,
-    -0.597,
-    10.1
+    -1.5,
+    -0.181,
+    9.3
    ],
    "yaw": 3.814074834290355,
    "pitch": 12,
    "signShot": {
-    "armM": 26.4,
-    "textDeg": 40.1,
-    "minTextPx": 39.4
+    "armM": 18.9,
+    "textDeg": 56,
+    "minTextPx": 136.2
    }
   },
   "signRect": {
-   "x": 5.1794108733448345,
-   "y": -131.82907655845744,
-   "width": 347.81124078554916,
-   "height": 326.3693887835978
+   "x": -7.445670606453021,
+   "y": -205.0080657113516,
+   "width": 359.108658787094,
+   "height": 574.5594624247926
   },
   "ok": true
  },
  "P5": {
-  "boxes": 3077,
-  "nearBoxes": 515,
+  "boxes": 2717,
+  "nearBoxes": 441,
   "runs": [
    {
     "pitch": 15,
     "dist": 7,
-    "rawLensInsideFrames": 476,
+    "rawLensInsideFrames": 403,
     "writtenInsideFrames": 0,
     "minArmM": 7,
-    "minViewPitchDeg": -51,
-    "maxLensStepM": 0.497,
-    "avgMs": 0.184,
-    "p99Ms": 4.23
+    "minViewPitchDeg": -15,
+    "maxLensStepM": 0.062,
+    "avgMs": 0.117,
+    "p99Ms": 0.66
    },
    {
     "pitch": 30,
     "dist": 10,
     "rawLensInsideFrames": 0,
     "writtenInsideFrames": 0,
-    "minArmM": 9.88,
-    "minViewPitchDeg": -58,
-    "maxLensStepM": 0.504,
-    "avgMs": 0.379,
-    "p99Ms": 4.42
+    "minArmM": 10,
+    "minViewPitchDeg": -30,
+    "maxLensStepM": 0.189,
+    "avgMs": 0.235,
+    "p99Ms": 0.8
    },
    {
     "pitch": 10,
     "dist": 12,
     "rawLensInsideFrames": 2,
-    "writtenInsideFrames": 21,
-    "minArmM": 9.65,
-    "minViewPitchDeg": -34,
-    "maxLensStepM": 0.52,
-    "avgMs": 0.262,
-    "p99Ms": 2.1
+    "writtenInsideFrames": 0,
+    "minArmM": 12,
+    "minViewPitchDeg": -10,
+    "maxLensStepM": 0.12,
+    "avgMs": 0.446,
+    "p99Ms": 3.35
    }
   ],
   "ok": true

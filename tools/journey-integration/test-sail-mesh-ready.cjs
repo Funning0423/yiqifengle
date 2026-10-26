@@ -19,7 +19,7 @@ const body=src.replace(/export function sailMeshReady[\s\S]*?\n\}/,'');
 assert.doesNotMatch(body,/const mesh=renderer\.mesh;/,'raw renderer.mesh read before readAttribute');
 const mount=/export async function mountSailArt[\s\S]*?\n\}\n/.exec(src);assert.ok(mount,'mountSailArt present');
 assert.doesNotMatch(mount[0].split('\n').filter(l=>!/safeEdit\(/.test(l)).join('\n'),/\b(digChannel|clearLandingGrass|taperMouthShore)\(r,/,'mesh edits inside mountSailArt must run through safeEdit');
-assert.equal((mount[0].match(/safeEdit\(/g)||[]).length,5,'dig, grass and 3 mouth tapers are isolated');
+assert.equal((mount[0].match(/safeEdit\(/g)||[]).length,6,'dig, full8 lowland sink, grass and 3 mouth tapers are isolated');
 // Behavioural model of the engine contract (cocos 3.8.8 mesh.ts: readAttribute does not initialize; initialize sets _initialized
 // before decoding and leaves renderingSubMeshes null when decode throws).
 class FakeMesh{constructor(encoded){this.struct={encoded};this._init=false;this.decoded=false;}
