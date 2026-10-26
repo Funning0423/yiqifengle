@@ -5,52 +5,33 @@
  *   - trail curve: the walk path, extended back past its start, Gaussian-smoothed over arc length (σ TRAIL_SIGMA_M) — the lens trails
  *     her ALONG the walkway (the clear corridor), and the smoothing rounds the node corners (yaw / accel caps);
  *   - per 0.25 m of her arc: candidates (back distance along the trail × lift over the normal height); feasible = every occupied voxel of
- *     the solid (bake: real-mesh voxels offline; runtime fallback: SkycityLensOccluders) ≥ CLR_M from the lens AND the lens→face / lens→chest segments free;
+ *     the real-mesh voxels (offline bake only, tools/skycity-walk/SkyResumePlanner.ts) ≥ CLR_M from the lens AND the lens→face / lens→chest segments free;
  *   - a DP picks the cheapest feasible sequence with bounded change per step (eased rise to the clear height before a covered segment,
  *     eased descent after — never a jump), then a light smoothing.
  *  Runtime: her arc → interpolated (back, lift) → pose (aim through her); the first blendInS blend from the live lens (first frame = live). */
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
-import {SKY_PRE_FOLLOW} from './SkyLakePreWalk';
+import {SKY_PRE_FOLLOW,skyLakePreWalk} from './SkyLakePreWalk';
+import {REGION_NODES} from './RegionNodes';
+import {skyLocalToWorld} from './SkyWalkShot';
+import {S0_GAME} from './BalloonFlight';
 import {blendPose as lakeBlendPose} from './LakesideBalloon';
-import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
 import {SKY_RESUME_PLANS} from './SkyResumePlans';
-import {voxClear,type VoxGrid} from './LensVoxels';
 export const SKY_RESUME_LENS=Object.freeze({clrM:1.15/* the test probes 1.15 m; voxel box distance is already conservative */,stepM:0.25,trailSigmaM:2.2,
  backs:[4.6,4.3,4.0,3.7,3.4,3.1,2.8,2.5,2.2,1.9,1.6,1.3,1.0] as readonly number[],lifts:[0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7] as readonly number[],sides:[-1.5,-1.25,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.25,1.5] as readonly number[],smoothIters:60,wLift:1,wBack:2,wSide:2,wChange:3,frameNdc:0.8,minAsp:0.46,smoothM:1.5});
-/** full9b (package budget): the 124 KB SkyLensVoxels grid no longer ships. Planner solid = {clear(p,clr), sight(lens,her)} in skycity model-local.
- *  Offline bake: voxSolid(real-mesh grid, tools/skycity-walk/sky_lens_voxels.json). Runtime LIVE FALLBACK only: boxSolid(SKYCITY_LENS_OCCLUDERS). */
-export type LensSolid={clear:(p:Vec,clr:number)=>boolean;sight:(a:Vec,b:Vec)=>boolean};
-function occAt(g:VoxGrid,p:Vec):boolean{const s=g.size,o=g.origin,N=g.dims,i=Math.floor((p[0]-o[0])/s),j=Math.floor((p[1]-o[1])/s),k=Math.floor((p[2]-o[2])/s);
- if(i<0||j<0||k<0||i>=N[0]||j>=N[1]||k>=N[2])return false;const n=(k*N[1]+j)*N[0]+i;return !!(g.bits[n>>3]&(1<<(n&7)));}
-/** segment a→b free of occupied voxels (stops 0.35 m short of b = her) */
-export function voxSight(g:VoxGrid,a:Vec,b:Vec):boolean{const d=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]),n=Math.ceil(d/0.15);
- for(let i=1;i<n;i++){const u=i/n;if(u*d>d-0.35)break;if(occAt(g,[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u]))return false;}return true;}
-export function voxSolid(g:VoxGrid):LensSolid{return {clear:(p,c)=>voxClear(g,p,c),sight:(a,b)=>voxSight(g,a,b)};}
-/** AABB rows [minX,minY,minZ,maxX,maxY,maxZ], hashed on a 2 m XZ grid. clear = box distance ≥ clr; sight = segment (stopping 0.35 m short of her) misses every box. */
-export function boxSolid(rows:readonly (readonly number[])[],cell=2):LensSolid{const H:{[k:string]:number[]}={},key=(i:number,k:number)=>i+','+k;
- rows.forEach((r,n)=>{for(let i=Math.floor(r[0]/cell);i<=Math.floor(r[3]/cell);i++)for(let k=Math.floor(r[2]/cell);k<=Math.floor(r[5]/cell);k++)(H[key(i,k)]||(H[key(i,k)]=[])).push(n);});
- const near=(x0:number,z0:number,x1:number,z1:number):number[]=>{const seen:{[n:number]:1}={},out:number[]=[];for(let i=Math.floor(Math.min(x0,x1)/cell);i<=Math.floor(Math.max(x0,x1)/cell);i++)for(let k=Math.floor(Math.min(z0,z1)/cell);k<=Math.floor(Math.max(z0,z1)/cell);k++){const L=H[key(i,k)];if(L)for(const n of L)if(!seen[n]){seen[n]=1;out.push(n);}}return out;};
- const seg=(a:Vec,b:Vec,x:readonly number[])=>{let t0=0,t1=1;for(let k=0;k<3;k++){const d=b[k]-a[k];if(Math.abs(d)<1e-12){if(a[k]<x[k]||a[k]>x[k+3])return false;continue;}let u=(x[k]-a[k])/d,v=(x[k+3]-a[k])/d;if(u>v){const t=u;u=v;v=t;}t0=Math.max(t0,u);t1=Math.min(t1,v);if(t0>t1)return false;}return true;};
- return {clear:(p,c)=>{for(const n of near(p[0]-c,p[2]-c,p[0]+c,p[2]+c)){const r=rows[n],dx=Math.max(r[0]-p[0],0,p[0]-r[3]),dy=Math.max(r[1]-p[1],0,p[1]-r[4]),dz=Math.max(r[2]-p[2],0,p[2]-r[5]);if(dx*dx+dy*dy+dz*dz<c*c)return false;}return true;},
-  sight:(a,b)=>{const d=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);if(d<=0.35)return true;const u=(d-0.35)/d,e:Vec=[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
-   for(const n of near(a[0],a[2],e[0],e[2]))if(seg(a,e,rows[n]))return false;return true;}};}
-let skyBoxes:LensSolid|null=null;
-export function skyFallbackSolid():LensSolid{return skyBoxes||(skyBoxes=boxSolid(SKYCITY_LENS_OCCLUDERS));}
 export type SkyResumePlan={P:readonly Vec[];A:number[];s0:number;step:number;back:number[];lift:number[];side:number[];trail:Vec[];trail0:number;feasible:boolean;worst:number};
 export function arcOf(P:readonly Vec[]):number[]{const a=[0];for(let i=1;i<P.length;i++)a.push(a[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]));return a;}
 /** point at arc s (extrapolated before the start / after the end along the end segments) */
 export function arcAt(P:readonly Vec[],A:readonly number[],s:number):Vec{const n=P.length-1;let i=0;if(s>=A[n])i=n-1;else if(s>0)while(i<n-1&&A[i+1]<s)i++;
  const L=(A[i+1]-A[i])||1,u=(s-A[i])/L;return [P[i][0]+(P[i+1][0]-P[i][0])*u,P[i][1]+(P[i+1][1]-P[i][1])*u,P[i][2]+(P[i+1][2]-P[i][2])*u];}
 export function arcOfHer(her:Vec,P:readonly Vec[],A:readonly number[]):number{let best=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;best=A[i]+u*(A[i+1]-A[i]);}}return best;}
-function lensAt(pl:{P:readonly Vec[];A:number[];trail:Vec[];trail0:number;step:number},s:number,back:number,lift:number,side=0):Vec{
+export function lensAt(pl:{P:readonly Vec[];A:number[];trail:Vec[];trail0:number;step:number},s:number,back:number,lift:number,side=0):Vec{
  const k=SKY_PRE_FOLLOW,u=(s-back-pl.trail0)/pl.step,i=Math.max(0,Math.min(pl.trail.length-2,Math.floor(u))),f=Math.max(0,Math.min(1,u-i)),a=pl.trail[i],b=pl.trail[i+1];
  const floorY=arcAt(pl.P,pl.A,s)[1],tx=b[0]-a[0],tz=b[2]-a[2],tl=Math.hypot(tx,tz)||1;return [a[0]+(b[0]-a[0])*f+tz/tl*side,floorY+k.upM+lift,a[2]+(b[2]-a[2])*f-tx/tl*side];}
 /** pose from a lens point: aim through her (aheadM past her, aimUpM) */
-function aimPose(p:Vec,her:Vec):Pose{const k=SKY_PRE_FOLLOW,hx=her[0]-p[0],hz=her[2]-p[2],hl=Math.hypot(hx,hz)||1;return {position:p,target:[her[0]+hx/hl*k.aheadM,her[1]+k.aimUpM,her[2]+hz/hl*k.aheadM],fovVerticalDeg:k.fovDeg};}
+export function aimPose(p:Vec,her:Vec):Pose{const k=SKY_PRE_FOLLOW,hx=her[0]-p[0],hz=her[2]-p[2],hl=Math.hypot(hx,hz)||1;return {position:p,target:[her[0]+hx/hl*k.aheadM,her[1]+k.aimUpM,her[2]+hz/hl*k.aheadM],fovVerticalDeg:k.fovDeg};}
 export function ndc(c:Pose,q:Vec,asp:number):number{const f=[c.target[0]-c.position[0],c.target[1]-c.position[1],c.target[2]-c.position[2]],n=Math.hypot(f[0],f[1],f[2]);for(let i=0;i<3;i++)f[i]/=n;
  const r=[f[2],0,-f[0]],rn=Math.hypot(r[0],r[2])||1;r[0]/=rn;r[2]/=rn;const u=[f[1]*r[2]-f[2]*r[1],f[2]*r[0]-f[0]*r[2],f[0]*r[1]-f[1]*r[0]],d=[q[0]-c.position[0],q[1]-c.position[1],q[2]-c.position[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];if(z<=0.05)return 9;
  const th=Math.tan((c.fovVerticalDeg??46)*Math.PI/360);return Math.max(Math.abs((d[0]*r[0]+d[2]*r[2])/z/(th*asp)),Math.abs((d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/z/th));}
-/** toLocal: world → skycity model-local (the voxel space). */
 /** trail curve: walk path extended 8 m back, Gaussian-smoothed over arc (cheap; rebuilt from a baked plan too) */
 export function skyTrail(P:readonly Vec[],K=SKY_RESUME_LENS):{A:number[];trail:Vec[];trail0:number;step:number}{
  const A=arcOf(P),end=A[A.length-1],step=K.stepM,trail0=-8,nT=Math.ceil((end+2-trail0)/step)+1,raw:Vec[]=[];
@@ -60,7 +41,7 @@ export function skyTrail(P:readonly Vec[],K=SKY_RESUME_LENS):{A:number[];trail:V
 /** key of a walk path (rounded to 1 mm) + the planner constants — a baked plan is used only for the identical path */
 export function skyPathKey(P:readonly Vec[]):string{let h=2166136261;const str=JSON.stringify(P.map(p=>p.map(v=>Math.round(v*1000))))+JSON.stringify(SKY_RESUME_LENS);
  for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(16)+':'+P.length;}
-export type BakedSkyPlan={key:string;back:readonly number[];lift:readonly number[];side:readonly number[];feasible:boolean;worst:number};
+export type BakedSkyPlan={from:string;key:string;alias?:string;back:readonly number[];lift:readonly number[];side:readonly number[];feasible:boolean;worst:number};
 export function planFromBaked(P:readonly Vec[],b:BakedSkyPlan):SkyResumePlan{const t=skyTrail(P);return {P,A:t.A,s0:0,step:t.step,back:b.back.slice(),lift:b.lift.slice(),side:b.side.slice(),trail:t.trail,trail0:t.trail0,feasible:b.feasible,worst:b.worst};}
 /** runtime entry: the baked plan for this walk (SkyResumePlans, zero planning) or — logged by the caller via .baked=false — the live planner */
 /** SkyResumePlans rows store back/lift/side as integer-millimetre deltas (first absolute), zigzag, base-32 varint chars (0–31 last group,
@@ -69,36 +50,26 @@ const MM64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 export function mmDecode(s:string):number[]{const o:number[]=[];let a=0,z=0,m=1;for(let i=0;i<s.length;i++){const c=MM64.indexOf(s.charAt(i));if(c<0)throw new Error('mmDecode');
  if(c>=32){z+=(c-32)*m;m*=32;continue;}z+=c*m;a+=(z&1)?-(z+1)/2:z/2;o.push(a/1000);z=0;m=1;}return o;}
 let decoded:BakedSkyPlan[]|null=null;
-export function bakedSkyPlans():BakedSkyPlan[]{return decoded||(decoded=SKY_RESUME_PLANS.map(p=>({key:p.key,feasible:p.feasible,worst:p.worst,back:mmDecode(p.back),lift:mmDecode(p.lift),side:mmDecode(p.side)})));}
-/** runtime entry: the baked plan (zero planning) or — logged once by the caller as [QF_SKY_RESUME] fallback-live — the live planner on the
- *  SkycityLensOccluders boxes. QF force: globalThis.__QF_SKY_FORCE_FALLBACK (box tests only). */
-export function skyResumePlanFor(P:readonly Vec[],toLocal:(w:Vec)=>Vec):{plan:SkyResumePlan;baked:boolean;key:string}{const key=skyPathKey(P),force=!!(globalThis as any).__QF_SKY_FORCE_FALLBACK,b=force?undefined:bakedSkyPlans().find(x=>x.key===key);
- return b?{plan:planFromBaked(P,b),baked:true,key}:{plan:planSkyResume(P,toLocal,SKY_RESUME_LENS,skyFallbackSolid()),baked:false,key};}
-export function planSkyResume(P:readonly Vec[],toLocal:(w:Vec)=>Vec,K=SKY_RESUME_LENS,g:LensSolid=skyFallbackSolid()):SkyResumePlan{
- const {A,trail,trail0,step}=skyTrail(P,K),end=A[A.length-1];
- const pl={P,A,trail,trail0,step},nS=Math.floor(end/step)+1,B=K.backs,Lf=K.lifts,Sd=K.sides,nL=Lf.length,nB=B.length,nc=Sd.length*nB*nL,dec=(c:number)=>({si:Math.floor(c/(nB*nL)),bi:Math.floor(c/nL)%nB,li:c%nL});
- const ok:boolean[][]=[];for(let si=0;si<nS;si++){const s=si*step,her=arcAt(P,A,s),face:Vec=[her[0],her[1]+1.5,her[2]],chest:Vec=[her[0],her[1]+1.2,her[2]],fl=toLocal(face),cl=toLocal(chest),row:boolean[]=[];
-  for(const sd of Sd)for(const b of B)for(const l of Lf){const w=lensAt(pl,s,b,l,sd),p=toLocal(w),c=aimPose(w,her);row.push(ndc(c,face,K.minAsp)<=K.frameNdc&&ndc(c,chest,K.minAsp)<=K.frameNdc&&g.clear(p,K.clrM)&&g.sight(p,fl)&&g.sight(p,cl));}ok.push(row);}
- /* DP: cost = lift + 0.6·(4.6−back) (+1e4 if infeasible) + change penalty; |Δlift| ≤ dLiftMax, |Δback| ≤ dBackMax per step... per step = (dLiftMax·stepM) */
- const dl=K.dLiftMax*step+1e-9,db=K.dBackMax*step+1e-9,BIG=1e4,cost=(si:number,c:number)=>{const d=dec(c);return (ok[si][c]?0:BIG)+Lf[d.li]*K.wLift+(4.6-B[d.bi])*K.wBack+Math.abs(Sd[d.si])*K.wSide;};
- /* the grid of lifts/backs is coarser than one step's allowed change, so the DP runs on "levels" with a dwell: allow a 1-level change every
-  * ceil(level/(rate·step)) steps — implemented as: change allowed only if |Δ| ≤ one grid level, then the result is smoothed */
- void dl;void db;
- let D=new Float64Array(nc),prev:Int32Array[]=[];for(let c=0;c<nc;c++)D[c]=cost(0,c);
- for(let si=1;si<nS;si++){const E=new Float64Array(nc).fill(Infinity),pr=new Int32Array(nc);
-  for(let c=0;c<nc;c++){const d=dec(c),cc=cost(si,c);
-   for(let s2=Math.max(0,d.si-1);s2<=Math.min(Sd.length-1,d.si+1);s2++){for(let b2=Math.max(0,d.bi-1);b2<=Math.min(nB-1,d.bi+1);b2++)for(let l2=Math.max(0,d.li-1);l2<=Math.min(nL-1,d.li+1);l2++){const p=(s2*nB+b2)*nL+l2,v=D[p]+cc+(p!==c?K.wChange:0);if(v<E[c]){E[c]=v;pr[c]=p;}}}}
-  prev.push(pr);D=E;}
- let c=0;for(let k=1;k<nc;k++)if(D[k]<D[c])c=k;const seq=new Array(nS);seq[nS-1]=c;for(let si=nS-1;si>0;si--){c=prev[si-1][c];seq[si-1]=c;}
- let worst=0;const back0=seq.map(c=>B[dec(c).bi]),side0=seq.map(c=>Sd[dec(c).si]),lift0=seq.map((c,si)=>{if(!ok[si][c])worst++;return Lf[dec(c).li];});
- /* feasibility-preserving smoothing: repeated 5-tap averaging of (back, lift, side); a sample takes the smoothed value only if that lens is
-  * still feasible (clearance, sightline, framing) — so the result is as smooth as the geometry allows and never leaves the clear space */
- const feas=(si:number,b:number,l:number,sd:number)=>{const s=si*step,her=arcAt(P,A,s),face:Vec=[her[0],her[1]+1.5,her[2]],chest:Vec=[her[0],her[1]+1.2,her[2]],w=lensAt(pl,s,b,l,sd),p=toLocal(w),c=aimPose(w,her);
-  return ndc(c,face,K.minAsp)<=K.frameNdc&&ndc(c,chest,K.minAsp)<=K.frameNdc&&g.clear(p,K.clrM)&&g.sight(p,toLocal(face))&&g.sight(p,toLocal(chest));};
- const back=back0.slice(),lift=lift0.slice(),side=side0.slice(),av=(v:number[],i:number)=>{let t=0;for(let j=-2;j<=2;j++)t+=v[Math.max(0,Math.min(nS-1,i+j))];return t/5;};
- for(let it=0;it<K.smoothIters;it++){const nb=back.map((_,i)=>av(back,i)),nl=lift.map((_,i)=>av(lift,i)),ns=side.map((_,i)=>av(side,i));
-  for(let i=0;i<nS;i++){if(feas(i,nb[i],nl[i],ns[i])){back[i]=nb[i];lift[i]=nl[i];side[i]=ns[i];}else if(feas(i,back[i],nl[i],side[i]))lift[i]=nl[i];}}
- return {P,A,s0:0,step,back,lift,side,trail,trail0,feasible:worst===0,worst};}
+export function bakedSkyPlans():BakedSkyPlan[]{return decoded||(decoded=SKY_RESUME_PLANS.map((p:any)=>({from:p.from,key:p.key,alias:p.alias,feasible:p.feasible,worst:p.worst,back:mmDecode(p.back),lift:mmDecode(p.lift),side:mmDecode(p.side)})));}
+/** full9b option A (Grok Bot): the runtime never plans. Exact walk → its baked plan. Otherwise (FALLBACK, logged once by the caller as
+ *  '[QF_SKY_RESUME] fallback-live') → the baked plan of the NEAREST start node, on that start's own baked walk path (her walk joins it at the
+ *  start: her own node walk joins that path at the start node; before that her arc is clamped to 0). Valid only within SKY_RESUME_REUSE_M of a start (gated by test_sky_resume_fallback_reuse.cjs on the
+ *  real mesh); outside it the caller first walks her to the nearest start along the node graph (skyResumeApproach). */
+/** S0L (balloon landing, 3.2 m from S0 — where the resume really starts) uses S0's baked plan on S0's path (gated, real mesh). */
+export const SKY_RESUME_ALIAS:{[from:string]:string}={S0L:'S0'};
+export const SKY_RESUME_REUSE_M=0.75/* gated: 0.75 m passes all offsets; 1 m fails S2+N1.0 (clearance) */;
+type Mooring={world:readonly number[];worldYawDeg:number;pos:readonly number[];yawDeg:number;walkWorld:readonly (readonly number[])[]};
+export function skyResumeStarts(m:Mooring):{key:string;at:Vec;path:Vec[]}[]{const out:{key:string;at:Vec;path:Vec[]}[]=[];
+ const add=(key:string,at:Vec)=>{const pre=skyLakePreWalk(at,m as any);if(pre)out.push({key,at,path:pre.path});};
+ for(const n of REGION_NODES.skycity.nodes)add(n.key,skyLocalToWorld(m as any,n.at) as Vec);add('S0L',[S0_GAME[0],S0_GAME[1],S0_GAME[2]]);/* S0L = the balloon landing (where the resume actually starts) */return out;}
+export function skyNearestStart(her:Vec,m:Mooring):{key:string;at:Vec;path:Vec[];dM:number}|null{let best:any=null;
+ for(const s of skyResumeStarts(m)){const d=Math.hypot(her[0]-s.at[0],her[1]-s.at[1],her[2]-s.at[2]);if(!best||d<best.dM)best={...s,dM:d};}return best;}
+export function skyResumePlanFor(P:readonly Vec[],m:Mooring):{plan:SkyResumePlan;walk:Vec[];baked:boolean;key:string;from:string;dM:number;inRadius:boolean}|null{
+ const key=skyPathKey(P),force=!!(globalThis as any).__QF_SKY_FORCE_FALLBACK,all=bakedSkyPlans(),b=force?undefined:all.find(x=>x.key===key);
+ const starts=skyResumeStarts(m),use=(from:string)=>{const t=SKY_RESUME_ALIAS[from]||from,st=starts.find(x=>x.key===t),pb=st&&all.find(x=>x.from===t&&x.key===skyPathKey(st.path));return st&&pb?{st,pb}:null;};
+ if(b){if(!b.alias)return {plan:planFromBaked(P,b),walk:P.slice(),baked:true,key,from:b.from,dM:0,inRadius:true};const u=use(b.from);if(u)return {plan:planFromBaked(u.st.path,u.pb),walk:P.slice(),baked:true,key,from:b.from,dM:0,inRadius:true};}
+ const n=skyNearestStart(P[0],m);if(!n)return null;const u=use(n.key);if(!u)return null;const nb=u.pb;n.path=u.st.path;
+ return {plan:planFromBaked(n.path,nb),walk:P.slice(),baked:false,key,from:n.key,dM:n.dM,inRadius:n.dM<=SKY_RESUME_REUSE_M};}
 export function skyResumePose(pl:SkyResumePlan,her:Vec):Pose{const k=SKY_PRE_FOLLOW,s=arcOfHer(her,pl.P,pl.A),u=s/pl.step,i=Math.max(0,Math.min(pl.back.length-2,Math.floor(u))),f=Math.max(0,Math.min(1,u-i));
  const b=pl.back[i]+(pl.back[i+1]-pl.back[i])*f,l=pl.lift[i]+(pl.lift[i+1]-pl.lift[i])*f,sd=pl.side[i]+(pl.side[i+1]-pl.side[i])*f,p=lensAt(pl,s,b,l,sd),dy=her[1]-arcAt(pl.P,pl.A,s)[1];p[1]+=dy;
  const hx=her[0]-p[0],hz=her[2]-p[2],hl=Math.hypot(hx,hz)||1;
