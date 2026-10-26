@@ -26,5 +26,5 @@ const tp=src('region/TransitionPreload.ts');
 assert.match(tp,/export function sailRideStarted\(\)/);assert.match(tp,/warmSkycityLegStaged/);
 assert.match(src('region/RegionJourneyAdapter.ts'),/ride:\(actor,world,token\)=>\{sailRideStarted\(\);/);
 assert.match(src('world-r2/PreTransitionRun.ts'),/armSkycityWarmOnSailRide\(\);[^\n]*\n\s*r=await this\.step\(\(\)=>this\.wc\(\)\.travelRegion\('meadow'\)/);
-assert.match(src('world-r2/WorldNativeComposition.ts'),/current==='island'&&order\.indexOf\(target\)>=order\.indexOf\('skycity'\)\)armSkycityWarmOnSailRide\(\)/);
+assert.match(src('world-r2/WorldNativeComposition.ts'),/current==='island'&&order\.indexOf\(target\)>=order\.indexOf\('skycity'\)&&typeof armSkycityWarmOnSailRide==='function'\)armSkycityWarmOnSailRide\(\)/);
 console.log('skycity-windwipe: PASS',JSON.stringify({cold,warm}));

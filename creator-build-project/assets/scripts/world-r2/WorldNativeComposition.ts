@@ -205,7 +205,7 @@ export class WorldNativeComposition extends Component {
     /* full7 item 4 (fallback 0 on the cold checkpoint-12 path): lake open (L12 done) and heading for skycity/lakeside → warm the
      * lakeside assets now, during the earlier legs / the walk, not at the 继续旅程 tap (3 s budget unchanged). */
     try{if(order.indexOf(target)>=order.indexOf('skycity')&&(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'lakeside')?.ok)void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{/* warm only */}
-    if(current==='island'&&order.indexOf(target)>=order.indexOf('skycity'))armSkycityWarmOnSailRide();/* full9c: warm the balloon leg during the sail */
+    if(current==='island'&&order.indexOf(target)>=order.indexOf('skycity')&&typeof armSkycityWarmOnSailRide==='function')armSkycityWarmOnSailRide();/* typeof: method-replay tests eval this body *//* full9c: warm the balloon leg during the sail */
     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;
       if(next==='skycity')await this.resumeSkyAtS6()/* full7b: L12 done → she goes on to S6 */;}
     return {ok:true};
