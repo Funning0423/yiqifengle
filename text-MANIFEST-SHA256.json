@@ -3182,7 +3182,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6700,
-    "sha256": "f9f5e840f82bae713516d70e5c818a3978f082b7d2aeda9c1add704ca0a0062e"
+    "sha256": "2600b22146fb429818af7134499d3dc04e0034040c18d6e901bd0cadbdb1064d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3212,7 +3212,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
     "bytes": 183233,
-    "sha256": "b2b5d91d0222c870dc99c6f14f42ab139867552767d40d807599c6bf52c67ee1"
+    "sha256": "e46cfc3465d5462332af21a9c2924094e75028e7b6310046820abd954dac9227"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
