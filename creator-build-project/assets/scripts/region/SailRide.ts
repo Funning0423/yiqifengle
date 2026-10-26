@@ -12,6 +12,7 @@ import {SAIL_VOYAGE, sailVoyageCamera} from './SailVoyage';
 /** sail-voyage (off by default): parametric departure / open-sea / approach lens. */
 const sailLens:typeof sailCamera=(tl,route,t,screen)=>SAIL_VOYAGE.enabled?sailVoyageCamera(tl,route,t,screen):sailCamera(tl,route,t,screen);
 import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
+import {camActorPose, camLog} from './CamTraceLog';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 function sailCueRegion(cue:string):string{
  if(cue==='sail-dock'||cue==='node-arrive')return 'meadow';
@@ -279,10 +280,12 @@ export function createSailDriver(opts:{
     const pose=sailFollowCamera(arrivalPath,arrivalU,arrivalFrom,board,followYaw);
     const boat=sailVehicle(opts.timeline,opts.route,opts.timeline.build05S);
     opts.art?.sync(boat,pose.position,dt,sailNight(),pose.target);
+    if((camLog as any)?.on){const b=opts.boat&&opts.boat.isValid?opts.boat.worldPosition:null,h=opts.rider&&opts.rider.isValid?opts.rider.worldPosition:null;camActorPose('sail:arrival',h,b,boat.pos);}
     if(sailQaEnabled())pushSailFrame({t:arrivalElapsed,real,beat:'arrival',phase,yaw:boat.yaw,roll:boat.roll,boat:opts.boat,pose,departed:departAt!=null});
     return pose;
    }
    const pose=sailLens(opts.timeline,opts.route,t,v);
+   if((camLog as any)?.on){const b=opts.boat&&opts.boat.isValid?opts.boat.worldPosition:null,h=opts.rider&&opts.rider.isValid?opts.rider.worldPosition:null;camActorPose('sail:'+phase,h,b,sailVehicle(opts.timeline,opts.route,t).pos);}/* full8: her + boat world vs plan */
    if(sailQaEnabled()){const sv=sailVehicle(opts.timeline,opts.route,t);pushSailFrame({t,real,beat:beatAt(opts.timeline,t).id,phase,yaw:sv.yaw,roll:sv.roll,boat:opts.boat,pose,departed:departAt!=null});}
    return pose;
   },

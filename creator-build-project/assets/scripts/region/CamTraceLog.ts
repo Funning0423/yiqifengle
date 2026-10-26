@@ -58,6 +58,14 @@ export function camActorProbe(x:number,y:number,z:number,active:boolean,step:str
  const held=t-stall.since;if(held>ACTOR_STALL.s&&(stall.said<0||t-stall.said>=ACTOR_STALL.s)){stall.said=t;
   camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR_STALL step='+step+' heldS='+f3(held)+' her='+f3(x)+','+f3(y)+','+f3(z));}
 }
+/** full8: actor/vehicle placement probe (≈4 Hz while the trace is on): her + boat/vehicle WORLD positions, plus the plan's boat
+ *  position when given (runtime vs plan delta in metres). No `pos=` field, so collision-gate.cjs never reads it as a camera write. */
+let actorAt=-1;
+export function camActorPose(step:string,her:{x:number,y:number,z:number}|null,boat:{x:number,y:number,z:number}|null,planBoat?:readonly number[]|null):void{
+ if(!camLog.on)return;const t=((typeof performance!=='undefined'?performance.now():Date.now())-camLog.t0)/1000;if(actorAt>=0&&t-actorAt<0.25&&t>=actorAt)return;actorAt=t;
+ const v=(q:{x:number,y:number,z:number}|null)=>q?f3(q.x)+','+f3(q.y)+','+f3(q.z):'-';
+ const d=boat&&planBoat?' boatVsPlanM='+f3(Math.hypot(boat.x-planBoat[0],boat.y-planBoat[1],boat.z-planBoat[2])):'';
+ camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR step='+step+' her='+v(her)+' boat='+v(boat)+(planBoat?' planBoat='+planBoat.map(f3).join(','):'')+d);}
 let started=false;
 /** Read the switch once. Returns whether tracing is on. */
 export function camLogStart(query?:string,g:any=globalThis):boolean{
