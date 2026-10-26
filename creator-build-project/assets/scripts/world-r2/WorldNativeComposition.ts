@@ -1,7 +1,7 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
-import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
-import {continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
+import {LAKESIDE_L12_HOLD_MS,armSkycityWarmOnSailRide,warmSkycityLegStaged} from '../region/TransitionPreload';
+import {SKY_WARM_GAP_FAST_MS,continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -105,6 +105,7 @@ export class WorldNativeComposition extends Component {
     });
     try {const result=await world.initialize(levels,undefined,'motion');if(!result.ok)throw Error(result.reason);}
     catch(error){this.releaseOwned();throw error;}
+    (this as any).warmSkyIfMeadow?.('boot')/* full9c-b: resume at the meadow */;
     if(typeof RegionNodeStage==='function'&&typeof ExploreInput==='function'){
      const stage=this.node.getComponent(RegionNodeStage)||this.node.addComponent(RegionNodeStage);
      stage.attach(this.worldCamera);
@@ -134,6 +135,7 @@ export class WorldNativeComposition extends Component {
     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
     const region=this.selectionRegion(selection);
+    if(region==='meadow')(this as any).warmSkyIfMeadow?.('meadow-level')/* full9c-b: warm during the meadow level */;
     this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){/* r4.2 item 3: a soft stop (player cancel/background pause/double tap) logs nothing; a real failure logs ONE error, lakesideFallback's (it carries the reason) */if(region==='lakeside'&&!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);return arrived;}
     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
     // 运镜bot: lakeside assets still not ready after the hook's 3 s wait → the existing lakeside fallback (toast + island), never an empty board.
@@ -205,6 +207,8 @@ export class WorldNativeComposition extends Component {
     /* full7 item 4 (fallback 0 on the cold checkpoint-12 path): lake open (L12 done) and heading for skycity/lakeside → warm the
      * lakeside assets now, during the earlier legs / the walk, not at the 继续旅程 tap (3 s budget unchanged). */
     try{if(order.indexOf(target)>=order.indexOf('skycity')&&(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'lakeside')?.ok)void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{/* warm only */}
+    if(current==='meadow'&&order.indexOf(target)>=order.indexOf('skycity'))(this as any).warmSkyIfMeadow?.('ensure')/* full9c-b: last resort; no-op when already warm */;
+    if(current==='island'&&order.indexOf(target)>=order.indexOf('skycity')&&typeof armSkycityWarmOnSailRide==='function')armSkycityWarmOnSailRide();/* typeof: method-replay tests eval this body *//* full9c: warm the balloon leg during the sail */
     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;
       if(next==='skycity')await this.resumeSkyAtS6()/* full7b: L12 done → she goes on to S6 */;}
     return {ok:true};
@@ -328,11 +332,22 @@ export class WorldNativeComposition extends Component {
     this.persistence=createIsolatedTestPort(namespace,journeyNamespace);return {ok:true};
   }
   regionFlowTestStatus(){return DEBUG&&this.testProfile?{namespace:this.testProfile.namespace,checkpoint:this.testProfile.completed,lastAction:this.testProfile.lastAction}:null;}
+  /** full9c-b: the meadow→skycity balloon can start without the sail ride (boot at the meadow, a meadow level, QA preview):
+   *  start the staged skycity warm at the earliest point. Cached promise, so repeated calls are free. */
+  private warmSkyIfMeadow(_why:string,force=false):void{
+    try{
+      if(typeof warmSkycityLegStaged!=='function'||!this.world)return;
+      if((this.world.commands().snapshot().journey?.region||'island')!=='meadow')return;
+      if(!force&&!(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'skycity')?.ok)return;
+      void warmSkycityLegStaged(SKY_WARM_GAP_FAST_MS);
+    }catch{/* warm only */}
+  }
   /** Web / QA only (`?balloonPreview=1`). WeChat release ignores it. No on-screen test banner. */
   async previewBalloonTransit():Promise<Result>{
     if(!qaTransportEnabled())return {ok:false,reason:'qa-only'};
     if(!this.world)return {ok:false,reason:'world-not-ready'};
     const commands=this.world.commands();
+    {const at=commands.snapshot().journey?.region||'island';if(at==='island'){if(typeof armSkycityWarmOnSailRide==='function')armSkycityWarmOnSailRide();}else (this as any).warmSkyIfMeadow?.('preview',true);}/* full9c-b */
     if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
     if(commands.snapshot().state==='island'){const meadow=await commands.travelRegion('meadow');if(!meadow.ok)return meadow;}
     try{const q=typeof location!=='undefined'?String(location.search||''):'';const forced=/(?:^|[?&])balloonNight=([01])/.exec(q);if(forced)await (globalThis as any).__worldDayNight?.set?.(forced[1]==='1'?'night':'day');else if(q.includes('night=1'))await commands.toggleDayNight();}catch{}

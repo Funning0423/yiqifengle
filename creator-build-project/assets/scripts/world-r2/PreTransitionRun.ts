@@ -1,6 +1,7 @@
 /** Test-only `__qfPreTransition(key)` runtime (see PreTransitionKeys). Registered by the boot ONLY behind preTransitionEnabled()
  *  (same host gate as __qfTeleport; WeChat release never). Setup goes through the real commands and an isolated test profile;
  *  the transition itself is never started here — the tester (or autoplay) touches the returned trigger. */
+import {armSkycityWarmOnSailRide} from '../region/TransitionPreload';
 import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
 import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
 import { director, game, Node, UITransform, Canvas, Vec3 } from 'cc';
@@ -75,6 +76,7 @@ export class PreTransitionRunner{
    }
    if(spec.place==='result')return await this.toResult(spec,prof?.lastAction,prof?.seed);
    if(spec.place==='skycity-visit')return await this.step(()=>this.wc().enterSkycity(),'skycity','enter-skycity');
+   armSkycityWarmOnSailRide();/* full9c: the skycity leg follows the sail directly */
    r=await this.step(()=>this.wc().travelRegion('meadow'),'meadow','travel meadow',240000);if(!r.ok)return r;
    r=await this.step(()=>this.wc().travelRegion('skycity'),'skycity','travel skycity',240000);if(!r.ok)return r;
    if(spec.place==='skycity'){
