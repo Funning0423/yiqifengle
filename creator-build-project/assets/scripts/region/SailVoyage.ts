@@ -1,4 +1,5 @@
 import type {Pose, Vec} from '../world-r1/WorldFlowCore';
+import {debugSearch} from './DebugQuery';
 import {sailBeats, sailCamera, sailM0World, sailSpeed, sailVehicle, type SailScreen, type SailTimeline} from './TransportLeg';
 /**
  * 运镜bot sail-voyage, option E (场景设计部 sea-distance PROPOSAL 2026-10-26, Grok Bot approved for full8).
@@ -13,7 +14,7 @@ import {sailBeats, sailCamera, sailM0World, sailSpeed, sailVehicle, type SailScr
  * (tools/sail-voyage/rebaseline.cjs) once the Mac engine frames exist. First frame = live lens (sailCamera at S-a start).
  */
 /** Web QA only: `?sailVoyage=1` turns the voyage lens on for the Mac capture (capture-spec.json). WeChat has no location → off. */
-function voyageQuery():boolean{try{return /[?&]sailVoyage=1(?:&|$)/.test(String((globalThis as any).location?.search||''));}catch{return false;}}
+function voyageQuery():boolean{try{return /[?&]sailVoyage=1(?:&|$)/.test(debugSearch());}catch{return false;}}
 export const SAIL_VOYAGE={enabled:voyageQuery(),extraCruiseS:0,dockBlendS:5,swing1S:4.0,destScale:1,
  dest:null as Vec|null/* override; default sailM0World() */};
 /** back: along the bearing (− = ahead); side: + = right of the bearing (TransportLeg convention, +X port when heading +Z). */

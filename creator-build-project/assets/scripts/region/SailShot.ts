@@ -1,4 +1,5 @@
 import {Camera, Color, DirectionalLight, MeshRenderer, Node, SkeletalAnimation, Vec3} from 'cc';
+import {debugSearch} from './DebugQuery';
 import {transportQaEnabled} from './JourneyTransport';
 import {beatAt, sailBeats, sailStillTimes, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
 import {mountSailArt, findNode, type SailArt} from './SailArt';
@@ -8,12 +9,12 @@ import {configureMeadowVertexColors} from './MeadowBoardBackground';
 import {SAIL_VOYAGE, sailVoyageCamera} from './SailVoyage';
 /** QA / web-test only. `?sailshot=1&k=1` frames a real K still. Release WeChat ignores it. No on-screen text. */
 export function sailShotRequested(search?:string,host:any=(globalThis as any).wx):boolean{
- let q=search;if(q===undefined){try{q=String((globalThis as any).location?.search||'');}catch{q='';}}
+ let q=search;if(q===undefined)q=debugSearch();
  if(!/[?&]sailshot=1(?:&|$)/.test(q||''))return false;
  return transportQaEnabled(host);
 }
 function qparam(name:string):string{
- try{const m=new RegExp('[?&]'+name+'=([^&]*)').exec(String((globalThis as any).location?.search||''));return m?decodeURIComponent(m[1]):'';}catch{return '';}
+ try{const m=new RegExp('[?&]'+name+'=([^&]*)').exec(debugSearch());return m?decodeURIComponent(m[1]):'';}catch{return '';}
 }
 function shotIndex():number{
  const k=Number(qparam('k')||qparam('frame')||'3');

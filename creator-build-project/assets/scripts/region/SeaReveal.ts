@@ -1,4 +1,5 @@
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
+import {debugSearch} from './DebugQuery';
 /** full8 plan E (场景设计部 PROPOSAL 2026-10-26 sea-distance, Grok Bot approved): the island→meadow sail reads as open sea.
  *  The real meadow is not drawn from the set-off; a small far stand-in sits on the horizon in the meadow's bearing (~480 m).
  *  Handoff stand-in → real meadow at SEA_HANDOFF_T (sail timeline seconds) ONLY when both boxes are outside the camera frustum;
@@ -53,7 +54,7 @@ export function seaReefSlots(start:Vec,end:Vec):[number,number,number][]{
 export const SEA_REVEAL_DEFAULT=false;
 export function seaRevealEnabled():boolean{
  const g=globalThis as any;if(g.__QF_SEA_REVEAL===true)return true;if(g.__QF_SEA_REVEAL===false)return false;
- try{const q=String(g.location?.search||'');if(/[?&]seaReveal=1\b/.test(q))return true;if(/[?&]sailVoyage=1(?:&|$)/.test(q)&&!/[?&]seaReveal=0\b/.test(q))return true/* 运镜bot plan E lens ⇒ plan E scene */;if(/[?&]seaReveal=0\b/.test(q))return false;}catch{}
+ try{const q=debugSearch(g);if(/[?&]seaReveal=1\b/.test(q))return true;if(/[?&]sailVoyage=1(?:&|$)/.test(q)&&!/[?&]seaReveal=0\b/.test(q))return true/* 运镜bot plan E lens ⇒ plan E scene */;if(/[?&]seaReveal=0\b/.test(q))return false;}catch{}
  return SEA_REVEAL_DEFAULT;}
 /** Prototype open-sea lateral lens (PROPOSAL §2.2): boat + (−7.5, 2.6, 0.6) looking at boat + (30, 0.6, −9), fov 46. Test reference only. */
 export function seaLateralPose(boat:Vec):{position:Vec;target:Vec;fovVerticalDeg:number}{

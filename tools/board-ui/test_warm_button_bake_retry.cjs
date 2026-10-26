@@ -16,5 +16,6 @@ console.log('PASS warmFacesOpaque: both faces opaque at the centre row');
 assert(WARM_BAKE_RETRIES>=1&&WARM_BAKE_RETRIES<=3,'bounded retries');
 assert(/if\(live&&\(e\.tries\|\|0\)<WARM_BAKE_RETRIES&&!warmFacesOpaque\(row0\)\)\{e\.tries=\(e\.tries\|\|0\)\+1;director\.once\(Director\.EVENT_AFTER_DRAW,this\.finish,this\);return;\}/.test(src),'transparent first readback re-arms the same bake for the next frame');
 assert(src.indexOf('if(live&&(e.tries')<src.indexOf('this.stopDraw();this.current=null;'),'retry happens before the bake camera is stopped');
-assert(/const row=row0;\s*if\(!warmFacesOpaque\(row,w\)\)throw Error\('Button RT did not produce both opaque faces'\)/.test(src),'after the retries the old fallback + warn stays');
+assert(/const row=row0;\s*if\(!warmFacesOpaque\(row,w\)\)throw Error\('Button RT did not produce both opaque faces '\+JSON\.stringify\(diag\)\)/.test(src),'after the retries the old fallback + warn stays (full8: + root-cause diag payload)');
+assert(/o\.rcWindowIsRT=/.test(src)&&/o\.modelInScene=/.test(src)&&/frames:director\.getTotalFrames\(\)-\(e\.f0\?\?0\)/.test(src),'full8 diag fields');
 console.log('PASS bake retry: up to '+WARM_BAKE_RETRIES+' extra frames, then the unchanged flat fallback');

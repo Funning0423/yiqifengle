@@ -8,6 +8,7 @@
  *  enter-level, regionBoardHandoff, regionLandingToBoard, RegionJourneyCore:*), else applyCameraPose's own source.
  *  JUMP = position step > CAM_LOG_CAP.m (TRANSITION_CAM per-frame lens cap ·1.05) or view step > CAM_LOG_CAP.deg in one write. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
+import {debugSearch} from './DebugQuery';
 export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
 export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,out:(s:string)=>console.log(s)};
 export function camLogEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTrace=1(?:&|$)/.test(query||'')||!!(g&&g.__QF_CAM_TRACE);}
@@ -59,7 +60,7 @@ let started=false;
 /** Read the switch once. Returns whether tracing is on. */
 export function camLogStart(query?:string,g:any=globalThis):boolean{
  if(started)return camLog.on;started=true;
- let q=query;if(q===undefined){try{q=typeof location!=='undefined'?String(location.search||''):'';}catch{q='';}}
+ let q=query;if(q===undefined)q=debugSearch(g)/* full8: + wx launch/enter query + __qfQuery */;
  camLog.on=camLogEnabled(q,g);
  if(camLog.on){camLog.t0=typeof performance!=='undefined'?performance.now():Date.now();cameraWriteHook.log=camLogWrite;try{(g||globalThis).__qfCamTag={t:camTag,d:camTagDefault};}catch{}}
  return camLog.on;
