@@ -3182,7 +3182,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6700,
-    "sha256": "f96bebd2b809a30566c8faa08672c52fe4dc0f7b1d90c31b8cc45b1bc62334f6"
+    "sha256": "f9f5e840f82bae713516d70e5c818a3978f082b7d2aeda9c1add704ca0a0062e"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3211,8 +3211,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
-    "bytes": 183209,
-    "sha256": "dbd0f2dc3cddc24024081d27bc5c0088f2959a4606efcca122b50a64f7028b0d"
+    "bytes": 183233,
+    "sha256": "b2b5d91d0222c870dc99c6f14f42ab139867552767d40d807599c6bf52c67ee1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
@@ -3501,8 +3501,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts",
-    "bytes": 66167,
-    "sha256": "7483838c7860fd563e34147c89d71a23fe2b0bcbe16101fd01ea6f324d2bf60a"
+    "bytes": 66154,
+    "sha256": "b5ae417fd3b9d46a3a81fc20f1720ff1aed009cee2596e3fb3cf6cca0220a794"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts.meta",

@@ -6,7 +6,7 @@ const base=read('env_skycity.glb'),soft=read('env_sky_cloudsea_soft.glb');
 assert.equal(crypto.createHash('sha256').update(soft.b).digest('hex'),'5e21d6c05aef8dd3cbcd821a25c438e2fd7c1b485067f0ca8e6df10e0d6e9a94','accepted r3fix handoff');
 assert.equal(soft.b.length,29632,'accepted r3fix bytes');
 assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,'env_sky_cloudsea_soft.glb.meta'))).digest('hex'),'3b27fa7581159a2a0860758ddb29dec3a34ca4612b4ce0b02a2c739e1b380c9a','r3fix meta handoff');
-assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'8b742ed5d05c95cd87cd583101eed2ce73c104d122e49bc117cac5530a31a550','b19 face budget: 1,809 never-seen static faces dropped (tools/scene-design/skycity-facebudget)');
+assert.equal(crypto.createHash('sha256').update(base.b).digest('hex'),'9070f3bfe9994eecbca3ea10ea48b30aed5e0528097d8847aed03f8e3a98f8ce','b19 face budget: 1,809 never-seen static faces dropped (tools/scene-design/skycity-facebudget)');
 let triangles=0,primitives=0;
 for(const {j} of [base,soft])for(const n of j.nodes){
  if(n.mesh===undefined||['env_sky_cloudsea','env_sky_cumulus_far'].includes(n.name))continue;
@@ -17,7 +17,7 @@ for(const {j} of [base,soft])for(const n of j.nodes){
  }
 }
 const triangleLimit=90000; // b15 (Grok Bot 2026-10-22): back to the 90k budget; cloud sea 13,110 -> 4,259 (never-visible faces dropped, far field collapsed).
-assert.equal(triangles,88170); // b19: + sky_mooring_props 1,380 = 89,550 (ruins-occlusion -10) resident, see tools/skycity/test_skycity_face_budget.cjs
+assert.equal(triangles,88283); // b19: + sky_mooring_props 1,380 = 89,663 (ruins-occlusion r2: west broken arch, rubble, corner B, -29 floating voussoir) resident, see tools/skycity/test_skycity_face_budget.cjs
 assert(triangles<=triangleLimit);assert(primitives<=64);
 const H=require('../board-ui/harness.cjs').createHarness(),cc=H.cc;
 const scene=new cc.Node('Scene');cc.director.getScene=()=>scene;
