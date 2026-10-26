@@ -11,7 +11,7 @@ function meadowTris(sc={}){
  return out;
 }
 const E_CACHE={};
-const E_DEF={center:[-5.6,-0.91,242.0],scale:0.355,sinkZ:45,sinkY:-1.3};
+const E_DEF={center:[-5.6,-0.91,242.0],scale:0.34,sinkZ:45,sinkY:-1.3};
 function eScene(e){
  const o={...E_DEF,...e},key=JSON.stringify([o.center,o.scale,o.sinkZ,o.sinkY]);if(E_CACHE[key])return E_CACHE[key];
  const root=leg.sailMeadowRoot(),real=[],imp=[];
@@ -32,7 +32,7 @@ function raster(cam,screen,v,sc={},res=4){
  const soup=(t,code,xf)=>{for(let i=0;i<t.length;i+=9){const P=j=>xf?xf([t[i+j],t[i+j+1],t[i+j+2]]):[t[i+j],t[i+j+1],t[i+j+2]];tri(toCam(P(0)),toCam(P(3)),toCam(P(6)),code);}};
  if(sc.E){
   // Option E (场景设计部 PROPOSAL §3, Grok Bot approved): real meadow hidden until the swap, south lowland (world z<45) sunk to
-  // y≤−1.3 for the sail; far stand-in = sail-copy meadow scaled 0.355 about its root (SEA_STANDIN position from 2ddfbb44; scale 0.335→0.355 so the windmill is ≥12 px tall on every screen), root moved to the stand-in centre.
+  // y≤−1.3 for the sail; far stand-in = sail-copy meadow scaled 0.34 about its root (SEA_STANDIN; b19 standin-scale: 0.355 measured dock 3.91–3.97 % > 3.9 %, 0.34 keeps dock ≤3.9 % and windmill ≥12×10 on the proxy AND the shipped impostor, see tools/sea-distance/test_standin_raster.cjs), root moved to the stand-in centre.
   const E=eScene(sc.E);if(sc.E.real!==false)for(const it of E.real)soup(it.t,it.mill?2:1);if(sc.E.impostor!==false)for(const it of E.imp)soup(it.t,it.mill?7:6);
  }else for(const t of meadowTris(sc))soup(t,1);
  // sea: concentric rings so near-plane clipping stays accurate

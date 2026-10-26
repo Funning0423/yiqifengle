@@ -1,2 +1,1 @@
-{"mill":[-9.1,5.11,104.9,4.5,18.51,112.4]}
-PASS b1-lens-windmill
+PASS b1-lens-pacing {"dragM":12.9,"minS":5.16}

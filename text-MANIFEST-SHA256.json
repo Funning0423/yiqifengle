@@ -3341,8 +3341,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailVoyage.ts",
-    "bytes": 7522,
-    "sha256": "f906c7bf34c71b0d20c3bf504abb6fb643c2fbe40024f9cdb536c7e13c3862b3"
+    "bytes": 7521,
+    "sha256": "98195b1dc4540b15150a899861a97bc54f09a299e78f8c5c0760f433a91e2bf7"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailVoyage.ts.meta",
@@ -3361,8 +3361,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SeaHandoffBounds.ts",
-    "bytes": 4023,
-    "sha256": "0580cac7eedfa30b9c2c5fa3d63b05517dce7c58afe6b40fa79767b6902936a7"
+    "bytes": 4065,
+    "sha256": "90f40f2ced6c04aa6e81bff957f3ef625c2265a866cf8a19812425c613fcd153"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SeaHandoffBounds.ts.meta",
@@ -3371,8 +3371,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SeaReveal.ts",
-    "bytes": 8332,
-    "sha256": "806193644c8d5ec2900f9d82082cc20eeb8d6db39d5b787659b7c6008956fab1"
+    "bytes": 8331,
+    "sha256": "3877833b660d0c970a99c746f1e89161f6afc4a5bf18ac9370917a92ef26949a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SeaReveal.ts.meta",
@@ -4981,8 +4981,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 25224,
-    "sha256": "699f35525e7fe1072276bb9752080efb2ca1c8667c2987f35b9a42ae2b216132"
+    "bytes": 25288,
+    "sha256": "71165a69698fb5f4ed01c37705bb8688909381f3305b421df516ca803b103cb3"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

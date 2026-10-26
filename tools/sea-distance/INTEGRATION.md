@@ -27,7 +27,7 @@ South of world z 45, `meadow_river` sits 0.13 m above the sea, so it shows at th
 
 ## 3. Handoff frustum: use above-water bounds, not node AABBs
 The `meadow_terrain` node AABB contains the boat, so `boxInFrustum` never goes false. Use `handoff_bounds.json`:
-- `standin`: min (−23.98, −0.89, 229.68), max (5.12, 6.21, 262.15); sphere c (−9.43, 2.66, 245.92) r 22.1 (already includes the windmill ×1.2).
+- `standin`: min (−24.25, −0.89, 229.5), max (5.28, 6.31, 262.45); sphere c (−9.49, 2.71, 245.98) r 22.41 (scale 0.34) (already includes the windmill ×1.2).
 - `realUnion` (above-water real meadow, lowland sunk; sky dome, near clouds and far hills excluded): min (−57.7, −0.89, 45.1), max (36.3, 18.5, 141.1), sphere c (−10.7, 8.8, 93.1) r 65.1. **Too coarse for the test**: it stays in frame until 18.6 s.
 - **Use** `tiles` (terrain + river bank, above-water verts only, 12 m tiles) plus the `real` per-mesh boxes for every other mesh (73 boxes). With 运镜bot's `sailVoyageCamera` (4012da49), the handoff fires at **17.400 s on all 7 screens** (deferredS 0).
 - `meadow_far_hills` (r 262 m) must stay out of the test and hidden until the swap. Its box contains every camera.

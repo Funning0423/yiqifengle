@@ -3,7 +3,7 @@ import {debugSearch} from './DebugQuery';
 import {sailBeats, sailCamera, sailM0World, sailSpeed, sailVehicle, type SailScreen, type SailTimeline} from './TransportLeg';
 /**
  * 运镜bot sail-voyage, option E (场景设计部 sea-distance PROPOSAL 2026-10-26, Grok Bot approved for full8).
- * The real meadow stays hidden until an off-frame swap; a 0.355 stand-in sits ~240 m out (inside the 282.6 m sky dome) on the same bearing.
+ * The real meadow stays hidden until an off-frame swap; a 0.34 stand-in sits ~240 m out (inside the 282.6 m sky dome) on the same bearing.
  * Beats, in the boat→destination bearing frame (destination = sailM0World() from the node anchors, never a literal):
  *   dock (S-a end, S-b)  astern, low: horizon + stand-in with the windmill clear of the sail (2–4 % of frame height);
  *   sail-up swing        time-keyed over S-c (boat barely moving), dock → beam;

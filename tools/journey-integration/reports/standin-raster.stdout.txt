@@ -1,0 +1,2 @@
+{"scale":0.34,"gate":{"dockPct":3.9,"millPx":[12,10]},"rows":{"390x844":{"dockPct":3.79,"millPx":[24,26]},"414x896":{"dockPct":3.79,"millPx":[24,20]},"360x780":{"dockPct":3.72,"millPx":[22,20]},"375x667":{"dockPct":3.75,"millPx":[19,18]},"390x520":{"dockPct":3.65,"millPx":[14,13]},"320x568":{"dockPct":3.87,"millPx":[16,15]},"768x1024":{"dockPct":3.71,"millPx":[28,24]}}}
+PASS standin-raster (shipped impostor, sail-voyage raster)

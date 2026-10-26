@@ -6,43 +6,43 @@
   "after": [
    {
     "screen": "390x844",
-    "herPct": 22.2,
+    "herPct": 22.3,
     "ringPct": 0,
-    "herMargin": 0.42
+    "herMargin": 0.39
    },
    {
     "screen": "414x896",
-    "herPct": 22.2,
+    "herPct": 22.3,
     "ringPct": 0,
-    "herMargin": 0.42
+    "herMargin": 0.39
    },
    {
     "screen": "360x780",
-    "herPct": 22.2,
+    "herPct": 22.3,
     "ringPct": 0,
-    "herMargin": 0.41
+    "herMargin": 0.39
    },
    {
     "screen": "375x667",
-    "herPct": 22.2,
+    "herPct": 22.3,
     "ringPct": 0,
     "herMargin": 0.43
    },
    {
     "screen": "390x520",
-    "herPct": 22.2,
+    "herPct": 22.3,
     "ringPct": 0,
     "herMargin": 0.43
    },
    {
     "screen": "320x568",
-    "herPct": 22.2,
+    "herPct": 22.3,
     "ringPct": 0,
     "herMargin": 0.43
    },
    {
     "screen": "768x1024",
-    "herPct": 22.2,
+    "herPct": 22.3,
     "ringPct": 0,
     "herMargin": 0.43
    }
@@ -50,43 +50,43 @@
   "before": [
    {
     "screen": "390x844",
-    "herPct": 32.2,
+    "herPct": 32.4,
     "ringPct": 2.3,
-    "herMargin": 0.08
+    "herMargin": 0.12
    },
    {
     "screen": "414x896",
-    "herPct": 32.2,
+    "herPct": 32.4,
     "ringPct": 2.3,
-    "herMargin": 0.08
+    "herMargin": 0.12
    },
    {
     "screen": "360x780",
-    "herPct": 32.2,
+    "herPct": 32.4,
     "ringPct": 2.3,
-    "herMargin": 0.08
+    "herMargin": 0.12
    },
    {
     "screen": "375x667",
-    "herPct": 32.2,
+    "herPct": 32.4,
     "ringPct": 4.5,
     "herMargin": 0.13
    },
    {
     "screen": "390x520",
-    "herPct": 32.2,
+    "herPct": 32.4,
     "ringPct": 4.5,
     "herMargin": 0.13
    },
    {
     "screen": "320x568",
-    "herPct": 32.2,
+    "herPct": 32.4,
     "ringPct": 4.5,
     "herMargin": 0.13
    },
    {
     "screen": "768x1024",
-    "herPct": 32.2,
+    "herPct": 32.4,
     "ringPct": 4.5,
     "herMargin": 0.13
    }
@@ -95,17 +95,17 @@
  "F1": {
   "ok": true,
   "option": "C",
-  "offBackDeg": 25,
-  "armM": 8.5,
+  "offBackDeg": 24.6,
+  "armM": 8.45,
   "lensUpM": 1.5,
   "fov": 45,
   "lensInBox": false,
   "feet": [
-   0.9,
+   0.94,
    0.04,
-   -27.1
+   -27.06
   ],
-  "faceDeg": -147.8
+  "faceDeg": -148.4
  },
  "F3": {
   "ok": true,
@@ -122,7 +122,7 @@
      "ruinsPct": 0,
      "skyPct": 40.9,
      "undersideUpperPct": 21.6,
-     "herPct": 22.2
+     "herPct": 22.3
     },
     "before": {
      "cityPct": 78.2,
@@ -138,7 +138,7 @@
      "ruinsPct": 0,
      "skyPct": 40.9,
      "undersideUpperPct": 21.6,
-     "herPct": 22.2
+     "herPct": 22.3
     },
     "before": {
      "cityPct": 78.2,
@@ -154,7 +154,7 @@
      "ruinsPct": 0,
      "skyPct": 40.9,
      "undersideUpperPct": 21.6,
-     "herPct": 22.2
+     "herPct": 22.3
     },
     "before": {
      "cityPct": 78.2,
@@ -170,7 +170,7 @@
      "ruinsPct": 0,
      "skyPct": 42,
      "undersideUpperPct": 19.6,
-     "herPct": 22.2
+     "herPct": 22.3
     },
     "before": {
      "cityPct": 77.6,
@@ -186,7 +186,7 @@
      "ruinsPct": 0,
      "skyPct": 43.6,
      "undersideUpperPct": 19,
-     "herPct": 22.2
+     "herPct": 22.3
     },
     "before": {
      "cityPct": 76.2,
@@ -202,7 +202,7 @@
      "ruinsPct": 0,
      "skyPct": 42,
      "undersideUpperPct": 19.6,
-     "herPct": 22.2
+     "herPct": 22.3
     },
     "before": {
      "cityPct": 77.5,
@@ -218,7 +218,7 @@
      "ruinsPct": 0,
      "skyPct": 43.6,
      "undersideUpperPct": 19,
-     "herPct": 22.2
+     "herPct": 22.3
     },
     "before": {
      "cityPct": 76.2,
@@ -234,14 +234,14 @@
   "ok": true,
   "approachS": 1.4,
   "wayRound": -1,
-  "yawPeakDegS": 51.6,
-  "yawAccPeakDegS2": 113,
+  "yawPeakDegS": 50.7,
+  "yawAccPeakDegS2": 112,
   "lensInBoxFrames": 0,
-  "faceS": 0.2,
-  "chestS": 0.2,
-  "maxStepM": 0.14,
-  "minMeshClearM": 0.58,
-  "walkLensStartClearM": 0.58
+  "faceS": 0.13,
+  "chestS": 0.13,
+  "maxStepM": 0.139,
+  "minMeshClearM": 0.59,
+  "walkLensStartClearM": 0.59
  },
  "F5": {
   "ok": true,

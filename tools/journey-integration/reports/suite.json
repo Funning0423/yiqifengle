@@ -1,13 +1,13 @@
 {
-  "startedAt": "2026-10-26T12:12:05.397Z",
-  "startedAtUTC": "2026-10-26T12:12:05.397Z",
-  "gitHead": "25e2311b8e2f498be965609e6e4f4d291eb2cedb",
-  "gitTree": "64be27de1d46af07ba84d2b6dba9db6ebec54ec3",
-  "gitShort": "25e2311",
-  "worktreeStatus": "M assets-MANIFEST-SHA256.json\n M creator-build-project/assets/bundles/region_skycity/env_skycity.glb\n M creator-build-project/assets/scripts/region/RegionNodes.ts\n M creator-build-project/assets/scripts/region/RegionWalkableData.ts\n M creator-build-project/assets/scripts/region/SkycityLensOccluders.ts\n M docs/r5/maps/nodes.json\n M output/retry-protection-results.json\n M text-MANIFEST-SHA256.json\n M tools/journey-integration/frozen-production-inputs.json\n M tools/journey-integration/occlusion/fixture-occluders.bin.gz\n M tools/journey-integration/occlusion/fixture-occluders.json\n M tools/journey-integration/reports/board-freeze-recovery.stderr.txt\n M tools/journey-integration/reports/board-storage-recovery.stderr.txt\n M tools/journey-integration/reports/composition-boundaries.json\n M tools/journey-integration/reports/composition-boundaries.stdout.txt\n M tools/journey-integration/reports/es5-iterator-spread.stdout.txt\n M tools/journey-integration/reports/exit-cine-audio.stderr.txt\n M tools/journey-integration/reports/exit-footsteps.stderr.txt\n M tools/journey-integration/reports/independent-journey.stdout.txt\n M tools/journey-integration/reports/independent-mainline.stdout.txt\n M tools/journey-integration/reports/journey-lifecycle.json\n M tools/journey-integration/reports/journey-types.json\n M tools/journey-integration/reports/journey-types.stdout.txt\n M tools/journey-integration/reports/lakeside-entry-deck.json\n M tools/journey-integration/reports/lakeside-entry-deck.stdout.txt\n M tools/journey-integration/reports/lakeside-walkable.stdout.txt\n M tools/journey-integration/reports/legacy-board-ui-pure.stderr.txt\n M tools/journey-integration/reports/mainline-boundaries.json\n M tools/journey-integration/reports/one-ccclass-per-file.stdout.txt\n M tools/journey-integration/reports/p0drag10.stdout.txt\n M tools/journey-integration/reports/p0drag11.stdout.txt\n M tools/journey-integration/reports/p0drag7.json\n M tools/journey-integration/reports/p0drag7.stdout.txt\n M tools/journey-integration/reports/p0drag8.stdout.txt\n M tools/journey-integration/reports/p0drag9.stdout.txt\n M tools/journey-integration/reports/pre-transition.stdout.txt\n M tools/journey-integration/reports/production-integrity.json\n M tools/journey-integration/reports/production-integrity.stderr.txt\n M tools/journey-integration/reports/production-integrity.stdout.txt\n M tools/journey-integration/reports/region-entry.stdout.txt\n M tools/journey-integration/reports/region-transport-flag.stdout.txt\n M tools/journey-integration/reports/reward-background-return.stderr.txt\n M tools/journey-integration/reports/rider-parenting.stdout.txt\n M tools/journey-integration/reports/route-continuity.json\n M tools/journey-integration/reports/route-framing.json\n M tools/journey-integration/reports/route-occlusion.json\n M tools/journey-integration/reports/sail-mesh-ready.stderr.txt\n M tools/journey-integration/reports/sail-mesh-ready.stdout.txt\n M tools/journey-integration/reports/suite.json\n M tools/journey-integration/reports/wind-audio.stdout.txt\n M tools/journey-integration/reports/world-background-freeze.stderr.txt\n M tools/journey-integration/reports/world-region-exit.json\n M tools/journey-integration/reports/world-region-exit.stdout.txt\n M tools/region-nodes/bake-region-nodes.cjs\n M tools/region-nodes/fixtures/skycity-walkable.json.gz\n M tools/region-nodes/region-nodes.json\n M tools/skycity-walk/test_sky_s2s3_edge_clearance.cjs\n M tools/transitions/test_sky_cloudsea.cjs\n?? tools/journey-integration/reports/b1-lens-windmill.stderr.txt\n?? tools/journey-integration/reports/b1-lens-windmill.stdout.txt\n?? tools/journey-integration/reports/b1-start-budget.stderr.txt\n?? tools/journey-integration/reports/b1-start-budget.stdout.txt\n?? tools/journey-integration/reports/balloon-spots.stderr.txt\n?? tools/journey-integration/reports/balloon-spots.stdout.txt\n?? tools/journey-integration/reports/basket-close.stderr.txt\n?? tools/journey-integration/reports/basket-close.stdout.txt\n?? tools/journey-integration/reports/basket-obstacle-runtime.stderr.txt\n?? tools/journey-integration/reports/basket-obstacle-runtime.stdout.txt\n?? tools/journey-integration/reports/basket-obstacles.stderr.txt\n?? tools/journey-integration/reports/basket-obstacles.stdout.txt\n?? tools/journey-integration/reports/board-bg-fade.stderr.txt\n?? tools/journey-integration/reports/board-bg-fade.stdout.txt\n?? tools/journey-integration/reports/board-handoff.json\n?? tools/journey-integration/reports/board-handoff.stderr.txt\n?? tools/journey-integration/reports/board-handoff.stdout.txt\n?? tools/journey-integration/reports/cam-trace-log.stderr.txt\n?? tools/journey-integration/reports/cam-trace-log.stdout.txt\n?? tools/journey-integration/reports/chain-ggbot.stderr.txt\n?? tools/journey-integration/reports/chain-ggbot.stdout.txt\n?? tools/journey-integration/reports/city-night-restore.stderr.txt\n?? tools/journey-integration/reports/city-night-restore.stdout.txt\n?? tools/journey-integration/reports/debug-query.stderr.txt\n?? tools/journey-integration/reports/debug-query.stdout.txt\n?? tools/journey-integration/reports/dock-runtime.stderr.txt\n?? tools/journey-integration/reports/dock-runtime.stdout.txt\n?? tools/journey-integration/reports/entry-pause-panel.stderr.txt\n?? tools/journey-integration/reports/entry-pause-panel.stdout.txt\n?? tools/journey-integration/reports/fence-gate.stderr.txt\n?? tools/journey-integration/reports/fence-gate.stdout.txt\n?? tools/journey-integration/reports/full6-lake-fixes.stderr.txt\n?? tools/journey-integration/reports/full6-lake-fixes.stdout.txt\n?? tools/journey-integration/reports/gangway-frame.stderr.txt\n?? tools/journey-integration/reports/gangway-frame.stdout.txt\n?? tools/journey-integration/reports/gangway-switch.stderr.txt\n?? tools/journey-integration/reports/gangway-switch.stdout.txt\n?? tools/journey-integration/reports/lake-leg-c.json\n?? tools/journey-integration/reports/lake-leg-c.stderr.txt\n?? tools/journey-integration/reports/lake-leg-c.stdout.txt\n?? tools/journey-integration/reports/live-start.stderr.txt\n?? tools/journey-integration/reports/live-start.stdout.txt\n?? tools/journey-integration/reports/meadow-lift-clearance.stderr.txt\n?? tools/journey-integration/reports/meadow-lift-clearance.stdout.txt\n?? tools/journey-integration/reports/meadow-walk-colliders.stderr.txt\n?? tools/journey-integration/reports/meadow-walk-colliders.stdout.txt\n?? tools/journey-integration/reports/meadow-walk-no-uturn.stderr.txt\n?? tools/journey-integration/reports/meadow-walk-no-uturn.stdout.txt\n?? tools/journey-integration/reports/meadow-walk-sweep.stderr.txt\n?? tools/journey-integration/reports/meadow-walk-sweep.stdout.txt\n?? tools/journey-integration/reports/sail-blue-frame.stderr.txt\n?? tools/journey-integration/reports/sail-blue-frame.stdout.txt\n?? tools/journey-integration/reports/sail-sea-distance.stderr.txt\n?? tools/journey-integration/reports/sail-sea-distance.stdout.txt\n?? tools/journey-integration/reports/sail-voyage.stderr.txt\n?? tools/journey-integration/reports/sail-voyage.stdout.txt\n?? tools/journey-integration/reports/sea-assets.stderr.txt\n?? tools/journey-integration/reports/sea-assets.stdout.txt\n?? tools/journey-integration/reports/sky-exit-door-b.stderr.txt\n?? tools/journey-integration/reports/sky-exit-door-b.stdout.txt\n?? tools/journey-integration/reports/sky-finale-continue.stderr.txt\n?? tools/journey-integration/reports/sky-finale-continue.stdout.txt\n?? tools/journey-integration/reports/sky-finale-frames.stderr.txt\n?? tools/journey-integration/reports/sky-finale-frames.stdout.txt\n?? tools/journey-integration/reports/sky-lake-prewalk.stderr.txt\n?? tools/journey-integration/reports/sky-lake-prewalk.stdout.txt\n?? tools/journey-integration/reports/sky-resume-s6.stderr.txt\n?? tools/journey-integration/reports/sky-resume-s6.stdout.txt\n?? tools/journey-integration/reports/sky-s2s3-edge-clearance.stderr.txt\n?? tools/journey-integration/reports/sky-s2s3-edge-clearance.stdout.txt\n?? tools/journey-integration/reports/sky-walk-shot.stderr.txt\n?? tools/journey-integration/reports/sky-walk-shot.stdout.txt\n?? tools/journey-integration/reports/skycity-continue-tap.stderr.txt\n?? tools/journey-integration/reports/skycity-continue-tap.stdout.txt\n?? tools/journey-integration/reports/skycity-face-budget.stderr.txt\n?? tools/journey-integration/reports/skycity-face-budget.stdout.txt\n?? tools/journey-integration/reports/skycity-visibility.stderr.txt\n?? tools/journey-integration/reports/skycity-visibility.stdout.txt\n?? tools/journey-integration/reports/static-names.stderr.txt\n?? tools/journey-integration/reports/static-names.stdout.txt\n?? tools/journey-integration/reports/t02-dock.stderr.txt\n?? tools/journey-integration/reports/t02-dock.stdout.txt\n?? tools/journey-integration/reports/t02-sky-final.stderr.txt\n?? tools/journey-integration/reports/t02-sky-final.stdout.txt\n?? tools/journey-integration/reports/transition-spaces.stderr.txt\n?? tools/journey-integration/reports/transition-spaces.stdout.txt\n?? tools/journey-integration/reports/vertex-color-black.stderr.txt\n?? tools/journey-integration/reports/vertex-color-black.stdout.txt\n?? tools/journey-integration/reports/warm-button-bake-retry.stderr.txt\n?? tools/journey-integration/reports/warm-button-bake-retry.stdout.txt",
+  "startedAt": "2026-10-26T13:03:20.051Z",
+  "startedAtUTC": "2026-10-26T13:03:20.051Z",
+  "gitHead": "6a6324088e0075f924c3bd8b4de863c235542b09",
+  "gitTree": "2d85968a33d52a39a56c219080e96564c3776865",
+  "gitShort": "6a63240",
+  "worktreeStatus": "M creator-build-project/assets/scripts/region/SailVoyage.ts\n M creator-build-project/assets/scripts/region/SeaHandoffBounds.ts\n M creator-build-project/assets/scripts/region/SeaReveal.ts\n M text-MANIFEST-SHA256.json\n M tools/journey-integration/run-suite.cjs\n M tools/sail-voyage/test_sail_voyage.cjs\n M tools/sail-voyage/voyage_lib.cjs\n M tools/sea-distance/INTEGRATION.md\n M tools/sea-distance/handoff_bounds.json\n?? tools/sea-distance/test_standin_raster.cjs",
   "testRuntime": "v22.23.4",
   "typescriptModule": "/workspace/r7ts/node_modules/typescript",
-  "status": "FAIL",
+  "status": "BLOCKED",
   "renderedAcceptance": "BLOCKED_NOT_RUN",
   "deviceAcceptance": "NOT_RUN",
   "checks": [
@@ -19,7 +19,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 245,
+      "durationMs": 217,
       "stdout": "skycity-continue-tap.stdout.txt",
       "stderr": "skycity-continue-tap.stderr.txt"
     },
@@ -31,7 +31,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 455,
+      "durationMs": 573,
       "stdout": "b1-start-budget.stdout.txt",
       "stderr": "b1-start-budget.stderr.txt"
     },
@@ -43,7 +43,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3842,
+      "durationMs": 3317,
       "stdout": "entry-pause-panel.stdout.txt",
       "stderr": "entry-pause-panel.stderr.txt"
     },
@@ -55,7 +55,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 221,
+      "durationMs": 217,
       "stdout": "warm-button-bake-retry.stdout.txt",
       "stderr": "warm-button-bake-retry.stderr.txt"
     },
@@ -67,7 +67,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 494,
+      "durationMs": 479,
       "stdout": "meadow-walk-no-uturn.stdout.txt",
       "stderr": "meadow-walk-no-uturn.stderr.txt"
     },
@@ -79,7 +79,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 727,
+      "durationMs": 718,
       "stdout": "sky-resume-s6.stdout.txt",
       "stderr": "sky-resume-s6.stderr.txt"
     },
@@ -91,7 +91,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 381,
+      "durationMs": 387,
       "stdout": "sky-s2s3-edge-clearance.stdout.txt",
       "stderr": "sky-s2s3-edge-clearance.stderr.txt"
     },
@@ -103,7 +103,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 461,
+      "durationMs": 658,
       "stdout": "sky-lake-prewalk.stdout.txt",
       "stderr": "sky-lake-prewalk.stderr.txt"
     },
@@ -115,7 +115,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 181,
+      "durationMs": 330,
       "stdout": "full6-lake-fixes.stdout.txt",
       "stderr": "full6-lake-fixes.stderr.txt"
     },
@@ -127,7 +127,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 817,
+      "durationMs": 686,
       "stdout": "meadow-walk-colliders.stdout.txt",
       "stderr": "meadow-walk-colliders.stderr.txt"
     },
@@ -139,7 +139,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 903,
+      "durationMs": 809,
       "stdout": "meadow-walk-sweep.stdout.txt",
       "stderr": "meadow-walk-sweep.stderr.txt"
     },
@@ -151,7 +151,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 57,
+      "durationMs": 54,
       "stdout": "one-ccclass-per-file.stdout.txt",
       "stderr": "one-ccclass-per-file.stderr.txt"
     },
@@ -163,7 +163,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 64,
+      "durationMs": 66,
       "stdout": "production-integrity.stdout.txt",
       "stderr": "production-integrity.stderr.txt"
     },
@@ -175,7 +175,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1579,
+      "durationMs": 1482,
       "stdout": "journey-types.stdout.txt",
       "stderr": "journey-types.stderr.txt"
     },
@@ -187,7 +187,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 6604,
+      "durationMs": 12896,
       "stdout": "independent-mainline.stdout.txt",
       "stderr": "independent-mainline.stderr.txt"
     },
@@ -199,7 +199,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 536,
+      "durationMs": 980,
       "stdout": "independent-journey.stdout.txt",
       "stderr": "independent-journey.stderr.txt"
     },
@@ -211,7 +211,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2575,
+      "durationMs": 5155,
       "stdout": "journey-cutscene-ui.stdout.txt",
       "stderr": "journey-cutscene-ui.stderr.txt"
     },
@@ -223,7 +223,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 486,
+      "durationMs": 976,
       "stdout": "journey-background-audio.stdout.txt",
       "stderr": "journey-background-audio.stderr.txt"
     },
@@ -235,7 +235,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 8693,
+      "durationMs": 16045,
       "stdout": "composition-boundaries.stdout.txt",
       "stderr": "composition-boundaries.stderr.txt"
     },
@@ -247,7 +247,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 473,
+      "durationMs": 907,
       "stdout": "world-region-exit.stdout.txt",
       "stderr": "world-region-exit.stderr.txt"
     },
@@ -255,11 +255,11 @@
       "id": "region-levels",
       "file": "tools/region-levels/test-region-levels.cjs",
       "sourceSHA256": "1d9ee633021174292d27a3ed220554cb7ac8a529bc3c966d9044e52ec8f4899e",
-      "status": "FAIL",
-      "exitCode": null,
-      "signal": "SIGTERM",
-      "error": "Error: spawnSync /home/box/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node ETIMEDOUT",
-      "durationMs": 510065,
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 45799,
       "stdout": "region-levels.stdout.txt",
       "stderr": "region-levels.stderr.txt"
     },
@@ -271,7 +271,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 8833,
+      "durationMs": 13938,
       "stdout": "production-binding.stdout.txt",
       "stderr": "production-binding.stderr.txt"
     },
@@ -283,7 +283,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 639,
+      "durationMs": 1133,
       "stdout": "region-journey-flow.stdout.txt",
       "stderr": "region-journey-flow.stderr.txt"
     },
@@ -295,7 +295,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 367,
+      "durationMs": 401,
       "stdout": "region-journey-host.stdout.txt",
       "stderr": "region-journey-host.stderr.txt"
     },
@@ -307,7 +307,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3772,
+      "durationMs": 6429,
       "stdout": "region-entry.stdout.txt",
       "stderr": "region-entry.stderr.txt"
     },
@@ -319,7 +319,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1268,
+      "durationMs": 2143,
       "stdout": "region-failure.stdout.txt",
       "stderr": "region-failure.stderr.txt"
     },
@@ -331,7 +331,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 5441,
+      "durationMs": 9570,
       "stdout": "region-ui.stdout.txt",
       "stderr": "region-ui.stderr.txt"
     },
@@ -343,7 +343,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 6072,
+      "durationMs": 11048,
       "stdout": "region-reentry.stdout.txt",
       "stderr": "region-reentry.stderr.txt"
     },
@@ -355,7 +355,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 117605,
+      "durationMs": 8102,
       "stdout": "region-ports.stdout.txt",
       "stderr": "region-ports.stderr.txt"
     },
@@ -367,7 +367,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 981,
+      "durationMs": 787,
       "stdout": "chapter-gates.stdout.txt",
       "stderr": "chapter-gates.stderr.txt"
     },
@@ -379,7 +379,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1148,
+      "durationMs": 1164,
       "stdout": "legacy-action-clock.stdout.txt",
       "stderr": "legacy-action-clock.stderr.txt"
     },
@@ -391,7 +391,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1394,
+      "durationMs": 1631,
       "stdout": "legacy-board-ui-pure.stdout.txt",
       "stderr": "legacy-board-ui-pure.stderr.txt"
     },
@@ -403,7 +403,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1384,
+      "durationMs": 1163,
       "stdout": "legacy-startup-ready.stdout.txt",
       "stderr": "legacy-startup-ready.stderr.txt"
     },
@@ -415,7 +415,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 7244,
+      "durationMs": 7385,
       "stdout": "chapter-production-entry.stdout.txt",
       "stderr": "chapter-production-entry.stderr.txt"
     },
@@ -427,7 +427,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 488,
+      "durationMs": 73,
       "stdout": "controller-integrity-guard.stdout.txt",
       "stderr": "controller-integrity-guard.stderr.txt"
     },
@@ -439,7 +439,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3399,
+      "durationMs": 3433,
       "stdout": "character-real-glb-endpoints.stdout.txt",
       "stderr": "character-real-glb-endpoints.stderr.txt"
     },
@@ -451,7 +451,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 27847,
+      "durationMs": 36061,
       "stdout": "input-ownership.stdout.txt",
       "stderr": "input-ownership.stderr.txt"
     },
@@ -463,7 +463,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 10000,
+      "durationMs": 14648,
       "stdout": "board-runtime.stdout.txt",
       "stderr": "board-runtime.stderr.txt"
     },
@@ -475,7 +475,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 25435,
+      "durationMs": 37224,
       "stdout": "board-freeze-recovery.stdout.txt",
       "stderr": "board-freeze-recovery.stderr.txt"
     },
@@ -487,7 +487,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1651,
+      "durationMs": 2797,
       "stdout": "board-storage-recovery.stdout.txt",
       "stderr": "board-storage-recovery.stderr.txt"
     },
@@ -499,7 +499,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1494,
+      "durationMs": 2367,
       "stdout": "reward-background-return.stdout.txt",
       "stderr": "reward-background-return.stderr.txt"
     },
@@ -511,7 +511,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 794,
+      "durationMs": 1438,
       "stdout": "restored-entry-resume.stdout.txt",
       "stderr": "restored-entry-resume.stderr.txt"
     },
@@ -523,7 +523,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1421,
+      "durationMs": 2335,
       "stdout": "lakeside-landing-no-pause.stdout.txt",
       "stderr": "lakeside-landing-no-pause.stderr.txt"
     },
@@ -535,7 +535,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 853,
+      "durationMs": 1610,
       "stdout": "lakeside-pathv4.stdout.txt",
       "stderr": "lakeside-pathv4.stderr.txt"
     },
@@ -547,7 +547,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 685,
+      "durationMs": 1210,
       "stdout": "lakeside-landing-board-progress.stdout.txt",
       "stderr": "lakeside-landing-board-progress.stderr.txt"
     },
@@ -559,7 +559,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 6383,
+      "durationMs": 8538,
       "stdout": "route-occlusion.stdout.txt",
       "stderr": "route-occlusion.stderr.txt"
     },
@@ -571,7 +571,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4760,
+      "durationMs": 7910,
       "stdout": "route-framing.stdout.txt",
       "stderr": "route-framing.stderr.txt"
     },
@@ -583,7 +583,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 39446,
+      "durationMs": 56148,
       "stdout": "route-continuity.stdout.txt",
       "stderr": "route-continuity.stderr.txt"
     },
@@ -595,7 +595,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2232,
+      "durationMs": 4538,
       "stdout": "result-retry.stdout.txt",
       "stderr": "result-retry.stderr.txt"
     },
@@ -607,7 +607,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2723,
+      "durationMs": 5356,
       "stdout": "board-art-retry.stdout.txt",
       "stderr": "board-art-retry.stderr.txt"
     },
@@ -619,7 +619,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2494,
+      "durationMs": 4790,
       "stdout": "deferred-entry-art.stdout.txt",
       "stderr": "deferred-entry-art.stderr.txt"
     },
@@ -631,7 +631,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2148,
+      "durationMs": 3358,
       "stdout": "child-first-teardown.stdout.txt",
       "stderr": "child-first-teardown.stderr.txt"
     },
@@ -643,7 +643,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 285,
+      "durationMs": 310,
       "stdout": "result-claim-batch.stdout.txt",
       "stderr": "result-claim-batch.stderr.txt"
     },
@@ -655,7 +655,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 620,
+      "durationMs": 1188,
       "stdout": "result-screen-style.stdout.txt",
       "stderr": "result-screen-style.stderr.txt"
     },
@@ -667,7 +667,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 646,
+      "durationMs": 1034,
       "stdout": "lose-caption-fit.stdout.txt",
       "stderr": "lose-caption-fit.stderr.txt"
     },
@@ -679,7 +679,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 896,
+      "durationMs": 1632,
       "stdout": "board-hint-above-tray.stdout.txt",
       "stderr": "board-hint-above-tray.stderr.txt"
     },
@@ -697,7 +697,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 60695,
+      "durationMs": 82601,
       "stdout": "retry-protection.stdout.txt",
       "stderr": "retry-protection.stderr.txt"
     },
@@ -709,7 +709,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 266,
+      "durationMs": 541,
       "stdout": "cloud-web-contract.stdout.txt",
       "stderr": "cloud-web-contract.stderr.txt"
     },
@@ -721,7 +721,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 91,
+      "durationMs": 213,
       "stdout": "exit-cine-audio.stdout.txt",
       "stderr": "exit-cine-audio.stderr.txt"
     },
@@ -733,7 +733,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 18318,
+      "durationMs": 32127,
       "stdout": "exit-footsteps.stdout.txt",
       "stderr": "exit-footsteps.stderr.txt"
     },
@@ -745,7 +745,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 223,
+      "durationMs": 400,
       "stdout": "cconb-bin-only.stdout.txt",
       "stderr": "cconb-bin-only.stderr.txt"
     },
@@ -757,7 +757,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 296,
+      "durationMs": 430,
       "stdout": "fade-cover-alpha.stdout.txt",
       "stderr": "fade-cover-alpha.stderr.txt"
     },
@@ -769,7 +769,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 453,
+      "durationMs": 691,
       "stdout": "windwipe-ending.stdout.txt",
       "stderr": "windwipe-ending.stderr.txt"
     },
@@ -781,7 +781,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3618,
+      "durationMs": 5637,
       "stdout": "region-arrival-title.stdout.txt",
       "stderr": "region-arrival-title.stderr.txt"
     },
@@ -793,7 +793,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 651,
+      "durationMs": 528,
       "stdout": "t03-arrival.stdout.txt",
       "stderr": "t03-arrival.stderr.txt"
     },
@@ -805,7 +805,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 693,
+      "durationMs": 569,
       "stdout": "result-chest-handoff.stdout.txt",
       "stderr": "result-chest-handoff.stderr.txt"
     },
@@ -817,7 +817,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 566,
+      "durationMs": 610,
       "stdout": "result-float-lift.stdout.txt",
       "stderr": "result-float-lift.stderr.txt"
     },
@@ -829,7 +829,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1469,
+      "durationMs": 1716,
       "stdout": "meadow-night-sky.stdout.txt",
       "stderr": "meadow-night-sky.stderr.txt"
     },
@@ -841,7 +841,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 506,
+      "durationMs": 902,
       "stdout": "wind-audio.stdout.txt",
       "stderr": "wind-audio.stderr.txt"
     },
@@ -853,7 +853,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 618,
+      "durationMs": 937,
       "stdout": "scene-audio-transitions.stdout.txt",
       "stderr": "scene-audio-transitions.stderr.txt"
     },
@@ -865,7 +865,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 575,
+      "durationMs": 1270,
       "stdout": "scene-bgm-switch.stdout.txt",
       "stderr": "scene-bgm-switch.stderr.txt"
     },
@@ -877,7 +877,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4968,
+      "durationMs": 5019,
       "stdout": "wx-autoplay-harness.stdout.txt",
       "stderr": "wx-autoplay-harness.stderr.txt"
     },
@@ -889,7 +889,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 333,
+      "durationMs": 578,
       "stdout": "landmark-audio.stdout.txt",
       "stderr": "landmark-audio.stderr.txt"
     },
@@ -901,7 +901,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 29,
+      "durationMs": 58,
       "stdout": "meadow-night-grade.stdout.txt",
       "stderr": "meadow-night-grade.stderr.txt"
     },
@@ -913,7 +913,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 422,
+      "durationMs": 765,
       "stdout": "region-board-staging.stdout.txt",
       "stderr": "region-board-staging.stderr.txt"
     },
@@ -925,7 +925,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 418,
+      "durationMs": 640,
       "stdout": "exit-background-resume.stdout.txt",
       "stderr": "exit-background-resume.stderr.txt"
     },
@@ -937,7 +937,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1091,
+      "durationMs": 1812,
       "stdout": "world-background-freeze.stdout.txt",
       "stderr": "world-background-freeze.stderr.txt"
     },
@@ -949,7 +949,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 31,
+      "durationMs": 57,
       "stdout": "glass-sign-layout.stdout.txt",
       "stderr": "glass-sign-layout.stderr.txt"
     },
@@ -961,7 +961,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 306,
+      "durationMs": 650,
       "stdout": "glass-sign-night.stdout.txt",
       "stderr": "glass-sign-night.stderr.txt"
     },
@@ -973,7 +973,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 31,
+      "durationMs": 58,
       "stdout": "exit-restart-quiet.stdout.txt",
       "stderr": "exit-restart-quiet.stderr.txt"
     },
@@ -985,7 +985,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 27,
+      "durationMs": 34,
       "stdout": "home-sea-fadein.stdout.txt",
       "stderr": "home-sea-fadein.stderr.txt"
     },
@@ -997,7 +997,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 484,
+      "durationMs": 1022,
       "stdout": "build-guard-selftest.stdout.txt",
       "stderr": "build-guard-selftest.stderr.txt"
     },
@@ -1009,7 +1009,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 140,
+      "durationMs": 280,
       "stdout": "lakeside-rules.stdout.txt",
       "stderr": "lakeside-rules.stderr.txt"
     },
@@ -1021,7 +1021,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 496,
+      "durationMs": 1082,
       "stdout": "lakeside-entry.stdout.txt",
       "stderr": "lakeside-entry.stderr.txt"
     },
@@ -1033,7 +1033,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 196,
+      "durationMs": 287,
       "stdout": "lakeside-retune-b18.stdout.txt",
       "stderr": "lakeside-retune-b18.stderr.txt"
     },
@@ -1057,7 +1057,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 938,
+      "durationMs": 1605,
       "stdout": "lakeside-stale-notice-ui-b18.stdout.txt",
       "stderr": "lakeside-stale-notice-ui-b18.stderr.txt"
     },
@@ -1069,7 +1069,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 697,
+      "durationMs": 1157,
       "stdout": "lakeside-landing-walk-interrupt.stdout.txt",
       "stderr": "lakeside-landing-walk-interrupt.stderr.txt"
     },
@@ -1081,7 +1081,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 29,
+      "durationMs": 69,
       "stdout": "lakeside-instancing.stdout.txt",
       "stderr": "lakeside-instancing.stderr.txt"
     },
@@ -1093,7 +1093,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 269,
+      "durationMs": 441,
       "stdout": "lakeside-dirlight.stdout.txt",
       "stderr": "lakeside-dirlight.stderr.txt"
     },
@@ -1105,7 +1105,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 278,
+      "durationMs": 435,
       "stdout": "lakeside-water-fog.stdout.txt",
       "stderr": "lakeside-water-fog.stderr.txt"
     },
@@ -1117,7 +1117,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 38,
+      "durationMs": 64,
       "stdout": "lakeside-meshopt.stdout.txt",
       "stderr": "lakeside-meshopt.stderr.txt"
     },
@@ -1129,7 +1129,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1164,
+      "durationMs": 1595,
       "stdout": "es5-iterator-spread.stdout.txt",
       "stderr": "es5-iterator-spread.stderr.txt"
     },
@@ -1141,7 +1141,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 248,
+      "durationMs": 333,
       "stdout": "lakeside-load-failure.stdout.txt",
       "stderr": "lakeside-load-failure.stderr.txt"
     },
@@ -1153,7 +1153,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 26,
+      "durationMs": 35,
       "stdout": "lakeside-prewarm.stdout.txt",
       "stderr": "lakeside-prewarm.stderr.txt"
     },
@@ -1165,7 +1165,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 789,
+      "durationMs": 1215,
       "stdout": "lakeside-journey-atmosphere.stdout.txt",
       "stderr": "lakeside-journey-atmosphere.stderr.txt"
     },
@@ -1177,7 +1177,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 348,
+      "durationMs": 578,
       "stdout": "lakeside-fallback.stdout.txt",
       "stderr": "lakeside-fallback.stderr.txt"
     },
@@ -1189,7 +1189,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 321,
+      "durationMs": 458,
       "stdout": "lakeside-daynight.stdout.txt",
       "stderr": "lakeside-daynight.stderr.txt"
     },
@@ -1201,7 +1201,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 341,
+      "durationMs": 791,
       "stdout": "lakeside-sky-follow.stdout.txt",
       "stderr": "lakeside-sky-follow.stderr.txt"
     },
@@ -1213,7 +1213,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 281,
+      "durationMs": 352,
       "stdout": "lakeside-far-view.stdout.txt",
       "stderr": "lakeside-far-view.stderr.txt"
     },
@@ -1225,7 +1225,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 695,
+      "durationMs": 1165,
       "stdout": "lakeside-shared-water.stdout.txt",
       "stderr": "lakeside-shared-water.stderr.txt"
     },
@@ -1237,7 +1237,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 254,
+      "durationMs": 380,
       "stdout": "lakeside-sky-reflection.stdout.txt",
       "stderr": "lakeside-sky-reflection.stderr.txt"
     },
@@ -1249,7 +1249,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 317,
+      "durationMs": 518,
       "stdout": "lakeside-land-fill.stdout.txt",
       "stderr": "lakeside-land-fill.stderr.txt"
     },
@@ -1261,7 +1261,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 738,
+      "durationMs": 1179,
       "stdout": "lakeside-journey-water-fallback.stdout.txt",
       "stderr": "lakeside-journey-water-fallback.stderr.txt"
     },
@@ -1273,7 +1273,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 519,
+      "durationMs": 959,
       "stdout": "lakeside-journey-sun.stdout.txt",
       "stderr": "lakeside-journey-sun.stderr.txt"
     },
@@ -1285,7 +1285,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 291,
+      "durationMs": 371,
       "stdout": "lakeside-journey-water-prewarm.stdout.txt",
       "stderr": "lakeside-journey-water-prewarm.stderr.txt"
     },
@@ -1297,7 +1297,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 260,
+      "durationMs": 534,
       "stdout": "lakeside-board-guest.stdout.txt",
       "stderr": "lakeside-board-guest.stderr.txt"
     },
@@ -1309,7 +1309,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 26,
+      "durationMs": 66,
       "stdout": "lakeside-board-preload.stdout.txt",
       "stderr": "lakeside-board-preload.stderr.txt"
     },
@@ -1321,7 +1321,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 256,
+      "durationMs": 481,
       "stdout": "region-board-ambient.stdout.txt",
       "stderr": "region-board-ambient.stderr.txt"
     },
@@ -1333,7 +1333,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1129,
+      "durationMs": 2225,
       "stdout": "lakeside-balloon-mooring.stdout.txt",
       "stderr": "lakeside-balloon-mooring.stderr.txt"
     },
@@ -1345,7 +1345,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 8718,
+      "durationMs": 11525,
       "stdout": "lakeside-reveal-orbit.stdout.txt",
       "stderr": "lakeside-reveal-orbit.stderr.txt"
     },
@@ -1357,7 +1357,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3512,
+      "durationMs": 5183,
       "stdout": "lakeside-qashot.stdout.txt",
       "stderr": "lakeside-qashot.stderr.txt"
     },
@@ -1369,7 +1369,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 286,
+      "durationMs": 396,
       "stdout": "lakeside-life.stdout.txt",
       "stderr": "lakeside-life.stderr.txt"
     },
@@ -1381,7 +1381,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 20596,
+      "durationMs": 21192,
       "stdout": "lakeside-walk-tail.stdout.txt",
       "stderr": "lakeside-walk-tail.stderr.txt"
     },
@@ -1393,7 +1393,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 347,
+      "durationMs": 459,
       "stdout": "lakeside-home-fade-tail.stdout.txt",
       "stderr": "lakeside-home-fade-tail.stderr.txt"
     },
@@ -1405,7 +1405,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 29,
+      "durationMs": 27,
       "stdout": "snowpass-grey.stdout.txt",
       "stderr": "snowpass-grey.stderr.txt"
     },
@@ -1417,7 +1417,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2275,
+      "durationMs": 3624,
       "stdout": "lakeside-camera.stdout.txt",
       "stderr": "lakeside-camera.stderr.txt"
     },
@@ -1429,7 +1429,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 24,
+      "durationMs": 62,
       "stdout": "lakeside-leg-hide.stdout.txt",
       "stderr": "lakeside-leg-hide.stderr.txt"
     },
@@ -1441,7 +1441,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4778,
+      "durationMs": 7317,
       "stdout": "lakeside-journey-wire.stdout.txt",
       "stderr": "lakeside-journey-wire.stderr.txt"
     },
@@ -1453,7 +1453,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 669,
+      "durationMs": 1376,
       "stdout": "lakeside-reach.stdout.txt",
       "stderr": "lakeside-reach.stderr.txt"
     },
@@ -1465,7 +1465,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 907,
+      "durationMs": 1338,
       "stdout": "lakeside-landing-hook.stdout.txt",
       "stderr": "lakeside-landing-hook.stderr.txt"
     },
@@ -1477,7 +1477,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 767,
+      "durationMs": 987,
       "stdout": "region-landing-hook.stdout.txt",
       "stderr": "region-landing-hook.stderr.txt"
     },
@@ -1489,7 +1489,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1253,
+      "durationMs": 2129,
       "stdout": "board-handoff.stdout.txt",
       "stderr": "board-handoff.stderr.txt"
     },
@@ -1501,19 +1501,19 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 9085,
+      "durationMs": 12873,
       "stdout": "lake-leg-c.stdout.txt",
       "stderr": "lake-leg-c.stderr.txt"
     },
     {
       "id": "basket-close",
       "file": "tools/transitions-continuous/test_basket_close.cjs",
-      "sourceSHA256": "d1da3d898fefce22ddaf1529e6b158b938336bf96fd3aae1809de988043f5a03",
+      "sourceSHA256": "d42b8dfafa4f6b2d26a51d19d749b2a457b612fe6b61532ebe285d7258dc3f53",
       "status": "PASS",
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3951,
+      "durationMs": 4878,
       "stdout": "basket-close.stdout.txt",
       "stderr": "basket-close.stderr.txt"
     },
@@ -1525,7 +1525,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2805,
+      "durationMs": 3957,
       "stdout": "live-start.stdout.txt",
       "stderr": "live-start.stderr.txt"
     },
@@ -1537,7 +1537,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1175,
+      "durationMs": 2357,
       "stdout": "t02-dock.stdout.txt",
       "stderr": "t02-dock.stderr.txt"
     },
@@ -1549,7 +1549,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2789,
+      "durationMs": 4739,
       "stdout": "gangway-frame.stdout.txt",
       "stderr": "gangway-frame.stderr.txt"
     },
@@ -1561,9 +1561,69 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1334,
+      "durationMs": 1398,
       "stdout": "cam-trace-log.stdout.txt",
       "stderr": "cam-trace-log.stderr.txt"
+    },
+    {
+      "id": "solid-frame",
+      "file": "tools/transitions-continuous/test_solid_frame.cjs",
+      "sourceSHA256": "31c7344ccaeafb0dda40ba6b4c975a5750385ee2609fdd76726da33e5c8d5f5f",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 10783,
+      "stdout": "solid-frame.stdout.txt",
+      "stderr": "solid-frame.stderr.txt"
+    },
+    {
+      "id": "meadow-prewalk-follow",
+      "file": "tools/transitions-continuous/test_meadow_prewalk_follow.cjs",
+      "sourceSHA256": "e80a28e7b9c5674f1993a55e3c8925fbf0d0cfc717618222964afe512f26e0ee",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 17248,
+      "stdout": "meadow-prewalk-follow.stdout.txt",
+      "stderr": "meadow-prewalk-follow.stderr.txt"
+    },
+    {
+      "id": "camera-collision",
+      "file": "tools/transitions-continuous/test_camera_collision.cjs",
+      "sourceSHA256": "b61ba264ceceafe354384a542b9b1990e8823ae4b5add93d01a5cc9b4b9a7e82",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 6174,
+      "stdout": "camera-collision.stdout.txt",
+      "stderr": "camera-collision.stderr.txt"
+    },
+    {
+      "id": "collision-gate-m2-mustfail",
+      "file": "tools/transitions-continuous/test_collision_gate_m2.cjs",
+      "sourceSHA256": "62a8ef0f057b7bdfd3048ceae6de7a532ce4f65bf446b5d010a3d2d63403af18",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 4457,
+      "stdout": "collision-gate-m2-mustfail.stdout.txt",
+      "stderr": "collision-gate-m2-mustfail.stderr.txt"
+    },
+    {
+      "id": "sky-resume-follow",
+      "file": "tools/skycity-walk/test_sky_resume_follow.cjs",
+      "sourceSHA256": "b368c72dc6de52c1a588f9a3719fe8e62c2db74c517f77d71bb0f80ded281a91",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 6562,
+      "stdout": "sky-resume-follow.stdout.txt",
+      "stderr": "sky-resume-follow.stderr.txt"
     },
     {
       "id": "fence-gate",
@@ -1573,7 +1633,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3307,
+      "durationMs": 4725,
       "stdout": "fence-gate.stdout.txt",
       "stderr": "fence-gate.stderr.txt"
     },
@@ -1585,7 +1645,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 245,
+      "durationMs": 286,
       "stdout": "lake-ambience.stdout.txt",
       "stderr": "lake-ambience.stderr.txt"
     },
@@ -1597,7 +1657,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 289,
+      "durationMs": 562,
       "stdout": "lakeside-static-merge.stdout.txt",
       "stderr": "lakeside-static-merge.stderr.txt"
     },
@@ -1609,7 +1669,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 519,
+      "durationMs": 803,
       "stdout": "lakeside-pavilion.stdout.txt",
       "stderr": "lakeside-pavilion.stderr.txt"
     },
@@ -1621,7 +1681,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 287,
+      "durationMs": 597,
       "stdout": "lakeside-light-encoding.stdout.txt",
       "stderr": "lakeside-light-encoding.stderr.txt"
     },
@@ -1633,7 +1693,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 49,
+      "durationMs": 114,
       "stdout": "lakeside-olive.stdout.txt",
       "stderr": "lakeside-olive.stderr.txt"
     },
@@ -1645,7 +1705,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 200,
+      "durationMs": 212,
       "stdout": "lakeside-diag.stdout.txt",
       "stderr": "lakeside-diag.stderr.txt"
     },
@@ -1657,7 +1717,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 246,
+      "durationMs": 327,
       "stdout": "lakeside-journey-merge.stdout.txt",
       "stderr": "lakeside-journey-merge.stderr.txt"
     },
@@ -1669,7 +1729,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 677,
+      "durationMs": 1221,
       "stdout": "lakeside-merge-share.stdout.txt",
       "stderr": "lakeside-merge-share.stderr.txt"
     },
@@ -1681,7 +1741,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 346,
+      "durationMs": 805,
       "stdout": "rider-parenting.stdout.txt",
       "stderr": "rider-parenting.stderr.txt"
     },
@@ -1693,7 +1753,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 400,
+      "durationMs": 779,
       "stdout": "transport-sail.stdout.txt",
       "stderr": "transport-sail.stderr.txt"
     },
@@ -1705,7 +1765,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 388,
+      "durationMs": 551,
       "stdout": "sail-art.stdout.txt",
       "stderr": "sail-art.stderr.txt"
     },
@@ -1717,7 +1777,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 367,
+      "durationMs": 837,
       "stdout": "cloud-sit-fix.stdout.txt",
       "stderr": "cloud-sit-fix.stderr.txt"
     },
@@ -1729,7 +1789,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2354,
+      "durationMs": 3464,
       "stdout": "sail-clearance.stdout.txt",
       "stderr": "sail-clearance.stderr.txt"
     },
@@ -1741,19 +1801,19 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1410,
+      "durationMs": 2132,
       "stdout": "sail-dock-path.stdout.txt",
       "stderr": "sail-dock-path.stderr.txt"
     },
     {
       "id": "sail-k2k7",
       "file": "tools/transitions/test_sail_k2k7.cjs",
-      "sourceSHA256": "6b349a084a11cbdd8fabf7cd6c29edb242b14b6b94787f6f9f4ebd03668f0e38",
+      "sourceSHA256": "8f8c045f6ce279a131844379fd4ed7452e5e506e78fd2a23c4d19bd344c2238f",
       "status": "PASS",
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 404,
+      "durationMs": 847,
       "stdout": "sail-k2k7.stdout.txt",
       "stderr": "sail-k2k7.stderr.txt"
     },
@@ -1765,31 +1825,31 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 451,
+      "durationMs": 829,
       "stdout": "sail-continuity.stdout.txt",
       "stderr": "sail-continuity.stderr.txt"
     },
     {
       "id": "sail-farsea",
       "file": "tools/transitions/test_sail_farsea.cjs",
-      "sourceSHA256": "599bf56eb2b51b81909030837fe11cb0bb46a49469f9c99d49ec97d765a416db",
+      "sourceSHA256": "93747e5ea4380af10e7ddb8e920d33720b040e0cc527a2b80babd317c43d8edc",
       "status": "PASS",
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1954,
+      "durationMs": 2701,
       "stdout": "sail-farsea.stdout.txt",
       "stderr": "sail-farsea.stderr.txt"
     },
     {
       "id": "sail-sea-distance",
       "file": "tools/sea-distance/test_sail_sea_distance.cjs",
-      "sourceSHA256": "0cbbe40b4ecf5845522d31611d6a3316211307ee8b9dc97a7ac681ad1b867377",
+      "sourceSHA256": "270788bb44c711c0f9d80677c48595c637a66f8c90439c7d16e83de0642fefc9",
       "status": "PASS",
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1564,
+      "durationMs": 2504,
       "stdout": "sail-sea-distance.stdout.txt",
       "stderr": "sail-sea-distance.stderr.txt"
     },
@@ -1801,19 +1861,31 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 375,
+      "durationMs": 738,
       "stdout": "sea-assets.stdout.txt",
       "stderr": "sea-assets.stderr.txt"
     },
     {
-      "id": "sail-voyage",
-      "file": "tools/sail-voyage/test_sail_voyage.cjs",
-      "sourceSHA256": "eb2c42fe16cf0431428a99d2cac3f16518eea52ad5e4c7b6f9cd6f87bef6527e",
+      "id": "standin-raster",
+      "file": "tools/sea-distance/test_standin_raster.cjs",
+      "sourceSHA256": "381eb55d1823cbd1c034b5b2085165fc2383ed1d8cd384eecba6b31d5b4a1d69",
       "status": "PASS",
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 14359,
+      "durationMs": 2028,
+      "stdout": "standin-raster.stdout.txt",
+      "stderr": "standin-raster.stderr.txt"
+    },
+    {
+      "id": "sail-voyage",
+      "file": "tools/sail-voyage/test_sail_voyage.cjs",
+      "sourceSHA256": "f7fefb7475a70d4168ddada3f814fb59a4dbd104aab912948939cfac98cbd03b",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 26524,
       "stdout": "sail-voyage.stdout.txt",
       "stderr": "sail-voyage.stderr.txt"
     },
@@ -1825,7 +1897,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 374,
+      "durationMs": 967,
       "stdout": "debug-query.stdout.txt",
       "stderr": "debug-query.stderr.txt"
     },
@@ -1837,21 +1909,57 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 202,
+      "durationMs": 529,
       "stdout": "city-night-restore.stdout.txt",
       "stderr": "city-night-restore.stderr.txt"
     },
     {
       "id": "b1-lens-windmill",
       "file": "tools/b1-lens/test_b1_lens_windmill.cjs",
-      "sourceSHA256": "eeee503d220d64a01119588b50661e47eb0d8c3ffbede4fc154776c12cd112e5",
+      "sourceSHA256": "628e127afd66a5f328f4200cbb7013a5f1bf6a5fc4b206b99f0eb34a0ca132f5",
       "status": "PASS",
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 444,
+      "durationMs": 64,
       "stdout": "b1-lens-windmill.stdout.txt",
       "stderr": "b1-lens-windmill.stderr.txt"
+    },
+    {
+      "id": "m6-single-source",
+      "file": "tools/b1-lens/test_m6_single_source.cjs",
+      "sourceSHA256": "537d6023ab07f12068781c6b62cbf932f7aeddc1b6cfccb6f4ae6d5b1cbad9c7",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 56,
+      "stdout": "m6-single-source.stdout.txt",
+      "stderr": "m6-single-source.stderr.txt"
+    },
+    {
+      "id": "prewalk-lens-clear",
+      "file": "tools/b1-lens/test_prewalk_lens_clear.cjs",
+      "sourceSHA256": "cee39797f575f0a2cc96dfdd5610f9e54bf7b009b9e310b7094795e88c2b9c1d",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 22347,
+      "stdout": "prewalk-lens-clear.stdout.txt",
+      "stderr": "prewalk-lens-clear.stderr.txt"
+    },
+    {
+      "id": "world-yaw-flight-blend",
+      "file": "tools/b1-lens/test_world_yaw_flight_blend.cjs",
+      "sourceSHA256": "43266190fc847a3bb5a204b7f6362fc7012e1dae2aab53e1b34424513a32146a",
+      "status": "PASS",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 69,
+      "stdout": "world-yaw-flight-blend.stdout.txt",
+      "stderr": "world-yaw-flight-blend.stderr.txt"
     },
     {
       "id": "frame-background",
@@ -1861,7 +1969,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 15546,
+      "durationMs": 35273,
       "stdout": "frame-background.stdout.txt",
       "stderr": "frame-background.stderr.txt"
     },
@@ -1873,7 +1981,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 53,
+      "durationMs": 116,
       "stdout": "asset-budget.stdout.txt",
       "stderr": "asset-budget.stderr.txt"
     },
@@ -1885,7 +1993,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 666,
+      "durationMs": 1222,
       "stdout": "transport-flag.stdout.txt",
       "stderr": "transport-flag.stderr.txt"
     },
@@ -1897,7 +2005,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 240,
+      "durationMs": 427,
       "stdout": "no-bridge-fallback.stdout.txt",
       "stderr": "no-bridge-fallback.stderr.txt"
     },
@@ -1909,7 +2017,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 384,
+      "durationMs": 527,
       "stdout": "transit-background-resume.stdout.txt",
       "stderr": "transit-background-resume.stderr.txt"
     },
@@ -1921,7 +2029,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2175,
+      "durationMs": 3932,
       "stdout": "region-nodes-data.stdout.txt",
       "stderr": "region-nodes-data.stderr.txt"
     },
@@ -1933,7 +2041,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 282,
+      "durationMs": 498,
       "stdout": "region-nodes-progress.stdout.txt",
       "stderr": "region-nodes-progress.stderr.txt"
     },
@@ -1945,7 +2053,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 266,
+      "durationMs": 549,
       "stdout": "lakeside-order.stdout.txt",
       "stderr": "lakeside-order.stderr.txt"
     },
@@ -1957,7 +2065,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 273,
+      "durationMs": 331,
       "stdout": "region-nodes-walk.stdout.txt",
       "stderr": "region-nodes-walk.stderr.txt"
     },
@@ -1969,7 +2077,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 279,
+      "durationMs": 423,
       "stdout": "explore-camera.stdout.txt",
       "stderr": "explore-camera.stderr.txt"
     },
@@ -1981,7 +2089,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 477,
+      "durationMs": 952,
       "stdout": "free-orbit.stdout.txt",
       "stderr": "free-orbit.stderr.txt"
     },
@@ -1993,7 +2101,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 105524,
+      "durationMs": 151778,
       "stdout": "explore-drag-rotate.stdout.txt",
       "stderr": "explore-drag-rotate.stderr.txt"
     },
@@ -2005,7 +2113,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3421,
+      "durationMs": 5478,
       "stdout": "explore-arm.stdout.txt",
       "stderr": "explore-arm.stderr.txt"
     },
@@ -2017,7 +2125,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 972,
+      "durationMs": 1894,
       "stdout": "explore-entry-follow.stdout.txt",
       "stderr": "explore-entry-follow.stderr.txt"
     },
@@ -2029,7 +2137,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 888,
+      "durationMs": 1979,
       "stdout": "bgcam-gate.stdout.txt",
       "stderr": "bgcam-gate.stderr.txt"
     },
@@ -2041,7 +2149,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2553,
+      "durationMs": 4506,
       "stdout": "p0drag7.stdout.txt",
       "stderr": "p0drag7.stderr.txt"
     },
@@ -2053,7 +2161,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4819,
+      "durationMs": 8104,
       "stdout": "p0drag8.stdout.txt",
       "stderr": "p0drag8.stderr.txt"
     },
@@ -2065,7 +2173,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1430,
+      "durationMs": 2685,
       "stdout": "p0drag9.stdout.txt",
       "stderr": "p0drag9.stderr.txt"
     },
@@ -2077,7 +2185,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4745,
+      "durationMs": 7515,
       "stdout": "p0drag10.stdout.txt",
       "stderr": "p0drag10.stderr.txt"
     },
@@ -2089,7 +2197,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 8759,
+      "durationMs": 13951,
       "stdout": "p0drag11.stdout.txt",
       "stderr": "p0drag11.stderr.txt"
     },
@@ -2101,7 +2209,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 12727,
+      "durationMs": 16467,
       "stdout": "p0drag12.stdout.txt",
       "stderr": "p0drag12.stderr.txt"
     },
@@ -2113,7 +2221,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 8549,
+      "durationMs": 12589,
       "stdout": "p0drag13.stdout.txt",
       "stderr": "p0drag13.stderr.txt"
     },
@@ -2125,7 +2233,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 502,
+      "durationMs": 843,
       "stdout": "sail-blue-frame.stdout.txt",
       "stderr": "sail-blue-frame.stderr.txt"
     },
@@ -2137,7 +2245,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4035,
+      "durationMs": 7317,
       "stdout": "balloon-spots.stdout.txt",
       "stderr": "balloon-spots.stderr.txt"
     },
@@ -2149,7 +2257,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 868,
+      "durationMs": 1248,
       "stdout": "sky-walk-shot.stdout.txt",
       "stderr": "sky-walk-shot.stderr.txt"
     },
@@ -2161,7 +2269,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 562,
+      "durationMs": 959,
       "stdout": "transitions-continuous.stdout.txt",
       "stderr": "transitions-continuous.stderr.txt"
     },
@@ -2173,7 +2281,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 30369,
+      "durationMs": 48005,
       "stdout": "sky-finale-continue.stdout.txt",
       "stderr": "sky-finale-continue.stderr.txt"
     },
@@ -2185,7 +2293,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4685,
+      "durationMs": 6783,
       "stdout": "sky-finale-frames.stdout.txt",
       "stderr": "sky-finale-frames.stderr.txt"
     },
@@ -2197,7 +2305,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 264,
+      "durationMs": 284,
       "stdout": "board-bg-fade.stdout.txt",
       "stderr": "board-bg-fade.stderr.txt"
     },
@@ -2209,7 +2317,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 256,
+      "durationMs": 433,
       "stdout": "gangway-switch.stdout.txt",
       "stderr": "gangway-switch.stderr.txt"
     },
@@ -2221,7 +2329,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4402,
+      "durationMs": 5830,
       "stdout": "sky-lake-continuous.stdout.txt",
       "stderr": "sky-lake-continuous.stderr.txt"
     },
@@ -2233,7 +2341,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 14217,
+      "durationMs": 16658,
       "stdout": "meadow-lift-clearance.stdout.txt",
       "stderr": "meadow-lift-clearance.stderr.txt"
     },
@@ -2245,7 +2353,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 669,
+      "durationMs": 1169,
       "stdout": "chain-ggbot.stdout.txt",
       "stderr": "chain-ggbot.stderr.txt"
     },
@@ -2257,7 +2365,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1072,
+      "durationMs": 1797,
       "stdout": "cam-trace.stdout.txt",
       "stderr": "cam-trace.stderr.txt"
     },
@@ -2269,7 +2377,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 902,
+      "durationMs": 1589,
       "stdout": "skycity-stand.stdout.txt",
       "stderr": "skycity-stand.stderr.txt"
     },
@@ -2281,7 +2389,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 20342,
+      "durationMs": 23681,
       "stdout": "lakeside-entry-deck.stdout.txt",
       "stderr": "lakeside-entry-deck.stderr.txt"
     },
@@ -2293,7 +2401,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 7996,
+      "durationMs": 12068,
       "stdout": "room-keepinside.stdout.txt",
       "stderr": "room-keepinside.stderr.txt"
     },
@@ -2305,7 +2413,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 281,
+      "durationMs": 538,
       "stdout": "explore-input.stdout.txt",
       "stderr": "explore-input.stderr.txt"
     },
@@ -2317,7 +2425,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 4406,
+      "durationMs": 6266,
       "stdout": "lakeside-walkable.stdout.txt",
       "stderr": "lakeside-walkable.stderr.txt"
     },
@@ -2329,7 +2437,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 995,
+      "durationMs": 1548,
       "stdout": "lakeside-seam-skirt.stdout.txt",
       "stderr": "lakeside-seam-skirt.stderr.txt"
     },
@@ -2341,7 +2449,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 441,
+      "durationMs": 905,
       "stdout": "meadow-board-framing.stdout.txt",
       "stderr": "meadow-board-framing.stderr.txt"
     },
@@ -2353,7 +2461,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 293,
+      "durationMs": 438,
       "stdout": "node-board-pose.stdout.txt",
       "stderr": "node-board-pose.stderr.txt"
     },
@@ -2365,7 +2473,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 225,
+      "durationMs": 441,
       "stdout": "region-transport-flag.stdout.txt",
       "stderr": "region-transport-flag.stderr.txt"
     },
@@ -2377,7 +2485,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 283,
+      "durationMs": 406,
       "stdout": "region-transit-background-resume.stdout.txt",
       "stderr": "region-transit-background-resume.stderr.txt"
     },
@@ -2389,7 +2497,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 528,
+      "durationMs": 942,
       "stdout": "region-nodes-scene-wiring.stdout.txt",
       "stderr": "region-nodes-scene-wiring.stderr.txt"
     },
@@ -2401,7 +2509,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 529,
+      "durationMs": 955,
       "stdout": "node-markers.stdout.txt",
       "stderr": "node-markers.stderr.txt"
     },
@@ -2413,7 +2521,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 283,
+      "durationMs": 606,
       "stdout": "node-markers-no-passed-flag.stdout.txt",
       "stderr": "node-markers-no-passed-flag.stderr.txt"
     },
@@ -2425,7 +2533,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 534,
+      "durationMs": 976,
       "stdout": "explore-props.stdout.txt",
       "stderr": "explore-props.stderr.txt"
     },
@@ -2437,7 +2545,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 528,
+      "durationMs": 1154,
       "stdout": "advance-walk-timeout.stdout.txt",
       "stderr": "advance-walk-timeout.stderr.txt"
     },
@@ -2449,7 +2557,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 517,
+      "durationMs": 862,
       "stdout": "lens-clearance.stdout.txt",
       "stderr": "lens-clearance.stderr.txt"
     },
@@ -2461,7 +2569,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 8282,
+      "durationMs": 11648,
       "stdout": "t02-sky-final.stdout.txt",
       "stderr": "t02-sky-final.stderr.txt"
     },
@@ -2473,7 +2581,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 432,
+      "durationMs": 1068,
       "stdout": "transport-balloon.stdout.txt",
       "stderr": "transport-balloon.stderr.txt"
     },
@@ -2485,7 +2593,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 26,
+      "durationMs": 33,
       "stdout": "balloon-windsource-bound.stdout.txt",
       "stderr": "balloon-windsource-bound.stderr.txt"
     },
@@ -2497,7 +2605,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 347,
+      "durationMs": 547,
       "stdout": "balloon-sun-continuity.stdout.txt",
       "stderr": "balloon-sun-continuity.stderr.txt"
     },
@@ -2509,7 +2617,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 3369,
+      "durationMs": 5315,
       "stdout": "lakeside-touchdown-timeline.stdout.txt",
       "stderr": "lakeside-touchdown-timeline.stderr.txt"
     },
@@ -2521,7 +2629,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 320,
+      "durationMs": 526,
       "stdout": "balloon-sky-dome-yaw.stdout.txt",
       "stderr": "balloon-sky-dome-yaw.stderr.txt"
     },
@@ -2533,7 +2641,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 336,
+      "durationMs": 550,
       "stdout": "balloon-light-handoff.stdout.txt",
       "stderr": "balloon-light-handoff.stderr.txt"
     },
@@ -2545,7 +2653,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 6096,
+      "durationMs": 10229,
       "stdout": "qa-skip.stdout.txt",
       "stderr": "qa-skip.stderr.txt"
     },
@@ -2557,7 +2665,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 41769,
+      "durationMs": 51374,
       "stdout": "pre-transition.stdout.txt",
       "stderr": "pre-transition.stderr.txt"
     },
@@ -2569,7 +2677,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 530,
+      "durationMs": 517,
       "stdout": "journey-prune.stdout.txt",
       "stderr": "journey-prune.stderr.txt"
     },
@@ -2581,7 +2689,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 619,
+      "durationMs": 586,
       "stdout": "island-exit-explore.stdout.txt",
       "stderr": "island-exit-explore.stderr.txt"
     },
@@ -2593,7 +2701,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 310,
+      "durationMs": 288,
       "stdout": "island-explore-touch.stdout.txt",
       "stderr": "island-explore-touch.stderr.txt"
     },
@@ -2605,7 +2713,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 344,
+      "durationMs": 301,
       "stdout": "lakeside-exit-explore.stdout.txt",
       "stderr": "lakeside-exit-explore.stderr.txt"
     },
@@ -2617,7 +2725,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 31,
+      "durationMs": 24,
       "stdout": "balloon-night-sky-states.stdout.txt",
       "stderr": "balloon-night-sky-states.stderr.txt"
     },
@@ -2629,7 +2737,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 44,
+      "durationMs": 39,
       "stdout": "mesh-quantize-float-color.stdout.txt",
       "stderr": "mesh-quantize-float-color.stderr.txt"
     },
@@ -2641,7 +2749,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 222,
+      "durationMs": 195,
       "stdout": "sail-mesh-ready.stdout.txt",
       "stderr": "sail-mesh-ready.stderr.txt"
     },
@@ -2653,7 +2761,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 738,
+      "durationMs": 606,
       "stdout": "balloon-transport-flag.stdout.txt",
       "stderr": "balloon-transport-flag.stderr.txt"
     },
@@ -2665,7 +2773,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 587,
+      "durationMs": 395,
       "stdout": "balloon-transit-background-resume.stdout.txt",
       "stderr": "balloon-transit-background-resume.stderr.txt"
     },
@@ -2677,7 +2785,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 377,
+      "durationMs": 318,
       "stdout": "sky-arrival.stdout.txt",
       "stderr": "sky-arrival.stderr.txt"
     },
@@ -2689,7 +2797,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 336,
+      "durationMs": 296,
       "stdout": "sky-cloudsea.stdout.txt",
       "stderr": "sky-cloudsea.stderr.txt"
     },
@@ -2701,7 +2809,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 30,
+      "durationMs": 27,
       "stdout": "skycity-face-budget.stdout.txt",
       "stderr": "skycity-face-budget.stderr.txt"
     },
@@ -2713,7 +2821,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 47344,
+      "durationMs": 39749,
       "stdout": "skycity-visibility.stdout.txt",
       "stderr": "skycity-visibility.stderr.txt"
     },
@@ -2725,7 +2833,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 640,
+      "durationMs": 704,
       "stdout": "skycity-night-grade.stdout.txt",
       "stderr": "skycity-night-grade.stderr.txt"
     },
@@ -2737,7 +2845,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 341,
+      "durationMs": 367,
       "stdout": "skycity-board-clear.stdout.txt",
       "stderr": "skycity-board-clear.stderr.txt"
     },
@@ -2749,7 +2857,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 695,
+      "durationMs": 768,
       "stdout": "lakeside-sun-continuity.stdout.txt",
       "stderr": "lakeside-sun-continuity.stderr.txt"
     },
@@ -2761,7 +2869,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2330,
+      "durationMs": 2366,
       "stdout": "board-prewarm-swap.stdout.txt",
       "stderr": "board-prewarm-swap.stderr.txt"
     },
@@ -2773,7 +2881,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 654,
+      "durationMs": 678,
       "stdout": "region-board-night.stdout.txt",
       "stderr": "region-board-night.stderr.txt"
     },
@@ -2785,7 +2893,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 248,
+      "durationMs": 260,
       "stdout": "lakeside-quiet-logs.stdout.txt",
       "stderr": "lakeside-quiet-logs.stderr.txt"
     },
@@ -2797,7 +2905,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 947,
+      "durationMs": 952,
       "stdout": "lakeside-water-probe.stdout.txt",
       "stderr": "lakeside-water-probe.stderr.txt"
     },
@@ -2809,7 +2917,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 27,
+      "durationMs": 26,
       "stdout": "navigation-guard-timeout.stdout.txt",
       "stderr": "navigation-guard-timeout.stderr.txt"
     },
@@ -2821,7 +2929,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 208,
+      "durationMs": 217,
       "stdout": "lakeside-first-show-staged.stdout.txt",
       "stderr": "lakeside-first-show-staged.stderr.txt"
     },
@@ -2833,7 +2941,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 215,
+      "durationMs": 235,
       "stdout": "h5-mouse-bridge.stdout.txt",
       "stderr": "h5-mouse-bridge.stderr.txt"
     },
@@ -2845,7 +2953,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2162,
+      "durationMs": 1961,
       "stdout": "ui-b16-fixes.stdout.txt",
       "stderr": "ui-b16-fixes.stderr.txt"
     },
@@ -2857,7 +2965,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 144419,
+      "durationMs": 137586,
       "stdout": "lakeside-lens-guard.stdout.txt",
       "stderr": "lakeside-lens-guard.stderr.txt"
     },
@@ -2869,7 +2977,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 1553,
+      "durationMs": 1368,
       "stdout": "transition-spaces.stdout.txt",
       "stderr": "transition-spaces.stderr.txt"
     },
@@ -2881,7 +2989,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 218,
+      "durationMs": 161,
       "stdout": "basket-obstacles.stdout.txt",
       "stderr": "basket-obstacles.stderr.txt"
     },
@@ -2893,7 +3001,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 39,
+      "durationMs": 30,
       "stdout": "sky-exit-door-b.stdout.txt",
       "stderr": "sky-exit-door-b.stderr.txt"
     },
@@ -2905,7 +3013,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 362,
+      "durationMs": 322,
       "stdout": "basket-obstacle-runtime.stdout.txt",
       "stderr": "basket-obstacle-runtime.stderr.txt"
     },
@@ -2917,7 +3025,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 2851,
+      "durationMs": 2704,
       "stdout": "vertex-color-black.stdout.txt",
       "stderr": "vertex-color-black.stderr.txt"
     },
@@ -2929,7 +3037,7 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 5529,
+      "durationMs": 5267,
       "stdout": "static-names.stdout.txt",
       "stderr": "static-names.stderr.txt"
     },
@@ -2941,11 +3049,11 @@
       "exitCode": 0,
       "signal": null,
       "error": null,
-      "durationMs": 277,
+      "durationMs": 219,
       "stdout": "dock-runtime.stdout.txt",
       "stderr": "dock-runtime.stderr.txt"
     }
   ],
-  "finishedAt": "2026-10-26T12:38:35.274Z",
+  "finishedAt": "2026-10-26T13:26:59.761Z",
   "scope": "Production logic and Cocos component doubles only. No official Creator build, actual browser/WebGL rendering, user data, physical device or WeChat execution."
 }
