@@ -24,6 +24,8 @@ import {isTransitionPlaceholder} from './TransitionProps';
 import {setMooringRopes} from './SkyMooringRopes';
 import {basketObstacleEvent} from './BasketObstacles';
 import {b1PreWalk,b1DoorPath,b1PreWalkLens,type PreWalkLensState} from './BalloonB1Start';
+import {walkFloorY} from './RegionWalkable';
+import {lensClearStep,type LensClearState} from './LensClear';
 import {M6_LOCAL} from './BalloonFlight'/* full8: one basket-anchor M6 (was a second literal here) */;
 import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe} from './CamTraceLog';
@@ -227,6 +229,8 @@ export function restoreCityNight(cache:CityNightCache):number{
 export const CITY_NIGHT_KEEP=/^(env_sky_static_palette|env_sky_floor_seal)$/;
 /** full8 P1-a: B1 lens blend speed cap (m/s). */
 export const B1_LENS_MPS=2.5;
+/** World yaw (deg) of a node from its world rotation (+Z axis), not the local eulerAngles. */
+export function worldYawDeg(n:Node):number{const f=new Vec3(0,0,1);Vec3.transformQuat(f,f,n.worldRotation);return Math.atan2(f.x,f.z)*180/Math.PI;}
 /** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
  'env_sky_island_vine_cards','env_sky_island_windcore',
@@ -345,7 +349,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   // regionBoardHandoff and regionLandingToBoard both returned 'no-board-pose' and enter-level played the generic push-in = the
   // basket-door close-up hard-cut to the board (L9 / L11, any stage entered from the balloon arrival). Same map as the adapter's.
   try{boardSrc=balloonBoardSource(model,boardLocal);setRegionBoardSource('skycity',boardSrc);}catch(e){boardSrc=null;console.error('[QF_REGION] skycity board source unavailable: '+String(e));}
-  const mp=meadow.worldPosition,meadowFrame:Rigid={yawDeg:meadow.eulerAngles.y,origin:[mp.x,mp.y,mp.z]};
+  // full8 P1-a root cause candidate (运镜bot planAgree: trace B1 c0 (−20.6,8.25,89.6) vs plan.camera(0) (−20.2,8.44,63.0), mirrored about
+  // M6): eulerAngles is the LOCAL rotation; the camera plan needs the meadow's WORLD yaw (worldOf() already uses the world matrix).
+  const mp=meadow.worldPosition,meadowFrame:Rigid={yawDeg:worldYawDeg(meadow),origin:[mp.x,mp.y,mp.z]};
+  try{console.info('[QF_B1_FRAME] '+JSON.stringify({localYaw:+meadow.eulerAngles.y.toFixed(3),worldYaw:+meadowFrame.yawDeg.toFixed(3)}));}catch{}
   model.active=false;
   showNamed(model,ALWAYS_HIDDEN,false);
   showNamed(model,FLIGHT_FAR_CLOUDS,false);
@@ -588,14 +595,16 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
        // lens: continuous follow — starts from the live world camera (blend 1 s), follows her (eased), lands on the B1 first lens
        // (plan.camera(0) = cam0 below) over the last 1.5 s so B1 starts with no step. No cut.
        const live=liveWorldPose(),fs0=(view as any)?.getFrameSize?.(),fw=fs0?.width||390,fh=fs0?.height||844,c0=plan.camera(0);let pt=0,fol:PreWalkLensState|null=null;
+       const preBoxes=meadow&&isValid(meadow,true)?meadowLensBoxesWorld(l=>worldOf(meadow,l)) as any:[],preClr:LensClearState={pull:0},preInv=new Mat4();Mat4.invert(preInv,meadow.worldMatrix);const preY0=meadow.worldPosition.y;
+       const preGround=(w:Vec):number|null=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,preInv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+preY0;};
        const preDraw=()=>{if(dead||!girl||!isValid(girl,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));pt+=dt;const g=girl.worldPosition,e=girl.eulerAngles;
-        /* 运镜bot full7-cam: lens = BalloonB1Start.b1PreWalkLens (critically damped heading follow, same in/out blends) */const L=b1PreWalkLens({her:[g.x,g.y,g.z],yawRad:e.y*Math.PI/180,w:fw,h:fh,dt,t:pt,durationS:pre.durationS,live,c0,prev:fol});fol=L.state;const p=L.pose;
+        /* 运镜bot full7-cam: lens = BalloonB1Start.b1PreWalkLens (critically damped heading follow, same in/out blends) */const L=b1PreWalkLens({her:[g.x,g.y,g.z],yawRad:e.y*Math.PI/180,w:fw,h:fh,dt,t:pt,durationS:pre.durationS,live,c0,prev:fol});fol=L.state;const p=lensClearStep(L.pose,preBoxes,dt,preClr,undefined,preGround)/* full8: windmill / trees pull-in, 1.1 m */;
         camTag('BalloonTransit:prewalk');world.setCamera(p);};
        director.on(Director.EVENT_BEFORE_DRAW,preDraw);
        try{await actor.perform({kind:'walk',path:pre.path.map(l=>worldOf(meadow,l)),duration:pre.durationS,stopAtEnd:true} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);}rideToken.check();
        emitTransitCue('node-arrive',{t:0,region:'meadow',node:'gate'});{const r3=(v:any)=>v?[+(+v.x).toFixed(3),+(+v.y).toFixed(3),+(+v.z).toFixed(3)]:null,rv=(v:readonly number[]|undefined)=>v?v.map(x=>+x.toFixed(3)):null,live=liveWorldPose(),p0=plan.camera(0);
        console.info('[QF_B1_PREWALK] '+JSON.stringify({from:pre.fromKey,m:+pre.lengthM.toFixed(2),planS:+pre.durationS.toFixed(2),realS:(Date.now()-t0)/1000,
-        meadowPos:r3(meadow.worldPosition),meadowEuler:r3(meadow.eulerAngles),meadowScale:r3(meadow.worldScale),herStart:r3(gp0),m6Local:rv(M6_LOCAL),m6World:rv(m6),
+        meadowPos:r3(meadow.worldPosition),meadowEuler:r3(meadow.eulerAngles),meadowWorldYaw:+worldYawDeg(meadow).toFixed(3),meadowScale:r3(meadow.worldScale),herStart:r3(gp0),m6Local:rv(M6_LOCAL),m6World:rv(m6),
         c0:live?rv(live.position):null,plan0:rv(p0.position)}));}}
     }catch(error){if(String(error).includes('ancel'))throw error;console.warn('[QF_B1_PREWALK] skipped '+String(error));}}
     chainMark('balloon','B1-basket-in');

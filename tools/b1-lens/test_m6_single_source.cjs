@@ -13,5 +13,7 @@ const dXZ=Math.hypot(anchor[0]-graphM6[0],anchor[2]-graphM6[2]);
 // REPORT (not a failure until Grok Bot decides): basket anchor vs walk-graph M6
 console.log('REPORT m6 anchor vs graph '+JSON.stringify({anchor,graphM6,dXZ:+dXZ.toFixed(3)}));
 for(const [f,s] of [['BalloonTransit.ts',bt]])assert.doesNotMatch(s,/M6_LOCAL:Vec=\[/,f+' has its own M6 literal');
-assert.match(bt,/meadowPos:r3\(meadow\.worldPosition\),meadowEuler:r3\(meadow\.eulerAngles\),meadowScale:r3\(meadow\.worldScale\),herStart:r3\(gp0\)[\s\S]{0,120}c0:live\?rv\(live\.position\):null,plan0:rv\(p0\.position\)/,'QF_B1_PREWALK fields');
+assert.match(bt,/meadowPos:r3\(meadow\.worldPosition\),meadowEuler:r3\(meadow\.eulerAngles\),(?:meadowWorldYaw:[^,]+,)?meadowScale:r3\(meadow\.worldScale\),herStart:r3\(gp0\)[\s\S]{0,120}c0:live\?rv\(live\.position\):null,plan0:rv\(p0\.position\)/,'QF_B1_PREWALK fields');
 console.log('PASS m6-single-source '+JSON.stringify({graphM6}));
+
+assert.match(bt,/yawDeg:worldYawDeg\(meadow\)/,'meadowFrame must use the WORLD yaw, not local eulerAngles.y');
