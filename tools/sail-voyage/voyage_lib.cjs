@@ -11,14 +11,22 @@ function meadowTris(sc={}){
  return out;
 }
 const E_CACHE={};
-const E_DEF={center:[-5.6,-0.91,242.0],scale:0.355,sinkZ:45,sinkY:-1.3};
+const E_DEF={center:[-5.6,-0.91,242.0],scale:0.34,sinkZ:45,sinkY:-1.3,yawDeg:180,asset:true/* stand-in = shipped impostor mesh */};
+let STANDIN_A=null;const STANDIN_ASSET=()=>STANDIN_A||(STANDIN_A=JSON.parse(require('fs').readFileSync(__dirname+'/standin_impostor_tris.json','utf8')));
 function eScene(e){
- const o={...E_DEF,...e},key=JSON.stringify([o.center,o.scale,o.sinkZ,o.sinkY]);if(E_CACHE[key])return E_CACHE[key];
+ const o={...E_DEF,...e},key=JSON.stringify([o.center,o.scale,o.sinkZ,o.sinkY,o.yawDeg,o.asset]);if(E_CACHE[key])return E_CACHE[key];
  const root=leg.sailMeadowRoot(),real=[],imp=[];
  for(const n of L.scene().meadow){const t=n.tris,r=new Float64Array(t),m=new Float64Array(t.length),mill=n.mill,sink=/^meadow_(terrain|river_bank|river)$/.test(n.name)/* river added: its sheet sits 0.13 m above the sea at z<45 (request to 场景设计部) */;
   for(let i=0;i<t.length;i+=3){if(sink&&t[i+2]<o.sinkZ)r[i+1]=Math.min(t[i+1],o.sinkY);
    m[i]=o.center[0]+(t[i]-root[0])*o.scale;m[i+1]=o.center[1]+(t[i+1]-root[1])*o.scale;m[i+2]=o.center[2]+(t[i+2]-root[2])*o.scale;}
-  real.push({t:r,mill,name:n.name});imp.push({t:m,mill,name:n.name});}
+  real.push({t:r,mill,name:n.name});if(!o.asset)imp.push({t:m,mill,name:n.name});}
+ /* b19 standin-scale: the far stand-in = the SHIPPED far_meadow_impostor.glb (decimated meadow + ×1.2 rebuilt windmill, build_assets.py
+  * WM=1.2), tris in standin_impostor_tris.json (sha256 of the glb recorded), placed as SEA_STANDIN (pos, scale, yaw 180) and split
+  * base / windmill exactly as 场景设计部's test_standin_raster — so this gate and that test measure the same mesh. */
+ if(o.asset){const A=STANDIN_ASSET(),y=o.yawDeg*Math.PI/180,c=Math.cos(y),sn=Math.sin(y);
+  for(const [key,mill] of [['base',false],['mill',true]]){const t=A[key],m=new Float64Array(t.length);
+   for(let i=0;i<t.length;i+=3){const x=t[i],yy=t[i+1],z=t[i+2];m[i]=o.center[0]+o.scale*(c*x+sn*z);m[i+1]=o.center[1]+o.scale*yy;m[i+2]=o.center[2]+o.scale*(-sn*x+c*z);}
+   imp.push({t:m,mill,name:'far_meadow_impostor'+(mill?'#mill':'')});}}
  return E_CACHE[key]={real,imp,def:o};
 }
 function quad(a,b,c,d){return [...a,...b,...c,...a,...c,...d];}
@@ -32,7 +40,7 @@ function raster(cam,screen,v,sc={},res=4){
  const soup=(t,code,xf)=>{for(let i=0;i<t.length;i+=9){const P=j=>xf?xf([t[i+j],t[i+j+1],t[i+j+2]]):[t[i+j],t[i+j+1],t[i+j+2]];tri(toCam(P(0)),toCam(P(3)),toCam(P(6)),code);}};
  if(sc.E){
   // Option E (场景设计部 PROPOSAL §3, Grok Bot approved): real meadow hidden until the swap, south lowland (world z<45) sunk to
-  // y≤−1.3 for the sail; far stand-in = sail-copy meadow scaled 0.355 about its root (SEA_STANDIN position from 2ddfbb44; scale 0.335→0.355 so the windmill is ≥12 px tall on every screen), root moved to the stand-in centre.
+  // y≤−1.3 for the sail; far stand-in = the shipped far_meadow_impostor (standin_impostor_tris.json) at 0.34 (SEA_STANDIN position from 2ddfbb44; b19 standin-scale: 0.355 → 0.34, Grok Bot approved, dock ≤3.9 %), root moved to the stand-in centre.
   const E=eScene(sc.E);if(sc.E.real!==false)for(const it of E.real)soup(it.t,it.mill?2:1);if(sc.E.impostor!==false)for(const it of E.imp)soup(it.t,it.mill?7:6);
  }else for(const t of meadowTris(sc))soup(t,1);
  // sea: concentric rings so near-plane clipping stays accurate
