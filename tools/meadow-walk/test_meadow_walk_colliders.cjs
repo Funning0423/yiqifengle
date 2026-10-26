@@ -1,7 +1,7 @@
 'use strict';
 // Grok Bot 2026-10-26: no walk node or handoff point inside a collider (body radius 0.3 m). Real env_meadow.glb solids
 // (same solid set as tools/region-nodes/bake-region-nodes.cjs minus floor-only meshes), body = vertical capsule axis sampled
-// 0.3…1.4 m above the point. KNOWN FAIL until 场景设计部 nudges M6 off windmill_static (data; do not move it here).
+// 0.3…1.4 m above the point. M6 moved to (0.2,6.49,-24.8) by 场景设计部 (was 0.221 m) — passes.
 const assert=require('node:assert/strict'),path=require('node:path');
 const {load}=require('../journey-integration/occlusion/lib-glb.cjs');
 const H=require('../board-ui/harness.cjs').createHarness();
