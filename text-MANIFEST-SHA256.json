@@ -3450,16 +3450,6 @@
     "sha256": "59cd8f5f3a939645ec156471c15f497bd45f532b8c34c6297a0aa178ba3c5aae"
   },
   {
-    "path": "creator-build-project/assets/scripts/region/SkyLensVoxels.ts",
-    "bytes": 124389,
-    "sha256": "2a8f5e6583a54f079bad1377d2f459ea618ab9ee73b70deaa3267ecc434ead94"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/region/SkyLensVoxels.ts.meta",
-    "bytes": 171,
-    "sha256": "95e66c6c6ca86fe0de390719ab45d54b84ab312ecf0ce7ff0de1eee6f6b246a5"
-  },
-  {
     "path": "creator-build-project/assets/scripts/region/SkyMooringRopes.ts",
     "bytes": 1497,
     "sha256": "fd1a3e81c63335e052f8c26b63c2e5b7d750213461534b70aaf890f9dd852ce9"
@@ -3481,8 +3471,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyResumeLens.ts",
-    "bytes": 13274,
-    "sha256": "d127e3425c3dc19e0797159c76743a13802de23704f874168a946cda93df7315"
+    "bytes": 12669,
+    "sha256": "9af1fa9a4cf1bcc17f63d04738451d8b922c877d8cdf95d843ff85e5124b2819"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyResumeLens.ts.meta",
@@ -3491,8 +3481,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyResumePlans.ts",
-    "bytes": 19486,
-    "sha256": "0235420e748295095b0e433b7d64931f50b13a1923b75d5d3324cd7806a826b9"
+    "bytes": 6517,
+    "sha256": "2d26fe44d7b3e2711aa90c104535e16254582f05cb3bc3d282104b71c0204e15"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyResumePlans.ts.meta",
@@ -4876,8 +4866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 55178,
-    "sha256": "ef82ab8086b673be1a0ebf6ac9e1fb9d4487b32c3fdf3745f228c83c7b3043ee"
+    "bytes": 55490,
+    "sha256": "30b660654dce1a153735c6b3e26e2c7acc5f357569c2b78e049053cb942c18b5"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -5006,8 +4996,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 25430,
-    "sha256": "ddb9aa54fb5db645942251dd393fd48c44df173ef5fed8d71b6ec031088c53be"
+    "bytes": 25622,
+    "sha256": "5a3f55d488d260895cb03ee4d1b10a0c5ccf0f8e6c7493dc4ffeed9b8e055d91"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
