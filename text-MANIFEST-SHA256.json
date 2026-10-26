@@ -3001,8 +3001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensSmooth.ts",
-    "bytes": 6781,
-    "sha256": "2c7ec71f8a51c944720eae87f71c40827376cfaf9518667cffe13d65b2d4c1cf"
+    "bytes": 7442,
+    "sha256": "386445e577e7fdc721364d73e3a37e048060957bb9fcf9c73fe5858b55437ffb"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LensSmooth.ts.meta",
@@ -3450,6 +3450,16 @@
     "sha256": "59cd8f5f3a939645ec156471c15f497bd45f532b8c34c6297a0aa178ba3c5aae"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/SkyLensVoxels.ts",
+    "bytes": 124389,
+    "sha256": "2a8f5e6583a54f079bad1377d2f459ea618ab9ee73b70deaa3267ecc434ead94"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkyLensVoxels.ts.meta",
+    "bytes": 171,
+    "sha256": "95e66c6c6ca86fe0de390719ab45d54b84ab312ecf0ce7ff0de1eee6f6b246a5"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/SkyMooringRopes.ts",
     "bytes": 1497,
     "sha256": "fd1a3e81c63335e052f8c26b63c2e5b7d750213461534b70aaf890f9dd852ce9"
@@ -3468,6 +3478,26 @@
     "path": "creator-build-project/assets/scripts/region/SkyPreFollow.ts.meta",
     "bytes": 171,
     "sha256": "75ae227aa652c3cdf36075f276ae125f640d500367713c2b1a1596fd98fd7c3a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkyResumeLens.ts",
+    "bytes": 13274,
+    "sha256": "d127e3425c3dc19e0797159c76743a13802de23704f874168a946cda93df7315"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkyResumeLens.ts.meta",
+    "bytes": 171,
+    "sha256": "30a3c72ab911c34dc9af76761fd52ea3fe6054eb9c2bb14841b4b670978f5563"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkyResumePlans.ts",
+    "bytes": 19486,
+    "sha256": "0235420e748295095b0e433b7d64931f50b13a1923b75d5d3324cd7806a826b9"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/SkyResumePlans.ts.meta",
+    "bytes": 171,
+    "sha256": "6126d635e6e3daf180d3262c862604353887dafade0af65edcc2808182dda54f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkyWalkShot.ts",
@@ -4861,8 +4891,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 54319,
-    "sha256": "20a25aff77e8ea2553755449d49eb9ff11d0944b05c6fdd33120971e978b672b"
+    "bytes": 55178,
+    "sha256": "ef82ab8086b673be1a0ebf6ac9e1fb9d4487b32c3fdf3745f228c83c7b3043ee"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4991,8 +5021,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 25350,
-    "sha256": "14b51a089fdb815ef5bad0df985e69d83e13931e8918f78ce21f63c33fabeb98"
+    "bytes": 25430,
+    "sha256": "ddb9aa54fb5db645942251dd393fd48c44df173ef5fed8d71b6ec031088c53be"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
