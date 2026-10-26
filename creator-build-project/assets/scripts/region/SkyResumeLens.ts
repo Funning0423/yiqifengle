@@ -90,3 +90,16 @@ export function skyResumeLens(pl:SkyResumePlan,her:Vec,t:number,live:Pose|null,d
 /** inverse of SkyWalkShot.skyLocalToWorld (world → skycity model-local) */
 export function skyWorldToLocal(m:{world:readonly number[];worldYawDeg:number;pos:readonly number[];yawDeg:number},w:readonly number[]):Vec{const r=(m.worldYawDeg-m.yawDeg)*Math.PI/180,c=Math.cos(r),s=Math.sin(r),l=m.pos;
  const o=[m.world[0]-(c*l[0]+s*l[2]),m.world[1]-l[1],m.world[2]-(-s*l[0]+c*l[2])],d=[w[0]-o[0],w[1]-o[1],w[2]-o[2]];return [c*d[0]-s*d[2],d[1],s*d[0]+c*d[2]];}
+/** full9c helper for a SINGLE per-frame camera writer (GGbot, RegionJourneyAdapter ride prewalk): lookup + log once, then step() returns the
+ *  pose for this frame; the CALLER writes it (no camera access here). Match: exact baked path key, else the NEAREST start within its reuse
+ *  radius (skyReuseRadius, gated by sky-resume-fallback-reuse) → baked:true ('[QF_SKY_RESUME] lens-plan …'). Outside every radius → one
+ *  console.warn '[QF_SKY_RESUME] fallback-live …' and null (caller keeps its own lens). walk = the path to walk her along (= input). */
+export type SkyResumeRun={baked:true;from:string;key:string;exact:boolean;dM:number;walk:Vec[];plan:SkyResumePlan;step(her:Vec,dt:number):Pose};
+let warnedLive=false;
+export function skyResumeBegin(walk:readonly Vec[],m:Mooring,live:Pose|null,opts:{leg?:string;screen?:{w:number;h:number}}={}):SkyResumeRun|null{const leg=opts.leg||'finale';/* screen: logged only — the planned lens is aspect-independent (gated on 7 screens) */
+ let R:ReturnType<typeof skyResumePlanFor>=null;try{R=skyResumePlanFor(walk,m);}catch{R=null;}
+ const ok=!!R&&(R.baked||R.inRadius);
+ if(!ok||!R){if(!warnedLive){warnedLive=true;try{console.warn('[QF_SKY_RESUME] fallback-live '+JSON.stringify({leg,from:R?R.from:null,dM:R?+R.dM.toFixed(3):null,key:R?R.key:skyPathKey(walk)}));}catch{}}return null;}
+ const r=R,exact=r.baked&&r.dM===0;try{console.info('[QF_SKY_RESUME] lens-plan '+JSON.stringify({baked:true,from:r.from,leg,screen:opts.screen?opts.screen.w+'x'+opts.screen.h:undefined,exact,dM:+r.dM.toFixed(3),key:r.key,samples:r.plan.back.length,feasible:r.plan.feasible,worst:r.plan.worst}));}catch{}
+ let t=0,state:SkyResumeState|null=null;
+ return {baked:true,from:r.from,key:r.key,exact,dM:r.dM,walk:r.walk,plan:r.plan,step(her:Vec,dt:number):Pose{const d=Math.max(0,Math.min(.1,dt));t+=d;const L=skyResumeLens(r.plan,her,t,live,d,state);state=L.state;return L.pose;}};}
