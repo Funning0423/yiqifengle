@@ -26,6 +26,7 @@ import {basketObstacleEvent} from './BasketObstacles';
 import {b1PreWalk,b1DoorPath,b1PreWalkLens,type PreWalkLensState} from './BalloonB1Start';
 import {walkFloorY} from './RegionWalkable';
 import {lensClearStep,type LensClearState} from './LensClear';
+import {meadowLensSolid,sailSweepBoxesWorld} from './LensVoxels';
 import {M6_LOCAL} from './BalloonFlight'/* full8: one basket-anchor M6 (was a second literal here) */;
 import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe} from './CamTraceLog';
@@ -595,10 +596,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
        // lens: continuous follow — starts from the live world camera (blend 1 s), follows her (eased), lands on the B1 first lens
        // (plan.camera(0) = cam0 below) over the last 1.5 s so B1 starts with no step. No cut.
        const live=liveWorldPose(),fs0=(view as any)?.getFrameSize?.(),fw=fs0?.width||390,fh=fs0?.height||844,c0=plan.camera(0);let pt=0,fol:PreWalkLensState|null=null;
-       const preBoxes=meadow&&isValid(meadow,true)?meadowLensBoxesWorld(l=>worldOf(meadow,l)) as any:[],preClr:LensClearState={pull:0},preInv=new Mat4();Mat4.invert(preInv,meadow.worldMatrix);const preY0=meadow.worldPosition.y;
+       const preBoxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[]/* full8: sails sweep; the rest = MeadowLensVoxels grid */,preClr:LensClearState={pull:0},preInv=new Mat4();Mat4.invert(preInv,meadow.worldMatrix);const preY0=meadow.worldPosition.y;
+       const preSolid=meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,preInv);return [v.x,v.y,v.z];});
        const preGround=(w:Vec):number|null=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,preInv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+preY0;};
        const preDraw=()=>{if(dead||!girl||!isValid(girl,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));pt+=dt;const g=girl.worldPosition,e=girl.eulerAngles;
-        /* 运镜bot full7-cam: lens = BalloonB1Start.b1PreWalkLens (critically damped heading follow, same in/out blends) */const L=b1PreWalkLens({her:[g.x,g.y,g.z],yawRad:e.y*Math.PI/180,w:fw,h:fh,dt,t:pt,durationS:pre.durationS,live,c0,prev:fol});fol=L.state;const p=lensClearStep(L.pose,preBoxes,dt,preClr,undefined,preGround)/* full8: windmill / trees pull-in, 1.1 m */;
+        /* 运镜bot full7-cam: lens = BalloonB1Start.b1PreWalkLens (critically damped heading follow, same in/out blends) */const L=b1PreWalkLens({her:[g.x,g.y,g.z],yawRad:e.y*Math.PI/180,w:fw,h:fh,dt,t:pt,durationS:pre.durationS,live,c0,prev:fol});fol=L.state;const p=lensClearStep(L.pose,preBoxes,dt,preClr,undefined,preGround,preSolid)/* full8: windmill / trees pull-in, 1.1 m */;
         camTag('BalloonTransit:prewalk');world.setCamera(p);};
        director.on(Director.EVENT_BEFORE_DRAW,preDraw);
        try{await actor.perform({kind:'walk',path:pre.path.map(l=>worldOf(meadow,l)),duration:pre.durationS,stopAtEnd:true} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);}rideToken.check();
@@ -617,7 +619,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0/* full8 ours: ≤ B1_LENS_MPS pacing */;
     const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
     const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
-    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;b1+=Math.min(.1,Math.max(0,director.getDeltaTime()));camTag('BalloonTransit:B1');world.setCamera(b1Lens());if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');}paint(0);if(flame)flame.active=false;
+    // full8 P1-a: the B1 lens gets the same 1.1 m clearance (occupancy grid + sails sweep + walk floor) as the pre-walk (m2: terrain t 141.3 / 147.8)
+    const b1Inv=new Mat4();if(meadow&&isValid(meadow,true))Mat4.invert(b1Inv,meadow.worldMatrix);const b1Y0=meadow&&isValid(meadow,true)?meadow.worldPosition.y:0,b1Clr:LensClearState={pull:0};
+    const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];
+    const b1Ground=(w:Vec):number|null=>{if(!b1Solid)return null;const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+b1Y0;};
+    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');world.setCamera(b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens());if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');}paint(0);if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);
