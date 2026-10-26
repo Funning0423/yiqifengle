@@ -2,7 +2,7 @@
 'use strict';
 /**
  * sail-voyage — option E hard gates (Grok Bot approved 2026-10-26). NOT_ENGINE: CPU z-buffer of the real env_meadow.glb
- * (sail copy, south lowland z<45 sunk to y≤−1.3, hidden until the swap), the 0.335 stand-in at (−5.6,−0.91,242) (scene SEA_STANDIN, 2ddfbb44) (same glb,
+ * (sail copy, south lowland z<45 sunk to y≤−1.3, hidden until the swap), the 0.355 stand-in at (−5.6,−0.91,242) (scene SEA_STANDIN, 2ddfbb44) (same glb,
  * scaled about the meadow root), sailboat.glb and an opaque sea plane at y −0.91. Share = vertical extent of visible
  * meadow/stand-in pixels ÷ frame height (depth-occluded by the sea and the hull). The Mac DevTools capture is the arbiter.
  * Camera = SailVoyage.sailVoyageCamera on the unchanged boat clock (sailBeats, 3.6 m/s).
@@ -10,7 +10,7 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const V=require('./voyage_lib.cjs'),leg=V.leg,L=V.L;
 const SV=L.load('region/SailVoyage.ts',s=>s.includes('TransportLeg')?leg:{});
-const G={dock:[0.02,0.04],millHPx:12,millWPx:10/* windmill recognisable on 320×568: silhouette ≥12 px tall, blades ≥10 px wide */,
+const G={dock:[0.02,0.04],millHPx:12,millWPx:10/* windmill recognisable on all 7 screens: silhouette ≥12 px tall, blades ≥10 px wide */,
  seaS:6,approach:[0.30,0.40],swapT:17.4,swapWin:0.1,wholeS:45,headNdc:0.9,boatNdc:0.97,yaw:90,accP99:200,stepM:0.6,clearM:1.1,occlS:0.5,solid:0.92};
 const WHOLE_NOW=41.4;
 const route=leg.sailRoute(),R=route.samples,tl=leg.sailBeats(route.length),BEFORE=process.env.QF_SAIL_VOYAGE_BEFORE==='1'/* report the approved sailCamera on the E scene, never gates */,cam=(t,s)=>BEFORE?leg.sailCamera(tl,R,t,s):SV.sailVoyageCamera(tl,R,t,s);
@@ -33,7 +33,7 @@ for(const s of leg.SAIL_SCREENS){const k=s.w+'x'+s.h,row={};
  let dmin=1,dmax=0,mill=null;for(let t=sb.t0;t<=sb.t1+1e-6;t+=0.25){const v=leg.sailVehicle(tl,R,t),q=V.raster(cam(t,s),s,v,scene(t),s.w<=390?1:2);dmin=Math.min(dmin,q.islandH);dmax=Math.max(dmax,q.islandH);if(Math.abs(t-(sb.t0+sb.t1)/2)<0.13)mill=q.mill;}
  row.dock=[+dmin.toFixed(3),+dmax.toFixed(3)];row.millPx=mill?[mill.hPx,mill.wPx]:null;
  gate(dmin>=G.dock[0]&&dmax<=G.dock[1],k+' dock share '+row.dock);
- if(k==='320x568')gate(mill&&mill.hPx>=G.millHPx&&mill.wPx>=G.millWPx,'windmill not recognisable on 320x568 '+JSON.stringify(mill));
+ gate(mill&&mill.hPx>=G.millHPx&&mill.wPx>=G.millWPx,'windmill not recognisable on '+k+' '+JSON.stringify(mill));
  // voyage series
  const ser=[];let run=0,best=0,bestAt=null,solid=0;for(let t=sc.t0;t<=end+1e-6;t+=0.25){const v=leg.sailVehicle(tl,R,t),q=V.raster(cam(t,s),s,v,scene(t)),qc=V.raster(cam(t,s),s,v,{...scene(t),noBoat:1});
   ser.push({t,h:q.islandH,hc:qc.islandH});const seaOnly=q.islandH===0&&q.seaArea>0.15;run=seaOnly?run+0.25:0;if(run>best){best=run;bestAt=+(t-run+0.25).toFixed(2);}solid=Math.max(solid,q.dominant);}
@@ -51,7 +51,10 @@ for(const s of leg.SAIL_SCREENS){const k=s.w+'x'+s.h,row={};
   if(t<sb.t0)continue;/* S-a: she walks on the dock (sailCamera K0, approved) */
   const nx=(d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/(z*th*s.w/s.h),ny=(d[0]*up[0]+d[1]*up[1]+d[2]*up[2])/(z*th);hmax=Math.max(hmax,z>0?Math.max(Math.abs(nx),Math.abs(ny)):9);
   const px=(nx+1)/2*s.w,py=(1-ny)/2*s.h,dx=Math.max(s.w-94-px,0,px-(s.w-7)),dy=Math.max(48-py,0,py-80);cap=Math.min(cap,Math.hypot(dx,dy));
-  const p=v.distance/tl.speed.length;if(t>=sc.t0+SV.SAIL_VOYAGE.swing1S&&p<=SV.SAIL_VOYAGE_P.sea1&&Math.round(t*30)%6===0)bmax=Math.max(bmax,boatNdc(c,s,v));}
+  const p=v.distance/tl.speed.length;/* beam shot = sail-up swing + sea hold (from S-c start, every 30 fps frame); was sea hold only at 5 Hz, which missed the swing crop */if(t>=sc.t0&&p<=SV.SAIL_VOYAGE_P.sea1)bmax=Math.max(bmax,boatNdc(c,s,v));}
+ /* proxy cross-check: the same z-buffer the before/after image is drawn from; any boat pixel on the frame border fails */
+ let edgePx=0,edgeAt=null;for(let t=sc.t0;leg.sailVehicle(tl,R,t).distance/tl.speed.length<=SV.SAIL_VOYAGE_P.sea1;t+=0.25){const q=V.raster(cam(t,s),s,leg.sailVehicle(tl,R,t),scene(t),2);if(q.boatEdge>edgePx){edgePx=q.boatEdge;edgeAt=+t.toFixed(2);}}
+ row.boatEdgePx=[edgePx,edgeAt];gate(edgePx===0,k+' boat touches the frame border in the proxy at '+edgeAt+' s');
  row.headNdcMax=+hmax.toFixed(3);row.capsuleGapPx=Math.round(cap);row.boatNdcMaxSea=+bmax.toFixed(3);
  gate(hmax<=G.headNdc,k+' head ndc '+hmax);gate(cap>0,k+' capsule over her face');gate(bmax<=G.boatNdc,k+' boat cropped in the beam shot '+bmax);
  out.screens[k]=row;}

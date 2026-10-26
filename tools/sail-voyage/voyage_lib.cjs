@@ -11,7 +11,7 @@ function meadowTris(sc={}){
  return out;
 }
 const E_CACHE={};
-const E_DEF={center:[-5.6,-0.91,242.0],scale:0.335,sinkZ:45,sinkY:-1.3};
+const E_DEF={center:[-5.6,-0.91,242.0],scale:0.355,sinkZ:45,sinkY:-1.3};
 function eScene(e){
  const o={...E_DEF,...e},key=JSON.stringify([o.center,o.scale,o.sinkZ,o.sinkY]);if(E_CACHE[key])return E_CACHE[key];
  const root=leg.sailMeadowRoot(),real=[],imp=[];
@@ -32,7 +32,7 @@ function raster(cam,screen,v,sc={},res=4){
  const soup=(t,code,xf)=>{for(let i=0;i<t.length;i+=9){const P=j=>xf?xf([t[i+j],t[i+j+1],t[i+j+2]]):[t[i+j],t[i+j+1],t[i+j+2]];tri(toCam(P(0)),toCam(P(3)),toCam(P(6)),code);}};
  if(sc.E){
   // Option E (场景设计部 PROPOSAL §3, Grok Bot approved): real meadow hidden until the swap, south lowland (world z<45) sunk to
-  // y≤−1.3 for the sail; far stand-in = sail-copy meadow scaled 0.335 about its root (scene b19 SEA_STANDIN 2ddfbb44), root moved to the stand-in centre.
+  // y≤−1.3 for the sail; far stand-in = sail-copy meadow scaled 0.355 about its root (SEA_STANDIN position from 2ddfbb44; scale 0.335→0.355 so the windmill is ≥12 px tall on every screen), root moved to the stand-in centre.
   const E=eScene(sc.E);if(sc.E.real!==false)for(const it of E.real)soup(it.t,it.mill?2:1);if(sc.E.impostor!==false)for(const it of E.imp)soup(it.t,it.mill?7:6);
  }else for(const t of meadowTris(sc))soup(t,1);
  // sea: concentric rings so near-plane clipping stays accurate
@@ -45,6 +45,7 @@ function raster(cam,screen,v,sc={},res=4){
  let n=0,y0=1e9,y1=-1,horizon=null;for(let y=0;y<H;y++){let seaRow=false;for(let x=0;x<W;x++){const c=id[y*W+x];if(cls(c)){n++;if(y<y0)y0=y;if(y>y1)y1=y;}if(c===4)seaRow=true;}if(seaRow&&horizon==null)horizon=y/H;}
  let sea=0;for(let i=0;i<W*H;i++)if(id[i]===4)sea++;
  const head=v?toCam(L.boatWorld(v,L.GIRL.head)):null,ndc=head&&head[2]>0?[head[0]/(head[2]*th*asp),head[1]/(head[2]*th)]:null;
- return {mill:mill7,dominant,realPx:[...counts].filter(([c])=>c===1||c===2).reduce((a,[,v])=>a+v,0),impPx:[...counts].filter(([c])=>c===6||c===7).reduce((a,[,v])=>a+v,0),islandBox:n?[y0/H,(y1+1)/H]:null,islandH:n?(y1+1-y0)/H:0,islandArea:n/(W*H),seaArea:sea/(W*H),horizon,headNdc:ndc};
+ let boatEdge=0;for(let y=0;y<H;y++)for(let x=0;x<W;x++)if((x===0||y===0||x===W-1||y===H-1)&&id[y*W+x]===3)boatEdge++;/* boat pixels on the frame border = cropped */
+ return {boatEdge,mill:mill7,dominant,realPx:[...counts].filter(([c])=>c===1||c===2).reduce((a,[,v])=>a+v,0),impPx:[...counts].filter(([c])=>c===6||c===7).reduce((a,[,v])=>a+v,0),islandBox:n?[y0/H,(y1+1)/H]:null,islandH:n?(y1+1-y0)/H:0,islandArea:n/(W*H),seaArea:sea/(W*H),horizon,headNdc:ndc};
 }
 module.exports={L,leg,raster,meadowTris,SEA,eScene,E_DEF};

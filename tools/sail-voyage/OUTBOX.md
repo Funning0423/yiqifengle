@@ -20,3 +20,32 @@ Before open-sea seconds are with the meadow already hidden by E (old camera, new
 Gates (hard, tools/sail-voyage/test_sail_voyage.cjs, in run-suite): dock 2–4 %; windmill on 320x568 ≥12 px tall and ≥10 px blade span; open sea ≥6 s; docked 30–40 %; swap t 17.3–17.5: 0 above-water meadow/stand-in vertices in the frustum and dominant pixel class ≤92 %; whole ≤45 s; head |ndc| ≤0.9 (30 fps, from S-b); whole hull/rig |ndc| ≤0.97 in the beam; capsule clear; yaw/accel/step/clearance/occlusion caps.
 
 Plot: reports/sail-voyage-before-after.png. Golden re-baseline: NOT committed (needs engine frames): capture-spec.json + rebaseline.cjs (--dry-run shows sail-farsea 'windmill not on screen' in the K3 hold and sail-k2k7 'wake corners in frame' fail on the new lens — semantic, need Grok Bot; script refuses to commit while they fail).
+
+## Update 2026-10-26 07:3x — retune 2c0ea4fb + content checks 02bf3850 (NOT_ENGINE, CPU z-buffer)
+Stand-in synced to scene SEA_STANDIN (scene/b19-sail-sea-distance 2ddfbb44): (−5.6, −0.91, 242), scale 0.335 (inside the 282.6 m sky dome).
+Camera: SEA beam pose out to 19 m; APP side 0, appLs −1.5; sea1 0.655, app0 0.895; swing2 damp 0.25/0.6, cubic ease. No gate/threshold changed.
+
+| screen | dock | mill h×w px | sea s | docked | head ndc |
+|---|---|---|---|---|---|
+| 390x844 | 3.7 % | 19×19 | 7.75 | 33.2 % | 0.75 |
+| 414x896 | 3.6 % | 20×20 | 7.75 | 33.0 % | 0.75 |
+| 360x780 | 3.7 % | 18×17 | 7.75 | 33.8 % | 0.75 |
+| 375x667 | 3.6 % | 15×15 | 7.5 | 33.5 % | 0.62 |
+| 390x520 | 3.5 % | 11×12 | 7.25 | 34.6 % | 0.46 |
+| 320x568 | 3.7 % | 13×13 | 7.5 | 33.8 % | 0.62 |
+| 768x1024 | 3.5 % | 22×22 | 7.0 | 34.8 % | 0.46 |
+
+Swap 17.4 ±0.1 s: 0 in-frustum verts on all 7 screens, dominant ≤0.51. Yaw max 80 °/s, accel p99 167 °/s², step 0.26 m. Status PASS.
+Rebaseline dry run: sail-farsea PASS, sail-k2k7 PASS on the voyage lens; real run still needs all engine PNGs.
+
+**390x520 windmill:** gate (≥12 px tall, ≥10 px blades) applies to 320x568 only (13×13, PASS). 390x520 measures 11 tall × 12 wide in this proxy — would fail if the gate applied there. Scene team reports 14×11; only engine frames settle it.
+**Fallback for 场景设计部:** stand-in scale 0.355 (same position) gives 12×12 on 390x520 with dock ≤3.9 % and all gates PASS; 0.37 reaches dock 4.0 % and fails.
+
+Image: reports/sail-voyage-retune-before-after.png (4012da49 vs HEAD; dock 1 s, mid-sea 12 s, swap 17.4 s, pre-dock 20 s, docked; 390x844 + 390x520; panel mill sizes there are at raster res 2, not the gate's res 4).
+
+## Update 2026-10-26 ~08:00 — gate correction 24bf32d6, framing + scale 0.355 dc80c1a2 (NOT_ENGINE)
+Root cause of the missed crop: the boat-in-frame gate only covered the sea hold (t ≥ S-c + swing1S = 13.6 s) at 5 Hz, so the sail-up swing (9.6–13.6 s), where the hull/bow/sail left the right edge (~12 s, ndc up to 1.53 / 1.77 on 4012da49), was never sampled. Bounds, projection and aspect were correct (gate and proxy use the same boat meshes, all ten parts, and basis).
+Corrected (stricter) gate: from S-c start to p = sea1 at 30 fps, plus a proxy border-pixel check; windmill size on all 7 screens.
+Now: boat max ndc 0.913 over the beam shot, 0 border px on all 7; dock 3.7–4.0 % (360x780 at the 4 % cap); windmill h×w 390x844 21×20, 414x896 22×22, 360x780 19×18, 375x667 15×16, 390x520 12×13, 320x568 13×13, 768x1024 24×24; sea 7.0–7.75 s; docked 33.0–34.8 %; swap 0 verts, dominant ≤0.51; yaw 80 °/s, p99 167 °/s². Rebaseline dry run PASS (farsea, k2k7).
+Scene team: our model now uses scale 0.355 at SEA_STANDIN (−5.6,−0.91,242); please match it in the asset (dock headroom at 360x780 is ~0).
+Image: reports/sail-voyage-beam-before-after.png (9/10.5/12/13.5/15 s, all 7 screens, red = boat on the border).
