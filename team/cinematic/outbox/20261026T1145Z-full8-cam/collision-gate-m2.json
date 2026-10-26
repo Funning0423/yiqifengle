@@ -1,0 +1,4832 @@
+{
+ "tool": "collision-gate",
+ "planAgree": {
+  "traceB1First": [
+   -20.587,
+   8.248,
+   89.609
+  ],
+  "proxyC0": [
+   -20.214,
+   8.436,
+   62.981
+  ],
+  "gapM": 26.631,
+  "tolM": 0.5,
+  "ok": false
+ },
+ "trace": "tools/transitions-continuous/fixtures/m2-camtrace-full.txt",
+ "writes": 5689,
+ "checked": 786,
+ "unchecked": {
+  "world.setCamera": 8,
+  "world.animateCamera": 1287,
+  "LiveHandoff": 845,
+  "RegionJourneyCore:onFrame": 806,
+  "BalloonTransit:flight": 851,
+  "BalloonTransit:B5": 334,
+  "regionBoardHandoff": 766,
+  "regionLandingToBoard": 1,
+  "skycity.board-background": 5
+ },
+ "violations": 302,
+ "enclosed": 115,
+ "aabbReport": 668,
+ "spans": [
+  {
+   "w": "BalloonTransit:prewalk",
+   "t0": 123.338,
+   "t1": 126.547,
+   "f0": 2944,
+   "f1": 3030,
+   "n": 87,
+   "enc": 10,
+   "tags": [
+    "meadow_path",
+    "windmill_static_merged",
+    "meadow_terrain"
+   ]
+  },
+  {
+   "w": "BalloonTransit:prewalk",
+   "t0": 126.881,
+   "t1": 129.851,
+   "f0": 3031,
+   "f1": 3132,
+   "n": 102,
+   "enc": 91,
+   "tags": [
+    "meadow_terrain",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "w": "BalloonTransit:prewalk",
+   "t0": 139.745,
+   "t1": 140.458,
+   "f0": 3487,
+   "f1": 3514,
+   "n": 28,
+   "enc": 8,
+   "tags": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "w": "BalloonTransit:B1",
+   "t0": 140.519,
+   "t1": 141.158,
+   "f0": 3515,
+   "f1": 3523,
+   "n": 9,
+   "enc": 2,
+   "tags": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "w": "BalloonTransit:B1",
+   "t0": 147.891,
+   "t1": 150.503,
+   "f0": 3654,
+   "f1": 3729,
+   "n": 76,
+   "enc": 4,
+   "tags": [
+    "meadow_trees_merged"
+   ]
+  }
+ ],
+ "viol": [
+  {
+   "f": 2944,
+   "t": 123.338,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.772,
+    76.557
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2945,
+   "t": 123.358,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.774,
+    76.581
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2946,
+   "t": 123.38,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.777,
+    76.605
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2947,
+   "t": 123.401,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.779,
+    76.63
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2948,
+   "t": 123.422,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.782,
+    76.655
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2949,
+   "t": 123.444,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.784,
+    76.679
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2950,
+   "t": 123.465,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.787,
+    76.705
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2951,
+   "t": 123.487,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.79,
+    76.731
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2952,
+   "t": 123.553,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.797,
+    76.802
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2953,
+   "t": 123.576,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.8,
+    76.838
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2954,
+   "t": 123.599,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.803,
+    76.866
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2955,
+   "t": 123.622,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.806,
+    76.893
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2956,
+   "t": 123.643,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.808,
+    76.919
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2957,
+   "t": 123.665,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.811,
+    76.944
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2958,
+   "t": 123.688,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.814,
+    76.97
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2959,
+   "t": 123.712,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.816,
+    76.997
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2960,
+   "t": 123.735,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.819,
+    77.027
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2961,
+   "t": 123.813,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.827,
+    77.107
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2962,
+   "t": 123.84,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.832,
+    77.151
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2963,
+   "t": 123.865,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.835,
+    77.183
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2964,
+   "t": 123.889,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.838,
+    77.212
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2965,
+   "t": 123.999,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.85,
+    77.332
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2966,
+   "t": 124.032,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.856,
+    77.388
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2967,
+   "t": 124.054,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.859,
+    77.421
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2968,
+   "t": 124.119,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.866,
+    77.492
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2969,
+   "t": 124.15,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.87,
+    77.532
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2970,
+   "t": 124.173,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.873,
+    77.561
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2971,
+   "t": 124.196,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.876,
+    77.588
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2972,
+   "t": 124.22,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.879,
+    77.616
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2973,
+   "t": 124.243,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.881,
+    77.642
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2974,
+   "t": 124.263,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.884,
+    77.669
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2975,
+   "t": 124.284,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.886,
+    77.694
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2976,
+   "t": 124.306,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.889,
+    77.717
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2977,
+   "t": 124.369,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.896,
+    77.789
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2978,
+   "t": 124.395,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.899,
+    77.822
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2979,
+   "t": 124.42,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.902,
+    77.852
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2980,
+   "t": 124.443,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.905,
+    77.882
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2981,
+   "t": 124.465,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.908,
+    77.908
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2982,
+   "t": 124.49,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.911,
+    77.934
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2983,
+   "t": 124.516,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.914,
+    77.964
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2984,
+   "t": 124.538,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.917,
+    77.994
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2985,
+   "t": 124.562,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.919,
+    78.02
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2986,
+   "t": 124.623,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.926,
+    78.091
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2987,
+   "t": 124.648,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.93,
+    78.125
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2988,
+   "t": 124.669,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.933,
+    78.153
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2989,
+   "t": 124.692,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.935,
+    78.179
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2990,
+   "t": 124.713,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.938,
+    78.207
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2991,
+   "t": 124.734,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.94,
+    78.231
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2992,
+   "t": 124.755,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.943,
+    78.255
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2993,
+   "t": 124.777,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.945,
+    78.281
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 2994,
+   "t": 124.804,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.948,
+    78.307
+   ],
+   "clr": "meadow:meadow_path",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 2995,
+   "t": 124.877,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.957,
+    78.391
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 2996,
+   "t": 124.901,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.961,
+    78.431
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 2997,
+   "t": 124.923,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.963,
+    78.458
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 2998,
+   "t": 124.946,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.966,
+    78.486
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 2999,
+   "t": 124.969,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.969,
+    78.512
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3000,
+   "t": 124.991,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.971,
+    78.538
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3001,
+   "t": 125.013,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.974,
+    78.565
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3002,
+   "t": 125.036,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.977,
+    78.591
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3003,
+   "t": 125.058,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.979,
+    78.619
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3004,
+   "t": 125.116,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.986,
+    78.683
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3005,
+   "t": 125.143,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.7,
+    5.99,
+    78.722
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3006,
+   "t": 125.165,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.706,
+    5.992,
+    78.75
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3007,
+   "t": 125.187,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.722,
+    5.995,
+    78.783
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3008,
+   "t": 125.208,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.753,
+    5.998,
+    78.82
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3009,
+   "t": 125.229,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.8,
+    6,
+    78.866
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3010,
+   "t": 125.249,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.866,
+    6.003,
+    78.922
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3011,
+   "t": 125.271,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.947,
+    6.005,
+    78.989
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3012,
+   "t": 125.291,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.043,
+    6.008,
+    79.067
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3013,
+   "t": 125.351,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.363,
+    6.014,
+    79.344
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_fence_merged",
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3014,
+   "t": 125.372,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.532,
+    6.016,
+    79.499
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3015,
+   "t": 125.392,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.666,
+    6.018,
+    79.627
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3016,
+   "t": 125.415,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.8,
+    6.02,
+    79.762
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3017,
+   "t": 125.437,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.947,
+    6.022,
+    79.915
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3018,
+   "t": 125.461,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.083,
+    6.024,
+    80.064
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3019,
+   "t": 125.572,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.227,
+    6.025,
+    80.227
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3020,
+   "t": 125.68,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.761,
+    6.031,
+    80.914
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3021,
+   "t": 125.785,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.156,
+    6.036,
+    81.488
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3022,
+   "t": 125.971,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.435,
+    6.039,
+    81.954
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3023,
+   "t": 126.015,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.524,
+    6.04,
+    82.114
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3024,
+   "t": 126.071,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.617,
+    6.041,
+    82.298
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3025,
+   "t": 126.271,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.739,
+    6.043,
+    82.608
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3026,
+   "t": 126.339,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.808,
+    6.045,
+    82.86
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3027,
+   "t": 126.383,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.832,
+    6.045,
+    82.984
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3028,
+   "t": 126.476,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.844,
+    6.046,
+    83.156
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3029,
+   "t": 126.518,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.843,
+    6.047,
+    83.233
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3030,
+   "t": 126.547,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.839,
+    6.047,
+    83.297
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3031,
+   "t": 126.881,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.809,
+    6.047,
+    83.446
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3032,
+   "t": 126.911,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.792,
+    6.048,
+    83.506
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3033,
+   "t": 126.936,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.781,
+    6.048,
+    83.543
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3034,
+   "t": 127.021,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.747,
+    6.048,
+    83.627
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3035,
+   "t": 127.081,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.725,
+    6.048,
+    83.675
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3036,
+   "t": 127.116,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.691,
+    6.048,
+    83.741
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3037,
+   "t": 127.149,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.667,
+    6.049,
+    83.783
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3038,
+   "t": 127.224,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.621,
+    6.049,
+    83.855
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3039,
+   "t": 127.25,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.597,
+    6.049,
+    83.891
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3040,
+   "t": 127.271,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.581,
+    6.049,
+    83.915
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3041,
+   "t": 127.291,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.566,
+    6.049,
+    83.936
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3042,
+   "t": 127.342,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.531,
+    6.049,
+    83.984
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3043,
+   "t": 127.361,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.515,
+    6.049,
+    84.005
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3044,
+   "t": 127.38,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.502,
+    6.049,
+    84.022
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3045,
+   "t": 127.4,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.489,
+    6.049,
+    84.039
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3046,
+   "t": 127.42,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.474,
+    6.049,
+    84.057
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3047,
+   "t": 127.441,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.46,
+    6.049,
+    84.076
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3048,
+   "t": 127.464,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.444,
+    6.049,
+    84.095
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3049,
+   "t": 127.484,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.423,
+    6.049,
+    84.11
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3050,
+   "t": 127.505,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.401,
+    6.049,
+    84.114
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3051,
+   "t": 127.565,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.284,
+    6.049,
+    84.029
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3052,
+   "t": 127.595,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.198,
+    6.049,
+    83.954
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3053,
+   "t": 127.619,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -5.088,
+    6.05,
+    83.852
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3054,
+   "t": 127.641,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.977,
+    6.05,
+    83.75
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3055,
+   "t": 127.662,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.866,
+    6.05,
+    83.651
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3056,
+   "t": 127.684,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.749,
+    6.05,
+    83.548
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3057,
+   "t": 127.707,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.622,
+    6.051,
+    83.441
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3058,
+   "t": 127.729,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.474,
+    6.052,
+    83.322
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3059,
+   "t": 127.749,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -4.321,
+    6.053,
+    83.204
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3060,
+   "t": 127.808,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.949,
+    6.056,
+    82.939
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3061,
+   "t": 127.835,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.777,
+    6.058,
+    82.822
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3062,
+   "t": 127.862,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.609,
+    6.059,
+    82.712
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3063,
+   "t": 127.888,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.435,
+    6.061,
+    82.602
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3064,
+   "t": 127.913,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.281,
+    6.063,
+    82.508
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3065,
+   "t": 127.937,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.134,
+    6.066,
+    82.421
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3066,
+   "t": 127.958,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -3.016,
+    6.067,
+    82.354
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3067,
+   "t": 127.98,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.904,
+    6.069,
+    82.292
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3068,
+   "t": 128.048,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.622,
+    6.075,
+    82.15
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3069,
+   "t": 128.071,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.497,
+    6.078,
+    82.09
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3070,
+   "t": 128.1,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.389,
+    6.081,
+    82.042
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3071,
+   "t": 128.123,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.306,
+    6.084,
+    82.006
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3072,
+   "t": 128.148,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.221,
+    6.086,
+    81.972
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3073,
+   "t": 128.169,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.146,
+    6.089,
+    81.944
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3074,
+   "t": 128.19,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.083,
+    6.091,
+    81.922
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3075,
+   "t": 128.211,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -2.025,
+    6.093,
+    81.903
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3076,
+   "t": 128.231,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.969,
+    6.096,
+    81.886
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3077,
+   "t": 128.293,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.841,
+    6.102,
+    81.858
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3078,
+   "t": 128.316,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.784,
+    6.105,
+    81.848
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3079,
+   "t": 128.338,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.739,
+    6.108,
+    81.842
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3080,
+   "t": 128.359,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.698,
+    6.111,
+    81.838
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3081,
+   "t": 128.382,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.66,
+    6.113,
+    81.836
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3082,
+   "t": 128.402,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.625,
+    6.116,
+    81.836
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3083,
+   "t": 128.425,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.593,
+    6.118,
+    81.837
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3084,
+   "t": 128.446,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.562,
+    6.121,
+    81.84
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3085,
+   "t": 128.467,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.532,
+    6.124,
+    81.844
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3086,
+   "t": 128.532,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.465,
+    6.131,
+    81.865
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3087,
+   "t": 128.553,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.435,
+    6.135,
+    81.877
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3088,
+   "t": 128.574,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.415,
+    6.137,
+    81.887
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3089,
+   "t": 128.596,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.395,
+    6.14,
+    81.898
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3090,
+   "t": 128.618,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.377,
+    6.143,
+    81.91
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3091,
+   "t": 128.639,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.359,
+    6.146,
+    81.923
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3092,
+   "t": 128.662,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.343,
+    6.148,
+    81.937
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3093,
+   "t": 128.684,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.327,
+    6.151,
+    81.952
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3094,
+   "t": 128.706,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.312,
+    6.154,
+    81.968
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3095,
+   "t": 128.787,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.272,
+    6.164,
+    82.027
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3096,
+   "t": 128.812,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.256,
+    6.168,
+    82.054
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3097,
+   "t": 128.836,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.245,
+    6.171,
+    82.076
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3098,
+   "t": 128.862,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.234,
+    6.175,
+    82.097
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3099,
+   "t": 128.924,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.213,
+    6.182,
+    82.153
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3100,
+   "t": 128.947,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.203,
+    6.186,
+    82.181
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3101,
+   "t": 128.966,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.196,
+    6.189,
+    82.203
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3102,
+   "t": 128.99,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.191,
+    6.192,
+    82.221
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3103,
+   "t": 129.014,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.185,
+    6.195,
+    82.244
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3104,
+   "t": 129.033,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.179,
+    6.198,
+    82.268
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3105,
+   "t": 129.055,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.175,
+    6.2,
+    82.287
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3106,
+   "t": 129.076,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.17,
+    6.203,
+    82.311
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3107,
+   "t": 129.103,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.165,
+    6.207,
+    82.338
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3108,
+   "t": 129.171,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.127,
+    6.215,
+    82.394
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3109,
+   "t": 129.195,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.079,
+    6.219,
+    82.414
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3110,
+   "t": 129.216,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -1.021,
+    6.222,
+    82.423
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3111,
+   "t": 129.237,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -0.949,
+    6.225,
+    82.427
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3112,
+   "t": 129.258,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -0.857,
+    6.228,
+    82.43
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3113,
+   "t": 129.279,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -0.748,
+    6.231,
+    82.433
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3114,
+   "t": 129.299,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -0.622,
+    6.233,
+    82.436
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3115,
+   "t": 129.321,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -0.489,
+    6.236,
+    82.44
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3116,
+   "t": 129.343,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -0.318,
+    6.239,
+    82.448
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3117,
+   "t": 129.421,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    0.126,
+    6.248,
+    82.491
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3118,
+   "t": 129.466,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    0.554,
+    6.256,
+    82.549
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3119,
+   "t": 129.505,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    0.935,
+    6.264,
+    82.614
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3120,
+   "t": 129.531,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    1.22,
+    6.271,
+    82.67
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3121,
+   "t": 129.554,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    1.407,
+    6.276,
+    82.711
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3122,
+   "t": 129.578,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    1.57,
+    6.28,
+    82.748
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3123,
+   "t": 129.606,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    1.737,
+    6.285,
+    82.789
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged",
+    "windmill_static_merged"
+   ]
+  },
+  {
+   "f": 3124,
+   "t": 129.675,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.097,
+    6.298,
+    82.893
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3125,
+   "t": 129.699,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.252,
+    6.304,
+    82.94
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3126,
+   "t": 129.719,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.361,
+    6.308,
+    82.976
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3127,
+   "t": 129.74,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.451,
+    6.312,
+    83.007
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3128,
+   "t": 129.761,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.535,
+    6.317,
+    83.037
+   ],
+   "clr": "meadow:windmill_static_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3129,
+   "t": 129.783,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.613,
+    6.321,
+    83.067
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3130,
+   "t": 129.805,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.685,
+    6.325,
+    83.096
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3131,
+   "t": 129.83,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.759,
+    6.33,
+    83.128
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3132,
+   "t": 129.851,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    2.833,
+    6.335,
+    83.161
+   ],
+   "clr": "meadow:meadow_terrain",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3487,
+   "t": 139.745,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -14.695,
+    8.281,
+    90.931
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3488,
+   "t": 139.8,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -15.651,
+    8.28,
+    90.832
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3489,
+   "t": 139.823,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -16.108,
+    8.279,
+    90.778
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3490,
+   "t": 139.846,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -16.483,
+    8.277,
+    90.731
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3491,
+   "t": 139.869,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -16.893,
+    8.276,
+    90.678
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3492,
+   "t": 139.892,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -17.222,
+    8.274,
+    90.63
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3493,
+   "t": 139.915,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -17.579,
+    8.273,
+    90.572
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3494,
+   "t": 139.935,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -17.888,
+    8.271,
+    90.516
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3495,
+   "t": 139.956,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -18.153,
+    8.27,
+    90.462
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3496,
+   "t": 139.978,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -18.428,
+    8.268,
+    90.4
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3497,
+   "t": 140.048,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -19.084,
+    8.264,
+    90.227
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3498,
+   "t": 140.07,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -19.37,
+    8.261,
+    90.136
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3499,
+   "t": 140.101,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -19.599,
+    8.26,
+    90.055
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3500,
+   "t": 140.121,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -19.78,
+    8.258,
+    89.986
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3501,
+   "t": 140.143,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -19.909,
+    8.257,
+    89.934
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3502,
+   "t": 140.166,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.042,
+    8.256,
+    89.878
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3503,
+   "t": 140.188,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.158,
+    8.255,
+    89.826
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3504,
+   "t": 140.211,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.249,
+    8.254,
+    89.784
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3505,
+   "t": 140.233,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.339,
+    8.253,
+    89.74
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3506,
+   "t": 140.294,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.486,
+    8.251,
+    89.664
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3507,
+   "t": 140.315,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.534,
+    8.251,
+    89.638
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3508,
+   "t": 140.335,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.559,
+    8.25,
+    89.624
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3509,
+   "t": 140.355,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.576,
+    8.25,
+    89.614
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3510,
+   "t": 140.376,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.589,
+    8.25,
+    89.607
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3511,
+   "t": 140.396,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.596,
+    8.25,
+    89.603
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3512,
+   "t": 140.418,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.599,
+    8.25,
+    89.601
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3513,
+   "t": 140.437,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3514,
+   "t": 140.458,
+   "w": "BalloonTransit:prewalk",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3515,
+   "t": 140.519,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.587,
+    8.248,
+    89.609
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3516,
+   "t": 140.797,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.335,
+    8.213,
+    89.788
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3517,
+   "t": 140.836,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.032,
+    8.171,
+    90.003
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3518,
+   "t": 140.915,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -19.344,
+    8.076,
+    90.491
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3519,
+   "t": 140.957,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -18.739,
+    7.992,
+    90.92
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3520,
+   "t": 140.993,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -18.167,
+    7.913,
+    91.326
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3521,
+   "t": 141.07,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -17.017,
+    7.754,
+    92.142
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3522,
+   "t": 141.113,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -16.182,
+    7.638,
+    92.734
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3523,
+   "t": 141.158,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -15.303,
+    7.516,
+    93.358
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3654,
+   "t": 147.891,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -15.201,
+    7.502,
+    93.43
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3655,
+   "t": 147.919,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -15.691,
+    7.57,
+    93.082
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3656,
+   "t": 147.972,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -16.64,
+    7.702,
+    92.409
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3657,
+   "t": 148.003,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -17.175,
+    7.776,
+    92.03
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3658,
+   "t": 148.033,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -17.654,
+    7.842,
+    91.69
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3659,
+   "t": 148.06,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -18.122,
+    7.907,
+    91.358
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3660,
+   "t": 148.09,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -18.544,
+    7.965,
+    91.058
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3661,
+   "t": 148.119,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -18.931,
+    8.019,
+    90.784
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3662,
+   "t": 148.145,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -19.245,
+    8.062,
+    90.561
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": true,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3663,
+   "t": 148.173,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -19.536,
+    8.103,
+    90.354
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3664,
+   "t": 148.238,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.051,
+    8.174,
+    89.989
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3665,
+   "t": 148.273,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.282,
+    8.206,
+    89.826
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3666,
+   "t": 148.303,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.418,
+    8.225,
+    89.729
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3667,
+   "t": 148.329,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.503,
+    8.237,
+    89.669
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3668,
+   "t": 148.391,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.59,
+    8.249,
+    89.607
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3669,
+   "t": 148.419,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.599,
+    8.25,
+    89.601
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3670,
+   "t": 148.448,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3671,
+   "t": 148.477,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3672,
+   "t": 148.505,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3673,
+   "t": 148.532,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3674,
+   "t": 148.559,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3675,
+   "t": 148.587,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3676,
+   "t": 148.644,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3677,
+   "t": 148.714,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3678,
+   "t": 148.746,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3679,
+   "t": 148.8,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3680,
+   "t": 148.829,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3681,
+   "t": 148.864,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3682,
+   "t": 148.891,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3683,
+   "t": 148.922,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3684,
+   "t": 148.948,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3685,
+   "t": 148.975,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3686,
+   "t": 149.004,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3687,
+   "t": 149.062,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3688,
+   "t": 149.095,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3689,
+   "t": 149.126,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3690,
+   "t": 149.154,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3691,
+   "t": 149.235,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3692,
+   "t": 149.265,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3693,
+   "t": 149.297,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3694,
+   "t": 149.324,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3695,
+   "t": 149.387,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3696,
+   "t": 149.416,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3697,
+   "t": 149.446,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3698,
+   "t": 149.476,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3699,
+   "t": 149.508,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3700,
+   "t": 149.536,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3701,
+   "t": 149.565,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3702,
+   "t": 149.593,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3703,
+   "t": 149.652,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3704,
+   "t": 149.678,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3705,
+   "t": 149.707,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3706,
+   "t": 149.737,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3707,
+   "t": 149.766,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3708,
+   "t": 149.797,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3709,
+   "t": 149.829,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3710,
+   "t": 149.86,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3711,
+   "t": 149.92,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3712,
+   "t": 149.949,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3713,
+   "t": 149.98,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3714,
+   "t": 150.011,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3715,
+   "t": 150.04,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3716,
+   "t": 150.067,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3717,
+   "t": 150.101,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3718,
+   "t": 150.128,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3719,
+   "t": 150.188,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3720,
+   "t": 150.214,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3721,
+   "t": 150.242,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3722,
+   "t": 150.269,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3723,
+   "t": 150.295,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3724,
+   "t": 150.325,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3725,
+   "t": 150.353,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3726,
+   "t": 150.383,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3727,
+   "t": 150.446,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3728,
+   "t": 150.475,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  },
+  {
+   "f": 3729,
+   "t": 150.503,
+   "w": "BalloonTransit:B1",
+   "pos": [
+    -20.6,
+    8.25,
+    89.6
+   ],
+   "clr": "meadow:meadow_trees_merged",
+   "enc": false,
+   "inBox": [
+    "meadow_trees_merged"
+   ]
+  }
+ ]
+}
