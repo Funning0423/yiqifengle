@@ -202,14 +202,29 @@ function clipCanopy(model:Node):void{
   for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;try{m.setProperty('alphaThreshold',0.68);}catch{/* standard mat may omit it */}}
  });
 }
-function dimOne(r:MeshRenderer,tex:unknown,cache:WeakSet<MeshRenderer>,alpha:boolean):void{
+/** full8 (Mac m1 775–785: night skycity ground missing after landing). The night silhouette used to replace the shared material for
+ *  good — setMaterialInstance(0, plain Material) == setSharedMaterial, which also DESTROYED any live instance (night grade / canopy
+ *  clip) — so after touchdown the ground stayed (38,44,58) unlit, i.e. sky-coloured. Now every swap is recorded and undone exactly:
+ *  the original shared material goes back and the original instance object is re-attached (detached, never destroyed — no repeat of
+ *  the WorldFlowComponent destroyed-MaterialInstance bug). */
+export type CityNightSwap={r:MeshRenderer;shared:Material;inst:Material|null;dim:Material};
+export type CityNightCache=Map<MeshRenderer,CityNightSwap>;
+function dimOne(r:MeshRenderer,tex:unknown,cache:CityNightCache,alpha:boolean):void{
+ const shared=r.getSharedMaterial(0);if(!shared)return;
  const m=new Material();
  m.initialize({effectName:'builtin-unlit',technique:0,defines:{...(tex?{USE_TEXTURE:true}:{}),...(alpha?{USE_ALPHA_TEST:true}:{})}});
  try{m.setProperty('mainColor',new Color(38,44,58,255));}catch{}
  if(tex){try{m.setProperty('mainTexture',tex as any);}catch{}}
  if(alpha){try{m.setProperty('alphaThreshold',0.72);}catch{}}
- try{r.setMaterialInstance(0,m);cache.add(r);}catch{}
+ try{const insts:any[]=(r as any)._materialInstances||[];const inst=insts[0]||null;if(inst)insts[0]=null/* detach, keep alive */;
+  r.setSharedMaterial(m,0);cache.set(r,{r,shared,inst,dim:m});}catch{}
 }
+/** Undo every night-silhouette swap exactly (touchdown, release/abort/teardown). Idempotent. Returns how many were restored. */
+export function restoreCityNight(cache:CityNightCache):number{
+ let n=0;cache.forEach(e=>{try{if(isValid(e.r,true)){if(e.r.getSharedMaterial(0)===e.dim)e.r.setSharedMaterial(e.shared,0);if(e.inst)e.r.setMaterialInstance(0,e.inst as any);n++;}}catch{}try{e.dim.destroy();}catch{}});
+ cache.clear();return n;}
+/** Ground / island body: dimmed to (38,44,58) it reads as sky at night, so it is never silhouetted (gradeSkycityNight still darkens it). */
+export const CITY_NIGHT_KEEP=/^(env_sky_static_palette|env_sky_floor_seal)$/;
 /** Always-hidden neon / DC extras. Island body + hanging vines are gated separately. */
 const CITY_RIDE_HIDE=[
  'env_sky_island_vine_cards','env_sky_island_windcore',
@@ -230,10 +245,11 @@ function hideCityNightGlow(model:Node|null,_night:boolean):void{
  });
 }
 /** Night silhouette: unlit darken non-emissive city meshes; leave emissive window mats alone. */
-function dimCityNight(model:Node|null,night:boolean,cache:WeakSet<MeshRenderer>):void{
+function dimCityNight(model:Node|null,night:boolean,cache:CityNightCache):void{
  if(!model||!night||!EffectAsset.get('builtin-unlit'))return;
  eachNamed(model,n=>{
   if(/window|emissive|lamp|light|flame|pennant|flag/i.test(n.name))return;
+  if(CITY_NIGHT_KEEP.test(n.name))return;
   if(isTransitionPlaceholder(n))return/* cand7: placeholder planks never get the night silhouette */;
   if(/^(island_dock|island_dock_ramp|sail_gangway|sail_gangway_meadow|sail_frozen_pose)$/.test(n.name))return;/* black-shape P2: transition placeholders / runtime nodes never get the night silhouette */
   for(const r of n.getComponents(MeshRenderer)){
@@ -303,7 +319,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const domeYaw0=new Map<Node,[number,number,number]>();
   let restoreSailLeft=()=>{};
   let landRopeOn=false;
-  const release=()=>{if(dead)return;dead=true;if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  const cityNightDimmed:CityNightCache=new Map()/* full8: before release() so abort/teardown can restore */;
+  const release=()=>{if(dead)return;dead=true;try{restoreCityNight(cityNightDimmed);}catch{}if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
@@ -394,7 +411,6 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainPitch0=mainLight.node.eulerAngles.x;mainRoll0=mainLight.node.eulerAngles.z;mainIllum0=mainLight.illuminance;mainShadow0=!!(mainLight as any).shadowEnabled;}}
   // Shadows stay on during meadow board/liftoff so windmill/bell match normal meadow gameplay; drop after unload for DC.
   let seaRestored=false,backdropRestored=false,arrived=false;
-  const cityNightDimmed=new WeakSet<MeshRenderer>();
   let canopyClipped=false;
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
   const contChain=continuousTransitions();
@@ -685,6 +701,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }else if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:s0End||plan.s0,yawRad:s0End?TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?model.eulerAngles.y*Math.PI/180:0):plan.vehicle(LAND_T).yaw});
    arrived=true;
+   const restored=restoreCityNight(cityNightDimmed);try{(globalThis as any).__QF_CITY_NIGHT_RESTORED=restored;}catch{}/* full8: touchdown */
    if(model){model.active=true;showNamed(model,ISLET_NODES,true);}
    paint(plan.total);
    // handoffFade(total) is still 1: the 0.15 s fade-out sits past the clock, so the black cover would stay up over the level.

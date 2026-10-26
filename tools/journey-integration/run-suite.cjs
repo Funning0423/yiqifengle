@@ -117,7 +117,7 @@ const tests=[
  ['sail-k2k7','tools/transitions/test_sail_k2k7.cjs'],
  ['sail-continuity','tools/transitions/test_sail_continuity.cjs'],
  ['sail-farsea','tools/transitions/test_sail_farsea.cjs'],['sail-sea-distance','tools/sea-distance/test_sail_sea_distance.cjs']/* full8 plan E */,
- ['sail-voyage','tools/sail-voyage/test_sail_voyage.cjs'],['debug-query','tools/debug-query/test_debug_query.cjs'],/* full8: launch-query debug flags *//* hard gate (运镜bot plan E lens, 4012da49) */
+ ['sail-voyage','tools/sail-voyage/test_sail_voyage.cjs'],['debug-query','tools/debug-query/test_debug_query.cjs'],['city-night-restore','tools/skycity-night/test_city_night_restore.cjs'],/* full8: night silhouette undone at touchdown/release *//* full8: launch-query debug flags *//* hard gate (运镜bot plan E lens, 4012da49) */
  ['frame-background','tools/transitions/test_frame_background.cjs'],
  ['asset-budget','tools/transitions/asset-budget.cjs'],
  ['transport-flag','tools/transitions/test_transport_flag.cjs'],
