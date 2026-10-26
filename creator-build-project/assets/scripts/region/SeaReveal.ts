@@ -6,7 +6,8 @@ import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 export const SEA_STANDIN={pos:[-11.6,-0.91,492.0] as Vec,scale:.7,yawDeg:180};
 export const SEA_HANDOFF_T=17.4;
 /** Southern lowland of the sail copy of env_meadow: world z < 45 terrain / river bank verts go to y ≤ −1.3 (restored after docking). */
-export const SEA_LOWLAND={zMax:45,y:-1.3,meshes:/^(meadow_terrain|meadow_river_bank)$/};
+/** meadow_river too (运镜bot 4012da49): its surface is 0.13 m above the sea and would show at the handoff. All three restored after docking. */
+export const SEA_LOWLAND={zMax:45,y:-1.3,meshes:/^(meadow_terrain|meadow_river_bank|meadow_river)$/};
 /** Real-meadow prewarm: drawn this many frames under the set-off cover (shaders/batches built), then hidden until the handoff. */
 export const SEA_PREWARM_FRAMES=2;
 export const SEA_CAM={near:.3,far:1400};
@@ -52,12 +53,26 @@ export function seaReefSlots(start:Vec,end:Vec):[number,number,number][]{
 export const SEA_REVEAL_DEFAULT=false;
 export function seaRevealEnabled():boolean{
  const g=globalThis as any;if(g.__QF_SEA_REVEAL===true)return true;if(g.__QF_SEA_REVEAL===false)return false;
- try{const q=String(g.location?.search||'');if(/[?&]seaReveal=1\b/.test(q))return true;if(/[?&]seaReveal=0\b/.test(q))return false;}catch{}
+ try{const q=String(g.location?.search||'');if(/[?&]seaReveal=1\b/.test(q))return true;if(/[?&]sailVoyage=1(?:&|$)/.test(q)&&!/[?&]seaReveal=0\b/.test(q))return true/* 运镜bot plan E lens ⇒ plan E scene */;if(/[?&]seaReveal=0\b/.test(q))return false;}catch{}
  return SEA_REVEAL_DEFAULT;}
 /** Prototype open-sea lateral lens (PROPOSAL §2.2): boat + (−7.5, 2.6, 0.6) looking at boat + (30, 0.6, −9), fov 46. Test reference only. */
 export function seaLateralPose(boat:Vec):{position:Vec;target:Vec;fovVerticalDeg:number}{
  return {position:[boat[0]-7.5,boat[1]+2.6,boat[2]+.6],target:[boat[0]+30,boat[1]+.6,boat[2]-9],fovVerticalDeg:46};}
 export function seaClipLowland(b:Box,k=SEA_LOWLAND):Box{return {min:[b.min[0],b.min[1],Math.max(b.min[2],k.zMax)],max:[b.max[0],b.max[1],Math.max(b.max[2],k.zMax)]};}
-/** Meshes of the sail copy that stay drawn through the reveal: the river mouth (z 30–53, the dug sailing channel) is water at sea
- *  level the boat sails on, so it is part of the open sea, not of the hidden island, and is excluded from the frustum test. */
-export const SEA_ALWAYS_DRAWN=/^meadow_river$/;
+/** Above-water box of world-space points (y > waterY); null when nothing is above the water. The handoff frustum test uses only
+ *  this (运镜bot: the terrain bbox contains the boat, so a bbox test never passes). 场景设计部's integration-note bounds, when
+ *  delivered, go in SEA_BOUNDS_NOTE and take precedence. */
+export function aboveWaterBox(pts:ArrayLike<number>,waterY:number):Box|null{
+ let a=[Infinity,Infinity,Infinity],b=[-Infinity,-Infinity,-Infinity],any=false;
+ for(let i=0;i+2<pts.length;i+=3){if(pts[i+1]<=waterY)continue;any=true;for(let k=0;k<3;k++){a[k]=Math.min(a[k],pts[i+k]);b[k]=Math.max(b[k],pts[i+k]);}}
+ return any?{min:a as unknown as Vec,max:b as unknown as Vec}:null;}
+/** Optional fixed bounds from 场景设计部's asset-branch integration notes (world space). null until delivered. */
+export const SEA_BOUNDS_NOTE:{standin:Box[]|null;real:Box[]|null}={standin:null,real:null};
+/** Above-water verts binned into cell×cell m xz tiles, one box per tile: conservative like a bbox but tight enough that the
+ *  far-off parts of one big mesh (terrain spans 160 m) do not keep the handoff waiting. */
+export const SEA_TILE_M=4;
+export function aboveWaterTiles(pts:ArrayLike<number>,waterY:number,cell=SEA_TILE_M):Box[]{
+ const m=new Map<string,{min:number[];max:number[]}>();
+ for(let i=0;i+2<pts.length;i+=3){const y=pts[i+1];if(y<=waterY)continue;const x=pts[i],z=pts[i+2],k=Math.floor(x/cell)+','+Math.floor(z/cell);
+  let b=m.get(k);if(!b){b={min:[x,y,z],max:[x,y,z]};m.set(k,b);}else{if(x<b.min[0])b.min[0]=x;if(y<b.min[1])b.min[1]=y;if(z<b.min[2])b.min[2]=z;if(x>b.max[0])b.max[0]=x;if(y>b.max[1])b.max[1]=y;if(z>b.max[2])b.max[2]=z;}}
+ return [...m.values()] as unknown as Box[];}

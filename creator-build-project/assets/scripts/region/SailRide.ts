@@ -8,6 +8,9 @@ import {stopEngineStates} from './EngineAnimStop';
 import {chainMark,guardBeforeWalk} from './TransitionChain';
 import {TRANSITION_DURATIONS} from './TransitionStaging';
 import type {GangwayDriver} from './SailGangway';
+import {SAIL_VOYAGE, sailVoyageCamera} from './SailVoyage';
+/** sail-voyage (off by default): parametric departure / open-sea / approach lens. */
+const sailLens:typeof sailCamera=(tl,route,t,screen)=>SAIL_VOYAGE.enabled?sailVoyageCamera(tl,route,t,screen):sailCamera(tl,route,t,screen);
 import {pushSailCue, pushSailFrame, sailQaEnabled} from './SailQaProbe';
 function sailNight():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
 function sailCueRegion(cue:string):string{
@@ -227,7 +230,7 @@ export function createSailDriver(opts:{
   const v=sailVehicle(opts.timeline,opts.route,t);
   if(opts.boat)placeBoat(opts.boat,v.pos,v.yaw,v.roll);
   if(seated()&&opts.rider){opts.rider.setPosition(0,0,0);opts.rider.setRotationFromEuler(0,0,0);drawSeated();}
-  const pose=sailCamera(opts.timeline,opts.route,t,viewSize());
+  const pose=sailLens(opts.timeline,opts.route,t,viewSize());
   opts.art?.sync(v,pose.position,dt,sailNight(),pose.target,t);
  };
  return {
@@ -259,14 +262,14 @@ export function createSailDriver(opts:{
   releaseRider(){dropSeatedPose();const skel=opts.rider?.getComponent(SkeletalAnimation)||opts.rider?.getComponentInChildren(SkeletalAnimation);stopEngineStates(skel as any,'sail disembark');if(attached&&opts.rider&&opts.riderHome){detachRider(opts.rider,opts.riderHome);attached=false;}},
   beginArrival(path:Vec[],dur:number){
    phase='arrival';arrivalPath=path;arrivalU=0;arrivalElapsed=0;arrivalDur=Math.max(0.5,dur);followYaw={yaw:null};
-   arrivalFrom=sailCamera(opts.timeline,opts.route,Math.min(t,opts.timeline.build05S),viewSize());
+   arrivalFrom=sailLens(opts.timeline,opts.route,Math.min(t,opts.timeline.build05S),viewSize());
   },
   pose(screen:{w:number;h:number}):Pose{
    if(phase==='arrival'&&arrivalFrom){
     const board=opts.boardPose||arrivalFrom;
     return sailFollowCamera(arrivalPath,arrivalU,arrivalFrom,board,followYaw);
    }
-   return sailCamera(opts.timeline,opts.route,t,screen);
+   return sailLens(opts.timeline,opts.route,t,screen);
   },
   onFrame(dt:number,hidden:boolean):Pose{
    const now=Date.now();if(last&&now-last>30000)fade=0.35;last=now;step(dt,hidden);
@@ -279,7 +282,7 @@ export function createSailDriver(opts:{
     if(sailQaEnabled())pushSailFrame({t:arrivalElapsed,real,beat:'arrival',phase,yaw:boat.yaw,roll:boat.roll,boat:opts.boat,pose,departed:departAt!=null});
     return pose;
    }
-   const pose=sailCamera(opts.timeline,opts.route,t,v);
+   const pose=sailLens(opts.timeline,opts.route,t,v);
    if(sailQaEnabled()){const sv=sailVehicle(opts.timeline,opts.route,t);pushSailFrame({t,real,beat:beatAt(opts.timeline,t).id,phase,yaw:sv.yaw,roll:sv.roll,boat:opts.boat,pose,departed:departAt!=null});}
    return pose;
   },

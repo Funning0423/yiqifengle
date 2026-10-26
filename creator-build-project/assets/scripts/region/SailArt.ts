@@ -1,5 +1,5 @@
 import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Quat, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils, view} from 'cc';
-import {SEA_LOWLAND,SEA_PREWARM_FRAMES,SEA_STANDIN,SEA_STANDIN_PREFAB,SEA_REEF_PREFAB,boxInFrustum,SEA_ALWAYS_DRAWN,seaClipLowland,seaRevealEnabled,createSeaReveal,lowlandY,seaReefSlots,type Box as SeaBox} from './SeaReveal';
+import {SEA_LOWLAND,SEA_PREWARM_FRAMES,SEA_STANDIN,SEA_STANDIN_PREFAB,SEA_REEF_PREFAB,boxInFrustum,SEA_BOUNDS_NOTE,aboveWaterTiles,seaRevealEnabled,createSeaReveal,lowlandY,seaReefSlots,type Box as SeaBox} from './SeaReveal';
 import {onRealModel} from './TransitionProps';
 import {continuousTransitions} from './TransitionChain';
 import type {Vec} from '../world-r1/WorldFlowCore';
@@ -490,18 +490,20 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
  const worldNight=()=>{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}};
  if(worldNight())nightLook(true);
  const reveal=createSeaReveal();let prewarmLeft=SEA_PREWARM_FRAMES,lastT=0,moved=false,lowlandRestored=false;
- const meadowRenderers=meadow?meadow.getComponentsInChildren(MeshRenderer).filter(r=>!SEA_ALWAYS_DRAWN.test(r.node.name)):[];
+ const meadowRenderers=meadow?meadow.getComponentsInChildren(MeshRenderer):[];
  const showMeadow=(on:boolean)=>{for(const r of meadowRenderers){const m:any=(r as any).model;if(r.isValid&&m&&m.enabled!==on&&r.enabled)m.enabled=on;}};
- const boxOf=(r:MeshRenderer):SeaBox|null=>{const b=(r as any).model?.worldBounds;if(!b)return null;const c=b.center,h=b.halfExtents;return {min:[c.x-h.x,c.y-h.y,c.z-h.z],max:[c.x+h.x,c.y+h.y,c.z+h.z]};};
- // per-renderer boxes; sunk lowland meshes only count north of SEA_LOWLAND.zMax (south of it they are under the sea)
- const boundsOf=(rs:MeshRenderer[]):SeaBox[]=>rs.map(r=>{const b=boxOf(r);if(b&&planE&&SEA_LOWLAND.meshes.test(r.node.name))return seaClipLowland(b);return b;}).filter((b):b is SeaBox=>!!b);
+ // handoff test on ABOVE-WATER geometry only (world verts with y > SAIL_SEA_Y, after the lowland sink); notes bounds win
+ const boundsOf=(rs:MeshRenderer[]):SeaBox[]=>{const out:SeaBox[]=[];for(const r of rs){if(!r.isValid||!r.enabled)continue;const m=sailMeshReady(r.mesh);if(!m)continue;
+  const src=m.readAttribute(0,gfx.AttributeName.ATTR_POSITION);if(!(src instanceof Float32Array))continue;const wm=r.node.worldMatrix,w=new Vec3(),pts=new Float32Array(src.length);
+  for(let i=0;i<src.length;i+=3){Vec3.transformMat4(w,new Vec3(src[i],src[i+1],src[i+2]),wm);pts[i]=w.x;pts[i+1]=w.y;pts[i+2]=w.z;}
+  out.push(...aboveWaterTiles(pts,SAIL_SEA_Y));}return out;};
  let realBox:SeaBox[]|null=null,standinBox:SeaBox[]|null=null;
  const restoreLowland=()=>{if(lowlandRestored)return;lowlandRestored=true;for(const h of lowlandHome)if(h.r.isValid)h.r.mesh=h.mesh;};
- const revealStep=(t:number,cam:Vec,aim:Vec|undefined)=>{
+ const revealStep=(t:number,cam:Vec,aim:Vec|undefined,stillFrame:boolean)=>{
   if(!meadow||!planE)return;
-  if(prewarmLeft>0){prewarmLeft--;showMeadow(true);if(standin)standin.active=true;return;}/* set-off cover is black: draw the real meadow once */
+  if(prewarmLeft>0&&!stillFrame){prewarmLeft--;showMeadow(true);if(!prewarmLeft){realBox=SEA_BOUNDS_NOTE.real||boundsOf(meadowRenderers);if(standin)standinBox=SEA_BOUNDS_NOTE.standin||boundsOf(standin.getComponentsInChildren(MeshRenderer));}/* one-off vertex pass under the black cover */if(standin)standin.active=true;return;}/* set-off cover is black: draw the real meadow once */
   if(reveal.phase!=='real'){
-   if(!realBox)realBox=boundsOf(meadowRenderers);if(!standinBox&&standin)standinBox=boundsOf(standin.getComponentsInChildren(MeshRenderer));
+   if(!realBox)realBox=SEA_BOUNDS_NOTE.real||boundsOf(meadowRenderers);if(!standinBox&&standin)standinBox=SEA_BOUNDS_NOTE.standin||boundsOf(standin.getComponentsInChildren(MeshRenderer));
    const vs=view.getVisibleSize(),asp=vs.width/Math.max(1,vs.height),pose={position:cam,target:aim||[cam[0],cam[1],cam[2]+1] as Vec,fovVerticalDeg:worldCam?.fov??45};
    const ph=reveal.step(t,!!standinBox&&standinBox.some(b=>boxInFrustum(pose,asp,b)),!!realBox&&realBox.some(b=>boxInFrustum(pose,asp,b)));
    if(ph==='real'){if(standin)standin.active=false;showMeadow(true);try{console.info('[QF_SEA_REVEAL] '+JSON.stringify({t:+t.toFixed(2),deferredS:+reveal.deferredS.toFixed(2)}));}catch{}}
@@ -605,7 +607,7 @@ if(wakeFx&&wake){wake.active=false;wakeMat=null;}
    if(cloudLayer&&cloudLayer.active)cloudLayer.setWorldPosition(cam[0],layerHome?layerHome[1]:cloudLayer.worldPosition.y,cam[2]);
    if(sole.isValid)sole.active=(globalThis as any).__QF_SAIL_SOLE!==0;
    hideCloseShore(cam);
-   if(Number.isFinite(t))lastT=t!;revealStep(lastT,cam,aim);
+   if(Number.isFinite(t))lastT=t!;revealStep(lastT,cam,aim,dt===0)/* SailShot still: no prewarm frame */;
    if(v.speed>0.05)moved=true;else if(moved&&reveal.phase==='real')restoreLowland()/* docked: original vertices back exactly */;
   },
   dispose(){
