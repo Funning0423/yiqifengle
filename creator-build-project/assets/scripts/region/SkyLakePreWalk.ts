@@ -25,3 +25,5 @@ export const SKY_PRE_FOLLOW={backM:4.6,upM:2.3,aimUpM:1.2,aheadM:2,fovDeg:46,ble
 export function skyPreFollowPose(her:Vec,dir:readonly number[],k=SKY_PRE_FOLLOW):Pose{
  const L=Math.hypot(dir[0],dir[2])||1,x=dir[0]/L,z=dir[2]/L;
  return {position:[her[0]-x*k.backM,her[1]+k.upM,her[2]-z*k.backM],target:[her[0]+x*k.aheadM,her[1]+k.aimUpM,her[2]+z*k.aheadM],fovVerticalDeg:k.fovDeg};}
+/** full7b: resume at S6 only once the lake chapter is open (mainline-12 passed = RegionCampaign.canEnterRegion(…,'lakeside').ok). */
+export function skyResumeAtS6(lakesidePermission:{ok?:boolean}|null|undefined):boolean{return !!lakesidePermission&&lakesidePermission.ok===true;}

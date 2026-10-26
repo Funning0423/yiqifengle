@@ -76,3 +76,15 @@ export async function runSkyFinale(character:Pick<CharacterAdapter,'perform'|'ca
  const timedOut=await runPlan(character,plan,'skycity','S6',place,timeoutMs);
  return {transport:'walk',departure:false,segments:plan.segments.length,region:'skycity',to:'S6',timedOut};
 }
+
+/** full7b (Grok Bot: L12 done → she resumes near S6): after the balloon lands her on the b19 S0 deck, a player who finished L12
+ *  walks on to the finale terrace S6 along the skycity node path (SkyLakePreWalk: spurs cut, no turn > 90°, one continuous
+ *  segment at WALK_SPEED_MPS, world coordinates). Players before L12 never call this. Returns false when she is already at S6. */
+export async function runSkyResumeToS6(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,path:readonly Vec[],durationS:number,timeoutMs=Math.max(WALK_SEGMENT_TIMEOUT_MS,(durationS+8)*1000)):Promise<boolean>{
+ if(path.length<2)return false;
+ emitTransitCue('node-walk-start',{t:0,region:'skycity',node:'S6'});
+ const p=path.map(v=>[v[0],v[1],v[2]] as Vec),end=p[p.length-1],yaw=heading(p);
+ await performBounded(character,{kind:'walk',path:p,duration:durationS} as Action,end,yaw,timeoutMs);
+ emitTransitCue('node-arrive',{t:0,region:'skycity',node:'S6'});
+ return true;
+}

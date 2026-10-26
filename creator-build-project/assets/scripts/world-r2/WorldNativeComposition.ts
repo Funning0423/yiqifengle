@@ -34,7 +34,10 @@ import {boardSafeInsets} from '../ui/BoardLayout';
 /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
-import { runRewardWalk } from '../region/RegionNodePlay';
+import { runRewardWalk, runSkyResumeToS6 } from '../region/RegionNodePlay';
+import { SKY_PRE_FOLLOW, skyLakePreWalk, skyPreFollowPose, skyResumeAtS6 } from '../region/SkyLakePreWalk';
+import { TRANSITION_STAGING } from '../region/TransitionStaging';
+import { blendPose as lakeBlendPose } from '../region/LakesideBalloon';
 import { qaUnlocked } from '../region/ExploreGate';
 import { RegionNodeStage } from './RegionNodeStage';
 import { ExploreInput } from './ExploreInput';
@@ -200,7 +203,8 @@ export class WorldNativeComposition extends Component {
     /* full7 item 4 (fallback 0 on the cold checkpoint-12 path): lake open (L12 done) and heading for skycity/lakeside → warm the
      * lakeside assets now, during the earlier legs / the walk, not at the 继续旅程 tap (3 s budget unchanged). */
     try{if(order.indexOf(target)>=order.indexOf('skycity')&&(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'lakeside')?.ok)void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{/* warm only */}
-    while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;}
+    while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;
+      if(next==='skycity')await this.resumeSkyAtS6()/* full7b: L12 done → she goes on to S6 */;}
     return {ok:true};
   }
   async resumeJourney():Promise<Result>{
@@ -271,6 +275,25 @@ export class WorldNativeComposition extends Component {
     // bounded fallback: the continuous path declined / returned null / threw while she is still in sky city → the WindWipe ride, logged
     if(this.skyContinueHandlers.length){const n=recordFallback('lakeside',(Date.now()-t0)/1000,'sky-finale:'+reason);console.warn('[QF_TRANSITION_FALLBACK] !!! sky finale → lakeside fell back to WindWipe (#'+n+', reason '+reason+'). Acceptance requires 0 — report this.');}
     return withLegacyTransition(()=>this.enterMainline());}
+  /** full7b (Grok Bot): a player who finished L12 resumes near S6 (the finale terrace, where the counted skycity→lakeside leg
+   *  starts), also after a reload + the trip back. The balloon lands her on the b19 S0 deck; from there she walks the skycity node
+   *  path to S6 (one continuous walk, follow lens). Before L12: nothing changes. Never throws. Returns the walk taken (or null). */
+  async resumeSkyAtS6():Promise<{fromM:number;keys:string[]}|null>{
+    try{
+      if(!skyResumeAtS6((RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'lakeside')))return null;
+      const actor=this.boundCharacter as any,node=actor?.node;if(!node?.isValid)return null;const g=node.worldPosition;
+      const pre=skyLakePreWalk([g.x,g.y,g.z],TRANSITION_STAGING.skyMooring5a as any);if(!pre)return null;
+      const camera=this.worldCamera;let st=0,smooth:any=null;const P=pre.path,c0=camera?{position:[camera.node.worldPosition.x,camera.node.worldPosition.y,camera.node.worldPosition.z],target:(()=>{const q=camera.node.forward;const p=camera.node.worldPosition;return [p.x+q.x*8,p.y+q.y*8,p.z+q.z*8];})(),fovVerticalDeg:camera.fov}:null;
+      const draw=()=>{if(!camera||!camera.node?.isValid||!node.isValid)return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const w=node.worldPosition,her:[number,number,number]=[w.x,w.y,w.z];
+        let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
+        const want=skyPreFollowPose(her,[P[k+1][0]-P[k][0],0,P[k+1][2]-P[k][2]]);smooth=smooth?lakeBlendPose(smooth,want,1-Math.pow(.5,dt/SKY_PRE_FOLLOW.halfLifeS)):want;
+        const pose=c0&&st<SKY_PRE_FOLLOW.blendInS?lakeBlendPose(c0 as any,smooth,st/SKY_PRE_FOLLOW.blendInS):smooth;applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),'skycity.resume-s6');};
+      director.on(Director.EVENT_BEFORE_DRAW,draw);
+      try{console.info('[QF_SKY_RESUME] '+JSON.stringify({to:'S6',keys:pre.keys,lengthM:+pre.lengthM.toFixed(2),durationS:+pre.durationS.toFixed(2)}));}catch{}
+      try{await runSkyResumeToS6(actor,P,pre.durationS);}finally{director.off(Director.EVENT_BEFORE_DRAW,draw);}
+      return {fromM:pre.lengthM,keys:pre.keys};
+    }catch(error){try{console.warn('[QF_SKY_RESUME] skipped '+String(error));}catch{}return null;}
+  }
   private stillInSkycity(){try{const s=this.world?.commands().snapshot();return !!s&&(s.state==='skycity'||s.state==='level'&&s.journey?.region==='skycity');}catch{return false;}}
   /** 继续旅程: from the held sky finale go through the continuation hook; elsewhere the plain mainline entry. */
   continueJourney(){return this.skyFinaleActive()?this.continueFromSkyFinale():this.enterMainline();}
