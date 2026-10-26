@@ -8,7 +8,8 @@ import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './Trans
 import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
 import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
 import {camTag} from './CamTraceLog';
-import {SKY_PRE_FOLLOW,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
+import {skyLakePreWalk} from './SkyLakePreWalk';
+import {skyPreFollowLens,type SkyPreLensState} from './SkyPreFollow';
 import {startLegClock} from './LegTiming';
 import {blendPose as lakeBlendPose} from './LakesideBalloon';
 import {SKY_WALK_SHOT,finaleCity,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
@@ -253,11 +254,9 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    // full7 (a): region walk to S6 (not counted) with a continuous follow lens, then the counted leg from S6
    const g00=((actor as any).node as Node|undefined)?.worldPosition,skyPre=atC?skyLakePreWalk(g00?[g00.x,g00.y,g00.z]:start,M5 as any):null;
-   if(skyPre){const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:Pose|null=null;const P=skyPre.path;
+   if(skyPre){const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:SkyPreLensState|null=null;const P=skyPre.path;
     const preDraw=()=>{if(dead||!girl0||!isValid(girl0,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const g=girl0.worldPosition,her:Vec=[g.x,g.y,g.z];
-     let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
-     const dir=[P[k+1][0]-P[k][0],0,P[k+1][2]-P[k][2]],want=skyPreFollowPose(her,dir);const a=1-Math.pow(.5,dt/SKY_PRE_FOLLOW.halfLifeS);
-     smooth=smooth?lakeBlendPose(smooth,want,a):want;world.setCamera(st<SKY_PRE_FOLLOW.blendInS?lakeBlendPose(c0,smooth,st/SKY_PRE_FOLLOW.blendInS):smooth);};
+     /* 运镜bot s6-follow: critically damped heading follow (SkyPreFollow) — corner yaw peak 172→72 °/s */const L=skyPreFollowLens({her,path:P,dt,t:st,live:c0,prev:smooth});smooth=L.state;world.setCamera(L.pose);};
     director.on(Director.EVENT_BEFORE_DRAW,preDraw);
     try{await actor.perform({kind:'walk',path:P,duration:skyPre.durationS,stopAtEnd:false} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);preClock.stop({keys:skyPre.keys,lengthM:+skyPre.lengthM.toFixed(2)});}
     rideToken.check();}
