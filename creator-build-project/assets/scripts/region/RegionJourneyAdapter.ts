@@ -14,8 +14,8 @@ import {skyResumeBegin} from './SkyResumeLens'/* full9c: 运镜bot f3ad48bb, pos
 import {skyLakeEntry} from './SkyLakeEntry';
 import {startLegClock} from './LegTiming';
 import {blendPose as lakeBlendPose} from './LakesideBalloon';
-import {SKY_WALK_SHOT,finaleCity,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
-import {SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
+import {SKY_WALK_SHOT,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
+import {SKY_FINALE_CITY_LOCAL,SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
 import {firstMaterial,placeholderPlank,hidePlaceholders,findDeep,realModelPresent} from './TransitionProps';
 import {createGangwayDriver} from './SailGangway';
 import {setMooringRopes} from './SkyMooringRopes';
@@ -310,7 +310,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
     // full2-cam task 4: mooring C — basket on 场景设计部's lift keys, T-02 finale → walk lens (SkyWalkShot) on the data walk
     let walkCam:((tau:number)=>Pose)|null=null;if(atC){try{const fin={position:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.position),target:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.target),fovVerticalDeg:SKY_FINALE_POSE_LOCAL.fovVerticalDeg};
-     const W=skyWalkShot(M5.walkWorld,M5.walkMps,2,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,M5.walkWorld)] as any,finaleCity(fin),{...SKY_WALK_SHOT,plan:SKY_5A_WALK_PLAN} as any,fin);walkCam=tau=>{camTag('SkyWalkShot');return W.pose(W.gazeS+tau*W.walkS/R.walkS);};}catch{walkCam=null;}}
+     const W=skyWalkShot(M5.walkWorld,M5.walkMps,2,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,M5.walkWorld)] as any,skyLocalToWorld(M5,SKY_FINALE_CITY_LOCAL),{...SKY_WALK_SHOT,plan:SKY_5A_WALK_PLAN} as any,fin);walkCam=tau=>{camTag('SkyWalkShot');return W.pose(W.gazeS+tau*W.walkS/R.walkS);};}catch{walkCam=null;}}
     // full2-cam E: C1 close-up — lens beside door A at the mooring, panning to her from the door stand to the seat
     let boardClose:((tau:number)=>Pose)|null=null;if(atC){const door=M5.walkWorld[M5.walkWorld.length-1] as Vec,plain=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:SKY_5A_LIFT_KEYS,walkCam}),
       spot=basketCloseSpot(door,M5.world as Vec,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,[door])] as any,undefined,[walkCam?walkCam(R.walkS):plain.cam(R.walkS-1e-6,null),plain.cam(plain.flightAt,null)]);
