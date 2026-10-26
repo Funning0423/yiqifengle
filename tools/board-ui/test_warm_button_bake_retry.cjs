@@ -19,3 +19,9 @@ assert(src.indexOf('if(live&&(e.tries')<src.indexOf('this.stopDraw();this.curren
 assert(/const row=row0;\s*if\(!warmFacesOpaque\(row,w\)\)throw Error\('Button RT did not produce both opaque faces '\+JSON\.stringify\(diag\)\)/.test(src),'after the retries the old fallback + warn stays (full8: + root-cause diag payload)');
 assert(/o\.rcWindowIsRT=/.test(src)&&/o\.modelInScene=/.test(src)&&/frames:director\.getTotalFrames\(\)-\(e\.f0\?\?0\)/.test(src),'full8 diag fields');
 console.log('PASS bake retry: up to '+WARM_BAKE_RETRIES+' extra frames, then the unchanged flat fallback');
+// full8b (Mac afb9a70c rt [2,1] alpha [0,0]): a 0×0 / sub-pixel configure must not start a bake (it made a 2×1 RT no face covers)
+{const m=src.match(/configure\(width:number,height:number,ivory:boolean,ready:\(\)=>void\)\{([\s\S]*?)\n  \}/);if(!m)throw Error('configure not found');
+ const i=m[1].indexOf('if(!(width>=1&&height>=1))return;'),j=m[1].indexOf('cache.acquire(');if(!(i>=0&&j>i))throw Error('WarmButtonSkin.configure must skip the bake for a sub-pixel size before cache.acquire');
+ // the RT size formula with the guarded inputs never collapses to 1 px per face
+ for(const [W,H] of [[1,1],[44,44],[390,56],[120,40]]){const scale=Math.min(2,1024/(W*2),512/H),w=Math.max(1,Math.ceil(W*scale)),h=Math.max(1,Math.ceil(H*scale));if(!(w>=2&&h>=2))throw Error('rt too small for '+W+'x'+H);}
+ console.log('PASS warm-button zero-size guard');}
