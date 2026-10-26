@@ -44,6 +44,17 @@ export function camLogFrame(camera:any):void{
  else if(st.bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' CAM_OK<-'+st.bad);
  st.bad=bad;
 }
+/** Stall probe (Grok Bot 2026-10-26): while a walk / board step is active, her position unchanged (< ACTOR_STALL.m) for more
+ *  than ACTOR_STALL.s → ONE `[QF_CAM_TRACE] ACTOR_STALL` line (repeated every ACTOR_STALL.s while it lasts). Trace only, the camera is
+ *  never moved. Callers guard with `if(camLog.on)`. */
+export const ACTOR_STALL=Object.freeze({s:3,m:0.02});
+const stall={key:'',x:0,y:0,z:0,since:-1,said:-1};
+export function camActorProbe(x:number,y:number,z:number,active:boolean,step:string,nowS?:number):void{
+ if(!camLog.on)return;const t=nowS??(((typeof performance!=='undefined'?performance.now():Date.now())-camLog.t0)/1000);
+ if(!active||stall.key!==step||Math.hypot(x-stall.x,y-stall.y,z-stall.z)>=ACTOR_STALL.m){stall.key=active?step:'';stall.x=x;stall.y=y;stall.z=z;stall.since=t;stall.said=-1;return;}
+ const held=t-stall.since;if(held>ACTOR_STALL.s&&(stall.said<0||t-stall.said>=ACTOR_STALL.s)){stall.said=t;
+  camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR_STALL step='+step+' heldS='+f3(held)+' her='+f3(x)+','+f3(y)+','+f3(z));}
+}
 let started=false;
 /** Read the switch once. Returns whether tracing is on. */
 export function camLogStart(query?:string,g:any=globalThis):boolean{
@@ -54,6 +65,6 @@ export function camLogStart(query?:string,g:any=globalThis):boolean{
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 camLogStart();
