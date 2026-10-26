@@ -2551,8 +2551,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonB1Start.ts",
-    "bytes": 3862,
-    "sha256": "7341114e4d48e646e0fa88937192983e49cc83e53bbe15b9ea493ea2dace8d70"
+    "bytes": 4587,
+    "sha256": "449aa865f3afd7b7b8cf1a7d493d0e5bc6ab0f2e591fb056f519793a13490302"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonB1Start.ts.meta",
@@ -2751,8 +2751,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
-    "bytes": 47700,
-    "sha256": "3bfdf55f73b01eeb9176fb22bc169ec3aff72d62ae2d886d0b901e3125d472c2"
+    "bytes": 48965,
+    "sha256": "42af9da0a68fca47c7a1ef8202fc86ce27ea567033de60521b29e2ef822742bc"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
@@ -3511,8 +3511,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts",
-    "bytes": 1705,
-    "sha256": "081840de21499551001139d7e62318e441d6bba08f22375ac908a7840ed0f885"
+    "bytes": 2292,
+    "sha256": "2c5f169e25abe8bd359a7a5c9c38034486e51d6500741110b9cbc2f015029648"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts.meta",
@@ -4336,8 +4336,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 70472,
-    "sha256": "62d85d8ce475868c75df3a3099beee1d58cf00db982221ffe7873dab11d46705"
+    "bytes": 71282,
+    "sha256": "c0372949561ebb253445a56a000f235b0afa4f6edc35e47d14101ff547f1641d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -4861,8 +4861,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 23728,
-    "sha256": "bb84b9a070d6e06a3c916378d1b730e8d7ba23033e7ffe77ca777f29ce6dc901"
+    "bytes": 23797,
+    "sha256": "627141e842a11dbfa064d1d37227b0c1538142fb238ac8384a607539d77b0465"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
