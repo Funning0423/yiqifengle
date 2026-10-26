@@ -27,4 +27,16 @@ assert.match(tp,/export function sailRideStarted\(\)/);assert.match(tp,/warmSkyc
 assert.match(src('region/RegionJourneyAdapter.ts'),/ride:\(actor,world,token\)=>\{sailRideStarted\(\);/);
 assert.match(src('world-r2/PreTransitionRun.ts'),/armSkycityWarmOnSailRide\(\);[^\n]*\n\s*r=await this\.step\(\(\)=>this\.wc\(\)\.travelRegion\('meadow'\)/);
 assert.match(src('world-r2/WorldNativeComposition.ts'),/current==='island'&&order\.indexOf\(target\)>=order\.indexOf\('skycity'\)&&typeof armSkycityWarmOnSailRide==='function'\)armSkycityWarmOnSailRide\(\)/);
-console.log('skycity-windwipe: PASS',JSON.stringify({cold,warm}));
+// full9c-b: every entry path that reaches the meadow→skycity balloon (with or without the sail) must reach 0 fallback
+assert.equal(typeof TC.simulateSkyEntry,'function','no per-entry-path timeline (resume at the meadow is still cold)');
+assert.ok(TC.simulateSkyEntry(0,TC.SKY_WARM_GAP_FAST_MS).fallback,'model sanity: no head start reproduces the fallback');
+assert.ok(TC.SKY_WARM_GAP_FAST_MS>=100,'fast gap must still leave several frames between stages');
+const need=['ensureRegion, sail','preTransition','balloonPreview from island','resume at meadow','meadow level','balloonPreview at meadow'];
+const rows=TC.SKY_ENTRY_PATHS.map(p=>({...p,...TC.simulateSkyEntry(p.headStartMs,p.gapMs)}));
+for(const n of need)assert.ok(rows.some(r=>r.id.includes(n)),'entry path not covered: '+n);
+for(const r of rows)assert.ok(!r.fallback,`${r.id}: prepare ${r.prepareMs} ms >= 3000`);
+const wn=src('world-r2/WorldNativeComposition.ts');
+assert.match(wn,/private warmSkyIfMeadow\(/);assert.match(wn,/warmSkycityLegStaged\(SKY_WARM_GAP_FAST_MS\)/);
+for(const w of ['boot','meadow-level','ensure','preview'])assert.ok(wn.includes(`warmSkyIfMeadow?.('${w}'`),'warm not wired: '+w);
+assert.match(wn,/world\.initialize\(levels[^\n]*\n[^\n]*\n\s*\(this as any\)\.warmSkyIfMeadow\?\.\('boot'\)/);
+console.log('skycity-windwipe: PASS',JSON.stringify({cold,warm,rows:rows.map(r=>[r.id,r.headStartMs,r.warmDoneMs,r.prepareMs])}));
