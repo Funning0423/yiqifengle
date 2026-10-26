@@ -14,24 +14,25 @@ export function voxSolid(g:VoxGrid):LensSolid{return {clear:(p,c)=>voxClear(g,p,
 export function planSkyResume(P:readonly Vec[],toLocal:(w:Vec)=>Vec,K=SKY_RESUME_LENS,g:LensSolid):SkyResumePlan{
  const {A,trail,trail0,step}=skyTrail(P,K),end=A[A.length-1];
  const pl={P,A,trail,trail0,step},nS=Math.floor(end/step)+1,B=K.backs,Lf=K.lifts,Sd=K.sides,nL=Lf.length,nB=B.length,nc=Sd.length*nB*nL,dec=(c:number)=>({si:Math.floor(c/(nB*nL)),bi:Math.floor(c/nL)%nB,li:c%nL});
- const ok:boolean[][]=[];for(let si=0;si<nS;si++){const s=si*step,her=arcAt(P,A,s),face:Vec=[her[0],her[1]+1.5,her[2]],chest:Vec=[her[0],her[1]+1.2,her[2]],fl=toLocal(face),cl=toLocal(chest),row:boolean[]=[];
-  for(const sd of Sd)for(const b of B)for(const l of Lf){const w=lensAt(pl,s,b,l,sd),p=toLocal(w),c=aimPose(w,her);row.push(ndc(c,face,K.minAsp)<=K.frameNdc&&ndc(c,chest,K.minAsp)<=K.frameNdc&&g.clear(p,K.clrM)&&g.sight(p,fl)&&g.sight(p,cl));}ok.push(row);}
+ const ok:boolean[][]=[],HD:Float64Array[]=[],WY=(K as any).wYaw||0,YF=((K as any).yawFreeDeg||0)*Math.PI/180;/* full9b S4: optional heading-change cost (offline only; 0 = the original planner) */
+ for(let si=0;si<nS;si++){const hd=new Float64Array(nc);let hc=0;HD.push(hd);const s=si*step,her=arcAt(P,A,s),face:Vec=[her[0],her[1]+1.5,her[2]],chest:Vec=[her[0],her[1]+1.2,her[2]],fl=toLocal(face),cl=toLocal(chest),row:boolean[]=[];
+  for(const sd of Sd)for(const b of B)for(const l of Lf){const w=lensAt(pl,s,b,l,sd),p=toLocal(w),c=aimPose(w,her);hd[hc++]=Math.atan2(her[0]-w[0],her[2]-w[2]);row.push((!(K as any).wideSideUntilM||Math.abs(sd)<=1.5+1e-9||s<=(K as any).wideSideUntilM)&&(!(K as any).farBackUntilM||b<=4.6+1e-9||s<=(K as any).farBackUntilM)&&(!(K as any).minHorizM||Math.hypot(w[0]-her[0],w[2]-her[2])>=(K as any).minHorizM)&&ndc(c,face,K.minAsp)<=K.frameNdc&&ndc(c,chest,K.minAsp)<=K.frameNdc&&g.clear(p,K.clrM)&&g.sight(p,fl)&&g.sight(p,cl));}ok.push(row);}
  /* DP: cost = lift + 0.6·(4.6−back) (+1e4 if infeasible) + change penalty; |Δlift| ≤ dLiftMax, |Δback| ≤ dBackMax per step... per step = (dLiftMax·stepM) */
- const dl=K.dLiftMax*step+1e-9,db=K.dBackMax*step+1e-9,BIG=1e4,cost=(si:number,c:number)=>{const d=dec(c);return (ok[si][c]?0:BIG)+Lf[d.li]*K.wLift+(4.6-B[d.bi])*K.wBack+Math.abs(Sd[d.si])*K.wSide;};
+ const dl=K.dLiftMax*step+1e-9,db=K.dBackMax*step+1e-9,BIG=1e4,cost=(si:number,c:number)=>{const d=dec(c);return (ok[si][c]?0:BIG)+Lf[d.li]*K.wLift+((K as any).backAbs?Math.abs(4.6-B[d.bi]):4.6-B[d.bi])*K.wBack+Math.abs(Sd[d.si])*K.wSide;};
  /* the grid of lifts/backs is coarser than one step's allowed change, so the DP runs on "levels" with a dwell: allow a 1-level change every
   * ceil(level/(rate·step)) steps — implemented as: change allowed only if |Δ| ≤ one grid level, then the result is smoothed */
  void dl;void db;
  let D=new Float64Array(nc),prev:Int32Array[]=[];for(let c=0;c<nc;c++)D[c]=cost(0,c);
  for(let si=1;si<nS;si++){const E=new Float64Array(nc).fill(Infinity),pr=new Int32Array(nc);
   for(let c=0;c<nc;c++){const d=dec(c),cc=cost(si,c);
-   for(let s2=Math.max(0,d.si-1);s2<=Math.min(Sd.length-1,d.si+1);s2++){for(let b2=Math.max(0,d.bi-1);b2<=Math.min(nB-1,d.bi+1);b2++)for(let l2=Math.max(0,d.li-1);l2<=Math.min(nL-1,d.li+1);l2++){const p=(s2*nB+b2)*nL+l2,v=D[p]+cc+(p!==c?K.wChange:0);if(v<E[c]){E[c]=v;pr[c]=p;}}}}
+   for(let s2=Math.max(0,d.si-1);s2<=Math.min(Sd.length-1,d.si+1);s2++){for(let b2=Math.max(0,d.bi-1);b2<=Math.min(nB-1,d.bi+1);b2++)for(let l2=Math.max(0,d.li-1);l2<=Math.min(nL-1,d.li+1);l2++){const p=(s2*nB+b2)*nL+l2;let yc=0;if(WY){let e=HD[si][c]-HD[si-1][p];e=Math.abs(Math.atan2(Math.sin(e),Math.cos(e)));if(e>YF)yc=WY*(e-YF)*180/Math.PI;}const v=D[p]+cc+(p!==c?K.wChange:0)+yc;if(v<E[c]){E[c]=v;pr[c]=p;}}}}
   prev.push(pr);D=E;}
  let c=0;for(let k=1;k<nc;k++)if(D[k]<D[c])c=k;const seq=new Array(nS);seq[nS-1]=c;for(let si=nS-1;si>0;si--){c=prev[si-1][c];seq[si-1]=c;}
  let worst=0;const back0=seq.map(c=>B[dec(c).bi]),side0=seq.map(c=>Sd[dec(c).si]),lift0=seq.map((c,si)=>{if(!ok[si][c])worst++;return Lf[dec(c).li];});
  /* feasibility-preserving smoothing: repeated 5-tap averaging of (back, lift, side); a sample takes the smoothed value only if that lens is
   * still feasible (clearance, sightline, framing) — so the result is as smooth as the geometry allows and never leaves the clear space */
  const feas=(si:number,b:number,l:number,sd:number)=>{const s=si*step,her=arcAt(P,A,s),face:Vec=[her[0],her[1]+1.5,her[2]],chest:Vec=[her[0],her[1]+1.2,her[2]],w=lensAt(pl,s,b,l,sd),p=toLocal(w),c=aimPose(w,her);
-  return ndc(c,face,K.minAsp)<=K.frameNdc&&ndc(c,chest,K.minAsp)<=K.frameNdc&&g.clear(p,K.clrM)&&g.sight(p,toLocal(face))&&g.sight(p,toLocal(chest));};
+  return (!(K as any).wideSideUntilM||Math.abs(sd)<=1.5+1e-9||s<=(K as any).wideSideUntilM)&&(!(K as any).farBackUntilM||b<=4.6+1e-9||s<=(K as any).farBackUntilM)&&(!(K as any).minHorizM||Math.hypot(w[0]-her[0],w[2]-her[2])>=(K as any).minHorizM)&&ndc(c,face,K.minAsp)<=K.frameNdc&&ndc(c,chest,K.minAsp)<=K.frameNdc&&g.clear(p,K.clrM)&&g.sight(p,toLocal(face))&&g.sight(p,toLocal(chest));};
  const back=back0.slice(),lift=lift0.slice(),side=side0.slice(),av=(v:number[],i:number)=>{let t=0;for(let j=-2;j<=2;j++)t+=v[Math.max(0,Math.min(nS-1,i+j))];return t/5;};
  for(let it=0;it<K.smoothIters;it++){const nb=back.map((_,i)=>av(back,i)),nl=lift.map((_,i)=>av(lift,i)),ns=side.map((_,i)=>av(side,i));
   for(let i=0;i<nS;i++){if(feas(i,nb[i],nl[i],ns[i])){back[i]=nb[i];lift[i]=nl[i];side[i]=ns[i];}else if(feas(i,back[i],nl[i],side[i]))lift[i]=nl[i];}}

@@ -58,6 +58,9 @@ export function bakedSkyPlans():BakedSkyPlan[]{return decoded||(decoded=SKY_RESU
 /** S0L (balloon landing, 3.2 m from S0 — where the resume really starts) uses S0's baked plan on S0's path (gated, real mesh). */
 export const SKY_RESUME_ALIAS:{[from:string]:string}={S0L:'S0'};
 export const SKY_RESUME_REUSE_M=0.75/* gated: 0.75 m passes all offsets; 1 m fails S2+N1.0 (clearance) */;
+/** per-start radius where the default is too wide (gated at its edge): S4 stair top W 0.6 m fails (sky hidden 0.5 s) → 0.5 m */
+export const SKY_RESUME_REUSE_BY:{[from:string]:number}={S4:0.5};
+export function skyReuseRadius(from:string):number{const r=SKY_RESUME_REUSE_BY[from];return r===undefined?SKY_RESUME_REUSE_M:r;}
 type Mooring={world:readonly number[];worldYawDeg:number;pos:readonly number[];yawDeg:number;walkWorld:readonly (readonly number[])[]};
 export function skyResumeStarts(m:Mooring):{key:string;at:Vec;path:Vec[]}[]{const out:{key:string;at:Vec;path:Vec[]}[]=[];
  const add=(key:string,at:Vec)=>{const pre=skyLakePreWalk(at,m as any);if(pre)out.push({key,at,path:pre.path});};
@@ -69,7 +72,7 @@ export function skyResumePlanFor(P:readonly Vec[],m:Mooring):{plan:SkyResumePlan
  const starts=skyResumeStarts(m),use=(from:string)=>{const t=SKY_RESUME_ALIAS[from]||from,st=starts.find(x=>x.key===t),pb=st&&all.find(x=>x.from===t&&x.key===skyPathKey(st.path));return st&&pb?{st,pb}:null;};
  if(b){if(!b.alias)return {plan:planFromBaked(P,b),walk:P.slice(),baked:true,key,from:b.from,dM:0,inRadius:true};const u=use(b.from);if(u)return {plan:planFromBaked(u.st.path,u.pb),walk:P.slice(),baked:true,key,from:b.from,dM:0,inRadius:true};}
  const n=skyNearestStart(P[0],m);if(!n)return null;const u=use(n.key);if(!u)return null;const nb=u.pb;n.path=u.st.path;
- return {plan:planFromBaked(n.path,nb),walk:P.slice(),baked:false,key,from:n.key,dM:n.dM,inRadius:n.dM<=SKY_RESUME_REUSE_M};}
+ return {plan:planFromBaked(n.path,nb),walk:P.slice(),baked:false,key,from:n.key,dM:n.dM,inRadius:n.dM<=skyReuseRadius(n.key)};}
 export function skyResumePose(pl:SkyResumePlan,her:Vec):Pose{const k=SKY_PRE_FOLLOW,s=arcOfHer(her,pl.P,pl.A),u=s/pl.step,i=Math.max(0,Math.min(pl.back.length-2,Math.floor(u))),f=Math.max(0,Math.min(1,u-i));
  const b=pl.back[i]+(pl.back[i+1]-pl.back[i])*f,l=pl.lift[i]+(pl.lift[i+1]-pl.lift[i])*f,sd=pl.side[i]+(pl.side[i+1]-pl.side[i])*f,p=lensAt(pl,s,b,l,sd),dy=her[1]-arcAt(pl.P,pl.A,s)[1];p[1]+=dy;
  const hx=her[0]-p[0],hz=her[2]-p[2],hl=Math.hypot(hx,hz)||1;
