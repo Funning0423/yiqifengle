@@ -185,6 +185,24 @@
       ],
       "subMetas": {}
     },
+    "e7bbb": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@e7bbb",
+      "displayName": "",
+      "id": "e7bbb",
+      "name": "sail_gangway.mesh",
+      "userData": {
+        "gltfIndex": 10,
+        "triangleCount": 178
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
     "3effa": {
       "importer": "texture",
       "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@3effa",
@@ -336,7 +354,8 @@
         "049e8173-0b6e-455b-8478-881533bdeefd@3125b",
         "049e8173-0b6e-455b-8478-881533bdeefd@23b7c",
         "049e8173-0b6e-455b-8478-881533bdeefd@89490",
-        "049e8173-0b6e-455b-8478-881533bdeefd@3cf97"
+        "049e8173-0b6e-455b-8478-881533bdeefd@3cf97",
+        "049e8173-0b6e-455b-8478-881533bdeefd@e7bbb"
       ],
       "skeletons": [],
       "textures": [

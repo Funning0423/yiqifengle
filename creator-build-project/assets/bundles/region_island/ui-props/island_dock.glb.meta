@@ -4,7 +4,58 @@
   "imported": true,
   "uuid": "bed91e5f-2464-4f0d-8391-d494054170f0",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "f5de9": {
+      "importer": "gltf-mesh",
+      "uuid": "bed91e5f-2464-4f0d-8391-d494054170f0@f5de9",
+      "displayName": "",
+      "id": "f5de9",
+      "name": "island_dock.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 1985
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "18b7e": {
+      "importer": "gltf-material",
+      "uuid": "bed91e5f-2464-4f0d-8391-d494054170f0@18b7e",
+      "displayName": "",
+      "id": "18b7e",
+      "name": "M_env_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3fd65": {
+      "importer": "gltf-scene",
+      "uuid": "bed91e5f-2464-4f0d-8391-d494054170f0@3fd65",
+      "displayName": "",
+      "id": "3fd65",
+      "name": "island_dock.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "tangents": 1,
     "imageMetas": [],
@@ -28,15 +79,15 @@
     },
     "assetFinder": {
       "meshes": [
-        "82ccf373-b97c-4151-9aec-bc4696a561b0@12153"
+        "bed91e5f-2464-4f0d-8391-d494054170f0@f5de9"
       ],
       "skeletons": [],
       "textures": [],
       "materials": [
-        "82ccf373-b97c-4151-9aec-bc4696a561b0@18b7e"
+        "bed91e5f-2464-4f0d-8391-d494054170f0@18b7e"
       ],
       "scenes": [
-        "82ccf373-b97c-4151-9aec-bc4696a561b0@4fa02"
+        "bed91e5f-2464-4f0d-8391-d494054170f0@3fd65"
       ]
     }
   }

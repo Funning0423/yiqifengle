@@ -455,7 +455,7 @@
       "name": "env_sky_static_palette.mesh",
       "userData": {
         "gltfIndex": 20,
-        "triangleCount": 24696
+        "triangleCount": 22892
       },
       "ver": "1.1.1",
       "imported": true,
@@ -473,7 +473,7 @@
       "name": "env_sky_static_rock_strata.mesh",
       "userData": {
         "gltfIndex": 21,
-        "triangleCount": 1873
+        "triangleCount": 1868
       },
       "ver": "1.1.1",
       "imported": true,

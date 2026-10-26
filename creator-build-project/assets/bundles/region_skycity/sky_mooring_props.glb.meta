@@ -4,7 +4,148 @@
   "imported": true,
   "uuid": "ace375af-e2b3-49a1-998b-064776758faa",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "871ef": {
+      "importer": "gltf-mesh",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@871ef",
+      "displayName": "",
+      "id": "871ef",
+      "name": "sky_mooring_deck.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 508
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "791b7": {
+      "importer": "gltf-mesh",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@791b7",
+      "displayName": "",
+      "id": "791b7",
+      "name": "sky_mooring_posts.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 328
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "19a49": {
+      "importer": "gltf-mesh",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@19a49",
+      "displayName": "",
+      "id": "19a49",
+      "name": "sky_mooring_rope.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 80
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3cea8": {
+      "importer": "gltf-mesh",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@3cea8",
+      "displayName": "",
+      "id": "3cea8",
+      "name": "balloon_step_stool_5a.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 30
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d33b5": {
+      "importer": "gltf-mesh",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@d33b5",
+      "displayName": "",
+      "id": "d33b5",
+      "name": "sky_mooring_5a_rope.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 80
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0760c": {
+      "importer": "gltf-mesh",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@0760c",
+      "displayName": "",
+      "id": "0760c",
+      "name": "sky_mooring_5a_stakes.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 354
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4a919": {
+      "importer": "gltf-material",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@4a919",
+      "displayName": "",
+      "id": "4a919",
+      "name": "M_sky_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8ee75": {
+      "importer": "gltf-scene",
+      "uuid": "ace375af-e2b3-49a1-998b-064776758faa@8ee75",
+      "displayName": "",
+      "id": "8ee75",
+      "name": "sky_mooring_props.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "imageMetas": [],
     "lods": {
@@ -27,15 +168,20 @@
     },
     "assetFinder": {
       "meshes": [
-        "092e7721-97fd-4de7-9550-85e5e7b72f98@c8867"
+        "ace375af-e2b3-49a1-998b-064776758faa@871ef",
+        "ace375af-e2b3-49a1-998b-064776758faa@791b7",
+        "ace375af-e2b3-49a1-998b-064776758faa@19a49",
+        "ace375af-e2b3-49a1-998b-064776758faa@3cea8",
+        "ace375af-e2b3-49a1-998b-064776758faa@d33b5",
+        "ace375af-e2b3-49a1-998b-064776758faa@0760c"
       ],
       "skeletons": [],
       "textures": [],
       "materials": [
-        "092e7721-97fd-4de7-9550-85e5e7b72f98@4a919"
+        "ace375af-e2b3-49a1-998b-064776758faa@4a919"
       ],
       "scenes": [
-        "092e7721-97fd-4de7-9550-85e5e7b72f98@30751"
+        "ace375af-e2b3-49a1-998b-064776758faa@8ee75"
       ]
     }
   }
