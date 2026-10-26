@@ -1,5 +1,5 @@
 island explore ok {"spawn":[-2.1135,0,5.2814],"tap":"walk","sea":"water"}
-region-walkable ok cells {"island":3642,"meadow":23987,"skycity":26594,"lakeside":11183}
+region-walkable ok cells {"island":3794,"meadow":23976,"skycity":26586,"lakeside":11183}
 skycity plateau ok
 skycity-walk-r2 ok
 skycity-walk-r3 components ok

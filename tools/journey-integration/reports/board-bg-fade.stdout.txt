@@ -1,0 +1,7 @@
+PASS alpha smoothstep 1→0 over 0.3 s, monotone
+PASS fadeOut: 18 frames at 60 fps, setFade every frame, never hidden, disposed once on the alpha-0 frame
+PASS dispose mid-fade (leave/cancel) disposes once and ends the fade; lease without setFade keeps drawing until alpha 0
+PASS adapter: lease.fadeOut runs the 2D board fade, then the 0.3 s background fade, before WorldFlow disposes the lease
+PASS setFade implemented by skycity (mainline 09–12 / T-02), meadow, lakeside, island leases and forwarded by every wrapper
+PASS createSceneFade: DEPTH_ONLY on the board camera, SRC_ALPHA/ONE_MINUS_SRC_ALPHA instances, mainColor.a monotone 1→0, rgb kept
+{"result":"PASS","pass":6}
