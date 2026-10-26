@@ -8,6 +8,9 @@ import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './Trans
 import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
 import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
 import {camTag} from './CamTraceLog';
+import {SKY_PRE_FOLLOW,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
+import {startLegClock} from './LegTiming';
+import {blendPose as lakeBlendPose} from './LakesideBalloon';
 import {SKY_WALK_SHOT,finaleCity,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
 import {SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
 import {firstMaterial,placeholderPlank,hidePlaceholders,findDeep,realModelPresent} from './TransitionProps';
@@ -232,7 +235,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.
   const shore=L.arrival[L.arrival.length-1],v4Stop=L.toWorld([...LAKESIDE_CAMERA_LAYOUT.stopLocal] as Vec),E=arrivalPose([shore,v4Stop],L.focus,L.landing)/* b18: solved from the v4 stop, = this screen's board lens */,landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
   // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
-  const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),M5=TRANSITION_STAGING.skyMooring5a,atC=continuousTransitions()&&M5.option==='C'/* full2-cam task 4: the game rides from mooring C (data), not T-03's launch-point walk */,R=lakesideBalloonRide(atC?[start,...M5.walkWorld.slice(1).map(p=>[p[0],p[1],p[2]] as Vec)]:[start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
+  const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),M5=TRANSITION_STAGING.skyMooring5a,atC=continuousTransitions()&&M5.option==='C'/* full2-cam task 4: the game rides from mooring C (data), not T-03's launch-point walk */,R=lakesideBalloonRide(atC?[[M5.walkWorld[0][0],M5.walkWorld[0][1],M5.walkWorld[0][2]] as Vec/* full7 (a): the counted leg starts at S6; ride() walks the node path there first */,...M5.walkWorld.slice(1).map(p=>[p[0],p[1],p[2]] as Vec)]:[start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
   let route:JourneyRoute={from,to:'lakeside',path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
   const total=routeLength(path);route={...route,timing:lakesideRouteTiming(total,R.T+moored.timing.durationS,K.walkEaseS,moored.timing.easeOutS)};token.check();progress(.98);
   const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
@@ -248,6 +251,17 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
   const doorVs=view.getVisibleSize(),doorWide=lakesideDoorWideLens(moored.walk,moored.mooring,landPose,doorVs.width/Math.max(1,doorVs.height),{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* T-03: pulled back, lake + her whole body in frame, held under the place-name sign, option B */,doorLens=doorWide?doorWide.lens:lakesideDoorLens(moored.walk,moored.mooring,doorVs.width/Math.max(1,doorVs.height),undefined,undefined,{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* b16 item 6: safe insets (route F3) *//* b15 door shot: where the ride lens arrives at touchdown */;
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
+   // full7 (a): region walk to S6 (not counted) with a continuous follow lens, then the counted leg from S6
+   const g00=((actor as any).node as Node|undefined)?.worldPosition,skyPre=atC?skyLakePreWalk(g00?[g00.x,g00.y,g00.z]:start,M5 as any):null;
+   if(skyPre){const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:Pose|null=null;const P=skyPre.path;
+    const preDraw=()=>{if(dead||!girl0||!isValid(girl0,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const g=girl0.worldPosition,her:Vec=[g.x,g.y,g.z];
+     let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
+     const dir=[P[k+1][0]-P[k][0],0,P[k+1][2]-P[k][2]],want=skyPreFollowPose(her,dir);const a=1-Math.pow(.5,dt/SKY_PRE_FOLLOW.halfLifeS);
+     smooth=smooth?lakeBlendPose(smooth,want,a):want;world.setCamera(st<SKY_PRE_FOLLOW.blendInS?lakeBlendPose(c0,smooth,st/SKY_PRE_FOLLOW.blendInS):smooth);};
+    director.on(Director.EVENT_BEFORE_DRAW,preDraw);
+    try{await actor.perform({kind:'walk',path:P,duration:skyPre.durationS,stopAtEnd:false} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);preClock.stop({keys:skyPre.keys,lengthM:+skyPre.lengthM.toFixed(2)});}
+    rideToken.check();}
+   const legClock=startLegClock('skycity-lakeside');
    const ticker=rig.addComponent(LakesideBalloonTicker);
    const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
    const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined;let prev:Node|null=null,aboard=false;
@@ -368,7 +382,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
    // T-03: touchdown hook for the place-name sign (GGbot): ride.T s after the segment start
    // T-03 sign (GGbot LakesideArrivalUI): the event carries the sign timing, so a retimed landing only changes LAKESIDE_TOUCHDOWN
-   pub(R.T,true);arrivalMark('touchdown',{skipped});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
+   pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.stop({to:'touchdown',designS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
    try{(globalThis as any).__qfLakesideTouchdownAt=R.T;director.emit(LAKESIDE_TOUCHDOWN.event,{atS:R.T,skipped,signAtS:LAKESIDE_TOUCHDOWN.signAtS,signS:LAKESIDE_TOUCHDOWN.signS,boardByS:lakesideBoardByS()/* option B: board blend START (touchdown +5.3); board reached when her walk is in, ≈ +12.0 */});}catch{/* listeners only */}
    landedOk();
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);

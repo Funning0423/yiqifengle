@@ -26,7 +26,7 @@ export function reopenAfterKill(view:MainlineView):{atSea:false;inAir:false;regi
  if(done.has('mainline-04')&&!done.has('mainline-05'))return {atSea:false,inAir:false,region:'meadow',node:'M0',board:'mainline-05'};
  if(done.has('mainline-08')&&!done.has('mainline-09'))return {atSea:false,inAir:false,region:'skycity',node:'S0',board:'mainline-09'};
  const states=derive(view,null);
- if(states.lastPassed.skycity)return {atSea:false,inAir:false,region:'skycity',node:states.lastPassed.skycity,board:null};
+ if(states.lastPassed.skycity)return {atSea:false,inAir:false,region:'skycity',node:done.has('mainline-12')?'S6'/* full7 (a): L12 done → finale terrace S6 */:states.lastPassed.skycity,board:null};
  if(states.lastPassed.meadow)return {atSea:false,inAir:false,region:'meadow',node:states.lastPassed.meadow,board:null};
  if(states.lastPassed.island)return {atSea:false,inAir:false,region:'island',node:states.lastPassed.island,board:null};
  return {atSea:false,inAir:false,region:'island',node:'I1',board:'mainline-01'};

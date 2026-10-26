@@ -1,6 +1,8 @@
 /** Test-only `__qfPreTransition(key)` runtime (see PreTransitionKeys). Registered by the boot ONLY behind preTransitionEnabled()
  *  (same host gate as __qfTeleport; WeChat release never). Setup goes through the real commands and an isolated test profile;
  *  the transition itself is never started here — the tester (or autoplay) touches the returned trigger. */
+import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
+import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
 import { director, game, Node, UITransform, Canvas, Vec3 } from 'cc';
 import { qaSkipAllowed } from './QaSkip';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
@@ -75,7 +77,11 @@ export class PreTransitionRunner{
    if(spec.place==='skycity-visit')return await this.step(()=>this.wc().enterSkycity(),'skycity','enter-skycity');
    r=await this.step(()=>this.wc().travelRegion('meadow'),'meadow','travel meadow',240000);if(!r.ok)return r;
    r=await this.step(()=>this.wc().travelRegion('skycity'),'skycity','travel skycity',240000);if(!r.ok)return r;
-   if(spec.place==='skycity')return r;
+   if(spec.place==='skycity'){
+    /* full7 option (a): the skycity→lakeside key starts where a player who finished L12 stands (S6, the finale terrace; the
+     * counted leg starts there). Lakeside assets are warmed as on the real checkpoint-12 path. */
+    if(spec.key==='skycity-lakeside'){try{void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{}const tp=(globalThis as any).__qfTeleport;if(typeof tp!=='function')return {ok:false,reason:'no-teleport-hook (S6)'};try{tp('S6');}catch(e){return {ok:false,reason:'teleport-S6: '+String(e)};}}
+    return r;}
    r=await this.step(()=>this.d.composition.enterMainline(),'level','enter lakeside',300000);if(!r.ok)return r;
    if(spec.place==='lake-result'){const id=this.boardSnap()?.active?.stageId;if(id&&id!==spec.stage)return {ok:false,reason:'lake-stage-mismatch ('+id+')'};return await this.swapToResult(spec,prof?.lastAction);}
    if(!await waitFor(()=>this.boardSnap()?.state==='run.ready'&&(this.d.board() as any)?.presented,30000))return {ok:false,reason:'lake-board-not-ready'};

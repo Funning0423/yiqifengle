@@ -1,5 +1,6 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
+import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
 import {continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
@@ -196,6 +197,9 @@ export class WorldNativeComposition extends Component {
     const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;
     const order:JourneyRegion[]=['island','meadow','skycity','lakeside'];
     if(!order.includes(current)||order.indexOf(target)<order.indexOf(current))return {ok:false,reason:'return-route-not-yet-available'};
+    /* full7 item 4 (fallback 0 on the cold checkpoint-12 path): lake open (L12 done) and heading for skycity/lakeside → warm the
+     * lakeside assets now, during the earlier legs / the walk, not at the 继续旅程 tap (3 s budget unchanged). */
+    try{if(order.indexOf(target)>=order.indexOf('skycity')&&(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'lakeside')?.ok)void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{/* warm only */}
     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;}
     return {ok:true};
   }
