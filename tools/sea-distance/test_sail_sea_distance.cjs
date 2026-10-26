@@ -12,7 +12,7 @@ const assert=require('node:assert/strict'),fs=require('fs'),path=require('path')
 const L=require('../transitions/sail_farsea_lib.cjs'),leg=L.leg,voy=L.load('region/SailVoyage.ts',s=>s.includes('TransportLeg')?leg:{});
 const ROOT=path.resolve(__dirname,'../..'),SRC=path.join(ROOT,'creator-build-project/assets/scripts/region');
 const sea=L.load('region/SeaReveal.ts');
-assert.deepEqual([...sea.SEA_STANDIN.pos],[-11.6,-0.91,492.0]);assert.equal(sea.SEA_STANDIN.scale,.7);assert.equal(sea.SEA_STANDIN.yawDeg,180);
+assert.deepEqual([...sea.SEA_STANDIN.pos],[-5.6,-0.91,242.0]);assert.equal(sea.SEA_STANDIN.scale,.335);assert.equal(sea.SEA_STANDIN.yawDeg,180);
 assert.equal(sea.SEA_HANDOFF_T,17.4);
 // state machine: no swap before 17.4, defers while either box is visible
 {const r=sea.createSeaReveal();assert.equal(r.step(10,false,false),'standin');assert.equal(r.step(17.4,true,false),'pending');assert.equal(r.step(17.5,false,true),'pending');assert.equal(r.step(17.6,false,false),'real');assert.ok(Math.abs(r.deferredS-.2)<1e-9);assert.equal(r.step(18,true,true),'real');}

@@ -4,7 +4,7 @@ import {debugSearch} from './DebugQuery';
  *  The real meadow is not drawn from the set-off; a small far stand-in sits on the horizon in the meadow's bearing (~480 m).
  *  Handoff stand-in → real meadow at SEA_HANDOFF_T (sail timeline seconds) ONLY when both boxes are outside the camera frustum;
  *  otherwise it is deferred (never swapped on screen). Pure, no cc. */
-export const SEA_STANDIN={pos:[-11.6,-0.91,492.0] as Vec,scale:.7,yawDeg:180};
+export const SEA_STANDIN={pos:[-5.6,-0.91,242.0] as Vec,scale:.335,yawDeg:180};// b19 assets: same bearing and same on-screen size as the approved 0.7 @ 480 m (.335 = .7×230/480), but 230 m out: the sail sky dome (env_sky_dome, r 282.6 m, follows the camera, opaque) hid a stand-in at 480 m
 export const SEA_HANDOFF_T=17.4;
 /** Southern lowland of the sail copy of env_meadow: world z < 45 terrain / river bank verts go to y ≤ −1.3 (restored after docking). */
 /** meadow_river too (运镜bot 4012da49): its surface is 0.13 m above the sea and would show at the handoff. All three restored after docking. */
