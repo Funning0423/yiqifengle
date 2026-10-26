@@ -1,6 +1,6 @@
 import {bgCamWant} from './BgCamGate';
 import {createSceneFade} from './BoardBackgroundFade';
-import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Texture2D,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
+import {Animation,AssetManager,ImageAsset,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Texture2D,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
 import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppendPiece,lakesideStaticMergeFromEnv,type LakesideAttr} from './LakesideStaticMerge';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {DEBUG} from 'cc/env';
@@ -160,7 +160,17 @@ function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsse
 function loadMaterial(b:AssetManager.Bundle,path:string){return new Promise<Material|null>(ok=>b.load(path,Material,(e,a)=>ok(e||!a?null:a)));}
 /** r4 journey fix 1: like loadMaterial, but a failed load rejects with the engine's reason and the path (the journey logs it). */
 function loadMaterialOrReason(b:AssetManager.Bundle,path:string){return new Promise<Material>((ok,fail)=>b.load(path,Material,(e,a)=>e||!a?fail(Error('lakeside-water-material-load-failed: '+path+': '+String((e as any)?.message??e??'no asset'))):ok(a)));}
-function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
+/** full6 Error 16352 (mipmapLevelDataSize of null, 6-18 x <lakeside glb>@e39f7 at the tap): every LK glb texture shares ONE
+ *  ImageAsset (models/T_LK_palette_256.png via imageUuidOrDatabaseUri). On mini-games macro.CLEANUP_IMAGE_CACHE=true, so each
+ *  texture that uploads decRefs that image (SimpleTexture._assignImage); while loadDir is still initialising the other textures
+ *  the count reaches 0, the release manager frees the image and later textures extract mipmaps from a freed image. The palette
+ *  is pinned (one ref, 256x256, never released) before any LK glb loads; no import setting changes. */
+export const LAKESIDE_PALETTE_PATH=LAKESIDE_MODELS_DIR+'/T_LK_palette_256';
+let palettePin:Promise<unknown>|null=null;
+export function pinLakesidePalette(b:AssetManager.Bundle):Promise<unknown>{
+ if(!palettePin)palettePin=new Promise<unknown>(ok=>{try{b.load(LAKESIDE_PALETTE_PATH,ImageAsset,(e,a)=>{if(!e&&a)a.addRef();else palettePin=null;ok(a||null);});}catch{palettePin=null;ok(null);}});
+ return palettePin;}
+function loadPrefabs(b:AssetManager.Bundle){return pinLakesidePalette(b).then(()=>new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[]))));}
 /** Loads region_lakeside and instantiates the real scene (lakesideSceneInstances) under scenery: rigid placement only, embedded
  *  cameras/animations off. Shared by the board background and the island→lakeside journey (RegionJourneyAdapter). take()
  *  must addRef+hold every loaded asset for the caller's lifetime. Returns the instance count. */
@@ -238,15 +248,15 @@ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:
  *  Shader variants are NOT compiled here: they depend on the scene fog macro (island fog off -> lake layered), which only exists
  *  while the lake shows. Never throws; failures only log. */
 let prewarm:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}|null=null;
-export function prewarmLakesideAssets():Promise<void>{
- if(prewarm)return prewarm.promise;
+export function prewarmLakesideAssets(holdMs=120000):Promise<void>{
+ if(prewarm){if(prewarm.timer&&holdMs>120000){clearTimeout(prewarm.timer);const st=prewarm;st.timer=setTimeout(()=>{if(prewarm===st)releaseLakesidePrewarm();},holdMs);}return prewarm.promise;}
  const st:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}={promise:Promise.resolve(),held:[],timer:null};prewarm=st;
  const keep=<T extends {addRef():unknown;decRef(auto?:boolean):unknown}>(a:T|null)=>{if(a&&prewarm===st){a.addRef();st.held.push(a);}return a;};
  st.promise=(async()=>{try{const t0=Date.now(),b=await loadBundle(LAKESIDE_BUNDLE);keep(await loadJson(b,LAKESIDE_TRANSFORMS));
    for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir'&&(await probeLakesideWaterPack(b)).state!=='failed')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
    try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm',ms:Date.now()-t0,assets:st.held.length}));}catch{}
   }catch(error){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm-failed',error:String((error as any)?.message??error)}));}catch{}}
-  if(prewarm===st)st.timer=setTimeout(releaseLakesidePrewarm,120000);})();
+  if(prewarm===st)st.timer=setTimeout(()=>{if(prewarm===st)releaseLakesidePrewarm();},holdMs);})();
  return st.promise;
 }
 /** Drops the prewarm refs (the lease holds its own by then). Assets nobody else holds are released by the asset manager. */

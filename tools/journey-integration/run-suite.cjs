@@ -9,6 +9,7 @@ const tests=[
  ['entry-pause-panel','tools/board-ui/test_entry_pause_panel.cjs'],
  ['warm-button-bake-retry','tools/board-ui/test_warm_button_bake_retry.cjs'],
  ['meadow-walk-no-uturn','tools/meadow-walk/test_meadow_walk_no_uturn.cjs'],
+  ['full6-lake-fixes','tools/full6-lake/test_full6_lake_fixes.cjs'],
  ['meadow-walk-colliders','tools/meadow-walk/test_meadow_walk_colliders.cjs'],/* KNOWN FAIL until 场景设计部 moves M6 off windmill_static (0.221 m < 0.3) */
  ['one-ccclass-per-file','tools/journey-integration/test-one-ccclass-per-file.cjs'],
  ['production-integrity','tools/journey-integration/test-production-integrity.cjs'],

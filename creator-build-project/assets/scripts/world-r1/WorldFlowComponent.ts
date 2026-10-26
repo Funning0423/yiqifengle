@@ -151,7 +151,13 @@ function bindUnlitBackdrop(renderer:MeshRenderer):UnlitBackdropBinding {
   const setBlend=(on:boolean)=>{if(on===blended)return;const t=orig.t;
     instance!.overridePipelineStates(on?{rasterizerState:{cullMode:orig.cull},depthStencilState:{depthTest:orig.test,depthWrite:false,depthFunc:orig.func},blendState:{targets:[{blend:true,blendEq:gfx.BlendOp.ADD,blendSrc:gfx.BlendFactor.SRC_ALPHA,blendDst:gfx.BlendFactor.ONE_MINUS_SRC_ALPHA,blendAlphaEq:gfx.BlendOp.ADD,blendSrcAlpha:gfx.BlendFactor.ONE,blendDstAlpha:gfx.BlendFactor.ONE_MINUS_SRC_ALPHA}]}}
       :{rasterizerState:{cullMode:orig.cull},depthStencilState:{depthTest:orig.test,depthWrite:orig.write,depthFunc:orig.func},blendState:{targets:[{blend:t.blend,blendEq:t.blendEq,blendSrc:t.blendSrc,blendDst:t.blendDst,blendAlphaEq:t.blendAlphaEq,blendSrcAlpha:t.blendSrcAlpha,blendDstAlpha:t.blendDstAlpha}]}},0);blended=on;};
-  const followWrite=()=>{const b=last?tint:[1,1,1],c=skyFollowColor(b,follow?follow.target:null,average,follow?follow.w:0);setBlend(fade<1);instance!.setProperty('mainColor',new Vec4(c[0],c[1],c[2],alpha*fade));};
+  /* full6 QF_SKY TypeError (Mac S2 console.log:152 / S3 at lakeside touchdown): BalloonTransit.ditherSky swaps env_sky_dome to its own
+   * material (MeshRenderer.setSharedMaterial path destroys THIS instance: passes=[]) and restores the shared material on release, so
+   * instance.overridePipelineStates hit passes[0]===undefined. Re-acquire once the renderer is back on `shared`; skip while a foreign
+   * material is on it (the transit owns the dome then). */
+  const live=():boolean=>{const cur=renderer.getRenderMaterial(0);if(instance&&cur===instance&&(instance as any).passes?.length)return true;
+    if(cur!==shared&&!(cur&&(cur as any).parent===shared))return false;instance=renderer.getMaterialInstance(0);blended=false;return !!instance&&instance!==shared&&!!(instance as any).passes?.length;};
+  const followWrite=()=>{if(!live())return;const b=last?tint:[1,1,1],c=skyFollowColor(b,follow?follow.target:null,average,follow?follow.w:0);setBlend(fade<1);instance!.setProperty('mainColor',new Vec4(c[0],c[1],c[2],alpha*fade));};
   const release=()=>{if(released)return;released=true;if(isValid(renderer,true)&&isValid(renderer.node,true)&&isValid(shared,true))renderer.setSharedMaterial(shared,0,true);else if(instance&&isValid(instance,true))instance.destroy();};
   try {
     instance=renderer.getMaterialInstance(0);if(!instance||instance===shared)throw Error('Backdrop instance not isolated');
