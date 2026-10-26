@@ -256,7 +256,13 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    rideCam=true;
    // full7 (a): region walk to S6 (not counted) with a continuous follow lens, then the counted leg from S6
    const g00=((actor as any).node as Node|undefined)?.worldPosition,skyPre=atC?skyLakePreWalk(g00?[g00.x,g00.y,g00.z]:start,M5 as any):null;
-   if(skyPre){const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:Pose|null=null;const P=skyPre.path;
+   if(skyPre){/* full9b diag (finale prewalk 26.95 m, not on any baked start): her start + the skycity model frame the finale (RegionNodeStage.toWorld) used vs skyMooring5a */
+    try{const rg=findDeep(director.getScene(),'RegionJourney-skycity'),md=rg?.children[0],r3=(v:number)=>Math.round(v*1000)/1000;
+     console.info('[QF_SKY_PREWALK] '+JSON.stringify({start:skyPre.path[0].map(r3),s6:skyPre.path[skyPre.path.length-1].map(r3),lengthM:r3(skyPre.lengthM),keys:skyPre.keys,
+      herYawDeg:(()=>{const n=(actor as any).node as Node|undefined;return n&&isValid(n,true)?r3(n.eulerAngles.y):null;})(),
+      model:md?{name:md.name,pos:[md.worldPosition.x,md.worldPosition.y,md.worldPosition.z].map(r3),yawDeg:r3(md.eulerAngles.y),rigPos:[rg!.worldPosition.x,rg!.worldPosition.y,rg!.worldPosition.z].map(r3),rigYawDeg:r3(rg!.eulerAngles.y)}:null,
+      m5:{world:M5.world,worldYawDeg:M5.worldYawDeg,pos:M5.pos,yawDeg:M5.yawDeg}}));}catch{/* diag only */}
+    const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:Pose|null=null;const P=skyPre.path;
     const preDraw=()=>{if(dead||!girl0||!isValid(girl0,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const g=girl0.worldPosition,her:Vec=[g.x,g.y,g.z];
      let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
      const dir=[P[k+1][0]-P[k][0],0,P[k+1][2]-P[k][2]],want=skyPreFollowPose(her,dir);const a=1-Math.pow(.5,dt/SKY_PRE_FOLLOW.halfLifeS);
@@ -386,7 +392,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
    // T-03: touchdown hook for the place-name sign (GGbot): ride.T s after the segment start
    // T-03 sign (GGbot LakesideArrivalUI): the event carries the sign timing, so a retimed landing only changes LAKESIDE_TOUCHDOWN
-   pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.mark('touchdown');legClock.stop({to:'touchdown',designS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
+   pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.mark('touchdown');legClock.stop({to:'touchdown',designS:+(sl?sl.touchdownAt:R.T).toFixed(2)/* full9b: game-time design from S6 (walk+door+stepIn+ignite+lift+flight); R.T is the compressed ride clock */,rideClockS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
    try{(globalThis as any).__qfLakesideTouchdownAt=R.T;director.emit(LAKESIDE_TOUCHDOWN.event,{atS:R.T,skipped,signAtS:LAKESIDE_TOUCHDOWN.signAtS,signS:LAKESIDE_TOUCHDOWN.signS,boardByS:lakesideBoardByS()/* option B: board blend START (touchdown +5.3); board reached when her walk is in, ≈ +12.0 */});}catch{/* listeners only */}
    landedOk();
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);

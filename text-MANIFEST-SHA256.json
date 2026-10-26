@@ -3131,8 +3131,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 62537,
-    "sha256": "43efd4c82d0cefb2c347afefcb7263b8adb4c502d45259e5b92a6554feaa9fb3"
+    "bytes": 63640,
+    "sha256": "eb7a2c0075c63960b2fbb433a1b6541e5fdf011ff9bc109869d642148a8bd3b0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -4996,8 +4996,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 26171,
-    "sha256": "8b89d75724a84b4fe163eb310d8690c8cb1b1189ac00dac80c99f3185d4eb6ff"
+    "bytes": 26335,
+    "sha256": "324c3c270ec3a657884251a54a4b8bc8993d8992ad6be009578337bd00bf312c"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
