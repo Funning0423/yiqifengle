@@ -2,7 +2,7 @@
 'use strict';
 /**
  * sail-voyage — option E hard gates (Grok Bot approved 2026-10-26). NOT_ENGINE: CPU z-buffer of the real env_meadow.glb
- * (sail copy, south lowland z<45 sunk to y≤−1.3, hidden until the swap), the 0.7 stand-in at (−11.6,−0.91,492) (same glb,
+ * (sail copy, south lowland z<45 sunk to y≤−1.3, hidden until the swap), the 0.335 stand-in at (−5.6,−0.91,242) (scene SEA_STANDIN, 2ddfbb44) (same glb,
  * scaled about the meadow root), sailboat.glb and an opaque sea plane at y −0.91. Share = vertical extent of visible
  * meadow/stand-in pixels ÷ frame height (depth-occluded by the sea and the hull). The Mac DevTools capture is the arbiter.
  * Camera = SailVoyage.sailVoyageCamera on the unchanged boat clock (sailBeats, 3.6 m/s).

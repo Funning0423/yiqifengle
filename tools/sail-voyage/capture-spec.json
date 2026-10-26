@@ -1,25 +1,137 @@
 {
- "kind":"qf-sail-voyage-capture","v":1,
- "why":"Golden re-baseline of sail-farsea / sail-k2k7 for the SailVoyage lens (option E) must use ENGINE frames with the real sea shader (Grok Bot 2026-10-26). The approach share is also arbitrated by these frames.",
- "build":"cine/sail-voyage (+ GGbot's option-E SailArt: far_meadow_impostor, seaReveal swap, lowland sink incl. meadow_river) in WeChat DevTools / web preview on the Mac",
- "howStill":"Web preview URL + ?sailshot=1&k=<k>&sailT=<t>&w=<w>&h=<h>&sailVoyage=<0|1>[&night=1]  — DevTools device = w×h, DPR 1, screenshot the canvas only (no UI). sailVoyage=0 = OLD (approved sailCamera), 1 = NEW.",
- "howLive":"Web preview + ?camTrace=1&sailVoyage=1 (and ?sailVoyage=0 for the old run): island→meadow sail once per screen; after S-g run copy(__qfCamTrace.dump()) and save as live_<w>x<h>_<old|new>.camtrace.json; record the screen at 30 fps (video_<w>x<h>_<old|new>.mp4).",
- "name":"<id>_<w>x<h>_<old|new>.png",
- "screens":["390x844","414x896","360x780","375x667","320x568","390x520","768x1024"],
- "frames":[
-  {"id":"farsea-K1","k":1,"t":8.7,"screens":["390x844"],"test":"sail-farsea GOLD.K1"},
-  {"id":"farsea-K2","k":2,"t":13.675,"screens":["390x844"],"test":"sail-farsea GOLD.K2 + sail-k2k7 K2 hull-in-frame"},
-  {"id":"farsea-K3","k":3,"t":"K3 hold mid (sailStillTimes.k3 = 15.0751)","screens":"all","test":"sail-farsea windmill share through the K3 hold"},
-  {"id":"farsea-K4","k":4,"t":20.4,"screens":["390x844"],"test":"sail-farsea GOLD.K4"},
-  {"id":"farsea-K5","k":5,"t":21.1857,"screens":["390x844"],"test":"sail-farsea GOLD.K5"},
-  {"id":"farsea-K6","k":6,"t":23.7015,"screens":["390x844"],"test":"sail-farsea GOLD.K6"},
-  {"id":"k2k7-K7night","k":7,"t":"sailStillTimes.k3","night":true,"screens":["390x844"],"test":"sail-k2k7 K7 stars"},
-  {"id":"voyage-dock","k":2,"t":8.6,"screens":"all","test":"sail-voyage dock 2–4 %, windmill ≥12 px tall / ≥10 px blades on 320x568"},
-  {"id":"voyage-sea","k":3,"t":15.0,"screens":"all","test":"sail-voyage open sea, whole boat in frame"},
-  {"id":"voyage-swap-","k":3,"t":[17.3,17.4,17.5],"screens":"all","test":"swap: no meadow / stand-in pixel, no solid-colour frame"},
-  {"id":"voyage-predock","k":5,"t":[19.5,20.5],"screens":"all","test":"approach share (arbiter)"},
-  {"id":"voyage-docked","k":6,"t":23.7,"screens":"all","test":"approach share 30–40 % (arbiter)"}
+ "kind": "qf-sail-voyage-capture",
+ "v": 1,
+ "why": "Golden re-baseline of sail-farsea / sail-k2k7 for the SailVoyage lens (option E) must use ENGINE frames with the real sea shader (Grok Bot 2026-10-26). The approach share is also arbitrated by these frames.",
+ "build": "cine/sail-voyage (+ GGbot's option-E SailArt: far_meadow_impostor, seaReveal swap, lowland sink incl. meadow_river) in WeChat DevTools / web preview on the Mac",
+ "howStill": "Web preview URL + ?sailshot=1&k=<k>&sailT=<t>&w=<w>&h=<h>&sailVoyage=<0|1>[&night=1]  — DevTools device = w×h, DPR 1, screenshot the canvas only (no UI). sailVoyage=0 = OLD (approved sailCamera), 1 = NEW.",
+ "howLive": "Web preview + ?camTrace=1&sailVoyage=1 (and ?sailVoyage=0 for the old run): island→meadow sail once per screen; after S-g run copy(__qfCamTrace.dump()) and save as live_<w>x<h>_<old|new>.camtrace.json; record the screen at 30 fps (video_<w>x<h>_<old|new>.mp4).",
+ "name": "<id>_<w>x<h>_<old|new>.png",
+ "screens": [
+  "390x844",
+  "414x896",
+  "360x780",
+  "375x667",
+  "320x568",
+  "390x520",
+  "768x1024"
  ],
- "camState":"sailshot: island+meadow+sail art mounted, boat at sailVehicle(t), lens = sailVoyageCamera (new) / sailCamera (old) framed for w×h; day unless night=1",
- "deliver":"/workspace/qifengle/test-reports/<stamp>_sail-voyage-capture/ (PNGs + camtrace JSON + mp4), then: node tools/sail-voyage/rebaseline.cjs <that dir>"
+ "frames": [
+  {
+   "id": "farsea-K1",
+   "k": 1,
+   "t": 8.7,
+   "screens": [
+    "390x844"
+   ],
+   "test": "sail-farsea GOLD.K1"
+  },
+  {
+   "id": "farsea-K2",
+   "k": 2,
+   "t": 13.675,
+   "screens": [
+    "390x844"
+   ],
+   "test": "sail-farsea GOLD.K2 + sail-k2k7 K2: boat stern and first 6 m of wake not cropped (was: whole wake box)"
+  },
+  {
+   "id": "farsea-midsea",
+   "k": 3,
+   "t": 15.0,
+   "screens": "all",
+   "test": "sail-farsea mid-sea: no meadow island / stand-in in frame, horizon present (was: windmill share through the K3 hold)"
+  },
+  {
+   "id": "farsea-mill-",
+   "k": 5,
+   "t": [
+    19.5,
+    20.0,
+    20.5
+   ],
+   "screens": "all",
+   "test": "sail-farsea windmill share / height / edges (moved from the K3 hold), still at 20.0 s on 390x844"
+  },
+  {
+   "id": "farsea-K4",
+   "k": 4,
+   "t": 20.4,
+   "screens": [
+    "390x844"
+   ],
+   "test": "sail-farsea GOLD.K4"
+  },
+  {
+   "id": "farsea-K5",
+   "k": 5,
+   "t": 21.1857,
+   "screens": [
+    "390x844"
+   ],
+   "test": "sail-farsea GOLD.K5"
+  },
+  {
+   "id": "farsea-K6",
+   "k": 6,
+   "t": 23.7015,
+   "screens": [
+    "390x844"
+   ],
+   "test": "sail-farsea GOLD.K6"
+  },
+  {
+   "id": "k2k7-K7night",
+   "k": 7,
+   "t": "sailStillTimes.k3",
+   "night": true,
+   "screens": [
+    "390x844"
+   ],
+   "test": "sail-k2k7 K7 stars"
+  },
+  {
+   "id": "voyage-dock",
+   "k": 2,
+   "t": 8.6,
+   "screens": "all",
+   "test": "sail-voyage dock 2–4 %, windmill ≥12 px tall / ≥10 px blades on 320x568"
+  },
+  {
+   "id": "voyage-sea",
+   "k": 3,
+   "t": 15.0,
+   "screens": "all",
+   "test": "sail-voyage open sea, whole boat in frame"
+  },
+  {
+   "id": "voyage-swap-",
+   "k": 3,
+   "t": [
+    17.3,
+    17.4,
+    17.5
+   ],
+   "screens": "all",
+   "test": "swap: no meadow / stand-in pixel, no solid-colour frame"
+  },
+  {
+   "id": "voyage-predock",
+   "k": 5,
+   "t": [
+    19.5,
+    20.5
+   ],
+   "screens": "all",
+   "test": "approach share (arbiter)"
+  },
+  {
+   "id": "voyage-docked",
+   "k": 6,
+   "t": 23.7,
+   "screens": "all",
+   "test": "approach share 30–40 % (arbiter)"
+  }
+ ],
+ "camState": "sailshot: island+meadow+sail art mounted, boat at sailVehicle(t), lens = sailVoyageCamera (new) / sailCamera (old) framed for w×h; day unless night=1",
+ "deliver": "/workspace/qifengle/test-reports/<stamp>_sail-voyage-capture/ (PNGs + camtrace JSON + mp4), then: node tools/sail-voyage/rebaseline.cjs <that dir>"
 }

@@ -11,7 +11,7 @@ const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_pro
 const ROOT=path.resolve(__dirname,'../..'),SPEC=require('./capture-spec.json'),dry=process.argv.includes('--dry-run'),dir=process.argv.slice(2).find(a=>!a.startsWith('--'));
 if(!dry&&!dir){console.error('capture dir required (or --dry-run)');process.exit(2);}
 const L=require('../transitions/sail_farsea_lib.cjs'),leg=L.leg;
-const SV=L.load('region/SailVoyage.ts',()=>({...leg}));SV.SAIL_VOYAGE.enabled=true;
+const SV=L.load('region/SailVoyage.ts',()=>({...leg}));SV.SAIL_VOYAGE.enabled=true;/* for the new gold poses only */
 const route=leg.sailRoute(),tl=leg.sailBeats(route.length);
 // 1. frames present (engine captures, old + new)
 const need=[];for(const f of SPEC.frames){const ts=Array.isArray(f.t)?f.t:[f.t];const scr=f.screens==='all'?SPEC.screens:f.screens;for(const t of ts)for(const s of scr)for(const w of ['old','new'])need.push(`${f.id}${Array.isArray(f.t)?t:''}_${s}_${w}.png`);}
@@ -21,11 +21,9 @@ const farsea=path.join(ROOT,'tools/transitions/test_sail_farsea.cjs'),k2k7=path.
 const src=fs.readFileSync(farsea,'utf8'),m=/const GOLD=(\{.*?\});\n/s.exec(src);const OLD=eval('('+m[1].replace(/tl\.build05S/g,String(tl.build05S))+')');
 const r4=x=>+x.toFixed(4),NEW={};for(const [k,g] of Object.entries(OLD)){const c=SV.sailVoyageCamera(tl,route.samples,g.t);NEW[k]={t:g.t,p:c.position.map(r4),q:c.target.map(r4),f:c.fovVerticalDeg};}
 const goldLine='const GOLD='+JSON.stringify(NEW).replace(/"(\w+)":/g,'$1:').replace(/t:23\.70\d+/,'t:tl.build05S-0.12')+';\n';
-// 3. point both golden tests at the lens that actually runs (sailLens = SailVoyage when enabled); thresholds untouched
-const hook="const __SV=L.load('region/SailVoyage.ts',()=>({...leg}));__SV.SAIL_VOYAGE.enabled=true;leg.sailCamera=__SV.sailVoyageCamera;/* sail-voyage re-baseline: live lens */\n";
-const nf=src.replace(m[0],goldLine).replace("const leg=L.leg;\n","const leg=L.leg;\n"+hook);
-const k2=fs.readFileSync(k2k7,'utf8'),hook2="const __SV=load('region/SailVoyage.ts',s=>s.includes('TransportLeg')?{...leg}:{});__SV.SAIL_VOYAGE.enabled=true;leg.sailCamera=__SV.sailVoyageCamera;/* sail-voyage re-baseline: live lens */\n";
-const anchor="const shot=load('region/SailShot.ts'";const nk=k2.replace(anchor,hook2+anchor);
+// 3. the golden tests pick the live lens themselves (SailVoyage when enabled) and switch their content checks with it
+//    (Grok Bot 2026-10-26: farsea windmill → pre-docking 19.5–20.5 s + mid-sea 'no island, horizon'; k2k7 K2 → stern + near wake)
+const nf=src.replace(m[0],goldLine),k2=fs.readFileSync(k2k7,'utf8'),nk=k2;
 const voyage=path.join(ROOT,'creator-build-project/assets/scripts/region/SailVoyage.ts'),vs=fs.readFileSync(voyage,'utf8'),nv=vs.replace('enabled:voyageQuery(),','enabled:true,');
 // 4. run the patched golden tests in a scratch copy
 const tmp=fs.mkdtempSync('/tmp/sv-rebase-');cp.execFileSync('git',['worktree','add','--detach',tmp,'HEAD'],{cwd:ROOT,stdio:'ignore'});
@@ -34,7 +32,7 @@ const res={};try{
  for(const [n,f] of [['sail-farsea','tools/transitions/test_sail_farsea.cjs'],['sail-k2k7','tools/transitions/test_sail_k2k7.cjs']]){const r=cp.spawnSync('node',[f],{cwd:tmp,encoding:'utf8',env:process.env});res[n]=r.status===0?'PASS':'FAIL: '+((r.stderr||'').match(/AssertionError[^\n]*|Error: [^\n]*/)||[''])[0].slice(0,200);}
 }finally{cp.execFileSync('git',['worktree','remove','--force',tmp],{cwd:ROOT,stdio:'ignore'});}
 console.log(JSON.stringify({dry,frames:need.length,oldGold:OLD,newGold:NEW,patchedTests:res},null,1));
-if(dry)process.exit(0);
+if(dry){console.error(Object.values(res).every(x=>x==='PASS')?'dry run: golden tests pass on the new lens; a real run still needs all engine PNGs':'dry run: golden tests FAIL on the new lens');process.exit(Object.values(res).every(x=>x==='PASS')?0:4);}
 if(Object.values(res).some(x=>x!=='PASS')){console.error('golden test fails on the new lens → no commit; needs Grok Bot (thresholds are not edited here)');process.exit(4);}
 // 5. comparison image old | new per frame, then the commit
 const cmp=path.join(ROOT,'tools/sail-voyage/reports/rebaseline-compare.png');
@@ -47,6 +45,6 @@ for o in sorted(glob.glob(os.path.join(d,'*_old.png'))):
 W=max(r.width for r in rows);out=Image.new('RGB',(W,sum(r.height for r in rows)),'white');y=0
 for r in rows:out.paste(r,(0,y));y+=r.height
 out.save(sys.argv[2])`,dir,cmp]);
-fs.writeFileSync(farsea,nf);fs.writeFileSync(k2k7,nk);fs.writeFileSync(voyage,nv);
+fs.writeFileSync(farsea,nf);fs.writeFileSync(voyage,nv);
 const g=(...a)=>cp.execFileSync('git',['-c','user.name=运镜bot','-c','user.email=yunjing-bot@local',...a],{cwd:ROOT,stdio:'inherit'});
-g('add',farsea,k2k7,voyage,cmp);g('commit','-m','sail-voyage: golden re-baseline from Mac engine frames ('+path.basename(dir)+')，只替换帧、阈值未动；SailVoyage 默认开启');
+g('add',farsea,voyage,cmp);g('commit','-m','sail-voyage: golden re-baseline from Mac engine frames ('+path.basename(dir)+')，只替换帧、阈值未动；SailVoyage 默认开启');

@@ -14,6 +14,8 @@ function load(rel,req){
 const layout=load('region/RegionJourneyLayout.ts');
 const landing=load('region/SailLanding.ts');
 const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:spec.includes('SailLanding')?landing:{});
+// Live lens (see test_sail_farsea): SailVoyage once enabled by its re-baseline commit, else sailCamera. Thresholds unchanged.
+const SV=load('region/SailVoyage.ts',spec=>spec.includes('TransportLeg')?{...leg}:{}),LIVE_VOYAGE=SV.SAIL_VOYAGE.enabled===true,lens=LIVE_VOYAGE?SV.sailVoyageCamera:leg.sailCamera;
 const shot=load('region/SailShot.ts',spec=>spec.includes('TransportLeg')?leg:{});
 const stars=load('region/SailStars.ts');
 const CP=load('world-r1/CameraPose.ts');
@@ -25,13 +27,13 @@ const route=leg.sailRoute(),tl=leg.sailBeats(route.length);
 const k2=shot.sailShotTime(2);
 assert.equal(k2.night,false);
 // b16: K2 still sits in the K2 hold of the eased arc clock (sailStillTimes), not at S-c u≥0.9.
-{const h=leg.SAIL_K2_HOLD_S,a=leg.sailCamera(tl,route.samples,k2.t-h*0.45,{w:W,h:H}),b=leg.sailCamera(tl,route.samples,k2.t+h*0.45,{w:W,h:H}),c0=leg.sailCamera(tl,route.samples,k2.t,{w:W,h:H});
+{const h=leg.SAIL_K2_HOLD_S,a=lens(tl,route.samples,k2.t-h*0.45,{w:W,h:H}),b=lens(tl,route.samples,k2.t+h*0.45,{w:W,h:H}),c0=lens(tl,route.samples,k2.t,{w:W,h:H});
  const rel=(c,t)=>{const v=leg.sailVehicle(tl,route.samples,t);return c.position.map((x,i)=>x-v.pos[i]);};
  const d=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2]);
  assert(Math.abs(k2.t-leg.sailStillTimes(tl).k2)<1e-9,'K2 still time');
  assert(c0.fovVerticalDeg===a.fovVerticalDeg&&c0.fovVerticalDeg===b.fovVerticalDeg,'K2 still is the held K2 pose (fov)');}
 const v=leg.sailVehicle(tl,route.samples,k2.t);
-const cam=leg.sailCamera(tl,route.samples,k2.t,{w:W,h:H});
+const cam=lens(tl,route.samples,k2.t,{w:W,h:H});
 assert(v.speed>2.5,'wake needs way on, speed '+v.speed);
 assert(v.sail>0.9,'sails open at K2');
 const pose=CP.fromLookAt({position:cam.position,target:cam.target,fovVerticalDeg:cam.fovVerticalDeg});
@@ -62,6 +64,10 @@ let wmn=[1e9,1e9,1e9],wmx=[-1e9,-1e9,-1e9];
 for(let i=0;i<wake.tris.length;i+=3)for(let k=0;k<3;k++){wmn[k]=Math.min(wmn[k],wake.tris[i+k]);wmx[k]=Math.max(wmx[k],wake.tris[i+k]);}
 // Authored node translation is replaced by setPosition(0,0.03,0) under wake_root (0,0,-2.2).
 const origin=[16,0,34];
+// K2 check object: sailCamera → the whole wake_strips box; SailVoyage (beam shot) → the boat stern and the wake just behind it
+// (wake box clipped to its first 3 m aft of wake_root), i.e. "stern and wake not cropped by the frame edge". Same K2 time,
+// same ≥4-of-8 corners at |ndc| ≤ 0.98 and the same stern test below.
+if(LIVE_VOYAGE){const lo=Math.max(wmn[2],wmx[2]-3);wmn[2]=lo;}
 const wakeCorners=[];
 for(const x of [wmn[0],wmx[0]])for(const y of [wmn[1],wmx[1]])for(const z of [wmn[2],wmx[2]]){
  const local=[x-origin[0],0.03+(y-origin[1]),-2.2+(z-origin[2])];
@@ -69,13 +75,13 @@ for(const x of [wmn[0],wmx[0]])for(const y of [wmn[1],wmx[1]])for(const z of [wm
 }
 let wakeIn=0;
 for(const p of wakeCorners){const q=ndc(p);if(q.depth>0.5&&Math.abs(q.x)<=0.98&&Math.abs(q.y)<=0.98)wakeIn++;}
-assert(wakeIn>=4,'wake corners in frame '+wakeIn);
+assert(wakeIn>=4,(LIVE_VOYAGE?'stern wake (first 3 m) corners in frame ':'wake corners in frame ')+wakeIn);
 const stern=ndc(world([0,0.08,-4]));
 assert(stern.depth>0.5&&Math.abs(stern.x)<0.92&&Math.abs(stern.y)<0.92,'wake behind the stern off screen');
 const k7=shot.sailShotTime(7);
 assert.equal(k7.night,true);
 const v7=leg.sailVehicle(tl,route.samples,k7.t);
-const cam7=leg.sailCamera(tl,route.samples,k7.t,{w:W,h:H});
+const cam7=lens(tl,route.samples,k7.t,{w:W,h:H});
 const pose7=CP.fromLookAt({position:cam7.position,target:cam7.target,fovVerticalDeg:cam7.fovVerticalDeg});
 const placed=stars.sailStarWorld(cam7.position,cam7.target,cam7.fovVerticalDeg,{w:W,h:H});
 assert.equal(placed.length,stars.SAIL_STAR_COUNT);

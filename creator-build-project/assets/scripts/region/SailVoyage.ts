@@ -3,7 +3,7 @@ import {debugSearch} from './DebugQuery';
 import {sailBeats, sailCamera, sailM0World, sailSpeed, sailVehicle, type SailScreen, type SailTimeline} from './TransportLeg';
 /**
  * 运镜bot sail-voyage, option E (场景设计部 sea-distance PROPOSAL 2026-10-26, Grok Bot approved for full8).
- * The real meadow stays hidden until an off-frame swap; a 0.7 stand-in sits ~480 m out on the same bearing.
+ * The real meadow stays hidden until an off-frame swap; a 0.335 stand-in sits ~240 m out (inside the 282.6 m sky dome) on the same bearing.
  * Beats, in the boat→destination bearing frame (destination = sailM0World() from the node anchors, never a literal):
  *   dock (S-a end, S-b)  astern, low: horizon + stand-in with the windmill clear of the sail (2–4 % of frame height);
  *   sail-up swing        time-keyed over S-c (boat barely moving), dock → beam;
@@ -15,7 +15,7 @@ import {sailBeats, sailCamera, sailM0World, sailSpeed, sailVehicle, type SailScr
  */
 /** Web QA only: `?sailVoyage=1` turns the voyage lens on for the Mac capture (capture-spec.json). WeChat has no location → off. */
 function voyageQuery():boolean{try{return /[?&]sailVoyage=1(?:&|$)/.test(debugSearch());}catch{return false;}}
-export const SAIL_VOYAGE={enabled:voyageQuery(),extraCruiseS:0,dockBlendS:5,swing1S:4.0,destScale:1,
+export const SAIL_VOYAGE={enabled:voyageQuery(),extraCruiseS:0,dockBlendS:5,swing1S:4.0,destScale:1,appLs:-1.5/* approach look pan (m, + = right of the bearing) */,
  dest:null as Vec|null/* override; default sailM0World() */};
 /** back: along the bearing (− = ahead); side: + = right of the bearing (TransportLeg convention, +X port when heading +Z). */
 type Off={back:number;side:number;up:number;fov:number;look:number;ls:number;ly:number};
@@ -24,15 +24,16 @@ const o=(p:Partial<Off>&{back:number;side:number;up:number;fov:number}):Off=>({l
 const DOCK=o({back:10,side:-1.5,up:3.4,fov:44,look:6,ly:1.6});
 /** Beam: 15 m off the destination-left side, looking across the hull to open water (prototype bearing kept, lens pulled out
  *  so the 4.2 m hull and the rig fit the ~22° portrait width). */
-const SEA=o({back:-5.1,side:-14.1,up:3.2,fov:46,look:-10.3,ls:28.2,ly:1.6})/* lens 15 m out on a line 20° off the beam, looking back-across through the boat: the hull sits on the view axis */;
+const SEA=o({back:-5.0,side:-17.85,up:3.4,fov:46,look:-8.8,ls:28.2,ly:1.4})/* lens 19 m out on a line 20° off the beam, looking back-across, centred 1.5 m aft: hull + stern + first 3 m of wake fit the ~22° portrait width */;
 /** Approach: astern on the destination line (left quarter, same side as the beam → short swing). */
-const APP=o({back:12,side:-2,up:3,fov:66,look:3.2});
-export const SAIL_VOYAGE_P={sea1:0.70,app0:0.93} as const;
+const APP=o({back:12,side:0,up:3,fov:66,look:3.2});
+export const SAIL_VOYAGE_P={sea1:0.655,app0:0.895};
 const clamp=(x:number)=>Math.min(1,Math.max(0,x));
 const sm=(u:number)=>{const t=clamp(u);return t*t*t*(t*(t*6-15)+10);};
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
-function arc(a:Off,b:Off,u:number,fovLead=1,damp=0.6):Off{
- const s=sm(u);let ta=Math.atan2(a.side,a.back),tb=Math.atan2(b.side,b.back),d=tb-ta;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
+const sm3=(u:number)=>{const t=clamp(u);return t*t*(3-2*t);};
+function arc(a:Off,b:Off,u:number,fovLead=1,damp=0.6,ease:(x:number)=>number=sm):Off{
+ const s=ease(u);let ta=Math.atan2(a.side,a.back),tb=Math.atan2(b.side,b.back),d=tb-ta;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
  const th=ta+d*s,r=lerp(Math.hypot(a.back,a.side),Math.hypot(b.back,b.side),s),sf=sm(u/fovLead);
  // Mid-swing the look point pulls onto her seat, so the off-axis bearing cannot push her head past the frame edge (|ndc| ≤ 0.9).
  const w=damp*Math.sin(Math.PI*s)**2;
@@ -45,8 +46,10 @@ export function voyageOffset(tl:SailTimeline,t:number,p:number):Off{
  const u1=(t-sc.t0)/SAIL_VOYAGE.swing1S;
  if(u1<1)return arc(DOCK,SEA,u1,1,1);
  if(p<=P.sea1)return SEA;
- if(p<P.app0)return arc(SEA,APP,(p-P.sea1)/(P.app0-P.sea1),0.25);
- return APP;
+ const A={...APP,ls:SAIL_VOYAGE.appLs};
+ // Cubic ease (peak rate 1.5× mean, not 1.875×): the turn must fit between the swap window and the 19.5 s windmill frame.
+ if(p<P.app0)return arc(SEA,A,(p-P.sea1)/(P.app0-P.sea1),0.25,0.6,sm3);
+ return A;
 }
 /** Kept for the E-slow option (3.2 m/s); unused while the boat stays at 3.6 m/s. */
 export function voyageBeats(routeM:number,extra:number=SAIL_VOYAGE.extraCruiseS):SailTimeline{

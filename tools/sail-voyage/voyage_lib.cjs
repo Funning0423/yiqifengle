@@ -11,7 +11,7 @@ function meadowTris(sc={}){
  return out;
 }
 const E_CACHE={};
-const E_DEF={center:[-11.6,-0.91,492.0],scale:0.7,sinkZ:45,sinkY:-1.3};
+const E_DEF={center:[-5.6,-0.91,242.0],scale:0.335,sinkZ:45,sinkY:-1.3};
 function eScene(e){
  const o={...E_DEF,...e},key=JSON.stringify([o.center,o.scale,o.sinkZ,o.sinkY]);if(E_CACHE[key])return E_CACHE[key];
  const root=leg.sailMeadowRoot(),real=[],imp=[];
@@ -32,7 +32,7 @@ function raster(cam,screen,v,sc={},res=4){
  const soup=(t,code,xf)=>{for(let i=0;i<t.length;i+=9){const P=j=>xf?xf([t[i+j],t[i+j+1],t[i+j+2]]):[t[i+j],t[i+j+1],t[i+j+2]];tri(toCam(P(0)),toCam(P(3)),toCam(P(6)),code);}};
  if(sc.E){
   // Option E (场景设计部 PROPOSAL §3, Grok Bot approved): real meadow hidden until the swap, south lowland (world z<45) sunk to
-  // y≤−1.3 for the sail; far stand-in = sail-copy meadow scaled 0.7 about its root, root moved to the stand-in centre.
+  // y≤−1.3 for the sail; far stand-in = sail-copy meadow scaled 0.335 about its root (scene b19 SEA_STANDIN 2ddfbb44), root moved to the stand-in centre.
   const E=eScene(sc.E);if(sc.E.real!==false)for(const it of E.real)soup(it.t,it.mill?2:1);if(sc.E.impostor!==false)for(const it of E.imp)soup(it.t,it.mill?7:6);
  }else for(const t of meadowTris(sc))soup(t,1);
  // sea: concentric rings so near-plane clipping stays accurate
