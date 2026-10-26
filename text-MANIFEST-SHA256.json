@@ -3501,8 +3501,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts",
-    "bytes": 66154,
-    "sha256": "da3400b09ec127de30912ad96cc8e5a176bf55e28d3e723e5f4e40cdfa3a5488"
+    "bytes": 66119,
+    "sha256": "835da8c20cbb47500e8d48a5c5e929fb2f197bef05d6e4aedb5d3f3b9b0d6e55"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityLensOccluders.ts.meta",
