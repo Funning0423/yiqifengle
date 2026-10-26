@@ -1,5 +1,5 @@
 /** 运镜bot full7-cam: per-frame camera console trace for device cut hunting (GGbot request).
- *  On with URL `?camTrace=1` OR `globalThis.__QF_CAM_TRACE` truthy (set before the game scripts load), checked ONCE when this
+ *  On with URL `?camTrace=1` OR `globalThis.__QF_CAM_TRACE` = true / 1 / '1' (set before the game scripts load), checked ONCE when this
  *  module loads (camLogStart at the bottom; imported by WorldFlowComponent / BalloonTransit / RegionBoardLanding).
  *  Off (default): no hook is installed (cameraWriteHook.log stays null), camTag() is one boolean test, nothing allocates.
  *  On: every applyCameraPose write prints ONE console.log line (never warn/error: Console-0 gate):
@@ -10,7 +10,9 @@
 import { cameraWriteHook } from '../world-r1/CameraPose';
 export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
 export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,out:(s:string)=>console.log(s)};
-export function camLogEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTrace=1(?:&|$)/.test(query||'')||!!(g&&g.__QF_CAM_TRACE);}
+export function camLogEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTrace=1(?:&|$)/.test(query||'')||camFlagOn(g&&g.__QF_CAM_TRACE);}
+/** Global switch accepts exactly true / 1 / '1' (also 'true'); '0', 'false', '' and others stay off. */
+export function camFlagOn(v:unknown):boolean{return v===true||v===1||v==='1'||v==='true';}
 /** Writers name themselves just before world.setCamera; no-op when off. */
 export function camTag(name:string):void{if(camLog.on)camLog.tag=name;}
 /** Only if no more specific writer tagged this frame (e.g. RegionJourneyCore after a SkyWalkShot onFrame). */
