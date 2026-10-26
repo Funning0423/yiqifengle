@@ -37,7 +37,7 @@ async function run({flushFirst,waiter,oldLate}) {
   if(oldLate){delayed[0].error();delayed[0].success();await H.flush();}
   oldUI.onDestroy();old.dispose();assert.equal(art.frame('board/piece_leaf'),frame);assert.deepEqual(art.diagnostics().failures,failures);assert.deepEqual(changes,[]);off();
   assert.equal(JSON.stringify([...values]),bytes);assert.equal(writes.length,writeCount,'disposal/load recovery attempts zero gameplay writes');
-  newer.reveal();assert.equal(controller.snapshot().state,'run.paused');H.tap(newUI.pause);H.tap(newUI.popups.find('PausePanel').root.find('Resume'));for(let i=0;i<30;i++)newUI.update(1/60);
+  newer.reveal();assert.equal(controller.snapshot().state,'run.ready','P2 full6: world board resumes a restored attempt on reveal');H.tap(newUI.pause);H.tap(newUI.popups.find('PausePanel').root.find('Resume'));for(let i=0;i<30;i++)newUI.update(1/60);
   H.tap(newUI.cells[23]);H.tap(newUI.cells[24]);for(let i=0;i<1800;i++)newUI.update(1/60);assert.equal(controller.snapshot().state,'run.ready');assert.deepEqual(controller.snapshot().active.actions,[['swap',23,24]]);assert.equal(controller.snapshot().active.moves,21);
   return {flushFirst,waiter,oldLate,loadDirCalls:delayed.length,ready:true,recoveryWriteCalls:0,bytesPreserved:true,explicitActions:1};
  }finally{newer?.dispose();old?.dispose();flushOld?.();}
