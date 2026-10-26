@@ -8,7 +8,7 @@ const boxes=Object.values(occ.boxes).flatMap(v=>Array.isArray(v)?v:[v.open100]);
 // skycity root from the mooring's two frames (world = root ∘ local) → city centre, 6 m up
 const ry=(M.worldYawDeg-M.yawDeg)*Math.PI/180,l=M.pos,c=Math.cos(ry),s=Math.sin(ry);
 const root=[M.world[0]-(c*l[0]+s*l[2]),M.world[1]-l[1],M.world[2]-(-s*l[0]+c*l[2])],city=[root[0],root[1]+6,root[2]];
-const SCREENS=[[390,844],[375,667],[414,896],[360,780],[430,932],[768,1024],[844,390]];
+const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]];
 const proj=(p,q,fov,asp)=>{const f=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],n=Math.hypot(...f);f.forEach((v,i)=>f[i]=v/n);
  const r=[f[2],0,-f[0]],rn=Math.hypot(r[0],r[2]);r[0]/=rn;r[2]/=rn;const u=[f[1]*r[2]-f[2]*r[1],f[2]*r[0]-f[0]*r[2],f[0]*r[1]-f[1]*r[0]];
  const d=[q[0]-p.position[0],q[1]-p.position[1],q[2]-p.position[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];if(z<=0)return null;
