@@ -13,7 +13,7 @@
  "gates": {
   "dock": [
    0.02,
-   0.039
+   0.04
   ],
   "millHPx": 12,
   "millWPx": 10,
@@ -42,7 +42,7 @@
    ],
    "millPx": [
     19,
-    20
+    19
    ],
    "sea": [
     7.75,
@@ -54,11 +54,11 @@
    "series": [
     [
      9.6,
-     0.038
+     0.028
     ],
     [
      10.1,
-     0.038
+     0.033
     ],
     [
      10.6,
@@ -169,18 +169,14 @@
      0.332
     ]
    ],
-   "dominantMax": 0.531,
+   "dominantMax": 0.54,
    "swap": {
     "inFrustumVerts": 0,
     "dominant": 0.485
    },
-   "boatEdgePx": [
-    0,
-    null
-   ],
    "headNdcMax": 0.754,
    "capsuleGapPx": 362,
-   "boatNdcMaxSea": 0.913
+   "boatNdcMaxSea": 0.645
   },
   "414x896": {
    "dock": [
@@ -189,7 +185,7 @@
    ],
    "millPx": [
     20,
-    22
+    20
    ],
    "sea": [
     7.75,
@@ -316,27 +312,23 @@
      0.33
     ]
    ],
-   "dominantMax": 0.534,
+   "dominantMax": 0.541,
    "swap": {
     "inFrustumVerts": 0,
     "dominant": 0.486
    },
-   "boatEdgePx": [
-    0,
-    null
-   ],
    "headNdcMax": 0.754,
    "capsuleGapPx": 389,
-   "boatNdcMaxSea": 0.913
+   "boatNdcMaxSea": 0.645
   },
   "360x780": {
    "dock": [
-    0.036,
-    0.036
+    0.037,
+    0.037
    ],
    "millPx": [
-    17,
-    18
+    18,
+    17
    ],
    "sea": [
     7.75,
@@ -348,7 +340,7 @@
    "series": [
     [
      9.6,
-     0.041
+     0.036
     ],
     [
      10.1,
@@ -463,18 +455,14 @@
      0.338
     ]
    ],
-   "dominantMax": 0.533,
+   "dominantMax": 0.542,
    "swap": {
     "inFrustumVerts": 0,
     "dominant": 0.487
    },
-   "boatEdgePx": [
-    0,
-    null
-   ],
    "headNdcMax": 0.754,
    "capsuleGapPx": 328,
-   "boatNdcMaxSea": 0.913
+   "boatNdcMaxSea": 0.646
   },
   "375x667": {
    "dock": [
@@ -483,11 +471,11 @@
    ],
    "millPx": [
     15,
-    16
+    15
    ],
    "sea": [
-    7.25,
-    10.85
+    7.5,
+    10.6
    ],
    "preDock": 0.329,
    "docked": 0.335,
@@ -503,7 +491,7 @@
     ],
     [
      10.6,
-     0.006
+     0
     ],
     [
      11.1,
@@ -610,31 +598,27 @@
      0.335
     ]
    ],
-   "dominantMax": 0.534,
+   "dominantMax": 0.554,
    "swap": {
     "inFrustumVerts": 0,
     "dominant": 0.495
    },
-   "boatEdgePx": [
-    0,
-    null
-   ],
    "headNdcMax": 0.619,
    "capsuleGapPx": 270,
-   "boatNdcMaxSea": 0.913
+   "boatNdcMaxSea": 0.53
   },
   "390x520": {
    "dock": [
-    0.037,
-    0.037
+    0.035,
+    0.035
    ],
    "millPx": [
-    12,
-    11
+    11,
+    12
    ],
    "sea": [
-    7,
-    10.85
+    7.25,
+    10.6
    ],
    "preDock": 0.338,
    "docked": 0.346,
@@ -650,7 +634,7 @@
     ],
     [
      10.6,
-     0.023
+     0
     ],
     [
      11.1,
@@ -757,18 +741,14 @@
      0.346
     ]
    ],
-   "dominantMax": 0.537,
+   "dominantMax": 0.583,
    "swap": {
     "inFrustumVerts": 0,
     "dominant": 0.509
    },
-   "boatEdgePx": [
-    0,
-    null
-   ],
    "headNdcMax": 0.464,
    "capsuleGapPx": 194,
-   "boatNdcMaxSea": 0.913
+   "boatNdcMaxSea": 0.397
   },
   "320x568": {
    "dock": [
@@ -780,8 +760,8 @@
     13
    ],
    "sea": [
-    7.25,
-    10.85
+    7.5,
+    10.6
    ],
    "preDock": 0.324,
    "docked": 0.338,
@@ -797,7 +777,7 @@
     ],
     [
      10.6,
-     0.007
+     0
     ],
     [
      11.1,
@@ -904,27 +884,23 @@
      0.338
     ]
    ],
-   "dominantMax": 0.53,
+   "dominantMax": 0.557,
    "swap": {
     "inFrustumVerts": 0,
     "dominant": 0.499
    },
-   "boatEdgePx": [
-    0,
-    null
-   ],
    "headNdcMax": 0.618,
    "capsuleGapPx": 217,
-   "boatNdcMaxSea": 0.913
+   "boatNdcMaxSea": 0.529
   },
   "768x1024": {
    "dock": [
-    0.037,
-    0.037
+    0.035,
+    0.035
    ],
    "millPx": [
-    24,
-    24
+    22,
+    22
    ],
    "sea": [
     7,
@@ -940,11 +916,11 @@
     ],
     [
      10.1,
-     0.035
+     0.031
     ],
     [
      10.6,
-     0.02
+     0.004
     ],
     [
      11.1,
@@ -1051,18 +1027,14 @@
      0.348
     ]
    ],
-   "dominantMax": 0.538,
+   "dominantMax": 0.582,
    "swap": {
     "inFrustumVerts": 0,
     "dominant": 0.51
    },
-   "boatEdgePx": [
-    0,
-    null
-   ],
    "headNdcMax": 0.464,
    "capsuleGapPx": 474,
-   "boatNdcMaxSea": 0.913
+   "boatNdcMaxSea": 0.397
   }
  },
  "motion": {
