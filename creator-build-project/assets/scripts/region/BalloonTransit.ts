@@ -310,10 +310,10 @@ export function placeLiveSkycity(model:Node,meadow:Node,start:Vec,seam?:FlightDo
  // in seam.skycityRootWorld. Place there; the live-meadow rim result is only logged as the deviation.
  const cw=skycityRootWorldFrame(seam);
  model.setWorldPosition(cw.origin[0],cw.origin[1],cw.origin[2]);
- const w=model.worldPosition,yawDeg=worldYawDeg(model)/* full8: world yaw, not the local euler read-back */,dy=((yawDeg-cw.yawDeg)%360+540)%360-180;
- try{console.info('[QF_SKY_FRAME] '+JSON.stringify({root:[w.x,w.y,w.z].map(v=>+v.toFixed(3)),seam:cw.origin,liveRimDelta:[live[0]-cw.origin[0],live[1]-cw.origin[1],live[2]-cw.origin[2]].map(v=>+v.toFixed(3)),yawDeg:+yawDeg.toFixed(3),yawErrDeg:+dy.toFixed(3)}));}catch{}
- if(Math.abs(dy)>.05)console.error('[QF_SKY_FRAME] skycity yaw '+yawDeg.toFixed(3)+' != seam '+cw.yawDeg+' (anchor yaw drifted from flightpath data)');
- return {yawDeg,origin:[w.x,w.y,w.z]};
+ const w=model.worldPosition,yawNow=worldYawDeg(model),dy=((yawNow-cw.yawDeg)%360+540)%360-180;
+ try{console.info('[QF_SKY_FRAME] '+JSON.stringify({root:[w.x,w.y,w.z].map(v=>+v.toFixed(3)),seam:cw.origin,liveRimDelta:[live[0]-cw.origin[0],live[1]-cw.origin[1],live[2]-cw.origin[2]].map(v=>+v.toFixed(3)),yawDeg:+yawNow.toFixed(3),yawErrDeg:+dy.toFixed(3)}));}catch{}
+ if(Math.abs(dy)>.05)console.error('[QF_SKY_FRAME] skycity yaw '+yawNow.toFixed(3)+' != seam '+cw.yawDeg+' (anchor yaw drifted from flightpath data)');
+ return {yawDeg:worldYawDeg(model)/* full8: world yaw, not the local euler read-back */,origin:[w.x,w.y,w.z]};
 }
 function publishFlight(doc:FlightDoc):void{(globalThis as any).__QF_BALLOON_FLIGHT=doc;}
 /**

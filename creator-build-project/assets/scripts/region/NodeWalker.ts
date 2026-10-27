@@ -79,11 +79,10 @@ export function planWalk(region:RegionId,fromKey:string,toKey:string):WalkPlan{
 }
 /** One fade, then a 1 s walk of the last 1.2 m. */
 export function planSkip(region:RegionId,fromKey:string,toKey:string):WalkPlan{
- const route=routeKeys(region,fromKey,toKey);
- const start=Math.max(0,route.lengthM-SKIP_REMAIN_M);
- const path=endOn(slicePath(route.path,start,route.lengthM),route.path[route.path.length-1])/* full9c: ends on the node */;
- const remain=pathLength(path);
- return {segments:[{path,duration:remain/WALK_SPEED_MPS}],cut:true,fades:1,lengthM:remain};
+ const route=routeKeys(region,fromKey,toKey),M=pathLength(route.path)/* full9c: measured, so the 1 s run is the real last 1.2 m and ends ON the node */;
+ const start=Math.max(0,M-SKIP_REMAIN_M);
+ const path=slicePath(route.path,start,M);
+ return {segments:[run(path)],cut:true,fades:1,lengthM:pathLength(path)};
 }
 function closestOnPath(path:readonly Vec[],p:Vec):{dist:number;along:number;point:Vec}{
  let best=Infinity,along=0,point=path[0],acc=0;

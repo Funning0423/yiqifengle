@@ -40,7 +40,7 @@ ok(/if\(region==='skycity'\)\{const deps=this\.regionLandingDeps\(region\);if\(d
 // full6-cam P1 root cause: the balloon lease (meadow→skycity) never registered the skycity board source, so on device boardPose
 // was null → handoff 'no-board-pose' → hook 'no-board-pose' → un-held enter-level push-in = the 810→811 cut. Guard both ends:
 {const bt=fs.readFileSync(S+'region/BalloonTransit.ts','utf8').replace(/\s+/g,' ');
- const mi=bt.indexOf('model=mountRegion(REGIONS.skycity'),bl=bt.indexOf('Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale)'),reset=bt.indexOf('model.setRotationFromEuler(0,0,0);model.setPosition(0,0,0)'),pl=bt.indexOf('placeLiveSkycity(model,meadow,opts.start)'),reg=bt.indexOf("setRegionBoardSource('skycity',boardSrc)");
+ const mi=bt.indexOf('model=mountRegion(REGIONS.skycity'),bl=bt.indexOf('Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale)'),reset=bt.indexOf('model.setRotationFromEuler(0,0,0);model.setPosition(0,0,0)'),pl=bt.indexOf('placeLiveSkycity(model,meadow,opts.start'/* full9c: +flight doc arg */),reg=bt.indexOf("setRegionBoardSource('skycity',boardSrc)");
  ok(mi>0&&bl>mi&&bl<reset&&pl>reset&&reg>pl,'wiring: balloon lease registers the skycity board source after placement (boardLocal before the reset)');
  ok(/regionBoardSource\('skycity'\)===boardSrc\)setRegionBoardSource\('skycity',null\)/.test(bt),'wiring: balloon release drops its board source');
  ok(/import \{[^}]*\bsetRegionBoardSource\b[^}]*\} from '\.\/RegionBoardLanding'/.test(bt),'wiring: BalloonTransit imports setRegionBoardSource');
