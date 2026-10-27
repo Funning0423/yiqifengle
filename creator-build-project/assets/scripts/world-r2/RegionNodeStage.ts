@@ -6,6 +6,9 @@ import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
 import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,propFacingPose,ROBOT_FACING,PROP_CLEAR_M,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
 import {FreeOrbit,ORBIT_LIMITS,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
 import {setExploreEnabled} from '../region/ExploreGate';
+/** full9c: the T-02 approach starts when she is this far from S6 (the old walk end, 运镜bot t02: start/min clearance 0.44 m). */
+export const FINALE_APPROACH_LEAD_M=1.05;
+const dist3=(a:readonly number[],b:readonly number[])=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 import {REGION_NODES,type RegionId} from '../region/RegionNodes';
 import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
 import {planWalk} from '../region/NodeWalker';
@@ -302,17 +305,27 @@ export class RegionNodeStage extends Component{
   await this.blend(BLEND_S.boardToFollow,board,()=>followPose(this.girl(),this.yaw(),w,h,8));
   this.lens='FollowWalk';setExploreEnabled(true);
   this.handOrbitBack('skycity');
-  try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);}
+  /* full9c (运镜bot bisect 0e3cb879 0.59 m → 4d3d2503 0.17 m): with her stand ON S6 the follow lens there sits 0.17 m off env_sky_static_palette
+   * (skycity occlude() is unguarded), and the approach started from it. Root fix: the T-02 approach starts while she is still
+   * FINALE_APPROACH_LEAD_M from S6 (the old cut point) and she walks the rest under it. One writer: blendPath sets this.anim, which
+   * stops the follow writer (lateUpdate returns on anim). Walk untouched (same plan, speed; ends ON S6). */
+  const s6W=this.toWorld('skycity',[REGION_NODES.skycity.nodes.find(n=>n.key==='S6')!.at as Vec])[0];
+  let walkDone=false;const walk=runSkyFinale(character,this.place('skycity')).finally(()=>{walkDone=true;});
+  try{while(!walkDone&&dist3(this.girl(),s6W)>FINALE_APPROACH_LEAD_M)await new Promise<void>(r=>setTimeout(r,16));}
+  finally{setExploreEnabled(false);}
+  const leadM=dist3(this.girl(),s6W);
   this.lens='FollowWalk';
   /* T-02 (Grok Bot approved Oct 25): the old 0.6 s blend to the 26 m star pose (mostly empty sky, she ≈ 3 %) is replaced by a low side
    * angle 7 m from her (SkyFinaleShot: her ≈ 26 % of the frame, the star-ring arc across the top, the city between, ≥ 1.1 m clear),
    * reached in an eased blend timed to the standing cap (≤ 90°/s, ≤ 200°/s²). Held until a drag/tap, or auto-continue (armFinaleContinue). */
-  const shot=this.skyFinalePose(),from=this.readPose(),g=this.girl();
+  const shot=this.skyFinalePose(),from=this.readPose(),g=s6W/* her final stand (she is still walking into it) */;
   /* the way round + time are judged in the skycity model frame (proxies are model-local, see skycityOccluders); rigid, so the
    * world path below keeps the same way round */
   const all=this.skycityAllOccluders(),L=this.skyL,loc=(p:Pose)=>({position:toFrame(L!,p.position) as Vec,target:toFrame(L!,p.target) as Vec,fovVerticalDeg:p.fovVerticalDeg});
   const ap=all&&L?skyFinaleApproach(loc(from),{...SKY_FINALE_POSE_LOCAL},toFrame(L,g),all.map(b=>({min:b.min,max:b.max}))):skyFinaleApproach(from,shot,g,[]);this.finaleApproachS=ap.T;
-  await this.blendPath(ap.T,t=>skyFinaleApproachPose(from,shot,g,t,ap.T,ap.dir))/* orbits round her the clear way, never a straight cut */;
+  try{console.info('[QF_FINALE_APPROACH] '+JSON.stringify({leadM:+leadM.toFixed(3),walkDone,T:+ap.T.toFixed(2)}));}catch{/* diag */}
+  await this.blendPath(ap.T,t=>skyFinaleApproachPose(from,shot,g,t,ap.T,ap.dir))/* orbits round her the clear way, never a straight cut; her walk (already running) finishes under it */;
+  await walk;
   this.recordFinaleEnd();
   this.openExplore('skycity');
  }
