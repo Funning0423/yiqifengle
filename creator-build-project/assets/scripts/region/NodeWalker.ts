@@ -4,7 +4,8 @@ export const WALK_SPEED_MPS=1.2;
 export const DIRECT_MAX_M=9.6;
 export const CUT_RUN_M=4.2;
 export const SKIP_REMAIN_M=1.2;
-export const VISIBLE_MAX_S=7.6;
+export const VISIBLE_MAX_S=7.7/* full9c (Grok Bot Oct 26): walks end ON the node at 1.2 m/s — S3>S4 7.65 s; was 7.6 */;
+export const CUT_RUN_MAX_S=4.3/* full9c: S3>S4 tail 4.21 s, S4>S6 4.13 s; was 3.5 (CUT_RUN_M/speed) */;
 export type WalkSegment=Readonly<{path:readonly Vec[];duration:number}>;
 export type WalkPlan=Readonly<{segments:readonly WalkSegment[];cut:boolean;fades:number;lengthM:number}>;
 
