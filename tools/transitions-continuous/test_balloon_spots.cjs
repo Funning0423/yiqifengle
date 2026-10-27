@@ -13,7 +13,7 @@ const pct=(a,q)=>{const s=[...a].sort((x,y)=>x-y);return s[Math.min(s.length-1,M
 (async()=>{const G=await RL.geometry(),rows=[];
  const M5=TS.TRANSITION_STAGING.skyMooring5a,ry=(M5.worldYawDeg-M5.yawDeg)*Math.PI/180,cr=Math.cos(ry),sr=Math.sin(ry),city=[M5.world[0]-(cr*M5.pos[0]+sr*M5.pos[2]),M5.world[1]-M5.pos[1]+6,M5.world[2]-(-sr*M5.pos[0]+cr*M5.pos[2])];
  const OC=JSON.parse(fs.readFileSync(path.join(__dirname,'transition-occluders.json'),'utf8')).boxes,FL=H.load('region/SkyFinaleShot.ts').SKY_FINALE_POSE_LOCAL,fin={position:SW.skyLocalToWorld(M5,FL.position),target:SW.skyLocalToWorld(M5,FL.target),fovVerticalDeg:FL.fovVerticalDeg},
-  W=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,Object.values(OC).flatMap(v=>Array.isArray(v)?v:[v.open100]),SW.finaleCity(fin),undefined,fin);
+  W=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,Object.values(OC).flatMap(v=>Array.isArray(v)?v:[v.open100]),SW.skyLocalToWorld(M5,H.load('region/SkyFinaleShot.ts').SKY_FINALE_CITY_LOCAL),undefined,fin);
  const walkCam=tau=>W.pose(W.gazeS+tau*W.walkS/P.walkS)/* walk clock = anchors beat seconds */;
  for(const scr of RL.SCREENS){const leg=RL.lakeLeg(G,scr),Rr=leg.ride;
   const S=SL.skyLakeContinuous(Rr,leg.door,{...SL.SKY_LAKE_CONT,walkCam,doorS:P.doorS,stepInS:P.stepInS,walkS:P.walkS,liftTraj:P.liftTraj,riderYawDeg:P.riderYawDeg,flightS:TS.TRANSITION_RETIME.lakeFlightS});
