@@ -125,3 +125,46 @@ let probed:any=null;
 export function installPlayerAnimProbe(actor:any):void{if(!actor||probed===actor)return;probed=actor;
  try{Object.defineProperty(globalThis,'__QF_PLAYER_ANIM',{configurable:true,enumerable:false,get:()=>playerAnimOf(probed)});}catch{}}
 try{(globalThis as any).__qfInstallPlayerAnim=installPlayerAnimProbe;}catch{}
+
+/** full9c WindWipe: the meadow→skycity balloon prepare took the 3 s prepare-slow fallback on cold flows (preTransition, a
+ *  resume at the meadow) because the mainline-08 warm never ran. The skycity leg's loads are now warmed in stages during the
+ *  island→meadow sail ride (≈43 s) and the meadow arrival walk (≈29 s). Budgets (ms) from the Mac logs on dc86ade2
+ *  (region_lakeside 2.03 MB = 1766 ms, balloon 1.04 MB = 227 ms); `mount` (instantiate+placement) cannot be warmed. */
+export const SKY_LEG_STAGES=Object.freeze([
+ {id:'bundle:region_skycity',ms:1800},{id:'prefab:env_skycity+siblings',ms:450},{id:'prefab:transport_balloon',ms:230},
+ {id:'prefab:transit_clouds_merged',ms:150},{id:'prefab:transit_night_dome',ms:80},{id:'prefab:far_meadow_card',ms:60},
+ {id:'json:balloon_flightpath',ms:40},{id:'effect:balloon-grade',ms:40}] as const);
+export const SKY_LEG_MOUNT_MS=700;
+/** Gap between warm stages so each load lands on its own frames (no fps hitch on the sail). */
+export const SKY_WARM_GAP_MS=300;
+export const SKY_WARM_WINDOW=Object.freeze({sailRideS:43,arrivalWalkS:29});
+/** Simulated timeline: warm starts at the sail ride (t=0); the balloon prepare starts after the window. Returns the
+ *  prepare's remaining cost and whether it would take the prepare-slow fallback. */
+export function simulateSkyPrepare(warmed:boolean,gapMs=SKY_WARM_GAP_MS):{warmDoneMs:number,prepareStartMs:number,prepareMs:number,fallback:boolean}{
+ const prepareStartMs=(SKY_WARM_WINDOW.sailRideS+SKY_WARM_WINDOW.arrivalWalkS)*1000;
+ const cold=SKY_LEG_STAGES.reduce((a,s)=>a+s.ms,0);
+ const warmDoneMs=warmed?SKY_LEG_STAGES.reduce((a,s)=>a+s.ms+gapMs,0):Infinity;
+ const prepareMs=SKY_LEG_MOUNT_MS+(warmDoneMs<=prepareStartMs?0:cold);
+ return {warmDoneMs,prepareStartMs,prepareMs,fallback:prepareMs>=CHAIN_FALLBACK.waitS*1000};
+}
+
+/** full9c-b: entry paths that reach the meadow→skycity balloon WITHOUT the sail ride start the same staged warm at their
+ *  earliest point, with frame-sized gaps (120 ms ≈ 7 frames @60 fps, still one load per stage). headStartMs = time from the
+ *  warm start to the balloon prepare (estimates in the comments; no wait is added anywhere). */
+export const SKY_WARM_GAP_FAST_MS=120;
+export const SKY_ENTRY_PATHS=Object.freeze([
+ {id:'island→skycity/lakeside (ensureRegion, sail)',start:'sail ride',headStartMs:72000,gapMs:SKY_WARM_GAP_MS},
+ {id:'preTransition finstart (sail)',start:'sail ride',headStartMs:72000,gapMs:SKY_WARM_GAP_MS},
+ {id:'balloonPreview from island (QA, sail)',start:'sail ride',headStartMs:72000,gapMs:SKY_WARM_GAP_MS},
+ /* boot with journey at the meadow: world init → home UI → 继续旅程 tap (≥1.5 s) → leaveHome stand+turn (≈2 s) */
+ {id:'resume at meadow (boot checkpoint)',start:'world init',headStartMs:3500,gapMs:SKY_WARM_GAP_FAST_MS},
+ /* a meadow level (L5–L8 or a replay) → 继续旅程: the warm runs during the level (≥20 s) */
+ {id:'meadow level → continue / region-select',start:'meadow level enter',headStartMs:20000,gapMs:SKY_WARM_GAP_FAST_MS},
+ /* balloonPreview booted at the meadow: warm at the call, leaveHome stand+turn (≈2 s) before travel */
+ {id:'balloonPreview at meadow (QA, from home)',start:'preview call',headStartMs:2000,gapMs:SKY_WARM_GAP_FAST_MS},
+] as const);
+export function simulateSkyEntry(headStartMs:number,gapMs:number):{warmDoneMs:number,prepareMs:number,fallback:boolean}{
+ const warmDoneMs=SKY_LEG_STAGES.reduce((a,s,i)=>a+s.ms+(i?gapMs:0),0);
+ const prepareMs=SKY_LEG_MOUNT_MS+Math.max(0,warmDoneMs-headStartMs);
+ return {warmDoneMs,prepareMs,fallback:prepareMs>=CHAIN_FALLBACK.waitS*1000};
+}

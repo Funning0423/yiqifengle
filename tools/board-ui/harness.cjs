@@ -122,7 +122,7 @@ function createCc(state) {
   const assetManager = {
     getBundle: n => bundles.get(n) || null,
     loadBundle: (n, cb) => later(() => { if (state.failBundles.has(n) || !fs.existsSync(path.join(BUNDLES, n))) { cb(Error('missing bundle ' + n), null); return; } if (!bundles.has(n)) bundles.set(n, makeBundle(n)); cb(null, bundles.get(n)); }),
-    loadAny: (_o, cb) => later(() => cb(Error('no materials in tests'), null)),
+    loadAny: (_o, ...rest) => { const cb = rest.reverse().find(f => typeof f === 'function'); later(() => cb && cb(Error('no materials in tests'), null)); }, // full9c-b: cc's loadAny(req, options?, onProgress?, onComplete)
     loadRemote: (_u, _o, cb) => later(() => cb(Error('no remote in tests'), null)),
   };
   const resources = { load: (p, type, cb) => later(() => { state.resourceLoads.push(p); cb(null, new ImageAsset({ width: 896, height: 128, path: p })); }) };

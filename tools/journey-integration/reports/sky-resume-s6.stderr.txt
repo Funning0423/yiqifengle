@@ -1,9 +1,9 @@
-/tmp/wt-p0hang/tools/skycity-walk/test_sky_resume_s6.cjs:12
+/workspace/wt-f8/tools/skycity-walk/test_sky_resume_s6.cjs:12
 code=stripTypeScriptTypes(code,{mode:'transform'});
      ^
 
 TypeError: stripTypeScriptTypes is not a function
-    at Object.<anonymous> (/tmp/wt-p0hang/tools/skycity-walk/test_sky_resume_s6.cjs:12:6)
+    at Object.<anonymous> (/workspace/wt-f8/tools/skycity-walk/test_sky_resume_s6.cjs:12:6)
     at Module._compile (node:internal/modules/cjs/loader:1529:14)
     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
     at Module.load (node:internal/modules/cjs/loader:1275:32)

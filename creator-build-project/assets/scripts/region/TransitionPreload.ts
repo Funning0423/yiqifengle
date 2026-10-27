@@ -1,5 +1,5 @@
-import {assetManager} from 'cc';
-import {PRELOAD_PLAN,logBundleLoad,type PreloadItem} from './TransitionChain';
+import {EffectAsset,JsonAsset,assetManager} from 'cc';
+import {PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
 import {REGIONS,loadRegionPrefab} from './RegionLoader';
 import {loadBundlePrefab} from './TransportVehicle';
 import {prewarmLakesideAssets} from './LakesideBoardBackground';
@@ -25,3 +25,37 @@ export function warmTransition(target:string):Promise<boolean>{
  p=Promise.all(plan.items.map(i=>one(target,i))).then(r=>r.every(Boolean),()=>false);
  p.then(ok=>{if(!ok){warmed.delete(target);try{console.warn('[QF_PRELOAD] '+target+' warm incomplete; loads on demand');}catch{}}});
  warmed.set(target,p);return p;}
+
+/* full9c WindWipe: staged skycity-leg warm, armed by a journey that will continue past the meadow and started when the
+ * island→meadow sail ride begins (after the sail prepare, so it never competes with it). Sequential, one load per stage
+ * with SKY_WARM_GAP_MS between, so the sail keeps its frame rate. */
+let skyArmed=false;let skyStaged:Promise<boolean>|null=null;
+export function armSkycityWarmOnSailRide():void{skyArmed=true;}
+export function sailRideStarted():void{if(!skyArmed)return;skyArmed=false;void warmSkycityLegStaged();}
+function bundleAsset(bundleName:string,name:string,type:any):Promise<boolean>{
+ return new Promise(ok=>assetManager.loadBundle(bundleName,(err,b)=>{if(err||!b||typeof (b as any).load!=='function'){ok(false);return;}b.load(name,type,(e:any,a:any)=>ok(!e&&!!a));}));
+}
+export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
+ if(skyStaged)return skyStaged;
+ const wait=()=>new Promise<void>(r=>setTimeout(r,gap));
+ const run:Record<string,()=>Promise<unknown>>={
+  'bundle:region_skycity':()=>new Promise<void>((ok,fail)=>assetManager.loadBundle('region_skycity',e=>e?fail(e):ok())),
+  'prefab:env_skycity+siblings':()=>loadRegionPrefab(REGIONS.skycity),
+  'prefab:transport_balloon':()=>loadBundlePrefab('transport_balloon','region_transit_balloon'),
+  'prefab:transit_clouds_merged':()=>loadBundlePrefab('transit_clouds_merged','region_transit_balloon'),
+  'prefab:transit_night_dome':()=>loadBundlePrefab('transit_night_dome','region_transit_balloon'),
+  'prefab:far_meadow_card':()=>loadBundlePrefab('far_meadow_card','region_transit_balloon'),
+  'json:balloon_flightpath':()=>bundleAsset('region_transit_balloon','balloon_flightpath',JsonAsset),
+  'effect:balloon-grade':()=>bundleAsset('region_transit_balloon','balloon-grade',EffectAsset),
+ };
+ skyStaged=(async()=>{
+  let all=true;
+  for(const st of SKY_LEG_STAGES){
+   const t0=Date.now();let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
+   try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'skycity',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,ok}));}catch{}
+   await wait();
+  }
+  return all;
+ })();
+ return skyStaged;
+}
