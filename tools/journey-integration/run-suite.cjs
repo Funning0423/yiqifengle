@@ -159,7 +159,12 @@ const tests=[
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
+<<<<<<< HEAD
   ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],['sky-walk-endshots','tools/region-nodes/test_sky_walk_endshots.cjs'],['walk5a-in-frame','tools/skycity-walk/test_walk5a_in_frame.cjs'],
+=======
+ ['lens-trajectory-clearance','tools/journey-integration/lens-clearance-gate.cjs'],['lens-trajectory-9ec-must-fail','tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs'],/* clip3: whole-trajectory lens vs real meshes + balloon + her + ground */
+  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],
+>>>>>>> 222cc149 (full9c clip3: whole-trajectory lens clearance gate (real skycity/lakeside/balloon meshes, her, ground; sky→lake ride ×7 screens + T-02 approach) + 9ec5323c must-fail fixtures; before/after sheets; cases 1-2 gone after skyframe (offset prewalk / displaced city), case 3 (T-02 approach through S4 steps) still present)
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
  ['balloon-windsource-bound','tools/journey-integration/test-balloon-windsource-bound.cjs'],
   ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['lakeside-touchdown-timeline','tools/journey-integration/test-lakeside-touchdown-timeline.cjs'],['balloon-sky-dome-yaw','tools/journey-integration/test-balloon-sky-dome-yaw.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['pre-transition','tools/journey-integration/test-pre-transition.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],['island-exit-explore','tools/journey-integration/test-island-exit-explore.cjs'],['island-explore-touch','tools/journey-integration/test-island-explore-touch.cjs'],['lakeside-exit-explore','tools/journey-integration/test-lakeside-exit-explore.cjs'],

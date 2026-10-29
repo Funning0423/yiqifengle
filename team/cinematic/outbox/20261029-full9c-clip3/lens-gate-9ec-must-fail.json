@@ -1,0 +1,895 @@
+{
+ "per": {
+  "1 skycity→lakeside opening (prewalk, keys 121–132)": {
+   "samples": 12,
+   "caught": 1,
+   "first": {
+    "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+    "tS": 34.793,
+    "pos": [
+     82.881,
+     21.126,
+     139.28
+    ],
+    "v": [
+     "S"
+    ],
+    "solidM": 0.34,
+    "solidTag": "skycity:env_sky_ruins",
+    "groundM": 2.13,
+    "enclosed": false
+   }
+  },
+  "2 balloon lift-off (keys 187–191)": {
+   "samples": 3,
+   "caught": 2,
+   "first": {
+    "case": "2 balloon lift-off (keys 187–191)",
+    "tS": 58.798,
+    "pos": [
+     99.135,
+     21.94,
+     116.872
+    ],
+    "v": [
+     "S"
+    ],
+    "solidM": 0.45,
+    "solidTag": "skycity:env_sky_floatingrocks_2",
+    "groundM": "none ≤40 m",
+    "enclosed": false
+   }
+  },
+  "3 T-02 last shot through the steps (key-try2 #42)": {
+   "samples": 43,
+   "caught": 4,
+   "first": {
+    "case": "3 T-02 last shot through the steps (key-try2 #42)",
+    "tS": 8.51,
+    "pos": [
+     63.3979,
+     21.3159,
+     144.4402
+    ],
+    "v": [
+     "G"
+    ],
+    "solidM": 0.51,
+    "solidTag": "skycity:env_sky_ruins",
+    "groundM": 0.67,
+    "enclosed": false
+   }
+  }
+ },
+ "out": [
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 16.94,
+   "pos": [
+    81.812,
+    20.991,
+    159.937
+   ],
+   "v": [],
+   "solidM": 1.71,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.34,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 18.873,
+   "pos": [
+    81.922,
+    21.005,
+    157.802
+   ],
+   "v": [],
+   "solidM": 2.46,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.36,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 20.041,
+   "pos": [
+    81.998,
+    21.014,
+    156.35
+   ],
+   "v": [],
+   "solidM": 2.43,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.34,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 20.812,
+   "pos": [
+    82.046,
+    21.021,
+    155.421
+   ],
+   "v": [],
+   "solidM": 2.45,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.36,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 22.894,
+   "pos": [
+    82.171,
+    21.036,
+    152.993
+   ],
+   "v": [],
+   "solidM": 2.48,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.38,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 24.801,
+   "pos": [
+    82.262,
+    21.048,
+    151.233
+   ],
+   "v": [],
+   "solidM": 2.4,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.39,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 26.804,
+   "pos": [
+    82.386,
+    21.064,
+    148.847
+   ],
+   "v": [],
+   "solidM": 0.65,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.39,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 28.846,
+   "pos": [
+    82.512,
+    21.08,
+    146.406
+   ],
+   "v": [],
+   "solidM": 0.92,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.25,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 30.822,
+   "pos": [
+    82.633,
+    21.095,
+    144.075
+   ],
+   "v": [],
+   "solidM": 1.99,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.2,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 32.792,
+   "pos": [
+    82.757,
+    21.111,
+    141.681
+   ],
+   "v": [],
+   "solidM": 1.32,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 2.11,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 34.793,
+   "pos": [
+    82.881,
+    21.126,
+    139.28
+   ],
+   "v": [
+    "S"
+   ],
+   "solidM": 0.34,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 2.13,
+   "enclosed": false
+  },
+  {
+   "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+   "tS": 36.934,
+   "pos": [
+    83,
+    21.142,
+    136.975
+   ],
+   "v": [],
+   "solidM": 2.29,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 2.2,
+   "enclosed": false
+  },
+  {
+   "case": "2 balloon lift-off (keys 187–191)",
+   "tS": 58.798,
+   "pos": [
+    99.135,
+    21.94,
+    116.872
+   ],
+   "v": [
+    "S"
+   ],
+   "solidM": 0.45,
+   "solidTag": "skycity:env_sky_floatingrocks_2",
+   "groundM": "none ≤40 m",
+   "enclosed": false
+  },
+  {
+   "case": "2 balloon lift-off (keys 187–191)",
+   "tS": 60.793,
+   "pos": [
+    99.499,
+    24.949,
+    117.05
+   ],
+   "v": [
+    "E"
+   ],
+   "solidM": 0.58,
+   "solidTag": "skycity:env_sky_floatingrocks_2",
+   "groundM": 1.71,
+   "enclosed": true
+  },
+  {
+   "case": "2 balloon lift-off (keys 187–191)",
+   "tS": 62.804,
+   "pos": [
+    99.497,
+    34.783,
+    118.667
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 8.43,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.01,
+   "pos": [
+    60.911,
+    25.012,
+    140.01
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 6.35,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.04,
+   "pos": [
+    60.9122,
+    25.0083,
+    140.0125
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 6.34,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.07,
+   "pos": [
+    60.92,
+    24.9845,
+    140.029
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 6.32,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.11,
+   "pos": [
+    60.9401,
+    24.9256,
+    140.0718
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 6.26,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.14,
+   "pos": [
+    60.9777,
+    24.8215,
+    140.151
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 6.16,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.17,
+   "pos": [
+    61.0367,
+    24.6668,
+    140.2746
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 6.01,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.21,
+   "pos": [
+    61.121,
+    24.4601,
+    140.4488
+   ],
+   "v": [],
+   "solidM": ">3",
+   "solidTag": null,
+   "groundM": 5.81,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.24,
+   "pos": [
+    61.2335,
+    24.2033,
+    140.6778
+   ],
+   "v": [],
+   "solidM": 2.7,
+   "solidTag": "skycity:state_ring_before",
+   "groundM": 5.55,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.27,
+   "pos": [
+    61.377,
+    23.9015,
+    140.964
+   ],
+   "v": [],
+   "solidM": 2.35,
+   "solidTag": "skycity:state_ring_before",
+   "groundM": 5.25,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.31,
+   "pos": [
+    61.5539,
+    23.562,
+    141.3081
+   ],
+   "v": [],
+   "solidM": 2.79,
+   "solidTag": "skycity:state_ring_before",
+   "groundM": 4.92,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.34,
+   "pos": [
+    61.766,
+    23.194,
+    141.7092
+   ],
+   "v": [],
+   "solidM": 2,
+   "solidTag": "skycity:state_ring_before",
+   "groundM": 3.36,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.37,
+   "pos": [
+    62.0151,
+    22.8082,
+    142.1649
+   ],
+   "v": [],
+   "solidM": 1.12,
+   "solidTag": "skycity:state_ring_before",
+   "groundM": 3.6,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.41,
+   "pos": [
+    62.3024,
+    22.4159,
+    142.6712
+   ],
+   "v": [],
+   "solidM": 0.93,
+   "solidTag": "skycity:state_ring_before",
+   "groundM": 3.78,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.44,
+   "pos": [
+    62.6286,
+    22.0289,
+    143.2233
+   ],
+   "v": [],
+   "solidM": 1.03,
+   "solidTag": "skycity:state_ring_before",
+   "groundM": 2.41,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.47,
+   "pos": [
+    62.9939,
+    21.6587,
+    143.8152
+   ],
+   "v": [],
+   "solidM": 1.2,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 1.72,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.51,
+   "pos": [
+    63.3979,
+    21.3159,
+    144.4402
+   ],
+   "v": [
+    "G"
+   ],
+   "solidM": 0.51,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 0.67,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.54,
+   "pos": [
+    63.8397,
+    21.0099,
+    145.091
+   ],
+   "v": [
+    "S",
+    "E",
+    "G"
+   ],
+   "solidM": 0.03,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 0.08,
+   "enclosed": true
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.57,
+   "pos": [
+    64.3173,
+    20.7484,
+    145.7599
+   ],
+   "v": [
+    "S",
+    "E"
+   ],
+   "solidM": 0.06,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 2.1,
+   "enclosed": true
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.61,
+   "pos": [
+    64.8283,
+    20.5365,
+    146.4391
+   ],
+   "v": [
+    "S"
+   ],
+   "solidM": 0.29,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 1.89,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.64,
+   "pos": [
+    65.3692,
+    20.3766,
+    147.1207
+   ],
+   "v": [],
+   "solidM": 1.1,
+   "solidTag": "skycity:env_sky_ruins",
+   "groundM": 1.74,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.67,
+   "pos": [
+    65.936,
+    20.2677,
+    147.7973
+   ],
+   "v": [],
+   "solidM": 1.71,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.65,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.71,
+   "pos": [
+    66.5239,
+    20.2046,
+    148.4617
+   ],
+   "v": [],
+   "solidM": 1.66,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.61,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.74,
+   "pos": [
+    67.1272,
+    20.1779,
+    149.1072
+   ],
+   "v": [],
+   "solidM": 1.66,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.6,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.77,
+   "pos": [
+    67.74,
+    20.173,
+    149.7281
+   ],
+   "v": [],
+   "solidM": 1.67,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.62,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.81,
+   "pos": [
+    68.3556,
+    20.173,
+    150.3192
+   ],
+   "v": [],
+   "solidM": 1.68,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.6,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.84,
+   "pos": [
+    68.9674,
+    20.173,
+    150.8763
+   ],
+   "v": [],
+   "solidM": 1.65,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.58,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.87,
+   "pos": [
+    69.5682,
+    20.173,
+    151.3959
+   ],
+   "v": [],
+   "solidM": 1.63,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.55,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.91,
+   "pos": [
+    70.1512,
+    20.173,
+    151.8755
+   ],
+   "v": [],
+   "solidM": 1.6,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.53,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.94,
+   "pos": [
+    70.7097,
+    20.173,
+    152.3134
+   ],
+   "v": [],
+   "solidM": 1.58,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.51,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 8.97,
+   "pos": [
+    71.2373,
+    20.173,
+    152.7086
+   ],
+   "v": [],
+   "solidM": 1.56,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.48,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.01,
+   "pos": [
+    71.7283,
+    20.173,
+    153.0611
+   ],
+   "v": [],
+   "solidM": 1.53,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.46,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.04,
+   "pos": [
+    72.1776,
+    20.173,
+    153.3711
+   ],
+   "v": [],
+   "solidM": 1.51,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.44,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.07,
+   "pos": [
+    72.5812,
+    20.173,
+    153.6397
+   ],
+   "v": [],
+   "solidM": 1.49,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.42,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.11,
+   "pos": [
+    72.9358,
+    20.173,
+    153.8683
+   ],
+   "v": [],
+   "solidM": 1.47,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.4,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.14,
+   "pos": [
+    73.2397,
+    20.173,
+    154.0587
+   ],
+   "v": [],
+   "solidM": 1.46,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.39,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.17,
+   "pos": [
+    73.4921,
+    20.173,
+    154.2131
+   ],
+   "v": [],
+   "solidM": 1.45,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.38,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.21,
+   "pos": [
+    73.6938,
+    20.173,
+    154.3341
+   ],
+   "v": [],
+   "solidM": 1.44,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.37,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.24,
+   "pos": [
+    73.8471,
+    20.173,
+    154.4247
+   ],
+   "v": [],
+   "solidM": 1.43,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.36,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.27,
+   "pos": [
+    73.9558,
+    20.173,
+    154.4881
+   ],
+   "v": [],
+   "solidM": 1.42,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.35,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.31,
+   "pos": [
+    74.0254,
+    20.173,
+    154.5285
+   ],
+   "v": [],
+   "solidM": 1.42,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.36,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.34,
+   "pos": [
+    74.063,
+    20.173,
+    154.5502
+   ],
+   "v": [],
+   "solidM": 1.42,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.36,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.37,
+   "pos": [
+    74.0776,
+    20.173,
+    154.5585
+   ],
+   "v": [],
+   "solidM": 1.42,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.36,
+   "enclosed": false
+  },
+  {
+   "case": "3 T-02 last shot through the steps (key-try2 #42)",
+   "tS": 9.41,
+   "pos": [
+    74.0797,
+    20.173,
+    154.5598
+   ],
+   "v": [],
+   "solidM": 1.42,
+   "solidTag": "skycity:env_sky_static_palette",
+   "groundM": 1.36,
+   "enclosed": false
+  }
+ ]
+}
