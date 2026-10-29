@@ -159,6 +159,7 @@ const tests=[
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
+ ['lens-trajectory-clearance','tools/journey-integration/lens-clearance-gate.cjs'],['lens-trajectory-9ec-must-fail','tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs'],/* clip3: whole-trajectory lens vs real meshes + balloon + her + ground */
   ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
  ['balloon-windsource-bound','tools/journey-integration/test-balloon-windsource-bound.cjs'],
