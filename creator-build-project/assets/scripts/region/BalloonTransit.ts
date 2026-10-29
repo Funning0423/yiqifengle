@@ -375,11 +375,11 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const transitFrame=new Node('transitFrame');rig.addChild(transitFrame);
   setRigid(transitFrame,meadowFrame);
   const gradeEffect=await loadGradeEffect();
-  const balloonPrefab=await loadTransitPrefab('transport_balloon');
+  const b1T0=Date.now();const balloonPrefab=await loadTransitPrefab('transport_balloon');const b1Load=Date.now()-b1T0;
   if(!balloonPrefab)throw Error('balloon-art-missing');
   balloonPrefab.addRef();owned.push({destroy(){balloonPrefab.decRef();}});
-  const vehicle=mountVehicle(balloonPrefab,rig);
-  showBothSides(vehicle);noShadow(vehicle);
+  const b1T1=Date.now();const vehicle=mountVehicle(balloonPrefab,rig);
+  showBothSides(vehicle);noShadow(vehicle);const b1Inst=Date.now()-b1T1;
   const cloudsPrefab=await loadTransitPrefab('transit_clouds_merged');
   if(!cloudsPrefab)throw Error('balloon-clouds-missing');
   cloudsPrefab.addRef();owned.push({destroy(){cloudsPrefab.decRef();}});
@@ -592,6 +592,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     envelope.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
     envelope.setPosition(envHome.p.x,envHome.p.y+envHome.drop*envHome.s.y*(1-f.sy),envHome.p.z)/* bottom stays on the burner ring */;
     if(flame){flame.active=inflateT>0;const k=f.flame*(1+0.12*Math.sin(inflateT*18));flame.setScale(k,k,k);}};
+   // full9c B1 first frame (m 600–602 / mday 536–538 clear colour; m2 camTrace f3515→3516 = 278 ms frame): the balloon was
+   // first moved into view on the B1 cut (vehicle under rig at its prefab origin until then), so its first draw (double-sided
+   // material instances, pipeline/shader, mesh upload) stalled the cut frame. Moor it on its B1 t=0 pose BEFORE the pre-walk
+   // (deflated, flame off = the first B1 frame) so that draw happens during the walk; B1 then holds the live lens until a frame
+   // has been drawn with it placed (normally 0 frames).
+   let b1Drawn=0,b1Bd=0,b1FirstDraw=-1;const b1BeforeDraw=()=>{b1Bd=Date.now();},b1AfterDraw=()=>{if(!b1Drawn++)b1FirstDraw=Date.now()-b1Bd;};
+   if(contChain){const w0=plan.vehicle(0);vehicle.setWorldPosition(w0.pos[0],w0.pos[1],w0.pos[2]);const qq=balloonQuat(w0.yaw*180/Math.PI,w0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
+    if(flame)flame.active=false;applyInflate();director.on(Director.EVENT_BEFORE_DRAW,b1BeforeDraw);director.on(Director.EVENT_AFTER_DRAW,b1AfterDraw);}
    if(contChain&&girl&&isValid(girl,true)){
     // B1 (transitions-continuous): she walks from the last meadow stop to the basket door, the door opens (door_reach), she
     // steps in to stand_point and the door closes behind her. Basket at its t=0 pose; lens = the ride's first pose (handoff blend).
@@ -628,7 +636,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const gapEnd=(end:string)=>{if(b1Gap.done)return;gapPh('end');b1Gap.done=true;director.off(Director.EVENT_BEFORE_DRAW,gapProbe);
      console.info('[QF_B1_GAP] '+JSON.stringify({totalMs:+(gapNow()-b1Gap.t0).toFixed(1),frames:((director as any).getTotalFrames?.()??0)-b1Gap.f0,maxDtMs:+(b1Gap.maxDt*1000).toFixed(1),phases:b1Gap.ph,end}));};
     director.on(Director.EVENT_BEFORE_DRAW,gapProbe);
-    chainMark('balloon','B1-basket-in');gapPh('chainMark');
+    chainMark('balloon','B1-basket-in');gapPh('chainMark');Object.assign(b1Gap.ph,{loadMs:b1Load,instantiateMs:b1Inst,firstDrawMs:b1FirstDraw/* draw incl. pipeline/shader compile */,warmDraws:b1Drawn});
     const v0=plan.vehicle(0);vehicle.setWorldPosition(v0.pos[0],v0.pos[1],v0.pos[2]);{const qq=balloonQuat(v0.yaw*180/Math.PI,v0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);}
     if(flame)flame.active=false;gapPh('vehicleT0');
     // full2-cam E (d3fe578e P2): close-up of the boarding — lens beside the door (BasketCloseShot, her ≈30 % of the frame), panning to
@@ -642,7 +650,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const b1Inv=new Mat4();if(meadow&&isValid(meadow,true))Mat4.invert(b1Inv,meadow.worldMatrix);const b1Y0=meadow&&isValid(meadow,true)?meadow.worldPosition.y:0,b1Clr:LensClearState={pull:0};
     const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];gapPh('lensSolid');
     const b1Ground=(w:Vec):number|null=>{if(!b1Solid)return null;const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+b1Y0;};
-    let b1=0,inAt=1e9,b1On=true;const b1Draw=()=>{if(dead||!b1On)return;const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
+    let b1=0,inAt=1e9,b1On=true,b1Hold:Pose|null=null;const b1Draw=()=>{if(dead||!b1On)return;
+     if(!b1Drawn){gapPh('firstDraw-wait');b1Hold=b1Hold||liveWorldPose();if(b1Hold){camTag('BalloonTransit:B1-hold');world.setCamera(b1Hold);}return;}/* hold the real previous frame, single writer (before-draw) */const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);gapPh('b1Register');
@@ -659,6 +668,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      rideToken.check();seated=true;
     }finally{b1On=false;director.off(Director.EVENT_BEFORE_DRAW,b1Draw);gapEnd('b1-ended-without-write');}
    }
+   director.off(Director.EVENT_AFTER_DRAW,b1AfterDraw);director.off(Director.EVENT_BEFORE_DRAW,b1BeforeDraw);
    if(girl&&isValid(girl,true)){if(seated)girl.setParent(vehicle,true)/* seated root kept where sit_down put it */;else{girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}}
    if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);if(doorB&&isValid(doorB,true)&&contChain)doorB.setRotationFromEuler(0,0,0);
    if(inflateT<INFLATE.durationS)applyInflate();
