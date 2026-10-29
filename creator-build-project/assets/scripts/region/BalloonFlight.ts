@@ -56,9 +56,39 @@ export function nightCityBlend(t:number):number{
  const u=Math.max(0,Math.min(1,(t-CITY_ON_T)/NIGHT_BLEND_S));
  return u*u*(3-2*u);
 }
-/** Board-light illuminance factor during the ride (day: 1; night: 1 -> NIGHT_CITY_ILLUM across the blend). */
+/**
+ * b19 night-balloon-sky (moonlight landing): the night landing (B-f_land) looked down at a lawn lit by the x0.22 cruise light, so
+ * the whole frame sat at ~8.8-28 mean luma ("black screen"). During the landing the board light now turns into the moon of
+ * transit_night_dome: it swings to the moon's bearing in that dome texture and climbs from the cruise level (x0.22) to the
+ * arrival level (x1 = mainIllum0, the light the city gets after touchdown in v5 anyway), so the lawn, her and the basket get
+ * moon highlights from the visible moon. No fog / light shafts / ambient change; outside [MOON_LAND_T0, LAND_T+1] nothing changes.
+ * MOON_LIGHT_EULER = light node euler (pitch, yaw) whose forward is -moonDir; moonDir from the dome mesh UV of the moon disc
+ * (texture u 0.140, v 0.329 -> dome-local dir (-0.527, 0.51, 0.687): elevation 30.7 deg, bearing -37.5 deg). The dome follows the
+ * same yaw offset as the light (applyLight), so the offset is added on top.
+ */
+export const MOON_LAND_T0=31;
+export const MOON_LAND_T1=33;
+export const MOON_LIGHT_EULER:[number,number]=[-30.7,-37.5];
+/** Landing moon illuminance factor (x mainIllum0). 1 = the v5 arrival light level: no jump at touchdown. */
+export const MOON_LAND_ILLUM=1;
+/** Direction hands back to the board light over [LAND_T+0.7, FLIGHT_DURATION] so the arrived city is exactly v5. */
+export const MOON_DIR_OUT_T0=LAND_T+0.7;
+const smooth01=(u:number)=>{const x=Math.max(0,Math.min(1,u));return x*x*(3-2*x);};
+/** Night landing moonlight weight for the illuminance: 0 before MOON_LAND_T0, smoothstep to 1 at MOON_LAND_T1, 1 after. Day: 0. */
+export function moonLandWeight(t:number,night:boolean):number{return night?smooth01((t-MOON_LAND_T0)/(MOON_LAND_T1-MOON_LAND_T0)):0;}
+/** Weight of the moon bearing on the light direction: moonLandWeight, handed back to the board light by FLIGHT_DURATION. */
+export function moonDirWeight(t:number,night:boolean):number{return moonLandWeight(t,night)*(1-smooth01((t-MOON_DIR_OUT_T0)/(FLIGHT_DURATION-MOON_DIR_OUT_T0)));}
+/** Light euler (pitch, yaw) during the ride: the board light (pitch0, yawBase = yaw0 + balloonLightYawOffset(t)) blended to the
+ *  dome moon (MOON_LIGHT_EULER, yaw + the same offset: the dome turns with the light) by moonDirWeight. */
+export function balloonLightEuler(t:number,night:boolean,pitch0:number,yawBase:number):[number,number]{
+ const w=moonDirWeight(t,night);if(w<=0)return [pitch0,yawBase];
+ const dy=((MOON_LIGHT_EULER[1]+balloonLightYawOffset(t)-yawBase)%360+540)%360-180;
+ return [pitch0+(MOON_LIGHT_EULER[0]-pitch0)*w,yawBase+dy*w];
+}
+/** Board-light illuminance factor during the ride (day: 1; night: 1 -> NIGHT_CITY_ILLUM across the blend, then -> MOON_LAND_ILLUM in the landing). */
 export function balloonIllumFactor(t:number,night:boolean):number{
- return night?1+(NIGHT_CITY_ILLUM-1)*nightCityBlend(t):1;
+ if(!night)return 1;const base=1+(NIGHT_CITY_ILLUM-1)*nightCityBlend(t),w=moonLandWeight(t,night);
+ return base+(MOON_LAND_ILLUM-base)*w;
 }
 /** Night cloud-sea unlit colour (sRGB 0..255): lit-white look -> RGB(68,80,94) across the blend. */
 export const NIGHT_CLOUD_FROM:[number,number,number]=[255,255,255];

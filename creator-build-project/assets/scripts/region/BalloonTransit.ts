@@ -34,7 +34,7 @@ import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './R
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
- SEAM_T, STRATA_OFF_T, balloonIllumFactor, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skycityRootWorldFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
+ SEAM_T, STRATA_OFF_T, balloonIllumFactor, balloonLightEuler, moonLandWeight, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skycityRootWorldFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
 } from './BalloonFlight';
 function balloonCueRegion(name:string):string{
  if(name==='sky-city-enable'||name==='sky-islets-enable'||name==='balloon-cloud-exit'||name==='balloon-land')return 'skycity';
@@ -486,7 +486,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(!mainLight||!isValid(mainLight.node,true))return;
    // Content-relative continuous sun: no pre-seam spin, no snap (see balloonLightYawOffset). Pitch/roll cached
    // once so eulerAngles read-back can never flip x/z when yaw passes ±90°.
-   mainLight.node.setRotationFromEuler(mainPitch0,mainYaw0+balloonLightYawOffset(t),mainRoll0);
+   const [lp,ly]=balloonLightEuler(t,night,mainPitch0,mainYaw0+balloonLightYawOffset(t));mainLight.node.setRotationFromEuler(lp,ly,mainRoll0); // b19: night landing swings to the dome moon
   };
   const paint=(t:number)=>{
    const fade=handoffFade(t);
@@ -549,7 +549,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    applySea(t,handoff);
    if(handoff){seaRestored=true;backdropRestored=true;}
    applyLight(t);
-   (globalThis as any).__QF_BALLOON_LIGHT={t,yawOffset:balloonLightYawOffset(t),illum:mainLight?mainLight.illuminance:0,illumFactor:balloonIllumFactor(t,night),nightW:night?nightCityBlend(t):0};
+   (globalThis as any).__QF_BALLOON_LIGHT={t,yawOffset:balloonLightYawOffset(t),illum:mainLight?mainLight.illuminance:0,illumFactor:balloonIllumFactor(t,night),moonW:moonLandWeight(t,night),nightW:night?nightCityBlend(t):0};
    if(!arrived){
     (globalThis as any).__QF_BALLOON_HOLD_SKY={night};
     (globalThis as any).__QF_BALLOON_LENS=true;

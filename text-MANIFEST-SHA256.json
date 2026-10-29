@@ -2561,8 +2561,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 21679,
-    "sha256": "2e103c15f0cfb92567276aa796051569d4e780171ce3d7fe55e8e77fc0e7e9d9"
+    "bytes": 24389,
+    "sha256": "ba58eb7b419cd6dd2041de29e98207a488060c01c673c8eb0f33d9d4886c8359"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -2591,8 +2591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 69743,
-    "sha256": "dcc84b04993a38f92394633bbca2b21c3ba6eb0a40f3e4e01054278f91135333"
+    "bytes": 69901,
+    "sha256": "fb15f15867122a69cd6de28013ad61a61c00d9023e6d39b3141ee1b603601696"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
