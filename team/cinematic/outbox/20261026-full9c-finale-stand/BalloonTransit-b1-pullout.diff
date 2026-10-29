@@ -1,0 +1,13 @@
+diff --git a/creator-build-project/assets/scripts/region/BalloonTransit.ts b/creator-build-project/assets/scripts/region/BalloonTransit.ts
+index bc03e0b0..39e1c9eb 100644
+--- a/creator-build-project/assets/scripts/region/BalloonTransit.ts
++++ b/creator-build-project/assets/scripts/region/BalloonTransit.ts
+@@ -637,7 +637,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
+     let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,[...transitionOccluderBoxes() as any,...(meadow&&isValid(meadow,true)?meadowLensBoxesWorld(l=>worldOf(meadow,l)):[])]/* full8: + meadow windmill / trees from the node */,undefined,[cam0]);}catch{spotB1=null;}gapPh('closeSpot');
+     const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0/* full8 ours: ≤ B1_LENS_MPS pacing */;
+     const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
+-    const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
++    const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));void inAt;void b1Blend;return close;}/* 运镜bot full9c B1 pull-out: no 1.08 s close→cam0 snap-back (m: 12.3 m in ~0.75 s, peak 1.9 m/frame). The close-up is held while she sits; the flight then starts from this live lens and eases onto the plan over flightBlendSeconds(gap) = gap/B1_LENS_MPS (≈4.9 s, min-jerk). No wall time added. */;
+     // full8 P1-a: the B1 lens gets the same 1.1 m clearance (occupancy grid + sails sweep + walk floor) as the pre-walk (m2: terrain t 141.3 / 147.8)
+     const b1Inv=new Mat4();if(meadow&&isValid(meadow,true))Mat4.invert(b1Inv,meadow.worldMatrix);const b1Y0=meadow&&isValid(meadow,true)?meadow.worldPosition.y:0,b1Clr:LensClearState={pull:0};
+     const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];gapPh('lensSolid');
