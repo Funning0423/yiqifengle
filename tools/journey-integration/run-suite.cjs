@@ -160,7 +160,7 @@ const tests=[
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
 <<<<<<< HEAD
-  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],['sky-walk-endshots','tools/region-nodes/test_sky_walk_endshots.cjs'],['walk5a-in-frame','tools/skycity-walk/test_walk5a_in_frame.cjs'],
+  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],['sky-walk-endshots','tools/region-nodes/test_sky_walk_endshots.cjs'],['walk5a-in-frame','tools/skycity-walk/test_walk5a_in_frame.cjs'],['sky-finale-rail','tools/region-nodes/test_sky_finale_rail.cjs'],
 =======
  ['lens-trajectory-clearance','tools/journey-integration/lens-clearance-gate.cjs'],['lens-trajectory-9ec-must-fail','tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs'],/* clip3: whole-trajectory lens vs real meshes + balloon + her + ground */
   ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],

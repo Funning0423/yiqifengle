@@ -75,11 +75,16 @@ export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CON
  const liftLens=(tau:number):Pose=>{const t=rideT(Math.max(flightAt,tau)),v=veh(t),q=basket(Math.max(flightAt,tau)),dd:Vec=[q[0]-v[0],q[1]-v[1],q[2]-v[2]],p=flightLens(t);
   return {position:[p.position[0]+dd[0],p.position[1]+dd[1],p.position[2]+dd[2]],target:[p.target[0]+dd[0],p.target[1]+dd[1],p.target[2]+dd[2]],fovVerticalDeg:p.fovVerticalDeg};};
  let boardBI=-1;
+ /* full9c clip3 (lens-trajectory-clearance C1-board): the walk-end → close-up blend-in swings ROUND her (azimuth, radius, height about the
+    walk-end aim point, eased) instead of the straight chord, which cut through env_sky_static_palette (0.23 m) */
+ const orbitBlend=(a:Pose,b:Pose,e:number):Pose=>{const c=a.target,sp=(p:readonly number[])=>({az:Math.atan2(p[0]-c[0],p[2]-c[2]),r:Math.hypot(p[0]-c[0],p[2]-c[2]),y:p[1]-c[1]});
+  const A=sp(a.position),B=sp(b.position);let da=B.az-A.az;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;const az=A.az+da*e,r=A.r+(B.r-A.r)*e,y=A.y+(B.y-A.y)*e+0.9*Math.sin(Math.PI*e)/* lift over the deck edge mid-swing */;
+  const m=blendPose(a,b,e);return {...m,position:[c[0]+Math.sin(az)*r,c[1]+y,c[2]+Math.cos(az)*r] as any};};
  const cam=(tau:number,from:Pose|null):Pose=>{
   if(tau<walkS)return K.walkCam?K.walkCam(tau):R.camera(walkClock(tau),from);
   if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=K.walkCam?K.walkCam(walkS):R.camera(R.walkS-1e-6,from);}const out=traj?liftLens(flightAt)/* lens placed for the data mooring */:flightLens(R.liftT),u=(tau-walkS)/Math.max(1e-3,boardS);
    /* full2-cam E: close-up through the door beat (in 0–0.3, hold, out 0.75–1 onto the lift lens) when the caller gives one */
-   const close=K.boardClose?K.boardClose(tau):null;if(close){if(boardBI<0){/* full9c: the 5a walk lens now ends on her (cityPull fix) → the turn into the close-up is larger; stretch the blend-in so its min-jerk peak stays ≤ 85 °/s (board cap 90) */const c0=K.boardClose!(walkS+.3*boardS),y=(p:Pose)=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2]),d=Math.abs(((y(c0)-y(walkEnd))*180/Math.PI+540)%360-180);boardBI=Math.min(.45,Math.max(.3,1.875*d/85/Math.max(1e-3,boardS)));}const BI=boardBI,BO=.75;return u<BI?blendPose(walkEnd,close,minJerk(u/BI)):u<BO?close:blendPose(close,out,minJerk((u-BO)/(1-BO)));}
+   const close=K.boardClose?K.boardClose(tau):null;if(close){if(boardBI<0){/* full9c: the 5a walk lens now ends on her (cityPull fix) → the turn into the close-up is larger; stretch the blend-in so its min-jerk peak stays ≤ 85 °/s (board cap 90) */const c0=K.boardClose!(walkS+.3*boardS),y=(p:Pose)=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2]),d=Math.abs(((y(c0)-y(walkEnd))*180/Math.PI+540)%360-180);boardBI=Math.min(.45,Math.max(.3,1.875*d/85/Math.max(1e-3,boardS)));}const BI=boardBI,BO=.75;return u<BI?orbitBlend(walkEnd,close,minJerk(u/BI)):u<BO?close:blendPose(close,out,minJerk((u-BO)/(1-BO)));}
    return blendPose(walkEnd,out,minJerk(u));}
   if(traj&&tau<liftEndAt)return liftLens(tau);
   return traj&&tau<touchdownAt?shift(flightLens(rideT(tau)),dW(tau)):flightLens(rideT(tau));};
