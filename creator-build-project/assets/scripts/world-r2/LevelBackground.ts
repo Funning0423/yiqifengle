@@ -27,6 +27,7 @@ export function backgroundFadeAlpha(t:number,seconds:number=BACKGROUND_FADE_SECO
 export type LevelBackgroundFactory=(context:{parent:Node;selection:Readonly<Selection>;token:Cancellation})=>Promise<LevelBackgroundLease|null>|LevelBackgroundLease|null;
 export type LevelBackgroundStatus=Readonly<{state:'missing-provider'|'loading'|'ready'|'error'|'disposed';stageId:string;error?:string;rendering?:Readonly<Record<string,unknown>>}>;
 /** Owns exactly one stage's background, including late async completion after cancellation. */
+const frameKey=(p:boolean,l?:LevelBackgroundFrame):string=>(p?'P':'L')+JSON.stringify(l??null);
 export class LevelBackgroundBinding {
   private lease:LevelBackgroundLease|null=null;
   private disposed=false;
@@ -49,13 +50,16 @@ export class LevelBackgroundBinding {
       this.lease=lease;
       lease.setVisible(false);
       lease.setPaused?.(this.paused);
-      if(this.portrait!==undefined)lease.frame(this.portrait,this.layout);
+      if(this.portrait!==undefined){lease.frame(this.portrait,this.layout);this.framed=frameKey(this.portrait,this.layout);}
       this.state={state:'ready',stageId:this.selection.stageId};
     });
     try{await token.wait(pending);token.check();}
     catch(error){if(!this.disposed)this.state={state:'error',stageId:this.selection.stageId,error:String(error)};throw error;}
   }
-  frame=(portrait:boolean,layout?:LevelBackgroundFrame):void=>{if(this.disposed)return;this.portrait=portrait;this.layout=layout;this.lease?.frame(portrait,layout);};
+  /** full9c (Mac diag 3e2cb080: MULTI=3 at skycity/lakeside board-background arrival — the UI layout passes call frame() 3× in one
+   *  frame with the same layout): the board-background camera is re-posed only when portrait/layout actually change. */
+  private framed='';
+  frame=(portrait:boolean,layout?:LevelBackgroundFrame):void=>{if(this.disposed)return;this.portrait=portrait;this.layout=layout;if(!this.lease)return;const k=frameKey(portrait,layout);if(k===this.framed)return;this.framed=k;this.lease.frame(portrait,layout);};
   setVisible(visible:boolean):void{if(this.disposed)return;this.lease?.setVisible(visible);}
   setPaused(paused:boolean):void{if(this.disposed)return;this.paused=paused;this.lease?.setPaused?.(paused);}
   /** cand8: fade the background out over `seconds` (default 0.3 s) on the caller's frame clock, then dispose it.
