@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """full9c flat-frame checker (Grok Bot): in a Mac screenshot sequence (shots/NNN-<tag>.jpg), transition frames ("-tr-" in the
-name, or region-travel / region-loading / finale steps) may contain at most MAX_RUN (1) consecutive frames whose full-screen luminance std is < STD_MIN (10, 0..255 scale).
+name, or region-travel / region-loading / finale steps) may contain NO frame whose full-screen luminance std is < STD_MIN (10, 0..255 scale) (Grok Bot 2026-10-29: 0 frames).
+Only shots designed to look at sky / cloud may be exempt, each listed in ALLOW by shot name with a reason (reviewed by Grok Bot).
+A flat frame from the camera entering geometry (e.g. T-02 step, key-try2 #42) is never an exception.
 Usage: flat_frames.py <shots-dir> [--json out.json]   exit 0 PASS, 1 FAIL, 2 BLOCKED (no PIL / no frames)."""
 import sys,os,re,json
-STD_MIN=10.0;MAX_RUN=1
+STD_MIN=10.0;MAX_RUN=0
+# shot-name regex -> reason. Empty: no sky/cloud-facing shot in the design data qualifies yet (proposals go to Grok Bot).
+ALLOW={}
 TR=re.compile(r'-tr-|region-travel|region-loading|finale',re.I)
 def main(a):
   try:
@@ -20,9 +24,10 @@ def main(a):
   rows=[];run=[];worst=[];flat=0
   for i,f,tr in fr:
     im=Image.open(os.path.join(d,f)).convert('L');im.thumbnail((256,256));sd=ImageStat.Stat(im).stddev[0]
-    isflat=sd<STD_MIN
+    allow=next((why for pat,why in ALLOW.items() if re.search(pat,f)),None)
+    isflat=sd<STD_MIN and allow is None
     if isflat:flat+=1
-    rows.append({'i':i,'file':f,'tr':tr,'std':round(sd,2),'flat':isflat})
+    rows.append({'i':i,'file':f,'tr':tr,'std':round(sd,2),'flat':isflat,**({'allowed':allow} if allow and sd<STD_MIN else {})})
     if tr and isflat and (run and run[-1][0]==i-1 or not run):run.append((i,f))
     elif tr and isflat:run=[(i,f)]
     else:run=[]

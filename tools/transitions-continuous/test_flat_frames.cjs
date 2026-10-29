@@ -1,6 +1,6 @@
 'use strict';
-// full9c flat-frame gate: the checker (flat_frames.py) must catch 2 consecutive flat (std<10) transition frames, accept 1,
-// and ignore flat frames outside transitions. Synthetic sequences; the Mac runs the same checker on the real shots/.
+// full9c flat-frame gate (Grok Bot: 0 frames): a single flat (std<10) transition frame — e.g. a geometry clip like key-try2 #42 —
+// must fail, 2 consecutive must fail, flat frames outside transitions are ignored; the sky/cloud allowlist starts empty. Synthetic sequences; the Mac runs the same checker on the real shots/.
 const cp=require('node:child_process'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const C=path.join(__dirname,'flat_frames.py');
 const mk=`import sys,os
@@ -18,7 +18,8 @@ const one=run('one','1:t:t,2:f:t,3:t:t,4:f:t,5:t:t'),two=run('two','1:t:t,2:f:t,
 fs.rmSync(tmp,{recursive:true,force:true});
 if(one.blocked||two.blocked||off.blocked){console.log('flat-frames: BLOCKED (python3/PIL) '+(one.blocked||'').slice(0,200));process.exit(0);}
 console.log(JSON.stringify({one,two,off}));
-if(one.code!==0)throw new Error('single flat transition frame must pass');
+if(one.code!==1)throw new Error('a single geometry-clip flat transition frame must fail');
 if(two.code!==1)throw new Error('2 consecutive flat transition frames must fail');
 if(off.code!==0)throw new Error('flat frames outside transitions are not counted');
+if(!/^ALLOW=\{\}$/m.test(fs.readFileSync(C,'utf8')))console.log('flat-frames: NOTE allowlist not empty (Grok Bot review)');
 console.log('flat-frames: PASS');
