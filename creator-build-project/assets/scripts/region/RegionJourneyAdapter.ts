@@ -9,12 +9,13 @@ import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './Trans
 import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
 import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
 import {camTag,camLog,camActorProbe} from './CamTraceLog';
-import {SKY_PRE_FOLLOW,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
+import {SKY_PRE_FOLLOW,SKY_LAKE_AT_S6_M,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
+import {skyResumeBegin} from './SkyResumeLens'/* full9c: 运镜bot f3ad48bb, pose-only; we stay the only writer */;
 import {skyLakeEntry} from './SkyLakeEntry';
 import {startLegClock} from './LegTiming';
 import {blendPose as lakeBlendPose} from './LakesideBalloon';
-import {SKY_WALK_SHOT,finaleCity,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
-import {SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
+import {SKY_WALK_SHOT,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
+import {SKY_FINALE_CITY_LOCAL,SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
 import {firstMaterial,placeholderPlank,hidePlaceholders,findDeep,realModelPresent} from './TransitionProps';
 import {createGangwayDriver} from './SailGangway';
 import {setMooringRopes} from './SkyMooringRopes';
@@ -257,6 +258,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    rideCam=true;
    // full7 (a): region walk to S6 (not counted) with a continuous follow lens, then the counted leg from S6
    const g00=((actor as any).node as Node|undefined)?.worldPosition,skyPre=atC?skyLakePreWalk(g00?[g00.x,g00.y,g00.z]:start,M5 as any):null;
+   if(atC&&!skyPre)try{const h=g00?[g00.x,g00.y,g00.z]:start,s6=M5.walkWorld[0];console.info('[QF_SKY_PREWALK] '+JSON.stringify({none:true,start:h.map(v=>+v.toFixed(3)),dS6M:+Math.hypot(h[0]-s6[0],h[1]-s6[1],h[2]-s6[2]).toFixed(3),atS6M:SKY_LAKE_AT_S6_M}));}catch{/* diag */}
    if(skyPre){/* full9b diag (finale prewalk 26.95 m, not on any baked start): her start + the skycity model frame the finale (RegionNodeStage.toWorld) used vs skyMooring5a */
     try{const rg=findDeep(director.getScene(),'RegionJourney-skycity'),md=rg?.children[0],r3=(v:number)=>Math.round(v*1000)/1000;
      console.info('[QF_SKY_PREWALK] '+JSON.stringify({start:skyPre.path[0].map(r3),s6:skyPre.path[skyPre.path.length-1].map(r3),lengthM:r3(skyPre.lengthM),keys:skyPre.keys,
@@ -264,9 +266,11 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
       model:md?{name:md.name,pos:[md.worldPosition.x,md.worldPosition.y,md.worldPosition.z].map(r3),yawDeg:r3(md.eulerAngles.y),rigPos:[rg!.worldPosition.x,rg!.worldPosition.y,rg!.worldPosition.z].map(r3),rigYawDeg:r3(rg!.eulerAngles.y)}:null,
       m5:{world:M5.world,worldYawDeg:M5.worldYawDeg,pos:M5.pos,yawDeg:M5.yawDeg}}));}catch{/* diag only */}
     const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:Pose|null=null;const P=skyPre.path;
+    const pvs=view.getVisibleSize();let run:ReturnType<typeof skyResumeBegin>=null;try{run=skyResumeBegin(P,M5 as any,c0,{leg:'finale',screen:{w:Math.round(pvs.width),h:Math.round(pvs.height)}});}catch(e){run=null;console.error('[QF_SKY_RESUME] skyResumeBegin threw: '+String(e));}
     const preDraw=()=>{if(dead||!girl0||!isValid(girl0,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const g=girl0.worldPosition,her:Vec=[g.x,g.y,g.z];
      let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
      const dir=[P[k+1][0]-P[k][0],0,P[k+1][2]-P[k][2]],want=skyPreFollowPose(her,dir);const a=1-Math.pow(.5,dt/SKY_PRE_FOLLOW.halfLifeS);
+     if(run){world.setCamera(run.step(her,dt))/* baked: the plan's pose, written here (single writer) */;return;}
      smooth=smooth?lakeBlendPose(smooth,want,a):want;world.setCamera(st<SKY_PRE_FOLLOW.blendInS?lakeBlendPose(c0,smooth,st/SKY_PRE_FOLLOW.blendInS):smooth);};
     director.on(Director.EVENT_BEFORE_DRAW,preDraw);
     try{await actor.perform({kind:'walk',path:P,duration:skyPre.durationS,stopAtEnd:false} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);preClock.stop({keys:skyPre.keys,lengthM:+skyPre.lengthM.toFixed(2)});}
@@ -306,7 +310,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
     // full2-cam task 4: mooring C — basket on 场景设计部's lift keys, T-02 finale → walk lens (SkyWalkShot) on the data walk
     let walkCam:((tau:number)=>Pose)|null=null;if(atC){try{const fin={position:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.position),target:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.target),fovVerticalDeg:SKY_FINALE_POSE_LOCAL.fovVerticalDeg};
-     const W=skyWalkShot(M5.walkWorld,M5.walkMps,2,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,M5.walkWorld)] as any,finaleCity(fin),{...SKY_WALK_SHOT,plan:SKY_5A_WALK_PLAN} as any,fin);walkCam=tau=>{camTag('SkyWalkShot');return W.pose(W.gazeS+tau*W.walkS/R.walkS);};}catch{walkCam=null;}}
+     const W=skyWalkShot(M5.walkWorld,M5.walkMps,2,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,M5.walkWorld)] as any,skyLocalToWorld(M5,SKY_FINALE_CITY_LOCAL),{...SKY_WALK_SHOT,plan:SKY_5A_WALK_PLAN} as any,fin);walkCam=tau=>{camTag('SkyWalkShot');return W.pose(W.gazeS+tau*W.walkS/R.walkS);};}catch{walkCam=null;}}
     // full2-cam E: C1 close-up — lens beside door A at the mooring, panning to her from the door stand to the seat
     let boardClose:((tau:number)=>Pose)|null=null;if(atC){const door=M5.walkWorld[M5.walkWorld.length-1] as Vec,plain=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:SKY_5A_LIFT_KEYS,walkCam}),
       spot=basketCloseSpot(door,M5.world as Vec,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,[door])] as any,undefined,[walkCam?walkCam(R.walkS):plain.cam(R.walkS-1e-6,null),plain.cam(plain.flightAt,null)]);
