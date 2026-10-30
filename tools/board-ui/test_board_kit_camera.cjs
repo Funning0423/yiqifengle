@@ -10,7 +10,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const K=H.load('ui/BoardKit'),L=H.load('ui/BoardLayout'),F=require('./fixtures/coast-tiles.placeholder.json');
 const src=fs.readFileSync(path.join(H.SCRIPTS||path.resolve(__dirname,'../../creator-build-project/assets/scripts'),'ui/BoardKit.ts'),'utf8').replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');
 assert.ok(!/setCamera|applyCameraPose|setEnterLevelEnd\s*\(|\.setPosition|\.setRotation|worldCamera|\.fov\s*=|\.camera\s*=/.test(src),'BoardKit.ts must never write the camera');
-const kit=K.COAST_KIT,cam=kit.camera;assert.equal(cam.placeholder,true);assert.match(cam.source,/PLACEHOLDER/);assert.match(F._PLACEHOLDER,/NOT final/);
+const kit=K.COAST_KIT,cam=kit.camera;assert.equal(cam.placeholder,true);assert.match(cam.source,/unsigned/);assert.match(F._PLACEHOLDER,/NOT final/);
 const SC=Object.keys(F.camera_per_aspect.screens);assert.equal(SC.length,7);
 let worst=0,report=[];
 for(const k of SC){const [w,h]=k.split('x').map(Number),fx=F.camera_per_aspect.screens[k],pose=K.kitBoardPose(cam,w,h);
