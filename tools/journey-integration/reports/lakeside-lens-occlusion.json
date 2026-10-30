@@ -1,5 +1,5 @@
 {
- "status": "PASS",
+ "status": "FAIL",
  "gate": "after",
  "routes": 12,
  "feetSnappedToDeck": 2,
@@ -34,7 +34,7 @@
    1024
   ]
  ],
- "proxies": 1017,
+ "proxies": 1446,
  "scope": "Geometry (real lakeside GLB triangles, lakeside-local) + real TS lens functions. Not a render or device acceptance.",
  "before": {
   "frames": 219811,
@@ -51,7 +51,7 @@
    "LK_clothesline_i": 4,
    "LK_pavilion_i": 411
   },
-  "clear11Share": 0.9415,
+  "clear11Share": 0.9091,
   "armFloorFrames": 0,
   "terrainChestHits": 37,
   "maxExtraStepM": 0,
@@ -354,438 +354,407 @@
  },
  "after": {
   "frames": 219811,
-  "occludedFrames": 499,
-  "headOccludedFrames": 464,
-  "occludedShare": 0.0023,
+  "occludedFrames": 721,
+  "headOccludedFrames": 688,
+  "occludedShare": 0.0033,
   "byOccluder": {
+   "LK_house_A_i": 411,
+   "LK_chime_post_i": 146,
    "LK_clothesline_i": 15,
-   "LK_tree_round_i": 58,
-   "LK_house_A_i": 339,
-   "LK_bridge_i": 4,
-   "LK_pavilion_i": 11,
-   "LK_chime_post_i": 22,
-   "LK_house_B_i": 50
+   "LK_tree_round_i": 95,
+   "LK_pavilion_i": 1,
+   "LK_house_B_i": 53
   },
-  "clear11Share": 0.9744,
-  "armFloorFrames": 13588,
-  "terrainChestHits": 37,
-  "maxExtraStepM": 1.187,
-  "maxExtraTurnDegS": 973.1,
+  "clear11Share": 0.9679,
+  "armFloorFrames": 28618,
+  "terrainChestHits": 0,
+  "maxExtraStepM": 1.2,
+  "maxExtraTurnDegS": 444.7,
   "sample": [
    {
     "lens": [
-     -16.18,
-     2.08,
-     -8.86
+     -13.64,
+     2.72,
+     -4.39
     ],
-    "route": 3,
-    "i": 2,
-    "by": "LK_clothesline_i",
+    "route": 1,
+    "i": 412,
+    "by": "LK_house_A_i",
     "feet": [
-     -15.78,
+     -15.11,
      0.59,
-     -7.31
+     -4.48
     ],
     "raw": [
-     -17.67,
-     2.05,
-     -16.1
+     -8.1,
+     3.99,
+     -4.08
     ],
-    "crane": 0,
+    "crane": 8.088227334792327,
     "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.23,
-     2.08,
-     -8.8
-    ],
-    "route": 3,
-    "i": 3,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.77,
-     0.59,
-     -7.26
-    ],
-    "raw": [
-     -17.66,
-     2.05,
-     -16.06
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.28,
-     2.08,
-     -8.73
-    ],
-    "route": 3,
-    "i": 4,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.76,
-     0.59,
-     -7.22
-    ],
-    "raw": [
-     -17.65,
-     2.05,
-     -16.01
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.34,
-     2.08,
-     -8.66
-    ],
-    "route": 3,
-    "i": 5,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.75,
-     0.59,
-     -7.17
-    ],
-    "raw": [
-     -17.64,
-     2.05,
-     -15.97
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.39,
-     2.08,
-     -8.59
-    ],
-    "route": 3,
-    "i": 6,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.74,
-     0.59,
-     -7.13
-    ],
-    "raw": [
-     -17.63,
-     2.05,
-     -15.92
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.44,
-     2.08,
-     -8.52
-    ],
-    "route": 3,
-    "i": 7,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.73,
-     0.59,
-     -7.08
-    ],
-    "raw": [
-     -17.62,
-     2.05,
-     -15.88
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.48,
-     2.08,
-     -8.44
-    ],
-    "route": 3,
-    "i": 8,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.72,
-     0.59,
-     -7.03
-    ],
-    "raw": [
-     -17.61,
-     2.05,
-     -15.83
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.38,
-     2.08,
-     -8.24
-    ],
-    "route": 3,
-    "i": 13,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.67,
-     0.59,
-     -6.81
-    ],
-    "raw": [
-     -17.56,
-     2.05,
-     -15.6
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.99,
-    "head": true,
-    "chest": true,
-    "lensId": "orbit yaw+180 p2 d9"
-   },
-   {
-    "lens": [
-     -16.12,
-     2.45,
-     -8.88
-    ],
-    "route": 3,
-    "i": 1,
-    "by": "LK_clothesline_i",
-    "feet": [
-     -15.79,
-     0.59,
-     -7.35
-    ],
-    "raw": [
-     -17.61,
-     4.07,
-     -15.85
-    ],
-    "crane": 0,
-    "arm": 1.6,
-    "full": 8.92,
+    "full": 7.28,
     "head": false,
     "chest": true,
-    "lensId": "orbit yaw+180 p15 d9"
+    "lensId": "follow 390x844"
    },
    {
     "lens": [
-     -16.17,
-     2.44,
-     -8.82
+     -13.68,
+     2.71,
+     -4.41
     ],
-    "route": 3,
-    "i": 2,
-    "by": "LK_clothesline_i",
+    "route": 1,
+    "i": 413,
+    "by": "LK_house_A_i",
     "feet": [
-     -15.78,
+     -15.16,
      0.59,
-     -7.31
+     -4.5
     ],
     "raw": [
-     -17.6,
-     4.07,
-     -15.81
+     -8.14,
+     3.99,
+     -4.1
     ],
-    "crane": -0.3635955569871374,
+    "crane": 7.794142982509086,
     "arm": 1.6,
-    "full": 8.92,
-    "head": false,
+    "full": 7.28,
+    "head": true,
     "chest": true,
-    "lensId": "orbit yaw+180 p15 d9"
+    "lensId": "follow 390x844"
    },
    {
     "lens": [
-     -16.22,
-     2.43,
-     -8.76
+     -13.72,
+     2.71,
+     -4.43
     ],
-    "route": 3,
-    "i": 3,
-    "by": "LK_clothesline_i",
+    "route": 1,
+    "i": 414,
+    "by": "LK_house_A_i",
     "feet": [
-     -15.77,
+     -15.2,
      0.59,
-     -7.26
+     -4.51
     ],
     "raw": [
-     -17.59,
-     4.07,
-     -15.76
+     -8.19,
+     3.99,
+     -4.12
     ],
-    "crane": -0.7139709410681961,
+    "crane": 7.510751406612808,
     "arm": 1.6,
-    "full": 8.92,
-    "head": false,
+    "full": 7.28,
+    "head": true,
     "chest": true,
-    "lensId": "orbit yaw+180 p15 d9"
+    "lensId": "follow 390x844"
    },
    {
     "lens": [
-     -16.27,
-     2.42,
-     -8.7
+     -13.76,
+     2.7,
+     -4.45
     ],
-    "route": 3,
-    "i": 4,
-    "by": "LK_clothesline_i",
+    "route": 1,
+    "i": 415,
+    "by": "LK_house_A_i",
     "feet": [
-     -15.76,
+     -15.24,
      0.59,
-     -7.22
+     -4.53
     ],
     "raw": [
-     -17.58,
-     4.07,
-     -15.72
+     -8.23,
+     3.99,
+     -4.14
     ],
-    "crane": -1.0516068318563014,
+    "crane": 7.237663822504877,
     "arm": 1.6,
-    "full": 8.92,
-    "head": false,
+    "full": 7.28,
+    "head": true,
     "chest": true,
-    "lensId": "orbit yaw+180 p15 d9"
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -13.81,
+     2.69,
+     -4.42
+    ],
+    "route": 1,
+    "i": 416,
+    "by": "LK_house_A_i",
+    "feet": [
+     -15.28,
+     0.59,
+     -4.55
+    ],
+    "raw": [
+     -8.29,
+     3.99,
+     -3.95
+    ],
+    "crane": 6.974505581621946,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -7.56,
+     3.17,
+     -2.63
+    ],
+    "route": 10,
+    "i": 224,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -8.12,
+     0.87,
+     -1.36
+    ],
+    "raw": [
+     -5.31,
+     4.27,
+     -7.8
+    ],
+    "crane": 14.707261852678261,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -7.59,
+     3.15,
+     -2.61
+    ],
+    "route": 10,
+    "i": 225,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -8.15,
+     0.87,
+     -1.33
+    ],
+    "raw": [
+     -5.34,
+     4.27,
+     -7.77
+    ],
+    "crane": 14.172512346170238,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -7.62,
+     3.14,
+     -2.58
+    ],
+    "route": 10,
+    "i": 226,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -8.18,
+     0.87,
+     -1.29
+    ],
+    "raw": [
+     -5.38,
+     4.27,
+     -7.73
+    ],
+    "crane": 13.657206094128954,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -7.65,
+     3.13,
+     -2.55
+    ],
+    "route": 10,
+    "i": 227,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -8.21,
+     0.87,
+     -1.26
+    ],
+    "raw": [
+     -5.41,
+     4.27,
+     -7.7
+    ],
+    "crane": 13.160636148460659,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -7.68,
+     3.12,
+     -2.52
+    ],
+    "route": 10,
+    "i": 228,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -8.25,
+     0.87,
+     -1.23
+    ],
+    "raw": [
+     -5.44,
+     4.27,
+     -7.66
+    ],
+    "crane": 12.6821212653902,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -7.71,
+     2.81,
+     -2.49
+    ],
+    "route": 10,
+    "i": 229,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -8.28,
+     0.57,
+     -1.19
+    ],
+    "raw": [
+     -5.47,
+     3.97,
+     -7.63
+    ],
+    "crane": 12.221004970863403,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
+   },
+   {
+    "lens": [
+     -7.74,
+     2.79,
+     -2.47
+    ],
+    "route": 10,
+    "i": 230,
+    "by": "LK_chime_post_i",
+    "feet": [
+     -8.31,
+     0.57,
+     -1.16
+    ],
+    "raw": [
+     -5.5,
+     3.97,
+     -7.6
+    ],
+    "crane": 11.776654659931037,
+    "arm": 1.6,
+    "full": 7.28,
+    "head": true,
+    "chest": true,
+    "lensId": "follow 390x844"
    }
   ],
   "worstStep": {
    "lens": "orbit yaw-90 p35 d9",
-   "route": 1,
-   "i": 242,
-   "s": 1.19,
+   "route": 9,
+   "i": 85,
+   "s": 1.2,
    "feet": [
-    -7.82,
-    0.83,
-    -1.35
+    -27.31,
+    0.97,
+    48.28
    ],
    "from": [
-    -6.66,
-    9.39,
-    -3.95
+    -27.19,
+    6.59,
+    51.68
    ],
    "to": [
-    -6.98,
-    8.37,
-    -3.33
+    -27.1,
+    5.76,
+    50.75
    ],
-   "crane": 37.2935965989004,
-   "arm": 1.62,
-   "hard": 1.62,
+   "crane": 19.82492259859144,
+   "arm": 1.72,
+   "hard": 1.72,
    "full": 8.8
   },
   "byLensFamily": {
    "follow": {
     "frames": 80983,
-    "occ": 0,
+    "occ": 145,
     "maxStep": 0.500746491521187
    },
    "orbit": {
     "frames": 138828,
-    "occ": 499,
-    "maxStep": 1.187448266933881,
-    "snaps": 7,
+    "occ": 576,
+    "maxStep": 1.199979012403293,
+    "snaps": 2,
     "snapSample": [
      {
-      "lens": "orbit yaw+90 p2 d9",
-      "r": 1,
-      "i": 286,
-      "s": 1.17,
-      "crane": 8.59644333167867,
-      "swing": 19.835417004265576,
-      "arm": 2.27,
-      "hard": 2.27
-     },
-     {
-      "lens": "orbit yaw+90 p2 d9",
-      "r": 10,
-      "i": 156,
-      "s": 1.17,
-      "crane": 0.08238937051584871,
-      "swing": 11.666666666657623,
-      "arm": 1.63,
-      "hard": 3.91
-     },
-     {
-      "lens": "orbit yaw+90 p15 d9",
-      "r": 1,
-      "i": 286,
-      "s": 1.17,
-      "crane": 5.64792142098758,
-      "swing": 19.727807908442376,
-      "arm": 2.29,
-      "hard": 2.29
+      "lens": "orbit yaw-90 p35 d9",
+      "r": 9,
+      "i": 85,
+      "s": 1.2,
+      "crane": 19.82492259859144,
+      "swing": -38.34690967244092,
+      "arm": 1.72,
+      "hard": 1.72
      },
      {
       "lens": "orbit yaw-90 p35 d9",
-      "r": 1,
-      "i": 242,
-      "s": 1.19,
-      "crane": 37.2935965989004,
-      "swing": 0.053371418126224125,
-      "arm": 1.62,
-      "hard": 1.62
-     },
-     {
-      "lens": "orbit yaw-90 p35 d9",
-      "r": 1,
-      "i": 243,
+      "r": 9,
+      "i": 86,
       "s": 1.18,
-      "crane": 39.626929932233736,
-      "swing": 0.04273649074037976,
-      "arm": 1.76,
-      "hard": 1.76
+      "crane": 21.852434947118603,
+      "swing": -36.01357633910759,
+      "arm": 1.87,
+      "hard": 1.87
      }
     ]
    }
   },
   "L1": "PASS",
-  "followOccShare": 0,
+  "followOccShare": 0.00179,
   "L2": "PASS",
   "L3orbit": "PASS"
  },
  "L4wiring": {
   "nightCloudLayerHidden": true,
-  "orbit": true,
+  "orbit": false,
   "follow": true,
   "proxies": true,
   "reset": true,
-  "status": "PASS"
+  "status": "FAIL"
  }
 }
