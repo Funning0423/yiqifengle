@@ -1,0 +1,15 @@
+{
+ "about": "Live Creator 3.8.8 web-test build (/workspace/f8/web-test, built 2026-10-30 from a tree whose room_no_original_chair.glb is unchanged since dc34e4d5), Chrome/SwiftShader, island home scene: SkinnedMeshRenderer model.worldBounds (centre, half extents) read from cc at runtime. The palms sway (wind clip), so a few cm–0.4 m of animation offset is expected vs the bind pose.",
+ "glb": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
+ "glbSha256Prefix": "f62e2832d326d3ec0251",
+ "rendered": {
+  "env_prop_palm_young_01": {"center": [3.038, 1.181, 2.552], "half": [1.528, 1.195, 1.354]},
+  "env_prop_palm_tall_01": {"center": [-4.913, 3.263, 0.316], "half": [2.541, 3.197, 2.544]},
+  "env_prop_palm_lean_01": {"center": [5.139, 2.125, 9.435], "half": [2.205, 2.164, 2.196]},
+  "env_rear_window_palm": {"center": [2.412, 1.823, -7.852], "half": [1.874, 1.839, 1.867]},
+  "env_anim_cat_tuxedo_01": {"center": [0.622, 0.221, 5.793]},
+  "env_anim_crab_01": {"center": [5.844, -0.033, 7.925]},
+  "env_anim_seagull_01": {"center": [3.405, 0.081, 8.591]},
+  "env_anim_turtle_01": {"center": [2.4, -0.057, 8.99]}
+ }
+}
