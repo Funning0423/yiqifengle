@@ -1,0 +1,17 @@
+--- a/team/ggbot/outbox/20261029-full9c-final/MAC-CHECKLIST.md
++++ b/team/ggbot/outbox/20261029-full9c-final/MAC-CHECKLIST.md
+@@ -24,3 +24,14 @@
+ 
+ ## 每次构建后清理
+ 构建并确认包体后删除探针剥离暂存目录：`rm -rf ~/wt/qf-stage`（只删这一个目录）。
++
++## fullN camera (8c98bbfe)（运镜bot，2026-10-30；镜头部分 = cine/b19-full9c-final-set @ 8c98bbfe，基于 cd0893ea）
++- [ ] camTrace on, MULTI = 0（每帧只有一个镜头写入方）；同时开 camTraceStacks=1，凡有双写都记下栈，重点看已知剩余双写：node-lens 约第 2800 帧、sky→lake 起步约第 3611 帧（RegionJourneyCore:378 骑乘起点重复写入，按 Grok Bot 裁定下一版与 GGbot 一起删，不在本次 fullN 里）
++- [ ] 导出 Mac 的 camTrace 后跑 `node tools/journey-integration/collision-gate.cjs --trace <mac-camtrace.txt> --json <out.json>`：违规 0。注意：8c98bbfe 里的 `lens-clearance-gate.cjs` 没有 `--trace` 参数（只吃代码模型：`node tools/journey-integration/lens-clearance-gate.cjs --json <out>`，盒子上已 0 违规）；读 Mac trace 的是 collision-gate。门限：站立 ≥1.1 m，运动/衔接离地 ≥1.5 m，离实体/篮/球皮/她 ≥0.5 m
++- [ ] t = 337.9 s 那一帧单独看：离地与离实体都在门限以上，无穿模
++- [ ] 湖边起飞（lift-off）和 #159 飞行段：镜头不穿气球、篮、地形
++- [ ] 草地云 m407–431：云在应在的位置，不在原点 (0,0,0) 堆叠
++- [ ] S4>S6 skip 衔接：连续无硬切，结束在 S6 站位镜头；S6 站位整体上抬 0.16 m 后的构图（界面验收部在 Mac 上复核构图）
++- [ ] 3b 白天降落：她全程在画面内（margin ≥ 0.08）
++- [ ] T6：她离镜头 > 12 m 时在画面内 ≥ 95%（box 值 97.40%，910 帧画外全部是棋盘镜头↔轨道衔接两端各约 0.3 s 的设计内帧，见 cine/b20-t6-offframe REPORT.md）
++- [ ] 7 个屏（390x844, 414x896, 360x780, 375x667, 320x568, 390x520, 768x1024）：微信右上角胶囊按钮从不压在她脸上

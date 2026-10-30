@@ -1,0 +1,1688 @@
+{
+ "base": "8c98bbfe",
+ "t6": {
+  "farFrames": 35048,
+  "inFrame": 34138,
+  "off": 910,
+  "pct": 97.4
+ },
+ "spans": [
+  {
+   "walk": "S2>S3",
+   "screen": "390x844",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1624,
+   "lastSample": 1644,
+   "frames": 21,
+   "durationS": 0.35,
+   "joinT_s": 10.99,
+   "joinProgress": [
+    0.971,
+    1
+   ],
+   "boardAimWeight": [
+    0.443,
+    1
+   ],
+   "distM": [
+    45.55,
+    45.56
+   ],
+   "minMargin": -1.468,
+   "offAxisDeg": [
+    12.2,
+    27.6
+   ],
+   "boardLensMargin": -1.468,
+   "boardLensOffAxisDeg": 27.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S2>S3",
+   "screen": "414x896",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1625,
+   "lastSample": 1645,
+   "frames": 21,
+   "durationS": 0.35,
+   "joinT_s": 10.99,
+   "joinProgress": [
+    0.971,
+    1
+   ],
+   "boardAimWeight": [
+    0.441,
+    1
+   ],
+   "distM": [
+    45.55,
+    45.56
+   ],
+   "minMargin": -1.468,
+   "offAxisDeg": [
+    12.2,
+    27.6
+   ],
+   "boardLensMargin": -1.468,
+   "boardLensOffAxisDeg": 27.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S2>S3",
+   "screen": "360x780",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1626,
+   "lastSample": 1645,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 10.99,
+   "joinProgress": [
+    0.972,
+    1
+   ],
+   "boardAimWeight": [
+    0.47,
+    1
+   ],
+   "distM": [
+    45.58,
+    45.59
+   ],
+   "minMargin": -1.468,
+   "offAxisDeg": [
+    12.9,
+    27.6
+   ],
+   "boardLensMargin": -1.468,
+   "boardLensOffAxisDeg": 27.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S2>S3",
+   "screen": "375x667",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1481,
+   "lastSample": 1499,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 9.78,
+   "joinProgress": [
+    0.969,
+    1
+   ],
+   "boardAimWeight": [
+    0.502,
+    1
+   ],
+   "distM": [
+    41.35,
+    41.36
+   ],
+   "minMargin": -1.303,
+   "offAxisDeg": [
+    15.4,
+    30.7
+   ],
+   "boardLensMargin": -1.303,
+   "boardLensOffAxisDeg": 30.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S2>S3",
+   "screen": "320x568",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1480,
+   "lastSample": 1499,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 9.77,
+   "joinProgress": [
+    0.969,
+    1
+   ],
+   "boardAimWeight": [
+    0.485,
+    1
+   ],
+   "distM": [
+    41.31,
+    41.32
+   ],
+   "minMargin": -1.301,
+   "offAxisDeg": [
+    14.9,
+    30.7
+   ],
+   "boardLensMargin": -1.301,
+   "boardLensOffAxisDeg": 30.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S2>S3",
+   "screen": "390x520",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1320,
+   "lastSample": 1337,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 8.42,
+   "joinProgress": [
+    0.967,
+    1
+   ],
+   "boardAimWeight": [
+    0.58,
+    1
+   ],
+   "distM": [
+    36.78,
+    36.78
+   ],
+   "minMargin": -1.04,
+   "offAxisDeg": [
+    20.4,
+    35
+   ],
+   "boardLensMargin": -1.04,
+   "boardLensOffAxisDeg": 35,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S2>S3",
+   "screen": "768x1024",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1320,
+   "lastSample": 1337,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 8.42,
+   "joinProgress": [
+    0.967,
+    1
+   ],
+   "boardAimWeight": [
+    0.58,
+    1
+   ],
+   "distM": [
+    36.78,
+    36.78
+   ],
+   "minMargin": -1.04,
+   "offAxisDeg": [
+    20.4,
+    35
+   ],
+   "boardLensMargin": -1.04,
+   "boardLensOffAxisDeg": 35,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "390x844",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 19,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 11.12,
+   "joinProgress": [
+    0,
+    0.028
+   ],
+   "boardAimWeight": [
+    1,
+    0.448
+   ],
+   "distM": [
+    45.56,
+    45.55
+   ],
+   "minMargin": -1.468,
+   "offAxisDeg": [
+    27.6,
+    12.3
+   ],
+   "boardLensMargin": -1.468,
+   "boardLensOffAxisDeg": 27.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "390x844",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1930,
+   "lastSample": 1949,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 14.32,
+   "joinProgress": [
+    0.979,
+    1
+   ],
+   "boardAimWeight": [
+    0.477,
+    1
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    13.2,
+    27.7
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "414x896",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 19,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 11.12,
+   "joinProgress": [
+    0,
+    0.028
+   ],
+   "boardAimWeight": [
+    1,
+    0.448
+   ],
+   "distM": [
+    45.56,
+    45.55
+   ],
+   "minMargin": -1.468,
+   "offAxisDeg": [
+    27.6,
+    12.3
+   ],
+   "boardLensMargin": -1.468,
+   "boardLensOffAxisDeg": 27.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "414x896",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1930,
+   "lastSample": 1949,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 14.32,
+   "joinProgress": [
+    0.978,
+    1
+   ],
+   "boardAimWeight": [
+    0.475,
+    1
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    13.2,
+    27.7
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "360x780",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 19,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 11.12,
+   "joinProgress": [
+    0,
+    0.028
+   ],
+   "boardAimWeight": [
+    1,
+    0.448
+   ],
+   "distM": [
+    45.59,
+    45.58
+   ],
+   "minMargin": -1.468,
+   "offAxisDeg": [
+    27.6,
+    12.3
+   ],
+   "boardLensMargin": -1.468,
+   "boardLensOffAxisDeg": 27.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "360x780",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1932,
+   "lastSample": 1950,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 14.33,
+   "joinProgress": [
+    0.979,
+    1
+   ],
+   "boardAimWeight": [
+    0.503,
+    1
+   ],
+   "distM": [
+    59.8,
+    59.81
+   ],
+   "minMargin": -1.314,
+   "offAxisDeg": [
+    14,
+    27.7
+   ],
+   "boardLensMargin": -1.314,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "375x667",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 9.91,
+   "joinProgress": [
+    0,
+    0.03
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    41.36,
+    41.35
+   ],
+   "minMargin": -1.303,
+   "offAxisDeg": [
+    30.7,
+    15.4
+   ],
+   "boardLensMargin": -1.303,
+   "boardLensOffAxisDeg": 30.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "375x667",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1787,
+   "lastSample": 1805,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.12,
+   "joinProgress": [
+    0.978,
+    1
+   ],
+   "boardAimWeight": [
+    0.536,
+    1
+   ],
+   "distM": [
+    55.56,
+    55.57
+   ],
+   "minMargin": -1.091,
+   "offAxisDeg": [
+    16.1,
+    30.1
+   ],
+   "boardLensMargin": -1.091,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "320x568",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 9.9,
+   "joinProgress": [
+    0,
+    0.03
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    41.32,
+    41.31
+   ],
+   "minMargin": -1.301,
+   "offAxisDeg": [
+    30.7,
+    15.4
+   ],
+   "boardLensMargin": -1.301,
+   "boardLensOffAxisDeg": 30.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "320x568",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1787,
+   "lastSample": 1804,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 13.11,
+   "joinProgress": [
+    0.979,
+    1
+   ],
+   "boardAimWeight": [
+    0.571,
+    1
+   ],
+   "distM": [
+    55.53,
+    55.53
+   ],
+   "minMargin": -1.089,
+   "offAxisDeg": [
+    17.2,
+    30.1
+   ],
+   "boardLensMargin": -1.089,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "390x520",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 8.55,
+   "joinProgress": [
+    0,
+    0.033
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    36.78,
+    36.78
+   ],
+   "minMargin": -1.04,
+   "offAxisDeg": [
+    35,
+    19.4
+   ],
+   "boardLensMargin": -1.04,
+   "boardLensOffAxisDeg": 35,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "390x520",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1627,
+   "lastSample": 1642,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.76,
+   "joinProgress": [
+    0.979,
+    1
+   ],
+   "boardAimWeight": [
+    0.663,
+    1
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    22.1,
+    33.1
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "768x1024",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 8.55,
+   "joinProgress": [
+    0,
+    0.033
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    36.78,
+    36.78
+   ],
+   "minMargin": -1.04,
+   "offAxisDeg": [
+    35,
+    19.4
+   ],
+   "boardLensMargin": -1.04,
+   "boardLensOffAxisDeg": 35,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S3>S4",
+   "screen": "768x1024",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1627,
+   "lastSample": 1642,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.76,
+   "joinProgress": [
+    0.979,
+    1
+   ],
+   "boardAimWeight": [
+    0.663,
+    1
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    22.1,
+    33.1
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "390x844",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.97,
+   "joinProgress": [
+    0,
+    0.021
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "390x844",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 2289,
+   "lastSample": 2308,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 17.72,
+   "joinProgress": [
+    0.982,
+    1
+   ],
+   "boardAimWeight": [
+    0.453,
+    1
+   ],
+   "distM": [
+    71.17,
+    71.18
+   ],
+   "minMargin": -1.577,
+   "offAxisDeg": [
+    13.4,
+    29.6
+   ],
+   "boardLensMargin": -1.577,
+   "boardLensOffAxisDeg": 29.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "414x896",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.97,
+   "joinProgress": [
+    0,
+    0.021
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "414x896",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 2289,
+   "lastSample": 2308,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 17.72,
+   "joinProgress": [
+    0.982,
+    1
+   ],
+   "boardAimWeight": [
+    0.451,
+    1
+   ],
+   "distM": [
+    71.17,
+    71.18
+   ],
+   "minMargin": -1.577,
+   "offAxisDeg": [
+    13.3,
+    29.6
+   ],
+   "boardLensMargin": -1.577,
+   "boardLensOffAxisDeg": 29.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "360x780",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.98,
+   "joinProgress": [
+    0,
+    0.021
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.81,
+    59.8
+   ],
+   "minMargin": -1.314,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.314,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "360x780",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 2289,
+   "lastSample": 2309,
+   "frames": 21,
+   "durationS": 0.35,
+   "joinT_s": 17.72,
+   "joinProgress": [
+    0.982,
+    1
+   ],
+   "boardAimWeight": [
+    0.428,
+    1
+   ],
+   "distM": [
+    71.2,
+    71.2
+   ],
+   "minMargin": -1.579,
+   "offAxisDeg": [
+    12.6,
+    29.6
+   ],
+   "boardLensMargin": -1.579,
+   "boardLensOffAxisDeg": 29.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "375x667",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 12.77,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    55.57,
+    55.56
+   ],
+   "minMargin": -1.091,
+   "offAxisDeg": [
+    30.1,
+    16.6
+   ],
+   "boardLensMargin": -1.091,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "375x667",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 2146,
+   "lastSample": 2164,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 16.51,
+   "joinProgress": [
+    0.982,
+    1
+   ],
+   "boardAimWeight": [
+    0.512,
+    1
+   ],
+   "distM": [
+    67.03,
+    67.03
+   ],
+   "minMargin": -1.297,
+   "offAxisDeg": [
+    16.2,
+    31.6
+   ],
+   "boardLensMargin": -1.297,
+   "boardLensOffAxisDeg": 31.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "320x568",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 12.76,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    55.53,
+    55.53
+   ],
+   "minMargin": -1.089,
+   "offAxisDeg": [
+    30.1,
+    16.6
+   ],
+   "boardLensMargin": -1.089,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "320x568",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 2144,
+   "lastSample": 2163,
+   "frames": 20,
+   "durationS": 0.333,
+   "joinT_s": 16.5,
+   "joinProgress": [
+    0.982,
+    1
+   ],
+   "boardAimWeight": [
+    0.496,
+    1
+   ],
+   "distM": [
+    66.99,
+    67
+   ],
+   "minMargin": -1.294,
+   "offAxisDeg": [
+    15.7,
+    31.6
+   ],
+   "boardLensMargin": -1.294,
+   "boardLensOffAxisDeg": 31.6,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "390x520",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 15,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.41,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.653
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    33.1,
+    21.8
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "390x520",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1984,
+   "lastSample": 2001,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 15.15,
+   "joinProgress": [
+    0.982,
+    1
+   ],
+   "boardAimWeight": [
+    0.59,
+    1
+   ],
+   "distM": [
+    62.46,
+    62.46
+   ],
+   "minMargin": -0.903,
+   "offAxisDeg": [
+    20.3,
+    34.2
+   ],
+   "boardLensMargin": -0.903,
+   "boardLensOffAxisDeg": 34.2,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "768x1024",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 15,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.41,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.653
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    33.1,
+    21.8
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S5",
+   "screen": "768x1024",
+   "case": "board entry → exit",
+   "join": "out",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.o)",
+   "firstSample": 1984,
+   "lastSample": 2001,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 15.15,
+   "joinProgress": [
+    0.982,
+    1
+   ],
+   "boardAimWeight": [
+    0.59,
+    1
+   ],
+   "distM": [
+    62.46,
+    62.46
+   ],
+   "minMargin": -0.903,
+   "offAxisDeg": [
+    20.3,
+    34.2
+   ],
+   "boardLensMargin": -0.903,
+   "boardLensOffAxisDeg": 34.2,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "390x844",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.88,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "390x844",
+   "case": "from S6 (planSkip)",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.88,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "414x896",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.88,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "414x896",
+   "case": "from S6 (planSkip)",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.88,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.78,
+    59.78
+   ],
+   "minMargin": -1.312,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.312,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "360x780",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.89,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.81,
+    59.8
+   ],
+   "minMargin": -1.314,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.314,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "360x780",
+   "case": "from S6 (planSkip)",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 18,
+   "frames": 19,
+   "durationS": 0.317,
+   "joinT_s": 13.89,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.5
+   ],
+   "distM": [
+    59.81,
+    59.8
+   ],
+   "minMargin": -1.314,
+   "offAxisDeg": [
+    27.7,
+    13.9
+   ],
+   "boardLensMargin": -1.314,
+   "boardLensOffAxisDeg": 27.7,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "375x667",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 12.68,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    55.57,
+    55.56
+   ],
+   "minMargin": -1.091,
+   "offAxisDeg": [
+    30.1,
+    16.6
+   ],
+   "boardLensMargin": -1.091,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "375x667",
+   "case": "from S6 (planSkip)",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 12.68,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    55.57,
+    55.56
+   ],
+   "minMargin": -1.091,
+   "offAxisDeg": [
+    30.1,
+    16.6
+   ],
+   "boardLensMargin": -1.091,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "320x568",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 12.67,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    55.53,
+    55.53
+   ],
+   "minMargin": -1.089,
+   "offAxisDeg": [
+    30.1,
+    16.6
+   ],
+   "boardLensMargin": -1.089,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "320x568",
+   "case": "from S6 (planSkip)",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 17,
+   "frames": 18,
+   "durationS": 0.3,
+   "joinT_s": 12.67,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.552
+   ],
+   "distM": [
+    55.53,
+    55.53
+   ],
+   "minMargin": -1.089,
+   "offAxisDeg": [
+    30.1,
+    16.6
+   ],
+   "boardLensMargin": -1.089,
+   "boardLensOffAxisDeg": 30.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "390x520",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 15,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.32,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.653
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    33.1,
+    21.8
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "390x520",
+   "case": "from S6 (planSkip)",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 15,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.32,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.653
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    33.1,
+    21.8
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "768x1024",
+   "case": "board entry → exit",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 15,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.32,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.653
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    33.1,
+    21.8
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  },
+  {
+   "walk": "S4>S6",
+   "screen": "768x1024",
+   "case": "from S6 (planSkip)",
+   "join": "in",
+   "writer": "RegionNodeStage.skyJoin → SkyRunLens.skyRailJoin (SKY_JOINS.i)",
+   "firstSample": 0,
+   "lastSample": 15,
+   "frames": 16,
+   "durationS": 0.267,
+   "joinT_s": 11.32,
+   "joinProgress": [
+    0,
+    0.022
+   ],
+   "boardAimWeight": [
+    1,
+    0.653
+   ],
+   "distM": [
+    50.93,
+    50.93
+   ],
+   "minMargin": -0.768,
+   "offAxisDeg": [
+    33.1,
+    21.8
+   ],
+   "boardLensMargin": -0.768,
+   "boardLensOffAxisDeg": 33.1,
+   "includesBoardLensFrame": true,
+   "cls": "a",
+   "reason": "board-lens end of the board↔rail join: aim still blended to the board lens (court framing, she is 28–35° off its axis); first/last frame = the live board lens"
+  }
+ ],
+ "summary": {
+  "spans": 49,
+  "deliberate": {
+   "spans": 49,
+   "frames": 910
+  },
+  "lost": {
+   "spans": 0,
+   "frames": 0
+  }
+ }
+}
