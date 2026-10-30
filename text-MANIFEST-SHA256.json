@@ -2701,8 +2701,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CoastBoardLens.ts",
-    "bytes": 15909,
-    "sha256": "d1dced3bdb915354dc0d7fe4154015eac18bbf1058390d5fadbad95a591976fa"
+    "bytes": 21346,
+    "sha256": "0a83c2cf5c57aa8caaef64e4fea2273f50032d8eee3b8f27dace1ffb6bfb9c21"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CoastBoardLens.ts.meta",
