@@ -965,11 +965,11 @@
   "case": "from S6 (planSkip)",
   "part": "skip",
   "startS": 13.9,
-  "frames": 65,
-  "chestHidFrames": 29,
+  "frames": 63,
+  "chestHidFrames": 24,
   "faceHidFrames": 24,
   "outOfFrameFrames": 0,
-  "durationS": 1.08
+  "durationS": 1.05
  },
  {
   "walk": "S4>S6",
@@ -1013,11 +1013,11 @@
   "case": "from S6 (planSkip)",
   "part": "skip",
   "startS": 13.9,
-  "frames": 65,
-  "chestHidFrames": 29,
+  "frames": 63,
+  "chestHidFrames": 24,
   "faceHidFrames": 24,
   "outOfFrameFrames": 0,
-  "durationS": 1.08
+  "durationS": 1.05
  },
  {
   "walk": "S4>S6",
@@ -1061,11 +1061,11 @@
   "case": "from S6 (planSkip)",
   "part": "skip",
   "startS": 13.92,
-  "frames": 65,
-  "chestHidFrames": 29,
+  "frames": 63,
+  "chestHidFrames": 24,
   "faceHidFrames": 24,
   "outOfFrameFrames": 0,
-  "durationS": 1.08
+  "durationS": 1.05
  },
  {
   "walk": "S4>S6",
@@ -1109,11 +1109,11 @@
   "case": "from S6 (planSkip)",
   "part": "skip",
   "startS": 12.7,
-  "frames": 65,
-  "chestHidFrames": 29,
+  "frames": 63,
+  "chestHidFrames": 24,
   "faceHidFrames": 24,
   "outOfFrameFrames": 0,
-  "durationS": 1.08
+  "durationS": 1.05
  },
  {
   "walk": "S4>S6",
@@ -1157,11 +1157,11 @@
   "case": "from S6 (planSkip)",
   "part": "skip",
   "startS": 12.7,
-  "frames": 65,
-  "chestHidFrames": 29,
+  "frames": 63,
+  "chestHidFrames": 24,
   "faceHidFrames": 24,
   "outOfFrameFrames": 0,
-  "durationS": 1.08
+  "durationS": 1.05
  },
  {
   "walk": "S4>S6",
@@ -1205,11 +1205,11 @@
   "case": "from S6 (planSkip)",
   "part": "skip",
   "startS": 11.35,
-  "frames": 65,
-  "chestHidFrames": 29,
+  "frames": 63,
+  "chestHidFrames": 24,
   "faceHidFrames": 24,
   "outOfFrameFrames": 0,
-  "durationS": 1.08
+  "durationS": 1.05
  },
  {
   "walk": "S4>S6",
@@ -1253,10 +1253,10 @@
   "case": "from S6 (planSkip)",
   "part": "skip",
   "startS": 11.35,
-  "frames": 65,
-  "chestHidFrames": 29,
+  "frames": 63,
+  "chestHidFrames": 24,
   "faceHidFrames": 24,
   "outOfFrameFrames": 0,
-  "durationS": 1.08
+  "durationS": 1.05
  }
 ]

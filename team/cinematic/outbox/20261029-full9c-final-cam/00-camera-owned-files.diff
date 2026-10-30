@@ -1,0 +1,1883 @@
+diff --git a/creator-build-project/assets/scripts/region/SkyFinaleRail.ts b/creator-build-project/assets/scripts/region/SkyFinaleRail.ts
+new file mode 100644
+index 00000000..00f5e8e2
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/SkyFinaleRail.ts
+@@ -0,0 +1,2 @@
++export const SKY_RAILS:Readonly<Record<string,readonly string[]>>={'S1>S2':['AyS2GmhGzhG1KqLyoF','AjX8vBikEr1EhjBq0Bm-D_tErlBm1Bi9D7pEnpBi2B09Dj9Dx-Bg-BizD'],'S2>S3':['A_xB0qC48DryEtzBipCy8DztEt1BymCu3Dh-Dx3Bo-Bk3Dn5D96Bu3Bk7Dz0DpgC65B29D','AsUhHuzCtzC8I5IonCt-B0CnLohC11B4BlNi_B'],'S3>S4':['AkvBthBq2B99BwrB9jB8zB1nB0ZhmBogB','A-iB5Nve2W8PrGldib6ItCxgBkgBhB-E9nB'],'S4>S5':['AsEoYjc-S5DkEtDyErE0DxC','AkgBlU3hC2gCqRhQ1oCk6C7KpG_4C'],'S4>S6':['A7B0cjX6JvHuT5KqGzKoT5I','A0VrHh9Dq-DvCXrmEy3E_V6D9kE04EnX8C7jE']};
++export const SKY_JOINS:Readonly<Record<string,{i:string;o:string;m?:string;k?:string}>>={'S1>S2':{i:'umCpeysH',o:'umCpeysH',m:'iQmKqoFvyF8O0jFvyFyT--EvyFoYo6El3F0hBy1E77FgrB8wExgGs0BwnExgG49Bk-D70Gs0Bk-D'},'S2>S3':{i:'umCpeysH',o:'mvB7Rm7Cx2B9f6nHrjGpeysH',m:'jlB24B09DzxFg0B09D9sFqvB09DnoFqvB-4D'},'S3>S4':{i:'umCpeysH91GhYo-Fn0F3cq2B',o:'uW-EggD90BpeysH',m:''},'S4>S5':{i:'umCpeysHnpHnNs0C',o:'oUuM9qCw-BiD5uB8nC1P6S2d3du_Ep4DjnB82F7jFpeysH',m:'iSEDAE5EsJxEvJiO6EtmC-8BwJjrC0hCwJ5vCgrCE5vCi5CzStmC'},'S4>S6':{i:'umCpeysHx9HmF20C',o:'',m:'6LiS7HvFsNxM8D2InRyIVhyB4yB2IluC6gCV1zD',k:'J4a1Y0CiW1YqHsR1YgM2M1Y2QgIrdsVqDjwB6sB2MnsC86BqDt2D'}};
+diff --git a/creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta b/creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta
+new file mode 100644
+index 00000000..9bbe2839
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "e6ec5810-4b56-4952-8d18-276a389913e7",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+\ No newline at end of file
+diff --git a/creator-build-project/assets/scripts/region/SkyFinaleShot.ts b/creator-build-project/assets/scripts/region/SkyFinaleShot.ts
+index 07bff8ee..7e634c4b 100644
+--- a/creator-build-project/assets/scripts/region/SkyFinaleShot.ts
++++ b/creator-build-project/assets/scripts/region/SkyFinaleShot.ts
+@@ -8,48 +8,16 @@
+  * head/chest not hidden (guardEval), lens ≥ minClearM (1.1 m) from every box and not inside one, lens in front of her (face seen).
+  * Kept: her ≥ minHerShare of the frame height and ≥ minRingShare of the ring samples on screen (worst screen each); score = ring share +
+  * her share (a low side angle: her at a quarter of the frame, the ring arc across the top, the city between). */
+-import {guardEval,type OccBox} from './LensOcclusion';
+-import {herMargin} from './LensSmooth';
+-import {herOcclusion} from './LensAvoid';
+-import {SCREENS} from './ExploreCameraCore';
+ type V3=[number,number,number];
+-/** env_sky_starring vertices binned every 7.5° round the ring centroid (model-local, from env_skycity.glb). */
+-export const STAR_RING_LOCAL:readonly (readonly number[])[]=[[-1.01,25.43,-47.42],[-3.57,24.88,-46.58],[-6.51,24.35,-46.04],[-9.33,23.74,-45.1],[-12,23.07,-43.83],[-14.45,22.35,-42.2],[-17.15,21.47,-40.07],[-18.69,20.71,-37.72],[-20.26,20.01,-35.66],[-22.72,18.14,-29.16],[-22.92,17.5,-26.57],[-23.34,16.78,-23.75],[-22.64,16.15,-20.66],[-22.32,15.54,-17.9],[-21.28,15.14,-15.57],[-19.89,14.7,-12.9],[-18.2,14.34,-10.4],[-16.17,14.09,-8.15],[-13.9,13.93,-6.14],[-11.91,13.84,-4.57],[-9.18,13.96,-3.5],[-6.76,14.03,-2.35],[0.29,14.72,-1.14],[2.27,15,-1.18],[5.2,15.49,-1.57],[8.04,16.04,-2.3],[10.74,16.68,-3.39],[13.98,17.64,-5.19],[15.96,18.16,-7.01],[18.31,19.13,-9.32],[20.39,20.03,-11.95],[21.26,20.76,-14.51],[23.25,23.33,-24.28],[22.79,23.9,-26.95],[22.47,24.54,-29.86],[20.97,25.03,-32.82],[19.93,25.51,-35.46],[18.05,25.87,-38.09],[15.85,26,-39.95],[13.51,26.24,-42.34],[10.81,26.18,-43.64],[8.39,26.16,-44.99],[1.43,25.6,-46.69],[-0.29,25.28,-46.35]];
+ export const SKY_FINALE={fovDeg:50,minClearM:1.1,minRingShare:0.08,minHerShare:0.2,faceYawMaxDeg:180,
+  /** approachS: shortest eased approach; holdS: seconds the shot is held (from the reward claim) before auto-continue; any input cancels it */
+  approachS:1.4,holdS:5.5,bodyM:[0.05,1.6] as readonly [number,number]};
+-export type SkyFinaleShot={position:V3;target:V3;fovVerticalDeg:number;armM:number;herFrac:number[];ringShare:number;clearM:number;yawDeg:number;lookUpDeg:number};
+-const boxDist=(P:readonly number[],b:OccBox)=>Math.hypot(Math.max(b.min[0]-P[0],0,P[0]-b.max[0]),Math.max(b.min[1]-P[1],0,P[1]-b.max[1]),Math.max(b.min[2]-P[2],0,P[2]-b.max[2]));
+ /** Projected point: ndc x/y (|·| ≤ 1 on screen) for a look-at pose; null behind the lens. */
+ export function ndc(P:readonly number[],T:readonly number[],fov:number,W:number,H:number,q:readonly number[]):[number,number]|null{
+  const f=[T[0]-P[0],T[1]-P[1],T[2]-P[2]],fl=Math.hypot(f[0],f[1],f[2])||1;for(let i=0;i<3;i++)f[i]/=fl;
+  let r=[f[2],0,-f[0]];const rl=Math.hypot(r[0],r[2])||1;r=[r[0]/rl,0,r[2]/rl];const u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+  const d=[q[0]-P[0],q[1]-P[1],q[2]-P[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];if(z<=0.05)return null;
+  const tv=Math.tan(fov*Math.PI/360),th=tv*W/H;return [(d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/(z*th),(d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/(z*tv)];}
+-/** Her height share of the frame (feet+0.05 … +1.6 m), by projection of her centre line. */
+-export function herShare(P:readonly number[],T:readonly number[],fov:number,W:number,H:number,feet:readonly number[]):number{
+- const a=ndc(P,T,fov,W,H,[feet[0],feet[1]+SKY_FINALE.bodyM[0],feet[2]]),b=ndc(P,T,fov,W,H,[feet[0],feet[1]+SKY_FINALE.bodyM[1],feet[2]]);return a&&b?Math.abs(b[1]-a[1])/2:0;}
+-export function ringShare(P:readonly number[],T:readonly number[],fov:number,W:number,H:number,ring:readonly (readonly number[])[]):number{
+- let n=0;for(const q of ring){const s=ndc(P,T,fov,W,H,q);if(s&&Math.abs(s[0])<=1&&Math.abs(s[1])<=1)n++;}return n/Math.max(1,ring.length);}
+-export function skyFinaleShot(feet:readonly number[],faceYawRad:number,ring:readonly (readonly number[])[],boxes:readonly OccBox[],o:{screens?:readonly (readonly [number,number])[];fov?:number;
+-  /** optional real-mesh checks (bake tool / test only): lens clearance in metres, and whether a point is seen from the lens */
+-  clearAt?:(p:readonly number[])=>number;seen?:(from:readonly number[],to:readonly number[])=>boolean}={}):SkyFinaleShot|null{
+- const S=SKY_FINALE,scr=o.screens??SCREENS,fov=o.fov??S.fovDeg;let best:SkyFinaleShot|null=null,bs=-1;
+- const near=boxes.filter(b=>boxDist(feet,b)<20);
+- for(let dy=-S.faceYawMaxDeg;dy<=S.faceYawMaxDeg;dy+=10)for(const arm of [4,5,6,7,8,10,12])for(const hc of [0.3,0.8,1.3,2,3])for(let up=4;up<=32;up+=4){
+-  const y=faceYawRad+dy*Math.PI/180,P:V3=[feet[0]+Math.sin(y)*arm,feet[1]+hc,feet[2]+Math.cos(y)*arm];
+-  const az=Math.atan2(feet[0]-P[0],feet[2]-P[2]),e=up*Math.PI/180,T:V3=[P[0]+Math.sin(az)*Math.cos(e)*10,P[1]+Math.sin(e)*10,P[2]+Math.cos(az)*Math.cos(e)*10];
+-  let clear=Infinity,ok=true;for(const b of near){const d=boxDist(P,b);if(d<clear)clear=d;if(d<S.minClearM){ok=false;break;}}if(!ok)continue;
+-  const g=guardEval({position:P,target:T,fovVerticalDeg:fov} as any,feet as any,near,{up:0,swing:0,share:1});if(g.head||g.chest||g.inside)continue;
+-  const hf:number[]=[];let rs=1;for(const [W,H] of scr){if(herMargin(P,T,fov,feet,[[W,H]] as any)<0){ok=false;break;}const h=herShare(P,T,fov,W,H,feet);if(h<S.minHerShare){ok=false;break;}hf.push(h);rs=Math.min(rs,ringShare(P,T,fov,W,H,ring));if(rs<S.minRingShare){ok=false;break;}}
+-  if(!ok)continue;
+-  if(o.clearAt){const c=o.clearAt(P);if(c<S.minClearM)continue;clear=Math.min(clear,c);}
+-  if(o.seen){if(!o.seen(P,[feet[0],feet[1]+1.45,feet[2]])||!o.seen(P,[feet[0],feet[1]+1.05,feet[2]]))continue;
+-   let seenRing=0,on=0;for(const q of ring){const n=ndc(P,T,fov,320,568,q);if(!n||Math.abs(n[0])>1||Math.abs(n[1])>1)continue;on++;if(o.seen(P,q))seenRing++;}
+-   if(seenRing<Math.max(1,Math.ceil(on/2)))continue;}
+-  const s=Math.min(...hf)+rs;
+-  if(s>bs){bs=s;best={position:P,target:T,fovVerticalDeg:fov,armM:Math.hypot(P[0]-feet[0],P[1]-feet[1]-1.15,P[2]-feet[2]),herFrac:hf,ringShare:rs,clearM:clear,yawDeg:dy,lookUpDeg:up};}}
+- return best;}
+ /** The shot for S6 (end of planWalk S4→S6, facing −148°). T-02 option C (Grok Bot, Oct 25): her + the city, no ring requirement
+  * (A2 — a ring arc across ≥60 % of the frame width with fov ≤ 60 and no up-tilt — has no pose: the ring never enters the upper frame).
+  * Rear 3/4 (50° off her back), 6 m arm, lens 1.3 m up, fov 45; found by a real-mesh search (clearance ≥ 1.1 m, head/chest clear,
+@@ -57,42 +25,8 @@ export function skyFinaleShot(feet:readonly number[],faceYawRad:number,ring:read
+ /** b19 P1 (界面验收部 d3fe578e: parked under the city, underside 69 % of the upper half, sky 5.6 %): pulled back 8.5 m out from
+  *  under the canopy, rear 3/4 (25° off her back), lens 1.5 m up, pitched 2° UP toward the distant city, her on the left third with
+  *  lead room toward the city. Proxy (env_skycity.glb rays): sky 40.9–48 %, underside ≤ 21.9 % of the upper half, 7 screens.
+- *  Old option C pose kept as SKY_FINALE_POSE_LOCAL_C for before/after. */
++ *  Old option C pose: SKY_FINALE_POSE_LOCAL_C (tools-only, tools/asset-companions/region/SkyFinaleShot.ts). */
+ /** full9c: shifted by the stand move old planWalk end (0.941,0.044,-27.059) → S6 node (0.2,0.034,-27.8): Δ (−0.741,−0.0095,−0.741), rigid (same arm, angle, fov). Was position [1.972,1.542,-18.668] target [0.377,1.839,-27.012]. */
+ /** full9c: the walk lens city aim point (finaleCity of the composed finale lens) is a fixed landmark — moving her stand must not drag it (it drove SKY_5A_WALK_PLAN arm -1.2→-2.2) */
+ export const SKY_FINALE_CITY_LOCAL:V3=[-9.286,3.638,-77.565];
+-export const SKY_FINALE_POSE_LOCAL={position:[1.231,1.532,-19.409] as V3,target:[-0.364,1.829,-27.753] as V3,fovVerticalDeg:45};
+-export const SKY_FINALE_POSE_LOCAL_C={position:[6.845,1.342,-26.291] as V3,target:[-3.199,2.342,-26.649] as V3,fovVerticalDeg:45};
+-/** Approach seconds from the walk lens to the shot under the standing yaw cap: blendPose is smootherstep (peak rate 1.875·Δ/T,
+- * peak acceleration ≈ 5.77·Δ/T²), so T ≥ 1.875·Δ/V and T ≥ √(5.77·Δ/A) with V = 90°/s, A = 200°/s² (5 % margin). Δ = the larger of
+- * the view-direction turn and the turn of the lens round her. */
+-export function skyFinaleApproachS(from:{position:readonly number[];target:readonly number[]},to:{position:readonly number[];target:readonly number[]},feet:readonly number[],V=90,A=200):number{
+- const dir=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
+- const a=dir(from),b=dir(to),view=Math.acos(Math.max(-1,Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])))*180/Math.PI;
+- const az=(p:readonly number[])=>Math.atan2(p[0]-feet[0],p[2]-feet[2]);let orb=Math.abs(az(to.position)-az(from.position))*180/Math.PI;if(orb>180)orb=360-orb;
+- const D=Math.max(view,orb);return Math.max(SKY_FINALE.approachS,1.05*1.875*D/V,1.05*Math.sqrt(5.77*D/A));}
+-/** Approach pose at time t of T: the lens orbits round her (azimuth, height, distance eased by smootherstep, the short way round
+- * unless dir is given), the view direction slerped — never a straight cut through the walls between the two poses. */
+-const smoother=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t*6-15)+10);};
+-export function skyFinaleApproachPose(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],t:number,T:number,dir=0):{position:V3;target:V3;fovVerticalDeg:number}{
+- const e=T>0?smoother(t/T):1,sph=(p:readonly number[])=>({a:Math.atan2(p[0]-feet[0],p[2]-feet[2]),r:Math.hypot(p[0]-feet[0],p[2]-feet[2]),y:p[1]-feet[1]});
+- const A=sph(from.position),Bq=sph(to.position);let da=Bq.a-A.a;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;if(dir>0&&da<0)da+=2*Math.PI;if(dir<0&&da>0)da-=2*Math.PI;
+- const a=A.a+da*e,r=A.r+(Bq.r-A.r)*e,y=A.y+(Bq.y-A.y)*(T>0&&Bq.y<A.y?smoother(Math.min(1,t/(0.55*T))):e)/* drop under the canopy band first */,P:V3=[feet[0]+Math.sin(a)*r,feet[1]+y,feet[2]+Math.cos(a)*r];
+- const u=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
+- const d0=u(from),d1=u(to),c=Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])),w=Math.acos(c);let d:number[];
+- if(w<1e-4)d=d1;else{const s0=Math.sin((1-e)*w)/Math.sin(w),s1=Math.sin(e*w)/Math.sin(w);d=[d0[0]*s0+d1[0]*s1,d0[1]*s0+d1[1]*s1,d0[2]*s0+d1[2]*s1];}
+- const f0=from.fovVerticalDeg??48,f1=to.fovVerticalDeg??48;return {position:P,target:[P[0]+d[0]*8,P[1]+d[1]*8,P[2]+d[2]*8],fovVerticalDeg:f0+(f1-f0)*e};}
+-/** Chooses the way round (dir ±1) and the approach time: per way, T from the orbit turn and the view turn under the standing cap
+- * (skyFinaleApproachS rule), then 48 samples scored by lens-in-box (×100) and face/chest-hidden samples; the better way wins. */
+-export function skyFinaleApproach(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],boxes:readonly OccBox[],V=90,A=200):{dir:number;T:number;inBox:number;hidden:number}{
+- const near=boxes.filter(b=>boxDist(feet,b)<16),az=(p:readonly number[])=>Math.atan2(p[0]-feet[0],p[2]-feet[2]);
+- let da=az(to.position)-az(from.position);while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
+- const u=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
+- const d0=u(from),d1=u(to),view=Math.acos(Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])))*180/Math.PI;
+- let best={dir:0,T:0,inBox:Infinity,hidden:Infinity},bs=Infinity;
+- for(const dir of [Math.sign(da)||1,-(Math.sign(da)||1)]){const orb=Math.abs(dir===Math.sign(da)?da:da-dir*2*Math.PI)*180/Math.PI,D=Math.max(view,orb);
+-  const T=Math.max(SKY_FINALE.approachS,1.05*1.875*D/V,1.05*Math.sqrt(5.77*D/A));let inBox=0,hidden=0;
+-  for(let k=0;k<=48;k++){const p=skyFinaleApproachPose(from,to,feet,k/48*T,T,dir);if(near.some(b=>p.position[0]>b.min[0]&&p.position[0]<b.max[0]&&p.position[1]>b.min[1]&&p.position[1]<b.max[1]&&p.position[2]>b.min[2]&&p.position[2]<b.max[2]))inBox++;
+-   const o=herOcclusion(p.position,feet,near);if(o.face||o.chest)hidden++;}
+-  const sc=inBox*100+hidden+T*0.01;if(sc<bs){bs=sc;best={dir,T,inBox,hidden};}}
+- return best;}
++export const SKY_FINALE_POSE_LOCAL={position:[1.231,1.692,-19.409] as V3,target:[-0.364,1.989,-27.753] as V3,fovVerticalDeg:45};
+diff --git a/creator-build-project/assets/scripts/region/SkyLakeContinuous.ts b/creator-build-project/assets/scripts/region/SkyLakeContinuous.ts
+index 34f1687f..c2ab57b4 100644
+--- a/creator-build-project/assets/scripts/region/SkyLakeContinuous.ts
++++ b/creator-build-project/assets/scripts/region/SkyLakeContinuous.ts
+@@ -74,11 +74,13 @@ export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CON
+  /* lift lens = T-03 lift lens re-based so it frames the data basket: offset = data basket − T-03 basket on the same clock */
+  const liftLens=(tau:number):Pose=>{const t=rideT(Math.max(flightAt,tau)),v=veh(t),q=basket(Math.max(flightAt,tau)),dd:Vec=[q[0]-v[0],q[1]-v[1],q[2]-v[2]],p=flightLens(t);
+   return {position:[p.position[0]+dd[0],p.position[1]+dd[1],p.position[2]+dd[2]],target:[p.target[0]+dd[0],p.target[1]+dd[1],p.target[2]+dd[2]],fovVerticalDeg:p.fovVerticalDeg};};
++ let bB=-1;const orbitBlend=(a:Pose,b:Pose,e:number):Pose=>{const c=a.target,P=Math.PI,sp=p=>[Math.atan2(p[0]-c[0],p[2]-c[2]),Math.hypot(p[0]-c[0],p[2]-c[2]),p[1]-c[1]],A=sp(a.position),B=sp(b.position),z=A[0]+((B[0]-A[0]+3*P)%(2*P)-P)*e,r=A[1]+(B[1]-A[1])*e;
++  return {...blendPose(a,b,e),position:[c[0]+Math.sin(z)*r,c[1]+A[2]+(B[2]-A[2])*e+.9*Math.sin(P*e),c[2]+Math.cos(z)*r] as any};};
+  const cam=(tau:number,from:Pose|null):Pose=>{
+   if(tau<walkS)return K.walkCam?K.walkCam(tau):R.camera(walkClock(tau),from);
+   if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=K.walkCam?K.walkCam(walkS):R.camera(R.walkS-1e-6,from);}const out=traj?liftLens(flightAt)/* lens placed for the data mooring */:flightLens(R.liftT),u=(tau-walkS)/Math.max(1e-3,boardS);
+    /* full2-cam E: close-up through the door beat (in 0–0.3, hold, out 0.75–1 onto the lift lens) when the caller gives one */
+-   const close=K.boardClose?K.boardClose(tau):null;if(close){const BI=.3,BO=.75;return u<BI?blendPose(walkEnd,close,minJerk(u/BI)):u<BO?close:blendPose(close,out,minJerk((u-BO)/(1-BO)));}
++   const close=K.boardClose?K.boardClose(tau):null;if(close){if(bB<0){const y=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2]);bB=Math.min(.45,Math.max(.3,1.875*Math.abs(((y(K.boardClose!(walkS+.3*boardS))-y(walkEnd))*180/Math.PI+540)%360-180)/85/Math.max(1e-3,boardS)));}const BI=bB,BO=.75;return u<BI?orbitBlend(walkEnd,close,minJerk(u/BI)):u<BO?close:blendPose(close,out,minJerk((u-BO)/(1-BO)));}
+    return blendPose(walkEnd,out,minJerk(u));}
+   if(traj&&tau<liftEndAt)return liftLens(tau);
+   return traj&&tau<touchdownAt?shift(flightLens(rideT(tau)),dW(tau)):flightLens(rideT(tau));};
+diff --git a/creator-build-project/assets/scripts/region/SkyRunLens.ts b/creator-build-project/assets/scripts/region/SkyRunLens.ts
+new file mode 100644
+index 00000000..a887e928
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/SkyRunLens.ts
+@@ -0,0 +1,28 @@
++import {SKY_RAILS as R,SKY_JOINS as J} from './SkyFinaleRail';
++import {mmDecode} from './SkyResumeLens';
++import {SKY_FINALE_POSE_LOCAL as F} from './SkyFinaleShot';
++import {planWalk} from './NodeWalker';
++export type RailPose={position:number[];target:number[];fovVerticalDeg:number};
++const C={},f='fovVerticalDeg',M=Math,H=M.hypot,cl=x=>M.max(0,M.min(1,x)),ss=x=>(x=cl(x))*x*x*(x*(x*6-15)+10),
++g=(s,n)=>{const a=mmDecode(s),o=[];for(let i=0;i<a.length;i+=n)o.push(a.slice(i,i+n).map(v=>v*10));return o;},
++len=(P,y=0)=>{const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+H(P[i][0]-P[i-1][0],(P[i][1]-P[i-1][1])*y,P[i][2]-P[i-1][2]));return c;},
++mx=(a,b,u)=>a.map((v,i)=>v+(b[i]-v)*u),sb=(b,a)=>b.map((v,i)=>v-a[i]),un=v=>{const n=H(v[0],v[1],v[2])||1;return v.map(x=>x/n);},
++at=(P,c,e)=>{const L=c[c.length-1]*e;let i=1;while(i<P.length-1&&c[i]<L)i++;return mx(P[i-1],P[i],cl((L-c[i-1])/(c[i]-c[i-1]||1)));},
++lk=(p,d,f):RailPose=>{const u=un(d);return {position:p,target:p.map((v,i)=>v+u[i]*8),fovVerticalDeg:f};},
++ch=h=>[h[0],h[1]+1.3,h[2]],D=p=>un(sb(p.target,p.position)),
++runs=w=>C[w]||(C[w]=(R[w]||[]).map((r,i)=>{const P=planWalk('skycity',w.slice(0,2),w.slice(3)).segments[i].path.map(p=>[p[0],p[1],p[2]]);return {P,c:len(P),K:g(r,4)};}));
++function rail(w,h){const Q=runs(w);if(!Q.length)return null;let r=0,s=0,e=1/0;
++ Q.forEach((q,j)=>{for(let i=1;i<q.P.length;i++){const a=q.P[i-1],b=q.P[i],d=sb(b,a),u=cl(((h[0]-a[0])*d[0]+(h[2]-a[2])*d[2])/(d[0]*d[0]+d[2]*d[2]||1)),x=H(...sb(h,mx(a,b,u)));if(x<e){e=x;r=j;s=q.c[i-1]+(q.c[i]-q.c[i-1])*u;}}});
++ const {K,c}=Q[r],L=c[c.length-1];let k=0;while(k<K.length-2&&K[k+1][0]<s)k++;
++ const G=w=='S4>S6'&&r==Q.length-1?ss((s-L)/1.05+1):0,P=G>.999?F.position.slice():mx(K[k].slice(1),K[k+1].slice(1),cl((s-K[k][0])/(K[k+1][0]-K[k][0]||1)));
++ return {p:lk(P,mx(un(sb(ch(h),P)),D(F),G),48+(F[f]-48)*G),r,l:(L-s)/1.2};}
++export const skyRailHas=w=>runs(w).length>0,skyRailPose=(w,h)=>rail(w,h)?.p??null;
++export function skyRailJoinPlan(w,a,b,o=false){const s=J[w]?.[o?'o':'i'];if(!s)return null;const P=[a.position,...g(s,3),b.position],c=len(P,1);return {P,c,a,b,T:M.max(.6,c[c.length-1]/4)};}
++export function skyRailJoin(j,x,h?){const e=ss(x),p=at(j.P,j.c,e),u=M.min(.4,.6/j.T);
++ return lk(p,mx(mx(h?un(sb(ch(h),p)):mx(D(j.a),D(j.b),e),D(j.a),1-ss(x/u)),D(j.b),ss((x-1+u)/u)),j.a[f]+(j.b[f]-j.a[f])*e);}
++export function skyRailFollow(w){let r=-1,q,h0,j,t=0,Z=0;
++ return (h,dt)=>{const x=rail(w,h);if(!x)return null;if(x.r!=r)Z=0;const S=Z?lk(F.position,D(F),F[f]):x.p,X=S.position;
++  if(!j&&q&&(x.r!=r||H(...sb(X,q.position))>.6)){const k=x.r==r+1&&x.l<2&&J[w]?.k,m=k||x.r==r+1&&J[w]?.m;if(k)Z=1;const E=k?F.position:X,P=[q.position,...(m?g(m,3):[]),E],c=len(P,1),a=un(sb(ch(h0),q.position)),b=un(sb(ch(h),q.position));
++   j={P,c,e:E,A:ch(h0),T:M.max(.6,M.min(c[c.length-1]/4,M.max(x.l-1,1.5))),U:M.max(.3,M.acos(M.max(-1,M.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])))*.54)};t=0;}
++  r=x.r;h0=h;const Y=Z?lk(F.position,D(F),F[f]):x.p,V=Y.position;if(j){t+=dt;const e=ss(t/j.T);if(e<1){const p=at(j.P,j.c,e).map((v,i)=>v+(V[i]-j.e[i])*e);return q=lk(p,sb(mx(j.A,mx(ch(h),Y.target,e),ss(t/j.U)),p),Y[f]+(Z?(x.p[f]-Y[f])*(1-e):0));}j=null;}
++  return q=Y;};}
+diff --git a/creator-build-project/assets/scripts/region/SkyRunLens.ts.meta b/creator-build-project/assets/scripts/region/SkyRunLens.ts.meta
+new file mode 100644
+index 00000000..00337096
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/SkyRunLens.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "0bbe847a-f2b0-462f-9746-829b8bf55669",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/SkyWalkShot.ts b/creator-build-project/assets/scripts/region/SkyWalkShot.ts
+index 2e344475..b31204b5 100644
+--- a/creator-build-project/assets/scripts/region/SkyWalkShot.ts
++++ b/creator-build-project/assets/scripts/region/SkyWalkShot.ts
+@@ -35,7 +35,8 @@ export function skyWalkShot(path:readonly Vec[],walkMps:number,gazeS:number,boxe
+  const head=Math.atan2(d0[0],d0[1]),mid=path[Math.floor(path.length/2)],away=Math.atan2(mid[0]-city[0],mid[2]-city[2]);
+  let az=((away-head)*180/Math.PI+540)%360-180;az=Math.max(-k.azMaxDeg,Math.min(k.azMaxDeg,az*k.cityLean));
+  const shot=followShot(her,tl.total,boxes,{...HER_SHOT,azDeg:az,arm:k.arm,up:k.up,lookUp:k.lookUp,fov:k.fov,driftAzDeg:k.driftAzDeg,driftArm:k.driftArm,driftPeriodS:k.driftPeriodS,driftFromS:gazeS+k.driftFromS,liftSearch:(k as any).liftSearch,armSearch:(k as any).armSearch,plan:(k as any).plan,okFn:(k as any).okFn} as any);
+- const pose=(t:number):Pose=>{const p=shot.pose(t),c=city,q=p.target;return {position:p.position,target:[q[0]+(c[0]-q[0])*k.cityPull,q[1]+(c[1]-q[1])*k.cityPull,q[2]+(c[2]-q[2])*k.cityPull],fovVerticalDeg:p.fovVerticalDeg};};
++ const pose=(t:number):Pose=>{const p=shot.pose(t),P=p.position,a=P.map((v,i)=>p.target[i]-v),b=P.map((v,i)=>city[i]-v),la=Math.hypot(...a)||1,lb=Math.hypot(...b)||1,x=k.cityPull,
++  th=Math.acos(Math.max(-1,Math.min(1,(a[0]*b[0]+a[1]*b[1]+a[2]*b[2])/la/lb))),sn=Math.sin(th),d=a.map((v,i)=>th<1e-6?v/la:v/la*Math.sin((1-x)*th)/sn+b[i]/lb*Math.sin(x*th)/sn);return {position:P,target:P.map((v,i)=>v+d[i]*la) as any,fovVerticalDeg:p.fovVerticalDeg};};
+  const mj=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10-15*u+6*u*u);},wrap=(a:number)=>((a+3*Math.PI)%(2*Math.PI))-Math.PI;
+  const polar=(p:Pose,f:Vec)=>{const dx=p.position[0]-f[0],dz=p.position[2]-f[2],tx=p.target[0]-p.position[0],ty=p.target[1]-p.position[1],tz=p.target[2]-p.position[2];
+   return {az:Math.atan2(dx,dz),r:Math.hypot(dx,dz),h:p.position[1]-f[1],vy:Math.atan2(tx,tz),vp:Math.atan2(ty,Math.hypot(tx,tz)),fov:p.fovVerticalDeg??45};};
+diff --git a/tools/asset-companions/region/SkyFinaleShot.ts b/tools/asset-companions/region/SkyFinaleShot.ts
+new file mode 100644
+index 00000000..02837cfc
+--- /dev/null
++++ b/tools/asset-companions/region/SkyFinaleShot.ts
+@@ -0,0 +1,71 @@
++/** Tools-only companion of region/SkyFinaleShot.ts (full9c 运镜bot, bundle budget): the T-02 bake search, its share metrics, the ring
++ *  samples, option C and the pre-rail skyFinaleApproach* lens models. The player build no longer calls them (the S4>S6 walk rides the
++ *  SkyRunLens rail), so they live outside assets/; tools/board-ui/harness.cjs merges these exports into H.load('region/SkyFinaleShot.ts'). */
++import {SKY_FINALE,ndc} from '../../../creator-build-project/assets/scripts/region/SkyFinaleShot';
++import {guardEval,type OccBox} from '../../../creator-build-project/assets/scripts/region/LensOcclusion';
++import {herMargin} from '../../../creator-build-project/assets/scripts/region/LensSmooth';
++import {herOcclusion} from '../../../creator-build-project/assets/scripts/region/LensAvoid';
++import {SCREENS} from '../../../creator-build-project/assets/scripts/region/ExploreCameraCore';
++type V3=[number,number,number];
++/** env_sky_starring vertices binned every 7.5° round the ring centroid (model-local, from env_skycity.glb). */
++export const STAR_RING_LOCAL:readonly (readonly number[])[]=[[-1.01,25.43,-47.42],[-3.57,24.88,-46.58],[-6.51,24.35,-46.04],[-9.33,23.74,-45.1],[-12,23.07,-43.83],[-14.45,22.35,-42.2],[-17.15,21.47,-40.07],[-18.69,20.71,-37.72],[-20.26,20.01,-35.66],[-22.72,18.14,-29.16],[-22.92,17.5,-26.57],[-23.34,16.78,-23.75],[-22.64,16.15,-20.66],[-22.32,15.54,-17.9],[-21.28,15.14,-15.57],[-19.89,14.7,-12.9],[-18.2,14.34,-10.4],[-16.17,14.09,-8.15],[-13.9,13.93,-6.14],[-11.91,13.84,-4.57],[-9.18,13.96,-3.5],[-6.76,14.03,-2.35],[0.29,14.72,-1.14],[2.27,15,-1.18],[5.2,15.49,-1.57],[8.04,16.04,-2.3],[10.74,16.68,-3.39],[13.98,17.64,-5.19],[15.96,18.16,-7.01],[18.31,19.13,-9.32],[20.39,20.03,-11.95],[21.26,20.76,-14.51],[23.25,23.33,-24.28],[22.79,23.9,-26.95],[22.47,24.54,-29.86],[20.97,25.03,-32.82],[19.93,25.51,-35.46],[18.05,25.87,-38.09],[15.85,26,-39.95],[13.51,26.24,-42.34],[10.81,26.18,-43.64],[8.39,26.16,-44.99],[1.43,25.6,-46.69],[-0.29,25.28,-46.35]];
++export type SkyFinaleShot={position:V3;target:V3;fovVerticalDeg:number;armM:number;herFrac:number[];ringShare:number;clearM:number;yawDeg:number;lookUpDeg:number};
++const boxDist=(P:readonly number[],b:OccBox)=>Math.hypot(Math.max(b.min[0]-P[0],0,P[0]-b.max[0]),Math.max(b.min[1]-P[1],0,P[1]-b.max[1]),Math.max(b.min[2]-P[2],0,P[2]-b.max[2]));
++/** Her height share of the frame (feet+0.05 … +1.6 m), by projection of her centre line. */
++export function herShare(P:readonly number[],T:readonly number[],fov:number,W:number,H:number,feet:readonly number[]):number{
++ const a=ndc(P,T,fov,W,H,[feet[0],feet[1]+SKY_FINALE.bodyM[0],feet[2]]),b=ndc(P,T,fov,W,H,[feet[0],feet[1]+SKY_FINALE.bodyM[1],feet[2]]);return a&&b?Math.abs(b[1]-a[1])/2:0;}
++export function ringShare(P:readonly number[],T:readonly number[],fov:number,W:number,H:number,ring:readonly (readonly number[])[]):number{
++ let n=0;for(const q of ring){const s=ndc(P,T,fov,W,H,q);if(s&&Math.abs(s[0])<=1&&Math.abs(s[1])<=1)n++;}return n/Math.max(1,ring.length);}
++export function skyFinaleShot(feet:readonly number[],faceYawRad:number,ring:readonly (readonly number[])[],boxes:readonly OccBox[],o:{screens?:readonly (readonly [number,number])[];fov?:number;
++  /** optional real-mesh checks (bake tool / test only): lens clearance in metres, and whether a point is seen from the lens */
++  clearAt?:(p:readonly number[])=>number;seen?:(from:readonly number[],to:readonly number[])=>boolean}={}):SkyFinaleShot|null{
++ const S=SKY_FINALE,scr=o.screens??SCREENS,fov=o.fov??S.fovDeg;let best:SkyFinaleShot|null=null,bs=-1;
++ const near=boxes.filter(b=>boxDist(feet,b)<20);
++ for(let dy=-S.faceYawMaxDeg;dy<=S.faceYawMaxDeg;dy+=10)for(const arm of [4,5,6,7,8,10,12])for(const hc of [0.3,0.8,1.3,2,3])for(let up=4;up<=32;up+=4){
++  const y=faceYawRad+dy*Math.PI/180,P:V3=[feet[0]+Math.sin(y)*arm,feet[1]+hc,feet[2]+Math.cos(y)*arm];
++  const az=Math.atan2(feet[0]-P[0],feet[2]-P[2]),e=up*Math.PI/180,T:V3=[P[0]+Math.sin(az)*Math.cos(e)*10,P[1]+Math.sin(e)*10,P[2]+Math.cos(az)*Math.cos(e)*10];
++  let clear=Infinity,ok=true;for(const b of near){const d=boxDist(P,b);if(d<clear)clear=d;if(d<S.minClearM){ok=false;break;}}if(!ok)continue;
++  const g=guardEval({position:P,target:T,fovVerticalDeg:fov} as any,feet as any,near,{up:0,swing:0,share:1});if(g.head||g.chest||g.inside)continue;
++  const hf:number[]=[];let rs=1;for(const [W,H] of scr){if(herMargin(P,T,fov,feet,[[W,H]] as any)<0){ok=false;break;}const h=herShare(P,T,fov,W,H,feet);if(h<S.minHerShare){ok=false;break;}hf.push(h);rs=Math.min(rs,ringShare(P,T,fov,W,H,ring));if(rs<S.minRingShare){ok=false;break;}}
++  if(!ok)continue;
++  if(o.clearAt){const c=o.clearAt(P);if(c<S.minClearM)continue;clear=Math.min(clear,c);}
++  if(o.seen){if(!o.seen(P,[feet[0],feet[1]+1.45,feet[2]])||!o.seen(P,[feet[0],feet[1]+1.05,feet[2]]))continue;
++   let seenRing=0,on=0;for(const q of ring){const n=ndc(P,T,fov,320,568,q);if(!n||Math.abs(n[0])>1||Math.abs(n[1])>1)continue;on++;if(o.seen(P,q))seenRing++;}
++   if(seenRing<Math.max(1,Math.ceil(on/2)))continue;}
++  const s=Math.min(...hf)+rs;
++  if(s>bs){bs=s;best={position:P,target:T,fovVerticalDeg:fov,armM:Math.hypot(P[0]-feet[0],P[1]-feet[1]-1.15,P[2]-feet[2]),herFrac:hf,ringShare:rs,clearM:clear,yawDeg:dy,lookUpDeg:up};}}
++ return best;}
++export const SKY_FINALE_POSE_LOCAL_C={position:[6.845,1.342,-26.291] as V3,target:[-3.199,2.342,-26.649] as V3,fovVerticalDeg:45};
++/** Approach seconds from the walk lens to the shot under the standing yaw cap: blendPose is smootherstep (peak rate 1.875·Δ/T,
++ * peak acceleration ≈ 5.77·Δ/T²), so T ≥ 1.875·Δ/V and T ≥ √(5.77·Δ/A) with V = 90°/s, A = 200°/s² (5 % margin). Δ = the larger of
++ * the view-direction turn and the turn of the lens round her. */
++export function skyFinaleApproachS(from:{position:readonly number[];target:readonly number[]},to:{position:readonly number[];target:readonly number[]},feet:readonly number[],V=90,A=200):number{
++ const dir=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
++ const a=dir(from),b=dir(to),view=Math.acos(Math.max(-1,Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])))*180/Math.PI;
++ const az=(p:readonly number[])=>Math.atan2(p[0]-feet[0],p[2]-feet[2]);let orb=Math.abs(az(to.position)-az(from.position))*180/Math.PI;if(orb>180)orb=360-orb;
++ const D=Math.max(view,orb);return Math.max(SKY_FINALE.approachS,1.05*1.875*D/V,1.05*Math.sqrt(5.77*D/A));}
++/** Approach pose at time t of T: the lens orbits round her (azimuth, height, distance eased by smootherstep, the short way round
++ * unless dir is given), the view direction slerped — never a straight cut through the walls between the two poses. */
++const smoother=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t*6-15)+10);};
++export function skyFinaleApproachPose(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],t:number,T:number,dir=0):{position:V3;target:V3;fovVerticalDeg:number}{
++ const e=T>0?smoother(t/T):1,sph=(p:readonly number[])=>({a:Math.atan2(p[0]-feet[0],p[2]-feet[2]),r:Math.hypot(p[0]-feet[0],p[2]-feet[2]),y:p[1]-feet[1]});
++ const A=sph(from.position),Bq=sph(to.position);let da=Bq.a-A.a;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;if(dir>0&&da<0)da+=2*Math.PI;if(dir<0&&da>0)da-=2*Math.PI;
++ const a=A.a+da*e,r=A.r+(Bq.r-A.r)*e,y=A.y+(Bq.y-A.y)*(T>0&&Bq.y<A.y?smoother(Math.min(1,t/(0.55*T))):e)/* drop under the canopy band first */,P:V3=[feet[0]+Math.sin(a)*r,feet[1]+y,feet[2]+Math.cos(a)*r];
++ const u=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
++ const d0=u(from),d1=u(to),c=Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])),w=Math.acos(c);let d:number[];
++ if(w<1e-4)d=d1;else{const s0=Math.sin((1-e)*w)/Math.sin(w),s1=Math.sin(e*w)/Math.sin(w);d=[d0[0]*s0+d1[0]*s1,d0[1]*s0+d1[1]*s1,d0[2]*s0+d1[2]*s1];}
++ const f0=from.fovVerticalDeg??48,f1=to.fovVerticalDeg??48;return {position:P,target:[P[0]+d[0]*8,P[1]+d[1]*8,P[2]+d[2]*8],fovVerticalDeg:f0+(f1-f0)*e};}
++/** Chooses the way round (dir ±1) and the approach time: per way, T from the orbit turn and the view turn under the standing cap
++ * (skyFinaleApproachS rule), then 48 samples scored by lens-in-box (×100) and face/chest-hidden samples; the better way wins. */
++export function skyFinaleApproach(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],boxes:readonly OccBox[],V=90,A=200):{dir:number;T:number;inBox:number;hidden:number}{
++ const near=boxes.filter(b=>boxDist(feet,b)<16),az=(p:readonly number[])=>Math.atan2(p[0]-feet[0],p[2]-feet[2]);
++ let da=az(to.position)-az(from.position);while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
++ const u=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
++ const d0=u(from),d1=u(to),view=Math.acos(Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])))*180/Math.PI;
++ let best={dir:0,T:0,inBox:Infinity,hidden:Infinity},bs=Infinity;
++ for(const dir of [Math.sign(da)||1,-(Math.sign(da)||1)]){const orb=Math.abs(dir===Math.sign(da)?da:da-dir*2*Math.PI)*180/Math.PI,D=Math.max(view,orb);
++  const T=Math.max(SKY_FINALE.approachS,1.05*1.875*D/V,1.05*Math.sqrt(5.77*D/A));let inBox=0,hidden=0;
++  for(let k=0;k<=48;k++){const p=skyFinaleApproachPose(from,to,feet,k/48*T,T,dir);if(near.some(b=>p.position[0]>b.min[0]&&p.position[0]<b.max[0]&&p.position[1]>b.min[1]&&p.position[1]<b.max[1]&&p.position[2]>b.min[2]&&p.position[2]<b.max[2]))inBox++;
++   const o=herOcclusion(p.position,feet,near);if(o.face||o.chest)hidden++;}
++  const sc=inBox*100+hidden+T*0.01;if(sc<bs){bs=sc;best={dir,T,inBox,hidden};}}
++ return best;}
+diff --git a/tools/board-ui/harness.cjs b/tools/board-ui/harness.cjs
+index 0b4aa432..1a4df464 100644
+--- a/tools/board-ui/harness.cjs
++++ b/tools/board-ui/harness.cjs
+@@ -181,6 +181,9 @@ function createHarness(options = {}) {
+     const module = { exports: {} }; cache.set(file, module);
+     const req = spec => { const r = resolve(file, spec); return r.kind === 'cc' ? cc : r.kind === 'env' ? { DEBUG: !!options.debug, EDITOR: false, PREVIEW: false, WECHAT: false } : r.kind === 'override' ? overrides[r.rel] : r.kind === 'ts' ? load(r.file) : require(r.id); };
+     new Function('exports', 'require', 'module', '__filename', '__dirname', out)(module.exports, req, module, file, path.dirname(file));
++    /* full9c: tools-only companion (code moved out of assets/ for the bundle budget) — its exports are merged in, the asset's own win */
++    const comp = path.join(ROOT, 'tools/asset-companions', path.relative(SCRIPTS, file));
++    if (!path.relative(SCRIPTS, file).startsWith('..') && fs.existsSync(comp)) { const c = load(comp); for (const k of Object.keys(c)) if (!(k in module.exports)) module.exports[k] = c[k]; }
+     return module.exports;
+   }
+   const flush = async (n = 6) => { for (let i = 0; i < n; i++) await new Promise(r => setImmediate(r)); };
+diff --git a/tools/journey-integration/clip3/lens-scene.cjs b/tools/journey-integration/clip3/lens-scene.cjs
+new file mode 100644
+index 00000000..3ed19d3f
+--- /dev/null
++++ b/tools/journey-integration/clip3/lens-scene.cjs
+@@ -0,0 +1,42 @@
++'use strict';
++// 运镜bot full9c clip3: shared NOT_ENGINE scene for the whole-trajectory lens gates and the 9ec5323c before/after renders.
++// Skycity = env_skycity.glb (Draco) placed by the journey frame (yaw J.yaw, origin J.sOff = seam.skycityRootWorld = skyMooring5a/Cw),
++// optionally translated by `off` (9ec5323c sail-chain visible city = Cw + Δ(−0.386,−0.187,+26.619)); lakeside instances at
++// lakesideJourney(S6); balloon prefab (transport_balloon.glb) at a basket pose. Flat-shaded z-buffer raster (cam pose → RGB).
++const RL=require('../route/route-legs.cjs'),F=require('../journey-framing-lib.cjs'),{J}=RL,{add,sub,rotY}=J;
++const {load:loadGlb}=require('../occlusion/lib-glb.cjs');
++const DELTA_9EC=[-0.386,-0.187,26.619];
++const tris=o=>{const r=[];for(let i=0;i<o.tris.length;i+=9)r.push(Array.from(o.tris.slice(i,i+9)));return r;};
++const SKY_HIDE=/cloudsea|cumulus_far|cloud_small|Icosphere|_after|env_sky_dome/;
++let SKY=null;async function skyObjs(off=[0,0,0]){if(!SKY)SKY=(await RL.skyLocal()).filter(o=>!SKY_HIDE.test(o.name));
++ return RL.rigid(SKY,'skycity',{yawDeg:J.yaw,origin:add(J.sOff,off)});}
++const BAL=loadGlb(RL.J.B+'region_transit_balloon/transport_balloon.glb').filter(n=>n.tris&&n.tris.length);
++function balloonObjs(pos,yawDeg,scale=1){return BAL.map(n=>{const t=new Float64Array(n.tris.length);for(let k=0;k<t.length;k+=3){const p=RL.balToWorld(pos,yawDeg,0,[n.tris[k]*scale,n.tris[k+1]*scale,n.tris[k+2]*scale]);t[k]=p[0];t[k+1]=p[1];t[k+2]=p[2];}return {tag:'balloon',name:n.name,tris:t};});}
++function herObjs(feet,top=1.7){const x0=feet[0]-.25,x1=feet[0]+.25,z0=feet[2]-.25,z1=feet[2]+.25,y0=feet[1],y1=feet[1]+top,v=[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],t=[];
++ for(const [a,b,c,d] of [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){t.push(...v[a],...v[b],...v[c],...v[a],...v[c],...v[d]);}return [{tag:'her',name:'her',tris:Float64Array.from(t)}];}
++const bvh=objs=>F.buildBvh(objs.filter(o=>o.tris&&o.tris.length));
++// pose from a state.jsonl camera sample (Cocos euler: x pitch, y yaw; forward = −Z rotated)
++function poseFromEuler(pos,eul,fov=45){const p=eul[0]*Math.PI/180,y=eul[1]*Math.PI/180,f=[-Math.sin(y)*Math.cos(p),Math.sin(p),-Math.cos(y)*Math.cos(p)];return {position:pos,target:add(pos,f.map(v=>v*8)),fovVerticalDeg:fov};}
++// 26-direction fan: smallest radius (of RADII) at which any direction hits a surface; Infinity when none within the largest radius
++const DIRS=(()=>{const d=[];for(let i=0;i<26;i++){const th=Math.acos(1-2*(i+.5)/26),ph=i*2.399963;d.push([Math.sin(th)*Math.cos(ph),Math.cos(th),Math.sin(th)*Math.sin(ph)]);}return d;})();
++function hitDist(B,a,u,L){if(!B||!B.root)return null;const h=F.cast(B,a,u,L);return h?{d:h.t!==undefined?h.t:(h.dist!==undefined?h.dist:null),tag:h.obj.tag+':'+h.obj.name}:null;}
++function clearance(Bs,p,maxM=3){let best=Infinity,tag=null;for(const u of DIRS)for(const B of Bs){const h=hitDist(B,p,u,maxM);if(h){const d=h.d==null?maxM:h.d;if(d<best){best=d;tag=h.tag;}}}return {m:best,tag};}
++// enclosed: none of 14 long rays escapes 20 m (inside a closed solid)
++const D14=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1],...[[1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],[-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1]].map(v=>v.map(x=>x/Math.sqrt(3)))];
++function enclosed(Bs,p){return D14.every(u=>Bs.some(B=>hitDist(B,p,u,20)));}
++function groundBelow(Bs,p,maxM=30){let best=Infinity,tag=null;for(const B of Bs){const h=hitDist(B,p,[0,-1,0],maxM);if(h&&h.d!=null&&h.d<best){best=h.d;tag=h.tag;}}return {m:best,tag};}
++function render(objsList,pose,w,h,H=300){const k=H/h,Wd=Math.round(w*k),Hh=H,P=pose.position,Tg=pose.target;
++ const f=sub(Tg,P),fl=Math.hypot(...f);for(let i=0;i<3;i++)f[i]/=fl;let r=[-f[2],0,f[0]];const rl=Math.hypot(r[0],r[2])||1;r=[r[0]/rl,0,r[2]/rl];const u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
++ const tv=Math.tan((pose.fovVerticalDeg||45)*Math.PI/360),th=tv*Wd/Hh,NEAR=.1;const pr=q=>{const d=[q[0]-P[0],q[1]-P[1],q[2]-P[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];return [((d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/(z*th)*.5+.5)*Wd,(.5-(d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/(z*tv)*.5)*Hh,z];};
++ const img=Buffer.alloc(Wd*Hh*3);for(let i=0;i<Wd*Hh;i++){img[i*3]=160;img[i*3+1]=185;img[i*3+2]=215;}const zb=new Float32Array(Wd*Hh).fill(1e9);
++ const COL={skycity:[120,125,140],balloon:[200,150,60],her:[235,40,40],lake:[90,140,90]};
++ for(const o of objsList){const col=COL[o.tag]||[128,128,128],t=o.tris;for(let i=0;i<t.length;i+=9){const a=pr([t[i],t[i+1],t[i+2]]),b=pr([t[i+3],t[i+4],t[i+5]]),c=pr([t[i+6],t[i+7],t[i+8]]);if(a[2]<NEAR||b[2]<NEAR||c[2]<NEAR)continue;
++  const e1=[t[i+3]-t[i],t[i+4]-t[i+1],t[i+5]-t[i+2]],e2=[t[i+6]-t[i],t[i+7]-t[i+1],t[i+8]-t[i+2]],n=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]],nl=Math.hypot(...n)||1,sh=.55+.45*Math.abs((n[0]*.3+n[1]*.8+n[2]*.5)/nl);
++  const x0=Math.max(0,Math.floor(Math.min(a[0],b[0],c[0]))),x1=Math.min(Wd-1,Math.ceil(Math.max(a[0],b[0],c[0]))),y0=Math.max(0,Math.floor(Math.min(a[1],b[1],c[1]))),y1=Math.min(Hh-1,Math.ceil(Math.max(a[1],b[1],c[1])));if(x0>x1||y0>y1)continue;if((x1-x0)*(y1-y0)>Wd*Hh*4)continue;
++  const den=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(den)<1e-9)continue;
++  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const px=x+.5,py=y+.5,l1=((b[1]-c[1])*(px-c[0])+(c[0]-b[0])*(py-c[1]))/den,l2=((c[1]-a[1])*(px-c[0])+(a[0]-c[0])*(py-c[1]))/den,l3=1-l1-l2;if(l1<0||l2<0||l3<0)continue;const z=1/(l1/a[2]+l2/b[2]+l3/c[2]),j=y*Wd+x;if(z>=zb[j])continue;zb[j]=z;img[j*3]=col[0]*sh;img[j*3+1]=col[1]*sh;img[j*3+2]=col[2]*sh;}}}
++ // near-plane fill: fraction of pixels whose nearest surface is < 0.5 m (camera pressed against / inside geometry)
++ let near=0;for(let j=0;j<zb.length;j++)if(zb[j]<.5)near++;
++ return {w:Wd,h:Hh,img,nearFrac:near/zb.length};}
++function ppm(file,R){require('fs').writeFileSync(file,Buffer.concat([Buffer.from(`P6 ${R.w} ${R.h} 255\n`),R.img]));}
++module.exports={RL,J,DELTA_9EC,skyObjs,balloonObjs,herObjs,bvh,poseFromEuler,clearance,enclosed,groundBelow,render,ppm,DIRS};
+diff --git a/tools/journey-integration/clip3/make-9ec-t02-fixture.cjs b/tools/journey-integration/clip3/make-9ec-t02-fixture.cjs
+new file mode 100644
+index 00000000..abc12a30
+--- /dev/null
++++ b/tools/journey-integration/clip3/make-9ec-t02-fixture.cjs
+@@ -0,0 +1,20 @@
++'use strict';
++// 运镜bot clip3: reconstruct the 9ec5323c T-02 approach (key-try2 #42) as a must-fail fixture. 9ec5323c ran the same
++// skyFinaleApproach/skyFinaleApproachPose (unchanged since) in the skycity model frame, from the lens the Mac trace shows held for 6 s
++// after the chest tap ((60.91,25.01,140.01), euler (1,−163)) to the pre-full9c finale pose [1.972,1.542,−18.668]→[0.377,1.839,−27.012]
++// fov 45 round her pre-full9c stand (planWalk tail end (0.941,0.044,−27.059)); world = skyMooring5a + Δ (the 26.6 m sail-chain offset).
++// The fixture is checked against the trace sample at +8.81 s (mid-approach) and the end sample (+10.84 s = old finale pose).
++const fs=require('fs'),path=require('path'),L=require('./lens-scene.cjs'),{createHarness}=require('../../board-ui/harness.cjs'),H=createHarness();
++const F=H.load('region/SkyFinaleShot.ts'),SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),SO=H.load('region/SkycityLensOccluders.ts');
++const M5=TS.TRANSITION_STAGING.skyMooring5a,D=L.DELTA_9EC,W=p=>SW.skyLocalToWorld(M5,p),W9=p=>W(p).map((v,i)=>v+D[i]);
++const o0=W([0,0,0]),ex=W([1,0,0]).map((v,i)=>v-o0[i]),ez=W([0,0,1]).map((v,i)=>v-o0[i]),W2L=p=>{const d=[p[0]-o0[0],p[2]-o0[2]];return [d[0]*ex[0]+d[1]*ex[2],p[1]-o0[1],d[0]*ez[0]+d[1]*ez[2]];};
++const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/9ec5323c-key-try2-sky-cam.json'),'utf8')).samples,held=fx.find(s=>s.tS>6&&s.tS<7),mid=fx.find(s=>s.tS>8&&s.tS<9),end=fx.find(s=>s.tS>10&&s.tS<11);
++const fw=L.poseFromEuler(held.pos.map((v,i)=>v-D[i]),held.euler,held.fov),from={position:W2L(fw.position),target:W2L(fw.target),fovVerticalDeg:held.fov};
++const to={position:[1.972,1.542,-18.668],target:[0.377,1.839,-27.012],fovVerticalDeg:45},feet=[0.941,0.044,-27.059];
++const boxes=SO.SKYCITY_LENS_OCCLUDERS.map(b=>({min:b.slice(0,3),max:b.slice(3,6)})),ap=F.skyFinaleApproach(from,to,feet,boxes);
++const samples=[];for(let k=0;k<=Math.ceil(ap.T*60);k++){const t=Math.min(ap.T,k/60),p=F.skyFinaleApproachPose(from,to,feet,t,ap.T,ap.dir).position;samples.push({t:+t.toFixed(4),pLocal:p.map(v=>+v.toFixed(4)),pWorld9ec:W9(p).map(v=>+v.toFixed(4))});}
++let bm=null,bd=1e9;for(const s of samples){const d=Math.hypot(...s.pWorld9ec.map((v,i)=>v-mid.pos[i]));if(d<bd){bd=d;bm=s;}}
++const endGap=Math.hypot(...samples.at(-1).pWorld9ec.map((v,i)=>v-end.pos[i]));
++const out={source:'reconstructed from fixtures/9ec5323c-key-try2-sky-cam.json + SkyFinaleShot.skyFinaleApproach (see header of make-9ec-t02-fixture.cjs)',approachS:ap.T,dir:ap.dir,approachStartTS:+(mid.tS-bm.t).toFixed(3),
++ check:{midSampleTS:mid.tS,midGapM:+bd.toFixed(2),endSampleTS:end.tS,endGapM:+endGap.toFixed(3)},samples:samples.filter((_,i)=>i%2===0)};
++fs.writeFileSync(path.join(__dirname,'../fixtures/9ec5323c-t02-approach.json'),JSON.stringify(out));console.log(JSON.stringify({...out,samples:out.samples.length}));
+diff --git a/tools/journey-integration/clip3/render-cases.cjs b/tools/journey-integration/clip3/render-cases.cjs
+new file mode 100644
+index 00000000..5db6b995
+--- /dev/null
++++ b/tools/journey-integration/clip3/render-cases.cjs
+@@ -0,0 +1,42 @@
++'use strict';
++// 运镜bot clip3: before/after sheets for the three 9ec5323c cases (NOT_ENGINE flat raster of the real meshes; her = red box).
++// before = the 9ec5323c Mac lens (fixtures) in the 9ec5323c placement (visible city = Cw + Δ 26.6 m); after = the current code's lens
++// (f6cf3af9 + this branch) in the current placement (city at Cw), same leg-relative moment, 7 screens.  node render-cases.cjs <outdir>
++const fs=require('fs'),path=require('path'),cp=require('child_process'),L=require('./lens-scene.cjs');const OUT=process.argv[2];fs.mkdirSync(OUT,{recursive:true});
++const SCR=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]];
++(async()=>{const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/9ec5323c-key-try2-sky-cam.json'),'utf8')).samples,T2=require('../fixtures/9ec5323c-t02-approach.json');
++ const sky9=await L.skyObjs(L.DELTA_9EC),sky0=await L.skyObjs([0,0,0]),m=await require('./sky-lake-model.cjs')();
++ const {createHarness}=require('../../board-ui/harness.cjs'),H=createHarness(),TS=H.load('region/TransitionStaging.ts'),SW=H.load('region/SkyWalkShot.ts'),F=H.load('region/SkyFinaleShot.ts'),NW=H.load('region/NodeWalker.ts'),C=H.load('region/ExploreCameraCore.ts');
++ const M5=TS.TRANSITION_STAGING.skyMooring5a,W=p=>SW.skyLocalToWorld(M5,p),moored=L.balloonObjs(M5.world,M5.worldYawDeg),panels=[];
++ const shot=(name,objs,pose,w,h,label)=>{const R=L.render(objs,pose,w,h,240),f=path.join(OUT,name+'.ppm');L.ppm(f,R);panels.push({f,label});return f;};
++ const sheet=(file,rows,title)=>{fs.writeFileSync(file+'.json',JSON.stringify({title,rows}));cp.execFileSync('python3',['-c',`
++import json,sys
++from PIL import Image,ImageDraw
++d=json.load(open(sys.argv[1]));rows=d['rows'];W=max(len(r['cells']) for r in rows);ims=[[Image.open(c['f']) for c in r['cells']] for r in rows]
++cw=max(i.size[0] for r in ims for i in r);ch=max(i.size[1] for r in ims for i in r);LW=230
++S=Image.new('RGB',(LW+W*(cw+4),30+len(rows)*(ch+34)),'white');g=ImageDraw.Draw(S);g.text((6,8),d['title'],fill='black')
++for j,(r,ri) in enumerate(zip(rows,ims)):
++  y=30+j*(ch+34);g.text((6,y+ch//2),r['label'],fill='black')
++  for i,(c,im) in enumerate(zip(r['cells'],ri)):S.paste(im,(LW+i*(cw+4),y));g.text((LW+i*(cw+4),y+ch+2),c['label'],fill=(180,0,0) if c.get('bad') else (0,100,0))
++S.save(sys.argv[2])`,file+'.json',file]);fs.unlinkSync(file+'.json');};
++ const near=(leg,p)=>{let b=0,bd=1e9;for(let t=0;t<=leg.S.touchdownAt;t+=1/30){const d=Math.hypot(...leg.S.cam(t,null).position.map((v,i)=>v-p[i]));if(d<bd){bd=d;b=t;}}return b;};
++ const her=(leg,tau)=>{const h=leg.herAt(tau);return h&&h.root?L.herObjs(h.root):[];};
++ // case 1 + 2: before row (9ec samples, 390x844), after rows (model, 7 screens) at the same leg moments
++ for(const [cid,win,title] of [['case1',[16.5,37.5],'Case 1 skycity→lakeside opening (keys 121–132): before = 9ec5323c Mac lens (prewalk 26.95 m through the city), after = current code (no prewalk: she ends the finale on S6, the ride walk lens starts there)'],['case2',[56,64.9],'Case 2 balloon lift-off (keys 187–191): before = 9ec5323c Mac lens in the 9ec5323c city placement, after = current code (same lens path, city where the balloon is)']]){
++  const S9=fx.filter(s=>s.tS>=win[0]&&s.tS<=win[1]),rows=[];const pick=S9.filter((_,i)=>i%Math.max(1,Math.ceil(S9.length/6))===0).slice(0,6);
++  rows.push({label:'BEFORE 9ec5323c (390x844)',cells:pick.map(s=>{const pose=L.poseFromEuler(s.pos,s.euler,s.fov),R=L.clearance([L.bvh(sky9)],s.pos,3);return {f:shot(`${cid}-before-${s.tS}`,[...sky9,...moored],pose,390,844),label:`+${s.tS.toFixed(1)}s clr ${R.m===Infinity?'>3':R.m.toFixed(2)}m`,bad:R.m<0.5};})});
++  const leg0=m.legs[0],taus=cid==='case1'?pick.map((_,i)=>i*leg0.S.walkS/(pick.length-1)):pick.map(s=>near(leg0,s.pos));
++  for(const leg of m.legs){rows.push({label:'AFTER '+leg.screen.join('x'),cells:taus.map(tau=>{const p=leg.S.cam(tau,null),R=L.clearance([L.bvh(sky0)],p.position,3);return {f:shot(`${cid}-after-${leg.screen.join('x')}-${tau.toFixed(2)}`,[...sky0,...L.balloonObjs(leg.S.basket(tau),leg.yawAt(tau)),...her(leg,tau)],p,leg.screen[0],leg.screen[1]),label:`ride ${tau.toFixed(1)}s ${leg.S.phase(tau)} clr ${R.m===Infinity?'>3':R.m.toFixed(2)}m`,bad:R.m<0.5};})});}
++  sheet(path.join(OUT,cid+'-before-after-7screens.png'),rows,title);}
++ // case 3: T-02 approach
++ {const route=NW.routeKeys('skycity','S4','S6').path,feetL=route.at(-1),segs=NW.planWalk('skycity','S4','S6').segments,last=segs.at(-1).path,pa=last.at(-2),face=Math.atan2(feetL[0]-pa[0],feetL[2]-pa[2]);
++  const SO=H.load('region/SkycityLensOccluders.ts'),boxes=SO.SKYCITY_LENS_OCCLUDERS.map(b=>({min:b.slice(0,3),max:b.slice(3,6)})),to={...F.SKY_FINALE_POSE_LOCAL},from=C.followPose(route[0],face,390,844,8),ap=F.skyFinaleApproach(from,to,feetL,boxes);
++  const n=7,rows=[],B9=L.bvh(sky9),B0=L.bvh(sky0);const oldFeet=W([0.941,0.044,-27.059]).map((v,i)=>v+L.DELTA_9EC[i]);
++  const tgt9=(s,i)=>{const nx=T2.samples[Math.min(T2.samples.length-1,i+1)],pr=T2.samples[Math.max(0,i-1)];return s;};
++  // before: reconstructed 9ec approach poses (look toward her old stand, as the slerped view does at that moment ≈ toward her)
++  const idx=[...Array(n)].map((_,k)=>Math.round(k*(T2.samples.length-1)/(n-1)));
++  rows.push({label:'BEFORE 9ec5323c (390x844)',cells:idx.map(i=>{const s=T2.samples[i],pose={position:s.pWorld9ec,target:add3(oldFeet,[0,1.2,0]),fovVerticalDeg:46},R=L.clearance([B9],s.pWorld9ec,3);return {f:shot(`case3-before-${i}`,[...sky9,...L.herObjs(oldFeet)],pose,390,844),label:`+${(T2.approachStartTS+s.t).toFixed(2)}s clr ${R.m===Infinity?'>3':R.m.toFixed(2)}m`,bad:R.m<0.5};})});
++  const feetW=W(feetL);for(const [w,h] of SCR){rows.push({label:'CURRENT '+w+'x'+h+' (from S4 follow)',cells:[...Array(n)].map((_,k)=>{const t=k/(n-1)*ap.T,p=F.skyFinaleApproachPose(from,to,feetL,t,ap.T,ap.dir),pw={position:W(p.position),target:W(p.target),fovVerticalDeg:p.fovVerticalDeg},R=L.clearance([B0],pw.position,3);return {f:shot(`case3-cur-${w}x${h}-${k}`,[...sky0,...L.herObjs(feetW)],pw,w,h),label:`t ${t.toFixed(2)}s clr ${R.m===Infinity?'>3':R.m.toFixed(2)}m`,bad:R.m<0.5};})});}
++  sheet(path.join(OUT,'case3-before-current-7screens.png'),rows,'Case 3 T-02 approach (key-try2 #42): before = 9ec5323c reconstruction (matches the Mac lens at +8.81 s within 0.15 m, end within 2 mm); current = f6cf3af9 code from the same S4 follow lens — STILL PRESENT (0.39 m from env_sky_ruins)');}
++ for(const p of panels)try{fs.unlinkSync(p.f);}catch{}console.log('done',OUT);})().catch(e=>{console.error(e);process.exit(1);});
++function add3(a,b){return [a[0]+b[0],a[1]+b[1],a[2]+b[2]];}
+diff --git a/tools/journey-integration/clip3/sky-lake-model.cjs b/tools/journey-integration/clip3/sky-lake-model.cjs
+new file mode 100644
+index 00000000..9a6633de
+--- /dev/null
++++ b/tools/journey-integration/clip3/sky-lake-model.cjs
+@@ -0,0 +1,11 @@
++'use strict';
++// 运镜bot clip3: the GAME's skycity→lakeside ride (walk → board → lift-off → flight → touchdown) exactly as test_lake_leg_c models it
++// (RegionJourneyAdapter atC wiring: SkyWalkShot + SkyLakeContinuous + basket close), for each of the 7 screens. The model is taken
++// from test_lake_leg_c.cjs itself (its set-up up to the per-screen lens), so this gate can never drift from that test.
++const fs=require('fs'),path=require('path'),os=require('os');
++module.exports=async function skyLakeModel(){
++ const T=path.join(__dirname,'../../transitions-continuous/test_lake_leg_c.cjs'),src=fs.readFileSync(T,'utf8');
++ const a=src.indexOf('(async()=>{const G='),b=src.indexOf('  const from={position:add(S6,[-4,3,-4])');if(a<0||b<0)throw Error('test_lake_leg_c layout changed: update sky-lake-model.cjs');
++ const body=src.slice(0,a).replace(/require\('\.\.\//g,"require('"+path.join(__dirname,'../../').replace(/\\/g,'/')+"")+
++  'module.exports=async()=>{const __out=[];const G='+src.slice(a+'(async()=>{const G='.length,b)+'  __out.push({screen:[w,h],S,yawAt,herAt,R,M5,Wk});}\n return {G,legs:__out};};\n';
++ const f=path.join(os.tmpdir(),'qf-clip3-sky-lake-model-'+process.pid+'.cjs');fs.writeFileSync(f,body);try{return await require(f)();}finally{try{fs.unlinkSync(f);}catch{}}};
+diff --git a/tools/journey-integration/fixtures/9ec5323c-key-try2-sky-cam.json b/tools/journey-integration/fixtures/9ec5323c-key-try2-sky-cam.json
+new file mode 100644
+index 00000000..8611f05d
+--- /dev/null
++++ b/tools/journey-integration/fixtures/9ec5323c-key-try2-sky-cam.json
+@@ -0,0 +1,785 @@
++{
++"source": "/workspace/r9c/key-try2/key/state.jsonl (build 9ec5323c, Mac autoplay key-try2, camera sampled every ~2 s); tS = seconds after the ResultChestTap (finale +0 s, t=1793059574783)",
++"samples": [
++{
++"tS": -0.134,
++"state": "level",
++"pos": [
++-20.6,
++8.25,
++89.6
++],
++"euler": [
++7.777,
++-130.116,
++0
++],
++"fov": 48
++},
++{
++"tS": 0.89,
++"state": "level",
++"pos": [
++60.911,
++25.012,
++140.01
++],
++"euler": [
++1.014,
++-162.897,
++0
++],
++"fov": 48
++},
++{
++"tS": 2.818,
++"state": "level",
++"pos": [
++60.911,
++25.012,
++140.01
++],
++"euler": [
++1.014,
++-162.897,
++0
++],
++"fov": 48
++},
++{
++"tS": 4.789,
++"state": "level",
++"pos": [
++60.911,
++25.012,
++140.01
++],
++"euler": [
++1.014,
++-162.897,
++0
++],
++"fov": 48
++},
++{
++"tS": 6.834,
++"state": "level",
++"pos": [
++60.911,
++25.012,
++140.01
++],
++"euler": [
++1.014,
++-162.897,
++0
++],
++"fov": 48
++},
++{
++"tS": 8.807,
++"state": "level",
++"pos": [
++68.245,
++20.174,
++150.217
++],
++"euler": [
++1.815,
++-128.634,
++0
++],
++"fov": 46.13
++},
++{
++"tS": 10.844,
++"state": "skycity",
++"pos": [
++74.08,
++20.174,
++154.562
++],
++"euler": [
++2.002,
++-108.013,
++0
++],
++"fov": 45
++},
++{
++"tS": 12.79,
++"state": "skycity",
++"pos": [
++74.08,
++20.174,
++154.562
++],
++"euler": [
++2.002,
++-108.013,
++0
++],
++"fov": 45
++},
++{
++"tS": 14.817,
++"state": "region-travel",
++"pos": [
++77.403,
++20.524,
++157.8
++],
++"euler": [
++-5.224,
++-62.699,
++0
++],
++"fov": 45.44
++},
++{
++"tS": 16.94,
++"state": "region-travel",
++"pos": [
++81.812,
++20.991,
++159.937
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 18.873,
++"state": "region-travel",
++"pos": [
++81.922,
++21.005,
++157.802
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 20.041,
++"state": "region-travel",
++"pos": [
++81.998,
++21.014,
++156.35
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 20.812,
++"state": "region-travel",
++"pos": [
++82.046,
++21.021,
++155.421
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 22.894,
++"state": "region-travel",
++"pos": [
++82.171,
++21.036,
++152.993
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 24.801,
++"state": "region-travel",
++"pos": [
++82.262,
++21.048,
++151.233
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 26.804,
++"state": "region-travel",
++"pos": [
++82.386,
++21.064,
++148.847
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 28.846,
++"state": "region-travel",
++"pos": [
++82.512,
++21.08,
++146.406
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 30.822,
++"state": "region-travel",
++"pos": [
++82.633,
++21.095,
++144.075
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 32.792,
++"state": "region-travel",
++"pos": [
++82.757,
++21.111,
++141.681
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 34.793,
++"state": "region-travel",
++"pos": [
++82.881,
++21.126,
++139.28
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 36.934,
++"state": "region-travel",
++"pos": [
++83,
++21.142,
++136.975
++],
++"euler": [
++-9.462,
++-2.962,
++0
++],
++"fov": 46
++},
++{
++"tS": 38.877,
++"state": "region-travel",
++"pos": [
++75.449,
++20.42,
++128.419
++],
++"euler": [
++1.154,
++-105.439,
++0
++],
++"fov": 45.72
++},
++{
++"tS": 40.874,
++"state": "region-travel",
++"pos": [
++81.915,
++20.914,
++131.113
++],
++"euler": [
++-5.852,
++-84.87,
++0
++],
++"fov": 51.59
++},
++{
++"tS": 42.82,
++"state": "region-travel",
++"pos": [
++84.353,
++20.948,
++130.241
++],
++"euler": [
++-6.47,
++-81.933,
++0
++],
++"fov": 52
++},
++{
++"tS": 44.807,
++"state": "region-travel",
++"pos": [
++86.415,
++20.948,
++129.616
++],
++"euler": [
++-6.536,
++-77.82,
++0
++],
++"fov": 52
++},
++{
++"tS": 46.841,
++"state": "region-travel",
++"pos": [
++88.533,
++20.948,
++128.843
++],
++"euler": [
++-6.669,
++-74.836,
++0
++],
++"fov": 52
++},
++{
++"tS": 48.831,
++"state": "region-travel",
++"pos": [
++90.523,
++20.948,
++127.589
++],
++"euler": [
++-6.764,
++-76.457,
++0
++],
++"fov": 52
++},
++{
++"tS": 50.836,
++"state": "region-travel",
++"pos": [
++92.12,
++20.948,
++125.291
++],
++"euler": [
++-6.513,
++-90.094,
++0
++],
++"fov": 52
++},
++{
++"tS": 52.898,
++"state": "region-travel",
++"pos": [
++94.543,
++20.948,
++124.728
++],
++"euler": [
++-6.894,
++-91.499,
++0
++],
++"fov": 52
++},
++{
++"tS": 54.818,
++"state": "region-travel",
++"pos": [
++98.669,
++20.419,
++117.023
++],
++"euler": [
++-5.133,
++-179.211,
++0
++],
++"fov": 46.23
++},
++{
++"tS": 56.838,
++"state": "region-travel",
++"pos": [
++98.828,
++20.398,
++116.717
++],
++"euler": [
++-4.959,
++-175.79,
++0
++],
++"fov": 46
++},
++{
++"tS": 58.798,
++"state": "region-travel",
++"pos": [
++99.135,
++21.94,
++116.872
++],
++"euler": [
++-16.677,
++-171.117,
++0
++],
++"fov": 46.68
++},
++{
++"tS": 60.793,
++"state": "region-travel",
++"pos": [
++99.499,
++24.949,
++117.05
++],
++"euler": [
++-37.71,
++-172.752,
++0
++],
++"fov": 48
++},
++{
++"tS": 62.804,
++"state": "region-travel",
++"pos": [
++99.497,
++34.783,
++118.667
++],
++"euler": [
++-16.611,
++-155.89,
++0
++],
++"fov": 48
++},
++{
++"tS": 64.783,
++"state": "region-travel",
++"pos": [
++115.88,
++39.42,
++130.052
++],
++"euler": [
++-31.209,
++157.319,
++0
++],
++"fov": 48
++},
++{
++"tS": 66.802,
++"state": "region-travel",
++"pos": [
++104.783,
++41.809,
++130.881
++],
++"euler": [
++-28.175,
++147.992,
++0
++],
++"fov": 48.35
++},
++{
++"tS": 68.827,
++"state": "region-travel",
++"pos": [
++29.318,
++34.486,
++129.629
++],
++"euler": [
++-52.158,
++-178.605,
++0
++],
++"fov": 53.37
++},
++{
++"tS": 70.811,
++"state": "region-travel",
++"pos": [
++6.683,
++30.907,
++130.464
++],
++"euler": [
++-51.682,
++-153.182,
++0
++],
++"fov": 55.4
++},
++{
++"tS": 72.804,
++"state": "region-travel",
++"pos": [
++6.084,
++27.711,
++131.99
++],
++"euler": [
++-43.387,
++-147.177,
++0
++],
++"fov": 53.43
++},
++{
++"tS": 74.802,
++"state": "region-travel",
++"pos": [
++7.079,
++21.322,
++132.324
++],
++"euler": [
++-5.285,
++-150.33,
++0
++],
++"fov": 46.03
++},
++{
++"tS": 76.786,
++"state": "region-travel",
++"pos": [
++7.083,
++21.299,
++132.325
++],
++"euler": [
++-5.062,
++-149.468,
++0
++],
++"fov": 46
++},
++{
++"tS": 78.808,
++"state": "region-travel",
++"pos": [
++7.033,
++21.614,
++132.31
++],
++"euler": [
++-7.46,
++-143.092,
++0
++],
++"fov": 46.36
++},
++{
++"tS": 80.82,
++"state": "region-travel",
++"pos": [
++6.28,
++28.857,
++131.918
++],
++"euler": [
++-44.918,
++-145.326,
++0
++],
++"fov": 54.94
++},
++{
++"tS": 83.119,
++"state": "region-travel",
++"pos": [
++7.781,
++29.109,
++131.726
++],
++"euler": [
++-43.634,
++-152.075,
++0
++],
++"fov": 56
++},
++{
++"tS": 84.795,
++"state": "region-travel",
++"pos": [
++11.383,
++27.661,
++131.399
++],
++"euler": [
++-32.848,
++-162.721,
++0
++],
++"fov": 56
++},
++{
++"tS": 86.888,
++"state": "region-travel",
++"pos": [
++14.824,
++26.277,
++131.087
++],
++"euler": [
++-21.382,
++-171.686,
++0
++],
++"fov": 56
++},
++{
++"tS": 88.869,
++"state": "region-travel",
++"pos": [
++17.303,
++25.281,
++130.862
++],
++"euler": [
++-11.191,
++-176.745,
++0
++],
++"fov": 56
++},
++{
++"tS": 90.598,
++"state": "lakeside",
++"pos": [
++17.635,
++25.147,
++130.832
++],
++"euler": [
++-9.691,
++-177.23,
++0
++],
++"fov": 56
++},
++{
++"tS": 90.619,
++"state": "lakeside",
++"pos": [
++17.635,
++25.147,
++130.832
++],
++"euler": [
++-9.691,
++-177.23,
++0
++],
++"fov": 56
++},
++{
++"tS": 90.872,
++"state": "lakeside",
++"pos": [
++17.635,
++25.147,
++130.832
++],
++"euler": [
++-9.691,
++-177.23,
++0
++],
++"fov": 56
++},
++{
++"tS": 92.817,
++"state": "lakeside",
++"pos": [
++17.635,
++25.147,
++130.832
++],
++"euler": [
++-9.691,
++-177.23,
++0
++],
++"fov": 56
++},
++{
++"tS": 94.892,
++"state": "level",
++"pos": [
++17.635,
++25.147,
++130.832
++],
++"euler": [
++-9.691,
++-177.23,
++0
++],
++"fov": 56
++}
++]
++}
+\ No newline at end of file
+diff --git a/tools/journey-integration/fixtures/9ec5323c-t02-approach.json b/tools/journey-integration/fixtures/9ec5323c-t02-approach.json
+new file mode 100644
+index 00000000..b1ef24b5
+--- /dev/null
++++ b/tools/journey-integration/fixtures/9ec5323c-t02-approach.json
+@@ -0,0 +1 @@
++{"source":"reconstructed from fixtures/9ec5323c-key-try2-sky-cam.json + SkyFinaleShot.skyFinaleApproach (see header of make-9ec-t02-fixture.cjs)","approachS":1.4,"dir":1,"approachStartTS":8.007,"check":{"midSampleTS":8.807,"midGapM":0.15,"endSampleTS":10.844,"endGapM":0.002},"samples":[{"t":0,"pLocal":[-4.421,6.381,-0.1143],"pWorld9ec":[60.911,25.012,140.01]},{"t":0.0333,"pLocal":[-4.4194,6.3773,-0.1165],"pWorld9ec":[60.9122,25.0083,140.0125]},{"t":0.0667,"pLocal":[-4.4087,6.3535,-0.1313],"pWorld9ec":[60.92,24.9845,140.029]},{"t":0.1,"pLocal":[-4.3809,6.2946,-0.1696],"pWorld9ec":[60.9401,24.9256,140.0718]},{"t":0.1333,"pLocal":[-4.3297,6.1905,-0.2407],"pWorld9ec":[60.9777,24.8215,140.151]},{"t":0.1667,"pLocal":[-4.2499,6.0358,-0.352],"pWorld9ec":[61.0367,24.6668,140.2746]},{"t":0.2,"pLocal":[-4.138,5.8291,-0.5098],"pWorld9ec":[61.121,24.4601,140.4488]},{"t":0.2333,"pLocal":[-3.9917,5.5723,-0.7189],"pWorld9ec":[61.2335,24.2033,140.6778]},{"t":0.2667,"pLocal":[-3.8101,5.2705,-0.9826],"pWorld9ec":[61.377,23.9015,140.964]},{"t":0.3,"pLocal":[-3.594,4.931,-1.3036],"pWorld9ec":[61.5539,23.562,141.3081]},{"t":0.3333,"pLocal":[-3.345,4.563,-1.6829],"pWorld9ec":[61.766,23.194,141.7092]},{"t":0.3667,"pLocal":[-3.066,4.1772,-2.1209],"pWorld9ec":[62.0151,22.8082,142.1649]},{"t":0.4,"pLocal":[-2.7611,3.7849,-2.6168],"pWorld9ec":[62.3024,22.4159,142.6712]},{"t":0.4333,"pLocal":[-2.4348,3.3979,-3.1688],"pWorld9ec":[62.6286,22.0289,143.2233]},{"t":0.4667,"pLocal":[-2.0925,3.0277,-3.7743],"pWorld9ec":[62.9939,21.6587,143.8152]},{"t":0.5,"pLocal":[-1.7399,2.6849,-4.4297],"pWorld9ec":[63.3979,21.3159,144.4402]},{"t":0.5333,"pLocal":[-1.3829,2.3789,-5.1306],"pWorld9ec":[63.8397,21.0099,145.091]},{"t":0.5667,"pLocal":[-1.0274,2.1174,-5.8716],"pWorld9ec":[64.3173,20.7484,145.7599]},{"t":0.6,"pLocal":[-0.6789,1.9055,-6.6468],"pWorld9ec":[64.8283,20.5365,146.4391]},{"t":0.6333,"pLocal":[-0.3427,1.7456,-7.4495],"pWorld9ec":[65.3692,20.3766,147.1207]},{"t":0.6667,"pLocal":[-0.0235,1.6367,-8.2724],"pWorld9ec":[65.936,20.2677,147.7973]},{"t":0.7,"pLocal":[0.2749,1.5736,-9.1078],"pWorld9ec":[66.5239,20.2046,148.4617]},{"t":0.7333,"pLocal":[0.5494,1.5469,-9.9477],"pWorld9ec":[67.1272,20.1779,149.1072]},{"t":0.7667,"pLocal":[0.7977,1.542,-10.7839],"pWorld9ec":[67.74,20.173,149.7281]},{"t":0.8,"pLocal":[1.0185,1.542,-11.6083],"pWorld9ec":[68.3556,20.173,150.3192]},{"t":0.8333,"pLocal":[1.2114,1.542,-12.4129],"pWorld9ec":[68.9674,20.173,150.8763]},{"t":0.8667,"pLocal":[1.3767,1.542,-13.1898],"pWorld9ec":[69.5682,20.173,151.3959]},{"t":0.9,"pLocal":[1.5156,1.542,-13.9319],"pWorld9ec":[70.1512,20.173,151.8755]},{"t":0.9333,"pLocal":[1.6298,1.542,-14.6323],"pWorld9ec":[70.7097,20.173,152.3134]},{"t":0.9667,"pLocal":[1.7215,1.542,-15.2852],"pWorld9ec":[71.2373,20.173,152.7086]},{"t":1,"pLocal":[1.7934,1.542,-15.8853],"pWorld9ec":[71.7283,20.173,153.0611]},{"t":1.0333,"pLocal":[1.8483,1.542,-16.4284],"pWorld9ec":[72.1776,20.173,153.3711]},{"t":1.0667,"pLocal":[1.8889,1.542,-16.9115],"pWorld9ec":[72.5812,20.173,153.6397]},{"t":1.1,"pLocal":[1.918,1.542,-17.3324],"pWorld9ec":[72.9358,20.173,153.8683]},{"t":1.1333,"pLocal":[1.9382,1.542,-17.6904],"pWorld9ec":[73.2397,20.173,154.0587]},{"t":1.1667,"pLocal":[1.9518,1.542,-17.986],"pWorld9ec":[73.4921,20.173,154.2131]},{"t":1.2,"pLocal":[1.9605,1.542,-18.221],"pWorld9ec":[73.6938,20.173,154.3341]},{"t":1.2333,"pLocal":[1.9658,1.542,-18.399],"pWorld9ec":[73.8471,20.173,154.4247]},{"t":1.2667,"pLocal":[1.969,1.542,-18.5249],"pWorld9ec":[73.9558,20.173,154.4881]},{"t":1.3,"pLocal":[1.9708,1.542,-18.6053],"pWorld9ec":[74.0254,20.173,154.5285]},{"t":1.3333,"pLocal":[1.9716,1.542,-18.6487],"pWorld9ec":[74.063,20.173,154.5502]},{"t":1.3667,"pLocal":[1.972,1.542,-18.6655],"pWorld9ec":[74.0776,20.173,154.5585]},{"t":1.4,"pLocal":[1.972,1.542,-18.668],"pWorld9ec":[74.0797,20.173,154.5598]}]}
+\ No newline at end of file
+diff --git a/tools/journey-integration/lens-clearance-gate.cjs b/tools/journey-integration/lens-clearance-gate.cjs
+new file mode 100644
+index 00000000..d698ed71
+--- /dev/null
++++ b/tools/journey-integration/lens-clearance-gate.cjs
+@@ -0,0 +1,75 @@
++'use strict';
++// 运镜bot full9c clip3: WHOLE-TRAJECTORY lens clearance gate (Grok Bot 2026-10-29, 界面验收部 9ec5323c green-flat P1/P1/P2).
++// The 1.1 m collision-gate only ever judged BalloonTransit:prewalk/B1 writes against the MEADOW proxy (every other writer = UNCHECKED),
++// test_lake_leg_c W4 only the transition occluder BOXES before flight (no mesh, no balloon, no ground), test_t02_sky_final F4 only
++// boxes + a RELATIVE mesh rule (≥ min(1.1, start)) from ONE ideal follow pose. This gate checks every lens sample against the REAL
++// meshes live at that moment: full env_skycity.glb (Draco) at the runtime placement (skyMooring5a/Cw = seam.skycityRootWorld), every
++// lakeside instance, the balloon prefab at the basket pose, and her body.
++// HARD rules per sample: (E) not enclosed (14 rays × 20 m); (S) ≥ 0.5 m from solid mesh; (B) ≥ 0.5 m from basket/envelope;
++// (H) ≥ 0.5 m from her body (capsule r 0.3); (G) ground straight below ≥ 1.5 m on travel shots (board, lift-off, flight, prewalk, trace
++// legs), ≥ 1.1 m on the standing walk/finale shots; (J) step ≤ 0.6 m per 60 Hz frame (model). SOFT (reported): foliage/flower cards,
++// the walking gardener robot.
++// Usage: node lens-clearance-gate.cjs [--json out] [--screens all|one]         → current code (sky→lake ride ×7 screens, T-02 approach)
++//        node lens-clearance-gate.cjs --must-fail-9ec                         → the three 9ec5323c failures must be caught (exit 0 = caught)
++const fs=require('fs'),path=require('path'),L=require('./clip3/lens-scene.cjs'),{RL,J}=L,{add,sub,rotY}=J;
++const arg=k=>{const i=process.argv.indexOf(k);return i>0?process.argv[i+1]:null;},has=k=>process.argv.includes(k);
++const RULE={solidM:0.5,balloonM:0.5,herM:0.5,groundTravelM:1.5,groundStandM:1.1,stepM:0.6},SOFT=/foliage_cards|flowers|robot_gardener|cloud|cumulus/;
++const segDist=(p,a,b)=>{const d=sub(b,a),l2=d[0]*d[0]+d[1]*d[1]+d[2]*d[2]||1,u=Math.max(0,Math.min(1,((p[0]-a[0])*d[0]+(p[1]-a[1])*d[1]+(p[2]-a[2])*d[2])/l2));return Math.hypot(p[0]-a[0]-d[0]*u,p[1]-a[1]-d[1]*u,p[2]-a[2]-d[2]*u);};
++function judge(p,{solid,soft,balloon,her,travel}){const r={},v=[];
++ const cs=L.clearance(solid,p,3);r.solidM=cs.m;r.solidTag=cs.tag;if(cs.m<RULE.solidM)v.push('S');
++ if(soft){const c=L.clearance(soft,p,1);r.softM=c.m;r.softTag=c.tag;}
++ if(L.enclosed([...solid,...(balloon?[balloon]:[])],p)){r.enclosed=true;v.push('E');}
++ if(balloon){const c=L.clearance([balloon],p,3);r.balloonM=c.m;if(c.m<RULE.balloonM)v.push('B');}
++ if(her){const d=segDist(p,her[0],her[1])-0.3;r.herM=d;if(d<RULE.herM)v.push('H');}
++ const g=L.groundBelow([...solid,...(balloon?[balloon]:[])],p,40);r.groundM=g.m;r.groundTag=g.tag;if(g.m<(travel?RULE.groundTravelM:RULE.groundStandM))v.push('G');
++ r.v=v;return r;}
++async function scene(off){const objs=await L.skyObjs(off);return {solid:L.bvh(objs.filter(o=>!SOFT.test(o.name))),soft:L.bvh(objs.filter(o=>SOFT.test(o.name)))};}
++const railIn=(live,rail,t)=>{const x=Math.max(0,Math.min(1,t/1.2)),e=x*x*x*(x*(x*6-15)+10),L=(a,b)=>[0,1,2].map(i=>a[i]+(b[i]-a[i])*e);return {position:L(live.position,rail.position),target:L(live.target,rail.target),fovVerticalDeg:(live.fovVerticalDeg??48)+(rail.fovVerticalDeg-(live.fovVerticalDeg??48))*e};};
++const r2=x=>x===Infinity?'>3':+(+x).toFixed(2);
++// ---------- T-02 approach (RegionNodeStage.playFinale: skyFinaleApproach on the lens boxes, model-local) ----------
++function t02(H,from,to,feetL,label){const F=H.load('region/SkyFinaleShot.ts'),SO=H.load('region/SkycityLensOccluders.ts');
++ const boxes=SO.SKYCITY_LENS_OCCLUDERS.map(b=>({min:b.slice(0,3),max:b.slice(3,6)})),ap=F.skyFinaleApproach(from,to,feetL,boxes),out=[];
++ for(let k=0;k<=Math.ceil(ap.T*60);k++){const t=Math.min(ap.T,k/60);out.push({t,p:F.skyFinaleApproachPose(from,to,feetL,t,ap.T,ap.dir).position});}return {label,T:ap.T,dir:ap.dir,samples:out};}
++async function runCurrent(){const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness();
++ const SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),NW=H.load('region/NodeWalker.ts'),C=H.load('region/ExploreCameraCore.ts'),F=H.load('region/SkyFinaleShot.ts');
++ const M5=TS.TRANSITION_STAGING.skyMooring5a,W=p=>SW.skyLocalToWorld(M5,p),sc=await scene([0,0,0]),rows=[],fails=[];
++ // (1) skycity→lakeside ride, every screen
++ const m=await require('./clip3/sky-lake-model.cjs')(),lake=m.G.lakeOnly;const solid=[sc.solid,lake];
++ const legs=has('--screens')&&arg('--screens')==='one'?m.legs.slice(0,1):m.legs;
++ for(const leg of legs){const S=leg.S,acc={};let prev=null,jump=0;
++  for(let tau=0;tau<=S.touchdownAt;tau+=1/60){const p=S.cam(tau,null).position;if(prev)jump=Math.max(jump,Math.hypot(...sub(p,prev)));prev=p;
++   if(Math.round(tau*60)%3)continue/* 20 Hz for the ray checks */;const ph=S.phase(tau),h=leg.herAt(tau),her=h?[h.root||sub(h.face,[0,1.5,0]),add(h.face,[0,.2,0])]:null;
++   const r=judge(p,{solid,soft:[sc.soft],balloon:L.bvh(L.balloonObjs(S.basket(tau),leg.yawAt(tau))),her,travel:ph!=='C1-walk'});
++   const a=acc[ph]||(acc[ph]={n:0,viol:0,first:null,solidMin:9,balloonMin:9,herMin:9,groundMin:99,softMin:9,enclosed:0,tags:new Set()});a.n++;
++   a.solidMin=Math.min(a.solidMin,r.solidM);a.balloonMin=Math.min(a.balloonMin,r.balloonM);a.herMin=Math.min(a.herMin,r.herM??9);a.groundMin=Math.min(a.groundMin,r.groundM);a.softMin=Math.min(a.softMin,r.softM??9);if(r.enclosed)a.enclosed++;
++   if(r.v.length){a.viol++;r.v.forEach(x=>a.tags.add(x+':'+(x==='G'?r.groundTag:r.solidTag)));if(!a.first)a.first={tau:+tau.toFixed(2),p:p.map(v=>+v.toFixed(2)),v:r.v};}}
++  for(const [ph,a] of Object.entries(acc)){const row={case:'sky→lake ride',screen:leg.screen.join('x'),seg:ph,samples:a.n,violations:a.viol,enclosed:a.enclosed,solidMinM:r2(a.solidMin),balloonMinM:r2(a.balloonMin),herMinM:r2(a.herMin),groundMinM:a.groundMin===Infinity?'none':r2(a.groundMin),softMinM:r2(a.softMin),first:a.first,tags:[...a.tags].slice(0,4)};rows.push(row);if(a.viol)fails.push(row);}
++  const jr={case:'sky→lake ride',screen:leg.screen.join('x'),seg:'step',maxStepM:+jump.toFixed(3),violations:jump>RULE.stepM?1:0};rows.push(jr);if(jr.violations)fails.push(jr);}
++ // (2) skycity rail walks (full9c runtime: RegionNodeStage.playReward/playFinale + SkyRunLens, tools/region-nodes/sky-rail-model.cjs):
++ //     every played walk on every screen: board lens → skyRailJoin (SKY_JOINS.i) → each run on its rail → exit join back to the board
++ //     (S4>S6: stand hold instead); S4>S6 also from S6 (planSkip last 1.2 m). Same judge (travel rules on the joins). No-cut over the WHOLE
++ //     sequence, walk-plan skips (SkyRunLens.skyRailFollow skip join, SKY_JOINS.m) and planSkip included: step ≤ RULE.stepM and view turn ≤ NOCUT_DEG per frame.
++ const M=require(process.cwd()+'/tools/region-nodes/sky-rail-model.cjs'),NOCUT_DEG=4,scr=has('--screens')&&arg('--screens')==='one'?M.SCREENS.slice(0,1):M.SCREENS;
++ const dirOf=p=>{const d=sub(p.target,p.position),l=Math.hypot(...d);return d.map(v=>v/l);};
++ const cases=[];for(const w of M.WALKS)for(const sc of scr){cases.push([w,sc.join('x')+' board entry → rail → exit',M.samples(w,sc)]);if(w==='S4>S6')cases.push([w,sc.join('x')+' from S6 (planSkip last 1.2 m)',M.samples(w,sc,{fromS6:true})]);}
++ for(const [w,lab,smp] of cases){let a={skip:0,n:0,viol:0,enclosed:0,solidMin:9,groundMin:99,herMin:9,step:0,turn:0,first:null,tags:new Set()},prev=null;
++  smp.forEach((s,i)=>{const pw=W(s.p.position),dv=dirOf(s.p);if(s.join==='skip')a.skip++;if(prev){a.step=Math.max(a.step,Math.hypot(...sub(pw,prev.pw)));a.turn=Math.max(a.turn,Math.acos(Math.min(1,dv[0]*prev.dv[0]+dv[1]*prev.dv[1]+dv[2]*prev.dv[2]))*180/Math.PI);}prev={pw,dv,part:s.part};if(i%3)return;const hw=W(s.h);
++   const r=judge(pw,{solid:[sc.solid],soft:[sc.soft],her:[hw,add(hw,[0,1.7,0])],travel:!!s.join});a.n++;a.solidMin=Math.min(a.solidMin,r.solidM);a.groundMin=Math.min(a.groundMin,r.groundM);a.herMin=Math.min(a.herMin,r.herM??9);if(r.enclosed)a.enclosed++;
++   if(r.v.length){a.viol++;r.v.forEach(x=>a.tags.add(x+':'+(x==='G'?r.groundTag:r.solidTag)));if(!a.first)a.first={i,join:s.join||null,p:pw.map(v=>+v.toFixed(2)),v:r.v};}});
++  const jv=(a.step>RULE.stepM?1:0)+(a.turn>NOCUT_DEG?1:0);const row={case:'skycity walk '+w,screen:lab.split(' ')[0],seg:lab.slice(lab.indexOf(' ')+1),samples:a.n,violations:a.viol+jv,enclosed:a.enclosed,solidMinM:r2(a.solidMin),herMinM:r2(a.herMin),groundMinM:a.groundMin===Infinity?'none':r2(a.groundMin),maxStepM:+a.step.toFixed(3),maxTurnDegPerFrame:+a.turn.toFixed(2),skipJoinFrames:a.skip,first:a.first,tags:[...a.tags].slice(0,4)};rows.push(row);if(row.violations)fails.push(row);}
++ return {rows,fails};}
++// ---------- 9ec5323c must-fail fixtures ----------
++async function runMustFail(){const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/9ec5323c-key-try2-sky-cam.json'),'utf8')).samples,M=require('./fixtures/9ec5323c-t02-approach.json');
++ const sc9=await scene(L.DELTA_9EC),{createHarness}=require('../board-ui/harness.cjs'),H=createHarness(),TS=H.load('region/TransitionStaging.ts'),SW=H.load('region/SkyWalkShot.ts'),M5=TS.TRANSITION_STAGING.skyMooring5a;
++ const bal=L.bvh(L.balloonObjs(M5.world,M5.worldYawDeg))/* moored at C, as in 9ec5323c */,out=[];
++ const caseOf=t=>t>=16.5&&t<=37.5?'1 skycity→lakeside opening (prewalk, keys 121–132)':t>=57&&t<=63.5?'2 balloon lift-off (keys 187–191)':null;
++ for(const s of fx){const c=caseOf(s.tS);if(!c)continue;const r=judge(s.pos,{solid:[sc9.solid],soft:[sc9.soft],balloon:bal,travel:true});out.push({case:c,tS:s.tS,pos:s.pos,v:r.v,solidM:r2(r.solidM),solidTag:r.solidTag,groundM:r.groundM===Infinity?'none ≤40 m':r2(r.groundM),enclosed:!!r.enclosed});}
++ for(const s of M.samples){const r=judge(s.pWorld9ec,{solid:[sc9.solid],soft:[sc9.soft],travel:false});out.push({case:'3 T-02 last shot through the steps (key-try2 #42)',tS:+(M.approachStartTS+s.t).toFixed(2),pos:s.pWorld9ec,v:r.v,solidM:r2(r.solidM),solidTag:r.solidTag,groundM:r.groundM===Infinity?'none ≤40 m':r2(r.groundM),enclosed:!!r.enclosed});}
++ const per={};for(const o of out){const p=per[o.case]||(per[o.case]={samples:0,caught:0,first:null});p.samples++;if(o.v.length){p.caught++;if(!p.first)p.first=o;}}
++ return {per,out};}
++(async()=>{if(has('--must-fail-9ec')){const {per,out}=await runMustFail();const ok=Object.keys(per).length===3&&Object.values(per).every(p=>p.caught>0);
++  console.log(JSON.stringify({tool:'lens-clearance-gate --must-fail-9ec',rule:RULE,per},null,1));if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({per,out},null,1));
++  console.log(JSON.stringify({status:ok?'PASS (all three 9ec5323c penetrations are caught)':'FAIL (gate misses a known 9ec5323c penetration)'}));process.exit(ok?0:1);}
++ const {rows,fails}=await runCurrent();console.table(rows.map(r=>({case:r.case,screen:r.screen,seg:r.seg,n:r.samples,viol:r.violations,enc:r.enclosed,solid:r.solidMinM,balloon:r.balloonMinM,her:r.herMinM,ground:r.groundMinM,soft:r.softMinM,step:r.maxStepM,T:r.approachS})));
++ for(const f of fails)console.log('FAIL',JSON.stringify(f));if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({rule:RULE,rows},null,1));
++ console.log(JSON.stringify({status:fails.length?'FAIL':'PASS',violations:fails.length}));process.exit(fails.length?1:0);})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 5d2cb36a..63d843f2 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -159,7 +159,7 @@ const tests=[
+  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
+  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
+  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
+-  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],
++  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],['sky-walk-endshots','tools/region-nodes/test_sky_walk_endshots.cjs'],['walk5a-in-frame','tools/skycity-walk/test_walk5a_in_frame.cjs'],['sky-finale-rail','tools/region-nodes/test_sky_finale_rail.cjs'],['sky-walk-whole','tools/region-nodes/test_sky_walk_whole.cjs'],['landing-move','tools/transitions-continuous/test_landing_move.cjs'],['lens-trajectory-clearance','tools/journey-integration/lens-clearance-gate.cjs'],['lens-trajectory-9ec-must-fail','tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs'],/* clip3: whole-trajectory lens vs real meshes + balloon + her + ground */
+  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
+  ['balloon-windsource-bound','tools/journey-integration/test-balloon-windsource-bound.cjs'],
+   ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['lakeside-touchdown-timeline','tools/journey-integration/test-lakeside-touchdown-timeline.cjs'],['balloon-sky-dome-yaw','tools/journey-integration/test-balloon-sky-dome-yaw.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['pre-transition','tools/journey-integration/test-pre-transition.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],['island-exit-explore','tools/journey-integration/test-island-exit-explore.cjs'],['island-explore-touch','tools/journey-integration/test-island-explore-touch.cjs'],['lakeside-exit-explore','tools/journey-integration/test-lakeside-exit-explore.cjs'],
+@@ -189,7 +189,7 @@ const tests=[
+  ['basket-obstacle-runtime','tools/transition-spaces/test-basket-obstacle-runtime.cjs'],['vertex-color-black','tools/skycity/test_vertex_color_black.cjs'],['static-names','tools/static-names/check-names.cjs'],/* cand10: whole-project tsc gate on undefined names / unresolved imports */['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
+ ];
+ /* P0 r16: geometry-heavy checks (real GLB triangles, ~155 s alone) get 360 s; everything else keeps 180 s. */
+-const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000};
++const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000,'lens-trajectory-clearance':600000,'sky-walk-whole':360000};
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+ // GGbot b17: non-gating REPORT tests (运镜bot route matrix). They run and keep their reports; a nonzero exit is status REPORT, never FAIL.
+diff --git a/tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs b/tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs
+new file mode 100644
+index 00000000..a01a966b
+--- /dev/null
++++ b/tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs
+@@ -0,0 +1,5 @@
++'use strict';
++// 运镜bot clip3: must-fail fixtures — the whole-trajectory lens gate has to catch all three 9ec5323c penetrations
++// (skycity→lakeside opening, balloon lift-off, T-02 steps). Exit 0 only when every case is caught.
++const cp=require('child_process'),path=require('path');
++const r=cp.spawnSync(process.execPath,[path.join(__dirname,'lens-clearance-gate.cjs'),'--must-fail-9ec'],{stdio:'inherit',env:process.env});process.exit(r.status===0?0:1);
+diff --git a/tools/region-nodes/gen-sky-finale-rail.cjs b/tools/region-nodes/gen-sky-finale-rail.cjs
+new file mode 100644
+index 00000000..ed588929
+--- /dev/null
++++ b/tools/region-nodes/gen-sky-finale-rail.cjs
+@@ -0,0 +1,44 @@
++'use strict';
++// 运镜bot full9c: bakes the skycity walk lens rails (S1>S2, S2>S3, S3>S4, S4>S5, S4>S6; every planWalk run) on the REAL env_skycity.glb
++// mesh (lens-scene.cjs, the lens-trajectory-clearance solid set) → SKY_RAILS in region/SkyFinaleRail.ts (SKY_JOINS kept).
++// Per Lm/N (≤ 0.25 m) of her progress, candidate lens spots round her; hard reject: mesh < 0.75 m, ground below < 1.3 m, enclosed, her
++// chest or face hidden by the mesh, her margin < 0.1 on any of the 7 screens (aim = chest). Viterbi for the smoothest path (≤ 0.45 m
++// per step); S4>S6.s last run ends ON SKY_FINALE_POSE_LOCAL; run ends (the board joins meet them) keep ≥ 1.6 m of ground (travel rule). Smoothed, re-verified, stored as integer-mm text (SkyResumeLens.mmDecode); her path is planWalk's own (not stored).
++const fs=require('fs'),path=require('path'),L=require('../journey-integration/clip3/lens-scene.cjs'),FL=require('../journey-integration/journey-framing-lib.cjs');
++const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness(),SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),NW=H.load('region/NodeWalker.ts'),F=H.load('region/SkyFinaleShot.ts'),LS=H.load('region/LensSmooth.ts');
++const M5=TS.TRANSITION_STAGING.skyMooring5a,W=p=>SW.skyLocalToWorld(M5,p),SOFT=/foliage_cards|flowers|robot_gardener|cloud|cumulus/;
++const KEY_TOL=0.25,R={clr:0.75,gnd:1.3,stepM:0.45,ds:0.25,margin:0.1},WALKS=[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4','S6']];
++const MM64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
++const enc=a=>{let o='',p=0;for(const v of a){const n=Math.round(v*100)/* cm, read back as mmDecode ×10 */,d=n-p;p=n;let z=d<0?-2*d-1:2*d;while(z>=32){o+=MM64[32+(z&31)];z=Math.floor(z/32);}o+=MM64[z];}return o;};
++(async()=>{const objs=await L.skyObjs([0,0,0]),solid=[L.bvh(objs.filter(o=>!SOFT.test(o.name)))],seeB=L.bvh(objs.filter(o=>!/cloud|cumulus/.test(o.name)))/* sight lines: foliage hides her too */;
++ const clear=p=>{const w=W(p);return L.clearance(solid,w,R.clr+0.2).m>=R.clr&&L.groundBelow(solid,w,R.gnd+0.1).m>=R.gnd&&!L.enclosed(solid,w);};
++ const vis=(p,h)=>[1.05,1.45].every(y=>{const pw=W(p),tw=W([h[0],h[1]+y,h[2]]),d=[tw[0]-pw[0],tw[1]-pw[1],tw[2]-pw[2]],l=Math.hypot(...d);return !FL.cast(seeB,pw,d.map(v=>v/l),l-0.35);});
++ const frame=(p,h)=>{const t=[h[0],h[1]+1.3,h[2]];return LS.LENS_SMOOTH.screens.every(s=>LS.herMargin(p,t,48,h,[s])>=R.margin);};
++ const frame2=(p,h,n)=>{const t=[h[0],h[1]+1.3,h[2]];return LS.LENS_SMOOTH.screens.every(s=>LS.herMargin(p,t,48,n,[s])>=R.margin);};
++ const ok=(p,h)=>frame(p,h)&&vis(p,h)&&clear(p);
++ const out={};
++ for(const [wa,wb] of WALKS){const segs=NW.planWalk('skycity',wa,wb).segments,runs=[];
++  for(let si=0;si<segs.length;si++){const P=segs[si].path,cum=[0];for(let i=1;i<P.length;i++)cum.push(cum[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]));const Lm=cum.at(-1);
++   const her=s=>{let i=1;while(i<P.length-1&&cum[i]<s)i++;const u=Math.max(0,Math.min(1,(s-cum[i-1])/((cum[i]-cum[i-1])||1)));return P[i-1].map((v,k)=>v+(P[i][k]-v)*u);};
++   const hdAt=s=>{const a=her(Math.max(0,s-0.3)),b=her(Math.min(Lm,s+0.3));return Math.atan2(b[0]-a[0],b[2]-a[2]);};
++   const nx=si<segs.length-1?segs[si+1].path[0]:null/* full9c skip: the run end also frames (and sees) her next-run start, so the skip join turns only between two in-frame spots */,fin=wa==='S4'&&wb==='S6'&&si===segs.length-1?F.SKY_FINALE_POSE_LOCAL.position:null,N=Math.ceil(Lm/R.ds),layers=[];
++   for(let k=0;k<=N;k++){const s=k*Lm/N,h=her(s),hd=hdAt(s),C=[];
++    if(k===N&&fin)C.push({p:fin.slice(),u:0});else for(let az=-150;az<=150;az+=10)for(let d=3;d<=8.01;d+=.5)for(let y=1.3;y<=4.01;y+=.3){const A=hd+Math.PI+az*Math.PI/180,p=[h[0]+Math.sin(A)*d,h[1]+y,h[2]+Math.cos(A)*d];
++     if(!ok(p,h)||(k===0||k===N)&&(L.groundBelow(solid,W(p),40).m<2.0||L.clearance(solid,W(p),1.2).m<1.0)/* run ends: join rules (mesh ≥ 1.0, ground ≥ 2.0) so the SKY_JOINS A* can start/end there */||k===N&&nx&&!(frame2(p,h,nx)&&vis(p,nx)))continue;const dF=fin?Math.hypot(p[0]-fin[0],p[1]-fin[1],p[2]-fin[2]):0;C.push({p,u:0.02*Math.abs(d-5.5)+0.05*Math.abs(y-2)+0.003*Math.abs(az)+0.15*dF*(k/N)});}
++    if(!C.length){console.error('no clear spot',wa,wb,'run',si,'s',s);process.exit(1);}layers.push({s,C});}
++   let prev=layers[0].C.map(c=>({cost:c.u,bp:-1}));const bps=[null];
++   for(let k=1;k<layers.length;k++){const cur=layers[k].C.map(c=>{let best=Infinity,bi=-1;layers[k-1].C.forEach((q,j)=>{const dd=Math.hypot(c.p[0]-q.p[0],c.p[1]-q.p[1],c.p[2]-q.p[2]);if(dd>R.stepM)return;const v=prev[j].cost+dd*dd*4;if(v<best){best=v;bi=j;}});return {cost:best+c.u,bp:bi};});bps.push(cur);prev=cur;}
++   let j=0,bc=Infinity;prev.forEach((c,i)=>{if(c.cost<bc){bc=c.cost;j=i;}});if(!isFinite(bc)){console.error('no feasible rail',wa,wb,si);process.exit(1);}
++   const idx=[];for(let k=layers.length-1;k>=0;k--){idx.unshift(j);if(k>0)j=bps[k][j].bp;}
++   let Q=idx.map((j,k)=>layers[k].C[j].p.slice());
++   for(let it=0;it<6;it++){const Z=Q.map((p,k)=>k===0||k===Q.length-1?p:p.map((v,i)=>(Q[k-1][i]+2*v+Q[k+1][i])/4));let good=true;
++    for(let k=0;k<Z.length-1&&good;k++)for(let u=0;u<=1;u+=.25){const p=Z[k].map((v,i)=>v+(Z[k+1][i]-v)*u);if(!ok(p,her(layers[k].s+(layers[k+1].s-layers[k].s)*u))){good=false;break;}}
++    if(!good)break;Q=Z;}
++   const fit=(a,b)=>{for(let k=a+1;k<b;k++){const u=(layers[k].s-layers[a].s)/(layers[b].s-layers[a].s),p=Q[a].map((v,i)=>v+(Q[b][i]-v)*u);if(Math.hypot(...p.map((v,i)=>v-Q[k][i]))>KEY_TOL||!ok(p,her(layers[k].s)))return false;
++     for(let m=0;m<4;m++){const s2=layers[k-1].s+(layers[k].s-layers[k-1].s)*m/4,u2=(s2-layers[a].s)/(layers[b].s-layers[a].s);if(!ok(Q[a].map((v,i)=>v+(Q[b][i]-v)*u2),her(s2)))return false;}}return true;};
++   const ks=[0];for(let a=0,b=2;b<Q.length;b++)if(!fit(a,b)){ks.push(b-1);a=b-1;}ks.push(Q.length-1);/* greedy key thinning: every dropped layer within KEY_TOL of the linear key path, and the key path itself re-checked (ok) every 1/4 layer */
++   runs.push(enc(ks.flatMap(k=>[layers[k].s,...Q[k]])));}
++  out[wa+'>'+wb]=runs;console.log(wa+'>'+wb,runs.map(r=>r.length));}
++ const dst=path.join(__dirname,'../../creator-build-project/assets/scripts/region/SkyFinaleRail.ts'),old=fs.existsSync(dst)?fs.readFileSync(dst,'utf8'):'',jl=(old.match(/\nexport const SKY_JOINS[^\n]*/)||[''])[0];
++ const q=JSON.stringify(out).replace(/"/g,"'");
++ fs.writeFileSync(dst,`export const SKY_RAILS:Readonly<Record<string,readonly string[]>>=${q};${jl}\n`);})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/region-nodes/gen-sky-rail-joins.cjs b/tools/region-nodes/gen-sky-rail-joins.cjs
+new file mode 100644
+index 00000000..016bc2c6
+--- /dev/null
++++ b/tools/region-nodes/gen-sky-rail-joins.cjs
+@@ -0,0 +1,37 @@
++'use strict';
++// 运镜bot full9c: bakes the skycity board ⇄ rail joins on the REAL env_skycity.glb mesh (lens-trajectory-clearance solid set) → SKY_JOINS in
++// region/SkyFinaleRail.ts. The board lens (skycityVisitPose, model-local) lies on one ray from the court on every screen; Q0 = that ray
++// at the nearest (wide-screen) distance, so each screen's board lens → Q0 is a straight dolly along its own view line. Entry i: Q0 → the
++// walk's rail start; exit o: rail end → Q0 (none for S4>S6). Heap A* on a 0.75 m grid (mesh ≥ 1.0 m, ground below ≥ 2.0 m or none at the grid nodes; every 0.1 m of the final path ≥ 1.5 m (travel rule); a step from which her chest/face is hidden costs 4× (25× within 12 m of her)),
++// Mid m (full9c skip; hidden-her nodes within 12 m rejected — her chest/face seen at 0…3 m of her run-1 walk, and string-pulling keeps every 1/4 point seen): run-0 rail end → run-1 rail start, her = run-1 start (the walk plan's skip; SkyRunLens.skyRailFollow).
++// string-pulled with every 0.2 m re-checked, then the enclosed test on the final path. Integer-mm text (SkyResumeLens.mmDecode).
++const fs=require('fs'),path=require('path'),L=require('../journey-integration/clip3/lens-scene.cjs');
++const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness(),SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),NW=H.load('region/NodeWalker.ts'),RL=H.load('region/SkyRunLens.ts'),V=H.load('region/SkycityVisitPose.ts');
++const M5=TS.TRANSITION_STAGING.skyMooring5a,W=p=>SW.skyLocalToWorld(M5,p),SOFT=/foliage_cards|flowers|robot_gardener|cloud|cumulus/,G=0.75,CLR=1.0,GND=2.0;
++const MM64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
++const enc=a=>{let o='',p=0;for(const v of a){const n=Math.round(v*100)/* cm, read back as mmDecode ×10 */,d=n-p;p=n;let z=d<0?-2*d-1:2*d;while(z>=32){o+=MM64[32+(z&31)];z=Math.floor(z/32);}o+=MM64[z];}return o;};
++const Q0=V.skycityVisitPose([-1.4,-0.07,32.6],[0,-0.068,30],390/520).position;
++const hp=(h,x)=>{h.push(x);let i=h.length-1;while(i>0){const p=(i-1)>>1;if(h[p][0]<=h[i][0])break;[h[p],h[i]]=[h[i],h[p]];i=p;}};
++const pop=h=>{const top=h[0],last=h.pop();if(h.length){h[0]=last;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;if(l<h.length&&h[l][0]<h[m][0])m=l;if(r<h.length&&h[r][0]<h[m][0])m=r;if(m===i)break;[h[m],h[i]]=[h[i],h[m]];i=m;}}return top;};
++(async()=>{const objs=await L.skyObjs([0,0,0]),solid=[L.bvh(objs.filter(o=>!SOFT.test(o.name)))],memo=new Map(),seeB=L.bvh(objs.filter(o=>!/cloud|cumulus/.test(o.name)));
++ const clear=(p,gn=GND)=>{const k=p.map(v=>v.toFixed(2)).join()+gn;let r=memo.get(k);if(r===undefined){const w=W(p);r=L.clearance(solid,w,CLR+0.05).m>=CLR&&L.groundBelow(solid,w,40).m>=gn;memo.set(k,r);}return r;};
++ const segOk=(a,b,gn=GND)=>{const l=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]),n=Math.max(1,Math.ceil(l/(gn<GND?0.05:0.2)));for(let i=0;i<=n;i++){const p=a.map((v,k)=>v+(b[k]-v)*i/n);if(!clear(p,gn))return false;}return true;};
++ function plan(A,B,H0,hard=false,HS=[H0]){const FL=require('../journey-integration/journey-framing-lib.cjs'),vm=new Map(),seen=p=>{const k=p.join();let r=vm.get(k);if(r===undefined){const a=W(p);r=(hard?HS:[H0]).every(Hq=>[1.05,1.45].every(y=>{const b=W([Hq[0],Hq[1]+y,Hq[2]]),d=b.map((v,i)=>v-a[i]),l=Math.hypot(...d);return !FL.cast(seeB,a,d.map(v=>v/l),l-0.3);}));vm.set(k,r);}return r;};const lo=[0,1,2].map(i=>Math.min(A[i],B[i])-8),hi=[0,1,2].map(i=>Math.max(A[i],B[i])+(i===1?14:8)),key=q=>q.join(),P=q=>q.map((v,i)=>lo[i]+v*G);
++  const near=(X,NR=2)=>{let best=null,bd=Infinity;const c=X.map((v,i)=>Math.round((v-lo[i])/G));for(let dx=-NR;dx<=NR;dx++)for(let dy=-NR;dy<=NR;dy++)for(let dz=-NR;dz<=NR;dz++){const q=[c[0]+dx,c[1]+dy,c[2]+dz],p=P(q),d=Math.hypot(...p.map((v,i)=>v-X[i]));if(d<bd&&clear(p)&&segOk(X,p,1.55)){bd=d;best=q;}}return best;};
++  const s=near(A)||near(A,4),t=near(B)||near(B,4);if(!s||!t)throw Error((s?"":"start ")+(t?"":"end ")+'no grid start/end '+A+' → '+B);const Pt=P(t),hh=q=>Math.hypot(...P(q).map((v,i)=>v-Pt[i]));
++  const open=[[hh(s),0,s]],g=new Map([[key(s),0]]),par=new Map();let it=0,done=false;
++  while(open.length){const [,gc,q]=pop(open);if(key(q)===key(t)){done=true;break;}if(gc>g.get(key(q)))continue;if(++it>200000)throw Error('A* budget');
++   for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dy&&!dz)continue;const n=[q[0]+dx,q[1]+dy,q[2]+dz];if(n.some((v,i)=>v<0||lo[i]+v*G>hi[i]))continue;
++    const near12=Math.hypot(...P(n).map((v,i)=>v-H0[i]-(i===1?1.3:0)))<12;if(hard&&near12&&!seen(P(n)))continue;const c=gc+Math.hypot(dx,dy,dz)*G*(seen(P(n))?1:Math.hypot(...P(n).map((v,i)=>v-H0[i]-(i===1?1.3:0)))<12?25:4);if(c>=(g.get(key(n))??Infinity))continue;if(!clear(P(n))||!segOk(P(q),P(n)))continue;g.set(key(n),c);par.set(key(n),q);hp(open,[c+1.5*hh(n),c,n]);}}
++  if(!done)throw Error('A* no path');const raw=[B];for(let q=t;q;q=par.get(key(q)))raw.unshift(P(q));raw.unshift(A);
++  const out=[raw[0]];let i=0;while(i<raw.length-1){let j=raw.length-1;while(j>i+1&&!(segOk(raw[i],raw[j],(i===0||j===raw.length-1)?1.55:GND)&&(hard?(()=>{const n=Math.ceil(Math.hypot(...raw[i].map((v,m)=>v-raw[j][m]))/0.25);for(let q=1;q<n;q++)if(!seen(raw[i].map((v,m)=>v+(raw[j][m]-v)*q/n)))return false;return true;})():[.25,.5,.75].every(u=>seen(raw[i].map((v,m)=>v+(raw[j][m]-v)*u))||!seen(raw[i])||!seen(raw[j])))))j--;out.push(raw[j]);i=j;}
++  for(let k=0;k<out.length-1;k++)for(let u=0;u<=1;u+=.1){const p=out[k].map((v,m)=>v+(out[k+1][m]-v)*u);if(L.enclosed(solid,W(p)))throw Error('enclosed on path');for(let k=0;k<out.length-1;k++){const l=Math.hypot(...out[k].map((v,m)=>v-out[k+1][m])),n=Math.ceil(l/0.1);for(let q=0;q<=n;q++){const p=out[k].map((v,m)=>v+(out[k+1][m]-v)*q/n),gb=L.groundBelow(solid,W(p),40).m;if(gb<1.5&&!(k===out.length-2&&q===n))throw Error('ground '+gb.toFixed(2)+' on path seg '+k+'/'+(out.length-1)+' at '+p.map(v=>v.toFixed(2))+' from '+out[k].map(v=>v.toFixed(2))+' to '+out[k+1].map(v=>v.toFixed(2)));}}}
++  console.log(' ',it,'expanded',out.length,'pts');return out;}
++ const J={};for(const w of ['S1>S2','S2>S3','S3>S4','S4>S5','S4>S6']){const [a,b]=w.split('>'),sg=NW.planWalk('skycity',a,b).segments,st=RL.skyRailPose(w,sg[0].path[0]).position,en=RL.skyRailPose(w,sg.at(-1).path.at(-1)).position;
++  console.log(w);const i=plan(Q0,st,sg[0].path[0]).slice(0,-1),o=w==='S4>S6'?null:plan(en,Q0,sg.at(-1).path.at(-1)).slice(1);let m=[];if(sg.length>1){const A=RL.skyRailPose(w,sg[0].path.at(-1)).position,P1=sg[1].path;let err;
++   for(const d of [0,.4,.8,1.2,1.6,2.0]){let hp=P1.at(-1),acc=0;for(let q=1;q<P1.length;q++){const l=Math.hypot(P1[q][0]-P1[q-1][0],P1[q][2]-P1[q-1][2]);if(acc+l>=d){hp=P1[q-1].map((v,k)=>v+(P1[q][k]-v)*((d-acc)/(l||1)));break;}acc+=l;}try{m=plan(A,RL.skyRailPose(w,hp).position,P1[0],true,[0,.75,1.5,2.25,3].map(x=>{let o=P1.at(-1),c=0;for(let q=1;q<P1.length;q++){const l=Math.hypot(P1[q][0]-P1[q-1][0],P1[q][2]-P1[q-1][2]);if(c+l>=x){o=P1[q-1].map((v,k)=>v+(P1[q][k]-v)*((x-c)/(l||1)));break;}c+=l;}return o;})).slice(1,d?undefined:-1);err=null;break;}catch(e){err=e;console.log('  mid end',d,e.message);}}if(err)throw err;}let kk=null;if(w==='S4>S6'){const P1=sg[1].path,L1=P1.reduce((a,p,q)=>q?a+Math.hypot(p[0]-P1[q-1][0],p[2]-P1[q-1][2]):0,0),pt=d=>{let o=P1.at(-1),c=0;for(let q=1;q<P1.length;q++){const l=Math.hypot(P1[q][0]-P1[q-1][0],P1[q][2]-P1[q-1][2]);if(c+l>=d){o=P1[q-1].map((v,k)=>v+(P1[q][k]-v)*((d-c)/(l||1)));break;}c+=l;}return o;};
++   /* k (planSkip): run-0 rail START (she stood at S4) → the rail where planSkip puts her (1.2 m before S6), her seen over that last 1.2 m */
++   kk=plan(RL.skyRailPose(w,sg[0].path[0]).position,RL.skyRailPose(w,pt(L1-1.2)).position,pt(L1-1.2),true,[0,.4,.8,1.2].map(x=>pt(L1-1.2+x))).slice(1,-1);}
++  J[w]={i:enc(i.flat()),o:o?enc(o.flat()):'',m:enc(m.flat()),...(kk?{k:enc(kk.flat())}:{})};}
++ const dst=path.join(__dirname,'../../creator-build-project/assets/scripts/region/SkyFinaleRail.ts');let src=fs.readFileSync(dst,'utf8').replace(/\nexport const SKY_JOINS[^\n]*/,'');
++ fs.writeFileSync(dst,src.trimEnd()+`\nexport const SKY_JOINS:Readonly<Record<string,{i:string;o:string;m?:string;k?:string}>>=${JSON.stringify(J).replace(/"([iomk])":/g,'$1:').replace(/"/g,"'")};\n`);console.log('done');})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/region-nodes/gen-skycity-lens-occluders.cjs b/tools/region-nodes/gen-skycity-lens-occluders.cjs
+index c22519e8..735f43c9 100644
+--- a/tools/region-nodes/gen-skycity-lens-occluders.cjs
++++ b/tools/region-nodes/gen-skycity-lens-occluders.cjs
+@@ -10,6 +10,9 @@ const OUT=path.join(ROOT,'creator-build-project/assets/scripts/region/SkycityLen
+ /* p0drag11 (Mac p0drag10: house posts, pillars and the dark bushes hid her for 2–10 s, grey post full-screen at the nook): the set
+  * now starts 0.3 m over the floor (was 2.2 m — everything below, i.e. the bushes and the bottom of every post, was missing), 1 m
+  * tiles (was 2 m) and a min thickness so 1-plank fences / rails stay see-through. Day and night use the same meshes (night = grade). */
++/* full9c (运镜bot endshots: S3>S4 arrival — the star ring hid her on 7/7 screens): the before-state star ring gets its own pass — 0.5 m
++ * voxels, 1 m xz tiles split into vertical runs (the ring floats 4–29 m up; one column box would wall off the plateau under it). */
++const RING={meshes:/^state_ring_before$/,yMin:3,yMax:14};
+ const CFG={meshes:/^(env_sky_ruins|env_sky_static_palette)$/,xz:[-30,-40,40,60],yMin:0.3,yMax:16,vox:0.5,minH:1.0,minFoot:0.5,minThick:0.75,tile:1,floorNy:0.85,floorTop:2.2};
+ (async()=>{
+  const dir=process.env.DRACO3D||'/tmp/draco3d/node_modules/draco3d';const draco=require(path.join(dir,'draco3d.js'));const decMod=await draco.createDecoderModule({});
+@@ -21,8 +24,8 @@ const CFG={meshes:/^(env_sky_ruins|env_sky_static_palette)$/,xz:[-30,-40,40,60],
+   return [(1-2*(y*y+z*z))*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,2*(x*y-z*w)*sy,(1-2*(x*x+z*z))*sy,2*(y*z+x*w)*sy,0,2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*(x*x+y*y))*sz,0,t[0],t[1],t[2],1];};
+  const glob=i=>{let M=trs(doc.nodes[i]);for(let k=parent[i];k!==undefined;k=parent[k])M=mul(trs(doc.nodes[k]),M);return M;};
+  const xf=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2]+M[12],M[1]*v[0]+M[5]*v[1]+M[9]*v[2]+M[13],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]+M[14]];
+- const V=CFG.vox,cells=new Map(),key=(i,j,k)=>i+','+j+','+k;
+- for(let i=0;i<doc.nodes.length;i++){const node=doc.nodes[i];if(node.mesh===undefined||!CFG.meshes.test(node.name||''))continue;const M=glob(i);
++ const V=CFG.vox,cells=new Map(),rcells=new Map(),key=(i,j,k)=>i+','+j+','+k;
++ for(let i=0;i<doc.nodes.length;i++){const node=doc.nodes[i];const isRing=RING.meshes.test(node.name||'');if(node.mesh===undefined||(!isRing&&!CFG.meshes.test(node.name||'')))continue;const M=glob(i);const Y0=isRing?RING.yMin:CFG.yMin,Y1=isRing?RING.yMax:CFG.yMax,CM=isRing?rcells:cells;
+   for(const pr of doc.meshes[node.mesh].primitives){const ext=pr.extensions&&pr.extensions.KHR_draco_mesh_compression;if(!ext)continue;
+    const bv=doc.bufferViews[ext.bufferView],data=bin.subarray(bv.byteOffset||0,(bv.byteOffset||0)+bv.byteLength);
+    const d=new decMod.Decoder(),buf=new decMod.DecoderBuffer();buf.Init(new Int8Array(data.buffer,data.byteOffset,data.byteLength),data.byteLength);
+@@ -32,13 +35,13 @@ const CFG={meshes:/^(env_sky_ruins|env_sky_static_palette)$/,xz:[-30,-40,40,60],
+    const face=new decMod.DracoInt32Array();
+    for(let f=0;f<nf;f++){d.GetFaceFromMesh(mesh,f,face);const t=[P[face.GetValue(0)],P[face.GetValue(1)],P[face.GetValue(2)]];
+     const lo=[0,1,2].map(a=>Math.min(t[0][a],t[1][a],t[2][a])),hi=[0,1,2].map(a=>Math.max(t[0][a],t[1][a],t[2][a]));
+-    if(hi[1]<CFG.yMin||lo[1]>CFG.yMax||hi[0]<CFG.xz[0]||lo[0]>CFG.xz[2]||hi[2]<CFG.xz[1]||lo[2]>CFG.xz[3])continue;
++    if(hi[1]<Y0||lo[1]>Y1||hi[0]<CFG.xz[0]||lo[0]>CFG.xz[2]||hi[2]<CFG.xz[1]||lo[2]>CFG.xz[3])continue;
+     {const u=[0,1,2].map(a=>t[1][a]-t[0][a]),w=[0,1,2].map(a=>t[2][a]-t[0][a]),n=[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]],L=Math.hypot(...n)||1;
+-     if(Math.abs(n[1])/L>CFG.floorNy&&hi[1]<CFG.floorTop)continue;/* walk floors / terrace slabs are not walls */}
++     if(!isRing&&Math.abs(n[1])/L>CFG.floorNy&&hi[1]<CFG.floorTop)continue;/* walk floors / terrace slabs are not walls */}
+     // rasterise the triangle by sampling (barycentric grid at ≤ V/2)
+     const e=Math.max(Math.hypot(...[0,1,2].map(a=>t[1][a]-t[0][a])),Math.hypot(...[0,1,2].map(a=>t[2][a]-t[0][a])));const n=Math.max(1,Math.ceil(e/(V/2)));
+     for(let a=0;a<=n;a++)for(let b=0;a+b<=n;b++){const u=a/n,w=b/n,p=[0,1,2].map(k=>t[0][k]+(t[1][k]-t[0][k])*u+(t[2][k]-t[0][k])*w);
+-     if(p[1]<CFG.yMin||p[1]>CFG.yMax)continue;const c=[Math.floor(p[0]/V),Math.floor(p[1]/V),Math.floor(p[2]/V)];const k=key(...c);if(!cells.has(k))cells.set(k,c);}}
++     if(p[1]<Y0||p[1]>Y1)continue;const c=[Math.floor(p[0]/V),Math.floor(p[1]/V),Math.floor(p[2]/V)];const k=key(...c);if(!CM.has(k))CM.set(k,c);}}
+    [pos,face,mesh,buf,d].forEach(o=>decMod.destroy(o));}}
+  // connected clusters
+  const seen=new Set(),boxes=[];
+@@ -50,12 +53,21 @@ const CFG={meshes:/^(env_sky_ruins|env_sky_static_palette)$/,xz:[-30,-40,40,60],
+  const T=CFG.tile,cols=new Map();for(const c of cells.values()){const k=Math.floor(c[0]*V/T)+','+Math.floor(c[2]*V/T);const b=cols.get(k)||[1e9,1e9,1e9,-1e9,-1e9,-1e9];
+   b[0]=Math.min(b[0],c[0]*V);b[1]=Math.min(b[1],c[1]*V);b[2]=Math.min(b[2],c[2]*V);b[3]=Math.max(b[3],(c[0]+1)*V);b[4]=Math.max(b[4],(c[1]+1)*V);b[5]=Math.max(b[5],(c[2]+1)*V);cols.set(k,b);}
+  for(const b of cols.values()){const h=b[4]-b[1];if(h>=CFG.minH&&Math.max(b[3]-b[0],b[5]-b[2])>=CFG.minFoot&&Math.min(b[3]-b[0],b[5]-b[2])>=CFG.minThick)boxes.push(b.map(v=>+v.toFixed(2)));}
+- boxes.sort((a,b)=>a[0]-b[0]||a[2]-b[2]);
++ const ringBoxes=[];{const T=CFG.tile,col=new Map();for(const c of rcells.values()){const k=Math.floor(c[0]*V/T)+','+Math.floor(c[2]*V/T);(col.get(k)||col.set(k,[]).get(k)).push(c);}
++  for(const cs of col.values()){cs.sort((a,b)=>a[1]-b[1]);let run=null;const flush=()=>{if(run)ringBoxes.push(run.map(v=>+v.toFixed(2)));run=null;};
++   for(const c of cs){if(run&&c[1]*V<=run[4]+V){run[0]=Math.min(run[0],c[0]*V);run[2]=Math.min(run[2],c[2]*V);run[3]=Math.max(run[3],(c[0]+1)*V);run[4]=Math.max(run[4],(c[1]+1)*V);run[5]=Math.max(run[5],(c[2]+1)*V);}else{flush();run=[c[0]*V,c[1]*V,c[2]*V,(c[0]+1)*V,(c[1]+1)*V,(c[2]+1)*V];}}flush();}}
++ boxes.sort((a,b)=>a[0]-b[0]||a[2]-b[2]);ringBoxes.sort((a,b)=>a[0]-b[0]||a[2]-b[2]);
+  const ts=`/** p0drag7 (Mac p0drag6: skycity east edge — lens inside a blue-roof house wall / single-colour frames). Generated by
+  *  tools/region-nodes/gen-skycity-lens-occluders.cjs from env_skycity.glb (${CFG.meshes.source}, voxel ${V} m, from ${CFG.yMin} m over the floor, ${CFG.tile} m tiles ≥ ${CFG.minH} m high, ≥ ${CFG.minThick} m thick).
+  *  Rows: model-local AABB [minX,minY,minZ,maxX,maxY,maxZ] (model-local = walk-local). Do not edit by hand. */
+ export const SKYCITY_LENS_OCCLUDERS_CINE:readonly (readonly number[])[]=${JSON.stringify(boxes)};
+ `;
+  console.log(JSON.stringify({cells:cells.size,boxes:boxes.length,bytes:ts.length}));
++ const rts=`/** full9c (运镜bot endshots): before-state star ring proxies — tools/region-nodes/gen-skycity-lens-occluders.cjs --ring from env_skycity.glb
++ *  (${RING.meshes.source}, ${RING.yMin}–${RING.yMax} m, 0.5 m voxels, 1 m xz tiles split into vertical runs). Model-local AABBs. Do not edit by hand. */
++export const SKYCITY_LENS_OCCLUDERS_CINE_RING:readonly (readonly number[])[]=${JSON.stringify(ringBoxes)};
++`;
++ if(process.argv.includes('--ring')){const cur=fs.readFileSync(OUT,'utf8'),re=/\/\/ <cine-ring>\n[\s\S]*?\/\/ <\/cine-ring>\n/,blk='// <cine-ring>\n'+rts.replace(/\n$/,'')+'\n// </cine-ring>\n';
++  let nx=re.test(cur)?cur.replace(re,blk):cur.replace('// </cine>\n','// </cine>\n'+blk);nx=nx.replace('[...SKYCITY_LENS_OCCLUDERS_CINE,...SKYCITY_LENS_OCCLUDERS_SCENE]','[...SKYCITY_LENS_OCCLUDERS_CINE,...SKYCITY_LENS_OCCLUDERS_CINE_RING,...SKYCITY_LENS_OCCLUDERS_SCENE]');fs.writeFileSync(OUT,nx);console.log(JSON.stringify({ringBoxes:ringBoxes.length}));return;}
+  if(process.argv.includes('--write')){/* p0drag7 merge: owns only the <cine> block */const cur=fs.readFileSync(OUT,'utf8'),re=/\/\/ <cine>\n[\s\S]*?\/\/ <\/cine>\n/;if(!re.test(cur))throw new Error('no <cine> block');fs.writeFileSync(OUT,cur.replace(re,'// <cine>\n'+ts.replace(/\n$/,'')+'\n// </cine>\n'));}else console.log(boxes.map(b=>b.join(',')).join('\n'));
+ })().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/region-nodes/propose_endshot_blend.cjs b/tools/region-nodes/propose_endshot_blend.cjs
+new file mode 100644
+index 00000000..75db59a4
+--- /dev/null
++++ b/tools/region-nodes/propose_endshot_blend.cjs
+@@ -0,0 +1,21 @@
++// 运镜bot full9c OFFLINE PROPOSAL check (not a gate): RegionNodeStage.occludeHeld transpiled from the runtime source; RING=1 adds 0.5 m voxel proxies of state_ring_before near S4; BL = blend seconds. Run from the repo root.
++// offline: RegionNodeStage.occludeHeld (transpiled from the runtime source) applied to the skycity FollowWalk end shot
++const X=require(process.cwd()+'/tools/region-nodes/explore-stage-harness.cjs');const {rig,H,S,sb}=X;const fs=require('fs'),vm=require('vm'),ts=require(process.cwd()+'/tools/qf-env.cjs').typescript();
++const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true),cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
++const m=n=>cls.members.find(x=>x.name&&x.name.getText(sf)===n).getText(sf);const out=ts.transpileModule(`class P{${m('occludeHeld')}};module.exports=P;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
++const sb2=Object.assign(Object.create(null),sb,{module:{exports:{}}});vm.runInNewContext(out,sb2);const occludeHeld=sb2.module.exports.prototype.occludeHeld;
++const NW=H.load(S('region/NodeWalker.ts')),E=H.load(S('region/ExploreCameraCore.ts')),LS=H.load(S('region/LensSmooth.ts')),F=H.load(S('region/SkyFinaleShot.ts')),SW=H.load(S('region/SkyWalkShot.ts')),TS=H.load(S('region/TransitionStaging.ts'));
++const RL=require(process.cwd()+'/tools/journey-integration/route/route-legs.cjs'),M=TS.TRANSITION_STAGING.skyMooring5a;
++const D26=[];for(const x of[-1,0,1])for(const y of[-1,0,1])for(const z of[-1,0,1])if(x||y||z){const L=Math.hypot(x,y,z);D26.push([x/L,y/L,z/L]);}
++(async()=>{const geo=await RL.geometry(),W=p=>SW.skyLocalToWorld(M,p),hit=(a,b)=>RL.hit(geo.skyJ,W(a),W(b));const res={};const RING=[];if(process.env.RING){const sky=await RL.skyLocal(),cells=new Set();for(const o of sky.filter(o=>o.name==='state_ring_before')){const t=o.tris;for(let i=0;i<t.length;i+=9)for(let u=0;u<=1;u+=0.1)for(let v=0;v<=1-u;v+=0.1){const q=[0,1,2].map(k=>t[i+k]+(t[i+3+k]-t[i+k])*u+(t[i+6+k]-t[i+k])*v);if(Math.hypot(q[0]-0.2,q[2]+5.4)<14)cells.add(q.map(x=>Math.floor(x/0.5)).join(','));}}for(const c of cells){const [x,y,z]=c.split(',').map(Number);RING.push({min:[x*.5,y*.5,z*.5],max:[x*.5+.5,y*.5+.5,z*.5+.5]});}console.error('ring boxes',RING.length);}
++ for(const [a,b] of [['S3','S4'],['S4','S6'],['S1','S2'],['S2','S3']]){const sg=NW.planWalk('skycity',a,b).segments,last=sg[sg.length-1].path,feet=last[last.length-1],pa=last[last.length-2],yaw=Math.atan2(feet[0]-pa[0],feet[2]-pa[2]);
++  const ev=(feetQ,w,h,useHeld)=>{const Rg=rig('skycity','S3',feetQ.slice(),{modelAt:[0,0,0]}),st=Rg.st;if(process.env.RING){const lo=st.lakesideOccluders.bind(st);st.lakesideOccluders=()=>[...(lo()||[]),...RING];}st.yaw=()=>yaw;st.viewport=()=>({w,h});st.sceneBoxes=()=>[];st.lens='FollowWalk';st.tickLens(1/60);let p=Rg.cam();if(useHeld)p=occludeHeld.call(st,p);return p;};
++  for(const held of [false,true]){const scr=LS.LENS_SMOOTH.screens.map(([w,h])=>{const p=ev(feet,w,h,held),fa=[feet[0],feet[1]+1.5,feet[2]],v=F.ndc(p.position,p.target,p.fovVerticalDeg,w,h,fa),px=v?(v[0]+1)/2*w:-1,py=v?(1-v[1])/2*h:-1;
++    return {s:w+'x'+h,m:+LS.herMargin(p.position,p.target,p.fovVerticalDeg,feet,[[w,h]]).toFixed(3),cap:!!v&&px>=w-98&&py<=92,head:hit(p.position,[feet[0],feet[1]+1.45,feet[2]])||'',chest:hit(p.position,[feet[0],feet[1]+1.05,feet[2]])||'',c11:D26.filter(d=>hit(p.position,p.position.map((q,i)=>q+d[i]*1.1))).length,pos:p.position.map(v=>+v.toFixed(2))};});
++   let near=0,jump=0,pv=null,pkY=0,pY=null;const L=NW.pathLength(last),BL=Number(process.env.BL||2),v=1.2,Ehold=ev(feet,390,844,true);
++   for(let s=0;s<=L+1e-9;s+=v/60){const q=NW.pointAlong(last,s),raw=ev(q,390,844,false),rem=(L-s)/v,u=held?Math.max(0,Math.min(1,1-rem/BL)):0,k=u*u*u*(10-15*u+6*u*u);
++    const p={position:raw.position.map((x,i)=>x+(Ehold.position[i]-x)*k),target:raw.target.map((x,i)=>x+(Ehold.target[i]-x)*k)};
++    const yy=Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;if(pY!==null)pkY=Math.max(pkY,Math.abs(((yy-pY)+540)%360-180)*60);pY=yy;
++    if(pv)jump=Math.max(jump,Math.hypot(...p.position.map((x,i)=>x-pv[i])));pv=p.position;near+=D26.some(d=>hit(p.position,p.position.map((x,i)=>x+d[i]*0.35)))?1:0;}
++   res[a+'>'+b+(held?' held':' raw')]={minM:Math.min(...scr.map(s=>s.m)),cap:scr.some(s=>s.cap),occ:scr.filter(s=>s.head||s.chest).map(s=>s.s+':'+(typeof s.head==='string'?s.head:JSON.stringify(s.head)).slice(0,40)),c11:Math.max(...scr.map(s=>s.c11)),near035:near,maxStepPerFrame:+jump.toFixed(3),yawPeakDegS:+pkY.toFixed(0),pos390:scr[0].pos,pose390:ev(feet,390,844,held),feet};}}
++ console.log(JSON.stringify(res,null,1));})();
+diff --git a/tools/region-nodes/propose_endshot_held.cjs b/tools/region-nodes/propose_endshot_held.cjs
+new file mode 100644
+index 00000000..11f76edb
+--- /dev/null
++++ b/tools/region-nodes/propose_endshot_held.cjs
+@@ -0,0 +1,17 @@
++// 运镜bot full9c OFFLINE PROPOSAL check (not a gate): RegionNodeStage.occludeHeld transpiled from the runtime source; RING=1 adds 0.5 m voxel proxies of state_ring_before near S4; BL = blend seconds. Run from the repo root.
++// offline: RegionNodeStage.occludeHeld (transpiled from the runtime source) applied to the skycity FollowWalk end shot
++const X=require(process.cwd()+'/tools/region-nodes/explore-stage-harness.cjs');const {rig,H,S,sb}=X;const fs=require('fs'),vm=require('vm'),ts=require(process.cwd()+'/tools/qf-env.cjs').typescript();
++const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true),cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
++const m=n=>cls.members.find(x=>x.name&&x.name.getText(sf)===n).getText(sf);const out=ts.transpileModule(`class P{${m('occludeHeld')}};module.exports=P;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
++const sb2=Object.assign(Object.create(null),sb,{module:{exports:{}}});vm.runInNewContext(out,sb2);const occludeHeld=sb2.module.exports.prototype.occludeHeld;
++const NW=H.load(S('region/NodeWalker.ts')),E=H.load(S('region/ExploreCameraCore.ts')),LS=H.load(S('region/LensSmooth.ts')),F=H.load(S('region/SkyFinaleShot.ts')),SW=H.load(S('region/SkyWalkShot.ts')),TS=H.load(S('region/TransitionStaging.ts'));
++const RL=require(process.cwd()+'/tools/journey-integration/route/route-legs.cjs'),M=TS.TRANSITION_STAGING.skyMooring5a;
++const D26=[];for(const x of[-1,0,1])for(const y of[-1,0,1])for(const z of[-1,0,1])if(x||y||z){const L=Math.hypot(x,y,z);D26.push([x/L,y/L,z/L]);}
++(async()=>{const geo=await RL.geometry(),W=p=>SW.skyLocalToWorld(M,p),hit=(a,b)=>RL.hit(geo.skyJ,W(a),W(b));const res={};const RING=[];if(process.env.RING){const sky=await RL.skyLocal(),cells=new Set();for(const o of sky.filter(o=>o.name==='state_ring_before')){const t=o.tris;for(let i=0;i<t.length;i+=9)for(let u=0;u<=1;u+=0.1)for(let v=0;v<=1-u;v+=0.1){const q=[0,1,2].map(k=>t[i+k]+(t[i+3+k]-t[i+k])*u+(t[i+6+k]-t[i+k])*v);if(Math.hypot(q[0]-0.2,q[2]+5.4)<14)cells.add(q.map(x=>Math.floor(x/0.5)).join(','));}}for(const c of cells){const [x,y,z]=c.split(',').map(Number);RING.push({min:[x*.5,y*.5,z*.5],max:[x*.5+.5,y*.5+.5,z*.5+.5]});}console.error('ring boxes',RING.length);}
++ for(const [a,b] of [['S3','S4'],['S4','S6'],['S1','S2'],['S2','S3']]){const sg=NW.planWalk('skycity',a,b).segments,last=sg[sg.length-1].path,feet=last[last.length-1],pa=last[last.length-2],yaw=Math.atan2(feet[0]-pa[0],feet[2]-pa[2]);
++  const ev=(feetQ,w,h,useHeld)=>{const Rg=rig('skycity','S3',feetQ.slice(),{modelAt:[0,0,0]}),st=Rg.st;if(process.env.RING){const lo=st.lakesideOccluders.bind(st);st.lakesideOccluders=()=>[...(lo()||[]),...RING];}st.yaw=()=>yaw;st.viewport=()=>({w,h});st.sceneBoxes=()=>[];st.lens='FollowWalk';st.tickLens(1/60);let p=Rg.cam();if(useHeld)p=occludeHeld.call(st,p);return p;};
++  for(const held of [false,true]){const scr=LS.LENS_SMOOTH.screens.map(([w,h])=>{const p=ev(feet,w,h,held),fa=[feet[0],feet[1]+1.5,feet[2]],v=F.ndc(p.position,p.target,p.fovVerticalDeg,w,h,fa),px=v?(v[0]+1)/2*w:-1,py=v?(1-v[1])/2*h:-1;
++    return {s:w+'x'+h,m:+LS.herMargin(p.position,p.target,p.fovVerticalDeg,feet,[[w,h]]).toFixed(3),cap:!!v&&px>=w-98&&py<=92,head:hit(p.position,[feet[0],feet[1]+1.45,feet[2]])||'',chest:hit(p.position,[feet[0],feet[1]+1.05,feet[2]])||'',c11:D26.filter(d=>hit(p.position,p.position.map((q,i)=>q+d[i]*1.1))).length,pos:p.position.map(v=>+v.toFixed(2))};});
++   let near=0,jump=0,pv=null;const L=NW.pathLength(last);for(let s=0;s<=L;s+=0.02){const p=ev(NW.pointAlong(last,s),390,844,held);if(pv)jump=Math.max(jump,Math.hypot(...p.position.map((x,i)=>x-pv[i])));pv=p.position;near+=D26.some(d=>hit(p.position,p.position.map((x,i)=>x+d[i]*0.35)))?1:0;}
++   res[a+'>'+b+(held?' held':' raw')]={minM:Math.min(...scr.map(s=>s.m)),cap:scr.some(s=>s.cap),occ:scr.filter(s=>s.head||s.chest).map(s=>s.s+':'+(typeof s.head==='string'?s.head:JSON.stringify(s.head)).slice(0,40)),c11:Math.max(...scr.map(s=>s.c11)),near035:near,maxStepPer2cm:+jump.toFixed(3),pos390:scr[0].pos,pose390:ev(feet,390,844,held),feet};}}
++ console.log(JSON.stringify(res,null,1));})();
+diff --git a/tools/region-nodes/render-full9c-sheets.cjs b/tools/region-nodes/render-full9c-sheets.cjs
+new file mode 100644
+index 00000000..9b37d6e0
+--- /dev/null
++++ b/tools/region-nodes/render-full9c-sheets.cjs
+@@ -0,0 +1,52 @@
++'use strict';
++// 运镜bot full9c: before/after contact sheets (flat-shaded NOT_ENGINE raster of the real meshes, lens-scene.cjs; her = red box) → PNG.
++// Sheets: mid-walk S1>S2 / S2>S3 (before = d3b8e5e4 FollowWalk writer followPose(lookUp skycity), after = rail), T-02 S4>S6 (before =
++// d3b8e5e4 held follow lookUp 8 + skyFinaleApproach, after = rail), 3b landing (tools/transitions-continuous/test_landing_move.cjs --json
++// series), B1 sit (MODEL: balloon + her only, no meadow mesh; before = close→cam0 snap over min(blendS, sitDown·.9), after = held close
++// then the flight blend flightBlendSeconds). Row 1 = before, row 2 = after; frame times in the README next to the PNGs.
++const fs=require('fs'),path=require('path'),zlib=require('zlib'),L=require('../journey-integration/clip3/lens-scene.cjs');
++const M=require('./sky-rail-model.cjs'),{H,RL}=M,SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),C=H.load('region/ExploreCameraCore.ts'),F=H.load('region/SkyFinaleShot.ts'),NW=H.load('region/NodeWalker.ts');
++const W=p=>SW.skyLocalToWorld(TS.TRANSITION_STAGING.skyMooring5a,p),wp=p=>({position:W(p.position),target:W(p.target),fovVerticalDeg:p.fovVerticalDeg});
++const OUT=process.argv[2]||'team/cinematic/outbox/20261029-full9c-final-cam',readme=[];
++function png(file,w,h,rgb){const raw=Buffer.alloc((w*3+1)*h);for(let y=0;y<h;y++){raw[y*(w*3+1)]=0;rgb.copy(raw,y*(w*3+1)+1,y*w*3,(y+1)*w*3);}
++ const crc=b=>{let c=~0;for(const x of b){c^=x;for(let k=0;k<8;k++)c=c&1?(c>>>1)^0xEDB88320:c>>>1;}return ~c>>>0;},chunk=(t,d)=>{const l=Buffer.alloc(4);l.writeUInt32BE(d.length);const td=Buffer.concat([Buffer.from(t),d]),c=Buffer.alloc(4);c.writeUInt32BE(crc(td));return Buffer.concat([l,td,c]);};
++ const ih=Buffer.alloc(13);ih.writeUInt32BE(w,0);ih.writeUInt32BE(h,4);ih[8]=8;ih[9]=2;fs.writeFileSync(file,Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',ih),chunk('IDAT',zlib.deflateSync(raw)),chunk('IEND',Buffer.alloc(0))]));}
++function sheet(name,rows,title,scr=[390,844],night=false){const fr=rows.map(r=>r.map(f=>{const R=L.render(f.objs,f.pose,scr[0],scr[1],260);if(night)for(let i=0;i<R.img.length;i+=3){R.img[i]=R.img[i]*.3|0;R.img[i+1]=R.img[i+1]*.34|0;R.img[i+2]=Math.min(255,R.img[i+2]*.5+12)|0;}return R;}));const fw=fr[0][0].w,fh=fr[0][0].h,G=6,BAR=8,n=Math.max(...fr.map(r=>r.length));
++ const Wd=n*(fw+G)+G,Hh=rows.length*(fh+G+BAR)+G,img=Buffer.alloc(Wd*Hh*3,30);
++ fr.forEach((r,ri)=>{const y0=G+ri*(fh+G+BAR);for(let x=G;x<Wd-G;x++)for(let y=y0;y<y0+BAR-2;y++){const j=(y*Wd+x)*3;img[j]=ri?60:200;img[j+1]=ri?190:70;img[j+2]=ri?90:60;}
++  r.forEach((R,ci)=>{const x0=G+ci*(fw+G);for(let y=0;y<fh;y++)R.img.copy(img,((y0+BAR+y)*Wd+x0)*3,y*fw*3,(y+1)*fw*3);});});
++ png(path.join(OUT,name),Wd,Hh,img);readme.push(`- ${name}: ${title} (top bar red = before, green = after)`);}
++(async()=>{const sky=await L.skyObjs();const her=h=>L.herObjs(W(h));
++ // mid-walk: frames at 0.6 s steps where the d3b8e5e4 lens hid her longest
++ const FL=require('../journey-integration/journey-framing-lib.cjs'),B=L.bvh(sky.filter(o=>!/foliage_cards|flowers|robot_gardener|cloud|cumulus/.test(o.name)));
++ const RLg=require('../journey-integration/route/route-legs.cjs'),geo=await RLg.geometry(),hid=(p,h)=>!!RLg.hit(geo.skyJ,W(p.position),W([h[0],h[1]+1.05,h[2]]))||!!RLg.hit(geo.skyJ,W(p.position),W([h[0],h[1]+1.45,h[2]]))/* sky_run_lens_eval's metric */;void FL;void B;
++ for(const w of ['S1>S2','S2>S3']){const sg=M.segsOf(w),fr=[];sg.forEach((s,si)=>{const Lm=NW.pathLength(s.path);for(let d=0;d<=Lm;d+=1.2/60){const h=NW.pointAlong(s.path,d),q=NW.pointAlong(s.path,Math.min(Lm,d+0.05));fr.push({si,d,h,yaw:Math.atan2(q[0]-h[0],q[2]-h[2])});}});
++  const base=f=>C.followPose(f.h,f.yaw,390,844,C.followLookUp('skycity',99));let best=0,run=0,end=0;fr.forEach((f,i)=>{run=hid(base(f),f.h)?run+1:0;if(run>best){best=run;end=i;}});
++  const pick=[-24,0,24,48,72,96].map(k=>Math.max(0,Math.min(fr.length-1,end-best+k)));
++  sheet(`midwalk-${w.replace('>','to')}-before-after.png`,[pick.map(i=>({objs:[...sky,...her(fr[i].h)],pose:wp(base(fr[i]))})),pick.map(i=>({objs:[...sky,...her(fr[i].h)],pose:wp(RL.skyRailPose(w,fr[i].h))}))],
++   `${w} mid-walk, 390x844, frames ${pick.map(i=>`run ${fr[i].si+1} ${fr[i].d.toFixed(2)} m`).join(', ')}; d3b8e5e4 chest hidden ${(best/60).toFixed(2)} s here`);}
++ // T-02 S4>S6
++ {const sg=M.segsOf('S4>S6'),last=sg.at(-1).path,feet=last.at(-1),p0=sg[0].path,live0=C.followPose(p0[0],Math.atan2(p0.at(-1)[0]-p0[0][0],p0.at(-1)[2]-p0[0][2]),390,844,8);
++  const SO=H.load('region/SkycityLensOccluders.ts'),bx=SO.SKYCITY_LENS_OCCLUDERS.map(b=>({min:b.slice(0,3),max:b.slice(3,6)}));
++  const from=C.followPose(feet,Math.atan2(feet[0]-last.at(-2)[0],feet[2]-last.at(-2)[2]),390,844,8),ap=F.skyFinaleApproach(from,F.SKY_FINALE_POSE_LOCAL,feet,bx);
++  const ts=[0,.2,.4,.6,.8,1].map(u=>u*ap.T),Lm=NW.pathLength(last),ds=[0,.2,.4,.6,.8,1].map(u=>Lm*u);
++  sheet('t02-S4toS6-before-after.png',[ts.map(t=>({objs:[...sky,...her(feet)],pose:wp(F.skyFinaleApproachPose(from,F.SKY_FINALE_POSE_LOCAL,feet,t,ap.T,ap.dir))})),ds.map(d=>{const h=NW.pointAlong(last,d);return {objs:[...sky,...her(h)],pose:wp(RL.skyRailPose('S4>S6',h))};})],
++   `T-02 finale, 390x844; before = d3b8e5e4 skyFinaleApproach from the S6 follow lens (t = ${ts.map(t=>t.toFixed(2)).join(', ')} s of ${ap.T.toFixed(2)} s), after = S4>S6 rail last run at ${ds.map(d=>d.toFixed(2)).join(', ')} m (ends on the stand shot)`);}
++ // walk-plan skip (run 1 → run 2): before = the stateless rail (cut onto the run-2 rail when she is skipped), after = skyRailFollow (SKY_JOINS.m)
++ for(const w of ['S2>S3','S4>S6']){const smp=M.samples(w,[390,844]),k=smp.findIndex(q=>q.join==='skip'),idx=[k-1,k,k+15,k+30,k+60,k+90,k+120].map(i=>Math.min(smp.length-1,i));
++  sheet(`skip-${w.replace('>','to')}-before-after.png`,[idx.map(i=>({objs:[...sky,...her(smp[i].h)],pose:wp(RL.skyRailPose(w,smp[i].h))})),idx.map(i=>({objs:[...sky,...her(smp[i].h)],pose:wp(smp[i].p)}))],
++   `${w} walk-plan skip, 390x844, frames: last before the skip, the skip frame, +0.25, +0.5, +1, +1.5, +2 s; before: the lens cuts to the run-2 rail with her; after: one eased move along the baked SKY_JOINS.m path, aim eased onto her`);}
++ // 3b landing
++ {const S=JSON.parse(fs.readFileSync('/workspace/logs-fc/landing.json','utf8')).series,RT=require('../journey-integration/route/route-legs.cjs'),idx=[-3,-2,-1,0,1,2,3].map(s=>Math.round((6+s)*60));
++  const T=H.load('region/TransportLeg.ts'),TM=H.load('region/TransitionStagingMath.ts');void T;void TM;
++  for(const night of [false,true])sheet(night?'landing-3b-night-before-after.png':'landing-3b-before-after.png',[idx.map(i=>({objs:[...sky,...L.herObjs(S.her[i])],pose:S.before[i]})),idx.map(i=>({objs:[...sky,...L.herObjs(S.her[i])],pose:S.after[i]}))],
++   (night?'3b balloon landing (night, 390x844;':'3b balloon landing (day, 390x844;')+' skycity mesh + her box, balloon mesh not drawn), ride clock −3 … +3 s around the ride end (0 = B5 start); before: lens still then the 26.5 m B5 swing in 4.52 s; after: one 6.52 s min-jerk move from −2 s, aim eased onto her so she stays in frame (margin ≥ 0.08)'+(night?'; NIGHT: same lens (no night branch), frames darkened for reading only':''),[390,844],night);}
++ // B1 (MODEL): sit-down at the meadow basket; before = close → cam0 over min(blendS, sitDown·.9) at the step-in, after = close held, then the flight eases off it over flightBlendSeconds
++ {global.__QF_BALLOON_FLIGHT=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json'),'utf8'));
++  const RT=require('../journey-integration/route/route-legs.cjs'),{J}=RT,T=H.load('region/TransportLeg.ts'),TM=H.load('region/TransitionStagingMath.ts'),BC=H.load('region/BasketCloseShot.ts'),AD=H.load('region/TransitionAnchorData.ts'),TC=H.load('region/TransitionCamera.ts'),D3=TS.TRANSITION_DURATIONS.seg3,Bk=TS.TRANSITION_STAGING.basket;
++  const m6=J.add(J.rotY(180,[0.2,6.5,-25.6]),J.mOff),plan=T.balloonBeats(m6,[5.4,-0.11,43.8],J.sp('anchor_starcourt_center'),{walkInM:0,walkOutM:0,cityFrame:{yawDeg:J.yaw,origin:J.sOff}}),v=plan.vehicle(0),o=v.pos,y=v.yaw*180/Math.PI,Wb=l=>TM.basketToWorld(o,y,l),cam0=plan.camera(0,{w:390,h:844});
++  const sp=BC.basketCloseSpot(Wb(Bk.doorOut),o,[...AD.transitionOccluderBoxes(),...BC.meadowLensBoxesWorld(l=>J.add(J.rotY(180,l),J.mOff))],undefined,[cam0]),p0=Wb(Bk.p0),close=BC.basketClosePose(sp.position,p0),bl=Math.min(BC.BASKET_CLOSE.blendS,D3.sitDown*.9),gap=Math.hypot(...close.position.map((x,i)=>x-cam0.position[i])),fb=Math.max(.6,gap/2.5);
++  const ts=[0,.25,.5,.75,1,1.5,2.5,4];const bal=L.balloonObjs(o,y),hb=L.herObjs(p0);
++  sheet('b1-sit-MODEL-before-after.png',[ts.map(t=>({objs:[...bal,...hb],pose:TC.blendPose(close,cam0,TC.minJerk(t/bl))})),ts.map(t=>({objs:[...bal,...hb],pose:TC.blendPose(close,cam0,TC.minJerk(t/fb))}))],
++   `B1 sit-down, MODEL (balloon mesh + her box only, no meadow mesh), 390x844, t = ${ts.join(', ')} s after the step-in; before: close → cam0 ${gap.toFixed(1)} m in ${bl.toFixed(2)} s; after: close held, flight eases off it over ${fb.toFixed(2)} s (min-jerk)`);}
++ fs.writeFileSync(path.join(OUT,'README-images.md'),'# full9c final-cam images (运镜bot, NOT_ENGINE flat raster of the real meshes)\n'+readme.join('\n')+'\n');console.log(readme.join('\n'));})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/region-nodes/render_endshot_poses.cjs b/tools/region-nodes/render_endshot_poses.cjs
+new file mode 100644
+index 00000000..de40d760
+--- /dev/null
++++ b/tools/region-nodes/render_endshot_poses.cjs
+@@ -0,0 +1,15 @@
++// 运镜bot full9c OFFLINE PROPOSAL check (not a gate): RegionNodeStage.occludeHeld transpiled from the runtime source; RING=1 adds 0.5 m voxel proxies of state_ring_before near S4; BL = blend seconds. Run from the repo root.
++const fs=require('fs');const RL=require(process.cwd()+'/tools/journey-integration/route/route-legs.cjs');
++const J=JSON.parse(fs.readFileSync(process.argv[2],'utf8')),OUT=process.argv[3];fs.mkdirSync(OUT,{recursive:true});
++(async()=>{const T=[];for(const o of (await RL.skyLocal()).filter(o=>!/cloudsea|cumulus_far|cloud_small|Icosphere|_after|env_sky_dome/.test(o.name))){const t=o.tris;const ring=/ring/.test(o.name);for(let i=0;i<t.length;i+=9)T.push([Array.from(t.slice(i,i+9)),ring]);}
++ const w=390,h=844,k=360/h,Wd=Math.round(w*k),Hh=360;
++ for(const it of J){const ps=it.pose,P=ps.position,Tg=ps.target,feet=it.feet;const f=[Tg[0]-P[0],Tg[1]-P[1],Tg[2]-P[2]],fl=Math.hypot(...f);for(let i=0;i<3;i++)f[i]/=fl;let r=[-f[2],0,f[0]];const rl=Math.hypot(r[0],r[2]);r=[r[0]/rl,0,r[2]/rl];const u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
++  const tv=Math.tan((ps.fovVerticalDeg||48)*Math.PI/360),th=tv*w/h;const pr=q=>{const d=[q[0]-P[0],q[1]-P[1],q[2]-P[2]],z=d[0]*f[0]+d[1]*f[1]+d[2]*f[2];return [((d[0]*r[0]+d[1]*r[1]+d[2]*r[2])/(z*th)*.5+.5)*Wd,(.5-(d[0]*u[0]+d[1]*u[1]+d[2]*u[2])/(z*tv)*.5)*Hh,z];};
++  const img=Buffer.alloc(Wd*Hh*3);for(let i=0;i<Wd*Hh;i++){img[i*3]=160;img[i*3+1]=185;img[i*3+2]=215;}const zb=new Float32Array(Wd*Hh).fill(1e9);
++  const draw=(t,col)=>{const a=pr(t.slice(0,3)),b=pr(t.slice(3,6)),c=pr(t.slice(6,9));if(a[2]<.05||b[2]<.05||c[2]<.05)return;const e1=[t[3]-t[0],t[4]-t[1],t[5]-t[2]],e2=[t[6]-t[0],t[7]-t[1],t[8]-t[2]],n=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]],nl=Math.hypot(...n)||1,sh=.55+.45*Math.abs((n[0]*.3+n[1]*.8+n[2]*.5)/nl);
++   const x0=Math.max(0,Math.floor(Math.min(a[0],b[0],c[0]))),x1=Math.min(Wd-1,Math.ceil(Math.max(a[0],b[0],c[0]))),y0=Math.max(0,Math.floor(Math.min(a[1],b[1],c[1]))),y1=Math.min(Hh-1,Math.ceil(Math.max(a[1],b[1],c[1])));if(x0>x1||y0>y1)return;
++   const den=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(den)<1e-9)return;for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const px=x+.5,py=y+.5,l1=((b[1]-c[1])*(px-c[0])+(c[0]-b[0])*(py-c[1]))/den,l2=((c[1]-a[1])*(px-c[0])+(a[0]-c[0])*(py-c[1]))/den,l3=1-l1-l2;if(l1<0||l2<0||l3<0)continue;const z=1/(l1/a[2]+l2/b[2]+l3/c[2]),j=y*Wd+x;if(z>=zb[j])continue;zb[j]=z;img[j*3]=col[0]*sh;img[j*3+1]=col[1]*sh;img[j*3+2]=col[2]*sh;}};
++  for(const [q,ring] of T)draw(q,ring?[200,170,90]:[120,125,140]);const x0=feet[0]-.25,x1=feet[0]+.25,z0=feet[2]-.25,z1=feet[2]+.25,y0=feet[1],y1=feet[1]+1.7,v=[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]];
++  for(const [a,b,c,d] of [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){draw([...v[a],...v[b],...v[c]],[235,40,40]);draw([...v[a],...v[c],...v[d]],[235,40,40]);}
++  const fd=pr([feet[0],feet[1]+1.5,feet[2]]);for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){const x=Math.round(fd[0])+dx,y=Math.round(fd[1])+dy;if(x>=0&&y>=0&&x<Wd&&y<Hh){const j=y*Wd+x;img[j*3]=255;img[j*3+1]=230;img[j*3+2]=0;}}
++  fs.writeFileSync(`${OUT}/${it.id}.ppm`,Buffer.concat([Buffer.from(`P6 ${Wd} ${Hh} 255\n`),img]));}})();
+diff --git a/tools/region-nodes/render_walk_plan_ab.cjs b/tools/region-nodes/render_walk_plan_ab.cjs
+index 95b970e4..7ecc80a5 100644
+--- a/tools/region-nodes/render_walk_plan_ab.cjs
++++ b/tools/region-nodes/render_walk_plan_ab.cjs
+@@ -4,7 +4,7 @@
+ // A = pre-full9c (old finale pose, old plan), B = restored (S6 finale pose + SKY_FINALE_CITY_LOCAL, plan as baked), C = the rejected
+ // regen (S6 pose, city dragged by the pose: arm -2.2). Flat z-buffer of the real skycity mesh; her = red box, face = yellow dot. 390x844.
+ const fs=require('fs');const ROOT=process.cwd();const H=require(ROOT+'/tools/board-ui/harness.cjs').createHarness();
+-const SW=H.load('region/SkyWalkShot.ts'),FS=H.load('region/SkyFinaleShot.ts'),TS=H.load('region/TransitionStaging.ts'),AD=H.load('region/TransitionAnchorData.ts'),SO=H.load('region/SkycityLensOccluders.ts');
++const LSm=H.load('region/LensSmooth.ts'),SW=H.load('region/SkyWalkShot.ts'),FS=H.load('region/SkyFinaleShot.ts'),TS=H.load('region/TransitionStaging.ts'),AD=H.load('region/TransitionAnchorData.ts'),SO=H.load('region/SkycityLensOccluders.ts');
+ const RL=require(ROOT+'/tools/journey-integration/route/route-legs.cjs');const OUT=process.argv[2]||'/tmp/walkab';fs.mkdirSync(OUT,{recursive:true});
+ const M5=TS.TRANSITION_STAGING.skyMooring5a,L2W=q=>SW.skyLocalToWorld(M5,q),o0=L2W([0,0,0]),ex=L2W([1,0,0]).map((v,i)=>v-o0[i]),ez=L2W([0,0,1]).map((v,i)=>v-o0[i]);
+ const W2L=p=>{const d=[p[0]-o0[0],p[2]-o0[2]];return [d[0]*ex[0]+d[1]*ex[2],p[1]-o0[1],d[0]*ez[0]+d[1]*ez[2]];};
+@@ -28,6 +28,6 @@ const TT=[0,1,2,3,4,5.2,7,9,11,13,15,V.A.total-0.05];
+   for(const [a,b,c,d] of [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){draw([...v[a],...v[b],...v[c]],[235,40,40]);draw([...v[a],...v[c],...v[d]],[235,40,40]);}
+   const fd=pr([feet[0],feet[1]+1.5,feet[2]]);for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const x=Math.round(fd[0])+dx,y=Math.round(fd[1])+dy;if(x>=0&&y>=0&&x<Wd&&y<Hh){const j=y*Wd+x;img[j*3]=255;img[j*3+1]=230;img[j*3+2]=0;}}
+   const file=`${OUT}/${lab}-t${t.toFixed(1)}.ppm`;fs.writeFileSync(file,Buffer.concat([Buffer.from(`P6 ${Wd} ${Hh} 255\n`),img]));
+-  frames.push({lab,t:+t.toFixed(2),file,camLocal:P.map(v=>+v.toFixed(3)),camStepFromA:null});}
++  frames.push({lab,t:+t.toFixed(2),file,herMargin7:+Math.min(...LSm.LENS_SMOOTH.screens.map(sc=>LSm.herMargin(ps.position,ps.target,ps.fovVerticalDeg,S.her(t).feet,[sc]))).toFixed(2),camLocal:P.map(v=>+v.toFixed(3)),camStepFromA:null});}
+  for(const f of frames){const a=frames.find(g=>g.lab==='A'&&g.t===f.t);f.camStepFromA=+Math.hypot(...f.camLocal.map((v,i)=>v-a.camLocal[i])).toFixed(3);}
+  fs.writeFileSync(OUT+'/frames.json',JSON.stringify(frames,null,1));console.log(JSON.stringify(frames.filter(f=>f.lab!=='A').map(f=>[f.lab,f.t,f.camStepFromA])));})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/region-nodes/sky-rail-model.cjs b/tools/region-nodes/sky-rail-model.cjs
+new file mode 100644
+index 00000000..64f230b7
+--- /dev/null
++++ b/tools/region-nodes/sky-rail-model.cjs
+@@ -0,0 +1,20 @@
++'use strict';
++// 运镜bot full9c: tools model of the skycity walk lens (RegionNodeStage.playReward/playFinale + SkyRunLens), model-local, 60 Hz.
++// Entry: the board lens (skycityVisitPose per screen, the pose RegionBoardLanding hands the world lens) → skyRailJoin (SKY_JOINS.i,
++// mesh-planned) → the walk rail at her start; every planWalk run at 1.2 m/s on skyRailPose (part = run: the runs are separated by the
++// walk plan's own skip — the lens follows skyRailFollow, which takes the baked SKY_JOINS.m path across it, join:'skip'); fromS6 = planSkip: board → rail at S4, then she is skipped to 1.2 m before S6; exit: skyRailJoin (SKY_JOINS.o) back to the board lens (none for S4>S6: 1 s stand hold). Samples {part,h,p,join}.
++const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness(),RL=H.load('region/SkyRunLens.ts'),NW=H.load('region/NodeWalker.ts'),F=H.load('region/SkyFinaleShot.ts'),V=H.load('region/SkycityVisitPose.ts');
++const WALKS=['S1>S2','S2>S3','S3>S4','S4>S5','S4>S6'],SPEED=1.2,SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]];
++const board=([w,h])=>V.skycityVisitPose([-1.4,-0.07,32.6],[0,-0.068,30],w/h)/* anchor_spawn_girl / anchor_starcourt_center, model-local */;
++const segsOf=w=>{const [a,b]=w.split('>');return NW.planWalk('skycity',a,b).segments;};
++const along=(P,d)=>{let acc=0;for(let i=1;i<P.length;i++){const l=Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]);if(acc+l>=d||i===P.length-1){const u=Math.max(0,Math.min(1,(d-acc)/(l||1)));return P[i-1].map((v,k)=>v+(P[i][k]-v)*u);}acc+=l;}return P[0];};
++const plen=P=>{let l=0;for(let i=1;i<P.length;i++)l+=Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]);return l;};
++function samples(w,screen,{fromS6=false,exit=true}={}){const s=segsOf(w),out=[],B=board(screen),f=RL.skyRailFollow(w),DT=1/60;
++ {const h=s[0].path[0],j=RL.skyRailJoinPlan(w,B,f(h,0));for(let i=0;i<=Math.ceil(j.T*60);i++)out.push({part:0,h,p:RL.skyRailJoin(j,Math.min(1,i/60/j.T),h),join:'in'});}
++ const put=(h,part)=>{const p=f(h,DT),r=RL.skyRailPose(w,h),sk=Math.hypot(...p.position.map((v,k)=>v-r.position[k]))>1e-9||Math.hypot(...p.target.map((v,k)=>v-r.target[k]))>1e-9;out.push({part,h,p,...(sk?{join:'skip'}:{})});};
++ s.forEach((sg,si)=>{if(fromS6&&si<s.length-1)return;const L=plen(sg.path);for(let d=fromS6?Math.max(0,L-1.2):0;d<=L+1e-9;d+=SPEED/60)put(along(sg.path,d),si);});
++ const h=s.at(-1).path.at(-1),pt=out.at(-1).part;
++ if(w==='S4>S6'){for(let i=0;i<60;i++)put(h,pt);}
++ else if(exit){const j=RL.skyRailJoinPlan(w,out.at(-1).p,B,true);for(let i=0;i<=Math.ceil(j.T*60);i++)out.push({part:pt,h,p:RL.skyRailJoin(j,Math.min(1,i/60/j.T),h),join:'out'});}
++ return out;}
++module.exports={WALKS,SCREENS,board,samples,segsOf,RL,F,H};
+diff --git a/tools/region-nodes/sky_run_lens_eval.cjs b/tools/region-nodes/sky_run_lens_eval.cjs
+new file mode 100644
+index 00000000..06e1edef
+--- /dev/null
++++ b/tools/region-nodes/sky_run_lens_eval.cjs
+@@ -0,0 +1,32 @@
++// 运镜bot full9c: skycity walk lens on the REAL runtime FollowWalk writer (RegionNodeStage.tickLens) + REAL occludeHeld (POLICY=raw = d3b8e5e4 runtime) or the full9c rails (POLICY=rail: SkyRunLens.skyRailPose, the RegionNodeStage-finale-rail.diff writer).
++// evaluate the run-lens policy with the REAL runtime writer (tickLens FollowWalk) + REAL occludeHeld (transpiled), all runs, 7 screens
++const ROOT=process.cwd();const X=require(ROOT+'/tools/region-nodes/explore-stage-harness.cjs');const {rig,H,S,sb}=X;const fs=require('fs'),vm=require('vm'),ts=require(ROOT+'/tools/qf-env.cjs').typescript();
++const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true),cls=sf.statements.find(n=>ts.isClassDeclaration(n)&&n.name&&n.name.text==='RegionNodeStage');
++const mt=n=>cls.members.find(x=>x.name&&x.name.getText(sf)===n).getText(sf);const out=ts.transpileModule(`class P{${mt('occludeHeld')}};module.exports=P;`,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
++const sb2=Object.assign(Object.create(null),sb,{module:{exports:{}}});vm.runInNewContext(out,sb2);const occludeHeld=sb2.module.exports.prototype.occludeHeld;
++const NW=H.load(S('region/NodeWalker.ts')),LS=H.load(S('region/LensSmooth.ts')),F=H.load(S('region/SkyFinaleShot.ts')),SW=H.load(S('region/SkyWalkShot.ts')),TS=H.load(S('region/TransitionStaging.ts')),LA=H.load(S('region/LensAvoid.ts'));
++const RLx=(()=>{try{return H.load(S('region/SkyRunLens.ts'));}catch{return null;}})();
++const RL=require(ROOT+'/tools/journey-integration/route/route-legs.cjs'),M=TS.TRANSITION_STAGING.skyMooring5a;
++const D26=[];for(const x of[-1,0,1])for(const y of[-1,0,1])for(const z of[-1,0,1])if(x||y||z){const L=Math.hypot(x,y,z);D26.push([x/L,y/L,z/L]);}
++const FA=!!process.env.FINALE_A,R=180/Math.PI,BL=Number(process.env.BL||2),POL=process.env.POLICY||'run';
++module.exports=async function evalWalks(walks,opt={}){const SO_=H.load(S('region/SkycityLensOccluders.ts')),RING=SO_.SKYCITY_LENS_OCCLUDERS_CINE_RING||[]/* walk-shot planning only (not the explore orbit set) */,SKO=[...SO_.SKYCITY_LENS_OCCLUDERS,...RING],Bx=SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));const geo=await RL.geometry(),W=p=>SW.skyLocalToWorld(M,p),hit=(a,b)=>RL.hit(geo.skyJ,W(a),W(b)),res={};
++ for(const [a,b] of walks){const sg=NW.planWalk('skycity',a,b).segments;const per={};
++  for(const [w,h] of LS.LENS_SMOOTH.screens){
++   const mk=(q,yaw)=>{const Rg=rig('skycity','S3',q.slice(),{modelAt:[0,0,0]}),st=Rg.st;st.yaw=()=>yaw;st.viewport=()=>({w,h});st.sceneBoxes=()=>[];st.lens='FollowWalk';st.tickLens(1/60);return {raw:Rg.cam(),held:p=>occludeHeld.call(st,p,RING.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]],l:st.skyL})))};};
++   let rawStep=0,rawPk=0,pvB=false,near=0,hidRun=[0,0],hidMax=[0,0],minM=1,step=0,pk=0,pv=null,pY=null,cuts=0,endPose=null,feet=null,frames=0;
++   for(let si=0;si<sg.length;si++){const path=sg[si].path,T=sg[si].duration,L=NW.pathLength(path),yaw=Math.atan2(path[path.length-1][0]-path[path.length-2][0],path[path.length-1][2]-path[path.length-2][2]),yaw0=Math.atan2(path[1][0]-path[0][0],path[1][2]-path[0][2]);
++    const A=FA&&a==='S4'&&b==='S6'&&si===sg.length-1,Lr=A?L-RLx.SKY_FINALE_EARLY_M:L,Tr=T*Lr/L,qe=NW.pointAlong(path,Lr);let ap=null,apFrom=null,pv0=null;const s0=mk(path[0],yaw0),e0=mk(qe,yaw),startHeld=s0.held(s0.raw),endHeld=e0.held(e0.raw);
++    const oc0=LA.herOcclusion(s0.raw.position,path[0],Bx),startClear=!oc0.face&&!oc0.chest&&!Bx.some(bb=>{const P=s0.raw.position;const dx=Math.max(bb.min[0]-P[0],0,P[0]-bb.max[0]),dy=Math.max(bb.min[1]-P[1],0,P[1]-bb.max[1]),dz=Math.max(bb.min[2]-P[2],0,P[2]-bb.max[2]);return Math.hypot(dx,dy,dz)<0.35;});/* runtime-computable: proxies only */
++    for(let t=0;t<=T+(A?2:0)+1e-9;t+=1/60){const s=Math.min(L,t/T*L),q=NW.pointAlong(path,s),q2=NW.pointAlong(path,Math.min(L,s+0.05)),hy=Math.hypot(q2[0]-q[0],q2[2]-q[2])>1e-4?Math.atan2(q2[0]-q[0],q2[2]-q[2]):yaw;const raw=mk(q,hy).raw;
++     let p=raw;if(POL==='rail'&&RLx&&RLx.skyRailHas(a+'>'+b))p=RLx.skyRailPose(a+'>'+b,q);if(!startClear&&process.env.HOLD&&t<=Tr+1e-9){const Hp=process.env.HOLD==='end'?endHeld:startHeld,LSm=LS;p={position:Hp.position,target:LSm.frameHer(Hp.position,[q[0],q[1]+1.2,q[2]],Hp.fovVerticalDeg??45,q),fovVerticalDeg:Hp.fovVerticalDeg,k:1};}if(t>Tr+1e-9&&A){const ta=t-Tr;if(!ap){ap=F.skyFinaleApproach(pv0,F.SKY_FINALE_POSE_LOCAL,path[path.length-1],Bx);apFrom=pv0;}p={...F.skyFinaleApproachPose(apFrom,F.SKY_FINALE_POSE_LOCAL,path[path.length-1],Math.min(ap.T,ta),ap.T,ap.dir),k:1};}if(t<=Tr+1e-9)pv0=p;const blended=(p.k??0)>0;
++     frames++;if(pv&&!(t===0&&si>0)){const st_=Math.hypot(...p.position.map((x,i)=>x-pv[i]));if(blended||pvB)step=Math.max(step,st_);else rawStep=Math.max(rawStep,st_);}if(t===0&&si>0)cuts++;
++     const yy=Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*R;if(pY!==null&&!(t===0&&si>0)){const yr=Math.abs(((yy-pY)+540)%360-180)*60;if(blended||pvB)pk=Math.max(pk,yr);else rawPk=Math.max(rawPk,yr);}pY=yy;pv=p.position;pvB=blended;
++     if(D26.some(d=>hit(p.position,p.position.map((x,i)=>x+d[i]*0.35))))near++;
++     const hf=!!hit(p.position,[q[0],q[1]+1.45,q[2]]),hc=!!hit(p.position,[q[0],q[1]+1.05,q[2]]);[hf,hc].forEach((v,j)=>{hidRun[j]=v?hidRun[j]+1/60:0;hidMax[j]=Math.max(hidMax[j],hidRun[j]);});
++     minM=Math.min(minM,LS.herMargin(p.position,p.target,p.fovVerticalDeg,q,[[w,h]]));endPose=p;feet=q;}}
++   const fa=[feet[0],feet[1]+1.5,feet[2]],v=F.ndc(endPose.position,endPose.target,endPose.fovVerticalDeg,w,h,fa),px=v?(v[0]+1)/2*w:-1,py=v?(1-v[1])/2*h:-1;
++   per[w+'x'+h]={endMargin:+LS.herMargin(endPose.position,endPose.target,endPose.fovVerticalDeg,feet,[[w,h]]).toFixed(3),minMarginWalk:+minM.toFixed(3),endHidden:!!(hit(endPose.position,[feet[0],feet[1]+1.45,feet[2]])||hit(endPose.position,[feet[0],feet[1]+1.05,feet[2]])),
++    capOnFace:!!v&&px>=w-98&&py<=92,endC11:D26.filter(d=>hit(endPose.position,endPose.position.map((x,i)=>x+d[i]*1.1))).length,framesWithin035:near,longestFaceHiddenS:+hidMax[0].toFixed(2),longestChestHiddenS:+hidMax[1].toFixed(2),maxStepM:+step.toFixed(3),yawPeakDegS:+pk.toFixed(0),rawWriterStepM:+rawStep.toFixed(3),rawWriterYawPeakDegS:+rawPk.toFixed(0),cuts,frames,endPose:w===390&&h===844?endPose:undefined,endFeet:feet};}
++  res[a+'>'+b]=per;}
++ return res;};
++if(require.main===module)module.exports([['S1','S2'],['S2','S3'],['S3','S4'],['S4','S6']]).then(r=>{for(const [k,v] of Object.entries(r)){const s=Object.values(v);console.log(k,JSON.stringify({endMarginMin:Math.min(...s.map(x=>x.endMargin)),walkMarginMin:Math.min(...s.map(x=>x.minMarginWalk)),endHidden:s.filter(x=>x.endHidden).length,cap:s.some(x=>x.capOnFace),c11:Math.max(...s.map(x=>x.endC11)),near:Math.max(...s.map(x=>x.framesWithin035)),faceHidS:Math.max(...s.map(x=>x.longestFaceHiddenS)),chestHidS:Math.max(...s.map(x=>x.longestChestHiddenS)),step:Math.max(...s.map(x=>x.maxStepM)),yawPk:Math.max(...s.map(x=>x.yawPeakDegS)),rawStep:Math.max(...s.map(x=>x.rawWriterStepM)),rawYawPk:Math.max(...s.map(x=>x.rawWriterYawPeakDegS)),cuts:s[0].cuts}))}});
+diff --git a/tools/region-nodes/test_sky_finale_rail.cjs b/tools/region-nodes/test_sky_finale_rail.cjs
+new file mode 100644
+index 00000000..498838f9
+--- /dev/null
++++ b/tools/region-nodes/test_sky_finale_rail.cjs
+@@ -0,0 +1,16 @@
++'use strict';
++// 运镜bot full9c T-02: the S4>S6 rail (SkyRunLens.skyRailPose on SKY_RAILS['S4>S6'], every planWalk run) keeps her in frame on all 7
++// screens (herMargin ≥ 0.08) from S4 and from a planSkip start 1.2 m before S6; lens ≤ 2.5 m/s and view ≤ 120 °/s (LENS_SMOOTH walk cap)
++// at 60 Hz inside a run; the last run ends ON SKY_FINALE_POSE_LOCAL. Whole walks incl. the board joins: sky-walk-whole and
++// lens-trajectory-clearance (skycity walk rows).
++const H=require(process.cwd()+'/tools/board-ui/harness.cjs').createHarness(),RL=H.load('region/SkyRunLens.ts'),F=H.load('region/SkyFinaleShot.ts'),NW=H.load('region/NodeWalker.ts'),LS=H.load('region/LensSmooth.ts');
++const segs=NW.planWalk('skycity','S4','S6').segments,SP=1.2,rows=[];let fails=0;
++const yaw=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
++for(const [lab,skip] of [['from S4',false],['planSkip from S6-1.2 m',true]]){let min=1,at='',vmax=0,ymax=0;
++ segs.forEach((sg,si)=>{if(skip&&si<segs.length-1)return;const L=NW.pathLength(sg.path);let prev=null;
++  for(let d=skip?Math.max(0,L-1.2):0;d<=L+1e-9;d+=SP/60){const h=NW.pointAlong(sg.path,d),p=RL.skyRailPose('S4>S6',h);
++   for(const s of LS.LENS_SMOOTH.screens){const m=LS.herMargin(p.position,p.target,p.fovVerticalDeg,h,[s]);if(m<min){min=m;at=`run ${si+1} s ${d.toFixed(2)} ${s.join('x')}`;}}
++   if(prev){vmax=Math.max(vmax,Math.hypot(...p.position.map((v,i)=>v-prev.position[i]))*60);let dy=Math.abs(yaw(p)-yaw(prev));if(dy>180)dy=360-dy;ymax=Math.max(ymax,dy*60);}prev=p;}});
++ const ok=min>=0.08&&vmax<=2.5&&ymax<=120;if(!ok)fails++;rows.push({case:lab,minMargin:+min.toFixed(3),at,maxSpeedMS:+vmax.toFixed(2),maxYawDegS:+ymax.toFixed(1),ok});}
++const end=RL.skyRailPose('S4>S6',segs.at(-1).path.at(-1)),T=F.SKY_FINALE_POSE_LOCAL,endErr=Math.hypot(...end.position.map((v,i)=>v-T.position[i]));if(endErr>0.01)fails++;
++console.table(rows);console.log(JSON.stringify({test:'sky-finale-rail',endOnStandShotM:+endErr.toFixed(4),runs:segs.length,status:fails?'FAIL':'PASS'}));process.exit(fails?1:0);
+diff --git a/tools/region-nodes/test_sky_walk_endshots.cjs b/tools/region-nodes/test_sky_walk_endshots.cjs
+new file mode 100644
+index 00000000..73d13349
+--- /dev/null
++++ b/tools/region-nodes/test_sky_walk_endshots.cjs
+@@ -0,0 +1,18 @@
++'use strict';
++// 运镜bot full9c (Grok Bot: S3>S4 + S4>S6 must be fixed, hard gates unchanged): skycity played walks (walkPair mainline-09..12 + playFinale)
++// with the full9c rails GGbot wires into RegionNodeStage (outbox/20261029-full9c-final-cam/RegionNodeStage-finale-rail.diff): SkyRunLens.skyRailPose per walk.
++// with the full9c rails GGbot wires into RegionNodeStage (outbox/20261029-full9c-final-cam/RegionNodeStage-finale-rail.diff): SkyRunLens.skyRailPose per walk.
++// Validation (hard): harness writer == followPose(feet,yaw,w,h,followLookUp('skycity',99)) and its 390x844 margin is 0.144 (sane).
++// HARD per walk, 7 screens: end margin ≥ 0.08, end head+chest seen (real mesh, star ring incl.), face not under the WeChat capsule, end 1.1 m
++//  clearance 0 hits, NO frame of the walk / approach within 0.35 m (⇒ approach start clearance ≥ 0.35 m), blended lens ≤ 0.35 m/frame and
++//  ≤ 120 °/s (LENS_SMOOTH.yawWalkDegS).
++process.env.POLICY='rail'/* full9c: every played walk rides its rail (S4>S6: last run eases onto the stand shot) */;
++const ev=require('./sky_run_lens_eval.cjs'),X=require('./explore-stage-harness.cjs'),{rig,H,S}=X,E=H.load(S('region/ExploreCameraCore.ts')),LS=H.load(S('region/LensSmooth.ts')),RLx=H.load(S('region/SkyRunLens.ts'));
++const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
++(async()=>{const Rg=rig('skycity','S3',[0.2,0.034,-27.8],{modelAt:[0,0,0]}),st=Rg.st;st.yaw=()=>-145.6*Math.PI/180;st.viewport=()=>({w:390,h:844});st.lens='FollowWalk';st.tickLens(1/60);
++ const v0=Rg.cam(),f0=E.followPose([0.2,0.034,-27.8],-145.6*Math.PI/180,390,844,E.followLookUp('skycity',99)),m0=LS.herMargin(v0.position,v0.target,v0.fovVerticalDeg,[0.2,0.034,-27.8],[[390,844]]);
++ const vOk=d3(v0.position,f0.position)<1e-9&&d3(v0.target,f0.target)<1e-9&&m0>=0.08;
++ const walks=(process.env.QF_ENDSHOT_WALKS||'S1>S2,S2>S3,S3>S4,S4>S6').split(',').map(w=>w.split('>')),res=await ev(walks),rows=[];
++ for(const [k,v] of Object.entries(res)){const s=Object.values(v);const r={walk:k,endMarginMin:Math.min(...s.map(x=>x.endMargin)),endHiddenScreens:s.filter(x=>x.endHidden).length,capOnFace:s.some(x=>x.capOnFace),endC11Hits:Math.max(...s.map(x=>x.endC11)),framesWithin035:Math.max(...s.map(x=>x.framesWithin035)),maxStepM:Math.max(...s.map(x=>x.maxStepM)),yawPeakDegS:Math.max(...s.map(x=>x.yawPeakDegS)),walkMarginMin:Math.min(...s.map(x=>x.minMarginWalk)),longestFaceHiddenS:Math.max(...s.map(x=>x.longestFaceHiddenS)),longestChestHiddenS:Math.max(...s.map(x=>x.longestChestHiddenS))};
++  r.ok=r.endMarginMin>=0.08&&r.endHiddenScreens===0&&!r.capOnFace&&r.endC11Hits===0&&r.framesWithin035===0&&r.maxStepM<=0.35&&r.yawPeakDegS<=LS.LENS_SMOOTH.yawWalkDegS;rows.push(r);}
++ const ok=vOk&&rows.every(r=>r.ok);console.log(JSON.stringify({test:'sky-walk-endshots',validation:{writerEqualsFollowPose:vOk,margin390:+m0.toFixed(3)},railApproachM:RLx.SKY_RAIL_APPROACH_M??1.05,rows,status:ok?'PASS':'FAIL'},null,1));process.exit(ok?0:1);})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/region-nodes/test_sky_walk_whole.cjs b/tools/region-nodes/test_sky_walk_whole.cjs
+new file mode 100644
+index 00000000..cd1b603f
+--- /dev/null
++++ b/tools/region-nodes/test_sky_walk_whole.cjs
+@@ -0,0 +1,27 @@
++'use strict';
++// 运镜bot full9c: whole-walk framing / occlusion hard gate for the played skycity walks (sky-rail-model = RegionNodeStage + SkyRunLens),
++// 7 screens, entered from that screen's board lens. While she walks (rail parts) and on the stand hold: herMargin ≥ 0.08 on the screen;
++// chest (1.05 m) / face (1.45 m) sight lines (the sky_run_lens_eval / sky-walk-endshots heights) blocked by the real mesh (all but clouds, foliage included) ≤ 0.5 s in a row over the WHOLE sequence
++// (board joins included while the lens is within 12 m of her chest, walk-plan skip joins at ANY distance: farther out the join is the wide board/court move, she is not the subject); lens ≤ 2.5 m/s and view ≤ 120 °/s on the
++// rails; no cut anywhere in the sequence (every frame step ≤ 0.6 m and turn ≤ 4°, walk-plan skips and planSkip included); beyond 12 m of
++// her chest she is in frame; across a skip she is back in frame (margin ≥ 0.08) within 0.5 s; (herMargin ≥ 0) on ≥ 95% of those frames (T6); --spans <file> lists every > 12 m span; S4>S6 ends on SKY_FINALE_POSE_LOCAL. Joins: no-cut / clearance in lens-trajectory-clearance.
++const M=require('./sky-rail-model.cjs'),{H,RL,F}=M,LS=H.load('region/LensSmooth.ts'),SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts');
++const L=require('../journey-integration/clip3/lens-scene.cjs'),FL=require('../journey-integration/journey-framing-lib.cjs');
++const W=p=>SW.skyLocalToWorld(TS.TRANSITION_STAGING.skyMooring5a,p),SOFT=/foliage_cards|flowers|robot_gardener|cloud|cumulus/,yaw=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
++(async()=>{const objs=await L.skyObjs(),B=L.bvh(objs.filter(o=>!/cloud|cumulus/.test(o.name)))/* sight lines: every mesh but clouds (foliage hides her) */;const rows=[],spans=[],dir=p=>{const d=p.target.map((v,i)=>v-p.position[i]),l=Math.hypot(...d);return d.map(v=>v/l);};let fails=0;
++ const blocked=(p,h,dy)=>{const a=W(p.position),b=W([h[0],h[1]+dy,h[2]]),d=b.map((v,i)=>v-a[i]),l=Math.hypot(...d);return !!FL.cast(B,a,d.map(v=>v/l),l-0.3);};
++ const only=process.argv.includes('--one')?M.SCREENS.slice(0,1):M.SCREENS;
++ for(const w of M.WALKS)for(const sc of only)for(const [lab,o] of [['board entry → exit',{}],...(w==='S4>S6'?[['from S6 (planSkip)',{fromS6:true}]]:[])]){const smp=M.samples(w,sc,o);
++  let min=1,at='',run={c:0,f:0},blk={c:0,f:0},vmax=0,ymax=0,prev=null,jk=0,cutStep=0,cutTurn=0,skipOut=0,far=0,farIn=0,span=null;
++  smp.forEach((s,i)=>{const far12=s.join&&Math.hypot(s.p.position[0]-s.h[0],s.p.position[1]-s.h[1]-1.3,s.p.position[2]-s.h[2])>12,early=far12&&s.join!=='skip';
++   if(far12){const bc=blocked(s.p,s.h,1.05),bf=blocked(s.p,s.h,1.45);far++;if(LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc])>=0)farIn++;if(!span)span={walk:w,screen:sc.join('x'),case:lab,part:s.join,startS:+(i/60).toFixed(2),frames:0,chestHidFrames:0,faceHidFrames:0,outOfFrameFrames:0};span.frames++;if(bc)span.chestHidFrames++;if(bf)span.faceHidFrames++;if(LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc])<0)span.outOfFrameFrames++;}else if(span){spans.push({...span,durationS:+(span.frames/60).toFixed(2)});span=null;}
++   if(prev){cutStep=Math.max(cutStep,Math.hypot(...s.p.position.map((v,k)=>v-prev.p.position[k])));const a=dir(prev.p),b=dir(s.p);cutTurn=Math.max(cutTurn,Math.acos(Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2]))*180/Math.PI);}
++   if(s.join==='skip'&&LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc])<0.08)skipOut++;
++   if(!s.join){const m=LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc]);if(m<min){min=m;at=`#${i} part ${s.part}`;}}
++   const c=!early&&blocked(s.p,s.h,1.05),f=!early&&blocked(s.p,s.h,1.45);run.c=c?run.c+1:0;run.f=f?run.f+1:0;blk.c=Math.max(blk.c,run.c);blk.f=Math.max(blk.f,run.f);
++   if(prev&&!s.join&&!prev.join&&prev.part===s.part){vmax=Math.max(vmax,Math.hypot(...s.p.position.map((v,k)=>v-prev.p.position[k]))*60);let d=Math.abs(yaw(s.p)-yaw(prev.p));if(d>180)d=360-d;ymax=Math.max(ymax,d*60);}prev=s;});if(span)spans.push({...span,durationS:+(span.frames/60).toFixed(2)});
++  const farPct=far?farIn/far*100:100,ok=skipOut/60<=0.5&&cutStep<=0.6&&cutTurn<=4&&farPct>=95&&min>=0.08&&blk.c/60<=0.5&&blk.f/60<=0.5&&vmax<=2.5&&ymax<=120;if(!ok)fails++;
++  rows.push({walk:w,screen:sc.join('x'),case:lab,frames:smp.length,minMargin:+min.toFixed(3),at,chestBlockedS:+(blk.c/60).toFixed(2),faceBlockedS:+(blk.f/60).toFixed(2),maxSpeedMS:+vmax.toFixed(2),maxYawDegS:+ymax.toFixed(1),cutStepM:+cutStep.toFixed(3),cutTurnDeg:+cutTurn.toFixed(2),skipOutS:+(skipOut/60).toFixed(2),skipFrames:smp.filter(q=>q.join==='skip').length,far12S:+(far/60).toFixed(2),far12InFramePct:+farPct.toFixed(1),ok});}
++ const e=RL.skyRailPose('S4>S6',M.segsOf('S4>S6').at(-1).path.at(-1)),T=F.SKY_FINALE_POSE_LOCAL,endErr=Math.hypot(...e.position.map((v,i)=>v-T.position[i]));if(endErr>0.01)fails++;
++ if(process.argv.includes('--spans'))require('fs').writeFileSync(process.argv[process.argv.indexOf('--spans')+1],JSON.stringify(spans,null,1));
++ console.table(rows);console.log(JSON.stringify({test:'sky-walk-whole',rows:rows.length,endOnStandShotM:+endErr.toFixed(4),status:fails?'FAIL':'PASS'}));process.exit(fails?1:0);})().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/region-nodes/test_t02_sky_final.cjs b/tools/region-nodes/test_t02_sky_final.cjs
+index 65035fae..cf7f4118 100644
+--- a/tools/region-nodes/test_t02_sky_final.cjs
++++ b/tools/region-nodes/test_t02_sky_final.cjs
+@@ -83,10 +83,10 @@ const frame=p=>C.SCREENS.map(([W,H])=>({screen:W+'x'+H,herPct:+(F.herShare(p.pos
+   const bo=fs.readFileSync(X.S('WorldIntegrationBoot.ts'),'utf8'),cf=(co.match(/async continueFromSkyFinale\(\)\{[\s\S]*?return withLegacyTransition\(\(\)=>this\.enterMainline\(\)\);\}/)||[''])[0]/* skyfix: bounded WindWipe fallback */;
+   const checks={continuationHook:/onSkyFinaleContinue\(handler/.test(co)&&/finaleEndCamera\?\.\(\)/.test(cf)&&/r=h\(camera\)/.test(cf)&&/r===true/.test(cf)&&/this\.leaveFinaleBoard\(\)/.test(cf),windWipeFallback:/recordFallback\('lakeside'/.test(cf)&&/return withLegacyTransition\(\(\)=>this\.enterMainline\(\)\);\}$/.test(cf),
+    buttonViaHook:/this\.button\('mainline','继续旅程  →',\(\)=>this\.composition\.continueJourney\(\)\)/.test(bo),endCameraAccessor:/finaleEndCamera\(\)\{/.test(st)&&/this\.recordFinaleEnd\(\);\s*this\.openExplore\('skycity'\)/.test(st)&&/velocity:\[0,0,0\]/.test(st),
+-   holdS:F.SKY_FINALE.holdS===5.5&&F.SKY_FINALE.approachS===1.4,countdownAfterEaseIn:/await this\.blendPath\(ap\.T/.test(pf)&&/await stage\.playFinale\([\s\S]{0,600}armFinaleContinue/.test(co),armedAfterReward:/mainlineReward\('claimRegion',index\);if\(\(r as any\)\?\.ok!==false\)this\.leaveFinaleBoard\(\)[^;]*;if\(\(r as any\)\?\.ok!==false\)try\{stage\.armFinaleContinue\?\.\(\(\)=>\{void this\.continueFromSkyFinale\(\);\}\)/.test(co),
++   holdS:F.SKY_FINALE.holdS===5.5&&F.SKY_FINALE.approachS===1.4,countdownAfterEaseIn:(/await this\.blendPath\(ap\.T/.test(pf)||/this\.skyRail=rail;[\s\S]{0,200}await runSkyFinale[\s\S]{0,700}this\.writePose\(this\.skyFinalePose\(\)/.test(pf)/* full9c: the finale rail IS the ease-in, ending on the stand shot */)&&/await stage\.playFinale\([\s\S]{0,600}armFinaleContinue/.test(co),armedAfterReward:/mainlineReward\('claimRegion',index\);if\(\(r as any\)\?\.ok!==false\)this\.leaveFinaleBoard\(\)[^;]*;if\(\(r as any\)\?\.ok!==false\)try\{stage\.armFinaleContinue\?\.\(\(\)=>\{void this\.continueFromSkyFinale\(\);\}\)/.test(co),
+    inputDisarms:/if\(this\.finaleArm&&\(gesture==='drag'\|\|gesture==='pinch'\|\|gesture==='tap'\)\)this\.disarmFinale\(\)/.test(st),
+    wipeHooks:/onWipeCovered\(\(\)=>this\.disarmFinale\(\)\),addWipeBeforeReveal\(\(\)=>!this\.anim\),onWipeRevealed\(/.test(st),
+-   noBlackOfOurs:!/fadeCover|screenCover\(/.test(st.slice(st.indexOf('async playFinale'),st.indexOf('private wipeHooks'))),bakedPoseUsed:/skyFinalePose\(\)/.test(st),orbitApproach:/blendPath\(ap\.T,t=>skyFinaleApproachPose\(from,shot,g,t,ap\.T,ap\.dir\)\)/.test(st)};
++   noBlackOfOurs:!/fadeCover|screenCover\(/.test(st.slice(st.indexOf('async playFinale'),st.indexOf('private wipeHooks'))),bakedPoseUsed:/skyFinalePose\(\)/.test(st),orbitApproach:/blendPath\(ap\.T,t=>skyFinaleApproachPose\(from,shot,g,t,ap\.T,ap\.dir\)\)/.test(st)||/skyFinaleRailPose\(toFrame\(L,this\.girl\(\)\)\)/.test(st)||/skyRailPose\(w,toFrame\(L,this\.girl\(\)\)\)/.test(st)||/skyRailFollow\(w\)/.test(st)&&/f\(toFrame\(L,this\.girl\(\)\),dt\)/.test(st)/* full9c: SKY_FINALE_RAILS (real-mesh path, gates sky-finale-rail + lens-trajectory-clearance) */};
+   ok('F5',Object.values(checks).every(Boolean),{holdS:F.SKY_FINALE.holdS,...checks});}
+  console.log(JSON.stringify({test:'t02_sky_final',ok:all,...res},null,1));process.exit(all?0:1);
+ })().catch(e=>{console.error(e);process.exit(1);});
+diff --git a/tools/skycity-walk/test_walk5a_in_frame.cjs b/tools/skycity-walk/test_walk5a_in_frame.cjs
+new file mode 100644
+index 00000000..a233ce69
+--- /dev/null
++++ b/tools/skycity-walk/test_walk5a_in_frame.cjs
+@@ -0,0 +1,10 @@
++'use strict';
++// 运镜bot full9c: the 5a walk lens (T-02 finale → mooring C, SkyWalkShot as RegionJourneyAdapter builds it) keeps her inside the safe
++// margins on all 7 screens for the WHOLE shot (30 Hz): herMargin ≥ 0.08. Before the cityPull fix (aim POINT lerped toward a city 60–80 m
++// away) the view turned 30–50° off her from 4 s on (margin down to −1.6: she left the frame on every screen).
++const H=require(process.cwd()+'/tools/board-ui/harness.cjs').createHarness();const SW=H.load('region/SkyWalkShot.ts'),FS=H.load('region/SkyFinaleShot.ts'),TS=H.load('region/TransitionStaging.ts'),AD=H.load('region/TransitionAnchorData.ts'),SO=H.load('region/SkycityLensOccluders.ts'),LS=H.load('region/LensSmooth.ts');
++const M5=TS.TRANSITION_STAGING.skyMooring5a,L2W=q=>SW.skyLocalToWorld(M5,q),FL=FS.SKY_FINALE_POSE_LOCAL,fin={position:L2W(FL.position),target:L2W(FL.target),fovVerticalDeg:FL.fovVerticalDeg};
++const BX=[...AD.transitionOccluderBoxes(),...SW.skyBoxesToWorld(M5,SO.SKYCITY_LENS_OCCLUDERS,M5.walkWorld)];
++const W=SW.skyWalkShot(M5.walkWorld,M5.walkMps,2,BX,L2W(FS.SKY_FINALE_CITY_LOCAL),{...SW.SKY_WALK_SHOT,plan:AD.SKY_5A_WALK_PLAN},fin);
++let min=1,at=0,scr='';for(let t=0;t<=W.total+1e-9;t+=1/30){const p=W.pose(t),f=W.her(t).feet;for(const s of LS.LENS_SMOOTH.screens){const m=LS.herMargin(p.position,p.target,p.fovVerticalDeg,f,[s]);if(m<min){min=m;at=t;scr=s.join('x');}}}
++const ok=min>=0.08;console.log(JSON.stringify({test:'walk5a-in-frame',totalS:+W.total.toFixed(2),minMargin:+min.toFixed(3),atS:+at.toFixed(2),screen:scr,status:ok?'PASS':'FAIL'}));process.exit(ok?0:1);
+diff --git a/tools/transitions-continuous/test_landing_move.cjs b/tools/transitions-continuous/test_landing_move.cjs
+new file mode 100644
+index 00000000..e2caca3e
+--- /dev/null
++++ b/tools/transitions-continuous/test_landing_move.cjs
+@@ -0,0 +1,45 @@
++'use strict';
++// 运镜bot full9c 3b: the meadow→skycity balloon landing lens (BalloonTransit flight apply() + B5), modelled as the runtime, before
++// (d3b8e5e4: flight lens to the end, then B5 min-jerk camEnd → door close-up over speedSafeS) and after (BalloonTransit-3b-landing.diff:
++// ONE min-jerk move from LAND_PRE_S = 2 s of ride clock before the ride ends, ≥ LAND_MOVE_S = 5 s, B5 continues it). Per screen (7), from
++// ride clock RIDE_DURATION − 6 s to B5 + 6 s at 60 Hz: HARD (after) longest still span (lens < 0.05 m/s and view < 2 °/s) ≤ 0.5 s
++// once the move window starts; move ≥ 5 s; peak lens speed ≤ 11 m/s (LENS_MAX_MPS); no frame step > 3× the median moving step
++// (cut-like swing); end pose == before end pose (same close-up, the night lens is not pulled closer). Timing code untouched (totals).
++const {createHarness}=require('../board-ui/harness.cjs'),RL=require('../journey-integration/route/route-legs.cjs');
++global.__QF_BALLOON_FLIGHT=JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname,'../../creator-build-project/assets/bundles/region_transit_balloon/balloon_flightpath.json'),'utf8'));
++const H=createHarness(),T=H.load('region/TransportLeg.ts'),TS=H.load('region/TransitionStaging.ts'),TM=H.load('region/TransitionStagingMath.ts'),BC=H.load('region/BasketCloseShot.ts'),AD=H.load('region/TransitionAnchorData.ts'),TC=H.load('region/TransitionCamera.ts'),BF=H.load('region/BalloonFlight.ts');
++const {J}=RL,{add,rotY}=J,DT=1/60,R2D=180/Math.PI,yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*R2D,dirOf=p=>{const d=p.target.map((v,i)=>v-p.position[i]),l=Math.hypot(...d);return d.map(v=>v/l);};
++const lerpPath=(pts,u)=>{const L=[];let tot=0;for(let i=1;i<pts.length;i++){const d=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][2]-pts[i-1][2]);L.push(d);tot+=d;}let s=Math.max(0,Math.min(1,u))*tot;
++ for(let i=0;i<L.length;i++){if(s<=L[i]||i===L.length-1){const k=L[i]?Math.min(1,s/L[i]):1;return pts[i].map((v,j)=>v+(pts[i+1][j]-v)*k);}s-=L[i];}return pts[pts.length-1];};
++const B=TS.TRANSITION_STAGING.basket,K=TS.TRANSITION_STAGING.skycity,D4=TS.TRANSITION_DURATIONS.seg4,boxes=AD.transitionOccluderBoxes(),RD=BF.RIDE_DURATION,PRE=2,MOVE=5;
++const m6=add(rotY(180,[0.2,6.5,-25.6]),J.mOff),plan=T.balloonBeats(m6,[5.4,-0.11,43.8],J.sp('anchor_starcourt_center'),{walkInM:0,walkOutM:0,cityFrame:{yawDeg:J.yaw,origin:J.sOff}}),city=l=>add(rotY(J.yaw,l),J.sOff);
++// after: position min-jerk to the close spot over Tm; the aim point eases from the live lens's own aim (at her range) onto her look
++// point over AIM_S, so she is held in frame through the deck-edge pass (Grok Bot: frames 5-6 lost her) — mirrors BalloonTransit landPose.
++const AIM_S=1.2,LS=H.load('region/LensSmooth.ts');
++const landPose=(from,spot,f,tau,T)=>{const e=TC.minJerk(tau/T),a=TC.minJerk(tau/AIM_S),P=from.position.map((v,i)=>v+(spot[i]-v)*e),hl=[f[0],f[1]+BC.BASKET_CLOSE.lookUpM,f[2]],d=dirOf(from),r=Math.hypot(...hl.map((v,i)=>v-from.position[i])),fa=from.position.map((v,i)=>v+d[i]*r);
++ return {position:P,target:fa.map((v,i)=>v+(hl[i]-v)*a),fovVerticalDeg:(from.fovVerticalDeg??48)+(BC.BASKET_CLOSE.fovDeg-(from.fovVerticalDeg??48))*e};};
++const out={rows:[],series:{}};let fails=0;const Lsc=require('../journey-integration/clip3/lens-scene.cjs'),FL=require('../journey-integration/journey-framing-lib.cjs'),fs=require('fs'),path=require('path');
++// night: the landing lens code (apply() landPose / B5) has no day/night branch, so night runs the same poses — asserted on the source, then
++// every row is run for both modes (hold, drift, in-frame, clearance, sight lines on the skycity mesh).
++const BT=fs.readFileSync(path.resolve(__dirname,'../../creator-build-project/assets/scripts/region/BalloonTransit.ts'),'utf8'),lensSrc=(BT.match(/const landPose=[^\n]*/)||[''])[0]+(BT.match(/const b5Lens=[^\n]*/)||[''])[0];
++const nightFree=!/night/i.test(lensSrc);
++(async()=>{const sky=await Lsc.skyObjs(),solid=[Lsc.bvh(sky.filter(o=>!/foliage_cards|flowers|robot_gardener|cloud|cumulus/.test(o.name)))],see=Lsc.bvh(sky.filter(o=>!/cloud|cumulus/.test(o.name)));
++const blk=(p,f,dy)=>{const b=[f[0],f[1]+dy,f[2]],d=b.map((v,i)=>v-p[i]),l=Math.hypot(...d);return !!FL.cast(see,p,d.map(v=>v/l),l-0.3);};
++for(const mode of ['day','night'])for(const [w,h] of RL.SCREENS){const v=plan.vehicle(plan.total),o=v.pos,y=v.yaw*R2D,Wb=l=>TM.basketToWorld(o,y,l),camEnd=plan.camera(plan.total,{w,h}),sp=BC.basketCloseSpot(Wb(B.doorOutB),o,boxes,undefined,[camEnd]);
++ const st=D4.standUp+D4.pause,t1=st+D4.doorReach,t2=t1+D4.stepDown+1,p2=[city(K.stepDown),city(K.deckEdge),city(K.s0New)],seatAt=c=>{const e=plan.vehicle(BF.rideToFlightT(c));return TM.basketToWorld(e.pos,e.yaw*R2D,[0,0,0]);};
++ const feet=b=>b<t1?Wb([0,0,0]):b<t2?lerpPath([Wb([0,0,0]),Wb(B.thresholdB),Wb(B.doorOutB),city(K.stepDown)],(b-t1)/(t2-t1)):lerpPath(p2,(b-t2)/3);
++ const ss=BC.speedSafeS(camEnd.position,sp.position,BC.BASKET_CLOSE.blendOutS),Tm=Math.max(MOVE,PRE+ss),close=f=>BC.basketClosePose(sp.position,f);
++ const before=[],after=[];for(let c=RD-6;c<=RD+6+1e-9;c+=DT){const inB5=c>RD,b=c-RD,f=inB5?feet(b):seatAt(c),pl=inB5?camEnd:plan.camera(BF.rideToFlightT(c),{w,h});
++  before.push({c,p:inB5?TC.blendPose(camEnd,close(f),TC.minJerk(b/ss)):pl});const tau=c-(RD-PRE);after.push({c,f,p:tau>=0?landPose(pl,sp.position,f,tau,Tm):pl});}
++ const stat=(S,from)=>{let still=0,run=0,vmax=0,steps=[],yawMax=0,stillAt=null;for(let i=1;i<S.length;i++){const a=S[i-1].p,b=S[i].p,d=Math.hypot(...b.position.map((x,k)=>x-a.position[k])),dv=Math.acos(Math.min(1,dirOf(a).reduce((s,x,k)=>s+x*dirOf(b)[k],0)))*R2D;
++   if(S[i].c<from)continue;vmax=Math.max(vmax,d/DT);yawMax=Math.max(yawMax,dv/DT);if(d/DT>0.05)steps.push(d);if(d/DT<0.05&&dv/DT<2){run+=DT;if(run>still){still=run;stillAt=S[i].c-RD;}}else run=0;}
++  steps.sort((x,y)=>x-y);const med=steps[steps.length>>1]||0;return {longestStillS:+still.toFixed(2),stillEndsAtB5S:stillAt==null?null:+stillAt.toFixed(2),peakMS:+vmax.toFixed(2),peakViewDegS:+yawMax.toFixed(1),maxStepOverMedian:+(steps.at(-1)/(med||1)).toFixed(2)};};
++ let mMin=1,mAt=null,mB=1;for(const q of after)if(q.c>=RD-PRE){const m=LS.herMargin(q.p.position,q.p.target,q.p.fovVerticalDeg??48,q.f,[[w,h]]);if(m<mMin){mMin=m;mAt=+(q.c-RD).toFixed(2);}}
++ for(const q of before)if(q.c>=RD-PRE){const f=q.c>RD?feet(q.c-RD):seatAt(q.c);mB=Math.min(mB,LS.herMargin(q.p.position,q.p.target,q.p.fovVerticalDeg??48,f,[[w,h]]));}
++ let clr=9,run=[0,0],hid=[0,0];for(let i=0;i<after.length;i+=2){const q=after[i];if(q.c<RD-PRE)continue;clr=Math.min(clr,Math.min(3,Lsc.clearance(solid,q.p.position,3).m));[1.05,1.45].forEach((dy,k)=>{run[k]=blk(q.p.position,q.f,dy)?run[k]+2:0;hid[k]=Math.max(hid[k],run[k]);});}
++ const sb=stat(before,RD-PRE),sa=stat(after,RD-PRE),endErr=Math.hypot(...after.at(-1).p.position.map((x,k)=>x-before.at(-1).p.position[k])),dist=Math.hypot(...camEnd.position.map((x,k)=>x-sp.position[k]));
++ const ok=sa.longestStillS<=0.5&&Tm>=MOVE&&sa.peakMS<=11&&sa.maxStepOverMedian<=3&&endErr<1e-6&&mMin>=0.08&&clr>=0.5&&hid[0]*DT<=0.5&&hid[1]*DT<=0.5&&nightFree;if(!ok)fails++;
++ out.rows.push({mode,screen:w+'x'+h,minClearM:+clr.toFixed(2),chestHiddenS:+(hid[0]*DT).toFixed(2),faceHiddenS:+(hid[1]*DT).toFixed(2),swingM:+dist.toFixed(1),beforeBlendS:+ss.toFixed(2),afterMoveS:+Tm.toFixed(2),before:sb,after:sa,endPoseSame:endErr<1e-6,beforeMinMargin:+mB.toFixed(3),afterMinMargin:+mMin.toFixed(3),afterMinAtB5S:mAt,ok});
++ if(mode==='day'&&w===390&&h===844)out.series={before:before.map(s=>s.p),after:after.map(s=>s.p),c0:RD-6,dt:DT,her:before.map(s=>s.c>RD?feet(s.c-RD):seatAt(s.c))};}
++if(process.argv.includes('--json'))require('fs').writeFileSync(process.argv[process.argv.indexOf('--json')+1],JSON.stringify(out));
++for(const r of out.rows)console.log(JSON.stringify(r));console.log(JSON.stringify({test:'landing-move',status:fails?'FAIL':'PASS'}));process.exit(fails?1:0);})().catch(e=>{console.error(e);process.exit(1);});
