@@ -167,7 +167,11 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
  */
 /** b16 item 4: S-a walk lens (her right, behind the jetty, aimed 6 m behind the bow at her path). */
-const K0:SailOff={back:12,side:-4,up:4,fov:50,look:2,orb:0};
+/** b20 palm clearance (运镜bot, cine/b20-island-palm-clearance): on the skin-correct island (a1c4c07d) env_prop_palm_tall_01's
+ * trunk is 0.46 m from the old K0 {back:12,side:-4,up:4,fov:50,look:2} and the K0→K1 blend grazes it at 0.28 m (t 3.6 s).
+ * 1.5 m closer (min clearance 1.157 m over S-a + blend), FOV 50→56 and aim 3 m further back along the hull so her whole
+ * body keeps ≥ 0.08 of the frame from the stand on all 7 screens; same side/height (her right, behind the jetty). */
+const K0:SailOff={back:10.5,side:-4,up:4,fov:56,look:-1,orb:0};
 export const SAIL_K0_BLEND_S=5;
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 /**

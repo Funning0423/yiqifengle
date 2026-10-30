@@ -37,6 +37,12 @@ export const LAKESIDE_CAMERA_LAYOUT={
   * (almost) nothing left to close. One weight for view and FOV keeps the zoom monotonic (an extra short correction on top
   * of the arrival FOV ramp would reverse the zoom on screens whose board FOV is below the base). Over the 14.3 m arrival blend the lens height above her eases 3.4 → 3.0 m and the FOV 48 →
   * arrivalFovDeg with the same smoother as the view, so the lens never climbs in the world (no crane-up). */
+ /** b20 palm clearance (运镜bot, cine/b20-island-palm-clearance): on the skin-correct island rebake (a1c4c07d)
+  * env_prop_palm_tall_01's trunk stands 3 m east of the old data, 0.568 m from the default follow lens (side -2.4) at d 1.5.
+  * One constant key (no key junctions, so no lens accel/jerk step) moves the follow lens 0.6 m further right, 0.1 m up and 0.8 m closer (side -3.0 / up 3.5 / back 5.8; further right alone puts the
+  * island prop strip over her chest at set-off, higher puts the fronds within 1.1 m):
+  * min lens clearance 1.231 m, no hidden face/head/chest. Model contract for the island-approach leg; the live balloon route does not use it. */
+ islandLens:[{at:0,sideM:-3.0,upM:3.5,backM:5.8}] as ReadonlyArray<Readonly<{at:number;sideM:number;upM:number;backM:number}>>,
  landing:{arrivalBackM:6.8,arrivalSideM:1.1,arrivalUpM:3.0,arrivalPitchDeg:-2.507461,arrivalFovDeg:57.35256,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
  /** Time profile (reviewer on c375304): the 39.2 m leg in 17 s, smootherstep ramps 4 s up from rest and 4 s down into
   * the landing stop. Cruise 3.02 m/s (≤ 4.5), |a| ≤ 1.41 m/s² (≤ 3), |jerk| ≤ 1.09 m/s³ for her; the lens follows distance
@@ -83,7 +89,7 @@ export function lakesideJourney(start:Vec){
  const yawDeg=L.yawDeg,r=rotY(yawDeg,L.landingLocal),root:Vec=[landing[0]-r[0],landing[1]-r[1],landing[2]-r[2]];
  const toWorld=(p:Vec):Vec=>plus(rotY(yawDeg,p),root);
  const bridge=bridgePath(edge,toWorld(L.landingLocal),L.bridgeArchM),arrival=L.walkLocal.map(toWorld);
- return {yawDeg,root,toWorld,approach,bridge,arrival,focus:toWorld(L.focusLocal),landing:L.landing,timing:L.timing,startBlendM:0,speed:REGION_JOURNEY_LAYOUT.speedMps};
+ return {yawDeg,root,toWorld,approach,bridge,arrival,focus:toWorld(L.focusLocal),lens:L.islandLens,landing:L.landing,timing:L.timing,startBlendM:0,speed:REGION_JOURNEY_LAYOUT.speedMps};
 }
 type V3=[number,number,number];
 /** What the board UI reports to the background lease (LevelBackgroundFrame): viewport, tray top and, when available, the 2D
