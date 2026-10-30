@@ -71,7 +71,7 @@ export async function playCoastArrival(deps:CoastArrivalDeps):Promise<{ok:boolea
 export type CoastWalk=Readonly<{start:number;end:number;path:V3[]}>;
 let walks:CoastWalk[]|null=null;
 /** baked walks: moving spans of her root (>=0.02 m per 0.1 s), path decimated to <=0.02 m chord error (keeps S7 straight = 2 points). */
-export function coastArrivalWalks():CoastWalk[]{if(walks)return walks;if(!herRows)herRows=dec(K.her,K.n_her,3);const R=herRows,[ws,we]=K.walk,fps=K.fps,out:CoastWalk[]=[];
+export function coastArrivalWalks():CoastWalk[]{if(walks)return walks;if(!herRows)herRows=dec(K.her as any,K.n_her);const R=herRows,[ws,we]=K.walk,fps=K.fps,out:CoastWalk[]=[];
  const n=Math.min(R.length,Math.floor(ws*fps)-7),mv=(i:number)=>{const a=R[Math.max(0,i-6)],b=R[Math.min(R.length-1,i+6)];return Math.hypot(b[0]-a[0],b[2]-a[2])>0.02;};
  // before S7: moving spans of her root (same 0.02 m / 0.2 s test as arrivalHer), path decimated to <=0.02 m chord error
  let i=0;while(i<n){if(!mv(i)){i++;continue;}let j=i;while(j+1<n&&mv(j+1))j++;
