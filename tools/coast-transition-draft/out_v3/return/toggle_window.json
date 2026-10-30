@@ -40,6 +40,11 @@
    "coast": true,
    "sail": true
   },
+  "sail_wake_code": {
+   "pass_": true,
+   "fails": [],
+   "boat_speed_max": 0.0
+  },
   "pass_": true
  }
 }

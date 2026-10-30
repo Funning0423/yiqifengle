@@ -100,3 +100,12 @@ Cross-check with their aabb_gate.py (out_v3/r3_aabb_gate_crosscheck.jsonl, 18 fr
 | island→coast | 210–227 (3.50–3.78 s) | 220 kept | PASS |
 | coast→island | 1040–1048 (17.33–17.47 s) | 1044 kept | PASS |
 The windows are unchanged from v3.3: the coast node boxes are the limiting groups. test_gates.py PASS (both directions + negative check).
+
+## v3.5 sail-driver / wake code check in activation_gate (camera output unchanged)
+`wake_code_check.py` (run standalone, or via activation_gate → `sail_wake_code`; `--src`/QF_SRC to check another tree, e.g. /workspace/fs-set @8c98bbfe — also PASS). It pins these facts by pattern, not line number, and FAILS with a message if any changes:
+- `mountSailArt(` is called only by RegionJourneyAdapter.ts and SailShot.ts. SailShot is a dev-only early-return path in WorldIntegrationBoot (`sailShotRequested() → presentSailShot(); return;`).
+- `createSailDriver(` is called only by RegionJourneyAdapter.ts. Both calls are inside its `if(sail){` branch, SailArt is mounted under the `'RegionJourney-'+to` rig, and `release()` calls `sailArt?.dispose()`. The adapter never mentions 'coast'.
+- SailArt.ts: `wake_trail` is created inactive; it is shown only when `fx.peak > 1/255`; there is exactly one `syncWakeTrail(...)` call, fed by `v.speed`; dispose runs `root.destroy()`.
+- SailWakeCore.ts: `wakeEmission = smooth(speedLo, speedHi, |speed|)` with speedLo 0.35 (parsed and evaluated: strength 0 at 0 and 0.349 m/s); `stepWakeTrail` uses `k = wakeEmission(speed)`; the launch ghost is scaled by `pts[0].k`.
+- Model: no driver ⇒ boat speed 0 on every frame of the transition (boat_speed_max 0.0).
+test_gates.py: PASS both directions + map/toggle negative check + 4 mutation negatives (speedLo 0.0, dispose removed, wake created active, root.destroy removed) → each FAILS as required. Toggles 220 / 1044 unchanged; activation_gate PASS both directions.

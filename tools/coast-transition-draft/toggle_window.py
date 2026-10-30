@@ -56,8 +56,11 @@ def activation_gate(vs, cams, toggle, ret):
     # pop-in also forbidden on the frame before/after the swap (the swap is between toggle-1 and toggle)
     vis_prev = {k: bool(vs[k][toggle - 1]) for k in vs}
     ok = not bad_map and not any(vis_at.values()) and not any(vis_prev.values())
+    import wake_code_check as WC; wake = WC.gate(n_frames=n)  # v3.5: no sail driver in coast transitions / wake strength 0 (static code check + speed model)
+    ok = ok and wake['pass_']
     return dict(toggle_frame=toggle, toggle_t=round(toggle / R.FPS, 3), map_lens_frames=map_frames, coast_active_on_map_frames=bad_map,
-                visible_at_toggle=vis_at, visible_at_toggle_minus_1=vis_prev, island_map_lens_sees=dict(coast=True, sail=True), pass_=ok)
+                visible_at_toggle=vis_at, visible_at_toggle_minus_1=vis_prev, island_map_lens_sees=dict(coast=True, sail=True),
+                sail_wake_code=dict(pass_=wake['pass_'], fails=wake['fails'], boat_speed_max=wake['facts'].get('boat_speed_max')), pass_=ok)
 def main():
     vs = vis_series(R.CAM); win = windows(vs)
     res = dict(direction='coast_to_island' if R.RET else 'island_to_coast', windows_frames=win,
