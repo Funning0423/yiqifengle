@@ -2,7 +2,7 @@ import { DEBUG } from 'cc/env';
 /** Full world-snapshot console line: debug builds or explicit opt-in only. */
 export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{return !!debug||optIn===true;}
 import { createRegionJourney } from '../region/RegionJourneyAdapter';
-import { camTag, camLog, camLogFrame } from '../region/CamTraceLog';
+import { camTag, camLog, camLogFrame, camProbeCharacter } from '../region/CamTraceLog';
 import type { JourneyRegion } from './RegionJourneyCore';
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
 import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry, view } from 'cc';
@@ -271,6 +271,7 @@ export class WorldFlowComponent extends Component {
   /** Called once by a composition root, after real adapters are ready. Character may be omitted for scene inspection. */
   async initialize(levels:LevelAdapter,character?:CharacterAdapter,mode:Mode='fixed',onStatus?:(s:Snapshot)=>void) {
     if(this.flow||this.disposed)throw Error('WorldFlowComponent already initialized/disposed');
+    if(camLog.on&&character)camProbeCharacter(character)/* full9c probe: explicit her ref, test mode only */;
     if(!this.firstsliceModel||!this.worldCamera)throw Error('Bind imported combined prefab and dedicated WorldCamera');
     identity(this.node);
     if(descendant(this.node,this.worldCamera.node)||descendant(this.worldCamera.node,this.node))throw Error('Camera and world owner must be independent siblings');
@@ -366,7 +367,7 @@ export class WorldFlowComponent extends Component {
     catch(error){this.cancelRoomLook();if(error instanceof Cancelled)return {ok:false,reason:'cancelled'};throw error;}
     finally {if(this.roomLookToken===token)this.roomLookToken=null;}
   }
-  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');return this.flow.bindCharacter(adapter);}
+  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(camLog.on&&r.ok)camProbeCharacter(adapter);return r;}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
     token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);this.worldAmbient=ambient;ambient.clipUuids=REGIONS.island.ambientClipUuids!;this.ownedModel=model;this.node.addChild(model);
     try {

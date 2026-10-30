@@ -5,7 +5,8 @@ const fs=require('fs');const src0=f=>fs.readFileSync(require('./journey-scene.cj
 const L=H.load(S+'region/CamTraceLog.ts'),CP=H.load(S+'world-r1/CameraPose.ts');
 let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
 const logs=[];const orig={log:console.log,warn:console.warn,error:console.error,info:console.info};
-const cap=k=>(...a)=>logs.push([k,a.join(' ')]);
+const PN=/ pn=[0-9.]+$/;// full9c probes: every trace line ends with pn=performance.now(); the format checks below ignore it
+const cap=k=>(...a)=>{const s=a.join(' ');if(k==='log'&&/^\[QF_CAM_TRACE\]/.test(s)&&!PN.test(s))throw Error('trace line without pn: '+s);logs.push([k,s.replace(PN,'')]);};
 const cam={node:{setWorldPosition(){},setWorldRotation(){}},fov:45};
 function write(p,src){return CP.applyCameraPose(cam,p,src);}
 const q=yawDeg=>{const h=-yawDeg*Math.PI/360;return [0,Math.sin(h),0,Math.cos(h)];};// rotation about Y
@@ -42,21 +43,21 @@ for(const [qs,g] of [['?a=2&camTrace=1',{}],['',{__QF_CAM_TRACE:1}],['',{__QF_CA
  const y=+logs[3][1].match(/yaw=(-?[\d.]+)/)[1];ok(Math.abs(Math.abs(y)-40)<1e-3,'yaw decoded '+y);
 }
 // per-frame state lines (camera disabled / world layer off)
-{const out=[];L.camLogReset();L.camLogStart('?camTrace=1',{});L.camLog.out=x=>out.push(x);
+{const out=[];L.camLogReset();L.camLogStart('?camTrace=1',{});L.camLog.out=x=>out.push(String(x).replace(PN,''));
  const c={node:{isValid:true},enabledInHierarchy:true,visibility:(1<<30)|1};L.camLogFrame(c);
  c.enabledInHierarchy=false;L.camLogFrame(c);c.enabledInHierarchy=true;c.visibility=1;L.camLogFrame(c);c.visibility=(1<<30);L.camLogFrame(c);L.camLogFrame(null);
  ok(out.length===4&&/^\[QF_CAM_TRACE\] frame=2 CAM_OFF/.test(out[0])&&/frame=3 WORLD_LAYER_OFF vis=0x1$/.test(out[1])&&/frame=4 CAM_OK<-WORLD_LAYER_OFF/.test(out[2])&&/frame=5 CAM_MISSING/.test(out[3]),'state lines '+JSON.stringify(out));
  L.camLog.out=s=>console.log(s);}
 // ACTOR_STALL: walking her moves → no line; unchanged > 3 s while active → one line (every 3 s); inactive / moving resets; off → silent
-{const out=[];L.camLogReset();L.camLogStart('?camTrace=1',{});L.camLog.out=x=>out.push(x);
+{const out=[];L.camLogReset();L.camLogStart('?camTrace=1',{});L.camLog.out=x=>out.push(String(x).replace(PN,''));
  for(let i=0;i<300;i++)L.camActorProbe(i*0.02,0,0,true,'C1',i/60);ok(out.length===0,'walking: no stall '+out);
  for(let i=0;i<=400;i++)L.camActorProbe(6,0,0,true,'C1',5+i/60);ok(out.length===2&&/^\[QF_CAM_TRACE\] t=[\d.]+ ACTOR_STALL step=C1 heldS=3\.0\d* her=6,0,0$/.test(out[0]),'stall lines '+JSON.stringify(out));
  out.length=0;for(let i=0;i<=400;i++)L.camActorProbe(6,0,0,false,'C1',20+i/60);ok(out.length===0,'inactive step: no stall');
- L.camLog.out=s=>console.log(s);L.camLogReset();const o2=[];L.camLog.out=x=>o2.push(x);for(let i=0;i<=400;i++)L.camActorProbe(6,0,0,true,'C1',i/60);ok(o2.length===0,'off: no stall line');L.camLog.out=s=>console.log(s);}
+ L.camLog.out=s=>console.log(s);L.camLogReset();const o2=[];L.camLog.out=x=>o2.push(String(x).replace(PN,''));for(let i=0;i<=400;i++)L.camActorProbe(6,0,0,true,'C1',i/60);ok(o2.length===0,'off: no stall line');L.camLog.out=s=>console.log(s);}
 {const a=src0('region/RegionJourneyAdapter.ts'),b=src0('region/BalloonTransit.ts');ok(/if\(camLog\.on&&sl&&girl&&isValid\(girl,true\)\)\{const gp=girl\.worldPosition;camActorProbe\(gp\.x,gp\.y,gp\.z,!boarded,'C1'\);\}/.test(a)&&/camActorProbe\(gp\.x,gp\.y,gp\.z,true,'B1'\)/.test(b),'wiring: C1 / B1 stall probes behind camLog.on');
  ok(!/camActorProbe[^;]*setCamera/.test(a+b),'probe never writes the camera');}
 L.camLogReset();
-{let n=0;const out=[];L.camLog.out=x=>out.push(x);L.camLogFrame(null);ok(out.length===0,'off: camLogFrame silent');L.camLog.out=s=>console.log(s);}
+{let n=0;const out=[];L.camLog.out=x=>out.push(String(x).replace(PN,''));L.camLogFrame(null);ok(out.length===0,'off: camLogFrame silent');L.camLog.out=s=>console.log(s);}
 ok(/lateUpdate\(dt:number\):void \{if\(camLog\.on\)camLogFrame\(this\.worldCamera\);/.test(src0('world-r1/WorldFlowComponent.ts')),'wiring: lateUpdate probe behind camLog.on');
 // wiring
 const src=f=>fs.readFileSync(S+f,'utf8');
