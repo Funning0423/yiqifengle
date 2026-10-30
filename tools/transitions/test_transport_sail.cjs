@@ -16,7 +16,8 @@ const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout
 const route=leg.sailRoute();
 const tl=leg.sailBeats(route.length);
 const shore=leg.shoreWalkM();
-assert(shore<=6.4,'shore walk '+shore);
+// b20 meadow-walk-fixes (Grok Bot, option a): M1 moved 4.9 m up the path so M1-M4 walks are uncut; M0→M1 chord 5.96 → 10.57 m (was ≤6.4)
+assert(shore<=10.8,'shore walk '+shore);
 assert(tl.build05S<=30.5,'build05 '+tl.build05S);
 assert(tl.arrivalS<=12+1e-6,'arrival '+tl.arrivalS);
 assert(tl.speed.cruiseS>=6,'cruise');
