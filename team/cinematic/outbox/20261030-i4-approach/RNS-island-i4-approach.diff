@@ -1,0 +1,40 @@
+--- a/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
++++ b/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
+@@ -8,7 +8,8 @@
+ import {setExploreEnabled} from '../region/ExploreGate';
+ import {REGION_NODES,type RegionId} from '../region/RegionNodes';
+ import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
+-import {planWalk} from '../region/NodeWalker';
++import {planWalk,WAYPOINT_ROUTES} from '../region/NodeWalker';
++import {approachClock,islandApproachLens} from '../region/IslandApproachLens';
+ import {performBounded,runRewardWalk,runSkyFinale,type PathPlace} from '../region/RegionNodePlay';
+ import {emitTransitCue} from '../region/TransitAudioHooks';
+ import {PROP_NODES,SCENE_PROPS,propFeedback,resolveTap,pickMarker,type Gesture} from './ExploreInput';
+@@ -274,8 +275,10 @@
+   this.lens='FollowWalk';setExploreEnabled(true);
+   this.handOrbitBack(spec.region);
+   this.skyRail=rail;
++  /* 运镜bot b21 plan B: island I3>I4 on the E-waypoint route is planned once (IslandApproachLens) from the live lens; only when the route is wired */
++  this.islandApproach=spec.region==='island'&&WAYPOINT_ROUTES['island:'+wk]?approachClock(islandApproachLens(this.readPose(),this.toWorld('island',planWalk('island',spec.from,spec.to).segments.flatMap(g=>g.path)),w,h,this.lakesideOccluders()||[])):null;
+   try{await runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));}
+-  finally{setExploreEnabled(false);this.skyRail=null;}
++  finally{setExploreEnabled(false);this.skyRail=null;this.islandApproach=null;}
+   /* sail-blue (Mac d3fe578e night, frames 26-29: beach close-up → 1 blank frame → island wide): a departure walk that hands straight
+    * into a continuous ride (04→05 sail, 08→09 balloon) must NOT blend back to the parked board lens and switch the world layers off
+    * (restoreBoard → presentNodeWalkWorld(false)): the level is being left, so that pose/blank is never meant to be seen. Keep the
+@@ -314,6 +317,7 @@
+   this.openExplore('skycity');
+  }
+  private skyRail:((dt?:number)=>Pose)|null=null;
++ private islandApproach:((dt?:number)=>Pose)|null=null;
+  private skyRailOf(w:string):((dt?:number)=>Pose)|null{this.skycityAllOccluders();const L=this.skyL;if(!L||!skyRailHas(w))return null;const f=skyRailFollow(w);return (dt=0)=>this.skyW(f(toFrame(L,this.girl()),dt)!);}
+  private skyW(r:RailPose):Pose{const [p,t]=this.toWorld('skycity',[r.position as Vec,r.target as Vec]);return {position:p,target:t,fovVerticalDeg:r.fovVerticalDeg};}
+  private skyLoc(p:Pose):RailPose{const L=this.skyL!;return {position:toFrame(L,p.position),target:toFrame(L,p.target),fovVerticalDeg:p.fovVerticalDeg??48};}
+@@ -883,6 +887,7 @@
+   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded)||(this.entry&&this.orbit.seeded))this.writeOrbit(dt);
+   else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
+   else if(this.lens==='FollowWalk'&&this.exploring&&this.region==='skycity'&&this.skyRail)this.writePose(this.skyRail(dt),false);
++  else if(this.lens==='FollowWalk'&&this.exploring&&this.region==='island'&&this.islandApproach)this.writePose(this.islandApproach(dt),false);
+   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
+  }
+  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
