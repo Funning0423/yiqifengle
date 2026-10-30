@@ -65,7 +65,7 @@ export function lakeBoardS(m=TRANSITION_STAGING.skyMooring5a):number{return m.bo
 export const TRANSITION_DURATIONS=Object.freeze({
  /* islandToMeadow cap (Grok Bot 2026-10-30): ≤45 s counts seg1+seg2 only (the walk/boarding/off-boat beats below); the sail
   *  ride clock (TransportLeg sailBeats) is NOT part of seg1/seg2 and is not capped — start→board05 end-to-end is measured and reported separately. */
- seg1:{nodeWalkI4toI6:7.574/* b20: = pinned walk:island:I4>I6 (one continuous walk, was 15.6) */,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},
+ seg1:{nodeWalkI4toI6:6.84/* b20: = pinned walk:island:I4>I6 (island a1c4c07d, I4 de236c06: 8.388 m one continuous walk; was 7.574, 15.6) */,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},
  seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:20.22/* b20 meadow (93ac386e final M1): 24.266 m at WALK_SPEED_MPS 1.2 (jetty 12.019 + to M0 1.759 + sail chord SAIL_M0_LOCAL→SAIL_M1_LOCAL 10.488), was 20.29 (505ceb63), 16.5 */},
  seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:0/* removed: two-door basket, no in-basket turn */,sitDown:1.2,inflate:3.0,flight:TRANSITION_RETIME.meadowRideS},
  seg4:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,toPath:7.5},

@@ -3721,8 +3721,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts",
-    "bytes": 13036,
-    "sha256": "4122f64e4e00fed8d265a3e0b9564c74f6c0f4d6eb8e80efa65a1a485d2392f4"
+    "bytes": 13080,
+    "sha256": "12e7055e380f9d0cbfd3740ccc24707fc106917f5875147cb869bcc1ae1ffefb"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts.meta",
