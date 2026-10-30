@@ -1,0 +1,3 @@
+NOTE source tools/first-screen/test_first_screen.cjs pre-existing composite-sha mismatch (unrelated to first-screen.js code)
+NOTE minified tools/first-screen/test_first_screen.cjs pre-existing composite-sha mismatch (unrelated to first-screen.js code)
+PASS first-screen minified parity (source == minified behaviour)

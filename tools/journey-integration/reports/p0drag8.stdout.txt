@@ -8,8 +8,8 @@
    1.65,
    7.1
   ],
-  "boxes": 2717,
-  "nearBoxes": 439,
+  "boxes": 2713,
+  "nearBoxes": 431,
   "macWrittenMinArmM": 0.8,
   "minArmM": 7.34,
   "minViewPitchDeg": -55,
@@ -17,9 +17,9 @@
   "avoidElevStepOverLimitDeg": 0,
   "rawDragElevStepMaxDeg": 10.7,
   "perf": {
-   "avgMsPerFrame": 0.202,
-   "p99Ms": 0.82,
-   "maxMs": 10.28
+   "avgMsPerFrame": 0.253,
+   "p99Ms": 2.51,
+   "maxMs": 19.88
   },
   "worst": [],
   "ok": true
@@ -85,8 +85,8 @@
   "ok": true
  },
  "P5": {
-  "boxes": 2717,
-  "nearBoxes": 441,
+  "boxes": 2713,
+  "nearBoxes": 442,
   "runs": [
    {
     "pitch": 15,
@@ -95,9 +95,9 @@
     "writtenInsideFrames": 0,
     "minArmM": 7,
     "minViewPitchDeg": -15,
-    "maxLensStepM": 0.062,
-    "avgMs": 0.117,
-    "p99Ms": 0.66
+    "maxLensStepM": 0.059,
+    "avgMs": 0.169,
+    "p99Ms": 1.7
    },
    {
     "pitch": 30,
@@ -107,8 +107,8 @@
     "minArmM": 10,
     "minViewPitchDeg": -30,
     "maxLensStepM": 0.189,
-    "avgMs": 0.235,
-    "p99Ms": 0.8
+    "avgMs": 0.296,
+    "p99Ms": 2.57
    },
    {
     "pitch": 10,
@@ -117,9 +117,9 @@
     "writtenInsideFrames": 0,
     "minArmM": 12,
     "minViewPitchDeg": -10,
-    "maxLensStepM": 0.12,
-    "avgMs": 0.446,
-    "p99Ms": 3.35
+    "maxLensStepM": 0.093,
+    "avgMs": 0.538,
+    "p99Ms": 4.47
    }
   ],
   "ok": true

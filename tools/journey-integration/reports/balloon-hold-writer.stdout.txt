@@ -1,0 +1,26 @@
+{
+ "test": "balloon-hold-writer",
+ "status": "PASS",
+ "results": [
+  {
+   "id": "hook removed only at the ride end (guard needs hold==null)",
+   "status": "PASS",
+   "endGuard": "t>=plan.total&&hold==null"
+  },
+  {
+   "id": "before-draw writes the lens unconditionally",
+   "status": "PASS"
+  },
+  {
+   "id": "tick writes exactly when the hook is removed that frame",
+   "status": "PASS",
+   "tickArg": "Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)))>=plan.total&&hold==null"
+  },
+  {
+   "id": "frame model: hold through pause + background/foreground",
+   "status": "PASS",
+   "framesWritten": 990,
+   "multiWriterFrames": 0
+  }
+ ]
+}

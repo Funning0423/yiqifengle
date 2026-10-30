@@ -6,7 +6,7 @@ export type RegionTitleId = 'meadow' | 'skycity' | 'lakeside';
 /** §2: names come from the code (WindWipeCore / CHAPTERS). The sky city chapter name 「天空回声」 is a chapter name, not this. */
 export const REGION_TITLE: Readonly<Record<RegionTitleId, string>> = { meadow: '花粉草甸', skycity: '天空之城', lakeside: '风铃湖畔' };
 /** §5 timeline + §3 type (spec_params.json: font 24, track 0.15 em, line 44×1 gap 7 α0.5, in 0.4 / hold 1.2 / out 0.4, rise 6). */
-export const REGION_TITLE_TIMING = { inS: 0.4, holdS: 1.2, outS: 0.4, risePt: 6 } as const;
+export const REGION_TITLE_TIMING = { inS: 0.4, holdS: 1.35, outS: 0.25, risePt: 6 } as const;
 export const REGION_TITLE_TOTAL_S = REGION_TITLE_TIMING.inS + REGION_TITLE_TIMING.holdS + REGION_TITLE_TIMING.outS;
 export const REGION_TITLE_TYPE = { font: 24, lineHeight: 32, track: 0.15, spacingX: 3.6, lineW: 44, lineGap: 7, lineH: 1, lineA: 0.5, inkH: 31, minEdge: 32, minFont: 20 } as const;
 export interface RegionTitleStyleTable {

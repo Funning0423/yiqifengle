@@ -1,6 +1,7 @@
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"bundle:region_skycity","ms":1,"budgetMs":1800,"ok":true}
 {
   "status": "PASS",
-  "timeUTC": "2026-10-26T10:30:22.182Z",
+  "timeUTC": "2026-10-30T02:19:11.541Z",
   "scope": "Actual production WorldNativeComposition and mainline controller, legal progression, explicit world-command doubles. Tests command ordering/ownership only, not rendered movement.",
   "checks": [
     {
@@ -66,3 +67,10 @@
     }
   ]
 }
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:env_skycity+siblings","ms":0,"budgetMs":450,"ok":false}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:transport_balloon","ms":0,"budgetMs":230,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:transit_clouds_merged","ms":1,"budgetMs":150,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:transit_night_dome","ms":0,"budgetMs":80,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:far_meadow_card","ms":0,"budgetMs":60,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"json:balloon_flightpath","ms":0,"budgetMs":40,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"effect:balloon-grade","ms":1,"budgetMs":40,"ok":true}

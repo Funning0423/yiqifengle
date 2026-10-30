@@ -1,0 +1,1 @@
+PASS press-state (same-frame press, close does not wait for spring) + pinwheel spec

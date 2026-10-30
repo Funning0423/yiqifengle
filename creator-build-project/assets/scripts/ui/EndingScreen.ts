@@ -1,6 +1,7 @@
 import { _decorator, BlockInputEvents, Camera, Color, Component, EffectAsset, Graphics, Layers, Material, MeshRenderer, Node, Sprite, SpriteFrame, RenderTexture, UITransform, director, isValid, resources, sys, utils, view } from 'cc';
 import { artButton, artSprite, makeLabel, TintSet } from './PopupKit';
 import { uiNightWeight } from './NightTint';
+import { withJourneyUi } from './JourneyUi';
 import { ENDING_ART, endingLayout, endingLayoutChecks, endingSwayDeg } from '../world-r2/EndingFlow';
 import { ENDING_CHIME, chimePartSwing, endingChimeParts, type ChimePart } from '../world-r2/EndingChimeGeometry';
 import { EndingChimeSway } from './EndingChimeSway';
@@ -42,7 +43,9 @@ export class EndingScreen {
     for (let i = 0; i < 16; i++) { const u0 = from + (1 - from) * i / 16, u1 = from + (1 - from) * (i + 1) / 16; sdg.fillColor = new Color(S.rgb[0], S.rgb[1], S.rgb[2], Math.round(255 * S.a * (i + .5) / 16)); sdg.rect(-w / 2 - 2, h / 2 - u1 * h, w + 4, (u1 - u0) * h + 1); sdg.fill(); }
     const plank = artSprite(n, 'popup/title_plank_3s', 0, Y(L.titleCy), 196, 58, 'EndingPlank'); this.tint.sprite(plank, 'ui');
     const t = makeLabel(n, '旅程完成', 0, Y(L.titleCy) + 2, 24, { width: 190, name: 'EndingTitle' }); t.color = new Color(0x5a, 0x3a, 0x1e, 255); (t as any).spacingX = 3;
-    ['tide', 'meadow', 'sky', 'lake'].forEach((r, i) => { const s = artSprite(n, 'popup/reward_seal_' + r, (i - 1.5) * 58, Y(L.sealsCy), 44, 44, 'Seal-' + r); this.tint.sprite(s, 'ui'); });
+    // new-regions SPEC §4: 6 seals Ø40 at 48 pitch on a shallow arc (Δy = 1.2·(i−2.5)²); unearned = code-drawn blank seal α0.85.
+    // Drop-in 240 ms each, 80 ms stagger (reduced motion: no drop).
+    withJourneyUi(ui => { if (this.alive && isValid(n, true)) ui.buildEndingSeals(n, this.tint, (p, nm, w, h) => this.ui(p, nm, w, h), L.seals, Y); }, 'ending-seals');
     artButton(n, this.tint, 'primary', '回小岛', 0, Y(L.buttonCy), L.buttonW, L.buttonH, () => { if (this.alive) a.home(); }, { fontSize: 20, name: 'EndingHome', sound: 'back' });
     this.tint.update(true);
     (globalThis as any).__qfEndingScreen = () => ({ night, ready: this.ready(), loaded: 3 - this.pending - this.failed.length, failed: this.failed.slice(), size: [w, h], layout: L, checks: endingLayoutChecks(w, h, a.safeBottom ?? 0) });

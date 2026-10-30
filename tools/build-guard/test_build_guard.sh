@@ -75,4 +75,16 @@ c=$(META_BASE_OVERRIDE=HEAD~1 run "$R" wechat 13 "good"); [ "$c" = 2 ] || fail "
 # 14) manifest lists a missing file -> refuse before building
 R=$(mkrepo 14); (cd "$R" && printf '[\n  {"path": "creator-build-project/assets/gone.glb"}\n]\n' > assets-MANIFEST-SHA256.json && git -c user.email=t@t -c user.name=t commit -qam man)
 c=$(run "$R" wechat 14 "good"); [ "$c" = 2 ] || fail "case14 exit $c"; grep -q "MISSING_FILE .*gone.glb" "$T/out14" || fail "case14 msg"
-echo "SELFTEST PASS (14 cases + provenance)"
+# 15) placeholder gate (system-panels SPEC §1.4): dirty build sample (literal and \u-escaped) must fail, clean sample must pass
+P=$T/ph; mkdir -p "$P/bad/build/wechatgame/src" "$P/esc/build/wechatgame" "$P/good/build/wechatgame/src" "$P/src/creator-build-project/assets"
+W=$(printf '\345\215\240\344\275\215')
+printf '{"t":"%s"}\n' "$W" > "$P/bad/build/wechatgame/src/settings.json"
+printf 'var a="\\u5360\\u4f4d";\n' > "$P/esc/build/wechatgame/game.js"
+printf '{"t":"ok"}\n' > "$P/good/build/wechatgame/src/settings.json"; head -c 64 /dev/urandom > "$P/good/build/wechatgame/x.png"
+printf '// %s\n' "$W" > "$P/src/creator-build-project/assets/a.ts"
+node "$HERE/check-no-placeholder.cjs" --root "$P/bad" > "$T/ph1" 2>&1 && fail "case15 literal hit passed"; grep -q "settings.json:1" "$T/ph1" || fail "case15 no path:line"
+node "$HERE/check-no-placeholder.cjs" --root "$P/esc" > "$T/ph2" 2>&1 && fail "case15 escaped hit passed"
+node "$HERE/check-no-placeholder.cjs" --root "$P/src" > "$T/ph3" 2>&1 && fail "case15 source comment hit passed"
+node "$HERE/check-no-placeholder.cjs" --root "$P/good" > "$T/ph4" 2>&1 || { cat "$T/ph4"; fail "case15 clean sample failed"; }
+node "$HERE/check-no-placeholder.cjs" --root "$HERE/../.." > "$T/ph5" 2>&1 || { cat "$T/ph5"; fail "case15 repo source has the placeholder word"; }
+echo "SELFTEST PASS (15 cases + provenance)"

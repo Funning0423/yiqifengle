@@ -1,0 +1,17 @@
+PASS denominator = Σ stages of regions with data: 18 (this build), 27 with coast data (5 segments), 33 with snow (6 segments)
+PASS coast opens at mainline record 11 in parallel with the lake; snow after 6 lake stages and only with data; far/locked/new/progress/done rows; focus rule
+PASS region page single button: 前往X / 继续 / 再访X / 尚未开启 (flat disabled); coast chapter hint
+PASS ending: 6 seals Ø40 / 48 pitch on 1.2·(i−2.5)² arc (280 pt, fits 320 with 20 pt margins); coast earned only when claimed
+PASS motion constants 200/30 ms rows, 600 ms bar (only when changed), 240/80 ms seals; reduced motion
+PASS journey book 旅程 14 / 27 with coast data; 6 regions reachable; rows ≥ 44 pt on 7 sizes; coast page 前往海岸
+{
+  "status": "PASS",
+  "checks": [
+    "denominator = Σ stages of regions with data: 18 (this build), 27 with coast data (5 segments), 33 with snow (6 segments)",
+    "coast opens at mainline record 11 in parallel with the lake; snow after 6 lake stages and only with data; far/locked/new/progress/done rows; focus rule",
+    "region page single button: 前往X / 继续 / 再访X / 尚未开启 (flat disabled); coast chapter hint",
+    "ending: 6 seals Ø40 / 48 pitch on 1.2·(i−2.5)² arc (280 pt, fits 320 with 20 pt margins); coast earned only when claimed",
+    "motion constants 200/30 ms rows, 600 ms bar (only when changed), 240/80 ms seals; reduced motion",
+    "journey book 旅程 14 / 27 with coast data; 6 regions reachable; rows ≥ 44 pt on 7 sizes; coast page 前往海岸"
+  ]
+}

@@ -4,11 +4,10 @@ import { PopupPanel, PopupStack, resetPresses, uiNode, measure, type ArtButtonHa
 import { toolArt, type ToolArtSource } from './CommonPanels';
 import { ResultChest3D } from '../ResultChest3D';
 import { BoardArt } from './BoardArt';
-import { reducedMotion } from './UiPrefs';
+import { musicOn, reducedMotion, setMusicOn, vibrate } from './UiPrefs';
 /** Board-only panels (c-popups compose.py / compose2.py): pause (layout frozen by PM, only the lite frame and width 680
  *  changed), restart confirmation and the four result pages. */
 export interface PauseActions { line: string; resume(): void; restart(): void; bag(): void; settings(): void; home(): void; canRestart: boolean; canBag: boolean }
-let lastMusic = 0.4;
 export function openPause(stack: PopupStack, a: PauseActions): PopupPanel {
   const top = 380, ph = 800, p = stack.open({ name: 'PausePanel', height: ph, title: '暂停一下', titleArt: 'popup/title_0', dy: top + ph / 2 - 812 });
   p.text(a.line, 0, 92, 28, 'brown2', { bold: false, width: 600, name: 'PauseLine' });
@@ -23,7 +22,7 @@ export function openPause(stack: PopupStack, a: PauseActions): PopupPanel {
   p.tint.shape(div.addComponent(Graphics), (g, night, al) => { const k = 1 - 0.4 * night; g.strokeColor = new Color(Math.round(196 * k), Math.round(166 * k), Math.round(120 * k), Math.round(255 * al)); g.lineWidth = 3; for (let x = -270; x < 270; x += 18) { g.moveTo(x, 0); g.lineTo(x + 9, 0); } g.stroke(); });
   const audio = GameAudio.instance;
   const rows: Array<[string, string, boolean, (on: boolean) => void]> = [
-    ['popup/icon_music', '音乐', (audio?.getMusicVolume() ?? 0.4) > 0, on => { const g = GameAudio.instance; if (!g) return; if (!on) { const v = g.getMusicVolume(); if (v > 0) lastMusic = v; g.setMusicVolume(0); } else g.setMusicVolume(lastMusic > 0 ? lastMusic : 0.4); }],
+    ['popup/icon_music', '音乐', musicOn(audio), on => setMusicOn(GameAudio.instance, on)],
     ['popup/icon_sfx', '音效', !(audio?.isSfxMuted() ?? false), on => GameAudio.instance?.setSfxMuted(!on)],
   ];
   for (let i = 0; i < rows.length; i++) {
@@ -113,7 +112,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
         if (spent) return;
         spent = true; handle.setEnabled(false); handle.node.active = false;
         (p as any).resultChestTapped?.();
-        try { (globalThis as any).wx?.vibrateShort?.({ type: 'light' }); } catch { }
+        vibrate('light');
         for (let i = 0; i < ready.length; i++) { const claim = ready[i].claim; if (claim) claim(); }
       }, { name: 'ResultChestTap' });
       (p as any).resultClaimAll = () => { if (!spent && isValid(handle.node, true)) { spent = true; handle.setEnabled(false); handle.node.active = false; for (let i = 0; i < ready.length; i++) { const claim = ready[i].claim; if (claim) claim(); } } };
@@ -706,7 +705,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
 /** The host repaints the result after a claim; the next (claimed) panel plays the lid opening when this is recent. */
 let chestTappedAt = -1e12;
 /** R1: the opening 3D chest carried from the tapped panel into the repainted (claimed) one, plus the score's world y. */
-export const CHEST_HANDOFF_MS = 3000, SCORE_EASE_S = 0.25;
+export const CHEST_HANDOFF_MS = 3000, SCORE_EASE_S = 0.20;
 let chestAdopted = false;
 let chestHandoff: { rig: ResultChest3D; at: number; scoreY: number | null } | null = null;
 function disposeChestHandoff() { const h = chestHandoff; chestHandoff = null; try { h?.rig.dispose(); if (h && isValid(h.rig.node, true)) h.rig.node.destroy(); } catch { } }

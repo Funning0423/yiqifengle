@@ -23,8 +23,10 @@ const all = (x, o = []) => { o.push(x); for (const ch of x.children) all(ch, o);
   await ok('timeline §5: 0 s α0 +6 pt, ease-out cubic in to 0.4 s, hold to 1.6 s, ease-in quad out, done at 2.0 s', () => {
     assert(near(C.REGION_TITLE_TOTAL_S, 2.0)); const s0 = C.regionTitleState(0); assert.equal(s0.alpha, 0); assert.equal(s0.dy, 6);
     const m = C.regionTitleState(0.2); assert(near(m.alpha, 1 - 0.125)); assert(near(m.dy, 6 * 0.125));
-    for (const t of [0.4, 1.0, 1.599]) assert.deepEqual(C.regionTitleState(t), { alpha: 1, dy: 0, done: false });
-    assert(near(C.regionTitleState(1.8).alpha, 0.75)); assert.equal(C.regionTitleState(1.8).dy, 0); assert.equal(C.regionTitleState(2.0).done, true);
+    assert.equal(C.REGION_TITLE_TIMING.inS, 0.4); assert.equal(C.REGION_TITLE_TIMING.holdS, 1.35); assert.equal(C.REGION_TITLE_TIMING.outS, 0.25);
+    assert(near(C.REGION_TITLE_TIMING.inS + C.REGION_TITLE_TIMING.holdS + C.REGION_TITLE_TIMING.outS, 2.0), 'U1 retime keeps the 2.0 s total');
+    for (const t of [0.4, 1.0, 1.749]) assert.deepEqual(C.regionTitleState(t), { alpha: 1, dy: 0, done: false });
+    assert(near(C.regionTitleState(1.875).alpha, 0.75), 'easeInQuad out over 0.25 s'); assert.equal(C.regionTitleState(1.875).dy, 0); assert.equal(C.regionTitleState(2.0).done, true);
   });
   await ok('style switch §10: default B; A kept as backup; __qfConfig.regionTitleStyle overrides; B params = spec_params.json "B"', () => {
     const P = JSON.parse(fs.readFileSync(ROOT + '/ui-design/region-title/spec_params.json', 'utf8'));
@@ -46,7 +48,7 @@ const all = (x, o = []) => { o.push(x); for (const ch of x.children) all(ch, o);
     assert.deepEqual(C.REGION_TITLE, { meadow: '花粉草甸', skycity: '天空之城', lakeside: '风铃湖畔' });
     assert.equal(C.regionForStage('mainline-05'), 'meadow'); assert.equal(C.regionForStage('mainline-09'), 'skycity'); assert.equal(C.regionForStage('mainline-13'), 'lakeside');
     assert.equal(C.regionForStage('r04-lake-01'), 'lakeside'); for (const id of ['mainline-01', 'mainline-04', 'test', null]) assert.equal(C.regionForStage(id), null);
-    assert(/sky[^\n]*天空回声/.test(fs.readFileSync(S + 'ui/IslandPanels.ts', 'utf8')), 'CHAPTERS sky = 天空回声');
+    assert(/sky[^\n]*天空回声/.test(fs.readFileSync(S + 'ui/JourneyCore.ts', 'utf8')), 'CHAPTERS sky = 天空回声');
     const gl = fs.readdirSync(S + 'ui').filter(f => f.endsWith('.ts')).map(f => fs.readFileSync(S + 'ui/' + f, 'utf8')).join('\n'); assert(!/天空回声[^\n]*天空之城|REGION_TITLE[^\n]*天空回声/.test(gl));
   });
   await ok('7 sizes §4/§8.5: ink block (incl. the 6 pt rise) centred on toast.y clears the info plate and the tray; ≥ 32 pt side margins', () => {

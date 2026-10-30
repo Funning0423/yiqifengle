@@ -76,20 +76,15 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     }
     assert.equal(inPopup(b, 'BagPanel', 'tool_windbell').getComponent(H.cc.Sprite).spriteFrame, lib.frame('board/tool_windbell'), 'level bag mainline stays on the board slice');
     H.tap(inPopup(b, 'BagPanel', 'OpenChest-0')); b.step(0.3); assert.deepEqual(log.commands.at(-1), ['openChest', 0]);
-    H.tap(inPopup(b, 'PausePanel', 'Tile-设置')); assert.equal(top(b), 'SettingsPanel'); for (const n of ['MusicVolume', 'SfxToggle', 'ReducedMotion', 'AboutRow']) assert(inPopup(b, 'SettingsPanel', n), n);
+    H.tap(inPopup(b, 'PausePanel', 'Tile-设置')); assert.equal(top(b), 'SettingsPanel'); for (const n of ['MusicToggle', 'SfxToggle', 'VibrateToggle', 'NightToggle', 'ReducedMotion', 'AboutRow']) assert(inPopup(b, 'SettingsPanel', n), n);
     const vis = n => { const t = n.getComponent(H.cc.UITransform); return [Math.round(t.width * n.scale.x), Math.round(t.height * n.scale.y)]; };
-    const dayPlate = inPopup(b, 'SettingsPanel', 'Day').find('Plate');
-    assert.deepEqual(vis(dayPlate), [136, 62], 'day button keeps its design size');
-    assert.equal(dayPlate.getComponent(H.cc.Sprite).type, H.cc.Sprite.Type.SLICED);
-    assert.equal(dayPlate.getComponent(H.cc.Sprite).spriteFrame.insetLeft, 207);
-    assert.ok(dayPlate.getComponent(H.cc.Sprite).spriteFrame.originalSize.height >= 312);
     const frameN = inPopup(b, 'SettingsPanel', 'PanelFrame');
-    assert.deepEqual(vis(frameN), [680, 768], 'settings frame keeps its design size');
+    assert.deepEqual(vis(frameN), [680, 900], 'settings frame: system-panels SPEC §2 five switch rows');
     assert.equal(frameN.getComponent(H.cc.Sprite).spriteFrame.insetTop, 276);
     const music = inPopup(b, 'SettingsPanel', 'icon_music');
     assert.equal(music.getComponent(H.cc.UITransform).height, 56);
     assert.equal(music.scale.x, 1, 'unsliced icons stay in their box');
-    assert(labels(b, 'SettingsPanel').includes('v0.1 · 构建 dev'));
+    assert(labels(b, 'SettingsPanel').includes('关于《咦，起风了》 · v0.1 ›'));
     H.tap(inPopup(b, 'SettingsPanel', 'AboutRow')); assert.equal(top(b), 'AboutPanel'); assert(labels(b, 'AboutPanel').includes('v0.1 · 构建 dev'));
     b.u.popups.close('AboutPanel'); b.u.popups.close('SettingsPanel'); b.step(0.3);
     const knob = t => inPopup(b, 'PausePanel', t); H.tap(knob('SfxToggle')); assert(H.audioLog.includes('sfx:true')); H.tap(knob('MusicToggle')); assert(H.audioLog.includes('music:0'));
@@ -162,23 +157,16 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     assert.deepEqual(log.commands.map(c => c[0]), ['previewAction']); const shaken = new Set(H.cc._tweens.map(t => t.target.parent?.name)); assert(shaken.has('Tile-0') && shaken.has('Tile-1'), [...shaken].join());
     H.cc.sys.localStorage.setItem('forest-v33-reduced-motion', 'true'); H.cc._tweens.length = 0; u.cells[n].emit('touch-start', e); u.cells[n].emit('touch-move', to); u.cells[n].emit('touch-end', to); assert.equal(H.cc._tweens.filter(t => t.target.name === 'ProjectPieceArt').length, 0);
   });
-  await ok('settings music slider: drag updates the volume, release and cancel keep it', async () => {
+  await ok('settings switches (system-panels SPEC §2): music = volume 0 + qfl.audio.musicLast, row is the hit area, vibrate key', async () => {
     const b = await board(), { H, u } = b;
     H.tap(u.pause); H.tap(inPopup(b, 'PausePanel', 'Tile-设置')); b.step(0.3);
-    const slider = inPopup(b, 'SettingsPanel', 'MusicVolume'); assert(slider, 'MusicVolume');
-    const scale = (() => { let k = 1, n = slider; while (n) { k *= n.scale.x || 1; n = n.parent; } return k || 1; })();
-    const rail = 236, last = () => { const xs = H.audioLog.filter(x => x.startsWith('music:')); return xs.length ? Number(xs[xs.length - 1].slice(6)) : null; };
-    const knobX = () => slider.getChildByName('Knob').position.x;
-    const gesture = (dx, how) => {
-      const start = H.point(slider), id = 4, end = { x: start.x + dx, y: start.y };
-      slider.emit('touch-start', H.event(start, id)); slider.emit('touch-move', H.event(end, id)); slider.emit(how, H.event(end, id));
-    };
-    gesture(0.6 * rail * scale, 'touch-end');
-    assert(Math.abs(last() - 1) < 1e-6, 'drag to the right end is full volume ' + last());
-    assert(Math.abs(knobX() - rail / 2) < 1e-6, 'knob stays at the released end');
-    gesture(-rail * scale, 'touch-cancel');
-    assert(last() === 0, 'drag to zero sticks after the gesture is cancelled');
-    assert(Math.abs(knobX() + rail / 2) < 1e-6, 'knob stays at zero and does not snap back');
+    assert(!inPopup(b, 'SettingsPanel', 'MusicVolume'), 'slider replaced by a switch');
+    const last = () => { const xs = H.audioLog.filter(x => x.startsWith('music:')); return xs.length ? Number(xs[xs.length - 1].slice(6)) : null; };
+    H.tap(inPopup(b, 'SettingsPanel', 'MusicToggle')); assert.equal(last(), 0, 'music off = volume 0');
+    assert.equal(H.cc.sys.localStorage.getItem('qfl.audio.musicLast'), '0.4');
+    H.tap(inPopup(b, 'SettingsPanel', 'Row-MusicToggle')); assert.equal(last(), 0.4, 'row tap turns it back on at the saved volume');
+    assert(!H.audioLog.some(x => /^muted:/.test(x)), 'setMuted never used');
+    H.tap(inPopup(b, 'SettingsPanel', 'VibrateToggle')); assert.equal(H.cc.sys.localStorage.getItem('qfl.ui.vibrate'), '0');
     H.tap(inPopup(b, 'SettingsPanel', 'SfxToggle')); assert(H.audioLog.includes('sfx:true'), 'sfx toggle still mutes');
   });
   await ok('info plate: goals, divider, moves icon and count stay inside hud_levelplate; title stays on the top row', async () => {

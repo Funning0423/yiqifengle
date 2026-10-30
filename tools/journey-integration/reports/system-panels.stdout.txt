@@ -1,0 +1,1 @@
+PASS system-panels (timings, advisory, publication, settings, vibrate, update)

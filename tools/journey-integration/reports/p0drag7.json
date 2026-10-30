@@ -24,7 +24,7 @@
    "ok": true
   },
   "K3": {
-   "proxies": 2717,
+   "proxies": 2713,
    "o0": {
     "rawLocal": [
      17.83,
@@ -33,7 +33,7 @@
     ],
     "rawInsideProxies": 0,
     "lens": [
-     13.51,
+     13.03,
      4.57,
      16.17
     ],
@@ -50,9 +50,9 @@
     ],
     "rawInsideProxies": 0,
     "lens": [
-     13.53,
+     13.05,
      5.61,
-     1.79
+     1.78
     ],
     "insideProxies": 0,
     "segmentCrosses": 0,
@@ -67,7 +67,7 @@
     ],
     "rawInsideProxies": 0,
     "lens": [
-     13.44,
+     13.01,
      4.66,
      1.99
     ],

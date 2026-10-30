@@ -24,6 +24,8 @@ export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? 
 /** b-board v3.1 board skin: wood tray with tile_a/b bases, piece_* art, obstacles, specials; top-left pause + one info
  *  plate; ≤3 tool slots; transient toast; idle auto-hint (5 s, then every 8 s); every dialog is a lite popup. */
 function countNodes(n: Node): number { let k = 1; for (const c of n.children) k += countNodes(c); return k; }
+/** Toast / say(): enter = toastFade (200 ms), exit 150 ms (U1 audit 2026-10-29). */
+const TOAST_OUT_S = 0.15;
 @ccclass('ManagedMobileBoardUI')
 export class ManagedMobileBoardUI extends Component {
   private managed: any = null; private disposing = false; private frameKinds = new Set<string>(); private presentationError: string | null = null;
@@ -937,7 +939,7 @@ export class ManagedMobileBoardUI extends Component {
     if (this.hintClock.tick(dt, active)) this.autoHint();
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
-    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
+    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / TOAST_OUT_S); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
     this.staleNotice(s);
     if (!titleUp && this.toastT < 0 && !this.noticeUp && this.titleGate.pending()) { const q = this.titleGate.next(); if (q) this.say(q.text, q.fade, q.valid); }
     if (!titleUp && this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
@@ -1026,7 +1028,7 @@ export class ManagedMobileBoardUI extends Component {
     const items: RewardItem[] = [];
     for (const kind of Object.keys(now.tools)) { const d = (Number(now.tools[kind]) || 0) - (Number(before.tools[kind]) || 0); if (d > 0) items.push({ kind, count: d, label: (TOOL_NAMES[kind] || kind) + ' ×' + d }); }
     if (now.charms > before.charms) items.push({ kind: 'charm', count: now.charms - before.charms, label: '装扮 ×' + (now.charms - before.charms), seal: 'r2/icon_charm' });
-    if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城', lake: '湖畔' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
+    if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空之城', lake: '湖畔', coast: '夜航', snow: '雪山', rail: '铁路', cloud: '云海', spring: '温泉' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
     if (!items.length) items.push({ kind: 'seal', count: 0, label: '一份海风的礼物', seal: 'popup/star_full' });
     // SPEC v2.1: the result screen shows its rewards on the panel itself (badges over the chest); no separate 「获得」 popup there.
     if (this.isResult(s) || this.popups.find('ResultPanel')) return;

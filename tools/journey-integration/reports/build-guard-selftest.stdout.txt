@@ -1,2 +1,2 @@
 ################################################################
-SELFTEST PASS (4 cases + provenance)
+SELFTEST PASS (5 cases + provenance)
