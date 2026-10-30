@@ -24,12 +24,15 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number),d=CB.coast
  ok(Math.abs(d-r.distance_m)<1e-9,r.screen+' table '+d+' vs '+r.distance_m);
  ok(Math.hypot(p[0]-r.pos[0],p[1]-r.pos[1],p[2]-r.pos[2])<2e-3,r.screen+' pos '+p);
  ok(k.compact===(h<=600)&&k.compact===(r.band_kind==='compact')&&Math.abs(k.top-r.band_pt[0])<0.05&&Math.abs(k.tool-r.band_pt[1])<0.05,r.screen+' keep-out band '+JSON.stringify(k)+' vs '+r.band_pt);
- ok(CB.coastBoardKeepoutFits(d,w,h),r.screen+' keep-out rule at '+d);ok(!CB.coastBoardKeepoutFits(d-0.002,w,h),r.screen+' not the shortest keep-out distance');
+ ok(CB.coastBoardKeepoutFits(d,w,h),r.screen+' keep-out rule at '+d);ok(CB.coastBoardFrameFits(d,w,h)&&!CB.coastBoardFrameFits(d-0.002,w,h),r.screen+' not the shortest keep-out+corner distance');
+ // corner rule (GGbot board-kit-camera finding): rounded rim corners fully on screen on every screen except 320x568 (plain sandstone exception)
+ const ex=CB.COAST_CORNER_EXEMPT.includes(r.screen);ok(ex||CB.coastBoardCornersInFrame(d,w,h),r.screen+' rounded rim corner off-screen (gap '+CB.coastBoardCornerGap(d,w,h).toFixed(2)+' pt)');ok(ex===(r.screen==='320x568')&&CB.COAST_CORNER_EXEMPT.length===1,'corner exemption list');
+ ok(ex||r.corners_in_frame===true,r.screen+' python corner check');
  const C=CB.coastCellCentres(d,w,h),tp=CB.coastBoardTap(d,w,h);ok(C.every(([x,y])=>x>=8&&x<=w-8&&y>=k.top+8&&y<=k.tool-8),r.screen+' cell centre in a keep-out band');
  ok(tp.farShortPt>=28&&tp.wrongTaps===0&&tp.taps===98000,`${r.screen} tap far short ${tp.farShortPt} pt wrong ${tp.wrongTaps}`);
  ok(Math.abs(tp.farShortPt-r.far_short_pt)<=0.1&&r.pass===true&&r.wrong_taps===0,r.screen+' TS tap != python '+r.far_short_pt);
  const q=CP.rotationFromLookAt(p,CB.coastBoardTarget());ok(Math.abs(Math.abs(q[0]*0+q[1]*0.851965+q[2]*0.523599+q[3]*0)-1)<1e-5,r.screen+' quat != D2');
- console.log(`ok   1 ${r.screen} ${k.compact?'compact':'current'} HUD [0,${k.top}]/${k.tool}: D ${d}, far-row short ${tp.farShortPt} pt, wrong ${tp.wrongTaps}/${tp.taps}`);}
+ console.log(`ok   1 ${r.screen} ${k.compact?'compact':'current'} HUD [0,${k.top}]/${k.tool}: D ${d}, corner gap ${CB.coastBoardCornerGap(d,w,h).toFixed(2)} pt${CB.COAST_CORNER_EXEMPT.includes(r.screen)?' (exempt)':''}, tapShortSide ${tp.farShortPt} pt, wrong ${tp.wrongTaps}/${tp.taps}`);}
 // 2
 function motion(rs){let vmax=0,smax=0,wmax=0,fmax=0,at=0;const acc=[];let pw=null;const ang=x=>{const f=[x[6]-x[3],x[7]-x[4],x[8]-x[5]],l=Math.hypot(...f);return [Math.atan2(f[0],f[2])*180/Math.PI,Math.asin(f[1]/l)*180/Math.PI];};
  for(let i=1;i<rs.length;i++){const a=rs[i-1],b=rs[i],dt=b[1]-a[1],st=Math.hypot(b[3]-a[3],b[4]-a[4],b[5]-a[5]),A=ang(a),B=ang(b),dy=((B[0]-A[0]+540)%360)-180,wv=[dy/dt,(B[1]-A[1])/dt];
@@ -48,6 +51,8 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
  const last=REF.s7[r.screen][REF.s7[r.screen].length-1].length?X(REF.s7[r.screen][REF.s7[r.screen].length-1]):null,to=CB.coastBoardPose(w,h);
  ok(Math.hypot(last[3]-to.position[0],last[4]-to.position[1],last[5]-to.position[2])<2e-4&&Math.hypot(last[6]-to.target[0],last[7]-to.target[1],last[8]-to.target[2])<2e-4&&Math.abs(last[9]-to.fovVerticalDeg)<1e-9,r.screen+' S7 last frame != board pose');
  ok(g.first_frame_eq_live===true,r.screen+' first frame != live lens');ok(g.travel_ground_min>=1.5&&g.travel_solid_min>=0.5,r.screen+' clearance');
+ // arrival A (S6 hold, real-model renders): hut fully visible (0 % covered by her, on screen) and the lens >= 1.5 m above ground
+ if(MODE==='current')ok(sm.arr_hut_on_screen===true&&sm.arr_hut_covered===0&&sm.arr_hut_pct>0&&sm.arr_ground>=1.5,`${r.screen} arrival: hut covered ${sm.arr_hut_covered} % on-screen ${sm.arr_hut_on_screen} / ground ${sm.arr_ground} m`);
  const S1END=(sm.shots||REF.summary[r.screen].shots)[1];
  const s7=MODE==='old-s1'?rows:REF.s7[r.screen].map(X);let vmax=0,smax=0,wmax=0,fmax=0;const acc=[];let pw=null;
  for(let i=1;i<s7.length;i++){const a=s7[i-1],b=s7[i],dt=b[1]-a[1],st=Math.hypot(b[3]-a[3],b[4]-a[4],b[5]-a[5]);
