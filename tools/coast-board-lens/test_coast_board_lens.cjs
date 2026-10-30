@@ -52,7 +52,7 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
  ok(Math.hypot(last[3]-to.position[0],last[4]-to.position[1],last[5]-to.position[2])<2e-4&&Math.hypot(last[6]-to.target[0],last[7]-to.target[1],last[8]-to.target[2])<2e-4&&Math.abs(last[9]-to.fovVerticalDeg)<1e-9,r.screen+' S7 last frame != board pose');
  ok(g.first_frame_eq_live===true,r.screen+' first frame != live lens');ok(g.travel_ground_min>=1.5&&g.travel_solid_min>=0.5,r.screen+' clearance');
  // arrival A (S6 hold, real-model renders): hut fully visible (0 % covered by her, on screen) and the lens >= 1.5 m above ground
- if(MODE==='current')ok(sm.arr_hut_on_screen===true&&sm.arr_hut_covered===0&&sm.arr_hut_pct>0&&sm.arr_ground>=1.5,`${r.screen} arrival: hut covered ${sm.arr_hut_covered} % on-screen ${sm.arr_hut_on_screen} / ground ${sm.arr_ground} m`);
+ if(MODE==='current')ok(sm.arr_hut_on_screen===true&&sm.arr_hut_covered===0&&sm.arr_hut_pct>=6&&sm.arr_ground>=1.5&&sm.arr_her_hf&&sm.arr_her_hf[0]>=0.08&&sm.arr_her_hf[1]<=0.12,`${r.screen} arrival: hut covered ${sm.arr_hut_covered} % on-screen ${sm.arr_hut_on_screen} hut ${sm.arr_hut_pct} % / her height ${sm.arr_her_hf} / ground ${sm.arr_ground} m`);
  const S1END=(sm.shots||REF.summary[r.screen].shots)[1];
  const s7=MODE==='old-s1'?rows:REF.s7[r.screen].map(X);let vmax=0,smax=0,wmax=0,fmax=0;const acc=[];let pw=null;
  for(let i=1;i<s7.length;i++){const a=s7[i-1],b=s7[i],dt=b[1]-a[1],st=Math.hypot(b[3]-a[3],b[4]-a[4],b[5]-a[5]);
@@ -66,8 +66,8 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
  const sc=g.screens[0];ok(sc.min_margin>=0.08&&sc.face_under_menu===0&&g.occlusion_worst_s<=0.5,`${r.screen} her margin ${sc.min_margin} at t ${sc.at_t} / menu ${sc.face_under_menu} / blocked ${g.occlusion_worst_s} s`);
  // v4.1 map-collapse threshold: the WHOLE island->coast transition (S1 map-collapse included) within the limits, total <= 45 s
  const W=motion(rows);ok(within(W),`${r.screen} whole transition v ${W.vmax.toFixed(2)} m/s at t ${W.at.toFixed(2)} step ${W.smax.toFixed(3)} w ${W.wmax.toFixed(1)} acc99 ${W.p99.toFixed(1)} fov ${W.fmax.toFixed(3)}`);ok(e.total<=45,r.screen+' total '+e.total);
- // r2 map-collapse (a): S1 straight dolly <= 7.2 s (S2 0.4 s unchanged), measured island->coast total <= 30.53 s; limits also at 30 fps (every 2nd frame)
- if(MODE==='current'){const sh=sm.shots;ok(sh[1]-sh[0]<=7.2+1e-6&&Math.abs(sh[2]-sh[1]-0.4)<1e-6,`${r.screen} S1 ${(sh[1]-sh[0]).toFixed(3)} s / S2 ${(sh[2]-sh[1]).toFixed(3)} s`);ok(e.total<=30.53,r.screen+' total '+e.total+' > 30.53');
+ // r2 map-collapse (a): S1 straight dolly <= 7.2 s (S2 0.4 s unchanged), measured island->coast total <= 42.53 s (arrival X: S6 5.6 s, S7 14 s; was 30.53); limits also at 30 fps (every 2nd frame)
+ if(MODE==='current'){const sh=sm.shots;ok(sh[1]-sh[0]<=7.2+1e-6&&Math.abs(sh[2]-sh[1]-0.4)<1e-6,`${r.screen} S1 ${(sh[1]-sh[0]).toFixed(3)} s / S2 ${(sh[2]-sh[1]).toFixed(3)} s`);ok(e.total<=42.53,r.screen+' total '+e.total+' > 42.53 (arrival X: S6 5.6 s + S7 14 s)');ok(Math.abs(sh[6]-sh[5]-5.6)<1e-6&&Math.abs(sh[7]-sh[6]-14)<1e-6,`${r.screen} S6 ${(sh[6]-sh[5]).toFixed(3)} s / S7 ${(sh[7]-sh[6]).toFixed(3)} s`);
   const W30=motion(rows.filter((_,i)=>i%2===0));ok(within(W30),`${r.screen} whole @30fps v ${W30.vmax.toFixed(2)} step ${W30.smax.toFixed(3)} w ${W30.wmax.toFixed(1)} acc99 ${W30.p99.toFixed(1)} fov ${W30.fmax.toFixed(3)}`);
   const S1=motion(rows.filter(x=>x[1]<=sh[1]+1e-9));console.log(`ok   2 ${r.screen} S1 ${(sh[1]-sh[0]).toFixed(2)} s: v ${S1.vmax.toFixed(2)} m/s, step ${S1.smax.toFixed(3)}; @30fps whole v ${W30.vmax.toFixed(2)}, step ${W30.smax.toFixed(3)}, acc p99 ${W30.p99.toFixed(1)}`);}
  console.log(`ok   2 ${r.screen} whole ${e.total.toFixed(2)} s: v ${W.vmax.toFixed(2)} m/s, step ${W.smax.toFixed(3)}, yaw/pitch ${W.wmax.toFixed(1)}, acc p99 ${W.p99.toFixed(1)}, fov ${W.fmax.toFixed(3)}`);

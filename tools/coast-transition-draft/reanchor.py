@@ -33,7 +33,7 @@ else:
     isl = [AN['door_stand_point']] + [AN[f'exit_path_{i:02d}'] for i in range(6, 18)]
 LEN_ISL = float(np.linalg.norm(np.diff(np.array(isl), axis=0), axis=1).sum())
 WALK = 1.2; STEP_S = 1.8
-T_S1, T_S2 = float(os.environ.get('T_S1', 7.2 if (FIT == 'r5d' and os.environ.get('S1V', '2') == '2') else 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 7.0 if FIT == 'r5d' else 5.0))  # r2 map-collapse (a): S1 8.6 -> 7.2 s (ease 0.2), S2 unchanged
+T_S1, T_S2 = float(os.environ.get('T_S1', 7.2 if (FIT == 'r5d' and os.environ.get('S1V', '2') == '2') else 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = float(os.environ.get('T_S6', 5.6 if FIT == 'r5d' else 0.6)), float(os.environ.get('T_S7', 14.0 if FIT == 'r5d' else 5.0))  # r5d arrival X (Grok Bot): S6 5.6 s (stop beat + pull-back to the wide hut view, 1.0 s hold), S7 14 s orbit-rise (7 s ran 15 m/s from 30 m out)  # r2 map-collapse (a): S1 8.6 -> 7.2 s (ease 0.2), S2 unchanged
 if RET: T_S1 = float(os.environ.get('T_S1', 3.0)); T_S6 = float(os.environ.get('T_S6', 1.5))  # v3.2: R6 0.6 -> 1.5 s (standing yaw accel)
 T = np.cumsum([0, T_S1, T_S2, T_TER, STEP_S, T_PATH, T_S6, T_S7] if RET else [0, T_S1, T_S2, T_PATH, STEP_S, T_TER, T_S6, T_S7]); TOTAL = T[-1]
 SHOTS = ['S1 map-collapse handover', 'S2 heading settle 0.4 s', 'S3 island exit path lead', 'S4 step-down profile',
@@ -96,7 +96,9 @@ if FIT == 'r5d' and not BOARD_OLD:  # v4: official coast board lens (tools/coast
 if FIT == 'r5d' and os.environ.get('BOARD_POSE'):  # data-only candidates (item 3): 'px,py,pz,lx,ly,lz,fov'
     _v = [float(x) for x in os.environ['BOARD_POSE'].split(',')]; BOARD_POSE = dict(pos=np.array(_v[:3]), look=np.array(_v[3:6]), fov=_v[6]); OUT = OUT.replace('/out_v4/', '/out_v4/cand_'); os.makedirs(OUT, exist_ok=True)
 S3_DR, S3_DS, S3_DF = (float(x) for x in os.environ.get('S3D', '0,0,4' if FIT == 'r5d' else '0,0,0').split(','))  # v4.2 S3 framing fix (radius, look-side, vfov deltas): r5d vfov 44 -> 48 on the two S3 keys, true vertical fov
-S6KEY = [float(x) for x in os.environ.get('S6KEY', ('-130,6.6,2.8,1.2,-0.3,30' if FIT == 'r5d' else '0,6.0,1.9,1.8,0.6,50' if FIT == 'r2' else '5,6.0,1.9,1.8,0.3,50')).split(',')]  # r5d arrival lens A (Grok Bot): behind-left over her shoulder, hut above her head; old r5d '0,6.0,1.9,1.8,0.6,50' (front, 1.353 m over the r5f board)
+S6KEY = [float(x) for x in os.environ.get('S6KEY', ('38,30,4,1.2,2.5,30' if FIT == 'r5d' else '0,6.0,1.9,1.8,0.6,50' if FIT == 'r2' else '5,6.0,1.9,1.8,0.3,50')).split(',')]  # r5d arrival lens A (Grok Bot): behind-left over her shoulder, hut above her head; old r5d '0,6.0,1.9,1.8,0.6,50' (front, 1.353 m over the r5f board)
+S7_RFAST = float(os.environ.get('S7_RFAST', 1)); S7_LINE = os.environ.get('S7_LINE', '0') == '1'
+S5KEY = [float(x) for x in (os.environ.get('S5KEY') or ('38,13,3.6,1.2,1.5,36' if FIT == 'r5d' else '')).split(',') if x] or None; S6_HOLD = float(os.environ.get('S6_HOLD', 1.0 if FIT == 'r5d' else 0))  # r5d X: S5 ends on X's line at r 13, S6 pulls back r 13 -> 30 then holds
 KEYS = [  # front-LEFT side through the walk: the right side of the curved exit path has a 2 m island prop at (-4.4..-3.25, 0..2.06, 2.4..3.9)
     (T[0], 'world'),
     (T[1], -30, 3.4, 2.1, 0.9, 0.3, 44),    # S1 end: front-left 3/4 medium
@@ -105,8 +107,9 @@ KEYS = [  # front-LEFT side through the walk: the right side of the curved exit 
 ] + ([(T[2] + 5.5, -26, 3.2 + S3_DR, 2.35, 0.9, 0.3 - S3_DS, 44 + S3_DF)] if FIT in ('r2', 'r5d') else []) + [  # r2: 8.7 s walk; lens kept >=2.35 over the 0.75 m island prop at x -2.56..-1.97, z 6.4..7.6
     (T[3], -30, 3.3, 2.2, 0.9, 0.2, 44),
     (T[3] + 1.0, -45, 3.5, 2.3, 0.8, 0.0, 45),  # S4 front-left 3/4 over the step-down (left profile would sit on the gull rock)
-    (T[4] + 0.8, -25, 4.2, 2.4, 0.9, 0.2, 46),  # S5 terrace lead
-    (T[5], S6KEY[0], S6KEY[1] - 0.3, S6KEY[2] + 0.1, S6KEY[3], S6KEY[4], S6KEY[5]),
+] + ([] if os.environ.get('S5_LEAD', '1') == '0' else [(T[4] + 0.8, -25, 4.2, 2.4, 0.9, 0.2, 46)]) + [  # S5 terrace lead (r5d arrival A2: dropped so the pull-back to the wide S6 spreads over S4 end..S5, 5.6 s)
+    (T[5], *(S5KEY or (S6KEY[0], S6KEY[1] - 0.3, S6KEY[2] + 0.1, S6KEY[3], S6KEY[4], S6KEY[5]))),
+] + ([(T[6] - S6_HOLD, *S6KEY)] if S6_HOLD > 0 else []) + [
     (T[6], *S6KEY),                            # S6 pull-back, low, looking up: lighthouse upper-right
     (T[7], 'world')]                           # S7 single orbit-rise round her RIGHT side to the board pose
 if RET:  # front-RIGHT on the coast (same side as the board lens, so R1 needs no 180° swing), then swings to behind-right on the island
@@ -147,9 +150,12 @@ def cam_i(i):
         if RET or os.environ.get('S7_SHORT', '1' if FIT == 'r5d' else '0') == '1': ab = aa + (ab - aa + math.pi) % (2 * math.pi) - math.pi  # return / arrival-lens candidates (S6 behind her): shortest way round
         elif ab < aa: ab += 2 * math.pi  # go round her right side (increasing az)
         uo = ease(min(1, (t - a[0]) / (b[0] - a[0])))  # orbit over the whole shot; look hand-off in the second half
-        az, r, y = aa + (ab - aa) * uo, ra + (rb - ra) * u, ya_ + (yb - ya_) * u
+        ur = ease(min(1, (t - a[0]) / (b[0] - a[0]) / S7_RFAST)) if S7_RFAST < 1 else u  # r5d X: close the radius early so the swing round her runs on a small circle
+        az, r, y = aa + (ab - aa) * uo, ra + (rb - ra) * ur, ya_ + (yb - ya_) * u
         pos = SM[i] + fwd * r * math.cos(az) + right * r * math.sin(az) + [0, y, 0]
+        if S7_LINE: pos = pa + (w['pos'] - pa) * u  # r5d arrival X: straight rise from the wide S6 (no orbit arc round her)
         ul = ease(min(1, max(0, ((t - a[0]) / (b[0] - a[0]) - 0.5) / 0.5)))  # look stays on her, then hands to board centre
+        if S7_LINE: ul = u  # look hands over across the whole straight rise (no overhead yaw flip)
         return pos, la + (w['look'] - la) * ul, fa + (w['fov'] - fa) * u
     if a[1] == 'world' and b[1] != 'world' and S1_STRAIGHT:  # v4.1 S1: straight line (shortest path, 48.95 m vs 50.75 m arc), C2 trapezoid remap
         pb, lb, fb = rel_pose(b, i); w = START_POSE; x = (t - a[0]) / (b[0] - a[0]); v = remap(x, S1_EASE)
