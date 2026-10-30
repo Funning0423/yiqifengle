@@ -2,6 +2,7 @@ import { DEBUG } from 'cc/env';
 /** Full world-snapshot console line: debug builds or explicit opt-in only. */
 export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{return !!debug||optIn===true;}
 import { createRegionJourney } from '../region/RegionJourneyAdapter';
+import { islandBoardAim } from '../region/IslandStageLens';
 import { camTag, camLog, camLogFrame/*QF_PROBE_BEGIN*/, camProbeCharacter/*QF_PROBE_END*/ } from '../region/CamTraceLog';
 import type { JourneyRegion } from './RegionJourneyCore';
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
@@ -222,6 +223,8 @@ export class WorldFlowComponent extends Component {
   private lighthouseTargets:MeshRenderer[]=[];private readonly lighthouseRay=new geometry.Ray();private readonly lighthouseRayOptions={mode:geometry.ERaycastMode.ANY,distance:500,doubleSided:true};private readonly cabinRayOptions={mode:geometry.ERaycastMode.CLOSEST,distance:500,doubleSided:true};
   private ownedModel:Node|null=null;
   private disposed=false;
+  /** b20 运镜bot island board lens: her adapter, so the island push-in end frames the node she stands on. */
+  private herAdapter:CharacterAdapter|null=null;
   private safetyFailure:string|null=null;
   private onStatus:((status:Snapshot)=>void)|undefined;
   private savedCamera:CameraPose|null=null;
@@ -271,6 +274,7 @@ export class WorldFlowComponent extends Component {
   /** Called once by a composition root, after real adapters are ready. Character may be omitted for scene inspection. */
   async initialize(levels:LevelAdapter,character?:CharacterAdapter,mode:Mode='fixed',onStatus?:(s:Snapshot)=>void) {
     if(this.flow||this.disposed)throw Error('WorldFlowComponent already initialized/disposed');
+    this.herAdapter=character??null;
 /*QF_PROBE_BEGIN*/    if(camLog.on&&character)camProbeCharacter(character)/* full9c probe: explicit her ref, test mode only */;
 /*QF_PROBE_END*/    if(!this.firstsliceModel||!this.worldCamera)throw Error('Bind imported combined prefab and dedicated WorldCamera');
     identity(this.node);
@@ -344,7 +348,12 @@ export class WorldFlowComponent extends Component {
     const fx=f[0]/fl,fy=f[1]/fl,fz=f[2]/fl,reach=40,step=2.6;
     const target:[number,number,number]=[p.x+fx*reach,p.y+fy*reach,p.z+fz*reach];
     const clamp=(fov:number)=>Math.min(CAMERA_FIXED.maxFov,Math.max(CAMERA_FIXED.minFov,fov));
-    return [{position:[p.x,p.y,p.z],target,fovVerticalDeg:clamp(camera.fov)},{position:[p.x+fx*step,p.y+fy*step,p.z+fz*step],target,fovVerticalDeg:clamp(camera.fov-6)}];
+    const end:Pose={position:[p.x+fx*step,p.y+fy*step,p.z+fz*step],target,fovVerticalDeg:clamp(camera.fov-6)};
+    /* b20 运镜bot (IslandStageLens.islandBoardAim): on the island the push-in end IS the stage board lens (kept under the board and read
+     * back as the next reward walk's first frame). Turn only its aim so she stays >= 0.08 inside this viewport (I3 plan E was -0.33). */
+    let board=end;try{const s=this.flow?.snapshot(),n=(this.herAdapter as any)?.node,w=n?.worldPosition,vs=view.getVisibleSize();
+      if(s?.stable==='island'&&w&&Number.isFinite(w.x))board=islandBoardAim(end,[w.x,w.y,w.z],vs.width,vs.height);}catch{board=end;}
+    return [{position:[p.x,p.y,p.z],target,fovVerticalDeg:clamp(camera.fov)},board];
   }
   private cancelRoomLook(){const changed=this.roomLook.moved()||this.homeOrbit.engaged()||!!this.roomLookToken;this.roomLookToken?.cancel();this.roomLookToken=null;this.roomLook.reset();this.homeOrbit.forget();if(changed&&this.worldCamera&&!this.disposed)try{applyCameraPose(this.worldCamera,fromLookAt(homePoseEntry()),'room.cancel-reset');}catch(error){console.warn('Room view reset failed',String(error));}}
   /** Rejoin the existing authored opening from the same origin before character motion starts.
@@ -367,7 +376,7 @@ export class WorldFlowComponent extends Component {
     catch(error){this.cancelRoomLook();if(error instanceof Cancelled)return {ok:false,reason:'cancelled'};throw error;}
     finally {if(this.roomLookToken===token)this.roomLookToken=null;}
   }
-  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
+  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok)this.herAdapter=adapter;/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
     token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);this.worldAmbient=ambient;ambient.clipUuids=REGIONS.island.ambientClipUuids!;this.ownedModel=model;this.node.addChild(model);
     try {
