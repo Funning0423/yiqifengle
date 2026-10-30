@@ -38,7 +38,7 @@ Order: 01–03 final-cam, 04 CameraPose merge (committed), 05–08 GGbot, 09 Cam
 | diff | rows fixed | change |
 |---|---|---|
 | 05 RegionJourneyCore | 1506/1502 (onFrame+walk), 1531/1527 (LiveHandoff ×2), 2463 (B5→arrival), 888/876 + 3611 (ride start re-write, likely) | observe(): walk write only if onFrame did not write (:258/:264); ride end no longer re-writes this.camera after unpatch (:335); walkContinuous writes the live lens only when it could not be read fresh (:378) |
-| 06 RegionBoardLanding | 2757 | regionLandingToBoard exact branch: gap 0 (handoff's :161 write is on screen) = no write |
+| 06 RegionBoardLanding | 2757 | regionLandingToBoard exact branch: gap < 1 mm (handoff's :161 write is this frame) → await one frame, then the exact write (rejection still detected) |
 | 07 WorldFlowComponent | 145/152 | setCamera adapter: same stable Pose object with no camera write since = no write (boot restore ×2, WorldFlowCore:321/329/334) |
 | 08 RegionNodeStage | 2896 (+2800 likely) | lateUpdate anim tail (:1251): the end pose is written once by done(), not by sample(seconds) AND done() |
 | 09 CameraPose (ours) | 146/262, 245/339, 500 | createCameraTrack: the run()-synchronous first tick (same frame as the hold / previous track end) writes nothing; the track starts next frame |
