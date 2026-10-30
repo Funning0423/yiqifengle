@@ -20,6 +20,14 @@ const LIMITS=Object.freeze({yawDegS:90,pitchDegS:90,angAccP99DegS2:200,linMS:8,s
 // (the same functions playReward calls, nodes from REGION_NODES) on the Mac per-frame dt; every frame must be within the limits.
 const EXIT={writer:'region.node-lens.island-depart',where:'RegionNodeStage.playReward islandDepartLens (方案 E)'};
 const S=p=>path.join(H.SCRIPTS,p);
+// Exit min height (Grok Bot 2026-10-30, real rule): camera >= 1.5 m above WHATEVER is straight below it = max(terrain, prop/foliage
+// tops, her path ground), by a vertical ray down at the camera XZ through the skin-corrected island fixture (journey-scene.cjs, the
+// same meshes the clearance gates use: env_island_main + props_merged + palms/lighthouse/animals + placed beach palms). Non-solid FX
+// (seagulls in flight, smoke, light beam/glow, glass, blind cards) are not "below".
+const JS=require('./journey-scene.cjs'),BELOW=JS.island.filter(o=>!/seagull_fly|smoke|beam|glow|glass|blind_cards/.test(o.name));
+for(const o of BELOW)o.bb??=JS.bbox(o.tris);
+function below(p){let y=-Infinity,tag='none';for(const o of BELOW){const b=o.bb;if(p[0]<b[0][0]||p[0]>b[1][0]||p[2]<b[0][2]||p[2]>b[1][2]||b[0][1]>p[1])continue;
+ const t=JS.rayHit(p,[0,-1,0],p[1]-b[0][1]+1,o.tris);if(t!==null&&p[1]-t>y){y=p[1]-t;tag=o.tag+':'+o.name;}}return {y,tag};}
 const E=H.load(S('region/ExploreCameraCore.ts')),LS=H.load(S('region/LensSmooth.ts')),IL=H.load(S('region/IslandStageLens.ts')),NW=H.load(S('region/NodeWalker.ts'));
 // wiring proof: the live playReward must call islandDepartLens on the island departure, else this gate would test dead code
 assert.match(fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),/const dep=isl&&spec\.departure\?islandDepartLens\(board,isl,followPose\(isl\[isl\.length-1\],endHeading\(isl\)/,'RegionNodeStage.playReward no longer drives islandDepartLens on the L04 exit');
@@ -54,19 +62,21 @@ async function reveal(){// real WorldFlowCore + RegionJourneyCore: frames writte
 // meadow follow target fitted to the Mac f659 settle pose (5.114,3.631,-11.896, yaw −173.4°) at 390×844; the girl stands on meadow ground
 function girlFor(w,h){const yawRad=wrap(-173.4+180)/R,o=E.followPose([0,0,0],yawRad,w,h,0),G=[5.114-o.position[0],3.631-o.position[1]-0,-11.896-o.position[2]];return {G,yawRad};}
 const {G:G0}=girlFor(390,844);const GROUND=G0[1];
-function check(frames,label){const bad=[],kd=[];let prevW=null;const acc=[],kdAcc=[];const KNOWN_DEFECT={writer:'\u0000none'};
+function check(frames,label){const bad=[],kd=[];let prevW=null;const acc=[],kdAcc=[];const KNOWN_DEFECT={writer:'\u0000none'};let minH=null;
  for(let i=1;i<frames.length;i++){const a=frames[i-1].pose,b=frames[i].pose,dt=frames[i].dt||1/60,f=frames[i],inKD=f.writers.includes(KNOWN_DEFECT.writer);
   const dm=Math.hypot(...b.position.map((x,k)=>x-a.position[k])),dy=Math.abs(wrap(yawOf(b)-yawOf(a))),dp=Math.abs(pitchOf(b)-pitchOf(a)),df=Math.abs((b.fovVerticalDeg??48)-(a.fovVerticalDeg??48));
   const w=Math.max(dy,dp)/dt;if(prevW!=null)(inKD?kdAcc:acc).push(Math.abs(w-prevW)/dt);prevW=w;
   const why=[];if(dm>LIMITS.stepM)why.push(`step ${dm.toFixed(3)} m > ${LIMITS.stepM}`);if(dm/dt>LIMITS.linMS)why.push(`${(dm/dt).toFixed(1)} m/s > ${LIMITS.linMS}`);
   if(dy/dt>LIMITS.yawDegS)why.push(`yaw ${(dy/dt).toFixed(0)}°/s > ${LIMITS.yawDegS}`);if(dp/dt>LIMITS.pitchDegS)why.push(`pitch ${(dp/dt).toFixed(0)}°/s > ${LIMITS.pitchDegS}`);
-  if(df>LIMITS.fovStepDeg)why.push(`fov ${df.toFixed(2)}° > ${LIMITS.fovStepDeg}`);if(b.position[1]-(f.ground??GROUND)<LIMITS.minHeightM)why.push(`height ${(b.position[1]-GROUND).toFixed(2)} m < ${LIMITS.minHeightM}`);
+  if(df>LIMITS.fovStepDeg)why.push(`fov ${df.toFixed(2)}° > ${LIMITS.fovStepDeg}`);let gY=GROUND,gTag='ground';if(f.ground!=null){const u=below(b.position);gY=Math.max(u.y,f.ground);gTag=u.y>=f.ground?u.tag:'her path ground';}
+  const hgt=b.position[1]-gY;if(f.ground!=null&&(minH==null||hgt<minH.h))minH={h:hgt,tag:gTag,frame:i};
+  if(hgt<LIMITS.minHeightM)why.push(`height ${hgt.toFixed(2)} m < ${LIMITS.minHeightM} above ${gTag}`);
   if(f.writers.length>LIMITS.writersPerFrame)why.push('writers '+f.writers.join('+'));
   if(!why.length)continue;const tag=`${label} frame ${i} (${f.tag||f.writers[0]||'held'}): ${why.join(', ')}`;(inKD?kd:bad).push(tag);}
  const P=x=>{x.sort((m,n)=>m-n);return x.length?x[Math.min(x.length-1,Math.floor(x.length*0.99))]:0;},p99=P(acc),kdP99=P(kdAcc);
  if(p99>LIMITS.angAccP99DegS2)bad.push(`${label}: angular accel p99 ${p99.toFixed(0)}°/s² > ${LIMITS.angAccP99DegS2} outside the KNOWN_DEFECT window`);
  if(kdP99>LIMITS.angAccP99DegS2)kd.push(`${label}: window angular accel p99 ${kdP99.toFixed(0)}°/s² > ${LIMITS.angAccP99DegS2}`);
- return {bad,kd,p99};}
+ return {bad,kd,p99,minH};}
 process.exitCode=1;/* only the final verdict line sets 0: a hung await can never pass silently */
 (async()=>{const fails=[],kdAll=[];
  for(const [w,h] of LS.LENS_SMOOTH.screens){const {frames,board}=await reveal();
@@ -77,8 +87,16 @@ process.exitCode=1;/* only the final verdict line sets 0: a hung await can never
   for(const dt of [...BLEND_DT,...Array(Math.ceil((dep.seconds+1)*60)).fill(1/60)]){t+=dt;if(t>dep.seconds+1)break;frames.push({dt,pose:dep.at(Math.min(t,dep.seconds)),writers:[EXIT.writer],ground:herY(t),tag:'L04-exit island-depart t='+t.toFixed(3)});}
   const done=Promise.resolve();
   await done;const r=check(frames,`${w}x${h}`);fails.push(...r.bad);kdAll.push(...r.kd);
-  console.log(`${r.bad.length?'FAIL':'ok  '} ${w}x${h}: ${frames.length} frames (push-in + reveal + L04 exit ${EXIT.where}), ${r.bad.length} over limit, ang-accel p99 ${r.p99.toFixed(0)}°/s²`);}
+  console.log(`${r.bad.length?'FAIL':'ok  '} ${w}x${h}: ${frames.length} frames (push-in + reveal + L04 exit ${EXIT.where}), ${r.bad.length} over limit, ang-accel p99 ${r.p99.toFixed(0)}°/s², exit min height ${r.minH?r.minH.h.toFixed(2)+' m above '+r.minH.tag+' (frame '+r.minH.frame+')':'n/a'}`);}
  for(const f of fails.slice(0,40))console.log('     FAIL '+f);
+ {// self-check (height): a still camera 1.0 m above the highest palm crown, and 1.2 m above a prop top, must FAIL
+  const palm=BELOW.filter(o=>/palm/.test(o.name)).map(o=>{const c=[(o.bb[0][0]+o.bb[1][0])/2,o.bb[1][1]+50,(o.bb[0][2]+o.bb[1][2])/2],u=below(c);return {o,c,u};}).filter(x=>/palm/.test(x.u.tag)).sort((a,b)=>b.u.y-a.u.y)[0];
+  assert.ok(palm,'self-check: no palm crown found');const cam=[palm.c[0],palm.u.y+1.0,palm.c[2]],pose={position:cam,target:[cam[0],cam[1]-1,cam[2]+10],fovVerticalDeg:48};
+  const r=check([{dt:0,pose,writers:[],ground:-5},{dt:1/60,pose,writers:['probe'],ground:-5}],'height-probe');
+  assert.ok(r.bad.some(x=>/height 1\.00 m < 1\.5 above .*palm/.test(x)),'self-check: camera 1.0 m above '+palm.u.tag+' crown passed: '+r.bad.join('|'));
+  const prop=BELOW.find(o=>o.name==='env_lighthouse_ext'),pc=[(prop.bb[0][0]+prop.bb[1][0])/2,prop.bb[1][1]+50,(prop.bb[0][2]+prop.bb[1][2])/2],pu=below(pc),pp={position:[pc[0],pu.y+1.2,pc[2]],target:[pc[0],pu.y,pc[2]+10],fovVerticalDeg:48};
+  const r2=check([{dt:0,pose:pp,writers:[],ground:-5},{dt:1/60,pose:pp,writers:['probe'],ground:-5}],'prop-probe');assert.ok(r2.bad.some(x=>/height 1\.20 m/.test(x)),'self-check: camera 1.2 m above prop '+pu.tag+' passed');
+  console.log('ok   self-check: camera 1.0 m above '+palm.u.tag+' crown and 1.2 m above '+pu.tag+' FAIL the height rule');}
  {// self-check: the legacy 0.6 s board→follow blend (pre-方案 E RegionNodeStage.ts:273) on the same frames must FAIL this gate
   const {frames,board}=await reveal(),st=new Stage();let wrote=null;st.orbit={pause(){}};st.writePose=q=>{wrote=q;return q;};
   const pl=NW.planWalk('island','I4','I6').segments[0].path,to=E.followPose(pl[0],0,390,844,E.followLookUp('island',99));const d=st.blend(E.BLEND_S.boardToFollow,board,()=>to);
