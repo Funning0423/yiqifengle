@@ -56,3 +56,23 @@ and where it differs from the SPEC. The UI team's worktree is not touched.
    - Also record `firstGameFrame − start`.
    - Repeat once with the network throttled to slow 3G: the advisory must stay up, with no blank frame and no loading look.
 3. Warm start (background → foreground): the advisory must not appear.
+
+## Late-engine exit: crossfade over the running game — not feasible here; 300 ms fade kept (2026-10-29)
+UI设计部 asked for a 250 ms easeInQuad crossfade that starts on the engine's first frame and lets touches through. The
+first-screen canvas cannot be layered over the engine canvas on WeChat:
+- WeChat mini games have **one on-screen canvas**. The first `wx.createCanvas()` call creates it; every later call creates
+  an off-screen canvas that is not displayed ("小游戏只有一个上屏画布，可以有多个离屏画布…首次调用此接口创建的是上屏画布，
+  剩下的是离屏画布" — https://developers.weixin.qq.com/minigame/dev/guide/base-ability/render.html ;
+  https://developers.weixin.qq.com/minigame/dev/api/render/canvas/wx.createCanvas.html).
+- first-screen.js draws on that same canvas (`window.canvas`) through the **same WebGL context the engine reuses**: the
+  Cocos 3.8.8 wechatgame template contract is start() → engine boot → end() frees our GL objects → the engine renders.
+  There is no second on-screen layer that could stay above the game, and while we draw, the engine does not render.
+- So the advisory cannot be visible over the game's first frames. The late path keeps the current behaviour: the full
+  advisory frame stays until end(), then a 300 ms easeInQuad fade, then handoff (addedMs ≈ 300 in test_advisory_boot_timing).
+- Touch: the advisory registers `wx.onTouchStart` only to start the skip fade; it never calls preventDefault or consumes
+  events, and it unregisters in stopAdvisory(). The game has no input before handoff anyway.
+- Possible alternative, NOT implemented (needs UI/Grok Bot approval): hand the advisory picture to the engine like the
+  loading picture (`__firstScreen.images.advisory`), let the scene loading layer (StartupLoadingLayer, not a protected
+  file) show it on its first frame and run the 250 ms easeInQuad fade there with input passing through. That moves the
+  fade inside the engine and gives addedMs ≈ 0, at the cost of keeping the decoded ~W×H RGBA advisory image (~5 MB at
+  780×1688) alive until the fade ends.
