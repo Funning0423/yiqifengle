@@ -160,6 +160,7 @@ const tests=[
  ['explore-input','tools/region-nodes/test_explore_input.cjs'],
  ['lakeside-walkable','tools/lakeside-walkable/test_lakeside_walkable.cjs'],['lakeside-seam-skirt','tools/lakeside/test_lakeside_seam_skirt.cjs'],
  ['meadow-board-framing','tools/meadow/test_meadow_board_framing.cjs'],
+ ['meadow-stage-lens','tools/meadow/test_meadow_stage_lens.cjs'],/* b20 运镜bot: per-stage meadow board lens 05–08, 8 pt edge, blends per real dt */
  ['node-board-pose','tools/region-nodes/test_node_board_pose.cjs'],
  ['region-transport-flag','tools/region-nodes/test_transport_flag.cjs'],
  ['region-transit-background-resume','tools/region-nodes/test_transit_background_resume.cjs'],
