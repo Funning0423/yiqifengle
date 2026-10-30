@@ -33,8 +33,9 @@ const checks = [];
         const labels = journal.root.getComponentsInChildren(H.cc.Label).map(l => l.string);
         assert(!labels.some(l => /挑战需通关/.test(l)), 'new-regions rows show stage progress, not challenge milestones');
         const chapterButton = journal.root.find('Chapter-' + id); assert(chapterButton);
-        // new-regions SPEC §2.1: a region two milestones away is 远方 and not tappable.
-        const far = region >= 2 && completed < (region - 1) * 4;
+        // UI设计部 P3 (r4, replaces SPEC §2.1 two-level 远方): only regions with no data are 远方 / untappable; every region here has
+        // stage data, so a locked one opens its page (faint seal + condition) and the button still obeys the provider gate.
+        const far = false;
         H.tap(chapterButton); const chapter = o.popups.find('ChapterPanel'); assert.equal(!!chapter, !far, 'far rows stay closed');
         if (far) { o.dispose(); continue; }
         H.tap(chapter.root.find('Continue-' + id));
