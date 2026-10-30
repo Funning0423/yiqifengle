@@ -1,4 +1,6 @@
 {
+ "scene": "c64dc349",
+ "rule": "solid = any geometry incl. vegetation with parts 0.3..1.8 m above her walk ground; >=1.0 m",
  "route": {
   "start": [
    0,
@@ -15,16 +17,42 @@
   "seconds": 4.25
  },
  "solid_min": {
-  "mesh": "arrival_steps",
+  "mesh": "reuse_grass_b",
   "p": [
-   0,
-   0,
-   0
+   -1.3,
+   -0.03,
+   5.15
   ],
-  "d": 1.038,
+  "d": 1.015,
+  "veg": true,
+  "height_m": 0.531,
   "soft": false
  },
  "solid_nearest": [
+  {
+   "mesh": "reuse_grass_b",
+   "p": [
+    -1.3,
+    -0.03,
+    5.15
+   ],
+   "d": 1.015,
+   "veg": true,
+   "height_m": 0.531,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_grass_b",
+   "p": [
+    1.36,
+    0.02,
+    7.9
+   ],
+   "d": 1.029,
+   "veg": true,
+   "height_m": 0.597,
+   "soft": false
+  },
   {
    "mesh": "arrival_steps",
    "p": [
@@ -33,6 +61,44 @@
     0
    ],
    "d": 1.038,
+   "veg": false,
+   "height_m": 0.604,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_grass_a",
+   "p": [
+    -1.3,
+    -0.02,
+    7.9
+   ],
+   "d": 1.126,
+   "veg": true,
+   "height_m": 0.451,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_grass_b",
+   "p": [
+    1.45,
+    -0.0,
+    7.0
+   ],
+   "d": 1.215,
+   "veg": true,
+   "height_m": 0.652,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_grass_a",
+   "p": [
+    -1.45,
+    0.02,
+    7.0
+   ],
+   "d": 1.278,
+   "veg": true,
+   "height_m": 0.369,
    "soft": false
   },
   {
@@ -43,6 +109,8 @@
     4.7
    ],
    "d": 1.309,
+   "veg": false,
+   "height_m": 0.419,
    "soft": false
   },
   {
@@ -53,70 +121,12 @@
     4.7
    ],
    "d": 1.33,
-   "soft": false
-  },
-  {
-   "mesh": "reuse_rock_s1",
-   "p": [
-    -1.75,
-    0.16,
-    8.6
-   ],
-   "d": 1.367,
-   "soft": false
-  },
-  {
-   "mesh": "reuse_rock_s2",
-   "p": [
-    1.8,
-    0.2,
-    8.7
-   ],
-   "d": 1.485,
-   "soft": false
-  },
-  {
-   "mesh": "piece_conch",
-   "p": [
-    0.0,
-    0.11,
-    2.97
-   ],
-   "d": 1.618,
-   "soft": false
-  },
-  {
-   "mesh": "reuse_rock_s0",
-   "p": [
-    2.15,
-    0.01,
-    7.5
-   ],
-   "d": 1.707,
-   "soft": false
-  },
-  {
-   "mesh": "reuse_rock_s2",
-   "p": [
-    -2.15,
-    -0.01,
-    7.4
-   ],
-   "d": 1.891,
+   "veg": false,
+   "height_m": 0.36,
    "soft": false
   }
  ],
- "soft_nearest": [
-  {
-   "mesh": "reuse_grass_b",
-   "p": [
-    1.3,
-    -0.0,
-    7.9
-   ],
-   "d": 0.969,
-   "soft": true
-  },
+ "veg_nearest": [
   {
    "mesh": "reuse_grass_b",
    "p": [
@@ -125,7 +135,21 @@
     5.15
    ],
    "d": 1.015,
-   "soft": true
+   "veg": true,
+   "height_m": 0.531,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_grass_b",
+   "p": [
+    1.36,
+    0.02,
+    7.9
+   ],
+   "d": 1.029,
+   "veg": true,
+   "height_m": 0.597,
+   "soft": false
   },
   {
    "mesh": "reuse_grass_a",
@@ -135,7 +159,9 @@
     7.9
    ],
    "d": 1.126,
-   "soft": true
+   "veg": true,
+   "height_m": 0.451,
+   "soft": false
   },
   {
    "mesh": "reuse_grass_b",
@@ -145,7 +171,9 @@
     7.0
    ],
    "d": 1.215,
-   "soft": true
+   "veg": true,
+   "height_m": 0.652,
+   "soft": false
   }
  ],
  "rim_outer_z": 3.95,

@@ -22,7 +22,7 @@ AN = {d['name']: np.array(d['position_world_m']) for d in json.load(open(W + '/a
 S0, S1, E = coast_to_world([0, 0.6, 12.1]), coast_to_world([0, 0, 10.9]), coast_to_world([0, 0, 4.9])
 ESTOP = coast_to_world([0, 0, 5.15]); BOARD_C = coast_to_world([0, 0, 0])
 P2 = FIT == 'r5d' and os.environ.get('P2', '1') == '1'  # 场景设计部 P2 route: S5 ends at the pause point, S7 walks pause -> stop (5.10 m, 1.2 m/s)
-PAUSE = coast_to_world([0, 0, 10.25]) if P2 else ESTOP; S7_WALK_AT = float(os.environ.get('S7_WALK_AT', 2.0))  # S7 walk start, s after S7 begins
+PAUSE = coast_to_world([0, 0, 10.25]) if P2 else ESTOP; S7_WALK_AT = float(os.environ.get('S7_WALK_AT', 7.4 if P2 else 2.0)); S7_ODELAY = float(os.environ.get('S7_ODELAY', 0.45 if P2 else 0)); S7_LDELAY = float(os.environ.get('S7_LDELAY', 0.75 if P2 else 0.5))  # S7 walk start, s after S7 begins
 LH_TOP = np.array([0.0, 8.4, -2.65]); LH_LANTERN = [np.array([0, 8.9, -2.65]), np.array([0, 7.4, -2.65])]
 def ground_y(x, z, ray, y0=0.0):
     loc, _, _ = ray.intersects_location([[x, y0 + 3, z]], [[0, -1, 0]], multiple_hits=True)  # highest surface within 0.5 m of anchor height (skips the overhang)
@@ -100,7 +100,7 @@ if FIT == 'r5d' and not BOARD_OLD:  # v4: official coast board lens (tools/coast
 if FIT == 'r5d' and os.environ.get('BOARD_POSE'):  # data-only candidates (item 3): 'px,py,pz,lx,ly,lz,fov'
     _v = [float(x) for x in os.environ['BOARD_POSE'].split(',')]; BOARD_POSE = dict(pos=np.array(_v[:3]), look=np.array(_v[3:6]), fov=_v[6]); OUT = OUT.replace('/out_v4/', '/out_v4/cand_'); os.makedirs(OUT, exist_ok=True)
 S3_DR, S3_DS, S3_DF = (float(x) for x in os.environ.get('S3D', '0,0,4' if FIT == 'r5d' else '0,0,0').split(','))  # v4.2 S3 framing fix (radius, look-side, vfov deltas): r5d vfov 44 -> 48 on the two S3 keys, true vertical fov
-S6KEY = [float(x) for x in os.environ.get('S6KEY', (('30,28,4,1.2,2.5,32' if P2 else '38,30,4,1.2,2.5,30') if FIT == 'r5d' else '0,6.0,1.9,1.8,0.6,50' if FIT == 'r2' else '5,6.0,1.9,1.8,0.3,50')).split(',')]  # r5d arrival lens A (Grok Bot): behind-left over her shoulder, hut above her head; old r5d '0,6.0,1.9,1.8,0.6,50' (front, 1.353 m over the r5f board)
+S6KEY = [float(x) for x in os.environ.get('S6KEY', (('30,28,4.8,1.2,2.5,32' if P2 else '38,30,4,1.2,2.5,30') if FIT == 'r5d' else '0,6.0,1.9,1.8,0.6,50' if FIT == 'r2' else '5,6.0,1.9,1.8,0.3,50')).split(',')]  # r5d arrival lens A (Grok Bot): behind-left over her shoulder, hut above her head; old r5d '0,6.0,1.9,1.8,0.6,50' (front, 1.353 m over the r5f board)
 S7_RFAST = float(os.environ.get('S7_RFAST', 1)); S7_LINE = os.environ.get('S7_LINE', '0') == '1'
 S5KEY = [float(x) for x in (os.environ.get('S5KEY') or (('-20,4.5,2.6,1.0,0.3,44' if P2 else '38,13,3.6,1.2,1.5,36') if FIT == 'r5d' else '')).split(',') if x] or None; S6_HOLD = float(os.environ.get('S6_HOLD', (1.5 if P2 else 1.0) if FIT == 'r5d' else 0))  # r5d X: S5 ends on X's line at r 13, S6 pulls back r 13 -> 30 then holds
 KEYS = [  # front-LEFT side through the walk: the right side of the curved exit path has a 2 m island prop at (-4.4..-3.25, 0..2.06, 2.4..3.9)
@@ -155,12 +155,12 @@ def cam_i(i):
             v = w['pos'] - SM[-1]; ab, rb, yb = math.atan2(v @ right, v @ fwd), math.hypot(v @ right, v @ fwd), v[1]
         if RET or os.environ.get('S7_SHORT', '1' if FIT == 'r5d' else '0') == '1': ab = aa + (ab - aa + math.pi) % (2 * math.pi) - math.pi  # return / arrival-lens candidates (S6 behind her): shortest way round
         elif ab < aa: ab += 2 * math.pi  # go round her right side (increasing az)
-        uo = ease(min(1, (t - a[0]) / (b[0] - a[0])))  # orbit over the whole shot; look hand-off in the second half
+        uo = ease(min(1, max(0, ((t - a[0]) / (b[0] - a[0]) - S7_ODELAY) / (1 - S7_ODELAY))))  # S7_ODELAY (P2 walk): camera holds in front of her, then swings round while she walks; orbit over the whole shot; look hand-off in the second half
         ur = ease(min(1, (t - a[0]) / (b[0] - a[0]) / S7_RFAST)) if S7_RFAST < 1 else u  # r5d X: close the radius early so the swing round her runs on a small circle
         az, r, y = aa + (ab - aa) * uo, ra + (rb - ra) * ur, ya_ + (yb - ya_) * u
         pos = SM[i] + fwd * r * math.cos(az) + right * r * math.sin(az) + [0, y, 0]
         if S7_LINE: pos = pa + (w['pos'] - pa) * u  # r5d arrival X: straight rise from the wide S6 (no orbit arc round her)
-        ul = ease(min(1, max(0, ((t - a[0]) / (b[0] - a[0]) - 0.5) / 0.5)))  # look stays on her, then hands to board centre
+        ul = ease(min(1, max(0, ((t - a[0]) / (b[0] - a[0]) - S7_LDELAY) / (1 - S7_LDELAY))))  # look stays on her, then hands to board centre
         if S7_LINE: ul = u  # look hands over across the whole straight rise (no overhead yaw flip)
         return pos, la + (w['look'] - la) * ul, fa + (w['fov'] - fa) * u
     if a[1] == 'world' and b[1] != 'world' and S1_STRAIGHT:  # v4.1 S1: straight line (shortest path, 48.95 m vs 50.75 m arc), C2 trapezoid remap
@@ -326,7 +326,10 @@ if __name__ == '__main__':
         with open(OUT + '/frames.csv', 'w') as fh:
             fh.write('frame,t,shot,px,py,pz,lx,ly,lz,fov,hx,hy,hz\n')
             for i, (p_, l_, f_) in enumerate(CAM): fh.write(f"{i},{TS[i]:.6f},{int(np.searchsorted(T, TS[i], 'right') - 1) + 1 if TS[i] < T[-1] else 7},{p_[0]:.6f},{p_[1]:.6f},{p_[2]:.6f},{l_[0]:.6f},{l_[1]:.6f},{l_[2]:.6f},{f_:.6f},{her_root(TS[i])[0]:.6f},{her_root(TS[i])[1]:.6f},{her_root(TS[i])[2]:.6f}\n")
-        json.dump(dict(screen=SCREEN, board_pose=dict(pos=[float(x) for x in END_POSE['pos']], look=[float(x) for x in END_POSE['look']], fov=float(END_POSE['fov'])), s7_start=float(T[6]), total=float(T[-1]), **({'s7_walk': [float(T[6] + S7_WALK_AT), float(T[6] + S7_WALK_AT + T_W7)], 's7_walk_from': [0, 0, 10.25], 's7_walk_to': [0, 0, 5.15]} if P2 else {})), open(OUT + '/end_pose.json', 'w'), indent=1)
+        _wd = (ESTOP - PAUSE)[[0, 2]]; _wd = _wd / np.linalg.norm(_wd); _ws, _we = T[6] + S7_WALK_AT, T[6] + S7_WALK_AT + T_W7  # camera faces her = cam within 90 deg of her walk heading (her face side)
+        _fa = [(float(TS[i]), float(np.degrees(np.arccos(np.clip(((CAM[i][0] - SM[i])[[0, 2]] @ _wd) / np.linalg.norm((CAM[i][0] - SM[i])[[0, 2]]), -1, 1))))) for i in range(len(TS)) if TS[i] >= T[6]]
+        _fr = [t_ for t_, a_ in _fa if a_ <= 90]; S7FRONT = [min(_fr), max(_fr)] if _fr else []; S7WF = round(sum(1 for t_, a_ in _fa if _ws <= t_ <= _we and a_ <= 90) / FPS, 3)
+        json.dump(dict(screen=SCREEN, board_pose=dict(pos=[float(x) for x in END_POSE['pos']], look=[float(x) for x in END_POSE['look']], fov=float(END_POSE['fov'])), s7_start=float(T[6]), total=float(T[-1]), **({'s7_walk': [float(T[6] + S7_WALK_AT), float(T[6] + S7_WALK_AT + T_W7)], 's7_settle_s': float(T[-1] - (T[6] + S7_WALK_AT + T_W7)), 's7_front': S7FRONT, 's7_walk_front_s': S7WF, 's7_walk_from': [0, 0, 10.25], 's7_walk_to': [0, 0, 5.15]} if P2 else {})), open(OUT + '/end_pose.json', 'w'), indent=1)
         for a_ in sys.argv:
             if a_.startswith('--shot-at='): tt = float(a_.split('=')[1]); render(min(len(TS) - 1, int(round(tt * FPS))), SW, SH_, 420).save(OUT + f'/shot_{tt:.2f}.png')
         if '--end-shot' in sys.argv: render(len(TS) - 1, SW, SH_, 420).save(OUT + '/end_frame.png')
