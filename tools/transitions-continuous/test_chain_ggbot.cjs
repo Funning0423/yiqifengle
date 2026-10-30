@@ -81,7 +81,7 @@ const stances=JSON.parse(fs.readFileSync(path.join(ROOT,'tools/transition-spaces
 assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[-0.032,0,0.099]);assert.equal(ST.TRANSITION_STAGING.basket.seatYawDeg,180);assert.deepEqual([...ST.TRANSITION_STAGING.basket.p0],[-0.03,0,-0.395]);assert.equal(ST.BASKET_RIDE_POSE.meadowSkycity.clip,'sit_hold');
 // 12 compress (Grok Bot 2026-10-25): overlap-aware timeline within caps, actions untouched
 {const TL=ST.transitionTimeline(),RT=ST.TRANSITION_RETIME,D=ST.TRANSITION_DURATIONS,tt=TL.totals;out.timeline=tt;
- assert.ok(tt.islandToMeadow<=RT.caps.islandToMeadow,'island→meadow '+tt.islandToMeadow);assert.ok(Math.abs(tt.islandToMeadow-40.33)<1e-6,'seg1/2 = b20 table (14.07+26.26)');assert.ok(Math.abs(tt.islandToMeadow-(tt.seg1+tt.seg2))<0.011,'islandToMeadow = seg1+seg2 only (sail ride clock excluded, Grok Bot 2026-10-30)');
+ assert.ok(tt.islandToMeadow<=RT.caps.islandToMeadow,'island→meadow '+tt.islandToMeadow);assert.ok(Math.abs(tt.islandToMeadow-40.26)<1e-6,'seg1/2 = b20 table (14.07+26.19)');assert.ok(Math.abs(tt.islandToMeadow-(tt.seg1+tt.seg2))<0.011,'islandToMeadow = seg1+seg2 only (sail ride clock excluded, Grok Bot 2026-10-30)');
  assert.ok(tt.meadowToSkycity<=RT.caps.meadowToSkycity,'meadow→skycity '+tt.meadowToSkycity);
  // skycity→lakeside recomputes from the real T-03 walk (mooring pending at 场景设计部): within cap, or flagged pending
  const LB=H.load('region/LakesideBalloon.ts');out.lakeWalkSource='TRANSITION_DURATIONS.seg5a.toBasket';
@@ -110,7 +110,7 @@ assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[-0.032,0,0.099]);assert
  assert.ok(b3.settle.t1===b3.flight.t1,'settle inside the flight (not added again)');
  const b5=Object.fromEntries(TL.beats.seg5a.map(b=>[b.id,b]));assert.ok(b5.inflate.t0<b5.sitDown.t0&&b5.inflate.t1>=b5.sitDown.t1-1e-9&&b5.inflate.t1<=b5.liftoff.t0+1e-9,'lake ignition overlaps sit_down, full before liftoff');
  // her actions keep natural speed: action beats identical to 59aa0bbc (b19 seconds), walk speeds unchanged
- const OLD={seg1:{nodeWalkI4toI6:7.574/* walk, b20 bake (was 15.6) */,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:20.29/* walk, b20 bake (was 16.5) */},
+ const OLD={seg1:{nodeWalkI4toI6:7.574/* walk, b20 bake (was 15.6) */,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:20.22/* walk, b20 final M1 93ac386e (was 20.29, 16.5) */},
   seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,sitDown:1.2,inflate:3.0},seg4:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,toPath:7.5},
   seg5a:{doorReach:1.8,sitDown:1.2,inflate:3.0},seg5b:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,walkOut:7.7}};
  for(const [sg,v] of Object.entries(OLD))for(const [k,x] of Object.entries(v))assert.equal(D[sg][k],x,'action '+sg+'.'+k+' unchanged (clip speed 1.0×)');
