@@ -5,8 +5,8 @@ diff --git a/creator-build-project/assets/scripts/region/BalloonTransit.ts b/cre
     const cues:Array<[number,string]>=Object.entries(json.cues).map(([name,t])=>[t,name]).sort((a,b)=>a[0]-b[0]);
     let dcWorst=0,dcAt=0,frames=0,lastFade=-1;
     let flightFrom:Pose|null|undefined=undefined,flightBlendS=0;
-+   let land:{c0:number;spot:{position:Vec};T:number}|null|undefined=contChain?undefined:null;
-+   const landPose=(f:Pose,tau:number):Pose|null=>{if(!land||!girl||!isValid(girl,true))return null;const g=girl.worldPosition,P=f.position,h:Vec=[g.x,g.y+BASKET_CLOSE.lookUpM,g.z],d=[0,1,2].map(i=>f.target[i]-P[i]),r=Math.hypot(h[0]-P[0],h[1]-P[1],h[2]-P[2])/(Math.hypot(d[0],d[1],d[2])||1),e=minJerk(tau/land.T),q=(x:readonly number[],y:readonly number[],u:number)=>x.map((v,i)=>v+(y[i]-v)*u) as Vec,v=f.fovVerticalDeg??48;
++   let land:any=contChain?undefined:null;
++   const landPose=(f:Pose,tau:number):any=>{if(!land||!girl||!isValid(girl,true))return null;const g=girl.worldPosition,P=f.position,h=[g.x,g.y+BASKET_CLOSE.lookUpM,g.z],d=P.map((v,i)=>f.target[i]-v),r=Math.hypot(h[0]-P[0],h[1]-P[1],h[2]-P[2])/Math.hypot(d[0],d[1],d[2]),e=minJerk(tau/land.T),q=(x,y,u)=>x.map((v,i)=>v+(y[i]-v)*u),v=f.fovVerticalDeg??48;
 +    return {position:q(P,land.spot.position,e),target:q(d.map((x,i)=>P[i]+x*r),h,minJerk(tau/1.2)),fovVerticalDeg:v+(BASKET_CLOSE.fovDeg-v)*e};};
     const apply=(writeCam=true)=>{
      const t=Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)));/* transitions: 30 s ride clock → 36 s flight file */
@@ -17,9 +17,9 @@ diff --git a/creator-build-project/assets/scripts/region/BalloonTransit.ts b/cre
      if(flightFrom===undefined){flightFrom=liveWorldPose();const g=flightFrom?Math.hypot(flightFrom.position[0]-plan0.position[0],flightFrom.position[1]-plan0.position[1],flightFrom.position[2]-plan0.position[2]):0;flightBlendS=flightBlendSeconds(g);}
 -    const pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
 +    let pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;
-+    if(land===undefined&&clock.t>=RIDE_DURATION-2&&girl&&isValid(girl,true)){const e=plan.vehicle(plan.total),o:Vec=[e.pos[0],e.pos[1],e.pos[2]],yd=e.yaw*180/Math.PI,end=plan.camera(plan.total);let sp:{position:Vec}|null=null;
-+     try{sp=basketCloseSpot(basketToWorld(o,yd,TRANSITION_STAGING.basket.doorOutB),o,transitionOccluderBoxes() as any,undefined,[end]);}catch{sp=null;}
-+     land=sp?{c0:clock.t,spot:sp,T:Math.max(5,RIDE_DURATION-clock.t+speedSafeS(end.position,sp.position,BASKET_CLOSE.blendOutS))}:null;}
++    if(land===undefined&&clock.t>=RIDE_DURATION-2&&girl&&isValid(girl,true)){const e=plan.vehicle(plan.total),o=e.pos as Vec,end=plan.camera(plan.total);let sp=null;
++     try{sp=basketCloseSpot(basketToWorld(o,e.yaw*180/Math.PI,TRANSITION_STAGING.basket.doorOutB),o,transitionOccluderBoxes() as any,undefined,[end]);}catch{}
++     land=sp&&{c0:clock.t,spot:sp,T:Math.max(5,RIDE_DURATION-clock.t+speedSafeS(end.position,sp.position,BASKET_CLOSE.blendOutS))};}
 +    if(land){const p=landPose(plan0,clock.t-land.c0);if(p)pose=p;}
 +    if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
      const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);

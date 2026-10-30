@@ -7,7 +7,7 @@ Gate: occlusion is NOT counted on board joins (in/out) beyond 12 m (approved rul
 |---|---|---|---|---|---|---|---|---|
 | S1>S2 | board entry → exit | in | 7 | 0.00 | 1.63–3.65 | 0 | 0 | 0 / 1173 |
 | S1>S2 | board entry → exit | skip | 7 | 6.78–9.35 | 0.83 | 10 | 0 | 0 / 350 |
-| S1>S2 | board entry → exit | out | 7 | 12.58–15.67 | 4.32–6.38 | 0 | 0 | 0 / 2312 |
+| S1>S2 | board entry → exit | out | 7 | 12.58–15.67 | 4.33–6.38 | 0 | 0 | 0 / 2314 |
 | S2>S3 | board entry → exit | in | 7 | 0.00 | 4.38–6.43 | 0 | 0 | 0 / 2339 |
 | S2>S3 | board entry → exit | skip | 7 | 10.48–13.05 | 1.10 | 0 | 0 | 0 / 462 |
 | S2>S3 | board entry → exit | out | 7 | 16.88–19.95 | 5.42–7.48 | 154 | 141 | 137 / 2776 |
@@ -17,6 +17,6 @@ Gate: occlusion is NOT counted on board joins (in/out) beyond 12 m (approved rul
 | S4>S5 | board entry → exit | skip | 7 | 14.23–16.80 | 1.23 | 0 | 0 | 0 / 518 |
 | S4>S5 | board entry → exit | out | 7 | 22.22–25.18 | 11.15–13.32 | 306 | 306 | 136 / 5207 |
 | S4>S6 | board entry → exit | in | 7 | 0.00 | 8.18–10.33 | 0 | 311 | 125 / 3959 |
-| S4>S6 | board entry → exit | skip | 7 | 14.15–16.72 | 2.02 | 0 | 1 | 0 / 847 |
+| S4>S6 | board entry → exit | skip | 7 | 14.15–16.72 | 2.02 | 0 | 2 | 0 / 847 |
 | S4>S6 | from S6 (planSkip) | in | 7 | 0.00 | 8.18–10.33 | 0 | 311 | 125 / 3959 |
 | S4>S6 | from S6 (planSkip) | skip | 7 | 11.35–13.92 | 1.08 | 29 | 24 | 0 / 455 |
