@@ -40,7 +40,7 @@ function bounds(n,w,h){const p=n.worldPosition,t=n.getComponent(UITransform),s=n
   checks.push('journey book → chapter page → enter / gate recheck / back; skycity, legacy tide (locked when r4 closed), cabin rest day/night and full settings; each command closes the popup first');
  }
  {
-  const {o,calls}=setup();o.open('journal');settle(o);const p=o.popups.top(),text=p.root.getComponentsInChildren(Label).map(l=>l.string);assert(text.some(t=>/^旅程 \d+ \/ 18$/.test(t)),'journey total = Σ stages of regions with data (12+6, no coast data in this build) '+text);assert(text.includes('4/4'),'tide row stage count '+text);
+  const {o,calls}=setup();o.open('journal');settle(o);const p=o.popups.top(),text=p.root.getComponentsInChildren(Label).map(l=>l.string);assert(text.some(t=>/^旅程 \d+ \/ 18$/.test(t)),'journey total = Σ stages of regions with data (12+6, no coast data in this build) '+text);assert(text.includes('4/4 ✓'),'tide cell stage count '+text);
   o.close();o.open('tide');{const tt=o.popups.top().root.getComponentsInChildren(Label).map(l=>l.string);assert(tt.includes('★ 12/12 · 挑战 2/4'),'region page keeps mainline stars x/12 and challenge marks x/4 '+tt);}o.close();
   assert.equal(CHAPTERS.find(c=>c.id==='tide').description,'听潮声，捡起海浪送来的贝壳。');o.open('tide');assert(o.popups.top().root.getComponentsInChildren(Label).some(l=>l.string==='听潮声，捡起海浪送来的贝壳。'));o.dispose();
   checks.push('journey book counts stages (Σ regions with data); region page keeps stars x/12 and challenge marks x/4; new tide-path description');

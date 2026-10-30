@@ -63,3 +63,4 @@
   ],
   "scope": "actual type-stripped Boot + DevPreviewMark with Cocos memory doubles; no native render/touch"
 }
+[QF_JOURNEY_UI] ready +52ms

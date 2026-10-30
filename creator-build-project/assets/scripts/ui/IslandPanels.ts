@@ -6,8 +6,8 @@ import { tintRgb } from './NightTint';
 import { REGION_DEFS, RegionKey, RegionRow, JourneyInput, journeyRows } from './JourneyCore';
 import { seenRegions } from './UiPrefs';
 export type ChapterId = RegionKey;
-/** new-regions SPEC §8: 6 regions; `stages` = stages counted by the journey bar, `color` = region colour. */
-export const CHAPTERS: ReadonlyArray<{ id: ChapterId; name: string; description: string; stages: number; color: number[] }> = REGION_DEFS.map(d => ({ id: d.id, name: d.name, description: d.description, stages: d.stages, color: d.color }));
+/** new-regions SPEC §13: 9 regions; `stages` = stages counted by the journey bar, `color` = region colour. */
+export const CHAPTERS: ReadonlyArray<{ id: ChapterId; name: string; short: string; subtitle?: string; description: string; stages: number; color: number[] }> = REGION_DEFS.map(d => ({ id: d.id, name: d.name, short: d.short, subtitle: d.subtitle, description: d.description, stages: d.stages, color: d.color }));
 /** 风铃湖畔 has no mainline stages of its own: it opens after mainline 12 (journey record 11, same as the provider's
  *  progress-journal LAKE_GATE_RECORD) and has 6 challenge stages. */
 export const LAKE_GATE_RECORD = 11, LAKE_STAGES = 6;
@@ -21,9 +21,9 @@ export function journeyInput(journey: any, challenges: Record<string, number> | 
 /** Mainline stars (x/12 per region, levels region*4..+3) and challenge marks stay on the chapter page; done/total/state per SPEC §2.1. */
 export function chapterSummary(journey: any, challenges: Record<string, number> | null | undefined, region: number, gate?: any, stages?: any): ChapterSummary {
   const records: any[] = Array.isArray(journey?.records) ? journey.records : [];
-  const c = CHAPTERS[region], r5 = c?.id === 'lake' || c?.id === 'coast' || c?.id === 'snow';
+  const c = CHAPTERS[region], r5 = REGION_DEFS[region]?.provider === 'r5';
   let stars = 0; if (!r5) for (let i = region * 4; i < region * 4 + 4; i++) stars += Math.max(0, Math.min(3, Number(records[i]?.bestStars) || 0));
-  const required = c?.id === 'coast' || c?.id === 'snow' ? LAKE_GATE_RECORD : chapterMilestone(region) - 1;
+  const required = r5 && c?.id !== 'lake' ? LAKE_GATE_RECORD : chapterMilestone(region) - 1;
   const row = journeyRows({ records, regionDone: challenges as any, stages: stages || defaultStages() }).find(x => x.id === c?.id);
   let locked = gate ? !gate.ok : !records[required]?.bestStars; if (row && (row.state === 'locked' || row.state === 'far')) locked = true;
   return { stars, challenges: Math.max(0, Math.min(r5 ? c.stages : 4, Number(challenges?.[c?.id]) || 0)), locked, done: row?.done || 0, total: c?.stages || 0, state: row?.state || 'far' };

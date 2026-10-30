@@ -25,34 +25,40 @@ export const ENDING_ART=Object.freeze({
 export function endingSwayDeg(t:number){return ENDING_ART.swayDeg*Math.sin(2*Math.PI*t/ENDING_ART.swayPeriodS);}
 /** Ending layout (SPEC §3 v2) in visible-size points, TOP-LEFT origin, y down (EndingScreen converts). safeBottom/safeTop
  *  default to the notch heuristic of the design (H/W>1.9: 47/34, else 20/0). Button: width min(240,W−48), 62 high, bottom
- *  24 above safe. Short screens (H≤600) lift the seals 8 pt so her head keeps ≥12 pt below them. */
+ *  24 above safe. Seals: SPEC §13.5 two rows; her head stays ≥8 pt below row 2. */
+/** SPEC §13.5 seal rows (seal art 115×128 → height = d·aspect; row-2 end droop 2.25 pt in `bottom`). Girl top = bottom + 14
+ *  (design nine/src/endfix.py), head check ≥ 8. Deviations (reported): the SPEC's compact set (Ø30/36/32, row 1 at plank+49)
+ *  is used for every H<700 (not only H≤600), and H≤600 uses Ø28/34/26 at plank+44 with the girl 8 pt (not 16) above the
+ *  button, because otherwise her 48 pt minimum height puts her head into row 2 at 320×568. */
+export const ENDING_SEALS={count:9,std:{d:36,sp:44,gap:40},compact:{d:30,sp:36,gap:32},tiny:{d:28,sp:34,gap:26},aspect:128/115,girlTop:14,headGap:8} as const;
 export function endingLayout(w:number,h:number,safeBottom:number=0,safeTop?:number){
   const notch=h/w>1.9,top=safeTop??(notch?47:20),bot=safeBottom>0?safeBottom:(notch?34:0);
   const buttonW=Math.min(240,w-48),buttonH=62,buttonTop=h-bot-24-buttonH,usable=buttonTop-top;
   const chimeCy=top+usable*.36,chimeSize=Math.min(w*.62,usable*.42),plankCy=chimeCy+chimeSize*.5+44;
-  const sealsCy=plankCy+64-(h<=600?8:0);
+  // SPEC §13.5: 9 seals in two rows 5+4 (Ø36 / pitch 44 / row gap 40; H≤600: Ø30 / 36 / 32 with row 1 at plank+49).
+  const tiny=h<=600,compact=h<700,sg=tiny?ENDING_SEALS.tiny:compact?ENDING_SEALS.compact:ENDING_SEALS.std,sealsCy=tiny?plankCy+44:compact?plankCy+49:plankCy+64;
+  const seals={d:sg.d,sp:sg.sp,gap:sg.gap,y:sealsCy,bottom:sealsCy+sg.gap+2.25+sg.d*ENDING_SEALS.aspect/2};
   const A=ENDING_ART,k=Math.max(w/A.srcW,h/A.srcH),bgW=A.srcW*k,bgH=A.srcH*k;
   const srcChimeCy=(A.chime.y0+A.chime.y1)/2*k,bgX=-(bgW-w)/2,bgY=-Math.max(0,Math.min(bgH-h,srcChimeCy-chimeCy));
   const chime={x0:bgX+A.chime.x0*k,y0:bgY+A.chime.y0*k,x1:bgX+A.chime.x1*k,y1:bgY+A.chime.y1*k};
-  const gNative=(A.girl.y1-A.girl.y0)*k,gTop=sealsCy+22+12,gBottom=buttonTop-16,gh=Math.max(48,Math.min(gNative,gBottom-gTop));
+  const gNative=(A.girl.y1-A.girl.y0)*k,gTop=seals.bottom+ENDING_SEALS.girlTop,gBottom=buttonTop-(h<=600?8:16),gh=Math.max(48,Math.min(gNative,gBottom-gTop));
   const gw=gh*(A.girl.x1-A.girl.x0)/(A.girl.y1-A.girl.y0),gcx=w*.64;
   const girl={x0:gcx-gw/2,y0:gBottom-gh,x1:gcx+gw/2,y1:gBottom};
   return {top,bot,buttonW,buttonH,buttonTop,buttonCy:buttonTop+buttonH/2,edgeInset:(w-buttonW)/2,
-    titleCy:plankCy,sealsCy,chimeCy,bg:{x:bgX,y:bgY,w:bgW,h:bgH,k},chime,hang:{x:(chime.x0+chime.x1)/2,y:chime.y0},girl,
+    titleCy:plankCy,sealsCy,seals,chimeCy,bg:{x:bgX,y:bgY,w:bgW,h:bgH,k},chime,hang:{x:(chime.x0+chime.x1)/2,y:chime.y0},girl,
     glowR:A.nightGlow.r*k};
 }
 /** Layout checks of the design's 7-size sheet (src/ending_sheets.py), pure: used by tests and __qfEnding.layoutCheck. */
-/** new-regions SPEC §4 seal row: 6 × Ø40 at 48 pitch (droop 1.2·(i−2.5)², max ≈ 7.5 pt). */
-export const ENDING_SEALS={count:6,d:40,pitch:48,width:5*48+40,droop:1.2*2.5*2.5} as const;
+
 export function endingLayoutChecks(w:number,h:number,safeBottom:number=0){
-  const L=endingLayout(w,h,safeBottom),g=L.girl,sealBottom=L.sealsCy+22,plank={x0:w/2-98,y0:L.titleCy-29,x1:w/2+98,y1:L.titleCy+29};
+  const L=endingLayout(w,h,safeBottom),g=L.girl,sealBottom=L.seals.bottom,plank={x0:w/2-98,y0:L.titleCy-29,x1:w/2+98,y1:L.titleCy+29};
   const btn={x0:L.edgeInset,y0:L.buttonTop,x1:w-L.edgeInset,y1:L.buttonTop+L.buttonH};
   const hit=(a:any,b:any)=>!(a.x1<=b.x0||b.x1<=a.x0||a.y1<=b.y0||b.y1<=a.y0);
   return {buttonEdge:L.edgeInset>=16,buttonInSafe:btn.y1<=h-L.bot,girlInFrame:g.x0>=0&&g.x1<=w&&g.y0>=0&&g.y1<=h,
-    girlClear:!hit(g,btn)&&!hit(g,plank),headBelowSeals:g.y0-sealBottom>=12-1e-6,
+    girlClear:!hit(g,btn)&&!hit(g,plank),headBelowSeals:g.y0-sealBottom>=ENDING_SEALS.headGap-1e-6,
     chimeClear:L.chime.y0>=L.top-1e-6&&L.chime.y1<=plank.y0+1e-6&&L.chime.x0>=0&&L.chime.x1<=w,
-    // new-regions SPEC §4: 6 seals Ø40 / pitch 48 = 280 pt must leave ≥ 20 pt each side.
-    sealsFit:ENDING_SEALS.width<=w-40};
+    // SPEC §13.5: the 5-seal top row (4 pitches + Ø) leaves ≥ 20 pt each side.
+    sealsFit:4*L.seals.sp+L.seals.d<=w-40};
 }
 export interface EndingHost{
   wipe(o:{kind:string;content:{vehicle:'chime'|null;sign:string|null}|null;work:()=>Promise<{ok:boolean;reason?:string}>;ready:()=>boolean}):Promise<{ok:boolean;reason?:string}>;

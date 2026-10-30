@@ -45,7 +45,7 @@ export class EndingScreen {
     const t = makeLabel(n, '旅程完成', 0, Y(L.titleCy) + 2, 24, { width: 190, name: 'EndingTitle' }); t.color = new Color(0x5a, 0x3a, 0x1e, 255); (t as any).spacingX = 3;
     // new-regions SPEC §4: 6 seals Ø40 at 48 pitch on a shallow arc (Δy = 1.2·(i−2.5)²); unearned = code-drawn blank seal α0.85.
     // Drop-in 240 ms each, 80 ms stagger (reduced motion: no drop).
-    withJourneyUi(ui => { if (this.alive && isValid(n, true)) ui.buildEndingSeals(n, this.tint, (p, nm, w, h) => this.ui(p, nm, w, h), dy => Y(L.sealsCy + dy)); }, 'ending-seals');
+    withJourneyUi(ui => { if (this.alive && isValid(n, true)) ui.buildEndingSeals(n, this.tint, (p, nm, w, h) => this.ui(p, nm, w, h), L.seals, Y); }, 'ending-seals');
     artButton(n, this.tint, 'primary', '回小岛', 0, Y(L.buttonCy), L.buttonW, L.buttonH, () => { if (this.alive) a.home(); }, { fontSize: 20, name: 'EndingHome', sound: 'back' });
     this.tint.update(true);
     (globalThis as any).__qfEndingScreen = () => ({ night, ready: this.ready(), loaded: 3 - this.pending - this.failed.length, failed: this.failed.slice(), size: [w, h], layout: L, checks: endingLayoutChecks(w, h, a.safeBottom ?? 0) });

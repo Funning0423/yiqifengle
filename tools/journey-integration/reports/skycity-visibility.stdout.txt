@@ -2,7 +2,7 @@
  "status": "PASS",
  "canary": "detected (ok)",
  "mode": "fast",
- "seconds": 95.5,
+ "seconds": 118.8,
  "removedFaces": 1800,
  "samples": 12600,
  "solidTris": 53310,

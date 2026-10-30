@@ -38,7 +38,7 @@ t('stage → scene routing: lake ids use the lakeside lease and board chapter, o
  assert(/'region_lakeside'/.test(fs.readFileSync(path.join(A,'scripts/SharedBundles.ts'),'utf8')),'region_lakeside loads shared_effects first');
  assert(/enterRegion\('lake'\)/.test(fs.readFileSync(path.join(A,'scripts/WorldIntegrationBoot.ts'),'utf8')));});
 t('journey book: 4th chapter 风铃湖畔, x/6 challenges, no mainline stars, milestone 12, chapter art present',()=>{
- const P=H.load('ui/IslandPanels');assert.deepEqual(P.CHAPTERS.map(c=>c.id),['tide','meadow','sky','lake','coast','snow']);
+ const P=H.load('ui/IslandPanels');assert.deepEqual(P.CHAPTERS.map(c=>c.id),['tide','meadow','sky','lake','coast','snow','rail','cloud','spring']);
  const all=Array.from({length:12},()=>({bestStars:3}));
  assert.equal(P.chapterSummary({records:all},{lake:9},3).challenges,6);assert.equal(P.chapterSummary({records:all},{lake:2},3).stars,0);
  assert.equal(P.chapterSummary({records:all.map((r,i)=>i<11?r:{bestStars:0})},{},3).locked,true);assert.equal(P.chapterSummary({records:all},{},3).locked,false);

@@ -118,22 +118,22 @@
   },
   {
    "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
-   "symbol": "rowS",
+   "symbol": "gridS",
    "class": "popup-enter-subtrack",
    "category": "popup enter sub-track",
    "subTrackOf": "OPEN_S",
    "parentS": 0.32,
    "subS": 0.2,
    "rule": "<= parent",
-   "reason": "journey-book row appear (new-regions SPEC §6): 200 ms per row, 4 rows stagger 30 ms → last row ends at 0.32 s = OPEN_S"
+   "reason": "journey.gridStagger (SPEC §13.7): grid cell appear 200 ms easeOutCubic, 20 ms step over 9 cells (last ends 0.36 s); content sub-track of the 320 ms popup enter (OPEN_S)"
   },
   {
    "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
-   "symbol": "rowStaggerS",
+   "symbol": "gridStepS",
    "class": "hold-duration",
-   "holdS": 0.03,
+   "holdS": 0.02,
    "skip": true,
-   "reason": "stagger offset between journey rows, not an animation length"
+   "reason": "journey.gridStaggerStep (SPEC §13.7): 20 ms offset between grid cells, not an animation length"
   },
   {
    "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
@@ -141,7 +141,7 @@
    "class": "ambient-sequence",
    "totalS": 0.6,
    "exemptFrom": "U1",
-   "reason": "journey progress bar growth (SPEC §6, emphasized decelerate), only when the total changed since last open (qfl.ui.journeySeenDone); within the ≤600 ms whole-screen rule"
+   "reason": "journey.progressFill (SPEC §13.7): progress bar fill 600 ms easeOutCubic, only when the total changed since last open (qfl.ui.journeySeenDone); within the ≤600 ms whole-screen rule"
   },
   {
    "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
@@ -149,15 +149,15 @@
    "class": "ambient-sequence",
    "totalS": 0.24,
    "exemptFrom": "U1",
-   "reason": "ending seals drop-in 240 ms per seal, 80 ms stagger over 6 seals (whole sequence 0.24 + 5×0.08 = 0.64 s): ending narrative sequence"
+   "reason": "ending.sealDrop (SPEC §13.7): each ending seal drops in 240 ms easeOutCubic, 60 ms step over 9 seals (whole sequence 0.24 + 8×0.06 = 0.72 s): ending narrative sequence"
   },
   {
    "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
-   "symbol": "sealStaggerS",
+   "symbol": "sealStepS",
    "class": "hold-duration",
-   "holdS": 0.08,
+   "holdS": 0.06,
    "skip": true,
-   "reason": "stagger offset between ending seals, not an animation length"
+   "reason": "ending.sealDropStep (SPEC §13.7): 60 ms offset between ending seals, not an animation length"
   }
  ]
 }

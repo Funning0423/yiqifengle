@@ -2,7 +2,7 @@ import { Color, Graphics, UIOpacity, Vec3, assetManager, isValid, tween } from '
 import { artSprite, makeLabel, measure, popupScale, pressable, uiNode } from './PopupKit';
 import { tintRgb } from './NightTint';
 import { journeySeenDone, lastRegion, markRegionSeen, reducedMotion, seenRegions, setJourneySeenDone } from './UiPrefs';
-import { REGION_DEFS, SEAL_D, endingSeals, focusRegion, journeyProgress, journeyRows } from './JourneyCore';
+import { REGION_DEFS, endingSeals, focusRegion, journeyProgress, journeyRows } from './JourneyCore';
 import { CHAPTERS, defaultStages, journeyInput } from './IslandPanels';
 import { BOARD_ART_BUNDLE } from './BoardArt';
 import type { JourneyUi } from '../../bundles/board_art/journey_ui/JourneyPanels';
@@ -13,7 +13,7 @@ import type { JourneyUi } from '../../bundles/board_art/journey_ui/JourneyPanels
 export function journeyUiHost() {
   return { cc: { Color, Graphics, UIOpacity, Vec3, isValid, tween }, artSprite, makeLabel, measure, popupScale, pressable, uiNode, tintRgb,
     journeySeenDone, lastRegion, markRegionSeen, reducedMotion, seenRegions, setJourneySeenDone,
-    REGION_DEFS, CHAPTERS, journeyRows, journeyProgress, focusRegion, journeyInput, endingSeals, SEAL_D, defaultStages };
+    REGION_DEFS, CHAPTERS, journeyRows, journeyProgress, focusRegion, journeyInput, endingSeals, defaultStages };
 }
 export type JourneyUiHost = ReturnType<typeof journeyUiHost>;
 export const JOURNEY_UI_VERSION = 1;

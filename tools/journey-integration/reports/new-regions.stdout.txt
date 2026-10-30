@@ -3,6 +3,10 @@ PASS coast opens at mainline record 11 in parallel with the lake; snow after 6 l
 PASS region page single button: 前往X / 继续 / 再访X / 尚未开启 (flat disabled); coast chapter hint
 PASS ending: 6 seals Ø40 / 48 pitch on 1.2·(i−2.5)² arc (280 pt, fits 320 with 20 pt margins); coast earned only when claimed
 PASS motion constants 200/30 ms rows, 600 ms bar (only when changed), 240/80 ms seals; reduced motion
+PASS journey UI lives in bundles/board_art/journey_ui with type-only imports; main package reaches it through ui/JourneyUi.ts
+[QF_JOURNEY_UI] ready +35ms
+[QF_JOURNEY_UI] ready +34ms
+PASS first open: board_art (panel art + journey UI) is warmed at overlay construction; tap after it → synchronous open; tap before → opens on load, no loading UI
 PASS journey book 旅程 14 / 27 with coast data; 6 regions reachable; rows ≥ 44 pt on 7 sizes; coast page 前往海岸
 {
   "status": "PASS",
@@ -12,6 +16,8 @@ PASS journey book 旅程 14 / 27 with coast data; 6 regions reachable; rows ≥ 
     "region page single button: 前往X / 继续 / 再访X / 尚未开启 (flat disabled); coast chapter hint",
     "ending: 6 seals Ø40 / 48 pitch on 1.2·(i−2.5)² arc (280 pt, fits 320 with 20 pt margins); coast earned only when claimed",
     "motion constants 200/30 ms rows, 600 ms bar (only when changed), 240/80 ms seals; reduced motion",
+    "journey UI lives in bundles/board_art/journey_ui with type-only imports; main package reaches it through ui/JourneyUi.ts",
+    "first open: board_art (panel art + journey UI) is warmed at overlay construction; tap after it → synchronous open; tap before → opens on load, no loading UI",
     "journey book 旅程 14 / 27 with coast data; 6 regions reachable; rows ≥ 44 pt on 7 sizes; coast page 前往海岸"
   ]
 }

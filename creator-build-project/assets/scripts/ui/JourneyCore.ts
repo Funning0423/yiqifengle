@@ -1,15 +1,22 @@
 /** Journey book / chapter page / ending seals logic (UI设计部 new-regions SPEC v1.1 e05a034e, approved). Pure: no 'cc'.
  *  Progress counts stages (not regions); the denominator is Σ stages of the regions that have level data, never fixed. */
-export type RegionKey = 'tide' | 'meadow' | 'sky' | 'lake' | 'coast' | 'snow';
+export type RegionKey = 'tide' | 'meadow' | 'sky' | 'lake' | 'coast' | 'snow' | 'rail' | 'cloud' | 'spring';
 export type RowState = 'done' | 'progress' | 'open' | 'locked' | 'far';
-export interface RegionDef { id: RegionKey; name: string; description: string; stages: number; color: number[]; provider: 'mainline' | 'r5' }
+/** SPEC §13.2: `requires` = all must hold; 'main:N' = mainline N has ≥1 star, a region id = that region fully cleared.
+ *  `label` = the ≤5-char condition shown on a known-locked cell. */
+export interface RegionUnlock { requires: ReadonlyArray<string>; label: string }
+export interface RegionDef { id: RegionKey; name: string; short: string; subtitle?: string; description: string; stages: number; color: number[]; provider: 'mainline' | 'r5'; unlock: RegionUnlock }
+/** 9 regions (SPEC §13 / nine/PLAN.md §3 names). Full name: focus card, region page; short: grid cells. */
 export const REGION_DEFS: ReadonlyArray<RegionDef> = [
-  { id: 'tide', name: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。', stages: 4, color: [0x5F, 0xA8, 0xC8], provider: 'mainline' },
-  { id: 'meadow', name: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。', stages: 4, color: [0x7D, 0xB5, 0x5A], provider: 'mainline' },
-  { id: 'sky', name: '天空回声', description: '连起光的回声，探索云上的远方。', stages: 4, color: [0x8E, 0x9F, 0xD6], provider: 'mainline' },
-  { id: 'lake', name: '风铃湖畔', description: '夕阳下的湖面，敲响漂在水上的风铃。', stages: 6, color: [0xE0, 0x9A, 0x5A], provider: 'r5' },
-  { id: 'coast', name: '海岸', description: '沿着海滩捡贝壳，一步步走向灯塔。', stages: 9, color: [0xE2, 0xB2, 0x5A], provider: 'r5' },
-  { id: 'snow', name: '雪山隘口', description: '踩着新雪，去山口听风铃。', stages: 6, color: [0x7F, 0x98, 0xCC], provider: 'r5' },
+  { id: 'tide', name: '潮汐小径', short: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。', stages: 4, color: [0x5F, 0xA8, 0xC8], provider: 'mainline', unlock: { requires: [], label: '' } },
+  { id: 'meadow', name: '花粉草甸', short: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。', stages: 4, color: [0x7D, 0xB5, 0x5A], provider: 'mainline', unlock: { requires: ['main:4'], label: '主线04后' } },
+  { id: 'sky', name: '天空之城', short: '天空之城', subtitle: '天空回声', description: '连起光的回声，探索云上的远方。', stages: 4, color: [0x8E, 0x9F, 0xD6], provider: 'mainline', unlock: { requires: ['main:8'], label: '主线08后' } },
+  { id: 'lake', name: '风铃湖畔', short: '风铃湖畔', description: '夕阳下的湖面，敲响漂在水上的风铃。', stages: 6, color: [0xE0, 0x9A, 0x5A], provider: 'r5', unlock: { requires: ['main:12'], label: '主线12后' } },
+  { id: 'coast', name: '星光灯塔海岸', short: '灯塔海岸', description: '沿着海滩捡贝壳，一步步走向灯塔。', stages: 9, color: [0xE2, 0xB2, 0x5A], provider: 'r5', unlock: { requires: ['main:12'], label: '主线12后' } },
+  { id: 'snow', name: '雪山风铃山口', short: '雪山山口', description: '踩着新雪，去山口听风铃。', stages: 6, color: [0x7F, 0x98, 0xCC], provider: 'r5', unlock: { requires: ['lake'], label: '湖畔通关后' } },
+  { id: 'rail', name: '秋日铁路', short: '秋日铁路', description: '', stages: 6, color: [0xC9, 0x77, 0x3A], provider: 'r5', unlock: { requires: ['coast'], label: '海岸通关后' } },
+  { id: 'cloud', name: '黎明云海', short: '黎明云海', description: '', stages: 8, color: [0xE8, 0xA0, 0xA8], provider: 'r5', unlock: { requires: ['snow'], label: '雪山通关后' } },
+  { id: 'spring', name: '温泉谷', short: '温泉谷', description: '', stages: 8, color: [0x6F, 0xB8, 0xA8], provider: 'r5', unlock: { requires: ['rail', 'cloud'], label: '铁路云海后' } },
 ];
 /** Same journey record as the provider (progress-journal LAKE_GATE_RECORD / COAST_GATE_RECORD = 11): mainline 12 ≥1 star. */
 export const LAKE_GATE_RECORD = 11, COAST_GATE_RECORD = 11;
@@ -33,26 +40,26 @@ export function regionDone(id: RegionKey, inp: JourneyInput): number {
   if (d.provider === 'mainline') { let n = 0; for (let k = i * 4; k < i * 4 + 4; k++) if (star(inp.records?.[k])) n++; return n; }
   return Math.max(0, Math.min(d.stages, Number(inp.regionDone?.[id]) || 0));
 }
-export function regionUnlocked(id: RegionKey, inp: JourneyInput): boolean {
-  const r = inp.records;
-  switch (id) {
-    case 'tide': return true;
-    case 'meadow': return star(r?.[3]);
-    case 'sky': return star(r?.[7]);
-    case 'lake': return star(r?.[LAKE_GATE_RECORD]);
-    case 'coast': return star(r?.[COAST_GATE_RECORD]);           // parallel with the lake (SPEC §2.2)
-    case 'snow': return regionUnlocked('lake', inp) && regionDone('lake', inp) >= 6;
-  }
+const def = (id: string) => REGION_DEFS.find(d => d.id === id);
+/** One requirement holds: 'main:N' → mainline N ≥1 star; region id → that region has data, is open and fully cleared. */
+function holds(req: string, inp: JourneyInput): boolean {
+  const m = /^main:(\d+)$/.exec(req); if (m) return star(inp.records?.[Number(m[1]) - 1]);
+  const d = def(req); return !!d && hasData(d.id, inp.stages) && regionUnlocked(d.id, inp) && regionDone(d.id, inp) >= d.stages;
 }
-/** The region whose own progress opens `id` (the "next milestone"): known-locked when that one is open, else far. */
-const GATE_OWNER: Readonly<Record<RegionKey, RegionKey | null>> = { tide: null, meadow: 'tide', sky: 'meadow', lake: 'sky', coast: 'sky', snow: 'lake' };
+/** A requirement is "within reach" (two-level display): its own region is open ('main:N' → the mainline region holding N). */
+function reached(req: string, inp: JourneyInput): boolean {
+  const m = /^main:(\d+)$/.exec(req); if (m) return regionUnlocked(REGION_DEFS[Math.floor((Number(m[1]) - 1) / 4)].id, inp);
+  const d = def(req); return !!d && hasData(d.id, inp.stages) && regionUnlocked(d.id, inp);
+}
+export function regionUnlocked(id: RegionKey, inp: JourneyInput): boolean {
+  const d = def(id); return !!d && !!d.unlock && d.unlock.requires.every(r => holds(r, inp));
+}
 export interface RegionRow { id: RegionKey; done: number; total: number; state: RowState; hasData: boolean; isNew: boolean; tappable: boolean }
 export function regionRow(id: RegionKey, inp: JourneyInput): RegionRow {
-  const d = REGION_DEFS.find(r => r.id === id)!, data = hasData(id, inp.stages), done = regionDone(id, inp);
-  const owner = GATE_OWNER[id], known = !owner || regionUnlocked(owner, inp);
+  const d = def(id)!, data = hasData(id, inp.stages) && !!d.unlock, done = regionDone(id, inp);
   let state: RowState;
-  if (!data) state = known ? 'locked' : 'far';                  // no level data: only 未开启 / 远方, never open (SPEC §2.2)
-  else if (!regionUnlocked(id, inp)) state = known ? 'locked' : 'far';
+  if (!data) state = 'far';                                     // §13.2: no stage data / no unlock → 远方, not tappable, not counted
+  else if (!regionUnlocked(id, inp)) state = d.unlock.requires.some(r => reached(r, inp)) ? 'locked' : 'far';
   else state = done >= d.stages ? 'done' : done > 0 ? 'progress' : 'open';
   const isNew = state === 'open' && !(inp.seen || []).includes(id);
   return { id, done, total: d.stages, state, hasData: data, isNew, tappable: state !== 'far' };
@@ -72,15 +79,14 @@ export function focusRegion(inp: JourneyInput, rows = journeyRows(inp)): RegionK
   const live = rows.find(r => r.state === 'progress' || r.state === 'open'); if (live) return live.id;
   const done = rows.filter(r => r.state === 'done'); return (done.length ? done[done.length - 1] : rows[0]).id;
 }
-/** Ending seals (SPEC §4): n slots Ø40, pitch 48, ends droop Δy = 1.2·(i−c)². x/y in pt relative to the row centre. */
-export function sealArc(n: number): Array<{ x: number; dy: number }> { const c = (n - 1) / 2, out = []; for (let i = 0; i < n; i++) out.push({ x: (i - c) * 48, dy: 1.2 * (i - c) * (i - c) }); return out; }
-export const SEAL_D = 40;
-export function sealArcWidth(n: number): number { return n > 0 ? (n - 1) * 48 + SEAL_D : 0; }
-/** Ending seals earned (SPEC §4): the 4 shipped regions are always shown earned on the ending (unchanged behaviour);
- *  coast / snow only when the r5 journal claimed them (claimedRegions, noted by WorldNativeComposition.islandGates()). */
+/** Ending seals (SPEC §13.5): two rows 5 + 4, row 2 offset half a pitch and `gap` lower; each row droops 1.0·(i−c)². */
+export function sealRows9(sp: number, gap: number): Array<{ x: number; dy: number }> {
+  const out = []; for (let i = 0; i < 9; i++) { const c = i < 5 ? i - 2 : i - 6.5; out.push({ x: c * sp, dy: (i < 5 ? 0 : gap) + c * c }); } return out;
+}
+/** Ending seals earned: the 4 shipped regions are always shown earned on the ending (unchanged behaviour); the others only when the r5 journal claimed them (claimedRegions, noted by WorldNativeComposition.islandGates()). */
 let claimedNoted: string[] = [];
 export function noteClaimedRegions(list: unknown) { claimedNoted = Array.isArray(list) ? list.filter(x => typeof x === 'string') : []; }
-export function endingSeals(claimed: ReadonlyArray<string> = claimedNoted): Array<{ id: RegionKey; earned: boolean; x: number; dy: number }> {
-  const arc = sealArc(REGION_DEFS.length);
-  return REGION_DEFS.map((d, i) => ({ id: d.id, earned: d.id === 'coast' || d.id === 'snow' ? claimed.includes(d.id) : true, x: arc[i].x, dy: arc[i].dy }));
+export function endingSeals(geo: { sp: number; gap: number }, claimed: ReadonlyArray<string> = claimedNoted): Array<{ id: RegionKey; earned: boolean; x: number; dy: number }> {
+  const pos = sealRows9(geo.sp, geo.gap);
+  return REGION_DEFS.map((d, i) => ({ id: d.id, earned: d.provider === 'mainline' || d.id === 'lake' ? true : claimed.includes(d.id), x: pos[i].x, dy: pos[i].dy }));
 }

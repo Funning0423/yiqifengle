@@ -1,3 +1,4 @@
+[QF_JOURNEY_UI] ready +37ms
 {
   "status": "PASS",
   "checks": [

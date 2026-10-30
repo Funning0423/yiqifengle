@@ -39,7 +39,7 @@ export class FramePresenter {
       s.active=copy(this.display);
     }
     s.stages=[];s.regions=[];s.readOnly=s.state==='error.readonly';
-    const region=s.active?.region,names:any={tide:'潮汐小径',meadow:'花粉草甸',sky:'天空回声'};
+    const region=s.active?.region,names:any={tide:'潮汐小径',meadow:'花粉草甸',sky:'天空之城'};
     s.uiTitle=names[region]||'地区旅程';
     if(s.state==='result.session-saved'){
       s.uiResultTitle=s.active?.status==='won'?'本局完成':'再试一阵风';
