@@ -31,7 +31,7 @@ function fakeGL(log){const C={VERTEX_SHADER:1,FRAGMENT_SHADER:2,COMPILE_STATUS:3
  const gl=Object.assign({},C,{_live:live,_st:st,
   createShader:()=>({}),shaderSource(){},compileShader(){},getShaderParameter:()=>true,getShaderInfoLog:()=>'',deleteShader(){},
   createProgram:()=>mk('program'),attachShader(){},linkProgram(){},getProgramParameter:()=>true,getProgramInfoLog:()=>'',deleteProgram:del,
-  getAttribLocation:(p,n)=>n==='a_Position'?0:1,getUniformLocation:()=>({}),uniform1i(){},useProgram:p=>{st.program=p;},
+  getAttribLocation:(p,n)=>n==='a_Position'?0:1,getUniformLocation:()=>({}),uniform1i(){},uniform1f(){},blendFunc(){},useProgram:p=>{st.program=p;},
   createBuffer:()=>mk('buffer'),bindBuffer:(t,b)=>{st.buffer=b;},bufferData:(t,d)=>{log.push({op:'bufferData',data:Array.from(d)});},deleteBuffer:del,
   createTexture:()=>mk('texture'),bindTexture:(t,x)=>{st.texture=x;},activeTexture(){},texParameteri:(t,k,v)=>{log.push({op:'texParameteri',k,v});},pixelStorei(){},
   texImage2D:(...a)=>{log.push({op:'texImage2D',src:a[a.length-1]&&a[a.length-1].src});},deleteTexture:del,
