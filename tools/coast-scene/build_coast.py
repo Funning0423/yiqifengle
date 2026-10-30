@@ -390,8 +390,8 @@ for (r,c,x,y,z) in SL:
   put('contact',x+0.05,y-0.03,zz+0.004,0,1.0,piece=True,receive_shadow=False);put('piece_'+LAY[r][c],x,y,zz,random.uniform(-.25,.25),1.0,piece=True,cell=[r,c])
 # props / animals
 put('arrival_steps',0,0,0)
-put('rock_2',2.4,-11.0,ground_z(2.4,-11.0)-0.05,0.8,1.25)   # gull rock (her left), top ~0.95 m above terrace
-put('gull',2.4,-11.0,ground_z(2.4,-11.0)+0.88,2.6,1.0,anim='gull_perch')
+put('rock_2',-2.4,-11.0,ground_z(-2.4,-11.0)-0.05,0.8,1.25)   # gull rock: local -x = world +x after yaw 180 = her LEFT, top ~0.95 m above terrace
+put('gull',-2.4,-11.0,ground_z(-2.4,-11.0)+0.88,2.6,1.0,anim='gull_perch')
 put('ebb_bell',4.55,-3.15,0.0,0.3,1.0,anim='bell')
 put('hermit',-5.4,1.5,ground_z(-5.4,1.5),0.5,1.0,anim='hermit')
 put('crab',-4.9,-2.3,ground_z(-4.9,-2.3),0.7,1.0,anim='crab')
