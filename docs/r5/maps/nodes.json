@@ -81,8 +81,8 @@
    {
     "from": "I4",
     "to": "I5",
-    "walkM": 8.8,
-    "walkS": 7.3,
+    "walkM": 9.4,
+    "walkS": 7.9,
     "climbM": 0.03
    },
    {
@@ -93,7 +93,7 @@
     "climbM": -0.32
    }
   ],
-  "totalWalkM": 37.1,
+  "totalWalkM": 37.7,
   "reachableAreaM2": 147,
   "heightRange": [
    -0.6,

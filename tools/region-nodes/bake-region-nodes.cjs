@@ -27,6 +27,9 @@ const REGIONS={
   start:[-2.1,0,5.3],sea:-0.6,explore:[-15,-16,19,18],
   // b19 dock models: the resident pier (region_island/ui-props/island_dock.glb, island coordinates) is floor + solid
   extras:[{file:'creator-build-project/assets/bundles/region_island/ui-props/island_dock.glb',floor:/island_dock/,solid:/island_dock/}],
+  // b20 island-walk-fixes: env_prop_palm_young_01 is SKINNED; this loader ignores skins and puts it ~3 m off (x5-7.4,z4-6.3). Its rendered
+  // trunk (glTF skin / Blender / engine) stands at x2.6-3.5, z2.25-3.05 m, which the I4-I5 edge walked through. Route-only keep-out (walkability unchanged).
+  routeAvoid:[[3.05,2.65,1.05]],
  },
  meadow:{
   file:'creator-build-project/assets/bundles/region_meadow/env_meadow.glb',
