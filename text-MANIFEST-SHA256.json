@@ -610,14 +610,9 @@
     "sha256": "f150abedc13d80e8a42656b6e80034ee39ab46a4d89c6460149ba9bffef5c2af"
   },
   {
-    "path": "creator-build-project/assets/bundles/region_coast/data/coast_aabbs.json",
-    "bytes": 2085,
-    "sha256": "1ea02ad15d90c06f65f5a7aad1c48ef197a4cc62820de3a5d8c4abaf28ae6648"
-  },
-  {
     "path": "creator-build-project/assets/bundles/region_coast/data/coast_layout.json",
-    "bytes": 41381,
-    "sha256": "273304bdad8404b53a091f7f4591a36d9519dc2ef61c3f646353df0cb4ef5103"
+    "bytes": 21603,
+    "sha256": "4753b971364ba81164ab66f2c7a6da71701a87fa85d3448d83ac610d6b70977d"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island.meta",
@@ -5111,8 +5106,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 31527,
-    "sha256": "2fbb8577789ce3623b8a6d60da4b303272f642157e643e347f9368f16c2f4b9b"
+    "bytes": 31601,
+    "sha256": "81fcb9f7c7e60d0fb21832e903fc30b4790f2271aadb7e977f4412da0f08ae10"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
