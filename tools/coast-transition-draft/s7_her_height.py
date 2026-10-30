@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """S7 her on-screen size, real model + skeletal pose, in-game lens (vertical fov), every 30 fps frame of S7 (60 fps frames.csv, even frames) up to 39.8 s.
-Rule (Grok Bot 2026-10-30, final, option 1)：她的屏上高度 ≥0.06 且 ≥40 px 只算到 38.9 s（7 屏）；390x520 为短屏例外，≥38.5 px（比例仍 ≥0.06）；38.9 s 之后按棋盘构图验收，不设门限。
-(English: for t <=38.9 s on all 7 screens her height fraction >=0.06 and >=40 px, except 390x520 which needs >=38.5 px (fraction still >=0.06);
-after 38.9 s the board landing is judged on board composition and is not gated.)
+Rule (Grok Bot 2026-10-30, final, option 1 (a))：她的屏上高度 ≥0.06 且 ≥40 px 只算到 38.867 s（7 屏）；390x520 为短屏例外，≥38.5 px（比例仍 ≥0.06）；38.867 s 之后按棋盘构图验收，不设门限。
+(English: for t <=38.867 s on all 7 screens her height fraction >=0.06 and >=40 px, except 390x520 which needs >=38.5 px (fraction still >=0.06);
+after 38.867 s the board landing is judged on board composition and is not gated.)
 Clips as played (s7_strip): idle until walk 35.575, walk_start, walk_loop from 37.108, walk_stop_bodyL from 38.358, idle after 39.825.
 Writes tools/coast-board-lens/s7_her_size.json (samples + cam_digest); test_coast_board_lens.cjs enforces the rule and recomputes cam_digest
 from ref_transition.json rows (so the numbers belong to this exact lens). usage: python3 s7_her_height.py [out_v4]
@@ -92,5 +92,5 @@ for s in ['390x844','414x896','360x780','375x667','320x568','390x520','768x1024'
         sy=0.5-(d@u)/z/th/2;sx=0.5+(d@rr)/z/(th*asp)/2;hf=float(sy.max()-sy.min())
         out.append(dict(t=round(t,4),frac=round(hf,4),px=round(hf*h,1),on=bool(sx.min()>=0 and sx.max()<=1 and sy.min()>=0 and sy.max()<=1)))
     ALL[s]=dict(h=h,cam_digest=dig,samples=[[o['t'],o['frac'],o['px']] for o in out])
-    g=[o for o in out if o['t']<=38.9+1e-9];mf=min(g,key=lambda o:o['frac']);mp=min(g,key=lambda o:o['px']);print(s,'<=38.9: frac',mf['frac'],'@',mf['t'],'px',mp['px'],'@',mp['t'],'n',len(out))
-json.dump(dict(src='real model chr_b_r5g2 skinned (skeletal clips), in-game lens (vertical fov), 30 fps, S7 start..39.8 s; tools/coast-transition-draft/s7_her_height.py',cutoff=38.9,frac_min=0.06,px_min=40,exc={'390x520':38.5},screens=ALL),open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'../coast-board-lens/s7_her_size.json'),'w'),separators=(',',':'))
+    g=[o for o in out if o['t']<=38.867+1e-9];mf=min(g,key=lambda o:o['frac']);mp=min(g,key=lambda o:o['px']);print(s,'<=38.867: frac',mf['frac'],'@',mf['t'],'px',mp['px'],'@',mp['t'],'n',len(out))
+json.dump(dict(src='real model chr_b_r5g2 skinned (skeletal clips), in-game lens (vertical fov), 30 fps, S7 start..39.8 s; tools/coast-transition-draft/s7_her_height.py',cutoff=38.867,frac_min=0.06,px_min=40,exc={'390x520':38.5},screens=ALL),open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'../coast-board-lens/s7_her_size.json'),'w'),separators=(',',':'))
