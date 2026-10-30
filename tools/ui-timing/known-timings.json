@@ -1,71 +1,7 @@
 {
- "schema": "qfl-ui-timing-registry/v2",
- "compat": "ui-audit/tools/check_ui_motion.py items (file relative to creator-build-project/assets/scripts/, name exactly as the scanner extracts it, ms, cls in small|enter|exit|screen|skip). `register` = names for --register (氛围动画, screen class only). Read-only use: python3 tools/ui-timing/apply_known.py SCAN.json",
+ "schema": "qfl-ui-timing-registry/v1",
  "note": "Classifications for the U1 UI-timing audit (界面验收部). Matched by file + symbol name, not line. Entries here are not flagged for manual review. Approved by UI设计部 + Grok Bot 2026-10-29.",
- "register": [],
- "items": [
-  {
-   "file": "ManagedMobileBoardUI.ts",
-   "name": "tween(0.05+0.07+0.07+0.05)",
-   "ms": 240,
-   "cls": "skip",
-   "reason": "block-swap shake: gameplay animation, exempt from U1"
-  },
-  {
-   "file": "ui/BoardLayout.ts",
-   "name": "TOAST_S",
-   "ms": 2000,
-   "cls": "skip",
-   "reason": "hold duration, not an animation"
-  },
-  {
-   "file": "ui/BoardPanels.ts",
-   "name": "CHEST_HANDOFF_MS",
-   "ms": 3000,
-   "cls": "skip",
-   "reason": "ambient/narrative sequence total, exempt"
-  },
-  {
-   "file": "ui/BoardPanels.ts",
-   "name": "SCORE_EASE_S",
-   "ms": 200,
-   "cls": "small",
-   "reason": "score number ease, small feedback 100–200 ms"
-  },
-  {
-   "file": "ManagedMobileBoardUI.ts",
-   "name": "toastFade",
-   "ms": 200,
-   "cls": "small",
-   "reason": "toast enter (small feedback)"
-  },
-  {
-   "file": "ManagedMobileBoardUI.ts",
-   "name": "fade",
-   "ms": 200,
-   "cls": "small",
-   "reason": "say() toast enter (small feedback)"
-  },
-  {
-   "file": "ManagedMobileBoardUI.ts",
-   "name": "TOAST_OUT_S",
-   "ms": 150,
-   "cls": "exit",
-   "pair": {
-    "name": "toastFade",
-    "ms": 200
-   },
-   "reason": "toast exit, shorter than its 200 ms enter"
-  },
-  {
-   "file": "region/LakesideArrivalCore.ts",
-   "name": "revealSignS",
-   "ms": 300,
-   "cls": "skip",
-   "reason": "delay before the sign after a skip reveal, not an animation length"
-  }
- ],
- "constants": [
+ "entries": [
   {
    "file": "assets/scripts/ui/RegionArrivalTitleCore.ts",
    "symbol": "REGION_TITLE_TIMING",
@@ -94,7 +30,12 @@
    "symbol": "OUTRO_FADE_S",
    "class": "ui-animation",
    "exitS": 0.45,
-   "exitEase": "easeInOutCubic"
+   "exitEase": "easeInOutCubic",
+   "category": "full-screen transition",
+   "exemption": "full-screen-transition",
+   "pairedWith": null,
+   "capS": 0.6,
+   "reason": "intro fades the loading page in from black; outro is a full-screen crossfade into the 3D world — not the same element in/out, so not paired with INTRO_FADE_S; full-screen cap ≤600 ms"
   },
   {
    "file": "assets/scripts/ManagedMobileBoardUI.ts",
@@ -154,6 +95,26 @@
    "totalS": 3,
    "exemptFrom": "U1",
    "reason": "ambient/narrative sequence total"
+  },
+  {
+   "file": "assets/scripts/ui/PopupMotion.ts",
+   "symbol": "OPEN_ALPHA_S",
+   "class": "popup-enter-subtrack",
+   "category": "popup enter sub-track",
+   "subTrackOf": "OPEN_S",
+   "parentS": 0.32,
+   "subS": 0.19,
+   "rule": "<= parent",
+   "reason": "alpha segment of the 320 ms popup enter (OPEN_S); the 250–400 ms enter rule applies to OPEN_S, this track only needs ≤ OPEN_S"
+  },
+  {
+   "file": "assets/scripts/ui/PopupMotion.ts",
+   "symbol": "TOGGLE_S",
+   "class": "ui-animation",
+   "category": "small control",
+   "pressS": 0.18,
+   "rule": "100–200 ms",
+   "reason": "switch knob/track slide: small control 100–200 ms (registered under pressS so check_ui_motion applies the 100–200 ms feedback rule)"
   }
  ]
 }
