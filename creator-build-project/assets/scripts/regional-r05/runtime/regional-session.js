@@ -8,17 +8,16 @@ function freeze(x) { if (x && typeof x === 'object' && !Object.isFrozen(x)) { Ob
 function rng(seed) { var f=function(){f.state=(Math.imul(f.state,1664525)+1013904223)>>>0;return f.state/4294967296;};f.state=seed>>>0;return f; }
 function validIndex(i) { return Number.isInteger(i) && i>=0 && i<49; }
 function neighbors(i) { return [i,i%7?i-1:-1,i%7<6?i+1:-1,i>=7?i-7:-1,i<42?i+7:-1].filter(validIndex); }
-// coast (海岸支线): beacons/lines/specials are native Engine goals; optional rules.shells reuse the tide crack/collect rule.
-function goalKey(region) { return region==='coast'?'pearls':region==='tide'?'pearls':region==='meadow'?'blooms':region==='lake'?'chimes':'relays'; }
+function goalKey(region) { return region==='tide'?'pearls':region==='meadow'?'blooms':region==='lake'?'chimes':'relays'; }
 function signature(stage) { return JSON.stringify([stage.id,stage.contentRevision,stage.config,stage.rules,stage.tool]); }
 function RegionalSession(stage, seed, options) {
  options=options||{};
- if(!stage || !['tide','meadow','sky','lake','coast'].includes(stage.region))throw Error('Unknown region');
+ if(!stage || !['tide','meadow','sky','lake'].includes(stage.region))throw Error('Unknown region');
  if(!Number.isInteger(seed)||seed<0||seed>0xffffffff)throw Error('Invalid seed');
  if(!options.authoring && !stage.seedBank.includes(seed))throw Error('Seed has no shipped witness');
  this.stage=freeze(copy(stage));this.seed=seed;this.random=rng(seed);this.actions=[];this.clock=0;this.hold=0;this.toolCharges=stage.tool?stage.tool.charges:0;this.tokenSerial=0;this.instance=++serial;this.pending=null;this.frames=[];
- this.pieces=copy(stage.rules.shells||stage.rules.blooms||stage.rules.relays||stage.rules.chimes||[]).map(function(p){p.progress=0;p.done=false;p.shifted=false;return p;});
- this.cursor=0;var config=copy(stage.config);if(stage.region!=='coast'||this.pieces.length)config.goals[goalKey(stage.region)]=this.pieces.length;
+ this.pieces=copy(stage.rules.shells||stage.rules.blooms||stage.rules.relays||stage.rules.chimes).map(function(p){p.progress=0;p.done=false;p.shifted=false;return p;});
+ this.cursor=0;var config=copy(stage.config);config.goals[goalKey(stage.region)]=this.pieces.length;
  this.engine=new Engine(0,this.random,config);this.engine.bombs=0;
 }
 RegionalSession.prototype.phase=function(){var r=this.stage.rules,cycle=r.phaseCycle||r.windCycle||r.polarityCycle;return cycle&&cycle.length?cycle[this.clock%cycle.length]:'calm';}; // lake: no period -> constant 'calm'
@@ -36,7 +35,7 @@ RegionalSession.prototype._valid=function(a){var e=this.engine;if(!Array.isArray
 };
 RegionalSession.prototype.legalActions=function(options){var e=this.engine,a=e.possibleMoves().map(function(x){return ['swap',x[0],x[1]];});e.possibleActivations().forEach(function(i){a.push(['activate',i]);});
  if(!e._canStart())return [];
- if(this.stage.tool&&(!options||options.tools!==false)){if(this.stage.tool.kind==='sunSeed'){for(var i=0;i<49;i++)if(this._valid(['tool','sunSeed',i]))a.push(['tool','sunSeed',i]);}else{var t=['tool',this.stage.tool.kind];if(this._valid(t))a.push(t);}}return a;
+ if(!options||options.tools!==false){if(this.stage.tool.kind==='sunSeed'){for(var i=0;i<49;i++)if(this._valid(['tool','sunSeed',i]))a.push(['tool','sunSeed',i]);}else{var t=['tool',this.stage.tool.kind];if(this._valid(t))a.push(t);}}return a;
 };
 RegionalSession.prototype.preview=function(action){if(!this._valid(action))return freeze({ok:false,reason:'illegal-action'});var token='r5:'+this.instance+':'+(++this.tokenSerial);this.pending={token:token,action:action.slice(),state:JSON.stringify(this._export())};return freeze({ok:true,token:token,action:action.slice(),moveCost:1,phase:this.phase()});};
 RegionalSession.prototype.cancelPreview=function(){this.pending=null;};
@@ -47,7 +46,7 @@ RegionalSession.prototype.commit=function(token){var p=this.pending;if(!p||p.tok
 };
 RegionalSession.prototype.act=function(action){var p=this.preview(action);return p.ok?this.commit(p.token).ok:false;};
 RegionalSession.prototype._regional=function(wave){var s=this,events=[],effects=[],phase=this.phase(),region=this.stage.region,removed=wave.removed;
- if(region==='tide'||region==='coast')this.pieces.forEach(function(p){if(p.done||!removed.some(function(t){return t.index===p.index;}))return;
+ if(region==='tide')this.pieces.forEach(function(p){if(p.done||!removed.some(function(t){return t.index===p.index;}))return;
   if(phase==='ebb'&&p.progress<p.layers){p.progress++;events.push({kind:'shell-cracked',index:p.index,remaining:p.layers-p.progress});}
   else if(phase==='flood'&&p.progress===p.layers){p.done=true;events.push({kind:'pearl-collected',index:p.index});effects.push({kind:'tide-jet',index:p.index,cells:Array.from(s.engine._area('column',p.index))});}
  });
@@ -58,7 +57,7 @@ RegionalSession.prototype._regional=function(wave){var s=this,events=[],effects=
   if(!removed.some(function(t){return neighbors(p.index).indexOf(t.index)>=0;}))return;p.progress++;events.push({kind:'chime-rang',index:p.index,step:p.progress});if(p.progress===p.hits){p.done=true;events.push({kind:'chime-complete',index:p.index});effects.push({kind:'chime-ripple',index:p.index,cells:neighbors(p.index)});}
  });
  else if(this.cursor<this.pieces.length){var p=this.pieces[this.cursor];if(phase===p.polarity&&removed.some(function(t){return t.index===p.index&&(p.type===undefined||t.type===p.type);})){p.progress++;events.push({kind:'relay-charged',index:p.index,step:p.progress});if(p.progress===p.hits){p.done=true;this.cursor++;events.push({kind:'relay-linked',index:p.index,partner:p.partner});effects.push({kind:'portal-echo',index:p.partner,cells:neighbors(p.partner)});}}}
- if(region!=='coast'||this.pieces.length)this.engine.goals[goalKey(region)]=this.pieces.filter(function(p){return !p.done;}).length;return {events:events,effects:effects};
+ this.engine.goals[goalKey(region)]=this.pieces.filter(function(p){return !p.done;}).length;return {events:events,effects:effects};
 };
 RegionalSession.prototype._act=function(a){if(!this._valid(a))return false;var e=this.engine,phase=this.phase(),frames=[],queue=[],s=this;
  if(a[0]==='tool'){
