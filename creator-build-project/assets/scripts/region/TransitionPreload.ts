@@ -74,11 +74,10 @@ export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SK
   'mount:meadow-warm-rig':async()=>{let s;while((s=stable())===false)await wait(gap);if(s==='gone')throw Error('left-island');await preloadMeadowForSail(parent);},/* 'gone': she left the island side; the sail prepare mounts */
  };
  meadowStaged=(async()=>{let all=true;
-  for(const st of MEADOW_LEG_STAGES){let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};
-   try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}
-   const t0=Date.now();let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
-   try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}
-   try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok}));}catch{}
+  for(const st of MEADOW_LEG_STAGES){
+   /*QF_PROBE_BEGIN*/let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}const t0=Date.now();/*QF_PROBE_END*/
+   let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
+   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok}));}catch{}/*QF_PROBE_END*/
    await wait(gap);}
   if(!all)meadowStaged=null;return all;})();
  return meadowStaged;
