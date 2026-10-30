@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Dry-run self-test for build-wechat-guarded.sh with a fake Creator (no Cocos needed). Runs on Linux and macOS bash 3.2.
 set -u
-HERE=$(cd "$(dirname "$0")" && pwd); T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
+HERE=$(cd "$(dirname "$0")" && pwd); SCR=${QF_SCRATCH_ROOT:-$HOME/wt}; mkdir -p "$SCR"; T=$(mktemp -d "$SCR/qf-guard-test.XXXXXX"); trap 'rm -rf "$T"' EXIT
+export QF_STAGE_ROOT=$T/stage NODE=${NODE:-node}
 fail(){ echo "SELFTEST FAIL: $*"; exit 1; }
 mkrepo(){ R=$T/repo$1; mkdir -p "$R/creator-build-project/assets/scripts" "$R/tools/build-guard"
-  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$R/tools/build-guard/"
+  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$R/tools/build-guard/"
+  printf 'export const a=1;/*QF_PROBE_BEGIN*/(globalThis as any).__QF_PROBE_HER=1;log("[QF_HER_FRAME] x");/*QF_PROBE_END*/\n' > "$R/creator-build-project/assets/scripts/probe.ts"
   printf 'build/\nlibrary/\ntemp/\ntools/build-guard/logs/\n' > "$R/.gitignore"
   for i in 1 2 3; do printf '{"ver":"1.0.0","importer":"typescript","uuid":"u%s"}\n' $i > "$R/creator-build-project/assets/scripts/a$i.ts.meta"; done
   (cd "$R" && git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -qm init) ; echo "$R"; }
@@ -15,7 +17,7 @@ P=""; C=""; while [ $# -gt 0 ]; do case "$1" in --project) P=$2; shift;; --build
 n=$(cat "$PLAN.n" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "$PLAN.n"; what=$(sed -n "${n}p" "$PLAN")
 out=$(sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$C" | head -1)
 mkdir -p "$P/build/$out/subpackages/main" "$P/library" "$P/temp"; echo cache > "$P/library/x"
-if [ "$what" = good ]; then head -c 9000000 /dev/zero > "$P/build/$out/game.bin"; head -c 7000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
+if [ "$what" = good ]; then { cat "$P"/assets/scripts/*.ts; head -c 3000000 /dev/zero | tr '\0' ' '; } | head -c 3000000 > "$P/build/$out/game.js"; head -c 13000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
 else head -c 2300000 /dev/zero > "$P/build/$out/game.bin"; echo "Error: 当前初始场景不存在或在 Bundle 中，无法设置为初始场景。"
   for f in "$P"/assets/scripts/*.meta; do echo '{"ver":"0.0.1","importer":"*"}' > "$f"; done; echo '{}' > "$P/assets/scripts/new.ts.meta"; exit 36; fi
 F
@@ -41,4 +43,21 @@ R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
 R=$(mkrepo 3); echo x >> "$R/creator-build-project/assets/scripts/a1.ts.meta"; c=$(run "$R" wechat 3 "good"); [ "$c" = 2 ] || fail "case3 exit $c"; grep -q "not clean before" "$T/out3" || fail "case3 msg"
 # 4) both targets, each good first time
 R=$(mkrepo 4); c=$(run "$R" both 4 "good good"); [ "$c" = 0 ] || fail "case4 exit $c"; grep -q "web-test 16000000" "$T/out4" || fail "case4 both"
-echo "SELFTEST PASS (4 cases + provenance)"
+# 5) wechat release default: staged + stripped, gates pass, repo source untouched, diff proof written, release copied back
+R=$(mkrepo 5); c=$(run "$R" wechat 5 "good"); cat "$T/out5"; [ "$c" = 0 ] || fail "case5 exit $c"
+grep -q "RELEASE (probes stripped)" "$T/out5" && grep -q "PASS release-probe-free" "$T/out5" && grep -q "PASS release-size TOTAL=16000000" "$T/out5" || fail "case5 gates"
+grep -q "PASS strip-probes prove changedFiles=1 regions=1" "$T/out5" || fail "case5 proof"; S5=$(cd "$R" && git rev-parse --short=7 HEAD)
+grep -q "QF_PROBE_BEGIN" "$R/tools/build-guard/logs/strip-probes.$S5.diff" || fail "case5 diff file"; grep -q "__QF_PROBE_HER" "$R/creator-build-project/assets/scripts/probe.ts" || fail "case5 repo source changed"
+! grep -q "QF_PROBE" "$R/creator-build-project/build/wechat-release/game.js" || fail "case5 release has probe"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case5 dirty"
+# 6) STRIP_PROBES=0 -> test build keeps probes, loudly labelled; web always keeps probes
+R=$(mkrepo 6); c=$(STRIP_PROBES=0 run "$R" wechat 6 "good"); [ "$c" = 0 ] || fail "case6 exit $c"; grep -q "PROBES KEPT" "$T/out6" || fail "case6 label"
+grep -q "__QF_PROBE_HER" "$R/creator-build-project/build/wechat-release/game.js" || fail "case6 probes missing in test build"
+# 7) gate self-test on build output: the unstripped (case 6) output must FAIL probe-free; the stripped (case 5) must PASS
+"$NODE" "$HERE/release-gates.cjs" --probe-free "$R/creator-build-project/build/wechat-release" >/dev/null && fail "case7 unstripped passed"
+"$NODE" "$HERE/release-gates.cjs" --probe-free "$T/repo5/creator-build-project/build/wechat-release" >/dev/null || fail "case7 stripped failed"
+# 8) size gate: release over MAX_MAIN_BYTES fails loudly; over MAX_TOTAL_BYTES too
+R=$(mkrepo 8); c=$(MAX_MAIN_BYTES=2999999 run "$R" wechat 8 "good"); [ "$c" = 2 ] || fail "case8 exit $c"; grep -q "FAIL SIZE MAIN 3000000 > 2999999" "$T/out8" || fail "case8 main msg"
+R=$(mkrepo 9); c=$(MAX_TOTAL_BYTES=15999999 run "$R" wechat 9 "good"); [ "$c" = 2 ] || fail "case9 exit $c"; grep -q "FAIL SIZE TOTAL" "$T/out9" || fail "case9 total msg"
+# 10) unbalanced marker -> release refuses before building
+R=$(mkrepo 10); printf '/*QF_PROBE_BEGIN*/x\n' >> "$R/creator-build-project/assets/scripts/probe.ts"; (cd "$R" && git -c user.email=t@t -c user.name=t commit -qam bad); c=$(run "$R" wechat 10 "good"); [ "$c" = 2 ] || fail "case10 exit $c"; grep -q "unclosed" "$T/out10" || fail "case10 msg"
+echo "SELFTEST PASS (10 cases + provenance)"

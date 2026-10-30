@@ -8,6 +8,11 @@
 # Usage: bash tools/build-guard/build-wechat-guarded.sh [wechat|web|both]      (default: wechat)
 # Env:   CREATOR=/path/to/CocosCreator.app/Contents/MacOS/CocosCreator  (required; or a fake builder for tests)
 #        MIN_BYTES=15000000  MAX_TRIES=3  KEEP_CACHE=0  LOG_DIR=<repo>/tools/build-guard/logs  SKIP_CREATOR_CHECK=0
+#        NODE=node (needed for release gates)
+# Probes (full9c): wechat RELEASE is built from a staged copy with /*QF_PROBE_BEGIN*/…/*QF_PROBE_END*/ regions stripped
+#        (strip-probes.cjs), then gated: release-gates.cjs --probe-free and --size (MAX_TOTAL_BYTES=24641536 MAX_MAIN_BYTES=4000000).
+#        STRIP_PROBES=1 is the default for wechat; STRIP_PROBES=0 = TEST build with probes (built in place, size/probe gates skipped).
+#        web is always a test build (probes kept). Stage dir: QF_STAGE_ROOT (default $HOME/wt/qf-stage, must be outside the repo).
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=${REPO_ROOT:-$(cd "$HERE/../.." && pwd)}
@@ -15,6 +20,8 @@ P="$REPO/creator-build-project"
 MIN_BYTES=${MIN_BYTES:-15000000}; MAX_TRIES=${MAX_TRIES:-3}; KEEP_CACHE=${KEEP_CACHE:-0}
 LOG_DIR=${LOG_DIR:-$HERE/logs}; ERR_TEXT='当前初始场景不存在'
 TARGET=${1:-wechat}
+NODE=${NODE:-node}; STRIP_PROBES=${STRIP_PROBES:-1}; QF_STAGE_ROOT=${QF_STAGE_ROOT:-$HOME/wt/qf-stage}
+MAX_TOTAL_BYTES=${MAX_TOTAL_BYTES:-24641536}; MAX_MAIN_BYTES=${MAX_MAIN_BYTES:-4000000}
 die(){ echo; echo "################################################################"; echo "BUILD GUARD FAILED: $*"; echo "################################################################"; exit 2; }
 [ -n "${CREATOR:-}" ] || die "set CREATOR to the CocosCreator binary (…/CocosCreator.app/Contents/MacOS/CocosCreator)"
 [ -x "$CREATOR" ] || die "CREATOR is not executable: $CREATOR"
@@ -37,20 +44,36 @@ restore_meta(){
 }
 if [ "${SKIP_CREATOR_CHECK:-0}" != 1 ] && pgrep -f "MacOS/CocosCreator " >/dev/null 2>&1; then die "another Cocos Creator is running; close it first"; fi
 if [ -n "$(dirty)" ]; then dirty | head -20; die "git tree is not clean before building (commit/stash first)"; fi
+if [ "$STRIP_PROBES" = 1 ] && [ "$TARGET" != web ]; then
+  "$NODE" -e 1 2>/dev/null || die "NODE ($NODE) not runnable; release gates need node (or STRIP_PROBES=0 for a test build)"
+  case "$QF_STAGE_ROOT/" in "$REPO"/*) die "QF_STAGE_ROOT must be outside the repo: $QF_STAGE_ROOT";; esac
+fi
+# Stage a copy of the committed project (tracked files only; tree is clean so == HEAD) and strip probes there. Repo is never edited.
+stage_release(){
+  SP_ROOT="$QF_STAGE_ROOT/$GUARD_SHORT"; rm -rf "$SP_ROOT"; mkdir -p "$SP_ROOT" || die "mkdir $SP_ROOT"
+  git ls-files -z creator-build-project | tar --null -T - -cf - | tar -x -C "$SP_ROOT" || die "staging copy failed"
+  "$NODE" "$HERE/strip-probes.cjs" --stage "$SP_ROOT/creator-build-project" || die "strip-probes failed (unbalanced markers?)"
+  "$NODE" "$HERE/strip-probes.cjs" --prove "$P" "$SP_ROOT/creator-build-project" --diff "$LOG_DIR/strip-probes.$GUARD_SHORT.diff" || die "strip proof failed"
+  echo "   staged+stripped: $SP_ROOT/creator-build-project  diff=$LOG_DIR/strip-probes.$GUARD_SHORT.diff"
+}
+# metas the importer rewrote/created in the stage (the stage has no git): compare with the repo
+stage_dirty(){ (cd "$BP" && find assets -name '*.meta' -type f) | while read -r f; do cmp -s "$BP/$f" "$P/$f" || echo "$f"; done; }
 outname(){ sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$1" | head -1; }
-build_one(){ # $1 = config json
-  cfg=$1; out=$(outname "$cfg"); [ -n "$out" ] || die "no outputName in $cfg"
-  dest="$P/build/$out"; try=1
+build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
+  cfg=$1; strip=${2:-0}; out=$(outname "$cfg"); [ -n "$out" ] || die "no outputName in $cfg"
+  BP=$P; if [ "$strip" = 1 ]; then stage_release; BP="$SP_ROOT/creator-build-project"; echo "== [$out] RELEASE (probes stripped)"; else echo "== [$out] TEST build: PROBES KEPT (not a release)"; fi
+  dest="$BP/build/$out"; try=1
   while [ $try -le "$MAX_TRIES" ]; do
     # Log name carries the short SHA; the old name <out>.tryN.log stays as a symlink to it for existing readers.
     log="$LOG_DIR/$out.$GUARD_SHORT.try$try.log"; ln -sf "$(basename "$log")" "$LOG_DIR/$out.try$try.log"
     echo "== [$out] try $try/$MAX_TRIES  free=$(df -k "$REPO" | tail -1 | awk '{print $4}') KiB"
-    clean_cache; rm -rf "$dest"
-    { echo "== GUARD HEAD=$GUARD_HEAD tree=$GUARD_TREE utc=$GUARD_UTC config=$cfg try=$try"; "$CREATOR" --project "$P" --build "configPath=$cfg"; } > "$log" 2>&1; code=$?
+    clean_cache; rm -rf "$dest" "$BP/library" "$BP/temp"
+    { echo "== GUARD HEAD=$GUARD_HEAD tree=$GUARD_TREE utc=$GUARD_UTC config=$cfg try=$try strip=$strip project=$BP"; "$CREATOR" --project "$BP" --build "configPath=$cfg"; } > "$log" 2>&1; code=$?
     size=$(bytes "$dest"); reason=""
     [ "$size" -gt "$MIN_BYTES" ] || reason="$reason size=$size<=$MIN_BYTES"
     if grep -q "$ERR_TEXT" "$log"; then reason="$reason log:'$ERR_TEXT'"; fi
     nd=$(dirty | wc -l | tr -d ' '); [ "$nd" = 0 ] || reason="$reason git-status:$nd-changed"
+    if [ "$strip" = 1 ]; then sd=$(stage_dirty | wc -l | tr -d ' '); [ "$sd" = 0 ] || reason="$reason stage-meta:$sd-changed"; fi
     echo "   exit=$code size=$size dirty=$nd log=$log"
     if [ -z "$reason" ]; then
       echo "OK [$out] TOTAL_BYTES=$size"
@@ -58,10 +81,16 @@ build_one(){ # $1 = config json
         echo "   ROOT $(find "$dest" -type f -not -path '*/subpackages/*' -exec wc -c {} + | awk '$2!="total"{s+=$1}END{print s+0}')"
         for d in "$dest"/subpackages/*; do [ -d "$d" ] && echo "   SUB $(basename "$d") $(bytes "$d")"; done
       fi
+      if [ "$strip" = 1 ]; then
+        "$NODE" "$HERE/release-gates.cjs" --probe-free "$dest" || die "[$out] RELEASE GATE: probe code in release output"
+        "$NODE" "$HERE/release-gates.cjs" --size "$dest" --max-total "$MAX_TOTAL_BYTES" --max-main "$MAX_MAIN_BYTES" || die "[$out] RELEASE GATE: size"
+        mkdir -p "$P/build"; rm -rf "$P/build/$out"; cp -R "$dest" "$P/build/$out" || die "copy release to $P/build/$out"
+        rm -rf "$BP/library" "$BP/temp"; echo "   release copied to creator-build-project/build/$out (stage kept: $SP_ROOT)"
+      fi
       LAST_TOTAL=$size; return 0
     fi
     echo "   REJECTED:$reason -> restoring .meta, clearing library/temp, retrying"
-    restore_meta; clean_cache; rm -rf "$dest"
+    restore_meta; clean_cache; rm -rf "$dest"; [ "$strip" = 1 ] && stage_release >/dev/null
     try=$((try+1))
   done
   restore_meta; clean_cache
@@ -70,10 +99,10 @@ build_one(){ # $1 = config json
 }
 SUMMARY=""
 case "$TARGET" in
-  wechat) build_one "$HERE/wechat-release.json"; SUMMARY="wechat-release $LAST_TOTAL";;
-  web)    build_one "$HERE/web-test.json"; SUMMARY="web-test $LAST_TOTAL";;
-  both)   build_one "$HERE/wechat-release.json"; SUMMARY="wechat-release $LAST_TOTAL"; build_one "$HERE/web-test.json"; SUMMARY="$SUMMARY | web-test $LAST_TOTAL";;
+  wechat) build_one "$HERE/wechat-release.json" "$STRIP_PROBES"; SUMMARY="wechat-release $LAST_TOTAL (strip=$STRIP_PROBES)";;
+  web)    build_one "$HERE/web-test.json" 0; SUMMARY="web-test $LAST_TOTAL (probes)";;
+  both)   build_one "$HERE/wechat-release.json" "$STRIP_PROBES"; SUMMARY="wechat-release $LAST_TOTAL (strip=$STRIP_PROBES)"; build_one "$HERE/web-test.json" 0; SUMMARY="$SUMMARY | web-test $LAST_TOTAL (probes)";;
   *) die "target must be wechat, web or both";;
 esac
 if [ "$KEEP_CACHE" != 1 ]; then clean_cache; echo "caches removed (library/temp); set KEEP_CACHE=1 to keep"; fi
-echo "BUILD GUARD PASSED: $SUMMARY bytes  (output under creator-build-project/build/)  HEAD=$GUARD_SHORT tree=$GUARD_TREE"
+echo "BUILD GUARD PASSED: $SUMMARY  (output under creator-build-project/build/)  HEAD=$GUARD_SHORT tree=$GUARD_TREE"

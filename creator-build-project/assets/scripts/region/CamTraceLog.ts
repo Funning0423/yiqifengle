@@ -9,7 +9,7 @@
  *  JUMP = position step > CAM_LOG_CAP.m (TRANSITION_CAM per-frame lens cap ·1.05) or view step > CAM_LOG_CAP.deg in one write. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
 import {debugSearch} from './DebugQuery';
-import {Director,MeshRenderer,Vec3,director,sys} from 'cc';
+/*QF_PROBE_BEGIN*/import {Director,MeshRenderer,Vec3,director,sys} from 'cc';/*QF_PROBE_END*/
 /** full9b P0 (Mac A/B: camTrace ON froze the renderer, OFF completed): bounded trace. ≤ linesPerS write lines per wall second
  *  (over budget: counted, the next line carries DROPPED=<n>); ≤ maxStacks CALLER stacks per session; re-entry never writes. */
 export const CAM_LOG_BUDGET=Object.freeze({linesPerS:60,maxStacks:200});
@@ -51,12 +51,12 @@ function camLogWriteInner(camera:any,pose:{position:readonly number[];rotation:r
   let fr=-1;try{const d=(globalThis as any).cc?.director;fr=d&&typeof d.getTotalFrames==='function'?d.getTotalFrames():-1;}catch{fr=-1;}
   if(fr>=0&&fr===camLog.fr){camLog.fw++;s+=' MULTI='+camLog.fw;if(camLog.stacks&&camLog.stackN<CAM_LOG_BUDGET.maxStacks){camLog.stackN++;let caller='';try{caller=String(new Error().stack||'').split('\n').slice(3,6).map(x=>x.trim()).join(' < ');}catch{}s+=' CALLER='+caller;}}else{camLog.fr=fr;camLog.fw=1;}
   if(fr>=0)s+=' fr='+fr;}
- if(camLog.has&&w!==camLog.last)probe.cut={n:++probe.cuts,from:camLog.last,to:w,t0:pnow()}/* full9c probe: first draw after every cut */;
- camLog.has=true;camLog.last=w;camLog.lp[0]=x;camLog.lp[1]=y;camLog.lp[2]=z;camLog.ly=yaw;camLog.lpi=pitch;
+/*QF_PROBE_BEGIN*/ if(camLog.has&&w!==camLog.last)probe.cut={n:++probe.cuts,from:camLog.last,to:w,t0:pnow()}/* full9c probe: first draw after every cut */;
+/*QF_PROBE_END*/ camLog.has=true;camLog.last=w;camLog.lp[0]=x;camLog.lp[1]=y;camLog.lp[2]=z;camLog.ly=yaw;camLog.lpi=pitch;
  {const sec=Math.floor(t);if(sec!==camLog.win){camLog.win=sec;camLog.winN=0;}
   if(++camLog.winN>CAM_LOG_BUDGET.linesPerS){camLog.dropped++;publishStats();return;}}
  if(camLog.dropped)s+=' DROPPED='+camLog.dropped;if(camLog.reentry)s+=' REENTRY='+camLog.reentry;
- camLog.out(s+' pn='+f3(pnow()));if((camLog.n&63)===0)publishStats();
+ camLog.out(s/*QF_PROBE_BEGIN*/+' pn='+f3(pnow())/*QF_PROBE_END*/);if((camLog.n&63)===0)publishStats();
 }
 /** Default world layer bit (cc Layers.Enum.DEFAULT = 1<<30). */
 export const CAM_LOG_WORLD_LAYER=1<<30;
@@ -66,12 +66,12 @@ const st={fr:0,bad:''};
 export function camLogFrame(camera:any):void{
  if(!camLog.on)return;st.fr++;
  const bad=!camera||!camera.node||(camera.node.isValid===false)?'CAM_MISSING':camera.enabledInHierarchy===false||camera.enabled===false?'CAM_OFF':(((camera.visibility|0)&CAM_LOG_WORLD_LAYER)===0?'WORLD_LAYER_OFF':'');
- if(bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' '+bad+(camera&&typeof camera.visibility==='number'?' vis=0x'+(camera.visibility>>>0).toString(16):'')+' pn='+f3(pnow()));
- else if(st.bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' CAM_OK<-'+st.bad+' pn='+f3(pnow()));
+ if(bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' '+bad+(camera&&typeof camera.visibility==='number'?' vis=0x'+(camera.visibility>>>0).toString(16):'')/*QF_PROBE_BEGIN*/+' pn='+f3(pnow())/*QF_PROBE_END*/);
+ else if(st.bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' CAM_OK<-'+st.bad/*QF_PROBE_BEGIN*/+' pn='+f3(pnow())/*QF_PROBE_END*/);
  st.bad=bad;
- if(!bad)probeHerFrame(camera,st.fr);
-}
-/** full9c probes (界面验收部 acceptance, Grok Bot 2026-10-29). TEST ONLY: every entry point returns at `if(!camLog.on)`, and
+/*QF_PROBE_BEGIN*/ if(!bad)probeHerFrame(camera,st.fr);
+/*QF_PROBE_END*/}
+/*QF_PROBE_BEGIN*//** full9c probes (界面验收部 acceptance, Grok Bot 2026-10-29). TEST ONLY: every entry point returns at `if(!camLog.on)`, and
  *  the draw listener is only installed from camLogFrame (called only inside `if(camLog.on)`), so the release path runs none of it.
  *  - [QF_B1_GAP] {cut,from,to,firstDrawMs,pn}: writer change (= camera cut) → first AFTER_DRAW, at every cut (B1's own line stays).
  *  - her = the bound CharacterAdapter's own node (explicit reference from WorldFlowComponent.initialize/bindCharacter), never a
@@ -111,7 +111,7 @@ function probeHerFrame(camera:any,fr:number):void{
   camLog.out('[QF_HER_FRAME] fr='+fr+' bbox='+[x0,y0,x1,y1].map(f3).join(',')+' occ='+f3(occ)+' n='+smp.length+' safe='+(sa?[sa.x,sa.y,sa.width,sa.height].map(f3).join(','):'-')+' pn='+f3(pnow()));
  }catch{/* probe only */}
 }
-/** Stall probe (Grok Bot 2026-10-26): while a walk / board step is active, her position unchanged (< ACTOR_STALL.m) for more
+/*QF_PROBE_END*//** Stall probe (Grok Bot 2026-10-26): while a walk / board step is active, her position unchanged (< ACTOR_STALL.m) for more
  *  than ACTOR_STALL.s → ONE `[QF_CAM_TRACE] ACTOR_STALL` line (repeated every ACTOR_STALL.s while it lasts). Trace only, the camera is
  *  never moved. Callers guard with `if(camLog.on)`. */
 export const ACTOR_STALL=Object.freeze({s:3,m:0.02});
@@ -120,7 +120,7 @@ export function camActorProbe(x:number,y:number,z:number,active:boolean,step:str
  if(!camLog.on)return;const t=nowS??(((typeof performance!=='undefined'?performance.now():Date.now())-camLog.t0)/1000);
  if(!active||stall.key!==step||Math.hypot(x-stall.x,y-stall.y,z-stall.z)>=ACTOR_STALL.m){stall.key=active?step:'';stall.x=x;stall.y=y;stall.z=z;stall.since=t;stall.said=-1;return;}
  const held=t-stall.since;if(held>ACTOR_STALL.s&&(stall.said<0||t-stall.said>=ACTOR_STALL.s)){stall.said=t;
-  camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR_STALL step='+step+' heldS='+f3(held)+' her='+f3(x)+','+f3(y)+','+f3(z)+' pn='+f3(pnow()));}
+  camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR_STALL step='+step+' heldS='+f3(held)+' her='+f3(x)+','+f3(y)+','+f3(z)/*QF_PROBE_BEGIN*/+' pn='+f3(pnow())/*QF_PROBE_END*/);}
 }
 /** full8: actor/vehicle placement probe (≈4 Hz while the trace is on): her + boat/vehicle WORLD positions, plus the plan's boat
  *  position when given (runtime vs plan delta in metres). No `pos=` field, so collision-gate.cjs never reads it as a camera write. */
@@ -129,7 +129,7 @@ export function camActorPose(step:string,her:{x:number,y:number,z:number}|null,b
  if(!camLog.on)return;const t=((typeof performance!=='undefined'?performance.now():Date.now())-camLog.t0)/1000;if(actorAt>=0&&t-actorAt<0.25&&t>=actorAt)return;actorAt=t;
  const v=(q:{x:number,y:number,z:number}|null)=>q?f3(q.x)+','+f3(q.y)+','+f3(q.z):'-';
  const d=boat&&planBoat?' boatVsPlanM='+f3(Math.hypot(boat.x-planBoat[0],boat.y-planBoat[1],boat.z-planBoat[2])):'';
- camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR step='+step+' her='+v(her)+' boat='+v(boat)+(planBoat?' planBoat='+planBoat.map(f3).join(','):'')+d+' pn='+f3(pnow()));}
+ camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR step='+step+' her='+v(her)+' boat='+v(boat)+(planBoat?' planBoat='+planBoat.map(f3).join(','):'')+d/*QF_PROBE_BEGIN*/+' pn='+f3(pnow())/*QF_PROBE_END*/);}
 let started=false;
 /** Read the switch once. Returns whether tracing is on. */
 export function camLogStart(query?:string,g:any=globalThis):boolean{
@@ -140,6 +140,6 @@ export function camLogStart(query?:string,g:any=globalThis):boolean{
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;/*QF_PROBE_BEGIN*/probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;/*QF_PROBE_END*/camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 camLogStart();
