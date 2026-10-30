@@ -12,7 +12,7 @@
  *  On 3fb967af (no MeadowStageLens) this FAILs at A (06 off-screen) and C. */
 const fs=require('node:fs'),path=require('node:path');
 const {load,ROOT}=require('../region-nodes/load.cjs');
-const RB=load('region/RegionBoardLanding.ts'),BL=load('ui/BoardLayout.ts'),N=load('region/RegionNodes.ts'),EC=load('region/ExploreCameraCore.ts');
+const MS=load('region/MeadowSceneData.ts'),RB=load('region/RegionBoardLanding.ts'),BL=load('ui/BoardLayout.ts'),N=load('region/RegionNodes.ts'),EC=load('region/ExploreCameraCore.ts');
 const GEO=require('./meadow-lens-geo.cjs');
 let SL=null;try{SL=load('region/MeadowStageLens.ts');}catch{SL=null;}
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]],STAGES=[['mainline-05','M1'],['mainline-06','M2'],['mainline-07','M3'],['mainline-08','M4']];
@@ -72,21 +72,47 @@ const runOne=(key,ts,T,at,herFn,w,h)=>{const out={};for(const [dn,dtf] of Object
    const bad=[];if(m.v>CAP.mps)bad.push('speed '+m.v.toFixed(2)+' m/s');if(m.step>CAP.step)bad.push('step '+m.step.toFixed(2)+' m');if(m.yaw>CAP.degS)bad.push('yaw '+m.yaw.toFixed(0)+'°/s');if(m.pitch>CAP.degS)bad.push('pitch '+m.pitch.toFixed(0)+'°/s');
    if(acc99>CAP.degS2)bad.push('acc p99 '+acc99.toFixed(0)+'°/s²');if(m.fov>CAP.fovFrame)bad.push('fov '+m.fov.toFixed(2)+'°/frame');if(m.ground<GROUND_M)bad.push('ground '+m.ground.toFixed(2)+' m');if(m.solid<SOLID_M)bad.push('solid '+m.solid.toFixed(2)+' m');
    if(bad.length)fails.push(k+': '+bad.join(', '));}};
-const gap=(a,b)=>Math.max(...[0,1,2].map(i=>Math.abs(a.position[i]-b.position[i])),...[0,1,2].map(i=>Math.abs(dir(a)[i]-dir(b)[i])),Math.abs(a.fovVerticalDeg-b.fovVerticalDeg));
+const gap2=(a,b)=>Math.max(...[0,1,2].map(i=>Math.abs(a.position[i]-b.position[i])),...[0,1,2].map(i=>Math.abs(dir(a)[i]-dir(b)[i])),Math.abs(a.fovVerticalDeg-b.fovVerticalDeg));
 for(const [w,h] of SCREENS)for(const [s0,s1,a,b] of [['mainline-05','mainline-06','M1','M2'],['mainline-06','mainline-07','M2','M3'],['mainline-07','mainline-08','M3','M4'],['mainline-08','mainline-09','M4','M6']]){
  const path=edge(a,b),walkS=NW.pathLength(path)/NW.WALK_SPEED_MPS,B0=lens(w,h,s0),her=t=>herAt(path,t).p;
  if(s1==='mainline-09'){const T0=blendS(B0,foldAt(path,0,w,h),EC.BLEND_S.boardToFollow);runOne(`${w}x${h} ${a}>${b} board>follow`,0,T0,t=>EC.blendPose(B0,foldAt(path,t,w,h),t,T0),null,w,h);continue;}
  if(!SL||!SL.meadowFoldPlan){fails.push(`${w}x${h} ${a}>${b}: no fold plan (MeadowStageLens.meadowFoldPlan)`);continue;}
  const B1=lens(w,h,s1),F=foldAt(path,0,w,h),plan=SL.meadowFoldPlan(B0,F,path[0],walkS,w/h),at=t=>SL.meadowFoldPose(plan,her(t),t);
- const g0=gap(at(0),B0),g1=gap(at(walkS),B1);if(g0>1e-6)fails.push(`${w}x${h} ${a}>${b}: first frame ≠ board lens (${g0})`);if(g1>1e-6)fails.push(`${w}x${h} ${a}>${b}: does not end on the next board lens (${g1})`);
+ const g0=gap2(at(0),B0),g1=gap2(at(walkS),B1);if(g0>1e-6)fails.push(`${w}x${h} ${a}>${b}: first frame ≠ board lens (${g0})`);if(g1>1e-6)fails.push(`${w}x${h} ${a}>${b}: does not end on the next board lens (${g1})`);
  report.folds.push({key:`${w}x${h} ${a}>${b}`,walkS:+walkS.toFixed(2),k:+plan.k.toFixed(3),standS:0});
  runOne(`${w}x${h} ${a}>${b} fold`,0,walkS,at,her,w,h);}
+// E. reopen-at-05 (TransitResume.reopenAfterKill → M0, board 05): her M0 box on the reopen lens: whole, ≥ 8 pt from the edges, clear of
+//    every board UI rect (real boardSafeInsets) and the capsule, LOS, lens ≥ 1.5 m over ground; the walk M0 → M1 folds that lens into
+//    the 05 lens (≤ 7.5 m/s …). FAILs on the default (authored) lens: she sits on the first tool button.
+report.reopen={};
+{const hasReopen=!!(SL&&SL.setMeadowReopenAtM0);
+ for(const [w,h] of SCREENS){const k=w+'x'+h,safe=BL.boardSafeInsets(w,h),ui=RB.girlStandUi(w,h,safe),f=node('M0');
+  RB.setMeadowBoardFraming('authored');if(hasReopen)SL.setMeadowReopenAtM0(true);const cam=RB.meadowBoardCamera(w,h);
+  const def=MS.meadowScenePose(w/h),bd=RB.girlBoxPt(def,f,w,h);
+  const ov=(b)=>{let worst=null;for(const q of ui){const ox=Math.min(b.r,q.r)-Math.max(b.l,q.l),oy=Math.min(b.b,q.b)-Math.max(b.t,q.t);if(ox>0&&oy>0){const a=ox*oy;if(!worst||a>worst.areaPt2)worst={rect:[q.l,q.t,q.r,q.b].map(x=>+x.toFixed(0)),areaPt2:+a.toFixed(0),ofHerPct:+(100*a/((b.r-b.l)*(b.b-b.t))).toFixed(1)};}}return worst;};
+  const r={defaultBox:bd?[bd.l,bd.t,bd.r,bd.b].map(x=>+x.toFixed(1)):null,defaultOverlap:bd?ov(bd):'behind'};
+  const b=RB.girlBoxPt(cam,f,w,h);r.position=cam.position.map(x=>+x.toFixed(3));
+  if(!b){fails.push(k+' reopen: M0 behind the lens');report.reopen[k]=r;continue;}
+  r.box=[b.l,b.t,b.r,b.b].map(x=>+x.toFixed(1));r.edgePt=+Math.min(b.l,w-b.r,b.t,h-b.b).toFixed(1);r.overlap=ov(b);
+  let gap=Infinity;for(const q of ui){gap=Math.min(gap,Math.hypot(Math.max(q.l-b.r,b.l-q.r,0),Math.max(q.t-b.b,b.t-q.b,0)));}r.uiGapPt=r.overlap?-1:+gap.toFixed(1);
+  r.groundM=+GEO.groundClear(cam.position).toFixed(2);r.solidM=+GEO.solidClear(cam.position).d.toFixed(2);report.reopen[k]=r;
+  if(r.overlap)fails.push(`${k} reopen-05: she overlaps board UI ${JSON.stringify(r.overlap)}`+(hasReopen?'':' (default lens: no reopen lens)'));
+  if(r.edgePt<EDGE_PT)fails.push(`${k} reopen-05: ${r.edgePt} pt from the edge`);if(r.groundM<GROUND_M)fails.push(`${k} reopen-05 lens ${r.groundM} m over ground`);if(r.solidM<SOLID_M)fails.push(`${k} reopen-05 lens ${r.solidM} m from solids`);
+  for(const [nm,p] of [['feet',[f[0],f[1]+.05,f[2]]],['face',face(f)],['crown',[f[0],f[1]+H,f[2]]]]){const o=GEO.blocked(cam.position,p);if(o)fails.push(`${k} reopen-05 ${nm} hidden by ${o}`);}
+  if(!hasReopen)continue;
+  // fold M0 → M1 into the 05 lens (framing A)
+  RB.setMeadowBoardFraming('A');setStage('mainline-05');const B1=RB.meadowBoardCamera(w,h),path=edge('M0','M1'),walkS=NW.pathLength(path)/NW.WALK_SPEED_MPS,her=t=>herAt(path,t).p;
+  const plan=SL.meadowFoldPlan(cam,foldAt(path,0,w,h),path[0],walkS,w/h),at=t=>SL.meadowFoldPose(plan,her(t),t),g0=gap2(at(0),cam),g1=gap2(at(walkS),B1);
+  if(g0>1e-6)fails.push(`${k} reopen fold: first frame ≠ reopen lens (${g0})`);if(g1>1e-6)fails.push(`${k} reopen fold: does not end on the 05 lens (${g1})`);
+  report.folds.push({key:`${k} M0>M1 reopen`,walkS:+walkS.toFixed(2),k:+plan.k.toFixed(3),standS:0});runOne(`${k} M0>M1 reopen-fold`,0,walkS,at,her,w,h);}
+ RB.setMeadowBoardFraming('A');}
 // D. wiring
 const src=f=>fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts',f),'utf8');
 const rns=src('world-r2/RegionNodeStage.ts'),wnc=src('world-r2/WorldNativeComposition.ts'),rbl=src('region/RegionBoardLanding.ts');
 if(!SL)fails.push('region/MeadowStageLens.ts missing (one shared lens on M1)');
 if(!/meadowBoardNode\(\)/.test(rbl))fails.push('meadowBoardCamera does not frame the stage node (RegionBoardLanding)');
 if(!/meadowRewardFold\(/.test(rns)||!/setMeadowBoardStage\(toStage\)/.test(rns)||!/blendPath\(walkS,t=>meadowFoldPose\(fold,this\.girl\(\),t\)\)/.test(rns)||!/meadowBlendSeconds\(board,live\(\)/.test(rns)||!/yaw0=Math\.atan2/.test(rns))fails.push('RegionNodeStage.playReward: meadow reward walk does not land on / blend to the stage lens');
+if(!/meadowReopenAtM0\(\)/.test(rbl)||!/playMeadowReopen\(/.test(rns)||!/blendPath\(walkS,t=>meadowFoldPose\(fold,this\.girl\(\),t\)\);await walk;/.test(rns))fails.push('reopen-05: lens / fold not wired (RegionBoardLanding meadowReopenAtM0, RegionNodeStage.playMeadowReopen)');
 if(!/setMeadowBoardStage\(selection\.stageId\)/.test(wnc))fails.push('WorldNativeComposition: level entry does not pick the stage lens');
 const outDir=path.join(__dirname,'reports');fs.mkdirSync(outDir,{recursive:true});fs.writeFileSync(path.join(outDir,'meadow-stage-lens.json'),JSON.stringify(report,null,1));
 for(const [k,v] of Object.entries(report.stages))console.log(k,Object.entries(v).map(([s,r])=>`${s.slice(-2)} edge ${r.edgePt}pt margin ${r.margin} ui ${r.uiGapPt}pt ground ${r.groundM}m solid ${r.solidM}m`).join(' | '));

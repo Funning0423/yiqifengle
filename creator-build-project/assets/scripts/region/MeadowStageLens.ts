@@ -11,9 +11,16 @@ export function meadowLensNodeFor(stageId:string|null|undefined):string{
  return k&&(MEADOW_STAGE_LENS.nodes as readonly string[]).indexOf(k)>=0?k:MEADOW_STAGE_LENS.fallback;
 }
 /** Called when a meadow board is about to be shown (reward walk target, level entry). */
-export function setMeadowBoardStage(stageId:string|null|undefined):string{current=meadowLensNodeFor(stageId);return current;}
-export function meadowBoardNode():string{return current;}
-export function resetMeadowBoardStage():void{current=MEADOW_STAGE_LENS.fallback;}
+export function setMeadowBoardStage(stageId:string|null|undefined):string{current=meadowLensNodeFor(stageId);reopen=false;return current;}
+export function meadowBoardNode():string{return reopen?'M0':current;}
+export function resetMeadowBoardStage():void{current=MEADOW_STAGE_LENS.fallback;reopen=false;}
+/** r3 reopen-at-05 (TransitResume.reopenAfterKill: 04 cleared, 05 not → she stands on M0, board 05). The default (authored) meadow lens
+ *  put her on the first tool button (390×844: y 693–752 vs tools 712–793). On: the board lens frames M0 with the same solver (same
+ *  view, pitch, FOV; translated only), even without the sail framing. Off again on the next stage pick / reset. The walk M0 → M1
+ *  then folds this lens into the 05 lens (meadowFoldPlan), both are one offset from her stand. */
+let reopen=false;
+export function setMeadowReopenAtM0(on:boolean):void{reopen=!!on;}
+export function meadowReopenAtM0():boolean{return reopen;}
 type P=Readonly<{position:readonly number[];target:readonly number[];fovVerticalDeg?:number}>;
 /** Approved gate (Grok Bot, Oct 30), with headroom: a smootherstep blend (ExploreCameraCore.blendPose) of distance d / view angle θ
  *  / FOV Δ over T s peaks at 1.875·d/T, 1.875·θ/T, |e''|max 5.774·θ/T², 1.875·Δ/T. T is the shortest that keeps every peak under
