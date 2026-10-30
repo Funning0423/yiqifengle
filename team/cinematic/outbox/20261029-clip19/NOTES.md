@@ -1,0 +1,36 @@
+# clip19: 19bd812a visual acceptance (界面验收部 clipping-19bd812a), camera items
+
+Base: cine/b19-full9c-final-cam 18965329. Apply order: the three final-cam diffs (outbox/20261029-full9c-final-cam: RegionNodeStage-finale-rail, BalloonTransit-b1-ease, BalloonTransit-3b-landing), then:
+1. RegionJourneyAdapter-lake-departure.diff (GGbot file, 1 line)
+2. test-lakeside-journey-wire.diff (pin updated to the new line)
+3. run-suite-clip19.diff (suite entry `clip19-regressions`)
+`git apply --check` passes in that order on 18965329 (scratch: /workspace/scratch-clip19).
+
+## Root causes
+- **P1 lift-off green (finstart 128–137) and 新发现 A (green ceiling over the 5a walk, finstart 62–116).** Same root cause, and it is not the lens path.
+  - RegionJourneyAdapter.ts:235 places the lakeside journey copy with `lakesideJourney(start)`. `start` is `pose.controllerRoot` at prepare time (WorldFlowCore.ts:460/473 → RegionJourneyCore.ts:248).
+  - The lake is prepared while she is still on the skycity board (state `level`, before the finale). So `start` is the board checkpoint, about (19, 18.85, 100.5), not the ride's departure S6 (83.32, 18.85, 130.80).
+  - Placed from there, the lake copy lands about (−64, 0, −30) m off. Its terrain hill (LK_terrain_i, up to y≈27) sits on the skycity mooring:
+    - her seat is 2.7 m under the lake terrain;
+    - the C1 hold lens is 0.19 m above it;
+    - the pre-lift rise (y 20.4→24.9) goes through it and then looks down onto its top face. That is the 61–92 % dark-green frame, with only the envelope poking out.
+  - Fit evidence: lakesideJourney([19, 18.85, 100.5]) reproduces the Mac flight (x 118→7 at z≈130) and the touchdown lens x/z (7.07, 132.3). With S6, the model lands at (71, 29, 162).
+  - Fix: at mooring C, place the lake from `M5.walkWorld[0]` (the S6 the ride departs from). All existing lake models and gates (test_lake_leg_c, lens-clearance-gate, sky-lake model) already assume S6.
+- **P2 flight #159.** Same root cause. The flight route is built from the misplaced lake (L.approach/bridge), so the lens crossed the city west over the star ring.
+  - Mac trace t 357.43: 0.10 m from env_sky_static_palette. At 357.89: 0.23 m from env_sky_starring.
+  - With the lake from S6, the ride lens keeps ≥2.97 m from skycity and lake meshes on all 7 screens.
+- **P2 T-02 #38.** In 19bd812a it is the RegionNodeStage skyFinaleApproach swoop (node-lens 312.2→313.6 s, 20 m in 1.4 s). It goes through env_sky_ruins: enclosed 312.66–312.72 s, min 0.03 m.
+  - Already fixed by final-cam RegionNodeStage-finale-rail.diff, which removes skyFinaleApproach.
+  - The S4>S6 rail is at ≥0.88 m from the solid mesh on all 7 screens, with 0 enclosed samples.
+- **Meadow m 407–431: OPEN.** See SCENE-NOTE-meadow-windmill.md.
+
+## Gate: tools/journey-integration/test-clip19-regressions.cjs (+ fixtures/19bd812a-camtrace-clip19.json, from the Mac camTrace)
+
+| row | 19bd812a (must fail) | clip19 (diffs applied) |
+|---|---|---|
+| R1 lift-off vs lake copy | caught: lens 0.00 m, lens under lake 101/… samples, her LOS blocked 54, seat under lake | PASS: lake >3 m, 0 under, 0 LOS, seat clear |
+| R2 T-02 | caught: 0.03 m env_sky_ruins, 6 enclosed | PASS: rail S4>S6 ×7 screens, min 0.88 m, 0 enclosed |
+| R3 flight | caught: 0.10 m env_sky_static_palette | PASS: min 2.97 m (skycity+lake), 7 screens |
+| R4 meadow | caught: 0.01 m windmill_static_merged, 61 enclosed | OPEN (not counted) |
+
+On the branch without the diffs, R1 and R3 FAIL by design. The rows are source-tied: the R1 rule reads which start the adapter uses.
