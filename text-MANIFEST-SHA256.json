@@ -3681,8 +3681,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts",
-    "bytes": 20076,
-    "sha256": "d2cb2af98ebf5ce8f169fb4784fc2a90741ba21b0435af9adb614f9f15e9284b"
+    "bytes": 20083,
+    "sha256": "d3c5e371f1f8d5b7cfd7da152d6b4a73aec37c5e8db605ef611de4f1862bc0ac"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionChain.ts.meta",
