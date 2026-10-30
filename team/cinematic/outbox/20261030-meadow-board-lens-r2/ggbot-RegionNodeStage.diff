@@ -1,0 +1,59 @@
+diff --git a/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts b/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
+index 7c7e6832..4da0864d 100644
+--- a/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
++++ b/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
+@@ -8,7 +8,8 @@ import {FreeOrbit,ORBIT_LIMITS,orbitColliderName,type OrbitBox,type OrbitPlace}
+ import {setExploreEnabled} from '../region/ExploreGate';
+ import {REGION_NODES,type RegionId} from '../region/RegionNodes';
+ import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
+-import {planWalk} from '../region/NodeWalker';
++import {meadowBlendSeconds,meadowFoldPlan,meadowFoldPose,setMeadowBoardStage} from '../region/MeadowStageLens';
++import {planWalk,pointAlong} from '../region/NodeWalker';
+ import {performBounded,runRewardWalk,runSkyFinale,type PathPlace} from '../region/RegionNodePlay';
+ import {emitTransitCue} from '../region/TransitAudioHooks';
+ import {PROP_NODES,SCENE_PROPS,propFeedback,resolveTap,pickMarker,type Gesture} from './ExploreInput';
+@@ -266,9 +267,12 @@ export class RegionNodeStage extends Component{
+   try{character.cancelAndReset({kind:'standing',controllerRoot:[start[0],start[1],start[2]],yawRad:0});}catch{/* still blend */}
+   const {w,h}=this.viewport();
+   const board=this.readPose();
++  /* b20 meadow-board-lens (运镜bot, Grok Bot plan 1): each meadow board frames its own node (same view + FOV, translated only) */
++  const meadow=spec.region==='meadow'&&!spec.departure;
+   this.lens='BoardToFollow';setExploreEnabled(false);
+   /* b17r13: the reward close-up is held for her walk, so it blends to the occlusion-planned pose (Mac r13b: a stone pillar filled its right half) */
+   const wk=spec.from+'>'+spec.to,rail=spec.region==='skycity'?this.skyRailOf(wk):null;
++  if(spec.region==='meadow'){await this.meadowRewardFold(character,fromStage,toStage,spec,board,meadow,w,h);if(handoff&&spec.departure){this.releaseForJourney();return;}if(meadow){this.restoreBoard();return;}}
+   if(rail)await this.skyJoin(wk,board,rail,false);else{const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
+   await this.blend(BLEND_S.boardToFollow,board,()=>held);}
+   this.lens='FollowWalk';setExploreEnabled(true);
+@@ -286,6 +290,31 @@ export class RegionNodeStage extends Component{
+   if(rail)await this.skyJoin(wk,arrived,()=>board,true);else await this.blend(BLEND_S.followToBoard,arrived,()=>board);
+   this.restoreBoard();
+  }
++ /** b20 meadow-board-lens (Grok Bot plan 1, r2 speed headroom): the meadow reward walk with the lens move FOLDED INTO the walk, no
++  *  fade, no pause. Mainline walks (05→06→07→08): one path over the whole walk (MeadowStageLens.meadowFoldPose): the board lens rides
++  *  her at the board offset, eases toward the follow lens and back, and ends on the next board lens as she stops (worst 7.5 m/s cap
++  *  with headroom, view ≤ 45°/s). One writer: blendPath pauses the orbit, explore stays off. Departure (08→09): the board lens eases
++  *  onto the live follow lens while she walks, the orbit follows and the ride picks up the live lens. */
++ private async meadowRewardFold(character:CharacterAdapter,fromStage:string,toStage:string,spec:ReturnType<typeof walkPair>,board:Pose,meadow:boolean,w:number,h:number){
++  const plan=planWalk(spec.region,spec.from,spec.to),walkS=plan.segments.reduce((n,x)=>n+x.duration,0);
++  /* the follow keeps ONE heading (start → 3 m along the planned walk): a 6.6 m follow arm swinging with her live yaw measured > 90°/s */
++  const wp=this.toWorld(spec.region,plan.segments[0].path),aim=pointAlong(wp,3),yaw0=Math.atan2(aim[0]-wp[0][0],aim[2]-wp[0][2]);
++  const walk=runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));
++  try{
++   if(meadow&&plan.segments.length===1){
++    const start=wp[0],fold=meadowFoldPlan(board,followPose(start,yaw0,w,h,followLookUp(spec.region,99)),start,walkS,w/h);
++    this.lens='FollowWalk';setExploreEnabled(false);
++    await this.blendPath(walkS,t=>meadowFoldPose(fold,this.girl(),t));
++    await walk;setMeadowBoardStage(toStage)/* the board lease stays hidden until restoreBoard */;
++    const end=this.girl();this.writePose(meadowFoldPose(fold,end,walkS))/* she stands on the node: = the next board lens */;
++   }else{
++    const live=()=>this.occludeHeld(followPose(this.girl(),yaw0,w,h,followLookUp(spec.region,99)));
++    await this.blend(meadowBlendSeconds(board,live(),BLEND_S.boardToFollow),board,live);
++    this.lens='FollowWalk';setExploreEnabled(true);this.handOrbitBack(spec.region);
++    await walk;if(meadow)setMeadowBoardStage(toStage);
++   }
++  }finally{setExploreEnabled(false);}
++ }
+  /** Like restoreBoard, but the world layers, the girl and the camera stay exactly as on screen (handoff to a continuous ride). */
+  private releaseForJourney(){
+   const c=this.cover;this.cover=null;
