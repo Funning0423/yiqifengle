@@ -8,7 +8,6 @@
  * head/chest not hidden (guardEval), lens ≥ minClearM (1.1 m) from every box and not inside one, lens in front of her (face seen).
  * Kept: her ≥ minHerShare of the frame height and ≥ minRingShare of the ring samples on screen (worst screen each); score = ring share +
  * her share (a low side angle: her at a quarter of the frame, the ring arc across the top, the city between). */
-import {SKY_FINALE_RAILS} from './SkyFinaleRail';
 import {guardEval,type OccBox} from './LensOcclusion';
 import {herMargin} from './LensSmooth';
 import {herOcclusion} from './LensAvoid';
@@ -97,17 +96,3 @@ export function skyFinaleApproach(from:{position:readonly number[];target:readon
    const o=herOcclusion(p.position,feet,near);if(o.face||o.chest)hidden++;}
   const sc=inBox*100+hidden+T*0.01;if(sc<bs){bs=sc;best={dir,T,inBox,hidden};}}
  return best;}
-/** full9c T-02 (运镜bot): finale lens = SKY_FINALE_RAILS (baked on the real mesh, steps included), keyed on her position (planSkip-safe); the last run eases onto the stand shot over the last SKY_FINALE_RAIL_APPROACH_M. Gates: sky-finale-rail, lens-trajectory-clearance. */
-export const SKY_FINALE_RAIL_APPROACH_M=1.05;
-type Rail=typeof SKY_FINALE_RAILS[number];
-export function skyFinaleRailAt(herLocal:readonly number[]):{run:number;s:number}{let best={run:0,s:0},bd=Infinity;
- SKY_FINALE_RAILS.forEach((R:Rail,run:number)=>{const a=R.from,b=R.to,d=[b[0]-a[0],b[2]-a[2]],l=Math.hypot(d[0],d[1])||1,s=Math.max(0,Math.min(R.lengthM,((herLocal[0]-a[0])*d[0]+(herLocal[2]-a[2])*d[1])/l)),
-  q=[a[0]+d[0]/l*s,a[1]+(b[1]-a[1])*s/R.lengthM,a[2]+d[1]/l*s],e=Math.hypot(herLocal[0]-q[0],herLocal[1]-q[1],herLocal[2]-q[2]);if(e<bd){bd=e;best={run,s};}});return best;}
-export function skyFinaleRailPose(herLocal:readonly number[]):{position:V3;target:V3;fovVerticalDeg:number}{
- const {run,s}=skyFinaleRailAt(herLocal),R=SKY_FINALE_RAILS[run],K=R.keys,last=run===SKY_FINALE_RAILS.length-1;let k=0;while(k<K.length-2&&K[k+1][0]<s)k++;
- const u=Math.max(0,Math.min(1,(s-K[k][0])/((K[k+1][0]-K[k][0])||1))),P:V3=[0,1,2].map(i=>K[k][i+1]+(K[k+1][i+1]-K[k][i+1])*u) as V3;
- const e=last?smoother((s-(R.lengthM-SKY_FINALE_RAIL_APPROACH_M))/SKY_FINALE_RAIL_APPROACH_M):0,T=SKY_FINALE_POSE_LOCAL;
- const chest=[herLocal[0],herLocal[1]+1.3,herLocal[2]],dir=(t:readonly number[])=>{const v=[t[0]-P[0],t[1]-P[1],t[2]-P[2]],n=Math.hypot(v[0],v[1],v[2])||1;return v.map(x=>x/n);};
- const d0=dir(chest),d1=(()=>{const v=[T.target[0]-T.position[0],T.target[1]-T.position[1],T.target[2]-T.position[2]],n=Math.hypot(v[0],v[1],v[2])||1;return v.map(x=>x/n);})();
- const c=Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])),w=Math.acos(c),D=w<1e-4?d1:(()=>{const s0=Math.sin((1-e)*w)/Math.sin(w),s1=Math.sin(e*w)/Math.sin(w);return d0.map((x,i)=>x*s0+d1[i]*s1);})();
- return {position:P,target:[P[0]+D[0]*8,P[1]+D[1]*8,P[2]+D[2]*8],fovVerticalDeg:48+(T.fovVerticalDeg-48)*e};}
