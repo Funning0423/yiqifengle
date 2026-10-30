@@ -75,7 +75,7 @@ const NODES={
   {key:'I2',at:[2.5,0,8.1],role:'mainline',stageId:'mainline-02'},
   {key:'I3',at:[6.1,-0.452,9.1],role:'mainline',stageId:'mainline-03'/* b20 option E (Grok Bot): was [8.1,-0.36,6.1] (stand 67% hidden by beach_palm_short, I3-I4 lean_01 push-in 89%); trees unchanged */},
   {key:'I4',at:[3.9,0.089,3.9],role:'mainline',stageId:'mainline-04'/* b19 island-depart-walk (方案 E): was [4.5,0.23,-4.9] (I4-I6 18.03 m, cut 4.1 m + fade + 3.6 m); b20 i4nudge: was [4.1,0.11,2.7] (stood under the skinned palm_young_01 canopy: crown/face grazed in the L04 push-in) -> 1.25 m NW, canopy clear */},
-  {key:'I5',at:[-3.1,0.14,0.7],role:'optional',opens:'challenge-island'/* b20 island-walk-fixes: was [-4.5,0.13,-0.9] (I4-I5 10.94 m, I5-I6 11.44 m, both cut); now both <= DIRECT_MAX_M */},
+  {key:'I5',at:[-2.7,0.151,0.7],role:'optional',opens:'challenge-island'/* b20 island-walk-fixes: was [-4.5,0.13,-0.9] (I4-I5 10.94 m, I5-I6 11.44 m, both cut); now both <= DIRECT_MAX_M */},
   {key:'I6',at:[-1.5,-0.18,9.3],role:'departure'},
  ],
  meadow:[
