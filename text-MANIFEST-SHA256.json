@@ -1991,8 +1991,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 102296,
-    "sha256": "e1686898ebf8fb988dedac2d88d4422cc171571a503d5953fb643a50cdd229c3"
+    "bytes": 102262,
+    "sha256": "8b4427946221867781fd9612c66944e5d687efbff76aaa5728edb688d5b475ae"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -5061,8 +5061,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 29860,
-    "sha256": "37e3c6243357aacfd4f76527df1e4b0a053156ead4e41b94851295cb4acf573f"
+    "bytes": 29978,
+    "sha256": "3d820d6cc98b8014f02d3591236b5d4102359593bd58582873132871839731bb"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

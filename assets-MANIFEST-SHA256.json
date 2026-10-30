@@ -250,6 +250,11 @@
     "sha256": "bbcbb50f30e93847d31e49980e2d6a8e0dd6b1f30e725ed0e67281b5e4185ff8"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_vibrate.png",
+    "bytes": 6039,
+    "sha256": "d34d803b0265107aded5f21690e75d886d5d5e0417309306ab5017863541733f"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/popup/panel_frame_9s.png",
     "bytes": 54977,
     "sha256": "1385ed393417282c2eab3882368dfcfb69ff52456494b23422c35f26012660a8"
@@ -258,6 +263,11 @@
     "path": "creator-build-project/assets/bundles/board_art/popup/reddot.png",
     "bytes": 2391,
     "sha256": "e78a9917f92f7776923069db628a927ebfd7c8e1065110300b2ab2a4edd5f67d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_coast.png",
+    "bytes": 3523,
+    "sha256": "f22c40a852ba577a36f57964bed0af31e60bda4bf394145ca8c52831d7331ae4"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png",
@@ -413,6 +423,11 @@
     "path": "creator-build-project/assets/bundles/board_art/r2/icon_lock.png",
     "bytes": 3652,
     "sha256": "41294893b1b2bde33334d3bf09adee25f017507ac6aafe8e7b33e9d40d3e726a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_coast.png",
+    "bytes": 1795,
+    "sha256": "9623c61af87d217c25fc133a50c22e4cf496248aed47dab41f3bdbc716743368"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_lake.png",
