@@ -1,0 +1,2 @@
+- island-stage04-departure-strips-7screens.png: rows = 390x844, 414x896, 360x780, 375x667, 320x568, 390x520, 768x1024 (each: red bar before 96dfbd33, green bar after); columns t = 0, 0.15, 0.3, 0.45, 0.6, 2, 4, 6, 7.8 s from the reveal (push-in end)
+- island-stage04-entry-strips-7screens.png: rows = 390x844, 414x896, 360x780, 375x667, 320x568, 390x520, 768x1024 (each: red bar before 96dfbd33, green bar after); columns t = 0, 0.15, 0.3, 0.45, 0.6, 1.5, 3, 4.5 s from the reward-walk start (board lens)
