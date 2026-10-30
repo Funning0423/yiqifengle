@@ -2,7 +2,7 @@
 
 Base: cine/b19-full9c-final-cam 18965329. Apply order: the three final-cam diffs (outbox/20261029-full9c-final-cam: RegionNodeStage-finale-rail, BalloonTransit-b1-ease, BalloonTransit-3b-landing), then:
 1. RegionJourneyAdapter-lake-departure.diff (GGbot file, 1 line)
-2. test-lakeside-journey-wire.diff (pin updated to the new line)
+2. test-lakeside-journey-wire.diff and test_lakeside_reach.diff (both pins updated to the new line)
 3. run-suite-clip19.diff (suite entry `clip19-regressions`)
 `git apply --check` passes in that order on 18965329 (scratch: /workspace/scratch-clip19).
 
@@ -28,9 +28,20 @@ Base: cine/b19-full9c-final-cam 18965329. Apply order: the three final-cam diffs
 
 | row | 19bd812a (must fail) | clip19 (diffs applied) |
 |---|---|---|
-| R1 lift-off vs lake copy | caught: lens 0.00 m, lens under lake 101/… samples, her LOS blocked 54, seat under lake | PASS: lake >3 m, 0 under, 0 LOS, seat clear |
+| R1 lift-off vs lake copy | caught: lens 0.00 m, lens under lake in 101 samples, her LOS blocked 54, seat under lake | PASS: lake >3 m, 0 under, 0 LOS, seat clear |
 | R2 T-02 | caught: 0.03 m env_sky_ruins, 6 enclosed | PASS: rail S4>S6 ×7 screens, min 0.88 m, 0 enclosed |
 | R3 flight | caught: 0.10 m env_sky_static_palette | PASS: min 2.97 m (skycity+lake), 7 screens |
 | R4 meadow | caught: 0.01 m windmill_static_merged, 61 enclosed | OPEN (not counted) |
 
 On the branch without the diffs, R1 and R3 FAIL by design. The rows are source-tied: the R1 rule reads which start the adapter uses.
+
+## onewriter trace mode (lens-clearance-gate.cjs --trace, 1fd7851d; copied read-only into the scratch tree, not edited)
+- **19bd812a finstart trace:** FAIL, as expected.
+  - region.node-lens at t 312.62: 0.03 m from env_sky_ruins (ground rule G). This is the T-02 swoop.
+  - world.setCamera at t 337.93: 0.23 m from env_sky_static_palette (S). This is the C1 board close-up pan to the door spot.
+- **Code after the fix, as a model trace (model-trace-make.cjs: S4>S6 rail + the whole sky→lake ride in camTrace format):** PASS.
+  - node-lens: 0 violations, solid ≥0.88 m.
+  - SkyWalkShot: 0 violations, solid 1.41 m, ground 1.37 m.
+  - world.setCamera (board, lift-off, flight): 0 violations, solid 1.39 m, ground 1.51 m.
+- **t 312.6:** cleared, because the final-cam rail replaces skyFinaleApproach.
+- **t 337.9: not proven on the Mac.** The model C1 pan stays ≥1.39 m on all 7 screens (closest at flight−5.48 s, (94.02, 21.59, 120.99)). The Mac pose at that moment, (96.74, 20.67, 120.73), sits off the model path, and the trace does not say why. It could be a different pan start: in the runtime her walk/board timing is compressed. **Mac rerun needed**, then run --trace on it.
