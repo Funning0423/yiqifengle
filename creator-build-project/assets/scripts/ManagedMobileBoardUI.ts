@@ -8,6 +8,7 @@ import { MINIGAME } from 'cc/env';
 import { assetManager, SpriteFrame } from 'cc';
 import { DEFAULT_KIT, boardKitFor, kitGrid, kitCellAt, type KitGrid, type RegionBoardKit } from './ui/BoardKit';
 import { coastBoardKitFromFlag } from './ui/BoardProjection';
+import { compactHudApplies, compactHudLayout, compactLevelLabel, compactToastLines, COMPACT_COLORS, COMPACT_LABEL, COMPACT_TOAST, type CompactHudLayout } from './ui/CompactHud';
 import { ruleGuideDy, RULE_GUIDE_MAX_LINES, wrapKinsoku, boardLayout, boardSafeInsets, cellCenter, pickToolBar, qaForcedToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
 import { PopupStack, popupScale, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
@@ -56,7 +57,9 @@ export class ManagedMobileBoardUI extends Component {
   private journey = { readOnly: false, records: Array.from({ length: 12 }, () => ({ bestStars: 3 })) };
   private layoutInfo: any = null; private geo: BoardLayout | null = null; private cell = 42.6;
   /** Board kit (coast pilot): DEFAULT_KIT on every default path (all kit code below is skipped); coast only in ?qfcoastkit=1 test mode. */
-  private kit: RegionBoardKit = DEFAULT_KIT; private kitGridCache: KitGrid | null = null; private kitTrayHidden = false; private kitArt = new Map<string, SpriteFrame>(); private kitArtLoading = ''; private goalLabels: Label[] = [];
+  private kit: RegionBoardKit = DEFAULT_KIT; private kitGridCache: KitGrid | null = null; private kitTrayHidden = false; private kitArt = new Map<string, SpriteFrame>(); private kitArtLoading = '';
+  /** Compact HUD (UI设计部 46649fd4 §8): only with the coast kit on AND portrait logical h ≤ 600; null on every default path. */
+  private compactHud: CompactHudLayout | null = null; private compactLabel: Node | null = null; private goalLabels: Label[] = [];
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
@@ -401,12 +404,58 @@ export class ManagedMobileBoardUI extends Component {
   private layoutKit(g: BoardLayout) {
     const grid = this.kit.board ? kitGrid(this.kit, g) : null; this.kitGridCache = grid && grid.projected ? grid : null;
     const hide = !!this.kitGridCache && this.kit.hide2D.tray; for (const name of ['Tray', 'TrayShadow']) { const n = this.boardFrame.getChildByName(name); if (n) n.active = !hide; } this.kitTrayHidden = hide;
+    const info = this.root.getComponent(UITransform)!; this.compactHud = this.kitGridCache && this.kit.hud?.select === 'compact' && compactHudApplies(info.width, info.height) ? compactHudLayout(info.width, info.height, this.safeInsets(info.width, info.height)) : null;
+    if (this.compactLabel) this.compactLabel.active = !!this.compactHud;
     if (!this.kitGridCache) { this.cells.forEach(n => n.setScale(1, 1, 1)); return; }
     const q = this.kitGridCache.quads!, P = g.pitch;
     this.cells.forEach((n, i) => { const c = this.kitGridCache!.centers[i], k = Math.hypot(q[i][1].x - q[i][0].x, q[i][1].y - q[i][0].y) / P; n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.setScale(k, k, 1); });
     if (this.kitArtLoading !== this.kit.id) { this.kitArtLoading = this.kit.id; const kit = this.kit;
       assetManager.loadBundle(kit.pieceBundle, (e, b) => { if (e || !b) { console.warn('[QF_BOARD_KIT] piece bundle ' + kit.pieceBundle + ' ' + (e && e.message)); return; }
         for (const key of kit.pieceKeys) b.load(key + '/spriteFrame', SpriteFrame, (er, f: SpriteFrame) => { if (!er && f) { this.kitArt.set(key, f); if (!this.disposing && this.snapshot) this.paint(); } }); }); }
+  }
+  // ---------------- compact HUD (coast kit test mode, portrait h ≤ 600; UI设计部 SPEC 46649fd4 §3/§8, 8.x, 8.y) ----------------
+  /** Goal bar: hud_levelplate 3-slice at 36 pt high, y 95–131; one row: goal icon 22 + count 15 pt, divider 1.5×18 (6 pt each side), hourglass 9.5×15 + moves 15 pt. */
+  private layoutCompactPlate() {
+    const c = this.compactHud!, d = this.root.getComponent(UITransform)!, w = d.width, h = d.height, bw = c.goalBar.width(Math.max(1, this.goalKeys.length)), s = c.goalBar.height / 129, wpx = bw / s, k = 1 / s;
+    this.plate.setPosition(w / 2 - w / 2, h / 2 - (c.goalBar.top + c.goalBar.height / 2), 0); this.plate.setScale(s, s, 1); this.place(this.plateSprite.node, 0, 0, wpx, 129);
+    this.titleLabel.node.active = false;
+    const font = 15 * k, icon = 22 * k, gap = 8 * k; let x = -wpx / 2 + 16 * k;
+    this.goalNodes.forEach((n, i) => { if (!n.active) return; const art = n.getChildByName('GoalPieceArt')!, l = this.goalLabels[i]; this.place(art, icon / 2, 0, icon, icon);
+      l.fontSize = Math.round(font); l.lineHeight = Math.round(font * 1.2); l.node.setPosition(icon + 2 * k, 0, 0); n.setPosition(x, 0, 0); x += icon + 2 * k + measure(l.string || '0', font) + gap; });
+    const mvW = 9.5 * k + 4 * k + measure(this.moves.string || '00', font), divX = wpx / 2 - 16 * k - mvW - COMPACT_COLORS.divider.marginPt * k;
+    this.plateDivider.node.setPosition(divX, 0, 0); this.plateDivider.clear(); this.plateDivider.strokeColor = new Color(196, 166, 120, 255); this.plateDivider.lineWidth = COMPACT_COLORS.divider.w * k;
+    this.plateDivider.moveTo(0, -COMPACT_COLORS.divider.h / 2 * k); this.plateDivider.lineTo(0, COMPACT_COLORS.divider.h / 2 * k); this.plateDivider.stroke();
+    this.targets.moves.setPosition(divX + COMPACT_COLORS.divider.marginPt * k, 0, 0); this.place(this.movesIcon.node, 4.75 * k, 0, 9.5 * k, 15 * k);
+    this.moves.fontSize = Math.round(font); this.moves.lineHeight = Math.round(font * 1.2); this.moves.node.setPosition(9.5 * k + 4 * k, 0, 0);
+  }
+  /** Level-name pill (§3.2/§8.5) in the capsule row: 13 pt, '05 · name' truncated by compactLevelLabel. */
+  private paintCompactLabel(s: any) {
+    const c = this.compactHud!, d = this.root.getComponent(UITransform)!, w = d.width, h = d.height;
+    if (!this.compactLabel) { const n = this.box('CompactLevelLabel', this.hud, 0, 0, 10, 28); n.addComponent(Graphics); const l = makeLabel(n, '', 0, 0, COMPACT_LABEL.fontPt, { width: c.label.maxWidth, name: 'Text' }); this.tint.label(l, 'brown'); this.compactLabel = n; }
+    const lv = (s.active?.level ?? Math.max(0, (s.active?.ordinal ?? 1) - 1)) + 1, text = s.active?.name ? compactLevelLabel(lv, String(s.active.name), w) : '';
+    const n = this.compactLabel, l = n.getChildByName('Text')!.getComponent(Label)!; l.string = text; l.fontSize = COMPACT_LABEL.fontPt; l.lineHeight = COMPACT_LABEL.fontPt + 3;
+    const pw = Math.min(c.label.maxWidth, measure(text, COMPACT_LABEL.fontPt) + 2 * COMPACT_LABEL.padL); n.getComponent(UITransform)!.setContentSize(pw, COMPACT_LABEL.height);
+    n.setPosition(c.label.x + pw / 2 - w / 2, h / 2 - c.label.y, 0); this.paintPill(n.getComponent(Graphics)!, pw, COMPACT_LABEL.height); n.active = true;
+  }
+  private paintPill(g: Graphics, pw: number, ph: number) { const k = 1 - 0.38 * this.tint.weight(); g.clear(); g.fillColor = new Color(Math.round(255 * k), Math.round(244 * k), Math.round(220 * k), Math.round(255 * COMPACT_LABEL.fillAlpha)); g.roundRect(-pw / 2, -ph / 2, pw, ph, COMPACT_LABEL.radius); g.fill(); g.strokeColor = new Color(196, 166, 120, 255); g.lineWidth = COMPACT_LABEL.strokePt; g.roundRect(-pw / 2, -ph / 2, pw, ph, COMPACT_LABEL.radius); g.stroke(); }
+  /** Hint pill (§8.2) replaces the label in place: 36 high, 12 pt, ≤ 2 lines broken after '，'. */
+  private layoutCompactToast(text: string) {
+    const c = this.compactHud!, d = this.root.getComponent(UITransform)!, w = d.width, h = d.height, t = compactToastLines(text, c.toast.maxWidth);
+    this.toast.getComponent(UITransform)!.setContentSize(t.width, COMPACT_TOAST.height); this.toast.setPosition(c.toast.x + t.width / 2 - w / 2, h / 2 - c.toast.y, 0);
+    this.toastLabel.string = t.lines.join('\n'); this.toastLabel.fontSize = COMPACT_TOAST.fontPt; this.toastLabel.lineHeight = COMPACT_TOAST.lineH; this.toastLabel.node.setScale(1, 1, 1);
+    this.toastLabel.node.getComponent(UITransform)!.setContentSize(t.width - 2 * COMPACT_TOAST.padX, COMPACT_TOAST.height); this.paintPill(this.toastBg, t.width, COMPACT_TOAST.height);
+  }
+  /** Tools (§3.5): icon 48, tap 52, step 64, centre y = h − max(safe.bottom,12) − 34. */
+  private layoutCompactTools() {
+    const c = this.compactHud!, d = this.root.getComponent(UITransform)!, act = this.tools.filter(n => n.active), x0 = -((act.length - 1) * c.tools.step) / 2;
+    act.forEach((n, i) => { n.setPosition(x0 + i * c.tools.step, d.height / 2 - c.tools.y, 0); n.getComponent(UITransform)!.setContentSize(c.tools.hit, c.tools.hit);
+      const art = n.getChildByName('Face')!.getChildByName('OriginalToolArt')!, t = art.getComponent(UITransform)!, m = Math.max(t.width, t.height) || 1; t.setContentSize(t.width * c.tools.size / m, t.height * c.tools.size / m); });
+  }
+  /** Night (§8.4/8.x/8.y): moves cyan [0,22,26] (day TEXT_DAY.teal), hourglass + divider opaque; label hidden while the hint shows (crossfade). */
+  private updateCompactHud() {
+    const wgt = this.tint.weight(), a = COMPACT_COLORS.day.moves, b = COMPACT_COLORS.night.moves, m = (i: number) => Math.round(a[i] + (b[i] - a[i]) * wgt);
+    this.moves.color = new Color(m(0), m(1), m(2), 255); const hi = this.movesIcon.node.getComponent(UIOpacity); if (hi) hi.opacity = 255; this.movesIcon.color = new Color(this.movesIcon.color.r, this.movesIcon.color.g, this.movesIcon.color.b, 255);
+    if (this.compactLabel) { const op = this.compactLabel.getComponent(UIOpacity) || this.compactLabel.addComponent(UIOpacity), t = this.toast.getComponent(UIOpacity)!.opacity; op.opacity = this.toastT >= 0 ? 255 - t : 255; }
   }
   private kitPieceFrame(t: number): SpriteFrame | null { return this.kitArt.get(this.kit.pieceKeys[t]) || BoardArt.shared().frame(PIECE_KEYS[t]); }
   private cellAt(x: number, y: number, yDown?: boolean) {
@@ -658,7 +707,7 @@ export class ManagedMobileBoardUI extends Component {
     this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast(); this.regionTitle?.place(w, h, g.toast.y, { top: g.plate.y + g.plate.height / 2, bottom: g.tray.y - g.tray.height / 2 });
     this.layoutInfo = { width: w, height: h, safe, board: g.grid.size, cell: P, boardCenter: { x: this.boardCenter.x, y: this.boardCenter.y }, toolY: Y(g.tools.y), pitch: P, geometry: g, skyReserved: g.tray.y - g.tray.height / 2 };
     this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2, board: { x: g.grid.x, y: g.grid.y, size: g.grid.size } });
-    this.popups.layout(); this.paint(); this.paintToolTray(); if (this.snapshot) this.render(this.snapshot);
+    this.popups.layout(); this.paint(); this.paintToolTray(); if (this.compactHud) this.layoutCompactTools(); if (this.snapshot) this.render(this.snapshot);
   }
   /** Info plate: row 1 level title (the only place the name appears), row 2 goal pieces + counts | hourglass + moves.
    *  hud_levelplate is a 411×129 sliced sprite; the beige fill ends 15 px in from the left and 19 px in from the right,
@@ -720,6 +769,7 @@ export class ManagedMobileBoardUI extends Component {
     this.place(this.movesIcon.node, 11 * k, 0, 21 * k, 33 * k);
     this.moves.fontSize = lay.font; this.moves.lineHeight = Math.round(lay.font * 1.4); this.moves.node.setPosition(lay.labelX, 2 * k, 0);
     this.titleLabel.node.getComponent(UITransform)!.setContentSize(wpx - 40, 40); this.titleLabel.overflow = Label.Overflow.SHRINK;
+    if (this.compactHud) this.layoutCompactPlate(); else if (this.compactLabel) this.titleLabel.node.active = true;
   }
   private measureLayout() {
     const info = this.layoutInfo; const point = (n: Node) => ({ x: n.worldPosition.x + info.width / 2, y: info.height / 2 - n.worldPosition.y });
@@ -809,8 +859,9 @@ export class ManagedMobileBoardUI extends Component {
     this.moves.string = s.active ? String(s.active.moves) : '';
     this.goalLabels.forEach((l, i) => l.string = String(s.active?.goals?.[goalKeys[i]] ?? 0));
     this.titleLabel.string = s.active?.name ? `${String((s.active.level ?? Math.max(0, (s.active.ordinal ?? 1) - 1)) + 1).padStart(2, '0')}  ${s.active.name}` : '';
+    if (this.compactHud) this.paintCompactLabel(s);
     if (relayout && this.geo) { this.layout(); return; }
-    this.layoutPlate(); this.syncToolBar(); this.paintToolTray();
+    this.layoutPlate(); this.syncToolBar(); this.paintToolTray(); if (this.compactHud) this.layoutCompactTools();
     if (!board) { this.hintCells = []; this.hintClock.reset(); }
     if (s.state === 'run.ready' && !this.modalOpen() && s.provider === 'regional-r05' && s.active?.guide) { const key = s.active.stageId + '|' + s.active.attemptId; if (this.guideShown !== key) { this.guideShown = key; this.showRuleGuide(); } }
     this.paint();
@@ -926,6 +977,7 @@ export class ManagedMobileBoardUI extends Component {
     const text = this.toastLabel?.string; if (!text) return;
     const tw = measure(text, 15), w = Math.min(this.geo?.toast.maxWidth ?? 330, tw + 40), h = this.geo?.toast.height ?? 32, fit = Math.min(1, (w - 28) / tw);
     this.toast.getComponent(UITransform)!.setContentSize(w, h); this.toastLabel.node.setScale(fit, fit, 1); this.paintToast(w, h);
+    if (this.compactHud) this.layoutCompactToast(text);
   }
   private paintToast(w: number, h: number) { const g = this.toastBg, k = 1 - 0.38 * this.tint.weight(); g.clear(); g.fillColor = new Color(40, 30, 20, 40); g.roundRect(-w / 2 + 1, -h / 2 - 2, w, h, h / 2); g.fill(); g.fillColor = new Color(Math.round(248 * k), Math.round(242 * k), Math.round(226 * k), 240); g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.fill(); g.strokeColor = new Color(201, 177, 133, 255); g.lineWidth = 1.5; g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.stroke(); }
   /** b18 (UI设计部): an old unfinished lake board was dropped on load → once, after presentForPlay (entry shot + transition done),
@@ -961,6 +1013,7 @@ export class ManagedMobileBoardUI extends Component {
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
     if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / TOAST_OUT_S); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
+    if (this.compactHud) this.updateCompactHud();
     this.staleNotice(s);
     if (!titleUp && this.toastT < 0 && !this.noticeUp && this.titleGate.pending()) { const q = this.titleGate.next(); if (q) this.say(q.text, q.fade, q.valid); }
     if (!titleUp && this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
@@ -1004,7 +1057,7 @@ export class ManagedMobileBoardUI extends Component {
     // b16 真机复核 ⑤：自己按 472 折行并做避头尾（行首不出现「）」等），Label 宽 480 不会再折一次。
     const wrapped = wrapKinsoku([guide.rule, guide.tool?.description].filter(Boolean).join('\n'), RULE_BODY_W - 8, t => measure(t, 28)).slice(0, RULE_GUIDE_MAX_LINES),
       body = wrapped.join('\n'), lines = wrapped.length;
-    const ph = 104 + 48 + 40 + lines * 40 + 48 + 104 + 72, vw = this.layoutInfo?.width || 390, vh = this.layoutInfo?.height || 844, plateBottom = this.geo ? this.geo.plate.y + this.geo.plate.height / 2 : 0,
+    const ph = 104 + 48 + 40 + lines * 40 + 48 + 104 + 72, vw = this.layoutInfo?.width || 390, vh = this.layoutInfo?.height || 844, plateBottom = this.compactHud ? this.compactHud.limits[0] : this.geo ? this.geo.plate.y + this.geo.plate.height / 2 : 0,
       p = this.popups.open({ name: 'RuleGuidePanel', height: ph, title: guide.title || '这一关的规则', dy: ruleGuideDy(vw, vh, ph, plateBottom, this.layoutInfo?.safe?.bottom ?? 34, popupScale(vw, vh)) });
     p.text(guide.phaseLabel + (guide.heldTurns ? ' · 固定 ' + guide.heldTurns + ' 次行动' : ''), 0, 128, 26, 'brown2', { bold: false, width: RULE_BODY_W });
     p.text(body, -RULE_BODY_W / 2, 192 + lines * 20, 28, 'brown', { bold: false, width: RULE_BODY_W, lines, height: lines * 40 + 8, align: 'left', name: 'RuleBody' });

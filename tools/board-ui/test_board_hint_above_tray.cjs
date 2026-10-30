@@ -86,7 +86,7 @@ function portraitChecks(w, h, safe, goals, label) {
   });
   await ok('every region alike: the board UI places the Toast only from BoardLayout.toast (no region / provider branch), style constants unchanged', () => {
     const ui = fs.readFileSync(S + 'ManagedMobileBoardUI.ts', 'utf8'), lay = fs.readFileSync(S + 'ui/BoardLayout.ts', 'utf8');
-    assert.equal((ui.match(/this\.toast\.setPosition\(/g) || []).length, 1); assert(/this\.toast\.setPosition\(X\(g\.toast\.x\), Y\(g\.toast\.y\), 0\)/.test(ui));
+    const cmp = ui.slice(ui.indexOf('private layoutCompactToast('), ui.indexOf('private layoutCompactTools(')); /* compact HUD (kit on + h ≤ 600 only, SPEC 46649fd4 §8.2) places its hint pill from CompactHud.toast — the one allowed second site */ assert.equal((ui.match(/this\.toast\.setPosition\(/g) || []).length - (cmp.match(/this\.toast\.setPosition\(c\.toast\.x/g) || []).length, 1); assert(/this\.toast\.setPosition\(X\(g\.toast\.x\), Y\(g\.toast\.y\), 0\)/.test(ui));
     const size = ui.slice(ui.indexOf('private sizeToast()'), ui.indexOf('private paintToast(')); assert(size.length > 50 && !/provider|region|lakeside|meadow|skycity/i.test(size), 'no per-region sizing');
     assert(/measure\(text, 15\)/.test(size) && /tw \+ 40/.test(size) && /\?\? 330/.test(size) && /\?\? 32/.test(size), 'width = measure(text,15)+40, ≤ max, h 32');
     assert(/export const TOAST = \{ height: 32, gap: 6, maxWidth: 330, edge: 12 \}/.test(lay));

@@ -2051,8 +2051,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 105199,
-    "sha256": "25679c02e1b5f50990b1f7e97117f48df31a3ccd80e7273fe8393aaf426ad766"
+    "bytes": 112418,
+    "sha256": "54220a486946a88847bc94912a95e91f3a9205e58581c324b7fe3a93cdd872fe"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -4196,8 +4196,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardKit.ts",
-    "bytes": 14904,
-    "sha256": "947d26db032bdb731d41247689bd748addff1a1bbb80e9137bff68f9c7bfc7eb"
+    "bytes": 15296,
+    "sha256": "32f9ae07dacd12f326eb11664244d847926368c7b28f5671834a30f91d84d08c"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
@@ -4221,8 +4221,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardProjection.ts",
-    "bytes": 10917,
-    "sha256": "c19aeb8dbdb667c95b87beaa502a7f7eefbd0a3d697f18e8c780ff56e799304c"
+    "bytes": 12089,
+    "sha256": "fe5be8fc473cbeebbd379aba63ca28e38453baf1d322d7a04a59e82246fbfed2"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CheerText.ts",
@@ -5161,8 +5161,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 31387,
-    "sha256": "8856e36528f728ef8fb226dd83fc962f846515529be3b4a8749b0bc3b6a0d5ff"
+    "bytes": 31455,
+    "sha256": "ff8e192f78089f75c8cfc8c9942d142012b03c152b193d75e79ff9559c8f1c37"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

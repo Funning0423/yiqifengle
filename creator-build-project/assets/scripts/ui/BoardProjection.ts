@@ -24,7 +24,7 @@ export function kitLocalWorld(kit: RegionBoardKit, lx: number, ly: number, lz: n
 export interface ProjectedBoard {
   readonly w: number; readonly h: number; readonly distanceM: number;
   readonly centers: Pt[]; /** per tile [far-left, far-right, near-right, near-left] corners of the playable cell (±0.5 m) */ readonly quads: Pt[][];
-  /** rim outer outline (rounded rectangle, 3.95 m) and whether each sample sits on a straight side */ readonly rim: Array<Pt & { straight: boolean }>;
+  /** rim outer outline (rounded rectangle, 3.95 m) and whether each sample sits on a straight side */ readonly rim: Array<Pt & { straight: boolean; corner?: CornerSide }>;
 }
 const RIM = { outerHalf: 3.95, outerCorner: 0.55 + (3.95 - 3.72), topY: 0.15 };
 export function projectBoard(kit: RegionBoardKit, w: number, h: number, opts?: { distanceM?: number; lookAtOffsetM?: number }): ProjectedBoard | null {
@@ -34,9 +34,11 @@ export function projectBoard(kit: RegionBoardKit, w: number, h: number, opts?: {
   for (let i = 0; i < 49; i++) { const x = i % 7 - 3, z = Math.floor(i / 7) - 3, c = P([x, top, z]); if (!c) return null; centers.push(c);
     const q = [P([x - .5, top, z - .5]), P([x + .5, top, z - .5]), P([x + .5, top, z + .5]), P([x - .5, top, z + .5])]; if (q.some(p => !p)) return null; quads.push(q as Pt[]); }
   const rim: Array<Pt & { straight: boolean }> = [], H = RIM.outerHalf, r = RIM.outerCorner, n = 24;
-  const push = (lx: number, lz: number, straight: boolean) => { const p = P([lx, RIM.topY, lz]); if (p) rim.push({ ...p, straight }); };
+  const push = (lx: number, lz: number, straight: boolean, sz = 0) => { const p = P([lx, RIM.topY, lz]); if (p) rim.push({ ...p, straight, ...(sz ? { sz } : {}) } as any); };
   for (let k = 0; k <= 80; k++) { const t = -H + r + (2 * (H - r)) * k / 80; push(-H, t, true); push(H, t, true); push(t, -H, true); push(t, H, true); }
-  for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) for (let k = 0; k <= n; k++) { const a = k / n * Math.PI / 2; push(sx * (H - r + r * Math.cos(a)), sz * (H - r + r * Math.sin(a)), false); }
+  for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) for (let k = 0; k <= n; k++) { const a = k / n * Math.PI / 2; push(sx * (H - r + r * Math.cos(a)), sz * (H - r + r * Math.sin(a)), false, sz); }
+  { const my = (z: number) => { const v = rim.filter((p: any) => p.sz === z); return v.reduce((t, p) => t + p.y, 0) / Math.max(1, v.length); }, nearZ = my(1) >= my(-1) ? 1 : -1;
+    for (const p of rim as any[]) if (p.sz) { p.corner = p.sz === nearZ ? 'near' : 'far'; delete p.sz; } }
   return { w, h, distanceM: pose.distanceM, centers, quads, rim };
 }
 /** Tap box half-size (pt): every tile gets at least a 44×44 pt box around its projected centre; overlaps resolve to the nearest centre. */
@@ -60,10 +62,16 @@ export function effectiveTapSize(b: { centers: ReadonlyArray<Pt> }, i: number): 
 /** Edge rule (Grok Bot 10/30): tiles ≥ 8 pt from all four edges; rim bleed only left/right, symmetric, straight sides only, clear of
  *  the HUD; rim top ≥ HUD top limit + 8 and rim bottom ≤ HUD bottom limit − 8. Numbers are returned; the caller gates them. */
 export const EDGE_MIN_PT = 8, BLEED_ASYM_MAX_PT = 0.5;
-export function edgeReport(b: ProjectedBoard, hud: HudLimits) {
+/** Rounded-corner side of a rim sample: 'near' = the two corners nearer the camera (lower on screen), 'far' = the two farther ones. */
+export type CornerSide = 'near' | 'far';
+/** Exact corner-cut allowance (Grok Bot 10/30 decision 1): only the named screen and corner side may cut through a rounded corner
+ *  (plain-sandstone corner on 320×568). Every other screen stays strict: straight sides only, symmetric, corners fully visible. */
+export interface CornerCutAllowance { readonly screen: string; readonly corner: CornerSide; }
+export function edgeReport(b: ProjectedBoard, hud: HudLimits, allowances: readonly CornerCutAllowance[] = []) {
   let tileMin = Infinity; for (const q of b.quads) for (const p of q) tileMin = Math.min(tileMin, p.x, b.w - p.x, p.y, b.h - p.y);
   const xs = b.rim.map(p => p.x), ys = b.rim.map(p => p.y), bleedL = Math.max(0, -Math.min(...xs)), bleedR = Math.max(0, Math.max(...xs) - b.w);
-  const off = b.rim.filter(p => p.x < 0 || p.x > b.w), cutOnCorner = off.some(p => !p.straight);
+  const off = b.rim.filter(p => p.x < 0 || p.x > b.w), key = `${b.w}x${b.h}`, allowed = allowances.filter(a => a.screen === key).map(a => a.corner),
+    cutCorners = off.filter(p => !p.straight), cutOnCorner = cutCorners.some(p => !p.corner || !allowed.includes(p.corner)), cutAllowed = cutCorners.length > 0 && !cutOnCorner;
   const rimTop = Math.min(...ys), rimBottom = Math.max(...ys), offY = off.length ? [Math.min(...off.map(p => p.y)), Math.max(...off.map(p => p.y))] : null;
   const bleedHitsHud = !!offY && (offY[0] < hud.top + EDGE_MIN_PT || offY[1] > hud.bottom - EDGE_MIN_PT);
   const problems: string[] = [];
@@ -74,7 +82,7 @@ export function edgeReport(b: ProjectedBoard, hud: HudLimits) {
   if (rimTop < hud.top + EDGE_MIN_PT) problems.push(`rim top ${rimTop.toFixed(1)} < HUD top limit ${hud.top}+${EDGE_MIN_PT}`);
   if (rimBottom > hud.bottom - EDGE_MIN_PT) problems.push(`rim bottom ${rimBottom.toFixed(1)} > HUD bottom limit ${hud.bottom}−${EDGE_MIN_PT}`);
   if (rimTop < 0 || rimBottom > b.h) problems.push('rim bleeds off top/bottom');
-  return { tileMin, bleedL, bleedR, asym: Math.abs(bleedL - bleedR), rimTop, rimBottom, cutOnCorner, bleedHitsHud, problems };
+  return { tileMin, bleedL, bleedR, asym: Math.abs(bleedL - bleedR), rimTop, rimBottom, cutOnCorner, cutAllowed, bleedHitsHud, problems };
 }
 /** In-scene piece placement (decision 1: a 2D sprite that reads as a scene object). Anchored at the slab contact point; width =
  *  projected width of `fill` m at that tile (perspective: the far row is smaller); contact shadow = projected 0.62 m disc on the

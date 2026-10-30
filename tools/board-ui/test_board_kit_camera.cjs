@@ -20,7 +20,10 @@ const kit=K.COAST_KIT,cam=kit.camera;assert.equal(cam.placeholder,false);assert.
 assert.equal(cam.lookAtOffsetM||0,0,'look-at offset default must be 0');
 const SC=Object.keys(F.camera_per_aspect.screens);assert.equal(SC.length,7);
 let worst=0;const report=[],fail=[],rows=[];
-function edgeGate(kit){const rep=[],fl=[];for(const k of SC){const [w,h]=k.split('x').map(Number),e=B.edgeReport(B.projectBoard(kit,w,h),B.kitHudLimits(kit,w,h));
+// decision 1 (Grok Bot 10/30): the only corner-cut exception is exact — 320x568 + one rounded-corner side; any other screen in the allowance FAILs
+const ALLOWED_CORNER_SCREENS=['320x568'];
+function allowanceProblems(kit){return (kit.camera.cornerCutAllowance||[]).filter(a=>!ALLOWED_CORNER_SCREENS.includes(a.screen)||!['near','far'].includes(a.corner)).map(a=>`${a.screen}: corner-cut allowance not permitted (only 320x568, one side)`);}
+function edgeGate(kit){const rep=[],fl=[...allowanceProblems(kit)];for(const k of SC){const [w,h]=k.split('x').map(Number),e=B.edgeReport(B.projectBoard(kit,w,h),B.kitHudLimits(kit,w,h),kit.camera.cornerCutAllowance||[]);
   if(e.problems.length)(kit.camera.finalAspects.includes(k)?fl:rep).push(k+': '+e.problems.join('; '));}return {rep,fl};}
 for(const k of SC){const [w,h]=k.split('x').map(Number),fx=F.camera_per_aspect.screens[k],pose=K.kitBoardPose(cam,w,h);
  assert.equal(pose.distanceM,fx.distance_m,k+' distance (运镜bot final)');assert.deepEqual(pose.rotationXYZW,fx.quat_island_world_xyzw,k+' quaternion');assert.equal(pose.fovVerticalDeg,fx.fov_vertical_deg);
@@ -35,7 +38,7 @@ for(const k of SC){const [w,h]=k.split('x').map(Number),fx=F.camera_per_aspect.s
  assert.ok(Math.abs(nh.top-(l.toast.y+l.toast.height/2))<0.1,k+' normal HUD top ≠ plate+hint bottom');assert.ok(Math.abs(nh.bottom-(l.tools.y-l.tools.hit/2))<0.1,k+' normal HUD bottom ≠ tool tap top');
  assert.equal(kit.topNoGo[k][1],nh.top);assert.equal(hud.variant,h<=600?'compact':'normal',k+' selected HUD');assert.equal(hud.variant,{current:'normal',compact:'compact'}[fx.hud],k+' HUD variant = 运镜bot');assert.deepEqual([hud.top,hud.bottom],[fx.keepout_pt.top,fx.keepout_pt.tool_top],k+' keep-out = 运镜bot');
  const c=B.kitHudLimits(kit,w,h,'compact');assert.equal(c.variant,h<=600&&w<h*1.1?'compact':'normal',k+' compact trigger');
- const b=B.projectBoard(kit,w,h),e=B.edgeReport(b,hud);
+ const b=B.projectBoard(kit,w,h),e=B.edgeReport(b,hud,kit.camera.cornerCutAllowance||[]);
  rows.push(`${k}: tiles ≥ ${e.tileMin.toFixed(1)} pt from edge · rim bleed L ${e.bleedL.toFixed(1)} / R ${e.bleedR.toFixed(1)} (asym ${e.asym.toFixed(2)}) · rim y ${e.rimTop.toFixed(1)}–${e.rimBottom.toFixed(1)} vs HUD ${hud.top}–${hud.bottom}`);
  void e;}
 {const g=edgeGate(kit);report.push(...g.rep);fail.push(...g.fl);}
@@ -46,6 +49,15 @@ for(const k of SC){const [w,h]=k.split('x').map(Number),fx=F.camera_per_aspect.s
 {const b=B.projectBoard(kit,390,844,{distanceM:12}),e=B.edgeReport(b,B.kitHudLimits(kit,390,844));assert.ok(e.tileMin<8&&e.problems.some(p=>/tile/.test(p)),'self-check: tiles at the edge not detected');}
 {const b=B.projectBoard(kit,320,568,{distanceM:15.97});const sh={...b,rim:b.rim.map(p=>({...p,x:p.x+6}))},e=B.edgeReport(sh,{variant:'x',pending:false,top:0,bottom:568});assert.ok(e.problems.some(p=>/asymmetric/.test(p)),'self-check: asymmetric bleed not detected');}
 {const b=B.projectBoard(kit,320,568,{distanceM:12.5}),e=B.edgeReport(b,{variant:'x',pending:false,top:0,bottom:568});assert.ok(e.cutOnCorner,'self-check: corner cut not detected');}
+{assert.deepEqual(JSON.parse(JSON.stringify(cam.cornerCutAllowance)),[{screen:'320x568',corner:'near'}],'allowance = exactly 320x568 near');assert.equal(allowanceProblems(kit).length,0);
+ const hud0={variant:'x',pending:false,top:0,bottom:10000};let hit=null;
+ for(const [w,h] of [[320,568],[390,844]])for(let d=10;d<=20&&!(hit&&hit[w]);d+=0.05){const b=B.projectBoard(kit,w,h,{distanceM:d}),cut=b.rim.filter(p=>(p.x<0||p.x>w)&&!p.straight);if(cut.length&&cut.every(p=>p.corner==='near')){hit={...(hit||{}),[w]:d};}}
+ assert.ok(hit&&hit[320]&&hit[390],'self-check: no near-only corner-cut pose found');
+ const b3=B.projectBoard(kit,320,568,{distanceM:hit[320]}),A=cam.cornerCutAllowance;assert.ok(B.edgeReport(b3,hud0).cutOnCorner,'strict 320 must flag');const ok3=B.edgeReport(b3,hud0,A);assert.ok(!ok3.cutOnCorner&&ok3.cutAllowed,'allowance must excuse the 320x568 near corner');
+ assert.ok(B.edgeReport(b3,hud0,[{screen:'320x568',corner:'far'}]).cutOnCorner,'self-check: wrong side must still flag');
+ const b9=B.projectBoard(kit,390,844,{distanceM:hit[390]});assert.ok(B.edgeReport(b9,hud0,A).cutOnCorner,'self-check: 320x568 allowance leaked to 390x844');
+ const moved={...kit,camera:{...cam,cornerCutAllowance:[{screen:'390x844',corner:'near'}]}};assert.ok(edgeGate(moved).fl.some(r=>/^390x844: corner-cut allowance not permitted/.test(r)),'self-check: allowance applied to another screen did not FAIL');
+ console.log(`ok   corner-cut allowance exact: 320x568 near only (excuses d=${hit[320].toFixed(2)} near cut; far side, 390x844 leak and allowance moved to 390x844 all FAIL)`);}
 console.log(`ok   finalAspects = [${cam.finalAspects.join(',')}]; 7 screens: pose = fixture (运镜bot final r2) (quat/FOV identical, distance only), look-at offset 0 = fixture, offset moves along the ground only; 49 tiles world exact, projection worst ${worst.toFixed(3)} pt`);
 // Grok Bot ruling (A): the 28 pt rule reads 运镜bot's tapShortSide_pt (short side of the far-row nearest-centre tap area) ≥ 28 and
 // wrong_taps = 0; cellProjectedHeight_pt is informational. Our own far-row effective short side must agree (≤ 0.15 pt).
