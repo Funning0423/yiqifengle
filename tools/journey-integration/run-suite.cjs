@@ -91,7 +91,7 @@ const tests=[
  ['glass-sign-night','tools/test_glass_sign_night.cjs'],
  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
- ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
+ ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],['glb-skin-bounds','tools/glb-skin/test_glb_skin_bounds.cjs'],
  ['release-probe-strip-gates','tools/build-guard/test_release_gates.cjs'],
  ['preload-bytes','tools/preload-size/test_preload_bytes.cjs'],['preload-source-pins','tools/preload-size/preload-source-pins.cjs'],['preload-source-pins-selftest','tools/preload-size/test_preload_source_pins.cjs'],['reveal-camera-motion','tools/journey-integration/test-reveal-camera-motion.cjs'],['enter-level-single-writer','tools/journey-integration/test-enter-level-single-writer.cjs'],
  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],['new-regions','tools/new-regions/test_new_regions.cjs'],['journey-layout-r4','tools/new-regions/test_journey_layout_r4.cjs'],['dev-wording','tools/build-guard/dev-wording.cjs'],['dev-wording-selftest','tools/build-guard/test_dev_wording.cjs'],['lakeside-retune-b18','tools/lakeside/test_lakeside_retune_b18.cjs'],['lakeside-stale-board-b18','tools/lakeside/test_lakeside_stale_board_b18.cjs'],['lakeside-stale-notice-ui-b18','tools/lakeside/test_lakeside_stale_notice_ui_b18.cjs'],['lakeside-landing-walk-interrupt','tools/lakeside/test_lakeside_landing_walk_interrupt.cjs'],
