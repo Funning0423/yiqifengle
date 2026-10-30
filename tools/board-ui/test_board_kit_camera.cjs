@@ -68,6 +68,20 @@ assert.match(F.camera_per_aspect.tap_rule,/tapShortSide_pt/);
 {const bad=JSON.parse(JSON.stringify(F));delete bad.camera_per_aspect.screens['390x520'].tapShortSide_pt;assert.ok(tapGate(bad).some(x=>/390x520: tapShortSide_pt missing/.test(x)),'self-check: missing tapShortSide_pt not detected');}
 {const tg=tapGate(F);for(const x of tg)fail.push('tap: '+x);
  console.log('ok   tapShortSide_pt (ruling A) ≥ 28, wrong_taps 0, = kit far-row short side: '+Object.entries(F.camera_per_aspect.screens).map(([k,v])=>k+' '+v.tapShortSide_pt+' (cell h '+v.cellProjectedHeight_pt+', info)').join(' · ')+'; self-check: missing field FAILs');}
+// Grok Bot 10/30 shared corner gate: every rounded-corner rim point (three-ring rim) ≥ 2.0 pt inside all four screen edges;
+// 320x568 keeps its exemption. Compared with a 1e-6 pt float tolerance only (exactly 2.0 passes; 1.9 FAILs).
+const CORNER_GAP_MIN_PT=2.0,CORNER_EPS=1e-6,CORNER_EXEMPT=['320x568'];
+function cornerGap(b){let g=Infinity;for(const p of b.rim)if(!p.straight)g=Math.min(g,p.x,b.w-p.x,p.y,b.h-p.y);return g;}
+function cornerGate(key,b){if(CORNER_EXEMPT.includes(key))return null;const g=cornerGap(b);return g+CORNER_EPS<CORNER_GAP_MIN_PT?`${key}: rim corner ${g.toFixed(3)} pt inside < ${CORNER_GAP_MIN_PT}`:null;}
+{const shiftTo=(b,t)=>{const g=cornerGap(b);let lx=Infinity;for(const p of b.rim)if(!p.straight)lx=Math.min(lx,p.x);const dx=t-g;/* move so the tightest corner is exactly t inside */
+  const left=b.rim.filter(p=>!p.straight).every(p=>Math.min(p.x,b.w-p.x,p.y,b.h-p.y)>=g-1e-9);void left;
+  const r={...b,rim:b.rim.map(p=>({...p,x:p.x}))};const m=r.rim.filter(p=>!p.straight).reduce((a,p)=>{const v=Math.min(p.x,b.w-p.x,p.y,b.h-p.y);return v<a.v?{v,p}:a;},{v:Infinity,p:null}).p;
+  const side=m.x===g?'L':(b.w-m.x===g?'R':(m.y===g?'T':'B'));r.rim=r.rim.map(p=>({...p,x:p.x+(side==='L'?dx:side==='R'?-dx:0),y:p.y+(side==='T'?dx:side==='B'?-dx:0)}));void lx;return r;};
+ const b=B.projectBoard(kit,390,844);assert.ok(cornerGate('390x844',shiftTo(b,1.9)),'self-check: corners 1.9 pt inside must FAIL');
+ assert.equal(cornerGate('390x844',shiftTo(b,2.0)),null,'self-check: corners exactly 2.0 pt inside must PASS (1e-6 tolerance)');
+ assert.equal(cornerGate('320x568',shiftTo(B.projectBoard(kit,320,568),1.9)),null,'self-check: 320x568 exemption');}
+{const out=[];for(const k of SC){const [w,h]=k.split('x').map(Number),b=B.projectBoard(kit,w,h),f=cornerGate(k,b);if(f)fail.push('corner: '+f);out.push(`${k} ${cornerGap(b).toFixed(3)}${CORNER_EXEMPT.includes(k)?' (exempt)':''}`);}
+ console.log('ok   corner gate ≥ '+CORNER_GAP_MIN_PT+' pt (three-ring rim, eps 1e-6), min per screen: '+out.join(' · ')+'; self-check: 1.9 pt FAILs, 2.0 pt PASSes');}
 console.log('ok   BoardKit.ts / BoardProjection.ts write no camera (setEnterLevelEnd provider only)');
 console.log('ok   self-checks: tiles at the edge, asymmetric bleed, corner cut each detected');
 for(const r of rows)console.log('     EDGE '+r);
