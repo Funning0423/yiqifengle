@@ -3,7 +3,6 @@ import {mmDecode} from './SkyResumeLens';
 import {SKY_FINALE_POSE_LOCAL as F} from './SkyFinaleShot';
 import {planWalk} from './NodeWalker';
 export type RailPose={position:number[];target:number[];fovVerticalDeg:number};
-export const SKY_RAIL_APPROACH_M=1.05;
 const C={},M=Math,H=M.hypot,cl=x=>M.max(0,M.min(1,x)),ss=x=>(x=cl(x))*x*x*(x*(x*6-15)+10),
 g=(s,n)=>{const a=mmDecode(s),o=[];for(let i=0;i<a.length;i+=n)o.push(a.slice(i,i+n).map(v=>v*10));return o;},
 len=(P,y=0)=>{const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+H(P[i][0]-P[i-1][0],(P[i][1]-P[i-1][1])*y,P[i][2]-P[i-1][2]));return c;},

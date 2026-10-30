@@ -41,4 +41,4 @@ const enc=a=>{let o='',p=0;for(const v of a){const n=Math.round(v*100)/* cm, rea
   out[wa+'>'+wb]=runs;console.log(wa+'>'+wb,runs.map(r=>r.length));}
  const dst=path.join(__dirname,'../../creator-build-project/assets/scripts/region/SkyFinaleRail.ts'),old=fs.existsSync(dst)?fs.readFileSync(dst,'utf8'):'',jl=(old.match(/\nexport const SKY_JOINS[^\n]*/)||[''])[0];
  const q=JSON.stringify(out).replace(/"/g,"'");
- fs.writeFileSync(dst,`// GENERATED: tools/region-nodes/gen-sky-finale-rail.cjs, gen-sky-rail-joins.cjs\nexport const SKY_RAILS:Readonly<Record<string,readonly string[]>>=${q};${jl}\n`);})().catch(e=>{console.error(e);process.exit(1);});
+ fs.writeFileSync(dst,`// GENERATED (tools/region-nodes)\nexport const SKY_RAILS:Readonly<Record<string,readonly string[]>>=${q};${jl}\n`);})().catch(e=>{console.error(e);process.exit(1);});
