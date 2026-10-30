@@ -608,6 +608,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   };
   offNight=onDayNightChange(mode=>{night=String(mode).includes('night');});
   const driver=rig.addComponent(TransitDriver);
+  let prePainted=false;
   const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;
    const door=find(vehicle,TRANSITION_STAGING.basket.entryDoorNode)??find(vehicle,'basket_door_leaf'),doorB=find(vehicle,TRANSITION_STAGING.basket.exitDoorNode)/* door2: exit leaf */,envelope=find(vehicle,'balloon_envelope');
@@ -796,7 +797,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    try{if(typeof world.fadeCover==='function')void world.fadeCover(0,0);}catch{}
   };
   progress(.98);
-  const lease:JourneySceneLease&{model:Node|null}={model,route,ride,startPose:()=>plan.camera(0),show(visible){if(dead)return;rig.active=visible;model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
+  const lease:JourneySceneLease&{model:Node|null}={model,route,ride,startPose:()=>plan.camera(0),show(visible){if(dead)return;if(visible&&!prePainted){prePainted=true;paint(0);}/* C: clouds placed+hidden (CITY_CLOUD off, meadow frame) before the first visible frame, not at B1 (were at the origin through the pre-walk) */rig.active=visible;model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
   return lease;
  }catch(error){release();throw error;}
 }
