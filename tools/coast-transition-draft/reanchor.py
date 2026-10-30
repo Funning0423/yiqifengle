@@ -33,7 +33,7 @@ else:
     isl = [AN['door_stand_point']] + [AN[f'exit_path_{i:02d}'] for i in range(6, 18)]
 LEN_ISL = float(np.linalg.norm(np.diff(np.array(isl), axis=0), axis=1).sum())
 WALK = 1.2; STEP_S = 1.8
-T_S1, T_S2 = float(os.environ.get('T_S1', 8.6 if (FIT == 'r5d' and os.environ.get('S1V', '2') == '2') else 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 7.0 if FIT == 'r5d' else 5.0))
+T_S1, T_S2 = float(os.environ.get('T_S1', 7.2 if (FIT == 'r5d' and os.environ.get('S1V', '2') == '2') else 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 7.0 if FIT == 'r5d' else 5.0))  # r2 map-collapse (a): S1 8.6 -> 7.2 s (ease 0.2), S2 unchanged
 if RET: T_S1 = float(os.environ.get('T_S1', 3.0)); T_S6 = float(os.environ.get('T_S6', 1.5))  # v3.2: R6 0.6 -> 1.5 s (standing yaw accel)
 T = np.cumsum([0, T_S1, T_S2, T_TER, STEP_S, T_PATH, T_S6, T_S7] if RET else [0, T_S1, T_S2, T_PATH, STEP_S, T_TER, T_S6, T_S7]); TOTAL = T[-1]
 SHOTS = ['S1 map-collapse handover', 'S2 heading settle 0.4 s', 'S3 island exit path lead', 'S4 step-down profile',
@@ -119,7 +119,7 @@ if RET:  # front-RIGHT on the coast (same side as the board lens, so R1 needs no
         (T[7], 'world')]
 START_POSE, END_POSE = (BOARD_POSE, ISLAND_LIVE) if RET else (ISLAND_LIVE, BOARD_POSE)
 def ease(u): return u * u * u * (u * (6 * u - 15) + 10)
-S1_STRAIGHT = FIT == 'r5d' and os.environ.get('S1V', '2') == '2'; S1_EASE = float(os.environ.get('S1_EASE', 0.35))
+S1_STRAIGHT = FIT == 'r5d' and os.environ.get('S1V', '2') == '2'; S1_EASE = float(os.environ.get('S1_EASE', 0.2 if FIT == 'r5d' else 0.35))
 def remap(x, a):  # CameraPose.remapProgress with easeIn = easeOut = a (C2, zero speed at both ends)
     x = min(1, max(0, x)); s = 1 / (1 - 2 * a / 3)
     if x < a: u = x / a; return s * a * (u + (1 - u) ** 3 / 3 - 1 / 3)

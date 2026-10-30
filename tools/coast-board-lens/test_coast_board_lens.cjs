@@ -59,6 +59,10 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
  const sc=g.screens[0];ok(sc.min_margin>=0.08&&sc.face_under_menu===0&&g.occlusion_worst_s<=0.5,`${r.screen} her margin ${sc.min_margin} at t ${sc.at_t} / menu ${sc.face_under_menu} / blocked ${g.occlusion_worst_s} s`);
  // v4.1 map-collapse threshold: the WHOLE island->coast transition (S1 map-collapse included) within the limits, total <= 45 s
  const W=motion(rows);ok(within(W),`${r.screen} whole transition v ${W.vmax.toFixed(2)} m/s at t ${W.at.toFixed(2)} step ${W.smax.toFixed(3)} w ${W.wmax.toFixed(1)} acc99 ${W.p99.toFixed(1)} fov ${W.fmax.toFixed(3)}`);ok(e.total<=45,r.screen+' total '+e.total);
+ // r2 map-collapse (a): S1 straight dolly <= 7.2 s (S2 0.4 s unchanged), measured island->coast total <= 30.53 s; limits also at 30 fps (every 2nd frame)
+ if(MODE==='current'){const sh=sm.shots;ok(sh[1]-sh[0]<=7.2+1e-6&&Math.abs(sh[2]-sh[1]-0.4)<1e-6,`${r.screen} S1 ${(sh[1]-sh[0]).toFixed(3)} s / S2 ${(sh[2]-sh[1]).toFixed(3)} s`);ok(e.total<=30.53,r.screen+' total '+e.total+' > 30.53');
+  const W30=motion(rows.filter((_,i)=>i%2===0));ok(within(W30),`${r.screen} whole @30fps v ${W30.vmax.toFixed(2)} step ${W30.smax.toFixed(3)} w ${W30.wmax.toFixed(1)} acc99 ${W30.p99.toFixed(1)} fov ${W30.fmax.toFixed(3)}`);
+  const S1=motion(rows.filter(x=>x[1]<=sh[1]+1e-9));console.log(`ok   2 ${r.screen} S1 ${(sh[1]-sh[0]).toFixed(2)} s: v ${S1.vmax.toFixed(2)} m/s, step ${S1.smax.toFixed(3)}; @30fps whole v ${W30.vmax.toFixed(2)}, step ${W30.smax.toFixed(3)}, acc p99 ${W30.p99.toFixed(1)}`);}
  console.log(`ok   2 ${r.screen} whole ${e.total.toFixed(2)} s: v ${W.vmax.toFixed(2)} m/s, step ${W.smax.toFixed(3)}, yaw/pitch ${W.wmax.toFixed(1)}, acc p99 ${W.p99.toFixed(1)}, fov ${W.fmax.toFixed(3)}`);
  console.log(`ok   2 ${r.screen} S7 ${(e.total-e.s7_start).toFixed(2)} s: v ${vmax.toFixed(2)} m/s, step ${smax.toFixed(3)} m, yaw/pitch ${wmax.toFixed(1)} deg/s, acc p99 ${p99.toFixed(1)}, fov ${fmax.toFixed(3)}; ends on board pose`);}
 // 3
