@@ -26,3 +26,6 @@
 - (b) move the path / yard-gate approach ≥ 2 m clear of the windmill wall and the sail disc (local z −27 ± 2, x −6..6).
 
 Either makes a lens corridor ≥ 1.1 m possible. Not relayed to 场景设计部: returned to 运镜bot for review.
+
+
+> **RETRACTED (clip19 final):** 场景设计部 FINDINGS 「对齐」: the runtime meadow is at sailMeadowRoot [-1.7,-1.35,79.1] yaw 180, not the bridge mOff. In that frame the lens is >=20 m from the windmill. m 407–431 grey = transit clouds only. No windmill change is needed for clipping.

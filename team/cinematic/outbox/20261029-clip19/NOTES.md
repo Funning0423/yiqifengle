@@ -45,3 +45,10 @@ On the branch without the diffs, R1 and R3 FAIL by design. The rows are source-t
   - world.setCamera (board, lift-off, flight): 0 violations, solid 1.39 m, ground 1.51 m.
 - **t 312.6:** cleared, because the final-cam rail replaces skyFinaleApproach.
 - **t 337.9: not proven on the Mac.** The model C1 pan stays ≥1.39 m on all 7 screens (closest at flight−5.48 s, (94.02, 21.59, 120.99)). The Mac pose at that moment, (96.74, 20.67, 120.73), sits off the model path, and the trace does not say why. It could be a different pan start: in the runtime her walk/board timing is compressed. **Mac rerun needed**, then run --trace on it.
+
+## Item 4 (final)
+- Cause: the transit clouds (clouds_floor, clouds_city_sea) were unpainted at the origin during the pre-walk. The windmill is not involved: the earlier replay used the wrong frame (bridge mOff vs runtime sailMeadowRoot, 26.6 m in z).
+- Fix: GGbot is fixing the cloud paint in BalloonTransit himself. No camera code change; the paint(0) diff and the windmill lens fix were dropped.
+- Gate: R4-mustfail (19bd812a origin clouds, 0.00 m @t 265.50) and R4 (counted; paint(0) placement, sail frame, every start, 7 screens).
+- collision-gate: defaults to the sail frame when the trace has no B1 write.
+- Image: 4_meadow_m407-431_before-after.png
