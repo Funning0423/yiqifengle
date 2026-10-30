@@ -37,6 +37,11 @@ restore_meta(){
 }
 if [ "${SKIP_CREATOR_CHECK:-0}" != 1 ] && pgrep -f "MacOS/CocosCreator " >/dev/null 2>&1; then die "another Cocos Creator is running; close it first"; fi
 if [ -n "$(dirty)" ]; then dirty | head -20; die "git tree is not clean before building (commit/stash first)"; fi
+# Pre-build gates (GGbot 2026-10-29): per-field .meta allowlist vs the base (META_ALLOWLIST_BASE or merge-base with
+# ggbot/full9c-final) and manifest entries that point at files. Both need node; no node = no build.
+NODE=${NODE:-node}; command -v "$NODE" >/dev/null 2>&1 || die "node not found (set NODE=/path/to/node); the meta-allowlist gate needs it"
+gate(){ "$NODE" "$HERE/meta-allowlist.cjs" --root "$REPO" "$@" || die "meta-allowlist gate failed ${1:+($*)}"; "$NODE" "$HERE/manifest-files-exist.cjs" --root "$REPO" "$@" || die "manifest-files-exist gate failed ${1:+($*)}"; }
+gate
 outname(){ sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$1" | head -1; }
 build_one(){ # $1 = config json
   cfg=$1; out=$(outname "$cfg"); [ -n "$out" ] || die "no outputName in $cfg"
@@ -54,6 +59,7 @@ build_one(){ # $1 = config json
     echo "   exit=$code size=$size dirty=$nd log=$log"
     if [ -z "$reason" ]; then
       echo "OK [$out] TOTAL_BYTES=$size"
+      gate --build-dir "$dest"
       if [ -d "$dest/subpackages" ]; then
         echo "   ROOT $(find "$dest" -type f -not -path '*/subpackages/*' -exec wc -c {} + | awk '$2!="total"{s+=$1}END{print s+0}')"
         for d in "$dest"/subpackages/*; do [ -d "$d" ] && echo "   SUB $(basename "$d") $(bytes "$d")"; done

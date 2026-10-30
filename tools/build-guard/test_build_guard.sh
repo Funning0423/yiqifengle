@@ -4,7 +4,8 @@ set -u
 HERE=$(cd "$(dirname "$0")" && pwd); T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 fail(){ echo "SELFTEST FAIL: $*"; exit 1; }
 mkrepo(){ R=$T/repo$1; mkdir -p "$R/creator-build-project/assets/scripts" "$R/tools/build-guard"
-  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$R/tools/build-guard/"
+  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/meta-allowlist.cjs" "$HERE/meta-allowlist.json" "$HERE/manifest-files-exist.cjs" "$HERE/lib-gates.cjs" "$R/tools/build-guard/"
+  printf '[]\n' > "$R/assets-MANIFEST-SHA256.json"; printf '[]' > "$R/text-MANIFEST-SHA256.json"
   printf 'build/\nlibrary/\ntemp/\ntools/build-guard/logs/\n' > "$R/.gitignore"
   for i in 1 2 3; do printf '{"ver":"1.0.0","importer":"typescript","uuid":"u%s"}\n' $i > "$R/creator-build-project/assets/scripts/a$i.ts.meta"; done
   (cd "$R" && git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -qm init) ; echo "$R"; }
@@ -20,7 +21,7 @@ else head -c 2300000 /dev/zero > "$P/build/$out/game.bin"; echo "Error: 当前�
   for f in "$P"/assets/scripts/*.meta; do echo '{"ver":"0.0.1","importer":"*"}' > "$f"; done; echo '{}' > "$P/assets/scripts/new.ts.meta"; exit 36; fi
 F
 chmod +x "$T/fake-creator"
-run(){ R=$1; shift; PLAN=$T/plan$2; printf '%s\n' $3 > "$PLAN"; rm -f "$PLAN.n"; export PLAN
+run(){ R=$1; shift; export META_ALLOWLIST_BASE=${META_BASE_OVERRIDE:-HEAD}; PLAN=$T/plan$2; printf '%s\n' $3 > "$PLAN"; rm -f "$PLAN.n"; export PLAN
   (cd "$R" && CREATOR=$T/fake-creator SKIP_CREATOR_CHECK=1 MAX_TRIES=3 bash tools/build-guard/build-wechat-guarded.sh $1) > "$T/out$2" 2>&1; echo $?; }
 # 1) bad, bad, good -> pass on try 3, total printed, metas intact, caches gone
 R=$(mkrepo 1); c=$(run "$R" wechat 1 "bad bad good"); cat "$T/out1"
@@ -41,4 +42,10 @@ R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
 R=$(mkrepo 3); echo x >> "$R/creator-build-project/assets/scripts/a1.ts.meta"; c=$(run "$R" wechat 3 "good"); [ "$c" = 2 ] || fail "case3 exit $c"; grep -q "not clean before" "$T/out3" || fail "case3 msg"
 # 4) both targets, each good first time
 R=$(mkrepo 4); c=$(run "$R" both 4 "good good"); [ "$c" = 0 ] || fail "case4 exit $c"; grep -q "web-test 16000000" "$T/out4" || fail "case4 both"
-echo "SELFTEST PASS (4 cases + provenance)"
+# 5) committed .meta change not in the allowlist (vs base = first commit) -> refuse before building
+R=$(mkrepo 5); (cd "$R" && printf '{"ver":"1.0.0","importer":"typescript","uuid":"u1","x":1}\n' > creator-build-project/assets/scripts/a1.ts.meta && git -c user.email=t@t -c user.name=t commit -qam meta)
+c=$(META_BASE_OVERRIDE=HEAD~1 run "$R" wechat 5 "good"); [ "$c" = 2 ] || fail "case5 exit $c"; grep -q "NOT_ALLOWED .*a1.ts.meta add /x" "$T/out5" || fail "case5 msg"; grep -q "meta-allowlist gate failed" "$T/out5" || fail "case5 die"
+# 6) manifest lists a missing file -> refuse before building
+R=$(mkrepo 6); (cd "$R" && printf '[\n  {"path": "creator-build-project/assets/gone.glb"}\n]\n' > assets-MANIFEST-SHA256.json && git -c user.email=t@t -c user.name=t commit -qam man)
+c=$(run "$R" wechat 6 "good"); [ "$c" = 2 ] || fail "case6 exit $c"; grep -q "MISSING_FILE .*gone.glb" "$T/out6" || fail "case6 msg"
+echo "SELFTEST PASS (6 cases + provenance)"
