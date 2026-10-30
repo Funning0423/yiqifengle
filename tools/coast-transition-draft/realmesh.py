@@ -1,8 +1,9 @@
 """Load island combined_visual_m.glb + coast bundle (scene/b19-coast-scene 7297fa5f) in island scene_root (=world) frame."""
 import json, math, re, os, numpy as np, trimesh
-R = os.path.dirname(os.path.abspath(__file__)); W = '/workspace/coast-reanchor'
+R = os.path.dirname(os.path.abspath(__file__)); FIT = os.environ.get('FIT', 'r2')  # r2 = scene/b19-coast-scene @73330bef; v2 = @7297fa5f (void placement, kept for before/after)
+W = {'r2': '/workspace/coast-reanchor-r2', 'v2': '/workspace/coast-reanchor'}[FIT]
 ISLAND_GLB = os.path.join(R, '../../creator-project/assets/firstslice/combined_visual_m.glb')
-COAST_T = np.array([-2.11, -0.6, 17.39]); COAST_YAW = 180.0
+COAST_T = np.array({'r2': [-0.6, -0.845, 21.5], 'v2': [-2.11, -0.6, 17.39]}[FIT]); COAST_YAW = 180.0
 IGNORE = re.compile(r'^(env_sky|env_sea|env_cloud|env_chimney_smoke|env_anim_seagull_fly|env_foam|fx_|env_moon|env_lighthouse_door$|env_window_blind_cards|.*glass|.*beam|.*glow|foam|tide_sheet|beacon_line|contact|seaglass|reuse_cloud)')
 def rotY(deg):
     a = math.radians(deg); c, s = math.cos(a), math.sin(a); M = np.eye(4); M[0, 0] = c; M[0, 2] = s; M[2, 0] = -s; M[2, 2] = c; return M

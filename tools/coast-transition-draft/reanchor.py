@@ -8,8 +8,8 @@ Her height comes from a downward ray on the owning mesh. Lens keys are path-rela
 Not runtime code."""
 import json, math, sys, os, numpy as np, trimesh
 from PIL import Image, ImageDraw
-from realmesh import load, coast_to_world, W
-OUT = os.path.dirname(os.path.abspath(__file__)) + '/out_v2'; os.makedirs(OUT, exist_ok=True)
+from realmesh import load, coast_to_world, W, FIT
+OUT = os.path.dirname(os.path.abspath(__file__)) + ('/out_v3' if FIT == 'r2' else '/out_v2'); os.makedirs(OUT, exist_ok=True)
 parts, missing = load()
 names = []; ms = []
 for n, m in parts: ms.append(m); names += [n] * len(m.faces)
@@ -24,7 +24,11 @@ def ground_y(x, z, ray, y0=0.0):
     loc, _, _ = ray.intersects_location([[x, y0 + 3, z]], [[0, -1, 0]], multiple_hits=True)  # highest surface within 0.5 m of anchor height (skips the overhang)
     ys = [float(v[1]) for v in loc if v[1] <= y0 + 0.5]; return max(ys) if ys else None
 # ---- her path ----
-isl = [AN['door_stand_point']] + [AN[f'exit_path_{i:02d}'] for i in range(6, 18)]
+if FIT == 'r2':  # r2: exit_point -> exit_path_06..17 -> detour W -> ramp start R -> S0 (scene report r2 section 4)
+    RAMP_R = coast_to_world([0, 0.845, 13.1]); WDET = np.array([-0.7, 0.0, 7.4])
+    isl = [AN['exit_point']] + [AN[f'exit_path_{i:02d}'] for i in range(6, 18)] + [WDET, RAMP_R, S0]
+else:
+    isl = [AN['door_stand_point']] + [AN[f'exit_path_{i:02d}'] for i in range(6, 18)]
 LEN_ISL = float(np.linalg.norm(np.diff(np.array(isl), axis=0), axis=1).sum())
 WALK = 1.2; STEP_S = 1.8
 T_S1, T_S2 = float(os.environ.get('T_S1', 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 5.0))
@@ -44,7 +48,7 @@ _gy = {}
 def her_root(t):
     p = her_xz(t); key = (round(p[0], 3), round(p[2], 3))
     if key not in _gy:
-        coast_side = p[2] > S0[2] - 1e-6
+        coast_side = p[2] > (RAMP_R[2] + 1e-3 if FIT == 'r2' else S0[2] - 1e-6)
         _gy[key] = ground_y(p[0], p[2], CRAY if coast_side else IRAY, p[1])
         if _gy[key] is None: raise SystemExit(f'no ground under her at {p}')
     return np.array([p[0], _gy[key], p[2]])
@@ -66,12 +70,13 @@ HD = np.array([heading_at(i) for i in range(len(TS))]); HD = np.convolve(np.r_[[
 ISLAND_LIVE = dict(pos=np.array([-12, 15.5, 48.0]), look=np.array([1, .5, 1.0]), fov=42.0,
                    src="RegionCameraData.ts island.variants['v24-readable'] (islandPoseSource) @7297fa5f")
 BOARD_D = float(os.environ.get('BOARD_D', 16)); BOARD_POSE = dict(pos=BOARD_C + np.array([0, BOARD_D * math.sin(math.radians(55)), -BOARD_D * math.cos(math.radians(55))]), look=BOARD_C, fov=45.0)
-S6KEY = [float(x) for x in os.environ.get('S6KEY', '5,6.0,1.9,1.8,0.3,50').split(',')]
+S6KEY = [float(x) for x in os.environ.get('S6KEY', ('0,6.0,1.9,1.8,0.6,50' if FIT == 'r2' else '5,6.0,1.9,1.8,0.3,50')).split(',')]
 KEYS = [  # front-LEFT side through the walk: the right side of the curved exit path has a 2 m island prop at (-4.4..-3.25, 0..2.06, 2.4..3.9)
     (T[0], 'world'),
     (T[1], -30, 3.4, 2.1, 0.9, 0.3, 44),    # S1 end: front-left 3/4 medium
     (T[2], -28, 3.4, 2.1, 0.9, 0.3, 44),     # S2 heading settle
-    (T[2] + 2.0, -24, 3.2, 2.1, 0.9, 0.3, 44),  # S3 leading dolly; look side +0.3 (her right) -> she sits on screen-left third
+    (T[2] + 2.0, -24, 3.2, (2.35 if FIT == 'r2' else 2.1), 0.9, 0.3, 44),  # S3 leading dolly; look side +0.3 (her right) -> she sits on screen-left third
+] + ([(T[2] + 5.5, -26, 3.2, 2.35, 0.9, 0.3, 44)] if FIT == 'r2' else []) + [  # r2: 8.7 s walk; lens kept >=2.35 over the 0.75 m island prop at x -2.56..-1.97, z 6.4..7.6
     (T[3], -30, 3.3, 2.2, 0.9, 0.2, 44),
     (T[3] + 1.0, -45, 3.5, 2.3, 0.8, 0.0, 45),  # S4 front-left 3/4 over the step-down (left profile would sit on the gull rock)
     (T[4] + 0.8, -25, 4.2, 2.4, 0.9, 0.2, 46),  # S5 terrace lead

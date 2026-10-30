@@ -1,0 +1,40 @@
+{
+ "a_island_to_coast": {
+  "windows_frames": [
+   [
+    196,
+    248
+   ],
+   [
+    338,
+    350
+   ]
+  ],
+  "first_visible_frame": {
+   "coast": 0,
+   "sail": 0,
+   "bridge": 0
+  },
+  "frames": 1400,
+  "coast_visible_frames": 1334,
+  "sail_visible_frames": 1050,
+  "bridge_visible_frames": 1075
+ },
+ "b_island_map_lens": {
+  "coast": true,
+  "sail": true,
+  "bridge": true
+ },
+ "c_coast_to_island_reversed_path": {
+  "windows_frames": [
+   [
+    1049,
+    1061
+   ],
+   [
+    1151,
+    1203
+   ]
+  ]
+ }
+}
