@@ -29,19 +29,29 @@ export function arrivalScreen(w:number,h:number):string{const k=w+'x'+h;if((K.s7
 export function arrivalRows(screen:string):Rows{let r=cache.get(screen);if(r)return r;const n7=(K.s7_len as any)[screen],sh=dec(K.shared as any,K.n_shared),b7=dec((K.s7 as any)[K.base],n7),s7=screen===K.base?b7:dec((K.s7 as any)[screen],n7,b7);
  r=sh.concat(s7.slice(1));cache.set(screen,r);return r;}
 export const COAST_ARRIVAL_TOTAL_S:number=K.total;
-const lerp=(a:number[],b:number[],u:number)=>a.map((v,i)=>v+(b[i]-v)*u);
-function at(rows:Rows,t:number):number[]{const f=Math.max(0,Math.min(rows.length-1,t*K.fps)),i=Math.min(rows.length-2,Math.floor(f));return lerp(rows[i],rows[i+1],f-i);}
-/** camera look-at at time t (s) on a w x h screen; t >= total -> exactly the coast board pose. */
-export function arrivalPose(w:number,h:number,t:number):LookAtPose{if(t>=K.total-1e-9)return coastBoardPose(w,h);const r=at(arrivalRows(arrivalScreen(w,h)),t);
- return {position:[r[0],r[1],r[2]] as V3,target:[r[3],r[4],r[5]] as V3,fovVerticalDeg:r[6]};}
+/** interpolate rows at frame position f (clamped) into out (no allocation). */
+function rowInto(rows:Rows,f:number,out:number[]):number[]{f=Math.max(0,Math.min(rows.length-1,f));const i=Math.min(rows.length-2,Math.floor(f)),u=f-i,A=rows[i],B=rows[i+1];
+ for(let k=0;k<A.length;k++)out[k]=A[k]+(B[k]-A[k])*u;return out;}
+const at=(rows:Rows,t:number):number[]=>rowInto(rows,t*K.fps,[]);
+const S_CAM:number[]=[0,0,0,0,0,0,0];
+function poseInto(w:number,h:number,t:number,o:{position:V3;target:V3;fovVerticalDeg:number}):LookAtPose{if(t>=K.total-1e-9)return coastBoardPose(w,h);
+ const r=rowInto(arrivalRows(arrivalScreen(w,h)),t*K.fps,S_CAM),p=o.position as number[],q=o.target as number[];p[0]=r[0];p[1]=r[1];p[2]=r[2];q[0]=r[3];q[1]=r[4];q[2]=r[5];o.fovVerticalDeg=r[6];return o;}
+/** camera look-at at time t (s) on a w x h screen; t >= total -> exactly the coast board pose. Fresh object (tests/tools); the player reuses one. */
+export function arrivalPose(w:number,h:number,t:number):LookAtPose{return poseInto(w,h,t,{position:[0,0,0],target:[0,0,0],fovVerticalDeg:0});}
+/** NOTE: playCoastArrival passes ONE reused HerFrame per call; consumers copy what they keep. */
 export type HerFrame=Readonly<{root:V3;clip:string;clipTime:number;heading:V3;t?:number}>;
-/** her root (world) and the clip/time she plays at t. */
-export function arrivalHer(t:number):HerFrame{if(!herRows)herRows=dec(K.her as any,K.n_her);const r=at(herRows,Math.min(t,K.total)),C=K.clips,[ws,we]=K.walk;
- const r2=at(herRows,Math.min(t+0.1,K.total)),hd=[r2[0]-r[0],0,r2[2]-r[2]],l=Math.hypot(hd[0],hd[2]);
+type HerOut={root:V3;clip:string;clipTime:number;heading:V3;t:number};
+const S_H0:number[]=[0,0,0],S_H1:number[]=[0,0,0],S_H2:number[]=[0,0,0],LOOK=Math.round(0.1*K.fps);
+/** her root/clip at t: one track position per frame (f), the +-0.1 s rows are the same index shifted by LOOK keys (exact at fps 60). */
+function herInto(t:number,o:HerOut):HerOut{if(!herRows)herRows=dec(K.her as any,K.n_her);const C=K.clips,[ws,we]=K.walk,f=Math.min(t,K.total)*K.fps,R=herRows;
+ const r=rowInto(R,f,S_H0),r2=rowInto(R,Math.min(f+LOOK,K.total*K.fps),S_H1),hx=r2[0]-r[0],hz=r2[2]-r[2],l=Math.hypot(hx,hz);
  let clip:string=C.idle,ct=0;
- if(t<ws){const p=at(herRows,Math.max(0,t-0.1)),moving=Math.hypot(r2[0]-p[0],r2[2]-p[2])>0.02;clip=moving?C.walk:C.idle;ct=t;}
+ if(t<ws){const p=rowInto(R,Math.max(0,f-LOOK),S_H2),moving=Math.hypot(r2[0]-p[0],r2[2]-p[2])>0.02;clip=moving?C.walk:C.idle;ct=t;}
  else if(t<C.loopAt){clip=C.walkStart;ct=t-ws;}else if(t<C.stopAt){clip=C.walk;ct=t-C.loopAt;}else if(t<we){clip=C.stop;ct=t-C.stopAt;}else{clip=C.idle;ct=t-we;}
- return {t,root:[r[0],r[1],r[2]] as V3,clip,clipTime:ct,heading:(l>1e-4?[hd[0]/l,0,hd[2]/l]:[0,0,1]) as V3};}
+ const R0=o.root as number[],H=o.heading as number[];o.t=t;R0[0]=r[0];R0[1]=r[1];R0[2]=r[2];o.clip=clip;o.clipTime=ct;
+ if(l>1e-4){H[0]=hx/l;H[1]=0;H[2]=hz/l;}else{H[0]=0;H[1]=0;H[2]=1;}return o;}
+/** her root (world) and the clip/time she plays at t. Fresh object (tests/tools); the player reuses one. */
+export function arrivalHer(t:number):HerFrame{return herInto(t,{t:0,root:[0,0,0],clip:'',clipTime:0,heading:[0,0,1]});}
 export type CoastArrivalDeps=Readonly<{
  camera:CameraLike;
  viewport():Readonly<{width:number;height:number}>;
@@ -51,9 +61,9 @@ export type CoastArrivalDeps=Readonly<{
 }>;
 /** Play the arrival; resolves when the camera sits exactly on the coast board pose (or on cancel). Writes only via applyCameraPose. */
 export async function playCoastArrival(deps:CoastArrivalDeps):Promise<{ok:boolean;frames:number;seconds:number}>{
- let t=0,frames=0;
- for(;;){const v=deps.viewport(),pose=arrivalPose(v.width,v.height,t);
-  applyCameraPose(deps.camera,fromLookAt(pose,pose.fovVerticalDeg??50),COAST_ARRIVAL_SOURCE);deps.her?.(arrivalHer(t));frames++;
+ let t=0,frames=0;const look={position:[0,0,0] as V3,target:[0,0,0] as V3,fovVerticalDeg:50},her:HerOut={t:0,root:[0,0,0],clip:'',clipTime:0,heading:[0,0,1]};
+ for(;;){const v=deps.viewport(),pose=poseInto(v.width,v.height,t,look);
+  applyCameraPose(deps.camera,fromLookAt(pose,pose.fovVerticalDeg??50),COAST_ARRIVAL_SOURCE);if(deps.her)deps.her(herInto(t,her));frames++;
   if(t>=K.total-1e-9)return {ok:true,frames,seconds:t};
   if(deps.cancelled?.())return {ok:false,frames,seconds:t};
   const dt=await deps.nextFrame();t=Math.min(K.total,t+Math.max(0,dt));}
@@ -109,3 +119,5 @@ export function coastArrivalHer(world:any):CoastHerDriver{const W=coastArrivalWa
  drv.dispose=()=>token.cancel();Object.defineProperty(drv,'started',{get:()=>started});(drv as any).errors=errors;return drv;}
 /** puts the driver on the existing world object (no WorldFlowComponent edit): world.coastArrivalHer(f); returns dispose. */
 export function installCoastArrivalHer(world:any):()=>void{const d=coastArrivalHer(world);world.coastArrivalHer=d;return ()=>{d.dispose();if(world.coastArrivalHer===d)delete world.coastArrivalHer;};}
+/** self-registry: the main package never imports this bundle script; WNC reads globalThis.__qfCoast after assetManager.loadBundle('region_coast'). */
+(globalThis as any).__qfCoast=Object.freeze({playCoastArrival,installCoastArrivalHer,COAST_ARRIVAL_TOTAL_S});

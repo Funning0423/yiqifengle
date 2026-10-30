@@ -1,0 +1,10 @@
+# 02 — WorldNativeComposition.ts: coast arrival before enter-level (运镜bot, revised 2026-10-30). NOT APPLIED. Needs Grok Bot approval.
+# Base: ggbot/coast-kit-int 398b6c63 (line 156 unchanged since). One statement (line 156) + `assetManager` in the existing 'cc' import (line 8).
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -8 +8 @@
+-import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry } from 'cc';
++import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry, assetManager } from 'cc';
+@@ -156 +156 @@
+-    if(coastKit){const w=window.innerWidth,h=window.innerHeight;this.world?.setEnterLevelEnd?.(()=>coastBoardPose(w,h));}
++    if(coastKit){const w=window.innerWidth,h=window.innerHeight;this.world?.setEnterLevelEnd?.(()=>coastBoardPose(w,h));const fail=(why:string,e?:unknown)=>console.error('[QF_COAST] '+JSON.stringify({event:'arrival-fallback',why,error:e===undefined?null:String(e)}));const cam=this.worldCamera,world:any=this.world,r0=world?.commands?.().snapshot?.().journey?.region??null;if(!cam?.node?.isValid||!world)fail('no-camera-or-world');else{try{await new Promise<void>((ok,no)=>assetManager.loadBundle('region_coast',e=>e?no(e):ok()));const m:any=(globalThis as any).__qfCoast;if(!m||typeof m.playCoastArrival!=='function'||typeof m.installCoastArrivalHer!=='function')fail('no-self-registry');else{const off=m.installCoastArrivalHer(world);try{const r=await m.playCoastArrival({camera:cam,viewport:()=>({width:w,height:h}),nextFrame:()=>new Promise<number>(res=>this.scheduleOnce(()=>res(director.getDeltaTime()),0)),her:(f:any)=>world.coastArrivalHer?.(f),cancelled:()=>!this.node?.isValid||!cam.node.isValid||(world.commands?.().snapshot?.().journey?.region??null)!==r0});if(!r?.ok)fail('cancelled',r?.seconds);}finally{off();}}}catch(e){fail('error',e);}}}

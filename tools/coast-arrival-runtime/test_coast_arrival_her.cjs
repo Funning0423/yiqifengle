@@ -26,7 +26,7 @@ function lcg(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223
    const endAt=curT+a.duration;watch=()=>{if(curT>=endAt-1e-9){pending=null;watch=null;res();}};return p;}};
   let curT=0,watch=null;const world={coastArrivalAdapter:adapter};const off=CAL.installCoastArrivalHer(world);ok(typeof world.coastArrivalHer==='function','install');
   const cam={node:{setWorldPosition(){},setWorldRotation(){}},fov:45};const frames=[];
-  const r=await CAL.playCoastArrival({camera:cam,viewport:()=>({width:390,height:844}),nextFrame:async()=>{const dt=clock();curT=Math.min(K.total,curT+dt);if(watch)watch();await 0;return dt;},her:f=>{frames.push(f);world.coastArrivalHer(f);}});
+  const r=await CAL.playCoastArrival({camera:cam,viewport:()=>({width:390,height:844}),nextFrame:async()=>{const dt=clock();curT=Math.min(K.total,curT+dt);if(watch)watch();await 0;return dt;},her:f=>{frames.push({...f});world.coastArrivalHer(f);}});
   off();ok(world.coastArrivalHer===undefined,name+' uninstall');
   ok(r.ok,name+' played');const f0=frames[0];ok(Math.hypot(pos.x-f0.root[0],pos.z-f0.root[2])<1e-9||calls.length,name+' placed');
   ok(rot.length===1&&Math.abs(rot[0]-Math.atan2(f0.heading[0],f0.heading[2])*180/Math.PI)<1e-9,name+' heading '+rot);

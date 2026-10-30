@@ -29,7 +29,7 @@ const HS=JSON.parse(fs.readFileSync(path.join(__dirname,'s7_her_size_runtime.jso
 function lcg(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return 1/90+(1/45-1/90)*(s/4294967296);};}
 async function run(w,h,clock){const writes=[];let fr=0;const node={setWorldPosition(){},setWorldRotation(){}},camera={node,fov:45};
  const prev=CP.cameraWriteHook.trace;CP.cameraWriteHook.trace=s=>writes.push({fr,s});const poses=[],her=[];let t=0;
- const res=await CAL.playCoastArrival({camera,viewport:()=>({width:w,height:h}),nextFrame:async()=>{fr++;const dt=clock();t+=dt;return dt;},her:f=>her.push(f),
+ const res=await CAL.playCoastArrival({camera,viewport:()=>({width:w,height:h}),nextFrame:async()=>{fr++;const dt=clock();t+=dt;return dt;},her:f=>her.push({...f,root:[...f.root],heading:[...f.heading]}),
   });CP.cameraWriteHook.trace=prev;return {writes,res,her};}
 function poseAt(w,h,t){return CAL.arrivalPose(w,h,t);}
 function motion(samples){let vmax=0,smax=0,wmax=0,fmax=0;const ay=[],ap=[];let pw=null;
