@@ -1,10 +1,11 @@
-/** 运镜bot b20 (方案 E, island I4 at [4.1,0.112,2.7], scene c651ba8c): stage-04 node lenses, pure (no cc).
+/** 运镜bot b20 (方案 E, nodes read from REGION_NODES via planWalk; I3/I4 per e826fd33): stage-04 node lenses, pure (no cc).
  *  ENTRY (I3>I4 reward walk): the board lens stays where it is and only pans to keep her framed (the old 0.6 s blend to the
  *  follow close-up was ~46 m in 0.6 s). DEPARTURE (I4>I6, then LiveHandoff into the sail): from the live lens (push-in end) a
  *  tangent line + arc round I6 (+x side), Chaikin-smoothed, arc-length on a trapezoid clock over the walk, aim on her planned
  *  (smoothed) position, ending exactly on the follow pose at I6 before she boards. Limits (Grok Bot, per real dt, 7 screens):
  *  yaw/pitch <= 90 deg/s, angular accel p99 <= 200 deg/s^2, <= 8 m/s, <= 0.5 m/frame, fov <= 1.5 deg/frame; gate: island-stage04-lens. */
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
+import {herMargin} from './LensSmooth';
 export const ISLAND_STAGE_LENS=Object.freeze({preS:0.4,rampS:1.0,endS:1.0,arcM:8,arcY:4.5,k1:0.8,k2:1.0,smooth:4,walkMps:1.2,panInS:0.6,herLookM:1.1,
  /* exit pose (b20 7eecdca8, skinned palms): 'hero' = on the island v2.2 hero axis, sea side of I6, she walks toward the lens with the
     lighthouse behind her; >= 3 m from all (skinned) geometry. The old follow@I6 sat 1.62 m (1.38 m after the palm move) from palm_young_01. */
@@ -57,3 +58,17 @@ export function islandEntryPan(board:Pose,walk:readonly Vec[]):StageLens{
 }
 /** Wiring helper for RegionNodeStage: a per-frame writer (dt clamp 0.1 s, the stage's own clock). */
 export function stageLensClock(l:StageLens,t0=0):(dt?:number)=>Pose{let t=t0;return (dt=0)=>{t+=Math.max(0,Math.min(0.1,dt));return l.at(t);};}
+/** ISLAND BOARD LENS (b20 r2, Grok Bot): the island stage board lens is the enter-level push-in end (WorldFlowComponent.enterLevelLook:
+ *  live island lens + 2.6 m along the view, fov -6; the world camera keeps it under the board). With I3 on plan E she stood outside
+ *  that frame on tall screens (-0.33), so the L04 entry started with her off frame. islandBoardAim keeps the push-in end position and
+ *  fov and turns only its aim, by the smallest slerp toward her body centre, until herMargin >= minMargin on this viewport.
+ *  Unchanged (same object) when she is already framed, so stages whose node sits well inside (I1/I2/I4/I5/I6) keep today's lens. */
+export const ISLAND_BOARD_AIM=Object.freeze({minMargin:0.10,bodyMidM:0.85});
+export function islandBoardAim(end:Pose,her:readonly number[],w:number,h:number):Pose{
+ const margin=(p:Pose,f:readonly number[],a:number,b:number)=>herMargin(p.position,p.target,p.fovVerticalDeg??45,f,[[a,b]]);
+ const K=ISLAND_BOARD_AIM;if(!(w>0&&h>0)||margin(end,her,w,h)>=K.minMargin)return end;
+ const P=end.position,d0=unit(sub(end.target,P)),dist=Math.hypot(end.target[0]-P[0],end.target[1]-P[1],end.target[2]-P[2])||40,d1=unit(sub([her[0],her[1]+K.bodyMidM,her[2]],P));
+ const at=(k:number):Pose=>{const d=slerp(d0,d1,k);return {position:end.position,target:[P[0]+d[0]*dist,P[1]+d[1]*dist,P[2]+d[2]*dist] as Vec,fovVerticalDeg:end.fovVerticalDeg};};
+ if(margin(at(1),her,w,h)<K.minMargin)return at(1);
+ let lo=0,hi=1;for(let i=0;i<20;i++){const m=(lo+hi)/2;if(margin(at(m),her,w,h)>=K.minMargin)hi=m;else lo=m;}
+ return at(hi);}

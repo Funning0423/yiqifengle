@@ -1,5 +1,5 @@
 'use strict';
-// 运镜bot b20 (方案 E, scene c651ba8c I4 [4.1,0.112,2.7]): island stage-04 node lenses, ENTRY (I3>I4 reward walk) and DEPARTURE
+// 运镜bot b20 (方案 E, nodes from REGION_NODES via planWalk, base e826fd33): island stage-04 node lenses, ENTRY (I3>I4 reward walk) and DEPARTURE
 // (reveal → I4>I6 walk → boarding / LiveHandoff), on the REAL runtime wiring: if RegionNodeStage.playReward routes island walks through
 // IslandStageLens it checks those lenses, otherwise the legacy path (BLEND_S.boardToFollow blendPose onto the follow pose, then held).
 // Limits (Grok Bot / GGbot, per real dt at 60 and 30 fps, 7 screens, window = first write .. 1 s after the lens settles):
@@ -28,7 +28,6 @@ if(!wiredVia&&fs.existsSync(RNS_DIFF)){const os=require('os'),cp=require('child_
  catch(e){console.log('RNS diff does not apply:',String(e.stderr||e).slice(0,200));}finally{fs.rmSync(d,{recursive:true,force:true});}}
 const wired=!!wiredVia;
 const IL=wired?H.load(S+'region/IslandStageLens.ts'):null;
-const ENTRY_RECOVER_S=0.2;
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]];
 const LIM={yaw:90,pitch:90,acc:200,v:8,step:0.5,fov:1.5,ground:1.5,solid:0.5,hidden:0.3,margin:0.08,total:8};
 const occ=J.island.filter(o=>!/seagull|smoke|beam|glow|glass/.test(o.name)),ground=J.island.filter(o=>/env_island_main/.test(o.name)),
@@ -39,9 +38,17 @@ const lu=E.followLookUp('island',99),walk=(a,b)=>{const pl=NW.planWalk('island',
 // push-in end exactly as WorldFlowComponent.enterLevelLook from the island lens (reach 40, step 2.6, fov-6)
 const ci=J.Cam.islandPoseEntry(),fw=unit(ci.target.map((x,i)=>x-ci.position[i]));
 const P0={position:process.env.PUSHIN==='T2'?[-8.447,14.736,46.405]:ci.position.map((x,i)=>x+fw[i]*2.6),target:ci.position.map((x,i)=>x+fw[i]*40),fovVerticalDeg:ci.fovVerticalDeg-6};
-const board={position:ci.position.slice(),target:ci.target.slice(),fovVerticalDeg:ci.fovVerticalDeg};
+// b20 r2: the live lens at a reward-walk start is the previous stage's BOARD lens = the enter-level push-in end (P0) kept under the
+// board, turned by IslandStageLens.islandBoardAim onto the node she stands on (WorldFlowComponent, outbox WFC-island-board-aim.diff;
+// gated on its own by island-board-lens). Before r2 this test started the entry from the un-pushed island lens, which is never on screen.
+const WFC_DIFF=path.join(__dirname,'../../team/cinematic/outbox/20261030-l04-lens-r2/WFC-island-board-aim.diff');
+let wfcWired=/islandBoardAim\(end,/.test(fs.readFileSync(S+'world-r1/WorldFlowComponent.ts','utf8'))?'source':null;
+if(!wfcWired&&fs.existsSync(WFC_DIFF)){const os=require('os'),cpx=require('child_process'),d=fs.mkdtempSync(path.join(os.tmpdir(),'wfc-')),f='creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts';
+ try{fs.mkdirSync(path.join(d,path.dirname(f)),{recursive:true});fs.copyFileSync(S+'world-r1/WorldFlowComponent.ts',path.join(d,f));cpx.execFileSync('git',['apply',WFC_DIFF],{cwd:d,stdio:'pipe'});if(/islandBoardAim\(end,/.test(fs.readFileSync(path.join(d,f),'utf8')))wfcWired='outbox-diff';}catch(e){}finally{fs.rmSync(d,{recursive:true,force:true});}}
+const IB=wfcWired?H.load(S+'region/IslandStageLens.ts'):null,NODE=k=>H.load(S+'region/RegionNodes.ts').REGION_NODES.island.nodes.find(n=>n.key===k).at;
+const boardFor=(key,w,h)=>IB?IB.islandBoardAim(P0,NODE(key),w,h):P0;
 function shot(kind,w,h){ // returns {at(t)->pose, her(t), W (settle), total}
- const dep=kind==='departure',{pl,path:p}=dep?walk('I4','I6'):walk('I3','I4'),L=NW.pathLength(p),from=dep?P0:board;
+ const dep=kind==='departure',{pl,path:p}=dep?walk('I4','I6'):walk('I3','I4'),L=NW.pathLength(p),from=dep?boardFor('I4',w,h):boardFor('I3',w,h);
  if(IL&&pl.segments.length===1){const end=E.followPose(p[p.length-1],IL.endHeading(p),w,h,lu);
   const l=dep?IL.islandDepartLens(from,p,end):IL.islandEntryPan(from,p);const pre=l.preS;
   return {at:l.at,her:t=>NW.pointAlong(p,Math.max(0,Math.min(L,(t-pre)*1.2))),W:l.seconds,total:l.seconds,end:dep?l.end:null,from};}
@@ -70,13 +77,9 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
  ok(mx.v<=LIM.v,`${id} speed ${mx.v.toFixed(2)} m/s`);ok(mx.step<=LIM.step,`${id} step ${mx.step.toFixed(3)} m`);ok(mx.fov<=LIM.fov,`${id} fov ${mx.fov.toFixed(2)}/frame`);
  if(fps===30){ok(minG>=LIM.ground,`${id} ground ${minG.toFixed(2)}`);ok(minS>=LIM.solid,`${id} solid ${minS.toFixed(2)}`);
   /* entry framing (face/chest, margin) is REPORTED, not gated: open item (palm_young_01 / beach_palm_short on the 50 m island-lens sight line, I3 starts outside the board lens) */
-  /* b20 r2 (Grok Bot: face hidden <= 0.3 s in the final version): both shots gated, face OR chest counted. Entry margin: the first write is
-     the live board lens (I3 stand), where she can sit outside 0.08 on tall screens; the pan must reach >= 0.08 within ENTRY_RECOVER_S
-     and never drop below it again. */
-  ok(hid<=LIM.hidden+1e-9,`${id} face/chest hidden ${hid.toFixed(2)} s`);
-  if(kind==='departure')ok(minM>=LIM.margin,`${id} margin ${minM.toFixed(3)}`);
-  else{const tr=report.trace[`${kind} ${w}x${h}`],bad=tr.filter(x=>x[8]<LIM.margin),late=bad.filter(x=>x[0]>ENTRY_RECOVER_S+1e-9);(report.entryMargin??={})[id]={firstFrame:tr[0][8],belowUntilS:bad.length?bad[bad.length-1][0]:0,minAfter:Math.min(...tr.filter(x=>x[0]>ENTRY_RECOVER_S).map(x=>x[8]))};
-   ok(!late.length,`${id} entry margin < ${LIM.margin} after ${ENTRY_RECOVER_S} s (${late.length} frames)`);ok(!bad.length||bad[0][0]===0,`${id} entry margin drops below ${LIM.margin} mid-shot`);}ok(cap===0,`${id} capsule ${cap}`);
+  /* b20 r2 (Grok Bot): face/chest hidden <= 0.3 s on both shots (face OR chest counted); her margin >= 0.08 on EVERY frame of both
+     shots, frame 0 included (frame 0 = the live stage board lens, see boardFor). No grace window. */
+  ok(hid<=LIM.hidden+1e-9,`${id} face/chest hidden ${hid.toFixed(2)} s`);ok(minM>=LIM.margin,`${id} margin ${minM.toFixed(3)} (frame 0 ${report.trace[`${kind} ${w}x${h}`][0][8]})`);ok(cap===0,`${id} capsule ${cap}`);
   if(kind==='departure'){ok(s.total<=LIM.total,`${id} reveal→boarding ${s.total.toFixed(2)} s`);if(s.end){const e=s.at(s.W);ok(Math.hypot(...e.position.map((x,i)=>x-s.end.position[i]))<1e-6,`${id} end != follow@I6`);if(fps===30){const cl=J.clearance(s.end.position,solids,6)[0],g=gh(s.end.position);(report.endPose??={})[id]={clearM:+cl.toFixed(2),pos:s.end.position.map(x=>+x.toFixed(3))};(report.endPose[id]).groundM=g===null?null:+g.toFixed(2);ok(cl>=3,`${id} follow@I6 ${cl.toFixed(2)} m from geometry (<3)`);ok(g===null||g>=1.5,`${id} follow@I6 ground ${g}`);}}}}
  report.summary[id]={yawDegS:+mx.yaw.toFixed(1),pitchDegS:+mx.pitch.toFixed(1),accP99:+p99.toFixed(0),ms:+mx.v.toFixed(2),stepM:+mx.step.toFixed(3),fovPerFrame:+mx.fov.toFixed(3),...(fps===30?{groundM:+minG.toFixed(2),solidM:+minS.toFixed(2),hiddenS:+hid.toFixed(2),faceHiddenS:+hidFace.toFixed(2),margin:+minM.toFixed(3),capsule:cap,totalS:+s.total.toFixed(2)}:{})};
  if(rows.length)report.rows[kind]=rows;}
@@ -92,5 +95,5 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
   if(kind==='entry'&&process.env.LEAN_GATE==='1')for(const e of ep){ok(e.to-e.from+0.1<=0.3+1e-9,`entry lean_01 episode ${e.from}-${e.to} s > 0.3 s`);ok(e.peak<=25,`entry lean_01 episode ${e.from} s ${e.peak}% head/face > 25%`);}
   console.log(kind,'lean_01 episodes',JSON.stringify(ep));}}
 fs.mkdirSync(path.join(__dirname,'reports'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/island-stage04-lens.json'),JSON.stringify(report));
-console.log(JSON.stringify({wired:wiredVia==='source'?true:wiredVia||false,fail,sample:report.summary['departure 390x844 30fps'],entry:report.summary['entry 390x844 30fps']}));
+console.log(JSON.stringify({boardLens:wfcWired||false,wired:wiredVia==='source'?true:wiredVia||false,fail,sample:report.summary['departure 390x844 30fps'],entry:report.summary['entry 390x844 30fps']}));
 if(fail){console.log('island-stage04-lens: FAIL',fail);process.exit(1);}console.log('island-stage04-lens: PASS');
