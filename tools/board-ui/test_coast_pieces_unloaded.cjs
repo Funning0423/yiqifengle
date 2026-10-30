@@ -30,8 +30,12 @@ function resolveLoads(bundleDir,paths){const errs=[];const files=walk(bundleDir)
  for(const p of paths){const hit=files.filter(f=>f.replace(/\.[^./]+$/,'')===p);if(hit.length!==1)errs.push(`load '${p}': ${hit.length?'ambiguous '+hit.join(','):'missing asset (load would fail)'}`);if(hit.some(h=>/coast_pieces/.test(h)))errs.push(`load '${p}' resolves to coast_pieces`);}return errs;}
 function uuidRefs(){const known=new Set();for(const f of walk(ASSETS).filter(f=>/\.meta$/.test(f))){try{const j=JSON.parse(fs.readFileSync(f,'utf8'));known.add(j.uuid);for(const k of Object.keys(j.subMetas||{}))known.add(j.uuid+'@'+k);}catch{}}
  const errs=[];for(const f of walk(COAST).filter(f=>/\.(prefab|scene|json)$/.test(f))){const s=fs.readFileSync(f,'utf8');for(const u of s.match(/"__uuid__"\s*:\s*"([^"]+)"/g)||[]){const id=u.split('"')[3];if(!known.has(id)&&!known.has(id.split('@')[0]))errs.push(path.relative(ROOT,f)+': missing uuid '+id);}}return errs;}
-function manifestErrs(){const mf=path.join(ROOT,'assets-MANIFEST-SHA256.json');if(!fs.existsSync(mf))return [];const s=fs.readFileSync(mf,'utf8'),errs=[];
- for(const m of s.match(/"creator-build-project\/assets\/bundles\/region_coast\/[^"]+"/g)||[]){const p=m.slice(1,-1);if(!fs.existsSync(path.join(ROOT,p)))errs.push('manifest lists missing '+p);}return errs;}
+function manifestErrs(){const errs=[];for(const n of ['assets-MANIFEST-SHA256.json','text-MANIFEST-SHA256.json']){const mf=path.join(ROOT,n);if(!fs.existsSync(mf))continue;const s=fs.readFileSync(mf,'utf8');
+ for(const m of s.match(/"creator-build-project\/assets\/bundles\/region_coast\/[^"]+"/g)||[]){const p=m.slice(1,-1);if(!fs.existsSync(path.join(ROOT,p)))errs.push(n+' lists missing '+p);}}return errs;}
+// Grok Bot 10/30: the RUNTIME coast_layout.json carries no piece_* entries (data level; build_coast.py writes it; the full layout stays in tools)
+function layoutPieceErrs(file){if(!fs.existsSync(file))return {errs:[],info:'no runtime coast_layout.json'};const L=(JSON.parse(fs.readFileSync(file,'utf8')).layout)||[];
+ const pc=L.filter(e=>/^piece_/.test(String(e.mesh||''))),fl=L.filter(e=>e.piece===true&&!/^piece_/.test(String(e.mesh||'')));
+ return {errs:pc.length?[`runtime coast_layout.json has ${pc.length} piece_* entries (${[...new Set(pc.map(e=>e.mesh))].slice(0,6).join(',')})`]:[],info:`${L.length} entries, piece_* ${pc.length}, other piece:true ${fl.length}${fl.length?' ('+[...new Set(fl.map(e=>e.mesh))].join(',')+')':''}`};}
 // --- self-checks (must FAIL) ---
 {const F=x=>[[path.join(ASSETS,'scripts/x.ts'),x]];
  assert.ok(staticScan(F("bundle.load('models/coast_pieces',Prefab,cb)"),null).length,'self-check: load of models/coast_pieces not caught');
@@ -41,13 +45,15 @@ function manifestErrs(){const mf=path.join(ROOT,'assets-MANIFEST-SHA256.json');i
  const tmp=path.join(ROOT,'.qf-gate-selfcheck-'+process.pid);fs.mkdirSync(path.join(tmp,'board'),{recursive:true});try{fs.writeFileSync(path.join(tmp,'board/piece_star.png'),'');
   assert.ok(resolveLoads(tmp,['board/piece_star','board/piece_conch']).some(e=>/piece_conch.*missing/.test(e)),'self-check: missing piece asset not caught');
   assert.equal(resolveLoads(tmp,['board/piece_star']).length,0);}finally{fs.rmSync(tmp,{recursive:true,force:true});}}
+{const tmp=path.join(ROOT,'.qf-gate-layout-'+process.pid+'.json');try{fs.writeFileSync(tmp,JSON.stringify({layout:[{mesh:'slab_0',p:[0,0,0]},{mesh:'piece_conch',p:[0,0,0],piece:true}]}));
+  assert.ok(layoutPieceErrs(tmp).errs.length,'self-check: piece_* in the runtime layout not caught');fs.writeFileSync(tmp,JSON.stringify({layout:[{mesh:'slab_0',p:[0,0,0]}]}));assert.equal(layoutPieceErrs(tmp).errs.length,0);}finally{fs.rmSync(tmp,{force:true});}}
 // --- real checks ---
 const fail=[],uuid=piecesUuid(),files=runtimeFiles();fail.push(...staticScan(files,uuid));
 const st=coastStartPaths();assert.equal(st.bundle,'region_coast');fail.push(...resolveLoads(path.join(ASSETS,'bundles',st.bundle),st.paths));
-fail.push(...uuidRefs(),...manifestErrs());
+fail.push(...uuidRefs(),...manifestErrs());const lp=layoutPieceErrs(path.join(COAST,'data/coast_layout.json'));fail.push(...lp.errs);console.log('ok   runtime layout: '+lp.info);
 const glb=fs.existsSync(path.join(COAST,'models/coast_pieces.glb'));
 console.log(`ok   root ${path.relative(path.resolve(__dirname,'../..'),ROOT)||'.'}; ${files.length} runtime files scanned; coast_pieces.glb ${glb?'present':'removed'} (uuid ${uuid||'none: no Creator meta yet'})`);
 console.log(`ok   coast start: ${st.paths.length} loads from ${st.bundle} (${st.paths.join(', ')})`);
-console.log('ok   self-checks: models/coast_pieces load, region_coast loadDir sweep, uuid reference, missing piece asset each FAIL; comment ignored');
+console.log('ok   self-checks: models/coast_pieces load, region_coast loadDir sweep, uuid reference, missing piece asset, piece_* in the runtime layout each FAIL; comment ignored');
 for(const f of fail)console.log('     FAIL '+f);
 console.log('coast-pieces-unloaded: '+(fail.length?'FAIL':'PASS'));process.exitCode=fail.length?1:0;
