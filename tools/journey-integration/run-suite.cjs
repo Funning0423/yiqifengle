@@ -78,6 +78,8 @@ const tests=[
  ['placeholder-gate','tools/build-guard/check-no-placeholder.cjs'],
  ['system-panels','tools/system-panels/test_system_panels.cjs'],
  ['first-screen-minified-parity','tools/first-screen/test_minified_parity.cjs'],
+ ['advisory-boot-timing','tools/first-screen/test_advisory_boot_timing.cjs'],
+ ['ui-timing-apply-known','tools/ui-timing/test_apply_known.cjs'],
  ['press-state','tools/system-panels/test_press_state.cjs'],
  ['ui-timing-registry','tools/ui-timing/test_ui_timing_registry.cjs'],
  ['landmark-audio','tests/test_landmark_audio.cjs'],

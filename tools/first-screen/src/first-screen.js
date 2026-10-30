@@ -76,7 +76,7 @@ var gl = null, cv = null, program = null, texture = null, vertexBuffer = null, a
 var adv = null, advTex = null, advBuf = null, image = null, imageReady = false, rafHandle = null, afterTick = null, lastW = 0, lastH = 0;
 var state = {
     version: 1, art: COMPOSITE, design: [DESIGN_W, DESIGN_H], images: {}, image: null, ready: false, error: null,
-    t: { start: -1, image: -1, firstArtFrame: -1, end: -1, released: -1 }, frames: 0, cover: null, ended: false
+    t: { start: -1, image: -1, firstArtFrame: -1, end: -1, released: -1, advisoryEnd: -1, firstGameFrame: -1 }, frames: 0, cover: null, ended: false
 };
 G.__firstScreen = state;
 if (typeof globalThis !== 'undefined' && globalThis !== G) globalThis.__firstScreen = state;
@@ -197,6 +197,7 @@ function startAdvisory() {
 function stopAdvisory() {
     if (!adv) return;
     adv.done = true;
+    if (state.t.advisoryEnd < 0) state.t.advisoryEnd = now();
     try { if (typeof wx !== 'undefined' && wx.offTouchStart && adv.onTouch) wx.offTouchStart(adv.onTouch); } catch (e) {}
     if (advTex) gl.deleteTexture(advTex); if (advBuf) gl.deleteBuffer(advBuf); advTex = advBuf = null;
     if (adv.waiters) { var w = adv.waiters; adv.waiters = null; for (var i = 0; i < w.length; i++) w[i](); }
@@ -316,6 +317,12 @@ function end() {
         texture = vertexBuffer = program = null;
         state.ended = true;
         state.t.released = now();
+        // [QF_BOOT] cold-start marks (performance.now ms): engineReady = game.js called end(); addedMs = time the engine
+        // waited for the advisory after it was ready (0 when the engine is slower than 3.0 s). firstGameFrame = next rAF.
+        try { requestAnimationFrame(function () { var t = state.t; t.firstGameFrame = now();
+            t.addedMs = t.advisoryEnd > t.end ? Math.round(t.advisoryEnd - t.end) : 0;
+            console.log('[QF_BOOT] start=' + Math.round(t.start) + ' advisoryEnd=' + Math.round(t.advisoryEnd) + ' engineReady=' + Math.round(t.end) +
+                ' released=' + Math.round(t.released) + ' firstGameFrame=' + Math.round(t.firstGameFrame) + ' addedMs=' + t.addedMs); }); } catch (e) {}
     });
 }
 
