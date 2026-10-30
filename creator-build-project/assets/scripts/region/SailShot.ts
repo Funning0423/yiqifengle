@@ -1,11 +1,11 @@
-import {Camera, Color, DirectionalLight, MeshRenderer, Node, SkeletalAnimation, Vec3} from 'cc';
+import {Camera, Color, DirectionalLight, Material, MeshRenderer, Node, SkeletalAnimation, Vec3} from 'cc';
 import {debugSearch} from './DebugQuery';
 import {transportQaEnabled} from './JourneyTransport';
 import {beatAt, sailBeats, sailStillTimes, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
 import {mountSailArt, findNode, type SailArt} from './SailArt';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {mountMeadowNightSky} from './RegionJourneyAdapter';
-import {configureMeadowVertexColors} from './MeadowBoardBackground';
+import {configureMeadowVertexColors,loadWindEffect,validateModel} from './MeadowBoardBackground';
 import {SAIL_VOYAGE, sailVoyageCamera} from './SailVoyage';
 /** QA / web-test only. `?sailshot=1&k=1` frames a real K still. Release WeChat ignores it. No on-screen text. */
 export function sailShotRequested(search?:string,host:any=(globalThis as any).wx):boolean{
@@ -48,12 +48,15 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  const pose=SAIL_VOYAGE.enabled?sailVoyageCamera(tl,route.samples,t,scr):sailCamera(tl,route.samples,t,scr);
  const island=mountRegion(REGIONS.island,await loadRegionPrefab(REGIONS.island),scene);
  island.name='SailShotIsland';
- const meadow=mountRegion(REGIONS.meadow,await loadRegionPrefab(REGIONS.meadow),scene);
+ const meadow=mountRegion(REGIONS.meadow,await loadRegionPrefab(REGIONS.meadow),scene);meadow.active=false;/* no frame with the imported lit grass material */
  meadow.name='SailShotMeadow';
  meadow.setRotationFromEuler(0,180,0);
  const root=sailMeadowRoot();
  meadow.setWorldPosition(root[0],root[1],root[2]);
  configureMeadowVertexColors(meadow);
+ // grass meshes carry no normals: the imported builtin-standard M_meadow_grass_wind reads a stale a_normal (cyan/pink); swap first
+ {const grass=validateModel(meadow),wind=new Material();wind.initialize({effectAsset:await loadWindEffect()});for(const r of grass)for(let i=0;i<r.sharedMaterials.length;i++)r.setSharedMaterial(wind,i);}
+ meadow.active=true;
  const sky=mountMeadowNightSky(meadow,night);
  if(sky)sky.setNightBlend(night?1:0);
  for(const name of ['meadow_far_hills']){const n=findNode(meadow,name);if(n)for(const r of n.getComponentsInChildren(MeshRenderer))r.enabled=false;}

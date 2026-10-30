@@ -1,5 +1,6 @@
-import {EffectAsset,JsonAsset,assetManager} from 'cc';
-import {PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
+import {Director,EffectAsset,JsonAsset,assetManager,director,type Node} from 'cc';
+import {meadowSplitLoad,preloadMeadowForSail} from './SailPreload';
+import {MEADOW_LEG_STAGES,PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
 import {REGIONS,loadRegionPrefab} from './RegionLoader';
 import {loadBundlePrefab} from './TransportVehicle';
 import {prewarmLakesideAssets} from './LakesideBoardBackground';
@@ -58,4 +59,27 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
   return all;
  })();
  return skyStaged;
+}
+
+/* P0 wipe: staged island→meadow warm (see MEADOW_LEG_STAGES). Each stage logs ms and the longest frame seen while it ran
+ * (frameMaxMs) so the Mac run shows the island frame cost. Cached: repeated calls are free; a failed stage only logs. */
+let meadowStaged:Promise<boolean>|null=null;
+export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SKY_WARM_GAP_MS):Promise<boolean>{
+ if(meadowStaged)return meadowStaged;
+ const wait=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
+ const run:Record<string,()=>Promise<unknown>>={
+  'bundle:region_meadow':()=>bundle('region_meadow').then(ok=>{if(!ok)throw Error('bundle');}),
+  'bundle:transport_sail':()=>bundle('transport_sail').then(ok=>{if(!ok)throw Error('bundle');}),
+  'split:env_meadow':()=>meadowSplitLoad(stable),
+  'prefab:env_meadow':()=>loadRegionPrefab(REGIONS.meadow),
+  'mount:meadow-warm-rig':async()=>{let s;while((s=stable())===false)await wait(gap);if(s==='gone')throw Error('left-island');await preloadMeadowForSail(parent);},/* 'gone': she left the island side; the sail prepare mounts */
+ };
+ meadowStaged=(async()=>{let all=true;
+  for(const st of MEADOW_LEG_STAGES){
+   /*QF_PROBE_BEGIN*/let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}const t0=Date.now();/*QF_PROBE_END*/
+   let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
+   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok}));}catch{}/*QF_PROBE_END*/
+   await wait(gap);}
+  if(!all)meadowStaged=null;return all;})();
+ return meadowStaged;
 }

@@ -60,7 +60,7 @@ import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0Worl
 import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_PORT_STEP_LOCAL} from './SailLanding';
 import {createSailDriver,playSailBeats} from './SailRide';
 import {mountSailArt,type SailArt} from './SailArt';
-import {takeSailWarm} from './SailPreload';
+import {meadowSplitLoad,takeSailWarm} from './SailPreload';
 import {mountBalloonLease} from './BalloonRide';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
@@ -91,7 +91,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
    if(!(from==='island'&&to==='meadow'&&transportFor(from,to)==='sail'))throw Error('journey-transport-unsupported:'+from+'-'+to);
    const def=REGIONS[to];if(!def)throw Error('journey-region-unavailable');
    const sailWait=true;
-   const prefab=sailWait?(await awaitVehicle({kind:'sail',cancelled:()=>token.cancelled,load:()=>waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token,VEHICLE_ASSET_WAIT_MS)})).value:await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
+   const prefab=sailWait?(await awaitVehicle({kind:'sail',cancelled:()=>token.cancelled,load:()=>waitRegionAsset(meadowSplitLoad().then(()=>loadRegionPrefab(def,p=>progress(p*.72))),token,VEHICLE_ASSET_WAIT_MS)/* P0 wipe r2: never the one-burst load */})).value:await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
    let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,sailArt:SailArt|null=null;
@@ -101,10 +101,10 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     // 运镜bot r5 (meadow-girlsize A): the sail arrival ends at M1 → closer board camera.
     setMeadowBoardFraming('A');
     const warmed=sail?takeSailWarm():null;
-    model=mountRegion(def,prefab,rig);
+    // P0 wipe: the warm rig is used as is; the old path instantiated a second meadow here and destroyed it (a full mount inside the 3 s window).
+    if(warmed){model=warmed;rig.addChild(model);}else model=mountRegion(def,prefab,rig);
     // 运镜bot: the prefab's own root transform = the board copy's transform in its (identity) board rig, before the journey places it.
     boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);
-    if(warmed){model.removeFromParent();model.destroy();model=warmed;rig.addChild(model);boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);}
     for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
     if(to==='meadow'){
      mountYardBalloon(model)/* full9c: deflated balloon waits in the yard (not awaited) */;

@@ -93,6 +93,7 @@ export class MeadowSceneMotion extends Component {
  onLoad(){game.on(Game.EVENT_HIDE,this.hide,this);game.on(Game.EVENT_SHOW,this.show,this);}
  private hide(){this.hidden=true;}private show(){this.hidden=false;}
  update(dt:number){
+  /*QF_PROBE_BEGIN*/if(!(this as any)._qfGrassLogged){(this as any)._qfGrassLogged=1;try{const g=this.node.getComponentsInChildren(MeshRenderer).filter(grassRenderer).map(r=>({n:r.node.name,on:r.enabled&&r.node.activeInHierarchy,fx:r.sharedMaterials.map(m=>m?.effectName||m?.effectAsset?.name||'?').join('|')}));console.info('[QF_GRASS_FIRST_FRAME] '+JSON.stringify({host:this.node.name,frame:director.getTotalFrames(),grass:g}));}catch{}}/*QF_PROBE_END*/
   if(this.visible&&!this.hostPaused&&!this.hidden&&Number.isFinite(dt)&&dt>0)this.seconds=(this.seconds+Math.min(dt,.1))%120;
   const night=uiNightWeight();
   if(this.sail&&isValid(this.sail,true))this.sail.setRotationFromEuler(0,0,(this.seconds%MEADOW_SCENE_SOURCE.windmillSeconds)*360/MEADOW_SCENE_SOURCE.windmillSeconds);

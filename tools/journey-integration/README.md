@@ -7,6 +7,14 @@ node tools/journey-integration/test-mainline-boundaries.cjs
 QF_TYPESCRIPT_MODULE=/absolute/path/to/typescript node tools/journey-integration/test-journey-lifecycle.cjs
 ```
 
+Full suite (box, after the 2026-10-29 reset; both modules live under the persistent /workspace/wt):
+
+```sh
+QF_TYPESCRIPT_MODULE=/workspace/wt/ts5/node_modules/typescript DRACO3D=/workspace/wt/draco3d/node_modules/draco3d \
+  npx -y node@22 tools/journey-integration/run-suite.cjs
+```
+Without `DRACO3D` about 23 geometry checks fail with `draco3d not found: set DRACO3D` (draco3d@1.5.7; Mac: any local draco3d@1.5.7 install).
+
 The integration environment currently reuses TypeScript 5.9.3 read-only from:
 `/workspace/shared/region-levels-20261015/tools/region-levels/deps/node_modules/typescript`.
 It does not install software or launch a browser. `QF_JOURNEY_SOURCE_ROOT` is an explicit read-only review target override; final integration evidence must use this checkout without that override.

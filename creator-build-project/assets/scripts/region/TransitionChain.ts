@@ -135,6 +135,20 @@ export const SKY_LEG_STAGES=Object.freeze([
  {id:'prefab:transit_clouds_merged',ms:150},{id:'prefab:transit_night_dome',ms:80},{id:'prefab:far_meadow_card',ms:60},
  {id:'json:balloon_flightpath',ms:40},{id:'effect:balloon-grade',ms:40}] as const);
 export const SKY_LEG_MOUNT_MS=700;
+/** P0 wipe r2: per-frame budget for the split meadow load. Cocos 3.8.8 Mesh.onLoaded() calls initialize(), which inflates
+ *  (JS zlib) and creates + uploads the GPU buffers synchronously, so loading the prefab paid all 23 meshes + 4 textures in one
+ *  burst. Sub-assets now load a batch per frame; the batch halves after a frame over budget and doubles under half of it. */
+export const SPLIT_BUDGET_MS=4;
+/** Meadow meshes whose single decode (zlib inflate + VB upload in Mesh.onLoaded→initialize) is >4 ms on the phone model (box median ×4),
+ *  largest first. They decode only while she stands at home / on the island; the light ones go on the walk.
+ *  TODO(场景设计部 plan R: chunked grass/flower instances): once it lands, make "single mesh decode ≤4 ms" a hard gate. */
+export const MEADOW_HEAVY_MESHES=Object.freeze(['meadow_grass_instances.2_merged','meadow_grass_instances.1_merged','meadow_terrain','meadow_far_hills','meadow_flower_instances.2_merged','meadow_flower_instances.1_merged','meadow_grass_instances.0_merged','meadow_flower_instances.0_merged','meadow_grass_instances.3_merged','meadow_trees_merged','meadow_river_bank','meadow_clouds_near','meadow_grass_instances.4_merged']);
+export function splitNextBatch(k:number,workMs:number,budget=SPLIT_BUDGET_MS):number{return workMs>budget?Math.max(1,k>>1):workMs<budget/2?Math.min(8,k*2):k;}
+/** P0 wipe (Mac 19bd812a: WindWipe leg meadow prepare-slow 3.06/3.17 s, no [QF_PRELOAD] meadow line): the meadow warm ran only at the
+ *  mainline-04 board, so a sail from the island without L4 in this session (returning player, preTransition) loaded + instantiated
+ *  the 5.5 MB meadow inside the 3 s window (16 s on the swapping Mac). Now staged from world init on the island, one load per
+ *  stage with a gap; the instantiate stage only runs while she is in a stable place (home / island), never on a walk. */
+export const MEADOW_LEG_STAGES=Object.freeze([{id:'bundle:region_meadow',ms:1800},{id:'bundle:transport_sail',ms:400},{id:'split:env_meadow',ms:1200},{id:'prefab:env_meadow',ms:450},{id:'mount:meadow-warm-rig',ms:700}] as const);
 /** Gap between warm stages so each load lands on its own frames (no fps hitch on the sail). */
 export const SKY_WARM_GAP_MS=300;
 export const SKY_WARM_WINDOW=Object.freeze({sailRideS:43,arrivalWalkS:29});
