@@ -73,17 +73,17 @@ def rock_col(a,b,seed,band=0.16):
   def f(p,face):
     fc=face.calc_center_median();j=noise.noise(fc*3.7+Vector((seed,0,0)))
     k=int(math.floor((p.z+0.06*noise.noise(p*1.3+Vector((seed,1,0))))/band))%3
-    c=[a*1.04,mix(a,b,0.45),b*0.92][k]                          # hard sedimentary bands
+    c=[a*1.02,mix(a,b,0.2),mix(a,b,0.32)][k]   # r5: soft tone bands (island rocks)                          # hard sedimentary bands
     if face.normal.z>0.75:c=mix(c,a*1.1,0.55)                    # weathered tops
-    elif abs(face.normal.z)<0.35 and (abs(math.sin(fc.x*12.9+fc.y*78.2+fc.z*37.7)*4375.5)%1)>0.62:c=c*0.55   # crevices
-    c=c*(0.9+0.18*j)
-    if face.normal.z<-0.2 or p.z<0.02:c=c*0.72                # wet dark foot
+    elif abs(face.normal.z)<0.35 and (abs(math.sin(fc.x*12.9+fc.y*78.2+fc.z*37.7)*4375.5)%1)>0.62:c=c*0.92   # r5: faint crevices
+    c=c*(0.96+0.06*j)
+    if face.normal.z<-0.2 or p.z<0.02:c=c*0.9                # wet dark foot
     return c
   return f
-SAND=hx('#F2E0AE');SAND2=hx('#E8CF95');WET=hx('#C9AE7C');UNDER=hx('#5ED6CC');DEEP=hx('#2C9FC9')
+SAND=hx('#F7EDD2');SAND2=hx('#EFE0BA');WET=hx('#DCC9A0');UNDER=hx('#8FE6D6');DEEP=hx('#5CC4CF')   # r5: lighter sand, pale cyan-green shelf
 def strata(base,dark):
   def f(p,face):
-    b=0.5+0.5*math.sin(p.z*22+noise.noise(p*2)*2);c=mix(base,dark,0.35*b);
+    b=0.5+0.5*math.sin(p.z*22+noise.noise(p*2)*2);c=mix(base,dark,0.12*b);
     if face.normal.z>0.75:c=mix(c,base*1.08,0.5)
     return c
   return f
@@ -91,16 +91,16 @@ def strata(base,dark):
 #          barnacle/limpet crust on the rim, natural superellipse outline (corners open onto the reef bed), strata sides
 SLAB_TOP=0.16
 SHELLC=[hx('#FF9EB5'),hx('#FFD36E'),hx('#FFF4E0'),hx('#C9A7FF'),hx('#8FE3D2')]
-SLABC=[('#AE9E8C','#908270'),('#A89A88','#8A7C6E'),('#AC9C88','#8E806C'),('#A69684','#887A68'),('#A49A8C','#867E70'),('#A29A90','#847C74')]
+SLABC=[('#E4DCCD','#CFC5B3'),('#E0D8CA','#CBC1B1'),('#E2D9C8','#CDC2AF'),('#DED5C5','#C8BEAC'),('#DCD6CA','#C6C0B3'),('#DAD5CC','#C4BFB5')]   # r5: soft pale warm grey
 def cone_at(name,r1,r2,d,seg,col,M):
   sb=bmesh.new();bmesh.ops.create_cone(sb,cap_ends=True,segments=seg,radius1=r1,radius2=r2,depth=d);add_bm(name,sb,col,M);sb.free()
 for k in range(6):
   name='slab_%d'%k;new(name);random.seed(100+k);wet=k>=4
-  base,dark=hx(SLABC[k][0]),hx(SLABC[k][1]);h=SLAB_TOP;A=16
+  base,dark=hx(SLABC[k][0]),hx(SLABC[k][1]);h=SLAB_TOP;A=14
   def outline(a,k=k):
     c,s_=abs(math.cos(a)),abs(math.sin(a));r=0.5*(c**9+s_**9)**(-1/9)
     return min(r,0.66)*(1+0.035*noise.noise(Vector((math.cos(a)*2.3+k*1.7,math.sin(a)*2.3,k))))-0.012
-  RF=[0.0,0.16,0.34,0.5,0.68,0.84,0.94,1.0]
+  RF=[0.0,0.3,0.55,0.72,0.84,0.92,0.97,1.0]   # r5: island-rock density
   bm=bmesh.new();rings=[]
   for ri,f in enumerate(RF):
     row=[]
@@ -108,7 +108,7 @@ for k in range(6):
       a=ai/A*6.283+(0.5/A*6.283 if ri%2 else 0);R0=outline(a)*f;x,y=math.cos(a)*R0,math.sin(a)*R0
       z=h+0.014*noise.noise(Vector((x*6+k,y*6,1)))+0.006*math.sin(x*14+y*9)
       if R0<0.3:z-=0.06*(1-(R0/0.3)**2)**0.7               # carved dry hollow
-      if f>0.9:z-=0.04*((f-0.9)/0.1)                         # worn rim bevel
+      if f>0.78:u=(f-0.78)/0.22;z-=0.13*(1-math.sqrt(max(0.0,1-u*u)))   # r5: rounded rim roll-off (r ~0.13 m)
       row.append(bm.verts.new((x,y,z)))
     rings.append(row)
   for ai in range(A):bm.faces.new((rings[0][0],rings[1][ai],rings[1][(ai+1)%A]))
@@ -117,16 +117,16 @@ for k in range(6):
       a0,a1=rings[ri][ai],rings[ri][(ai+1)%A];b0,b1=rings[ri+1][ai],rings[ri+1][(ai+1)%A]
       if ri%2:bm.faces.new((a0,b1,a1));bm.faces.new((a0,b0,b1))
       else:bm.faces.new((a0,b0,a1));bm.faces.new((a1,b0,b1))
-  low=[bm.verts.new((v.co.x*1.04,v.co.y*1.04,-0.03)) for v in rings[-1]]
+  low=[bm.verts.new((v.co.x*1.015,v.co.y*1.015,-0.03)) for v in rings[-1]]
   for ai in range(A):b=(ai+1)%A;bm.faces.new((rings[-1][ai],low[ai],low[b],rings[-1][b]))
   bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
   def col(p,f,base=base,dark=dark,wet=wet):
-    r=math.hypot(p.x,p.y);c=mix(base,strata(base,dark)(p,f),0.55)
-    c=c*(0.95+0.1*noise.noise(Vector((p.x*3.1,p.y*3.1,7))))
-    if f.normal.z<0.6:c=mix(c,dark*0.55,0.65)                 # seam walls dark
-    elif math.hypot(p.x,p.y)>outline(math.atan2(p.y,p.x))*0.9:c=mix(c,dark*0.85,0.35)   # dark worn edge
-    if r<0.3 and p.z<h-0.012:c=mix(c,base*0.9,0.35)            # dry hollow floor (stays dark under the piece)
-    if wet and r>0.36:c=mix(c,hx('#5E8F4A'),0.25*max(0,noise.noise(Vector((p.x*5,p.y*5,3)))+0.3))
+    r=math.hypot(p.x,p.y);c=mix(base,strata(base,dark)(p,f),0.2)
+    c=c*(0.97+0.05*noise.noise(Vector((p.x*3.1,p.y*3.1,7))))
+    if f.normal.z<0.35:c=mix(c,dark*0.85,0.45)                 # seam walls dark
+    elif math.hypot(p.x,p.y)>outline(math.atan2(p.y,p.x))*0.9:c=mix(c,dark,0.25)   # soft worn edge
+    if r<0.3 and p.z<h-0.012:c=mix(c,base*0.94,0.3)            # dry hollow floor (stays dark under the piece)
+    if wet and r>0.36:c=mix(c,hx('#9FC48A'),0.18*max(0,noise.noise(Vector((p.x*5,p.y*5,3)))+0.3))
     return c
   add_bm(name,bm,col);bm.free()
   for s_ in range(1):                                         # one tone-on-tone shell in the hollow (r4b: no confetti)
@@ -135,11 +135,11 @@ for k in range(6):
     cc=mix(base,hx('#FFFFFF'),0.22);cone_at(name,0.06,0.0,0.03,5,lambda p,f,cc=cc:cc*(0.8+0.3*max(0,f.normal.z)),Matrix.Translation((x,y,z+0.006))@Matrix.Rotation(random.random()*6.28,4,'Z')@Matrix.Rotation(1.3,4,'X'))
   for s_ in range(7 if not wet else 9):                       # barnacle crust on the rim
     a=random.random()*6.283;rr=outline(a)*random.uniform(0.8,0.92);x,y=math.cos(a)*rr,math.sin(a)*rr
-    cone_at(name,0.026,0.012,0.03,5,lambda p,f:hx('#F4EAD6') if f.normal.z<0.9 else hx('#8C7A64'),Matrix.Translation((x,y,h-0.02)))
+    cone_at(name,0.026,0.012,0.03,5,lambda p,f:hx('#F6EFE2') if f.normal.z<0.9 else hx('#C8BBA6'),Matrix.Translation((x,y,h-0.02)))
   for s_ in range(3):                                         # limpets
     a=random.random()*6.283;rr=outline(a)*random.uniform(0.62,0.8);x,y=math.cos(a)*rr,math.sin(a)*rr
     cone_at(name,0.045,0.0,0.035,6,lambda p,f:mix(hx('#D9CBB3'),hx('#8E7E6A'),0.5+0.5*math.sin(math.atan2(p.y-y,p.x-x)*6)),Matrix.Translation((x,y,h+0.004)))
-  bake_ao(name,rays=12,dist=0.25,strength=0.5)
+  bake_ao(name,rays=12,dist=0.25,strength=0.3)
 # reef bed under the slabs: one irregular rock platform, wet & weedy toward the sea (+y), visible in the seams
 new('reef_base');bm=bmesh.new();A=40;RB=[0,0.35,0.65,0.85,0.95,1.0,1.08];rows=[]
 for ri,f in enumerate(RB):
@@ -155,8 +155,8 @@ for ri in range(1,len(RB)-1):
   for ai in range(A):bm.faces.new((rows[ri][ai],rows[ri+1][ai],rows[ri+1][(ai+1)%A],rows[ri][(ai+1)%A]))
 bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 def rbcol(p,f):
-  c=mix(hx('#4A3022'),hx('#36241A'),0.5+0.5*noise.noise(p*2.5))
-  if p.y>1.8:c=mix(c,hx('#4E6E3C'),min(1,(p.y-1.8)/2.2)*0.55)   # wet, algae seaward
+  c=mix(hx('#A89A86'),hx('#968A78'),0.5+0.5*noise.noise(p*2.5))   # r5: soft warm grey bed
+  if p.y>1.8:c=mix(c,hx('#8DB07A'),min(1,(p.y-1.8)/2.2)*0.4)   # wet, algae seaward
   return c
 add_bm('reef_base',bm,rbcol);bm.free();bake_ao('reef_base',rays=8,dist=0.4,strength=0.4)
 new('weed');random.seed(12)
@@ -202,7 +202,7 @@ for (x0,a,l) in [(0,0.0,0.9),(0.42,0.5,0.5)]:
 bake_ao('driftwood',rays=6,dist=0.2,strength=0.4)
 # ---- r3 dressing (original shapes): grass cap, fisher's net + poles, upturned dinghy, crab trap, rope coil, shell/pebble scatter, footprints
 new('grasscap');bm=facet_rock(301,flat=0.35,cuts=6)
-add_bm('grasscap',bm,lambda p,f:mix(hx('#4DB33C'),hx('#93DA5A'),0.5+0.5*noise.noise(p*2)) if f.normal.z>0.3 else mix(hx('#3E8E30'),hx('#2F6E26'),0.5));bm.free()
+add_bm('grasscap',bm,lambda p,f:mix(hx('#65a546'),hx('#bac66a'),0.5+0.5*noise.noise(p*2)) if f.normal.z>0.3 else mix(hx('#5f8a45'),hx('#9fb14c'),0.5));bm.free()
 new('net_poles')
 for sx in (-1,1):
   cone_at('net_poles',0.04,0.03,1.3,6,strata(hx('#B08A5E'),hx('#6E5236')),Matrix.Translation((sx*0.9,0,0.65))@Matrix.Rotation(sx*0.06,4,'Y'))
@@ -228,9 +228,9 @@ bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 add_bm('dinghy',bm,lambda p,f:(hx('#2F7FC1') if p.z>0.28 else (hx('#F4EEDC') if p.z>0.12 else hx('#D9483B')))*(0.6+0.5*max(0,f.normal.z*0.7+0.3)));bm.free()
 bake_ao('dinghy',rays=8,dist=0.4,strength=0.45)
 new('crabtrap')
-sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);add_bm('crabtrap',sb,lambda p,f:hx('#C9A56A') if f.normal.z>0.5 else hx('#8C6A3E'),Matrix.Translation((0,0,0.03))@Matrix.Diagonal((0.62,0.42,0.06,1)));sb.free()
-for (x,y) in [(-0.28,-0.18),(0.28,-0.18),(-0.28,0.18),(0.28,0.18)]:cone_at('crabtrap',0.02,0.02,0.36,4,lambda p,f:hx('#8C6A3E'),Matrix.Translation((x,y,0.21)))
-sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);add_bm('crabtrap',sb,lambda p,f:hx('#E0B978'),Matrix.Translation((0,0,0.39))@Matrix.Diagonal((0.62,0.42,0.04,1)));sb.free()
+sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);bmesh.ops.bevel(sb,geom=sb.edges[:],offset=0.18,segments=2,affect='EDGES');add_bm('crabtrap',sb,lambda p,f:mix(hx('#a3723d'),hx('#d8ab68'),max(0,f.normal.z)),Matrix.Translation((0,0,0.03))@Matrix.Diagonal((0.62,0.42,0.06,1)));sb.free()
+for (x,y) in [(-0.28,-0.18),(0.28,-0.18),(-0.28,0.18),(0.28,0.18)]:cone_at('crabtrap',0.02,0.02,0.36,4,lambda p,f:hx('#9c7444'),Matrix.Translation((x,y,0.21)))
+sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);bmesh.ops.bevel(sb,geom=sb.edges[:],offset=0.2,segments=2,affect='EDGES');add_bm('crabtrap',sb,lambda p,f:mix(hx('#b8894d'),hx('#e3bd7c'),max(0,f.normal.z)),Matrix.Translation((0,0,0.39))@Matrix.Diagonal((0.62,0.42,0.05,1)));sb.free()
 new('crabtrap_mesh',alpha=0.6);sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);add_bm('crabtrap_mesh',sb,lambda p,f:hx('#4F9C8E'),Matrix.Translation((0,0,0.21))@Matrix.Diagonal((0.56,0.36,0.3,1)));sb.free()
 new('rope_coil')
 for k in range(3):
@@ -294,9 +294,9 @@ new('headland');random.seed(4)
 BL=[(0,0,0.0,2.2,1.5),(1.6,0.8,0.0,1.7,1.2),(-1.5,0.6,0.0,1.6,1.1),(0.5,1.8,0.0,1.9,1.4),(-0.9,-1.3,-0.3,1.3,0.8),(1.4,-1.0,-0.3,1.2,0.7),(0.2,0.3,1.4,1.5,0.9)]
 for k,(x,y,z,sz,hz) in enumerate(BL):
   bm=facet_rock(200+k,flat=1.0,cuts=11);M=Matrix.Translation((HL[0]+x,HL[1]+y,z))@Matrix.Rotation(k*1.3,4,'Z')@Matrix.Diagonal((sz,sz*0.9,hz,1))
-  add_bm('headland',bm,lambda p,f:(mix(hx('#5BBE45'),hx('#8AD65C'),0.5+0.5*noise.noise(p)) if (f.normal.z>0.72 and p.z>1.1) else rock_col(hx('#E6BE8A'),hx('#8E6644'),k,band=0.22)(p,f)),M);bm.free()
+  add_bm('headland',bm,lambda p,f:(mix(hx('#65a546'),hx('#bac66a'),0.5+0.5*noise.noise(p)) if (f.normal.z>0.72 and p.z>1.1) else rock_col(hx('#E2D6C0'),hx('#BFB29C'),k,band=0.22)(p,f)),M);bm.free()
 for (x,y,z,w,dd,rz) in [(0.9,-1.6,0.55,1.1,0.45,0.3),(-1.4,-0.9,0.85,0.9,0.4,-0.5),(1.9,-0.2,1.05,0.8,0.35,0.9),(-0.4,-1.9,0.25,1.2,0.5,0.1)]:   # ledges
-  sb=facet_rock(260+int(x*10),flat=0.18,cuts=6);add_bm('headland',sb,rock_col(hx('#F0CC98'),hx('#9C7450'),7,band=0.3),Matrix.Translation((HL[0]+x,HL[1]+y,z))@Matrix.Rotation(rz,4,'Z')@Matrix.Diagonal((w,dd,0.35,1)));sb.free()
+  sb=facet_rock(260+int(x*10),flat=0.18,cuts=6);add_bm('headland',sb,rock_col(hx('#EADFCB'),hx('#C6B8A2'),7,band=0.3),Matrix.Translation((HL[0]+x,HL[1]+y,z))@Matrix.Rotation(rz,4,'Z')@Matrix.Diagonal((w,dd,0.35,1)));sb.free()
 bake_ao('headland',rays=10,dist=1.2,strength=0.55)
 HTOP=2.25
 new('beacon_post')
@@ -318,8 +318,8 @@ for nm,off,wid,z in [('foam',0.0,0.34,-0.012),('foam_inner',0.55,0.18,-0.03)]:
     bm=bmesh.new();a=bm.verts.new((x,ya,z));b=bm.verts.new((x2,yc,z));c=bm.verts.new((x2,yd,z));d=bm.verts.new((x,yb,z));bm.faces.new((a,b,c,d))
     add_bm(nm,bm,lambda p,f:Vector((1,1,1)));bm.free()
 # ===== 6. pieces (6 types, thick, single meshes, ≤200 tris each) =====
-PC={'conch':'#FFC8A6','star':'#FFC21A','coral':'#FFD8E4','float':'#9AD2FF','scallop':'#DDB0FF','badge':'#2ECB8C'}
-def shade(c,hi=1.22,lo=0.5):
+PC={'conch':'#F6B48E','star':'#F2B23A','coral':'#EE8A98','float':'#9CCBF0','scallop':'#8FCBC5','badge':'#94CC7E'}   # r5: pastel natural (scallop = island teal band)
+def shade(c,hi=1.12,lo=0.7):
   return lambda p,f:c*(lo+(hi-lo)*max(0,f.normal.z*0.8+0.2))
 S=0.42
 # conch: ONE swept spiral mesh (no separate ring -> no interpenetration)
@@ -336,14 +336,17 @@ for i in range(NR):
 bm.faces.new(list(reversed(rings[0])))
 bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 M=Matrix.Translation((0,0,S*0.42))@Matrix.Rotation(math.radians(70),4,'X')@Matrix.Translation((0,0,-S*0.55))
-add_bm('piece_conch',bm,lambda p,f:(mix(hx(PC['conch']),hx('#FFE7D2'),0.7) if math.sin(math.atan2(p.y,p.x)+p.z*30)>0.55 else hx(PC['conch']))*(0.62+0.5*max(0,f.normal.z*0.8+0.2)),M);bm.free()
+add_bm('piece_conch',bm,lambda p,f:(mix(hx(PC['conch']),hx('#FFE7D2'),0.7) if math.sin(math.atan2(p.y,p.x)+p.z*30)>0.55 else hx(PC['conch']))*(0.72+0.4*max(0,f.normal.z*0.8+0.2)),M);bm.free()
 # star
 new('piece_star');bm=bmesh.new();vs=[]
 for i in range(10):
-  a=i/10*6.283+math.pi/2;r=S*1.0 if i%2==0 else S*0.44;vs.append(bm.verts.new((math.cos(a)*r,math.sin(a)*r,0.0)))
-top=[bm.verts.new((v.co.x*0.82,v.co.y*0.82,S*0.34)) for v in vs];c=bm.verts.new((0,0,S*0.58))
-for i in range(10):
-  j=(i+1)%10;bm.faces.new((vs[i],vs[j],top[j],top[i]));bm.faces.new((top[i],top[j],c))
+  pass
+NSTAR=30
+for i in range(NSTAR):   # r5: puffy rounded arms (smooth 5-lobe radius)
+  a=i/NSTAR*6.283+math.pi/2;r=S*(0.56+0.40*(0.5+0.5*math.cos(5*(a-math.pi/2)))**1.6);vs.append(bm.verts.new((math.cos(a)*r,math.sin(a)*r,0.0)))
+top=[bm.verts.new((v.co.x*0.8,v.co.y*0.8,S*0.3)) for v in vs];c=bm.verts.new((0,0,S*0.46))
+for i in range(NSTAR):
+  j=(i+1)%NSTAR;bm.faces.new((vs[i],vs[j],top[j],top[i]));bm.faces.new((top[i],top[j],c))
 bm.faces.new(list(reversed(vs)));bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 add_bm('piece_star',bm,shade(hx(PC['star'])));bm.free()
 # coral: trunk + 3 branches merged, dark base
@@ -351,13 +354,13 @@ new('piece_coral')
 for (x,y,h,r,tx,ty) in [(0,0,0.9,0.2,0,0),(0.12,0.05,0.62,0.14,0.25,0.1),(-0.1,0.08,0.7,0.14,-0.22,0.15),(0.02,-0.12,0.55,0.13,0.05,-0.24)]:
   bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=6,radius1=S*r,radius2=S*r*0.7,depth=S*h)
   M=Matrix.Translation((x*S,y*S,S*(0.12+h/2)))@Matrix.Rotation(ty*1.6,4,'X')@Matrix.Rotation(-tx*1.6,4,'Y')
-  add_bm('piece_coral',bm,lambda p,f:hx(PC['coral'])*(1.0+0.25*max(0,f.normal.z)),M);bm.free()   # r4b: flat bright body, no dark maroon sides
-bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=8,radius1=S*0.6,radius2=S*0.5,depth=S*0.24);add_bm('piece_coral',bm,shade(hx('#FF4A6A')),Matrix.Translation((0,0,S*0.12)));bm.free()
+  add_bm('piece_coral',bm,lambda p,f:hx(PC['coral'])*(0.8+0.35*max(0,f.normal.z)),M);bm.free()   # r4b: flat bright body, no dark maroon sides
+bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=8,radius1=S*0.6,radius2=S*0.5,depth=S*0.24);add_bm('piece_coral',bm,shade(hx('#D9707E')),Matrix.Translation((0,0,S*0.12)));bm.free()
 # glass float with rope band (band is a raised ring ON the surface, same mesh)
 new('piece_float');bm=bmesh.new();bmesh.ops.create_uvsphere(bm,u_segments=12,v_segments=7,radius=S*0.62)
 for v in bm.verts:
   if abs(v.co.z)<S*0.1:v.co*=1.06
-add_bm('piece_float',bm,lambda p,f:(hx('#EAD7AA')*(0.7+0.4*max(0,f.normal.z)) if abs(p.z-S*0.64)<S*0.1 else hx(PC['float'])*(0.55+0.6*max(0,f.normal.z*0.8+0.2))),Matrix.Translation((0,0,S*0.64)));bm.free()
+add_bm('piece_float',bm,lambda p,f:(hx('#EAD7AA')*(0.7+0.4*max(0,f.normal.z)) if abs(p.z-S*0.64)<S*0.1 else hx(PC['float'])*(0.72+0.4*max(0,f.normal.z*0.8+0.2))),Matrix.Translation((0,0,S*0.64)));bm.free()
 # scallop: ribbed fan, solid
 new('piece_scallop');bm=bmesh.new();N=9;hinge=bm.verts.new((0,-S*0.5,S*0.08));top=[];bot=[]
 for i in range(N+1):
@@ -373,10 +376,10 @@ new('piece_badge')
 for (r1,r2,d,z,c) in [(0.85,0.8,0.36,0.18,PC['badge']),(0.3,0.2,0.62,0.67,'#FFFFFF'),(0.24,0.24,0.14,1.05,'#FFE36B'),(0.27,0.05,0.16,1.2,'#E8503A')]:
   bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=12 if r1>0.5 else 8,radius1=S*r1,radius2=S*r2,depth=S*d)
   add_bm('piece_badge',bm,shade(hx(c)),Matrix.Translation((0,0,S*z)));bm.free()
-for k in PC:bake_ao('piece_'+k,rays=8,dist=0.15,strength=0.12 if k=='coral' else 0.5)
+for k in PC:bake_ao('piece_'+k,rays=8,dist=0.15,strength=0.25)
 # contact shadow disc (baked, shared) — pieces get real side light, slabs do NOT receive scene shadows (palm-shadow mask, R5)
-new('contact',alpha=0.66,unlit=True);bm=bmesh.new();bmesh.ops.create_circle(bm,cap_ends=True,segments=14,radius=0.36)
-add_bm('contact',bm,lambda p,f:hx('#4A2E1C'));bm.free()
+new('contact',alpha=0.42,unlit=True);bm=bmesh.new();bmesh.ops.create_circle(bm,cap_ends=True,segments=14,radius=0.36)
+add_bm('contact',bm,lambda p,f:hx('#7A6652'));bm.free()
 # ===== 7. beacon: sea-glass pebbles (instanced 16 in the cracks), crack light line, preview anemone =====
 new('seaglass',emit=True);bm=ico(0.07,1)
 for v in bm.verts:v.co.z*=0.7
@@ -480,7 +483,7 @@ for k in range(3):   # 3 steps, rise 0.2, tread 0.4: S0 (y -12.1, z .6) -> S1 (y
       cx,cy=random.choice([(-1,1),(1,1),(-1,-1),(1,-1)]);n=Vector((cx,cy,1.3)).normalized()
       bmesh.ops.bisect_plane(sb,geom=sb.verts[:]+sb.edges[:]+sb.faces[:],plane_co=Vector((cx*0.5,cy*0.5,0.5))-n*0.30,plane_no=n,clear_outer=True)
       bmesh.ops.holes_fill(sb,edges=[e for e in sb.edges if e.is_boundary],sides=0)
-    bmesh.ops.bevel(sb,geom=[e for e in sb.edges],offset=0.035,segments=1,affect='EDGES')
+    bmesh.ops.bevel(sb,geom=[e for e in sb.edges],offset=0.06,segments=2,affect='EDGES')   # r5: rounded
     for v in sb.verts:v.co+=Vector((0.02*noise.noise(Vector((v.co.x*2+k*3,v.co.y*2+j,2))),0.015*noise.noise(Vector((v.co.y*2+j,k,4))),0.01*noise.noise(Vector((v.co.x*3+k,v.co.y*3+j,1)))))
     hh=top+0.06+0.03*random.uniform(-1,1)
     M=Matrix.Translation((x0+0.03*math.sin(k*3+j),y0+0.2-0.03,top-hh/2+0.01*random.uniform(-1,1)))@Matrix.Rotation(random.uniform(-0.08,0.08),4,'Z')@Matrix.Diagonal((w,0.48,hh,1))
@@ -499,6 +502,11 @@ for k in range(3):   # 3 steps, rise 0.2, tread 0.4: S0 (y -12.1, z .6) -> S1 (y
 bake_ao('arrival_steps',rays=8,dist=0.3,strength=0.4)
 STEP_DRIFT=[(x,-10.86) for x in (-1.05,-0.25,0.55,1.2)]+[(sx*1.36,y) for sx in (-1,1) for y in (-11.85,-11.35)]
 bake_glb(ART+'env_cloud_01.glb','reuse_cloud')
+for _k in range(3):   # r5: island rocks (rounded, soft, pale grey) + warm sand-tinted copy; reuse, not new triangles
+  bake_glb(ART+'env_prop_rock_%02d.glb'%(_k+1),'reuse_rock_%d'%_k)
+  _m=MESH['reuse_rock_%d'%_k];zs=[p.z for t in _m['tris'] for p in t];xs=[abs(p.x) for t in _m['tris'] for p in t]+[abs(p.y) for t in _m['tris'] for p in t];_s=1.0/max(xs);_z0=min(zs)
+  _m['tris']=[tuple(Vector((p.x*_s,p.y*_s,(p.z-_z0)*_s-0.1)) for p in t) for t in _m['tris']]
+  MESH['reuse_rock_s%d'%_k]=dict(_m);MESH['reuse_rock_s%d'%_k]['cols']=[tuple(mix(Vector(c[:3]),hx('#E9D7B0'),0.38) for c in cs) for cs in _m['cols']]
 bake_glb(ART+'env_prop_hydrangea_bush_01.glb','reuse_bush')
 bake_glb(ART+'env_prop_flowers_01.glb','reuse_flowers');bake_glb(ART+'env_prop_grass_tuft_01.glb','reuse_grass_a');bake_glb(ART+'env_prop_grass_tuft_02.glb','reuse_grass_b')
 for _n in ['grass_0','grass_1','grass_2','flowers','barnacles','moss']:MESH.pop(_n,None)          # replaced by the island's own flora (reuse)
@@ -620,17 +628,33 @@ put('reuse_palm_lean',6.6,SHORE-0.8,ground_z(6.6,SHORE-0.8),2.6,1.0,reuse=True,c
 put('reuse_palm_tall',-8.5,-3.5,ground_z(-8.5,-3.5),1.2,0.85,reuse=True,cast_shadow=True)
 put('reuse_bush',6.2,1.8,ground_z(6.2,1.8),0,1.0,reuse=True);put('reuse_bush',-6.3,-0.8,ground_z(-6.3,-0.8),1,0.9,reuse=True)
 for k,(x,y,z,sc) in enumerate([(-30,150,1,0.9),(22,165,3,1.1),(60,145,0,0.8),(-78,160,2,1.0),(100,170,1,0.9)]):put('reuse_cloud',x,y,z,k*0.9,sc,reuse=True,anim='cloud',k=k)
+# r5: procedural rock/boulder instances -> island rocks scaled down 20 %; boulders take the warm sand tint
+for d in L:
+  m_=d['mesh']
+  if m_.startswith('rock_'):d['mesh']='reuse_rock_%d'%(int(m_[5:])%3);d['s']=round(d['s']*0.8,4);d['reuse']=True
+  elif m_.startswith('boulder_'):d['mesh']='reuse_rock_s%d'%int(m_[8:]);d['s']=round(d['s']*0.8,4);d['reuse']=True
+for _n in [n for n in MESH if n.startswith(('rock_','boulder_'))]:MESH.pop(_n)
+SMOOTH=lambda n:n.startswith(('slab_','reuse_rock','piece_','headland'))
+# r5: pastel lift for pieces (render tone mapping saturates; island pieces read soft)
+for _n in [n for n in MESH if n.startswith('piece_')]:MESH[_n]['cols']=[tuple(mix(Vector(c[:3]),Vector((1,1,1)),0.22) for c in cs) for cs in MESH[_n]['cols']]
 # ---------- export: engine JSON (Y-up: x, z, -y) ----------
 def conv(v):return [round(v.x,4),round(v.z,4),round(-v.y,4)]
 out={}
 for n,m in MESH.items():
-  P=[];C=[];Nn=[]
+  P=[];C=[];Nn=[];acc={}
+  key=lambda p:(round(p.x,3),round(p.y,3),round(p.z,3))
+  if SMOOTH(n):
+    for t in m['tris']:
+      nr=(t[1]-t[0]).cross(t[2]-t[0])
+      for p in t:acc[key(p)]=acc.get(key(p),Vector((0,0,0)))+nr
   for t,cs in zip(m['tris'],m['cols']):
     nrm=(t[1]-t[0]).cross(t[2]-t[0])
     if nrm.length<1e-10:continue
     nrm.normalize()
     for p,c in zip(t,cs):
-      P+=conv(p);Nn+=conv(nrm);cc=[max(0,min(255,int(round(x*255)))) for x in c[:3]];C+=cc+[int(m['alpha']*(c[3] if len(c)>3 else 1.0)*255)]
+      vn=acc[key(p)].normalized() if SMOOTH(n) and acc[key(p)].length>1e-9 else nrm
+      if SMOOTH(n) and vn.dot(nrm)<0.5:vn=nrm
+      P+=conv(p);Nn+=conv(vn);cc=[max(0,min(255,int(round(x*255)))) for x in c[:3]];C+=cc+[int(m['alpha']*(c[3] if len(c)>3 else 1.0)*255)]
   out[n]=dict(positions=P,normals=Nn,colors=C,alpha=m['alpha'],emit=m['emit'],unlit=m['unlit'],reuse=m['reuse'],tris=len(P)//9)
 json.dump(out,open(OUT+'/coast_meshes.json','w'))
 PLACEMENT=dict(parent='island scene_root (frame of combined_anchors_m.json / combined_visual_m.glb)',position=[-0.6,-0.845,21.5],yaw_deg=180,scale=1,
@@ -643,7 +667,6 @@ json.dump(stats,open(OUT+'/stats.json','w'),indent=1);print('STATS',json.dumps(s
 bpy.ops.wm.read_factory_settings(use_empty=True)
 groups={'coast_board':[n for n in out if n.startswith(('slab_','reef_base','weed','contact','seaglass','beacon_line','anemone','tide_sheet'))],
  'coast_pieces':[n for n in out if n.startswith('piece_')],
- 'coast_rocks':[n for n in out if n.startswith(('rock_','boulder_'))],
  'coast_terrain':['terrain','arrival_steps','headland','beacon_post','beacon_lamp','drift','foam','foam_inner','sidepool'],
  'coast_props':['blob','grasscap','net_poles','net','dinghy','crabtrap','crabtrap_mesh','rope_coil','shells_scatter','footprints','starfish_deco','driftwood','ebb_bell','hermit','crab','gull','bottle']}
 for g,names in groups.items():

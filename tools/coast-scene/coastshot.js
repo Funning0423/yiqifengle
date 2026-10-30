@@ -2,7 +2,7 @@
 (function(){
 const q=new URLSearchParams(location.search);const S=window.__coast={ready:false,log:[]};const L=(...a)=>{S.log.push(a.join(' '));console.log('[coast]',...a);};
 const {director,Scene,Node,Camera,DirectionalLight,MeshRenderer,Material,Vec3,Color,Quat,utils}=cc;
-const NOP=q.get('nopieces')==='1',CAM=q.get('cam')||'game';
+const LEG=q.get('light')==='r4';const NOP=q.get('nopieces')==='1',CAM=q.get('cam')||'game';
 const mats={};
 function mat(kind,alpha){const key=kind+alpha;if(mats[key])return mats[key];const m=new Material();
   if(kind==='unlit'){m.initialize({effectName:'builtin-unlit',technique:alpha<1?1:0,defines:{USE_VERTEX_COLOR:true}});}
@@ -16,14 +16,14 @@ function mkMesh(name){if(MESHES[name])return MESHES[name];const d=DATA[name];con
 function inst(parent,e){const d=DATA[e.mesh];if(!d){L('missing',e.mesh);return null;}const n=new Node(e.mesh);parent.addChild(n);n.setPosition(e.p[0],e.p[1],e.p[2]);
   n.setRotationFromEuler(e.tilt?e.tilt[0]:0,e.rz*180/Math.PI,e.tilt?e.tilt[1]:0);n.setScale(e.s,e.s,e.s);const r=n.addComponent(MeshRenderer);r.mesh=mkMesh(e.mesh);
   const kind=d.unlit||d.emit||e.mesh==='reuse_cloud'?'unlit':e.piece?'piece':'std';r.setMaterial(mat(kind,d.alpha),0);
-  r.shadowCastingMode=(e.cast_shadow||e.piece||/^rock_|ebb_bell|crab|gull|hermit|headland|beacon_post|reuse_palm|reuse_bush/.test(e.mesh))&&!d.unlit?1:0;
+  r.shadowCastingMode=(e.cast_shadow||e.piece||/^rock_|^reuse_rock|ebb_bell|crab|gull|hermit|headland|beacon_post|reuse_palm|reuse_bush/.test(e.mesh))&&!d.unlit?1:0;
   r.receiveShadow=(e.receive_shadow===false||d.unlit)?0:1;n.__e=e;n.__base=n.position.clone();n.__rot=n.rotation.clone();return n;}
 // ---- water: dynamic grid, transparent so the turquoise shelf shows through; fresnel + sparkle by vertex colour ----
 let water=null,wpos=null,wcol=null,WX=72,WZ=110,SH=5.2;
 function buildWater(parent,shore){SH=shore;const P=[],C=[],I=[],N=[];const x0=-34,x1=34,z0=-(shore-2.5),z1=-(shore+150);
   for(let j=0;j<=WZ;j++)for(let i=0;i<=WX;i++){const u=i/WX,v=Math.pow(j/WZ,1.9);P.push(x0+(x1-x0)*u,-0.075,z0+(z1-z0)*v);N.push(0,1,0);C.push(0.12,0.55,0.82,0.7);}
   for(let j=0;j<WZ;j++)for(let i=0;i<WX;i++){const a=j*(WX+1)+i,b=a+1,c=a+WX+1,d=c+1;I.push(a,c,b,b,c,d);}
-  {const bp=[x0*3,-1.3,-(shore+6),x1*3,-1.3,-(shore+6),x0*3,-1.3,-(shore+160),x1*3,-1.3,-(shore+160)],bc=[0.018,0.24,0.50,1,0.018,0.24,0.50,1,0.014,0.2,0.45,1,0.014,0.2,0.45,1];const bn=new Node('seabed');parent.addChild(bn);const br=bn.addComponent(MeshRenderer);
+  {const bp=[x0*3,-1.3,-(shore+6),x1*3,-1.3,-(shore+6),x0*3,-1.3,-(shore+160),x1*3,-1.3,-(shore+160)],bc=LEG?[0.018,0.24,0.50,1,0.018,0.24,0.50,1,0.014,0.2,0.45,1,0.014,0.2,0.45,1]:[0.16,0.62,0.66,1,0.16,0.62,0.66,1,0.12,0.55,0.64,1,0.12,0.55,0.64,1];const bn=new Node('seabed');parent.addChild(bn);const br=bn.addComponent(MeshRenderer);
    br.mesh=utils.MeshUtils.createMesh({positions:bp,normals:[0,1,0,0,1,0,0,1,0,0,1,0],colors:bc,indices:[0,1,2,1,3,2]});br.setMaterial(mat('rock',1),0);br.shadowCastingMode=0;br.receiveShadow=0;}
   wpos=P;wcol=C;const n=new Node('water');parent.addChild(n);const r=n.addComponent(MeshRenderer);
   r.mesh=utils.MeshUtils.createDynamicMesh(0,{positions:new Float32Array(P),normals:new Float32Array(N),colors:new Float32Array(C),indices:new Uint16Array(I)},undefined,{maxSubMeshes:1,maxSubMeshVertices:P.length/3,maxSubMeshIndices:I.length});
@@ -35,7 +35,7 @@ function waterAt(t,camPos){const P=wpos,C=wcol,n=P.length/3,pos=new Float32Array
     let nx=-dx,ny=1,nz=-dz,l=Math.hypot(nx,ny,nz);nx/=l;ny/=l;nz/=l;nor[3*k]=nx;nor[3*k+1]=ny;nor[3*k+2]=nz;
     const vx=camPos.x-x,vy=camPos.y-pos[3*k+1],vz=camPos.z-z,vl=Math.hypot(vx,vy,vz);const cosv=Math.max(0,(vx*nx+vy*ny+vz*nz)/vl);const fr=Math.pow(1-cosv,4);
     const far=Math.min(1,(-z-6)/40);
-    const d=-z-SH;const hsh=Math.abs(Math.sin(x*12.9898+z*78.233)*43758.5)%1;const sp=(hsh>0.985&&d<30)?0.55*Math.max(0,Math.sin(t*3+hsh*40)):0;const band=d<2.2?0:d<6?1:2;const BB=[[0.18,0.78,0.80],[0.05,0.58,0.78],[0.03,0.44,0.76],[0.01,0.24,0.60]];const w=band<2?0:Math.min(1,Math.max(0,(d-6)/45));const BC=band<2?BB[band]:BB[2].map((v,i)=>v*(1-w)+BB[3][i]*w);
+    const d=-z-SH;const hsh=Math.abs(Math.sin(x*12.9898+z*78.233)*43758.5)%1;const sp=(hsh>0.985&&d<30)?0.55*Math.max(0,Math.sin(t*3+hsh*40)):0;const band=d<2.2?0:d<6?1:2;const BB=LEG?[[0.18,0.78,0.80],[0.05,0.58,0.78],[0.03,0.44,0.76],[0.01,0.24,0.60]]:[[0.62,0.94,0.86],[0.50,0.89,0.86],[0.40,0.82,0.86],[0.32,0.72,0.84]];const w=band<2?0:Math.min(1,Math.max(0,(d-6)/45));const BC=band<2?BB[band]:BB[2].map((v,i)=>v*(1-w)+BB[3][i]*w);
     const fl=(d>1.5&&d<7)?Math.pow(Math.max(0,Math.sin(d*0.9-t*1.3+0.6*Math.sin(x*0.25))),40)*(0.5+0.5*Math.sin(x*0.7+d)):0;
     const hz=0;const nn=0.03*Math.sin(x*0.13+d*0.21)*Math.sin(d*0.09-x*0.05);col[4*k]=Math.min(1,BC[0]+0.12*fr+sp+0.9*fl+0.10*hz+nn);col[4*k+1]=Math.min(1,BC[1]+0.1*fr+sp+0.5*fl+0.22*hz+2*nn);col[4*k+2]=Math.min(1,BC[2]+0.06*fr+sp+0.3*fl+0.18*hz+nn);col[4*k+3]=Math.min(1,(band<1?0.55:0.82+0.06*band)+0.2*fr+fl);}
   water.r.mesh.updateSubMesh(0,{positions:pos,normals:nor,colors:col,indices:new Uint16Array(water.I)});}
@@ -67,8 +67,8 @@ async function go(){
   const [M,LY]=await Promise.all([fetch('coast_meshes.json').then(r=>r.json()),fetch('coast_layout.json').then(r=>r.json())]);Object.assign(DATA,M);
   const sc=director.getScene();for(const c of sc.children.slice()){try{c.active=false;}catch(e){L('deact',c.name,e.message);}}
   try{director.pause&&0;}catch(e){}await new Promise((ok,no)=>cc.assetManager.loadBundle('shared_effects',(e,b)=>e?no(e):ok(b)));await new Promise(r=>setTimeout(r,300));const G=sc.globals;
-  G.shadows.enabled=true;G.shadows.type=1;G.shadows.shadowMapSize=2048;
-  G.ambient.skyIllum=34000;G.ambient.skyColor=new Color(160,205,255,255);G.ambient.groundAlbedo=new Color(240,220,170,255);
+  G.shadows.enabled=true;G.shadows.type=1;G.shadows.shadowMapSize=LEG?2048:1024;
+  G.ambient.skyIllum=LEG?34000:+(q.get('amb')||30000);G.ambient.skyColor=new Color(160,205,255,255);G.ambient.groundAlbedo=new Color(240,220,170,255);
   board=new Node('coast');sc.addChild(board);
   for(const e of LY.layout){if(e.piece&&NOP)continue;const n=inst(board,e);if(n&&e.anim)AN.push(n);if(n&&e.cell&&e.cell[0]===5&&e.cell[1]===2)S.clearPiece=n;}
   if(q.get("nowater")!=="1")buildWater(board,LY.shore);
@@ -83,8 +83,8 @@ async function go(){
   const s=shots[CAM];const tg=new Vec3(...s.tgt),pr=s.pitch*Math.PI/180,yw=s.yaw*Math.PI/180;
   camNode.setPosition(tg.x+Math.sin(yw)*Math.cos(pr)*s.dist,tg.y+Math.sin(pr)*s.dist,tg.z+Math.cos(yw)*Math.cos(pr)*s.dist);camNode.lookAt(tg);
   if(CAM==='game'){const sy=+(q.get('shift')||-0.3);camNode.setPosition(camNode.position.x,camNode.position.y,camNode.position.z);camNode.lookAt(new Vec3(tg.x,tg.y,tg.z+sy));}
-  const ln=new Node('sun');sc.addChild(ln);const sun=ln.addComponent(DirectionalLight);sun.illuminance=+(q.get('lux')||105000);sun.color=new Color(255,240,214,255);
-  sun.shadowEnabled=true;sun.shadowPcf=2;sun.shadowFixedArea=true;sun.shadowNear=0.1;sun.shadowFar=80;sun.shadowOrthoSize=16;ln.setPosition(0,30,0);ln.setRotationFromEuler(-46,-58,0);
+  const ln=new Node('sun');sc.addChild(ln);const sun=ln.addComponent(DirectionalLight);sun.illuminance=+(q.get('lux')||105000);sun.color=LEG?new Color(255,240,214,255):new Color(255,250,240,255);
+  sun.shadowEnabled=true;sun.shadowPcf=2;sun.shadowFixedArea=true;sun.shadowNear=0.1;sun.shadowFar=80;sun.shadowOrthoSize=16;ln.setPosition(0,30,0);ln.setRotationFromEuler(LEG?-46:-50,LEG?-58:-30,0);if(!LEG)sun.shadowSaturation=0.55;
   setT(+(q.get('t')||0));S.setT=setT;await new Promise(r=>setTimeout(r,600));S.ready=true;L('ok');}
 // the launch scene must load first (it initialises the custom render pipeline that builtin-standard needs)
 const wait=()=>{const sc=cc.director.getScene();if(sc&&sc.name&&sc.name!=='coastshot'&&(performance.now()>7000))go().catch(e=>{L('ERR',e&&e.stack||e);S.ready=true;});else setTimeout(wait,300);};

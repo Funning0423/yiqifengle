@@ -12,12 +12,17 @@ def kind(rgb):
   h,l,s=colorsys.rgb_to_hls(*rgb);h*=360
   if s<0.35 and l>0.75:return 'coral'          # pale-pink rim dominated
   if 40<=h<70:return 'star'
-  if 70<=h<175:return 'badge'
-  if 190<=h<235:return 'float'
-  if 255<=h<300:return 'scallop'
+  if 70<=h<158:return 'badge'
+  if 158<=h<192:return 'scallop'
+  if 192<=h<235:return 'float'
   if h>=320 or h<12:return 'coral'
   if 12<=h<40:return 'conch'
   return '?'
+DE={}
+def lab_(c):
+  c=lin(np.asarray(c));X=c@np.array([.4124,.3576,.1805])/0.9505;Yy=c@np.array([.2126,.7152,.0722]);Z=c@np.array([.0193,.1192,.9505])/1.089
+  f=lambda t:np.where(t>0.008856,np.cbrt(t),7.787*t+16/116);return np.array([116*f(Yy)-16,500*(f(X)-f(Yy)),200*(f(Yy)-f(Z))])
+def dE(a,b):return float(np.linalg.norm(lab_(a)-lab_(b)))
 im=Image.open(P).convert('RGB');dr=ImageDraw.Draw(im);rows=[];UNK=[]
 for i,sl in enumerate(objs):
   if sl is None:continue
@@ -36,7 +41,7 @@ for i,sl in enumerate(objs):
   if k=='coral':  # coral: trunk + rim; report the WORSE of trunk and rim
     hs=np.array([colorsys.rgb_to_hls(*c)[1] for c in sub[body]]);tr=sub[body][hs>0.62];Lb=np.median(Y(tr)) if len(tr)>10 else np.median(ys[body])
   else:Lb=np.median(ys[body])
-  cr=(max(Lb,Ls)+.05)/(min(Lb,Ls)+.05);rows.append((k,var,Lb,Ls,cr));UNK.append(((hm*255).astype(int).tolist(),X0,Y0)) if k=='?' else None;dr.rectangle([X0,Y0,X1,Y1],outline=(255,0,0));dr.text((X0+2,Y0+2),k[:3]+var[-1],fill=(255,255,255))
+  cr=(max(Lb,Ls)+.05)/(min(Lb,Ls)+.05);rows.append((k,var,Lb,Ls,cr));DE.setdefault(k,[]).append(dE(hm,np.median(sub[ring],0)));UNK.append(((hm*255).astype(int).tolist(),X0,Y0)) if k=='?' else None;dr.rectangle([X0,Y0,X1,Y1],outline=(255,0,0));dr.text((X0+2,Y0+2),k[:3]+var[-1],fill=(255,255,255))
 im.save(P.replace('.png','_boxes.png'))
 T=collections.defaultdict(list)
 for k,v,lb,ls,cr in rows:T[(k,v)].append(cr)
@@ -53,7 +58,9 @@ print('\nFull cross table (rendered piece-body Y, min over that kind, vs each sl
 SY={s:[r[3] for r in rows if r[1]==s] for s in sl}
 print('|piece (body Y min)|'+'|'.join(sl)+'|min|');print('|'+'---|'*8);mn=9
 for k in kinds:
-  lbs=[r[2] for r in rows if r[0]==k];lb=min(lbs)
+  lbs=[r[2] for r in rows if r[0]==k]
+  if not lbs:print('|%s|not detected|'%k);continue
+  lb=min(lbs)
   vals=[]
   for s in sl:
     for ls in (np.percentile(SY[s],10),np.percentile(SY[s],90)):pass
@@ -61,3 +68,9 @@ for k in kinds:
   mn=min(mn,min(vals));print('|%s (%.3f)|'%(k,lb)+'|'.join('%.2f'%v for v in vals)+'|%.2f|'%min(vals))
 print('cross min %.2f'%mn)
 print('unclassified',[ (r[1],round(r[2],3)) for r in rows if r[0]=='?'],UNK)
+
+print('\nColour difference piece body vs surrounding slab (CIE76 dE, Lab):')
+print('|piece|n|dE min|dE median|');print('|---|---|---|---|')
+for k in kinds:
+  v=DE.get(k,[])
+  print('|%s|%d|%s|%s|'%(k,len(v),'%.1f'%min(v) if v else '-','%.1f'%np.median(v) if v else '-'))
