@@ -24,6 +24,9 @@ function judge(p,{solid,soft,balloon,her,travel}){const r={},v=[];
  const g=L.groundBelow([...solid,...(balloon?[balloon]:[])],p,40);r.groundM=g.m;r.groundTag=g.tag;if(g.m<(travel?RULE.groundTravelM:RULE.groundStandM))v.push('G');
  r.v=v;return r;}
 async function scene(off){const objs=await L.skyObjs(off);return {solid:L.bvh(objs.filter(o=>!SOFT.test(o.name))),soft:L.bvh(objs.filter(o=>SOFT.test(o.name)))};}
+const railIn=(live,rail,t)=>{const x=Math.max(0,Math.min(1,t/1.2)),e=x*x*x*(x*(x*6-15)+10),L=(a,b)=>[0,1,2].map(i=>a[i]+(b[i]-a[i])*e);return {position:L(live.position,rail.position),target:L(live.target,rail.target),fovVerticalDeg:(live.fovVerticalDeg??48)+(rail.fovVerticalDeg-(live.fovVerticalDeg??48))*e};};
+// tools model of an entry lens: eased 1.2 s onto the rail only when it is ON the rail start (≤0.6 m), else a cut onto the rail
+const railJoins=(F,live,h)=>{if(!live)return false;const p=F.skyFinaleRailPose(h).position;return Math.hypot(live.position[0]-p[0],live.position[1]-p[1],live.position[2]-p[2])<=0.6;};
 const r2=x=>x===Infinity?'>3':+(+x).toFixed(2);
 // ---------- T-02 approach (RegionNodeStage.playFinale: skyFinaleApproach on the lens boxes, model-local) ----------
 function t02(H,from,to,feetL,label){const F=H.load('region/SkyFinaleShot.ts'),SO=H.load('region/SkycityLensOccluders.ts');
@@ -55,8 +58,8 @@ async function runCurrent(){const {createHarness}=require('../board-ui/harness.c
  const follow=(h,P)=>{const a=P[0],b=P.at(-1);return C.followPose(h,Math.atan2(b[0]-a[0],b[2]-a[2]),390,844,0);};
  const rail=h=>F.skyFinaleRailPose(h),hold=Array.from({length:60},()=>({h:feetL,p:F.skyFinaleRailPose(feetL)}));
  const last=segs.at(-1).path,lastLen=plen(last),p0=segs[0].path,live0=C.followPose(p0[0],Math.atan2(p0.at(-1)[0]-p0[0][0],p0.at(-1)[2]-p0[0][2]),390,844,8)/* the S4 follow lens 9ec5323c held */,s34=NW.planWalk('skycity','S3','S4').segments.at(-1).path,live34=C.followPose(s34.at(-1),Math.atan2(s34.at(-1)[0]-s34.at(-2)[0],s34.at(-1)[2]-s34.at(-2)[2]),390,844,0)/* the S3>S4 walk end lens (followPose, lookUp 0) */;
- console.log('T-02 rail join: S3>S4 end lens',F.skyFinaleRailJoins(live34,p0[0]),'held S4 follow',F.skyFinaleRailJoins(live0,p0[0]));
- for(const [lab,parts] of [['finale from S4, entered from a held S4 follow lens (9ec5323c entry: rail join test → cut onto rail 1, cut, rail 2, stand)',[runSamples(segs[0].path,(h,P,t)=>F.skyFinaleRailJoins(live0,p0[0])?F.skyFinaleRailIn(live0,rail(h),t):rail(h)),[...runSamples(last,rail),...hold]]],['finale from S4 after the S3>S4 reward walk (its end lens eased onto rail 1, cut, rail 2, stand)',[runSamples(segs[0].path,(h,P,t)=>F.skyFinaleRailJoins(live34,p0[0])?F.skyFinaleRailIn(live34,rail(h),t):rail(h)),[...runSamples(last,rail),...hold]]],['finale from S6 (planSkip last 1.2 m: rail, stand)',[[...runSamples(last,rail,Math.max(0,lastLen-1.2)),...hold]]]]){
+ console.log('T-02 rail join: S3>S4 end lens',railJoins(F,live34,p0[0]),'held S4 follow',railJoins(F,live0,p0[0]));
+ for(const [lab,parts] of [['finale from S4, entered from a held S4 follow lens (9ec5323c entry: rail join test → cut onto rail 1, cut, rail 2, stand)',[runSamples(segs[0].path,(h,P,t)=>railJoins(F,live0,p0[0])?railIn(live0,rail(h),t):rail(h)),[...runSamples(last,rail),...hold]]],['finale from S4 after the S3>S4 reward walk (its end lens eased onto rail 1, cut, rail 2, stand)',[runSamples(segs[0].path,(h,P,t)=>railJoins(F,live34,p0[0])?railIn(live34,rail(h),t):rail(h)),[...runSamples(last,rail),...hold]]],['finale from S6 (planSkip last 1.2 m: rail, stand)',[[...runSamples(last,rail,Math.max(0,lastLen-1.2)),...hold]]]]){
   let a={n:0,viol:0,enclosed:0,solidMin:9,groundMin:99,herMin:9,step:0,first:null,tags:new Set()};
   for(const part of parts){let prev=null;part.forEach((s,i)=>{const pw=W(s.p.position);if(prev)a.step=Math.max(a.step,Math.hypot(...sub(pw,prev)));prev=pw;if(i%3)return;const hw=W(s.h);
    const r=judge(pw,{solid:[sc.solid],soft:[sc.soft],her:[hw,add(hw,[0,1.7,0])],travel:false});a.n++;a.solidMin=Math.min(a.solidMin,r.solidM);a.groundMin=Math.min(a.groundMin,r.groundM);a.herMin=Math.min(a.herMin,r.herM??9);if(r.enclosed)a.enclosed++;

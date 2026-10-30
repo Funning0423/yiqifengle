@@ -75,36 +75,31 @@ export function skyFinaleApproachS(from:{position:readonly number[];target:reado
 /** Approach pose at time t of T: the lens orbits round her (azimuth, height, distance eased by smootherstep, the short way round
  * unless dir is given), the view direction slerped — never a straight cut through the walls between the two poses. */
 const smoother=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t*6-15)+10);};
-export function skyFinaleApproachPose(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],t:number,T:number,dir=0,prof=0):{position:V3;target:V3;fovVerticalDeg:number}{
+export function skyFinaleApproachPose(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],t:number,T:number,dir=0):{position:V3;target:V3;fovVerticalDeg:number}{
  const e=T>0?smoother(t/T):1,sph=(p:readonly number[])=>({a:Math.atan2(p[0]-feet[0],p[2]-feet[2]),r:Math.hypot(p[0]-feet[0],p[2]-feet[2]),y:p[1]-feet[1]});
  const A=sph(from.position),Bq=sph(to.position);let da=Bq.a-A.a;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;if(dir>0&&da<0)da+=2*Math.PI;if(dir<0&&da>0)da-=2*Math.PI;
- const a=A.a+da*e,r=A.r+(Bq.r-A.r)*e,y=A.y+(Bq.y-A.y)*(T>0&&Bq.y<A.y?(prof===1?e:prof===2?smoother((t/T-0.45)/0.55):smoother(Math.min(1,t/(0.55*T)))):e)/* prof 0: drop under the canopy band first; 1: with the orbit; 2 (full9c T-02): stay up over the S4 steps, drop in the last 55 % */,P:V3=[feet[0]+Math.sin(a)*r,feet[1]+y,feet[2]+Math.cos(a)*r];
+ const a=A.a+da*e,r=A.r+(Bq.r-A.r)*e,y=A.y+(Bq.y-A.y)*(T>0&&Bq.y<A.y?smoother(Math.min(1,t/(0.55*T))):e)/* drop under the canopy band first */,P:V3=[feet[0]+Math.sin(a)*r,feet[1]+y,feet[2]+Math.cos(a)*r];
  const u=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
  const d0=u(from),d1=u(to),c=Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])),w=Math.acos(c);let d:number[];
  if(w<1e-4)d=d1;else{const s0=Math.sin((1-e)*w)/Math.sin(w),s1=Math.sin(e*w)/Math.sin(w);d=[d0[0]*s0+d1[0]*s1,d0[1]*s0+d1[1]*s1,d0[2]*s0+d1[2]*s1];}
  const f0=from.fovVerticalDeg??48,f1=to.fovVerticalDeg??48;return {position:P,target:[P[0]+d[0]*8,P[1]+d[1]*8,P[2]+d[2]*8],fovVerticalDeg:f0+(f1-f0)*e};}
 /** Chooses the way round (dir ±1) and the approach time: per way, T from the orbit turn and the view turn under the standing cap
  * (skyFinaleApproachS rule), then 48 samples scored by lens-in-box (×100) and face/chest-hidden samples; the better way wins. */
-export function skyFinaleApproach(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],boxes:readonly OccBox[],V=90,A=200,unsafe?:(p:readonly number[])=>boolean):{dir:number;T:number;inBox:number;hidden:number;prof:number;unsafe:number}{
+export function skyFinaleApproach(from:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},to:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},feet:readonly number[],boxes:readonly OccBox[],V=90,A=200):{dir:number;T:number;inBox:number;hidden:number}{
  const near=boxes.filter(b=>boxDist(feet,b)<16),az=(p:readonly number[])=>Math.atan2(p[0]-feet[0],p[2]-feet[2]);
  let da=az(to.position)-az(from.position);while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
  const u=(p:{position:readonly number[];target:readonly number[]})=>{const d=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(d[0],d[1],d[2])||1;return d.map(v=>v/l);};
  const d0=u(from),d1=u(to),view=Math.acos(Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])))*180/Math.PI;
- let best={dir:0,T:0,inBox:Infinity,hidden:Infinity,prof:0,unsafe:Infinity},bs=Infinity;
+ let best={dir:0,T:0,inBox:Infinity,hidden:Infinity},bs=Infinity;
  for(const dir of [Math.sign(da)||1,-(Math.sign(da)||1)]){const orb=Math.abs(dir===Math.sign(da)?da:da-dir*2*Math.PI)*180/Math.PI,D=Math.max(view,orb);
-  const T=Math.max(SKY_FINALE.approachS,1.05*1.875*D/V,1.05*Math.sqrt(5.77*D/A));
-  for(const prof of unsafe?[0,1,2]:[0]){let inBox=0,hidden=0,bad=0;
-  for(let k=0;k<=48;k++){const p=skyFinaleApproachPose(from,to,feet,k/48*T,T,dir,prof);if(unsafe&&unsafe(p.position))bad++;if(near.some(b=>p.position[0]>b.min[0]&&p.position[0]<b.max[0]&&p.position[1]>b.min[1]&&p.position[1]<b.max[1]&&p.position[2]>b.min[2]&&p.position[2]<b.max[2]))inBox++;
+  const T=Math.max(SKY_FINALE.approachS,1.05*1.875*D/V,1.05*Math.sqrt(5.77*D/A));let inBox=0,hidden=0;
+  for(let k=0;k<=48;k++){const p=skyFinaleApproachPose(from,to,feet,k/48*T,T,dir);if(near.some(b=>p.position[0]>b.min[0]&&p.position[0]<b.max[0]&&p.position[1]>b.min[1]&&p.position[1]<b.max[1]&&p.position[2]>b.min[2]&&p.position[2]<b.max[2]))inBox++;
    const o=herOcclusion(p.position,feet,near);if(o.face||o.chest)hidden++;}
-  /* full9c T-02: unsafe = real-mesh field (floors/steps included, SkyFinaleClearance) */const sc=bad*1000+inBox*100+hidden+T*0.01+prof*0.001;if(sc<bs){bs=sc;best={dir,T,inBox,hidden,prof,unsafe:bad};}}}
+  const sc=inBox*100+hidden+T*0.01;if(sc<bs){bs=sc;best={dir,T,inBox,hidden};}}
  return best;}
-/** full9c T-02 (运镜bot): the finale's last run (cut → S6) rides SKY_FINALE_RAIL, a lens path baked on the REAL skycity mesh (floors and
- * steps included: gen-sky-finale-rail.cjs, gate lens-trajectory-clearance). s = her progress along the run (projection, clamped), so a
- * planSkip / skipped walk that starts her late on the run starts the lens at the same rail point. The aim is her chest; over the last
- * SKY_FINALE_RAIL_APPROACH_M before S6 it eases (min-jerk) onto the stand shot SKY_FINALE_POSE_LOCAL (target and fov), where the rail ends. */
+/** full9c T-02 (运镜bot): finale lens = SKY_FINALE_RAILS (baked on the real mesh, steps included), keyed on her position (planSkip-safe); the last run eases onto the stand shot over the last SKY_FINALE_RAIL_APPROACH_M. Gates: sky-finale-rail, lens-trajectory-clearance. */
 export const SKY_FINALE_RAIL_APPROACH_M=1.05;
 type Rail=typeof SKY_FINALE_RAILS[number];
-/** The finale run she is on (nearest run segment in plan) and her progress s along it. */
 export function skyFinaleRailAt(herLocal:readonly number[]):{run:number;s:number}{let best={run:0,s:0},bd=Infinity;
  SKY_FINALE_RAILS.forEach((R:Rail,run:number)=>{const a=R.from,b=R.to,d=[b[0]-a[0],b[2]-a[2]],l=Math.hypot(d[0],d[1])||1,s=Math.max(0,Math.min(R.lengthM,((herLocal[0]-a[0])*d[0]+(herLocal[2]-a[2])*d[1])/l)),
   q=[a[0]+d[0]/l*s,a[1]+(b[1]-a[1])*s/R.lengthM,a[2]+d[1]/l*s],e=Math.hypot(herLocal[0]-q[0],herLocal[1]-q[1],herLocal[2]-q[2]);if(e<bd){bd=e;best={run,s};}});return best;}
@@ -116,14 +111,3 @@ export function skyFinaleRailPose(herLocal:readonly number[]):{position:V3;targe
  const d0=dir(chest),d1=(()=>{const v=[T.target[0]-T.position[0],T.target[1]-T.position[1],T.target[2]-T.position[2]],n=Math.hypot(v[0],v[1],v[2])||1;return v.map(x=>x/n);})();
  const c=Math.max(-1,Math.min(1,d0[0]*d1[0]+d0[1]*d1[1]+d0[2]*d1[2])),w=Math.acos(c),D=w<1e-4?d1:(()=>{const s0=Math.sin((1-e)*w)/Math.sin(w),s1=Math.sin(e*w)/Math.sin(w);return d0.map((x,i)=>x*s0+d1[i]*s1);})();
  return {position:P,target:[P[0]+D[0]*8,P[1]+D[1]*8,P[2]+D[2]*8],fovVerticalDeg:48+(T.fovVerticalDeg-48)*e};}
-/** full9c T-02: the finale's first run eases from the live lens at S4 onto the rail over SKY_FINALE_RAIL_IN_S (min-jerk, position and aim). */
-export const SKY_FINALE_RAIL_IN_S=1.2;
-export function skyFinaleRailIn(live:{position:readonly number[];target:readonly number[];fovVerticalDeg?:number},rail:{position:V3;target:V3;fovVerticalDeg:number},t:number):{position:V3;target:V3;fovVerticalDeg:number}{
- const x=Math.max(0,Math.min(1,t/SKY_FINALE_RAIL_IN_S)),e=x*x*x*(x*(x*6-15)+10),L=(a:readonly number[],b:readonly number[])=>[0,1,2].map(i=>a[i]+(b[i]-a[i])*e) as V3;
- return {position:L(live.position,rail.position),target:L(live.target,rail.target),fovVerticalDeg:(live.fovVerticalDeg??48)+(rail.fovVerticalDeg-(live.fovVerticalDeg??48))*e};}
-/** full9c T-02: the finale eases off the live lens only when that lens is ON the rail start (≤ SKY_FINALE_RAIL_JOIN_M: the S3>S4 reward
- * walk ends there, so the normal flow is continuous). Any other entry (resume, explore, a held S4 lens) cuts onto the rail: a straight
- * blend from an arbitrary lens is not mesh-checked at runtime and crossed the S4 steps (9ec5323c key-try2 #42). */
-export const SKY_FINALE_RAIL_JOIN_M=0.6;
-export function skyFinaleRailJoins(live:{position:readonly number[]}|null|undefined,herLocal:readonly number[]):boolean{if(!live)return false;const p=skyFinaleRailPose(herLocal).position;
- return Math.hypot(live.position[0]-p[0],live.position[1]-p[1],live.position[2]-p[2])<=SKY_FINALE_RAIL_JOIN_M;}

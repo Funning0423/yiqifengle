@@ -9,10 +9,10 @@ const RLx=(()=>{try{return H.load(S('region/SkyRunLens.ts'));}catch{return null;
 const RL=require(ROOT+'/tools/journey-integration/route/route-legs.cjs'),M=TS.TRANSITION_STAGING.skyMooring5a;
 const D26=[];for(const x of[-1,0,1])for(const y of[-1,0,1])for(const z of[-1,0,1])if(x||y||z){const L=Math.hypot(x,y,z);D26.push([x/L,y/L,z/L]);}
 const FA=!!process.env.FINALE_A,R=180/Math.PI,BL=Number(process.env.BL||2),POL=process.env.POLICY||'run';
-module.exports=async function evalWalks(walks,opt={}){const SKO=H.load(S('region/SkycityLensOccluders.ts')).SKYCITY_LENS_OCCLUDERS,Bx=SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));const geo=await RL.geometry(),W=p=>SW.skyLocalToWorld(M,p),hit=(a,b)=>RL.hit(geo.skyJ,W(a),W(b)),res={};
+module.exports=async function evalWalks(walks,opt={}){const SO_=H.load(S('region/SkycityLensOccluders.ts')),RING=SO_.SKYCITY_LENS_OCCLUDERS_CINE_RING/* walk-shot planning only (not the explore orbit set) */,SKO=[...SO_.SKYCITY_LENS_OCCLUDERS,...RING],Bx=SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));const geo=await RL.geometry(),W=p=>SW.skyLocalToWorld(M,p),hit=(a,b)=>RL.hit(geo.skyJ,W(a),W(b)),res={};
  for(const [a,b] of walks){const sg=NW.planWalk('skycity',a,b).segments;const per={};
   for(const [w,h] of LS.LENS_SMOOTH.screens){
-   const mk=(q,yaw)=>{const Rg=rig('skycity','S3',q.slice(),{modelAt:[0,0,0]}),st=Rg.st;st.yaw=()=>yaw;st.viewport=()=>({w,h});st.sceneBoxes=()=>[];st.lens='FollowWalk';st.tickLens(1/60);return {raw:Rg.cam(),held:p=>occludeHeld.call(st,p)};};
+   const mk=(q,yaw)=>{const Rg=rig('skycity','S3',q.slice(),{modelAt:[0,0,0]}),st=Rg.st;st.yaw=()=>yaw;st.viewport=()=>({w,h});st.sceneBoxes=()=>[];st.lens='FollowWalk';st.tickLens(1/60);return {raw:Rg.cam(),held:p=>occludeHeld.call(st,p,RING.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]],l:st.skyL})))};};
    let rawStep=0,rawPk=0,pvB=false,near=0,hidRun=[0,0],hidMax=[0,0],minM=1,step=0,pk=0,pv=null,pY=null,cuts=0,endPose=null,feet=null,frames=0;
    for(let si=0;si<sg.length;si++){const path=sg[si].path,T=sg[si].duration,L=NW.pathLength(path),yaw=Math.atan2(path[path.length-1][0]-path[path.length-2][0],path[path.length-1][2]-path[path.length-2][2]),yaw0=Math.atan2(path[1][0]-path[0][0],path[1][2]-path[0][2]);
     const A=FA&&a==='S4'&&b==='S6'&&si===sg.length-1,Lr=A?L-RLx.SKY_FINALE_EARLY_M:L,Tr=T*Lr/L,qe=NW.pointAlong(path,Lr);let ap=null,apFrom=null,pv0=null;const s0=mk(path[0],yaw0),e0=mk(qe,yaw),startHeld=s0.held(s0.raw),endHeld=e0.held(e0.raw);
