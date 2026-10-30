@@ -109,3 +109,22 @@ export function coastArrivalHer(world:any):CoastHerDriver{const W=coastArrivalWa
  drv.dispose=()=>token.cancel();Object.defineProperty(drv,'started',{get:()=>started});(drv as any).errors=errors;return drv;}
 /** puts the driver on the existing world object (no WorldFlowComponent edit): world.coastArrivalHer(f); returns dispose. */
 export function installCoastArrivalHer(world:any):()=>void{const d=coastArrivalHer(world);world.coastArrivalHer=d;return ()=>{d.dispose();if(world.coastArrivalHer===d)delete world.coastArrivalHer;};}
+/* ---- GGbot resolveReuse: coast reuse:true props cloned from the island model that is ALREADY in the scene during the arrival
+ * (WorldFlowComponent.ts:378 instantiates firstsliceModel = static_seat_preview room_no_original_chair.glb prefab, RegionLoader.ts:27,
+ * WIB:459/523; still mounted under the world node while the island->coast arrival plays). No load, no new bytes, no bundle copy.
+ * Only the island prefab's own nodes count as sources; a name without a source is NOT skipped silently: null + console.error. */
+export const COAST_REUSE_SOURCES:Readonly<Record<string,string|null>>=Object.freeze({
+ reuse_palm_tall:'env_prop_palm_tall_01_rig',reuse_palm_lean:'env_prop_palm_lean_01_rig',   // skinned palms: clone the rig root (skin + bones)
+ // not present in the island prefab (art/x ISLAND-EXTERIOR glbs were only baked into the offline coast preview):
+ reuse_grass_a:null,reuse_grass_b:null,reuse_flowers:null,reuse_bush:null,reuse_cloud:null,
+ reuse_rock_0:null,reuse_rock_1:null,reuse_rock_2:null,reuse_rock_s0:null,reuse_rock_s1:null,reuse_rock_s2:null});
+type NodeLike={name:string;children:NodeLike[];isValid?:boolean};
+function findName(n:NodeLike|null|undefined,name:string):NodeLike|null{if(!n)return null;if(n.name===name)return n;for(const c of n.children||[]){const r=findName(c,name);if(r)return r;}return null;}
+/** resolveReuse for mountCoastScene: world = WorldFlowComponent (its node holds the island model). Returns the island node to
+ *  instantiate (the loader clones it), or null + console.error('[QF_COAST] ...'). Lookups are cached per name. */
+export function createCoastReuseResolver(world:any):(mesh:string)=>any{const cache=new Map<string,any>();
+ return (mesh:string)=>{if(cache.has(mesh))return cache.get(mesh);const src=COAST_REUSE_SOURCES[mesh];let n:any=null;
+  if(src===undefined)console.error('[QF_COAST] reuse: unknown mesh '+mesh);
+  else if(src===null)console.error('[QF_COAST] reuse: no island source for '+mesh+' (not in the island prefab)');
+  else{n=findName(world?.node,src);if(!n||n.isValid===false){n=null;console.error('[QF_COAST] reuse: island node '+src+' for '+mesh+' not in scene');}}
+  cache.set(mesh,n);return n;};}

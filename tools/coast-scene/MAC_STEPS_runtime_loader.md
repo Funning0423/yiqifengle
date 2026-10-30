@@ -35,3 +35,6 @@ if(cam?.node?.isValid){try{
 - 96 `reuse:true` instances (island rocks/grass/flowers/bush/palms/clouds) are not in region_coast; the loader skips + counts them unless
   the hook passes `resolveReuse(mesh)` returning an island template node. Where those island props live at runtime is GGbot's call.
 - Animated entries (anim:*) are placed static; the preview's procedural water/sky/seabed are not part of this loader.
+
+## Pending Creator metas (GGbot, Grok Bot 2026-10-30)
+Every .meta Creator must generate is listed exactly in `tools/build-guard/meta-pending-creator.txt` (24 paths incl. bundles/region_coast, its folders, scripts/*.ts, models/*.glb, data, board pngs, and board_art pending entries). After the Creator import: commit those metas and remove each line; `meta-missing` fails on a stale line and on any bundles/** asset without a meta. The list must be empty when the Mac step is done.

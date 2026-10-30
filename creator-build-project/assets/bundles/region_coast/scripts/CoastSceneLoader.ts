@@ -12,7 +12,8 @@
 import { assetManager, AssetManager, Color, instantiate, isValid, JsonAsset, Material, MeshRenderer, Node, Prefab } from 'cc';
 import { coastBoardKitFromFlag } from '../../../scripts/ui/BoardProjection';
 import { COAST_BUNDLE, COAST_LAYOUT_PATH, COAST_MODELS_DIR, COAST_ROOT, coastInstances, type CoastLayout, type CoastInstance } from './CoastSceneLayout';
-import { playCoastArrival, type CoastArrivalDeps } from './CoastArrivalLens';
+import { playCoastArrival, installCoastArrivalHer, createCoastReuseResolver, type CoastArrivalDeps } from './CoastArrivalLens';
+import { director } from 'cc';
 
 export type CoastMountResult=Readonly<{root:Node|null;placed:number;skippedReuse:number;missing:string[];reason?:string}>;
 export type CoastMountDeps=Readonly<{parent:Node;deadlineMs?:number;resolveReuse?:(mesh:string)=>Node|null;
@@ -52,11 +53,31 @@ export async function mountCoastScene(deps:CoastMountDeps):Promise<CoastMountRes
     lib.destroy();
     if(!isValid(deps.parent))throw Error('parent gone');
     deps.parent.addChild(root);root.active=true;   // single synchronous show: whole coast appears in the same frame
-    if(missing.length)console.warn('[QF_COAST] scene: missing meshes',missing.join(','));
+    if(missing.length)console.error('[QF_COAST] scene: missing meshes',missing.join(','));
     return {root,placed,skippedReuse,missing};
-  }catch(e){if(root&&isValid(root))root.destroy();console.warn('[QF_COAST] scene mount skipped',String((e as any)?.message??e));
+  }catch(e){if(root&&isValid(root))root.destroy();console.error('[QF_COAST] scene mount skipped',String((e as any)?.message??e));
     return {root:null,placed:0,skippedReuse:0,missing:[],reason:String((e as any)?.message??e)};}}
 
 /** The ordered kit-on sequence for the arrival hook: scene fully built and shown BEFORE the first camera write. */
 export async function runCoastArrivalWithScene(arrival:CoastArrivalDeps,scene:CoastMountDeps){
   const s=await mountCoastScene(scene);const a=await playCoastArrival(arrival);return {scene:s,arrival:a};}
+/* ---- GGbot: the ONE kit-on entry (contract: globalThis.__qfCoast.runCoastArrival(world,{resolveReuse,cancelled})).
+ * Registered when this bundle script is evaluated, i.e. only after assetManager.loadBundle('region_coast') on the kit path —
+ * no main-package import of bundle scripts. world = WorldFlowComponent (worldCamera, node, scheduleOnce).
+ * Order: loadCoastScene (mountCoastScene) -> installCoastArrivalHer -> playCoastArrival -> uninstall in finally. Errors: console.error [QF_COAST]. */
+export type CoastEntryOpts=Readonly<{resolveReuse?:(mesh:string)=>Node|null;cancelled?:()=>boolean}>;
+export async function runCoastArrival(world:any,opts:CoastEntryOpts={}):Promise<{ok:boolean;reason?:string;scene?:CoastMountResult}>{
+ let off:(()=>void)|null=null;
+ try{const cam=world?.worldCamera,parent=world?.node;if(!cam?.node?.isValid||!parent?.isValid){console.error('[QF_COAST] arrival: world camera/node missing');return {ok:false,reason:'no-world'};}
+  const cancelled=()=>!!opts.cancelled?.()||!parent.isValid;
+  const scene=await mountCoastScene({parent,resolveReuse:(opts.resolveReuse??createCoastReuseResolver(world)) as any});
+  if(!scene.root)console.error('[QF_COAST] arrival: coast scene not mounted ('+(scene.reason??'?')+')');
+  if(scene.skippedReuse||scene.missing.length)console.error('[QF_COAST] arrival: scene incomplete: reuse skipped '+scene.skippedReuse+', missing '+scene.missing.join(','));
+  if(cancelled())return {ok:false,reason:'cancelled',scene};
+  off=installCoastArrivalHer(world);
+  const r=await playCoastArrival({camera:cam,viewport:()=>({width:window.innerWidth,height:window.innerHeight}),cancelled,
+   nextFrame:()=>new Promise<number>(res=>world.scheduleOnce(()=>res(director.getDeltaTime()),0)),her:(f)=>world.coastArrivalHer?.(f)});
+  return {ok:r.ok,reason:r.ok?undefined:'cancelled',scene};
+ }catch(e){console.error('[QF_COAST] arrival failed',String((e as any)?.message??e));return {ok:false,reason:String((e as any)?.message??e)};}
+ finally{try{off?.();}catch(e){console.error('[QF_COAST] arrival uninstall',String(e));}}}
+try{const g:any=globalThis;g.__qfCoast=Object.freeze({...(g.__qfCoast||{}),runCoastArrival});}catch(e){console.error('[QF_COAST] entry register failed',String(e));}
