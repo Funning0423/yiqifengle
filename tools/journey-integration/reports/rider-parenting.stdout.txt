@@ -1,1 +1,1 @@
-{"status":"PASS","mode":"parent-after-sit_hold","errorM":1.1652900866465643e-12,"fallbackResetUs":13.837423000000001,"fallbackNeeded":false}
+{"status":"PASS","mode":"parent-after-sit_hold","errorM":1.1652900866465643e-12,"fallbackResetUs":0.6760259999999999,"fallbackNeeded":false}
