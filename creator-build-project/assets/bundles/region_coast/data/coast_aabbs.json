@@ -21,7 +21,8 @@
    13.4,
    5.23,
    37.3
-  ]
+  ],
+  "envelope": true
  },
  "coast_headland": {
   "min": [
@@ -33,6 +34,18 @@
    -2.31,
    1.47,
    35.25
+  ]
+ },
+ "coast_dressing": {
+  "min": [
+   -14.6,
+   -1.41,
+   9.09
+  ],
+  "max": [
+   13.4,
+   4.9,
+   35.95
   ]
  },
  "coast_beacon_post": {
@@ -71,28 +84,61 @@
    208.54
   ]
  },
- "SailArt (sail route: sailboat, transit_sea, transit_sea_props, transit_river_mouth, transit_landing) [estimate]": {
+ "SailArt sail_boat_whole_route (sailboat incl. sail_gangway_hinge>sail_gangway)": {
   "min": [
-   -6.0,
-   -1.5,
-   6.0
+   -5.851,
+   -1.361,
+   9.538
   ],
   "max": [
-   3.0,
-   7.0,
-   82.0
-  ]
+   1.366,
+   3.85,
+   50.843
+  ],
+  "source": "GGbot computed 8c98bbfe (glb x node chain)",
+  "toggled": true
  },
- "bridge travel segment island->meadow (RegionJourneyLayout meadowOffset +Z 24) [estimate]": {
+ "SailArt near props (rocks, foam strips/rings, buoys)": {
   "min": [
-   -2.0,
-   -0.5,
-   3.0
+   -9.78,
+   -1.46,
+   9.091
   ],
   "max": [
-   2.5,
-   2.5,
-   32.0
-  ]
+   9.167,
+   0.95,
+   53.62
+  ],
+  "source": "GGbot computed 8c98bbfe (glb x node chain)",
+  "toggled": true
+ },
+ "SailArt wake_trail envelope (departure only, speed>0.35 m/s)": {
+  "min": [
+   -5.25,
+   -0.86,
+   -4.8
+  ],
+  "max": [
+   5.15,
+   -0.86,
+   46.6
+  ],
+  "source": "GGbot derived from SAIL_WAKE constants (envelope, not mesh)",
+  "toggled": true,
+  "departure_only": true
+ },
+ "island_dock (permanent island prop, not toggled)": {
+  "min": [
+   -2.575,
+   -2.35,
+   8.045
+  ],
+  "max": [
+   -0.753,
+   0.44,
+   14.45
+  ],
+  "source": "GGbot computed 8c98bbfe (glb x node chain)",
+  "toggled": false
  }
 }

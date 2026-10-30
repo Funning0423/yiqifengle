@@ -79,7 +79,7 @@ async function go(){
     for(let r=0;r<NR;r++)for(let i=0;i<NS;i++){const a=r*(NS+1)+i,b=a+1,c=a+NS+1,d=c+1;I.push(a,b,c,b,d,c);}
     const N=P.map((v,i)=>-v/RR);const sn=new Node('sky');sc.addChild(sn);const sr=sn.addComponent(MeshRenderer);sr.mesh=utils.MeshUtils.createMesh({positions:P,normals:N,colors:C,indices:I});sr.setMaterial(mat('unlit',1),0);sr.shadowCastingMode=0;sr.receiveShadow=0;}
   camNode=new Node('cam');sc.addChild(camNode);cam=camNode.addComponent(Camera);cam.clearColor=new Color(92,190,248,255);cam.far=400;cam.near=0.1;cam.fov=Number(q.get('fov')||50);
-  const shots={game:{tgt:[0,0,0.25],pitch:+(q.get('pitch')||64),dist:+(q.get('dist')||18),yaw:0},close_beacon:{tgt:[1,0.2,-1],pitch:42,dist:3.2,yaw:-18},close_edge:{tgt:[-2.5,0.2,4.0],pitch:22,dist:4.0,yaw:25},close_conch:{tgt:[0,0.25,0],pitch:30,dist:2.6,yaw:40},arrival:{tgt:[0,0.4,9.5],pitch:24,dist:6.5,yaw:-35}};
+  const shots={game:{tgt:[0,0,0.25],pitch:+(q.get('pitch')||64),dist:+(q.get('dist')||18),yaw:0},close_beacon:{tgt:[1,0.2,-1],pitch:42,dist:3.2,yaw:-18},close_edge:{tgt:[-2.5,0.2,4.0],pitch:22,dist:4.0,yaw:25},close_conch:{tgt:[0,0.25,0],pitch:30,dist:2.6,yaw:40},arrival:{tgt:[0,0.4,9.5],pitch:24,dist:6.5,yaw:-35},custom:{tgt:(q.get('tgt')||'0,0,0').split(',').map(Number),pitch:+(q.get('pitch')||30),dist:+(q.get('dist')||3),yaw:+(q.get('yaw')||0)}};
   const s=shots[CAM];const tg=new Vec3(...s.tgt),pr=s.pitch*Math.PI/180,yw=s.yaw*Math.PI/180;
   camNode.setPosition(tg.x+Math.sin(yw)*Math.cos(pr)*s.dist,tg.y+Math.sin(pr)*s.dist,tg.z+Math.cos(yw)*Math.cos(pr)*s.dist);camNode.lookAt(tg);
   if(CAM==='game'){const sy=+(q.get('shift')||-0.3);camNode.setPosition(camNode.position.x,camNode.position.y,camNode.position.z);camNode.lookAt(new Vec3(tg.x,tg.y,tg.z+sy));}

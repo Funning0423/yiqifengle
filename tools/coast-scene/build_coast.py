@@ -91,7 +91,7 @@ def strata(base,dark):
 #          barnacle/limpet crust on the rim, natural superellipse outline (corners open onto the reef bed), strata sides
 SLAB_TOP=0.16
 SHELLC=[hx('#FF9EB5'),hx('#FFD36E'),hx('#FFF4E0'),hx('#C9A7FF'),hx('#8FE3D2')]
-SLABC=[('#6E5A48','#45372B'),('#665444','#3E3228'),('#5E544A','#38322C'),('#6A5842','#403426'),('#544438','#30261E'),('#4C443C','#2C2822')]
+SLABC=[('#AEA294','#908578'),('#A89E92','#8A8076'),('#ACA090','#8E8374'),('#A69A8C','#887D70'),('#A49E94','#868178'),('#A29E9A','#84807C')]
 def cone_at(name,r1,r2,d,seg,col,M):
   sb=bmesh.new();bmesh.ops.create_cone(sb,cap_ends=True,segments=seg,radius1=r1,radius2=r2,depth=d);add_bm(name,sb,col,M);sb.free()
 for k in range(6):
@@ -121,18 +121,18 @@ for k in range(6):
   for ai in range(A):b=(ai+1)%A;bm.faces.new((rings[-1][ai],low[ai],low[b],rings[-1][b]))
   bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
   def col(p,f,base=base,dark=dark,wet=wet):
-    r=math.hypot(p.x,p.y);c=strata(base,dark)(p,f)
-    c=c*(0.93+0.14*noise.noise(Vector((p.x*3.1,p.y*3.1,7))))
+    r=math.hypot(p.x,p.y);c=mix(base,strata(base,dark)(p,f),0.55)
+    c=c*(0.95+0.1*noise.noise(Vector((p.x*3.1,p.y*3.1,7))))
     if f.normal.z<0.6:c=mix(c,dark*0.55,0.65)                 # seam walls dark
-    elif math.hypot(p.x,p.y)>outline(math.atan2(p.y,p.x))*0.9:c=mix(c,dark*0.7,0.5)   # dark worn edge
-    if r<0.3 and p.z<h-0.012:c=mix(c,base*0.8,0.5)            # dry hollow floor (stays dark under the piece)
+    elif math.hypot(p.x,p.y)>outline(math.atan2(p.y,p.x))*0.9:c=mix(c,dark*0.85,0.35)   # dark worn edge
+    if r<0.3 and p.z<h-0.012:c=mix(c,base*0.9,0.35)            # dry hollow floor (stays dark under the piece)
     if wet and r>0.36:c=mix(c,hx('#5E8F4A'),0.25*max(0,noise.noise(Vector((p.x*5,p.y*5,3)))+0.3))
     return c
   add_bm(name,bm,col);bm.free()
-  for s_ in range(5):                                         # shells in the hollow
+  for s_ in range(1):                                         # one tone-on-tone shell in the hollow (r4b: no confetti)
     a=random.random()*6.283;rr=random.uniform(0.1,0.24);x,y=math.cos(a)*rr,math.sin(a)*rr
     z=h-0.06*(1-(rr/0.3)**2)**0.7
-    cc=random.choice(SHELLC);cone_at(name,0.06,0.0,0.03,5,lambda p,f,cc=cc:cc*(0.8+0.3*max(0,f.normal.z)),Matrix.Translation((x,y,z+0.006))@Matrix.Rotation(random.random()*6.28,4,'Z')@Matrix.Rotation(1.3,4,'X'))
+    cc=mix(base,hx('#FFFFFF'),0.22);cone_at(name,0.06,0.0,0.03,5,lambda p,f,cc=cc:cc*(0.8+0.3*max(0,f.normal.z)),Matrix.Translation((x,y,z+0.006))@Matrix.Rotation(random.random()*6.28,4,'Z')@Matrix.Rotation(1.3,4,'X'))
   for s_ in range(7 if not wet else 9):                       # barnacle crust on the rim
     a=random.random()*6.283;rr=outline(a)*random.uniform(0.8,0.92);x,y=math.cos(a)*rr,math.sin(a)*rr
     cone_at(name,0.026,0.012,0.03,5,lambda p,f:hx('#F4EAD6') if f.normal.z<0.9 else hx('#8C7A64'),Matrix.Translation((x,y,h-0.02)))
@@ -169,6 +169,9 @@ RK=[('#B9C0C8','#7E8894'),('#DDD5C4','#A9A08C'),('#A7B0B8','#6E7884'),('#E8E0CE'
 for k,(a,b) in enumerate(RK):
   name='rock_%d'%k;new(name);bm=facet_rock(k*7+3,flat=0.55+0.08*(k%3))
   add_bm(name,bm,rock_col(hx(a),hx(b),k));bm.free();bake_ao(name,rays=12,dist=0.8,strength=0.5)
+for k in range(3):
+  name='boulder_%d'%k;new(name);bm=facet_rock(500+k*11,flat=0.62+0.1*k,cuts=12)
+  add_bm(name,bm,rock_col(hx(['#E6BE8A','#DDB07E','#E9C596'][k]),hx(['#8E6644','#84603E','#987050'][k]),20+k,band=0.2));bm.free();bake_ao(name,rays=12,dist=0.8,strength=0.55)
 # moss / barnacle clusters (instanced on rocks)
 new('barnacles');random.seed(7)
 for i in range(7):
@@ -315,7 +318,7 @@ for nm,off,wid,z in [('foam',0.0,0.34,-0.012),('foam_inner',0.55,0.18,-0.03)]:
     bm=bmesh.new();a=bm.verts.new((x,ya,z));b=bm.verts.new((x2,yc,z));c=bm.verts.new((x2,yd,z));d=bm.verts.new((x,yb,z));bm.faces.new((a,b,c,d))
     add_bm(nm,bm,lambda p,f:Vector((1,1,1)));bm.free()
 # ===== 6. pieces (6 types, thick, single meshes, ≤200 tris each) =====
-PC={'conch':'#FF7A59','star':'#FFC21A','coral':'#E8274B','float':'#1E7BFF','scallop':'#A35BFF','badge':'#14B87A'}
+PC={'conch':'#FFC8A6','star':'#FFC21A','coral':'#FFD8E4','float':'#9AD2FF','scallop':'#DDB0FF','badge':'#2ECB8C'}
 def shade(c,hi=1.22,lo=0.5):
   return lambda p,f:c*(lo+(hi-lo)*max(0,f.normal.z*0.8+0.2))
 S=0.42
@@ -348,8 +351,8 @@ new('piece_coral')
 for (x,y,h,r,tx,ty) in [(0,0,0.9,0.2,0,0),(0.12,0.05,0.62,0.14,0.25,0.1),(-0.1,0.08,0.7,0.14,-0.22,0.15),(0.02,-0.12,0.55,0.13,0.05,-0.24)]:
   bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=6,radius1=S*r,radius2=S*r*0.7,depth=S*h)
   M=Matrix.Translation((x*S,y*S,S*(0.12+h/2)))@Matrix.Rotation(ty*1.6,4,'X')@Matrix.Rotation(-tx*1.6,4,'Y')
-  add_bm('piece_coral',bm,shade(hx(PC['coral'])),M);bm.free()
-bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=8,radius1=S*0.6,radius2=S*0.5,depth=S*0.24);add_bm('piece_coral',bm,shade(hx('#A51632')),Matrix.Translation((0,0,S*0.12)));bm.free()
+  add_bm('piece_coral',bm,lambda p,f:hx(PC['coral'])*(1.0+0.25*max(0,f.normal.z)),M);bm.free()   # r4b: flat bright body, no dark maroon sides
+bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=8,radius1=S*0.6,radius2=S*0.5,depth=S*0.24);add_bm('piece_coral',bm,shade(hx('#FF4A6A')),Matrix.Translation((0,0,S*0.12)));bm.free()
 # glass float with rope band (band is a raised ring ON the surface, same mesh)
 new('piece_float');bm=bmesh.new();bmesh.ops.create_uvsphere(bm,u_segments=12,v_segments=7,radius=S*0.62)
 for v in bm.verts:
@@ -370,7 +373,7 @@ new('piece_badge')
 for (r1,r2,d,z,c) in [(0.85,0.8,0.36,0.18,PC['badge']),(0.3,0.2,0.62,0.67,'#FFFFFF'),(0.24,0.24,0.14,1.05,'#FFE36B'),(0.27,0.05,0.16,1.2,'#E8503A')]:
   bm=bmesh.new();bmesh.ops.create_cone(bm,cap_ends=True,segments=12 if r1>0.5 else 8,radius1=S*r1,radius2=S*r2,depth=S*d)
   add_bm('piece_badge',bm,shade(hx(c)),Matrix.Translation((0,0,S*z)));bm.free()
-for k in PC:bake_ao('piece_'+k,rays=8,dist=0.15,strength=0.5)
+for k in PC:bake_ao('piece_'+k,rays=8,dist=0.15,strength=0.12 if k=='coral' else 0.5)
 # contact shadow disc (baked, shared) — pieces get real side light, slabs do NOT receive scene shadows (palm-shadow mask, R5)
 new('contact',alpha=0.66,unlit=True);bm=bmesh.new();bmesh.ops.create_circle(bm,cap_ends=True,segments=14,radius=0.36)
 add_bm('contact',bm,lambda p,f:hx('#4A2E1C'));bm.free()
@@ -462,21 +465,39 @@ def bake_glb(path,name,target_h=None):
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bake_glb(ART+'env_prop_palm_tall_01.glb','reuse_palm_tall')
 bake_glb(ART+'env_prop_palm_lean_01.glb','reuse_palm_lean')
-new('arrival_steps')
-for k in range(3):   # 3 steps, rise 0.2, tread 0.4: S0 (y -12.1, z .6) -> S1 (y -10.9, z 0)
+new('arrival_steps');random.seed(77)
+STC=[('#B8A68A','#8A7660'),('#AE9C82','#80705C'),('#C0AE90','#927E66')]
+for k in range(3):   # 3 steps, rise 0.2, tread 0.4: S0 (y -12.1, z .6) -> S1 (y -10.9, z 0); chunky stone blocks with visible thickness
   top=0.6-0.2*(k+1)+0.2;y0=-12.1+0.4*k
-  for j,(x0,w) in enumerate([(-0.66,1.26),(0.66,1.26)]):        # two stone blocks per step, 8 cm joint
+  for j,(x0,w) in enumerate([(-0.92,0.72),(0.0,0.8),(0.9,0.74)]):
     sb=bmesh.new();bmesh.ops.create_cube(sb,size=1)
-    bmesh.ops.bevel(sb,geom=[e for e in sb.edges],offset=0.035,segments=1,affect='EDGES')
-    for v in sb.verts:v.co.z+=0.03*noise.noise(Vector((v.co.x*3+k,v.co.y*3+j,1)))*(v.co.z>0.4)
-    M=Matrix.Translation((x0+0.02*math.sin(k*3+j),y0+0.2,top/2))@Matrix.Diagonal((w,0.4,top,1))
-    add_bm('arrival_steps',sb,lambda p,f,k=k:(mix(hx('#D9C2A0'),hx('#BFA27E'),0.5+0.5*noise.noise(p*4)) if f.normal.z>0.8 else (mix(hx('#9C8468'),hx('#7A6450'),0.5+0.5*math.sin(p.z*30)) if f.normal.z>-0.5 else hx('#6E5A46'))),M);sb.free()
+    bmesh.ops.bevel(sb,geom=[e for e in sb.edges],offset=0.08,segments=1,affect='EDGES')
+    for v in sb.verts:v.co+=Vector((0.05*noise.noise(Vector((v.co.x*2+k*3,v.co.y*2+j,2))),0.03*noise.noise(Vector((v.co.y*2+j,k,4))),0.02*noise.noise(Vector((v.co.x*3+k,v.co.y*3+j,1)))))
+    hh=top+0.06+0.04*random.uniform(-1,1)
+    M=Matrix.Translation((x0+0.03*math.sin(k*3+j),y0+0.2-0.03,top-hh/2+0.012*random.uniform(-1,1)))@Matrix.Rotation(random.uniform(-0.12,0.12),4,'Z')@Matrix.Diagonal((w,0.48,hh,1))
+    a_,b_=STC[(k+j)%3]
+    def sc_(p,f,a_=hx(a_),b_=hx(b_),k=k,j=j):
+      fc=f.calc_center_median();hv=0.88+0.24*(abs(math.sin(fc.x*41.3+fc.y*17.1+fc.z*29.7+k*7+j*3)*4375.5)%1)
+      return hv*_sc0(p,f,a_,b_,k,j)
+    def _sc0(p,f,a_,b_,k,j):
+      if f.normal.z>0.8:return mix(a_,a_*1.08,0.5+0.5*noise.noise(p*5))                 # worn top
+      if f.normal.z>0.3:return a_*0.9                                                 # bevel catches light -> reads thickness
+      if f.normal.z>-0.5:return mix(b_,b_*0.72,0.5+0.5*math.sin(p.z*38+noise.noise(p*3)*2))*(0.8 if abs(math.sin(p.x*9+j))>0.93 else 1)  # stratified riser + cracks
+      return b_*0.6
+    add_bm('arrival_steps',sb,sc_,M);sb.free()
 bake_ao('arrival_steps',rays=8,dist=0.3,strength=0.4)
 bake_glb(ART+'env_cloud_01.glb','reuse_cloud')
 bake_glb(ART+'env_prop_hydrangea_bush_01.glb','reuse_bush')
 bake_glb(ART+'env_prop_flowers_01.glb','reuse_flowers');bake_glb(ART+'env_prop_grass_tuft_01.glb','reuse_grass_a');bake_glb(ART+'env_prop_grass_tuft_02.glb','reuse_grass_b')
-for _n in ['grass_0','grass_1','grass_2','flowers']:MESH.pop(_n,None)          # replaced by the island's own flora (reuse)
-new('blob',alpha=0.32,unlit=True);_b=bmesh.new();bmesh.ops.create_circle(_b,cap_ends=True,segments=14,radius=1.0);add_bm('blob',_b,lambda p,f:hx('#3A2A1C'));_b.free()
+for _n in ['grass_0','grass_1','grass_2','flowers','barnacles','moss']:MESH.pop(_n,None)          # replaced by the island's own flora (reuse)
+new('blob',alpha=0.42,unlit=True);_bc=hx('#4A3626')
+for _i in range(12):      # radial gradient: centre alpha 1 -> 0.45 at r .45 -> 0 at r 1 (no ring edge)
+  a0,a1=_i/12*6.2832,(_i+1)/12*6.2832;c0,c1=Vector((math.cos(a0),math.sin(a0),0)),Vector((math.cos(a1),math.sin(a1),0))
+  for (r0,r1,al0,al1) in [(0,0.45,1.0,0.45),(0.45,1.0,0.45,0.0)]:
+    q=[c0*r0,c0*r1,c1*r1,c1*r0];al=[al0,al1,al1,al0]
+    for t in ([0,1,2],[0,2,3]):
+      if r0==0 and t==[0,2,3]:continue
+      MESH['blob']['tris'].append(tuple(q[i].copy() for i in t));MESH['blob']['cols'].append(tuple((_bc.x,_bc.y,_bc.z,al[i]) for i in t))
 def base_ao(name,h=0.1,k=0.5):     # island-style ground darkening at the foot of props/pieces (as the island palette's dark base band)
   m=MESH[name];zs=[p.z for t in m['tris'] for p in t];z0=min(zs);out=[]
   for t,cs in zip(m['tris'],m['cols']):out.append([Vector(c[:3])*(1-k*max(0,1-(p.z-z0)/h)) for p,c in zip(t,cs)])
@@ -526,29 +547,34 @@ for (r,c,x,y,z) in SL:
 # props / animals
 put('arrival_steps',0,0,0)
 FL=['reuse_grass_a','reuse_grass_b','reuse_grass_a','reuse_flowers']
-def flora(x,y,s=1.0):put(random.choice(FL),x,y,ground_z(x,y)-0.01,random.random()*6.28,s*random.uniform(0.85,1.15),reuse=True)
-def blob(x,y,s):put('blob',x,y,ground_z(x,y)+0.006,0,s,receive_shadow=False);put('blob',x,y,ground_z(x,y)+0.007,0,s*0.6,receive_shadow=False)
+_TV=[];_TP=[]
+for _t in MESH['terrain']['tris']:_b=len(_TV);_TV+=list(_t);_TP.append((_b,_b+1,_b+2))
+_TB=BVHTree.FromPolygons(_TV,_TP,epsilon=0.0)
+def gzt(x,y):   # height of the actual (triangulated) terrain mesh, not the analytic ground_z -> no float/sink on coarse cells
+  h=_TB.ray_cast(Vector((x,y,30)),Vector((0,0,-1)),80);return h[0].z if h[0] is not None else ground_z(x,y)
+def flora(x,y,s=1.0):put(random.choice(FL),x,y,gzt(x,y)-0.04,random.random()*6.28,s*random.uniform(0.85,1.15),reuse=True)
+def blob(x,y,s):put('blob',x,y,gzt(x,y)+0.012,0,s*0.6,receive_shadow=False)
 # gull rocks (her LEFT, >=2.0 m off her line): faceted stratified cluster instead of one blob
-for (x,y,sc,rz,k) in [(-2.5,-11.0,0.85,0.8,3),(-3.1,-10.5,0.6,2.1,0),(-2.2,-11.7,0.5,4.0,5)]:put('rock_%d'%k,x,y,ground_z(x,y)-0.2*sc,rz,sc)
+for (x,y,sc,rz,k) in [(-2.5,-11.0,0.85,0.8,0),(-3.1,-10.5,0.6,2.1,1),(-2.2,-11.7,0.5,4.0,2)]:put('boulder_%d'%k,x,y,ground_z(x,y)-0.2*sc,rz,sc)
 put('gull',-2.5,-11.0,ground_z(-2.5,-11.0)+0.52,2.6,1.0,anim='gull_perch')
 # r3: land wraps the board — low faceted cliffs / outcrops with grass caps + dune grass banks, left and right
 random.seed(901)
 for side in (-1,1):
   for i,(y,sc) in enumerate([(-6.5,1.5),(-4.2,1.9),(-1.8,2.2),(0.8,1.8),(3.0,1.4)]):
     x=side*(5.45+0.35*math.sin(i*1.7))+random.uniform(-.3,.3);zz=ground_z(x,y)-0.25*sc
-    put('rock_%d'%((i*2+(side>0))%6),x,y,zz,random.random()*6.28,sc,cast_shadow=True)
+    put('boulder_%d'%((i+(side>0))%3),x,y,zz,random.random()*6.28,sc,cast_shadow=True)
     put('grasscap',x+random.uniform(-.15,.15),y,zz+0.5*sc*0.62,random.random()*6.28,sc*0.42)
     for g in range(2):
       gx=x+side*random.uniform(0.6,1.5);gy=y+random.uniform(-0.7,0.7);flora(gx,gy)
 # r4: props regrouped into 3 clusters with a lead piece + supports, clean sand between, island-scale flora (reuse)
 FL=['reuse_grass_a','reuse_grass_b','reuse_grass_a','reuse_flowers']
-def flora(x,y,s=1.0):put(random.choice(FL),x,y,ground_z(x,y)-0.01,random.random()*6.28,s*random.uniform(0.85,1.15),reuse=True)
-def blob(x,y,s):put('blob',x,y,ground_z(x,y)+0.006,0,s,receive_shadow=False);put('blob',x,y,ground_z(x,y)+0.007,0,s*0.6,receive_shadow=False)
+def flora(x,y,s=1.0):put(random.choice(FL),x,y,gzt(x,y)-0.04,random.random()*6.28,s*random.uniform(0.85,1.15),reuse=True)
+def blob(x,y,s):put('blob',x,y,gzt(x,y)+0.012,0,s*0.6,receive_shadow=False)
 random.seed(404)
 # A  fisher's corner (bottom-left, sits ON the board's bottom edge -> foreground overlap): lead = upturned dinghy
-def gp(n,x,y,rz=0,sc=1.0,**kw):put(n,x,y,ground_z(x,y),rz,sc,**kw)
-gp('dinghy',-3.1,-4.30,1.45,1.0,cast_shadow=True);blob(-3.1,-4.30,1.25)
-gp('net_poles',-4.75,-5.10,0.5,1.0,cast_shadow=True);gp('net',-4.75,-5.10,0.5,1.0,cast_shadow=True);blob(-5.6,-5.55,0.18);blob(-3.9,-4.65,0.18)
+def gp(n,x,y,rz=0,sc=1.0,dz=0.0,**kw):put(n,x,y,gzt(x,y)+dz,rz,sc,**kw)
+gp('dinghy',-3.1,-4.30,1.45,1.0,dz=-0.06,cast_shadow=True);blob(-3.1,-4.30,1.25)
+gp('net_poles',-4.2,-5.5,1.3,1.0,cast_shadow=True);gp('net',-4.2,-5.5,1.3,1.0,cast_shadow=True);blob(-4.45,-6.38,0.18);blob(-3.96,-4.62,0.18)
 gp('crabtrap',-1.6,-4.70,0.35,1.0,cast_shadow=True);gp('crabtrap_mesh',-1.6,-4.70,0.35,1.0);blob(-1.6,-4.70,0.45)
 gp('rope_coil',-2.2,-5.25,0,1.0);blob(-2.2,-5.25,0.3)
 for (x,y,sc,k) in [(-4.75,-3.90,0.55,4),(-5.15,-3.30,0.36,1),(-1.55,-4.00,0.3,0)]:put('rock_%d'%k,x,y,ground_z(x,y)-0.22*sc,random.random()*6.28,sc,cast_shadow=True);blob(x,y,sc*0.95)
@@ -558,10 +584,14 @@ gp('sidepool',2.95,-4.40,0.4,0.72)
 for a_ in range(3):put('anemone',2.95+0.32*math.cos(a_*2.1),-4.40+0.22*math.sin(a_*2.1),ground_z(2.95,-4.40)+0.01,0,0.9,anim='anemone',k=a_)
 for (x,y,sc,k) in [(4.15,-4.00,0.62,2),(1.85,-4.10,0.4,4),(3.6,-5.15,0.3,0)]:put('rock_%d'%k,x,y,ground_z(x,y)-0.22*sc,random.random()*6.28,sc,cast_shadow=True);blob(x,y,sc*0.95)
 for (x,y,rz) in [(2.35,-4.95,0.4),(3.6,-3.75,1.9)]:put('starfish_deco',x,y,ground_z(x,y)+0.005,rz,1.0)
-gp('shells_scatter',3.05,-5.25,0.7,0.8);gp('driftwood',4.4,-5.45,0.3,1.0);blob(4.6,-5.45,0.4)
+gp('shells_scatter',3.05,-5.25,0.7,0.8);gp('driftwood',4.2,-5.3,1.57,1.0);blob(4.2,-5.3,0.4)
 for (x,y) in [(4.75,-4.55),(1.6,-4.85),(4.45,-3.50),(2.5,-3.70)]:flora(x,y)
+# B2 bottom corners: boulder + grass masses overlapping the frame edge (all >=1.5 m off her line)
+for (x,y,sc,k) in [(-3.3,-6.9,1.25,0),(-2.15,-7.4,0.8,2),(-4.5,-7.7,1.1,1),(-1.75,-8.6,0.6,1),(3.4,-6.5,1.2,1),(2.15,-7.5,0.78,0),(4.4,-7.6,1.1,2),(1.8,-8.7,0.6,2)]:
+  put('boulder_%d'%k,x,y,ground_z(x,y)-0.25*sc,random.random()*6.28,sc,cast_shadow=True)
+for (x,y) in [(-2.6,-6.3),(-1.45,-7.0),(-3.1,-8.2),(-4.6,-6.2),(-2.6,-8.6),(-1.3,-7.9),(2.6,-6.2),(1.45,-7.0),(3.1,-8.3),(4.6,-6.1),(2.6,-8.6),(1.3,-7.9),(-5.2,-7.0),(5.2,-6.9),(-3.8,-7.4),(3.7,-7.3)]:flora(x,y,1.3)
 # C  gull rocks at the arrival (her LEFT): dune grass + flowers around the stratified cluster
-for (x,y) in [(-3.4,-11.6),(-2.0,-10.3),(-3.5,-10.0),(-1.75,-12.1)]:flora(x,y)
+for (x,y) in [(-3.4,-11.6),(-2.0,-10.3),(-3.5,-10.0),(-1.95,-11.5)]:flora(x,y)
 for (x,y,sc) in [(-2.5,-11.0,0.85),(-3.1,-10.5,0.6),(-2.2,-11.7,0.5)]:blob(x,y,sc*0.9)
 put('shells_scatter',2.6,-11.2,ground_z(2.6,-11.2),0.3,0.8)
 
@@ -587,7 +617,7 @@ for n,m in MESH.items():
     if nrm.length<1e-10:continue
     nrm.normalize()
     for p,c in zip(t,cs):
-      P+=conv(p);Nn+=conv(nrm);cc=[max(0,min(255,int(round(x*255)))) for x in c[:3]];C+=cc+[int(m['alpha']*255)]
+      P+=conv(p);Nn+=conv(nrm);cc=[max(0,min(255,int(round(x*255)))) for x in c[:3]];C+=cc+[int(m['alpha']*(c[3] if len(c)>3 else 1.0)*255)]
   out[n]=dict(positions=P,normals=Nn,colors=C,alpha=m['alpha'],emit=m['emit'],unlit=m['unlit'],reuse=m['reuse'],tris=len(P)//9)
 json.dump(out,open(OUT+'/coast_meshes.json','w'))
 PLACEMENT=dict(parent='island scene_root (frame of combined_anchors_m.json / combined_visual_m.glb)',position=[-0.6,-0.845,21.5],yaw_deg=180,scale=1,
@@ -600,7 +630,7 @@ json.dump(stats,open(OUT+'/stats.json','w'),indent=1);print('STATS',json.dumps(s
 bpy.ops.wm.read_factory_settings(use_empty=True)
 groups={'coast_board':[n for n in out if n.startswith(('slab_','reef_base','weed','contact','seaglass','beacon_line','anemone','tide_sheet'))],
  'coast_pieces':[n for n in out if n.startswith('piece_')],
- 'coast_rocks':[n for n in out if n.startswith(('rock_','barnacles','moss'))],
+ 'coast_rocks':[n for n in out if n.startswith(('rock_','boulder_'))],
  'coast_terrain':['terrain','arrival_steps','headland','beacon_post','beacon_lamp','drift','foam','foam_inner','sidepool'],
  'coast_props':['blob','grasscap','net_poles','net','dinghy','crabtrap','crabtrap_mesh','rope_coil','shells_scatter','footprints','starfish_deco','driftwood','ebb_bell','hermit','crab','gull','bottle']}
 for g,names in groups.items():
@@ -611,7 +641,7 @@ for g,names in groups.items():
     me.from_pydata(verts,[],faces);ca=me.color_attributes.new('Col','BYTE_COLOR','CORNER')
     i=0
     for cs in m['cols']:
-      for c in cs:ca.data[i].color=(c[0]**2.2,c[1]**2.2,c[2]**2.2,m['alpha']);i+=1
+      for c in cs:ca.data[i].color=(c[0]**2.2,c[1]**2.2,c[2]**2.2,m['alpha']*(c[3] if len(c)>3 else 1.0));i+=1
     o=bpy.data.objects.new(n,me);bpy.context.scene.collection.objects.link(o)
   kw=dict(filepath=OUT+'/glb/%s.glb'%g,export_format='GLB',use_selection=False,export_normals=True,export_apply=True)
   for extra in ({'export_vertex_color':'ACTIVE'},{'export_colors':True},{}):
