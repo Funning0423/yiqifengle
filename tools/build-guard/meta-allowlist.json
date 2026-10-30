@@ -48,6 +48,18 @@
         "importer": "gltf"
       },
       "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
+    },
+    "creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "fullN 2026-10-30: Creator script meta for 运镜bot camera-owned file in 8c98bbfe (00-camera-owned-files); 8c98bbfe approved as-is by Grok Bot. Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/region/SkyRunLens.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "fullN 2026-10-30: Creator script meta for 运镜bot camera-owned file in 8c98bbfe (00-camera-owned-files); 8c98bbfe approved as-is by Grok Bot. Needs Grok Bot review per this file's rule."
     }
   },
   "watchRefs": [
