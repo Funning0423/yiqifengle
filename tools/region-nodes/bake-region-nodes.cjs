@@ -30,7 +30,7 @@ const REGIONS={
   // b20 island-walk-fixes: env_prop_palm_young_01 is SKINNED; this loader ignores skins and puts it ~3 m off (x5-7.4,z4-6.3). Its rendered
   // trunk (glTF skin / Blender / engine) stands at x2.6-3.5, z2.25-3.05 m, which the I4-I5 edge walked through. Route-only keep-out (walkability unchanged).
   // b20 i4nudge: young-palm keep-out widened to 1.45 m (trunk/root >= 1.09 m from every route); two grass-tuft keep-outs (props_merged tops 0.2-0.3 m) at the new I4 legs.
-  routeAvoid:[[3.04,2.64,1.45],[4.6,3.8,0.35],[3.85,4.8,0.3],[4.8,7.8,1.3],[7.6,7.2,0.75],[2.1,3.5,0.5]],
+  routeAvoid:[[3.04,2.64,1.45],[4.6,3.8,0.35],[3.85,4.8,0.3],[4.8,7.8,1.3],[7.6,7.2,0.75],[2.1,3.5,0.5],[0.15,8.85,1.3]],
  },
  meadow:{
   file:'creator-build-project/assets/bundles/region_meadow/env_meadow.glb',
@@ -252,7 +252,7 @@ const CLEAR_EDGES={skycity:[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4
 // S4-S6: after the new gap at (2.6,-7) rejoin the pre-b19 x=3 lane with straight clear segments and keep the pre-b19 arrival
 // (3,-25)→S6 (the T-02 finale shot F1/F4 is tuned to that arrival heading; the grid route arrived at -135° and failed F1/F4).
 /* b20 option E: I3-I4 waypoints (x,z; y = walkable floor) round the north end of the lean_01 canopy; same list as tools/region-nodes/fixtures/island-i3-i4-waypoints-E.json for NodeWalker waypoint walks */
-const EDGE_VIA={island:{'I3-I4':[[4.9,9.3],[3.7,9.3],[3.3,8.5],[2.8,7.5],[3.0,6.3],[3.75,5.4]]}},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
+const EDGE_VIA={island:{'I4-I6':[[0.5,7.3],[-0.9,7.7]]/* b20: >=1 m from beach_palm_tall trunk */,'I3-I4':[[4.9,9.3],[3.7,9.3],[3.3,8.5],[2.8,7.5],[3.0,6.3],[3.75,5.4]]}},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
 function clearBuffer(M,A,B,id){// unwalkable = the RUNTIME walk grid (RegionWalkableData via RegionWalkable.walkFloorY), which is what she and the tests walk on
  const RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts');
  const blockedXZ=(x,z)=>RW.walkFloorY(id,x,z)===null,buf=new Set(),pad=6;
