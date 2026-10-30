@@ -14,28 +14,30 @@ function mkMesh(name){if(MESHES[name])return MESHES[name];const d=DATA[name];con
   const n=d.positions.length/3,idx=new Array(n);for(let i=0;i<n;i++)idx[i]=i;
   return MESHES[name]=utils.MeshUtils.createMesh({positions:d.positions,normals:d.normals,colors:cols,indices:idx});}
 function inst(parent,e){const d=DATA[e.mesh];if(!d){L('missing',e.mesh);return null;}const n=new Node(e.mesh);parent.addChild(n);n.setPosition(e.p[0],e.p[1],e.p[2]);
-  n.setRotationFromEuler(0,e.rz*180/Math.PI,0);n.setScale(e.s,e.s,e.s);const r=n.addComponent(MeshRenderer);r.mesh=mkMesh(e.mesh);
-  const kind=d.unlit||d.emit?'unlit':e.piece?'piece':'std';r.setMaterial(mat(kind,d.alpha),0);
-  r.shadowCastingMode=(e.cast_shadow||e.piece||/^rock_|ebb_bell|crab|gull|hermit|headland|reuse_/.test(e.mesh))&&!d.unlit?1:0;
+  n.setRotationFromEuler(e.tilt?e.tilt[0]:0,e.rz*180/Math.PI,e.tilt?e.tilt[1]:0);n.setScale(e.s,e.s,e.s);const r=n.addComponent(MeshRenderer);r.mesh=mkMesh(e.mesh);
+  const kind=d.unlit||d.emit||e.mesh==='reuse_cloud'?'unlit':e.piece?'piece':'std';r.setMaterial(mat(kind,d.alpha),0);
+  r.shadowCastingMode=(e.cast_shadow||e.piece||/^rock_|ebb_bell|crab|gull|hermit|headland|beacon_post|reuse_palm|reuse_bush/.test(e.mesh))&&!d.unlit?1:0;
   r.receiveShadow=(e.receive_shadow===false||d.unlit)?0:1;n.__e=e;n.__base=n.position.clone();n.__rot=n.rotation.clone();return n;}
 // ---- water: dynamic grid, transparent so the turquoise shelf shows through; fresnel + sparkle by vertex colour ----
-let water=null,wpos=null,wcol=null,WX=64,WZ=48;
-function buildWater(parent,shore){const P=[],C=[],I=[],N=[];const x0=-34,x1=34,z0=-(shore-2.5),z1=-(shore+150);
-  for(let j=0;j<=WZ;j++)for(let i=0;i<=WX;i++){const u=i/WX,v=Math.pow(j/WZ,1.6);P.push(x0+(x1-x0)*u,-0.075,z0+(z1-z0)*v);N.push(0,1,0);C.push(0.12,0.55,0.82,0.7);}
+let water=null,wpos=null,wcol=null,WX=72,WZ=110,SH=5.2;
+function buildWater(parent,shore){SH=shore;const P=[],C=[],I=[],N=[];const x0=-34,x1=34,z0=-(shore-2.5),z1=-(shore+150);
+  for(let j=0;j<=WZ;j++)for(let i=0;i<=WX;i++){const u=i/WX,v=Math.pow(j/WZ,1.9);P.push(x0+(x1-x0)*u,-0.075,z0+(z1-z0)*v);N.push(0,1,0);C.push(0.12,0.55,0.82,0.7);}
   for(let j=0;j<WZ;j++)for(let i=0;i<WX;i++){const a=j*(WX+1)+i,b=a+1,c=a+WX+1,d=c+1;I.push(a,c,b,b,c,d);}
   {const bp=[x0*3,-1.3,-(shore+6),x1*3,-1.3,-(shore+6),x0*3,-1.3,-(shore+160),x1*3,-1.3,-(shore+160)],bc=[0.018,0.24,0.50,1,0.018,0.24,0.50,1,0.014,0.2,0.45,1,0.014,0.2,0.45,1];const bn=new Node('seabed');parent.addChild(bn);const br=bn.addComponent(MeshRenderer);
-   br.mesh=utils.MeshUtils.createMesh({positions:bp,normals:[0,1,0,0,1,0,0,1,0,0,1,0],colors:bc,indices:[0,1,2,1,3,2]});br.setMaterial(mat('rock',1),0);br.shadowCastingMode=0;}
+   br.mesh=utils.MeshUtils.createMesh({positions:bp,normals:[0,1,0,0,1,0,0,1,0,0,1,0],colors:bc,indices:[0,1,2,1,3,2]});br.setMaterial(mat('rock',1),0);br.shadowCastingMode=0;br.receiveShadow=0;}
   wpos=P;wcol=C;const n=new Node('water');parent.addChild(n);const r=n.addComponent(MeshRenderer);
   r.mesh=utils.MeshUtils.createDynamicMesh(0,{positions:new Float32Array(P),normals:new Float32Array(N),colors:new Float32Array(C),indices:new Uint16Array(I)},undefined,{maxSubMeshes:1,maxSubMeshVertices:P.length/3,maxSubMeshIndices:I.length});
-  r.setMaterial(mat('water',0.7),0);r.shadowCastingMode=0;r.receiveShadow=1;water={r,I,N:new Float32Array(N)};}
+  r.setMaterial(mat('water',0.7),0);r.shadowCastingMode=0;r.receiveShadow=0;water={r,I,N:new Float32Array(N)};}
 function waterAt(t,camPos){const P=wpos,C=wcol,n=P.length/3,pos=new Float32Array(P.length),col=new Float32Array(C.length),nor=water.N;
   for(let k=0;k<n;k++){const x=P[3*k],z=P[3*k+2];const h=0.045*Math.sin(x*0.55+z*0.9+t*1.4)+0.03*Math.sin(-x*1.1+z*0.35+t*2.1)+0.015*Math.sin(x*2.3+z*1.9+t*3.3);
     pos[3*k]=x;pos[3*k+1]=-0.075+h;pos[3*k+2]=z;
     const dx=0.045*0.55*Math.cos(x*0.55+z*0.9+t*1.4)-0.03*1.1*Math.cos(-x*1.1+z*0.35+t*2.1),dz=0.045*0.9*Math.cos(x*0.55+z*0.9+t*1.4)+0.03*0.35*Math.cos(-x*1.1+z*0.35+t*2.1);
     let nx=-dx,ny=1,nz=-dz,l=Math.hypot(nx,ny,nz);nx/=l;ny/=l;nz/=l;nor[3*k]=nx;nor[3*k+1]=ny;nor[3*k+2]=nz;
     const vx=camPos.x-x,vy=camPos.y-pos[3*k+1],vz=camPos.z-z,vl=Math.hypot(vx,vy,vz);const cosv=Math.max(0,(vx*nx+vy*ny+vz*nz)/vl);const fr=Math.pow(1-cosv,4);
-    const far=Math.min(1,(-z-6)/40);const sp=Math.pow(Math.max(0,Math.sin(x*3.1+t*2.0)*Math.sin(z*2.7-t*1.7)),18)*1.4;
-    col[4*k]=Math.min(1,0.05+0.16*fr+sp-0.03*far);col[4*k+1]=Math.min(1,0.50+0.12*fr+sp-0.18*far);col[4*k+2]=Math.min(1,0.80+0.08*fr+sp-0.05*far);col[4*k+3]=0.55+0.4*far+0.3*fr;}
+    const far=Math.min(1,(-z-6)/40);const sp=Math.pow(Math.max(0,Math.sin(x*3.1+t*2.0)*Math.sin(z*2.7-t*1.7)),18)*0.8*Math.max(0,1-far*4);
+    const d=-z-SH;const band=d<2.2?0:d<6?1:2;const BB=[[0.18,0.78,0.80],[0.05,0.58,0.78],[0.03,0.44,0.76],[0.01,0.24,0.60]];const w=band<2?0:Math.min(1,Math.max(0,(d-6)/45));const BC=band<2?BB[band]:BB[2].map((v,i)=>v*(1-w)+BB[3][i]*w);
+    const fl=(d>1.5&&d<16)?Math.pow(Math.max(0,Math.sin(d*0.9-t*1.3+0.6*Math.sin(x*0.25))),40)*(0.5+0.5*Math.sin(x*0.7+d)):0;
+    const hz=Math.min(1,Math.max(0,(d-40)/90));const nn=0.03*Math.sin(x*0.13+d*0.21)*Math.sin(d*0.09-x*0.05);col[4*k]=Math.min(1,BC[0]+0.12*fr+sp+0.9*fl+0.10*hz+nn);col[4*k+1]=Math.min(1,BC[1]+0.1*fr+sp+0.5*fl+0.22*hz+2*nn);col[4*k+2]=Math.min(1,BC[2]+0.06*fr+sp+0.3*fl+0.18*hz+nn);col[4*k+3]=Math.min(1,(band<1?0.55:0.82+0.06*band)+0.2*fr+fl);}
   water.r.mesh.updateSubMesh(0,{positions:pos,normals:nor,colors:col,indices:new Uint16Array(water.I)});}
 const AN=[];let cam,camNode,board;
 function setT(t){S.t=t;
@@ -52,6 +54,7 @@ function setT(t){S.t=t;
       case 'hermit':{const s=0.75+0.25*Math.max(0,Math.sin(t*1.5));n.setScale(e.s*s,e.s*s,e.s*s);break;}
       case 'bottle':{n.setPosition(b.x+t*0.25,b.y+0.03*Math.sin(t*2),b.z);n.setRotationFromEuler(8*Math.sin(t*1.5),e.rz*57.3+t*6,6*Math.cos(t*1.2));break;}
       case 'cloud':{n.setPosition(b.x+t*0.35,b.y,b.z);break;}
+      case 'lamp':{const p=1+0.12*Math.sin(t*3);n.setScale(p,1,p);break;}
       case 'bell':{n.setRotationFromEuler(4*Math.sin(t*2.2),e.rz*57.3,3*Math.sin(t*1.7));break;}
     }}
   // tide-in clear demo on cell (5,2): 1.5–3.5 s
@@ -71,11 +74,15 @@ async function go(){
   if(q.get("nowater")!=="1")buildWater(board,LY.shore);
   if(S.clearPiece||NOP){const cellPos=S.clearPiece?S.clearPiece.position.clone():new Vec3(-1,0.1,2);const sh=inst(board,{mesh:'tide_sheet',p:[cellPos.x,cellPos.y,cellPos.z],rz:0,s:1});sh.active=false;
     S.clearCell={sheet:sh,piece:S.clearPiece||new Node('none'),base:cellPos};}
-  camNode=new Node('cam');sc.addChild(camNode);cam=camNode.addComponent(Camera);cam.clearColor=new Color(92,190,248,255);cam.far=400;cam.near=0.1;cam.fov=Number(q.get('fov')||46);
-  const shots={game:{tgt:[0,0,0.25],pitch:55,dist:+(q.get('dist')||21),yaw:0},close_beacon:{tgt:[1,0.2,-1],pitch:42,dist:3.2,yaw:-18},close_edge:{tgt:[-2.5,0.2,4.0],pitch:22,dist:4.0,yaw:25},close_conch:{tgt:[0,0.25,0],pitch:30,dist:2.6,yaw:40},arrival:{tgt:[0,0.4,9.5],pitch:24,dist:6.5,yaw:-35}};
+  {const P=[],C=[],I=[],NS=24,NR=10,RR=300;for(let r=0;r<=NR;r++){const el=(r/NR)*Math.PI/2*1.0-0.05;for(let i=0;i<=NS;i++){const a=i/NS*Math.PI*2;P.push(Math.cos(a)*Math.cos(el)*RR,Math.sin(el)*RR-20,Math.sin(a)*Math.cos(el)*RR);
+      const u=Math.min(1,Math.max(0,r/NR));const lin=c=>Math.pow(c,2.2);const h=[0.86,0.95,1.0],zc=[0.28,0.62,0.95];const m=Math.pow(u,0.6);C.push(lin(h[0]*(1-m)+zc[0]*m),lin(h[1]*(1-m)+zc[1]*m),lin(h[2]*(1-m)+zc[2]*m),1);}}
+    for(let r=0;r<NR;r++)for(let i=0;i<NS;i++){const a=r*(NS+1)+i,b=a+1,c=a+NS+1,d=c+1;I.push(a,b,c,b,d,c);}
+    const N=P.map((v,i)=>-v/RR);const sn=new Node('sky');sc.addChild(sn);const sr=sn.addComponent(MeshRenderer);sr.mesh=utils.MeshUtils.createMesh({positions:P,normals:N,colors:C,indices:I});sr.setMaterial(mat('unlit',1),0);sr.shadowCastingMode=0;sr.receiveShadow=0;}
+  camNode=new Node('cam');sc.addChild(camNode);cam=camNode.addComponent(Camera);cam.clearColor=new Color(92,190,248,255);cam.far=400;cam.near=0.1;cam.fov=Number(q.get('fov')||60);
+  const shots={game:{tgt:[0,0,0.25],pitch:+(q.get('pitch')||42),dist:+(q.get('dist')||16.5),yaw:0},close_beacon:{tgt:[1,0.2,-1],pitch:42,dist:3.2,yaw:-18},close_edge:{tgt:[-2.5,0.2,4.0],pitch:22,dist:4.0,yaw:25},close_conch:{tgt:[0,0.25,0],pitch:30,dist:2.6,yaw:40},arrival:{tgt:[0,0.4,9.5],pitch:24,dist:6.5,yaw:-35}};
   const s=shots[CAM];const tg=new Vec3(...s.tgt),pr=s.pitch*Math.PI/180,yw=s.yaw*Math.PI/180;
   camNode.setPosition(tg.x+Math.sin(yw)*Math.cos(pr)*s.dist,tg.y+Math.sin(pr)*s.dist,tg.z+Math.cos(yw)*Math.cos(pr)*s.dist);camNode.lookAt(tg);
-  if(CAM==='game'){const sy=+(q.get('shift')||-3.8);camNode.setPosition(camNode.position.x,camNode.position.y,camNode.position.z);camNode.lookAt(new Vec3(tg.x,tg.y,tg.z+sy));}
+  if(CAM==='game'){const sy=+(q.get('shift')||-8.5);camNode.setPosition(camNode.position.x,camNode.position.y,camNode.position.z);camNode.lookAt(new Vec3(tg.x,tg.y,tg.z+sy));}
   const ln=new Node('sun');sc.addChild(ln);const sun=ln.addComponent(DirectionalLight);sun.illuminance=+(q.get('lux')||105000);sun.color=new Color(255,240,214,255);
   sun.shadowEnabled=true;sun.shadowPcf=2;sun.shadowFixedArea=true;sun.shadowNear=0.1;sun.shadowFar=80;sun.shadowOrthoSize=16;ln.setPosition(0,30,0);ln.setRotationFromEuler(-46,-58,0);
   setT(+(q.get('t')||0));S.setT=setT;await new Promise(r=>setTimeout(r,600));S.ready=true;L('ok');}
