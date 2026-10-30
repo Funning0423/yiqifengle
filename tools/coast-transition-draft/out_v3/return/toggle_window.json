@@ -2,27 +2,19 @@
  "direction": "coast_to_island",
  "windows_frames": [
   [
-   919,
-   931
-  ],
-  [
-   1028,
-   1060
+   1040,
+   1048
   ]
  ],
  "windows_t": [
   [
-   15.317,
-   15.517
-  ],
-  [
-   17.133,
-   17.667
+   17.333,
+   17.467
   ]
  ],
  "frames": 1514,
  "visible_frames": {
-  "coast": 1468,
+  "coast": 1505,
   "sail": 1080,
   "bridge": 1053
  },

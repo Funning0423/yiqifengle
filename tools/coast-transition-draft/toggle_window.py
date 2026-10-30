@@ -4,7 +4,7 @@ Conservative AABBs (world = island scene_root). Coast: scene r2 report sec.8 ext
 WORLD (placed under root (-0.6,-0.845,21.5) yaw 180), y -0.92 (sea) .. 5.3 (tall palm top). Sail: SAIL_I6 pier (-1.9,-0.6,10.1)
 -> +Z route to M0 near z 62 (TransportLeg.ts), hull/mast padded. Bridge: islandApproach end exit_path_17+(0.8,0,3.2) -> +Z ~24 m,
 width 2.1, arch 2 (RegionJourneyLayout.ts), padded. Replace with round-3 node bounds when the scene team sends them."""
-import sys, math, json, numpy as np
+import sys, os, math, json, numpy as np
 import reanchor as R
 BOX = {'coast': ([-14.6, -0.92, 4.5], [13.4, 5.3, 37.5]), 'sail': ([-5.0, -1.4, 8.7], [2.5, 7.0, 63.0]),
        'bridge': ([-2.6, -0.6, 8.0], [1.5, 3.3, 33.0])}
@@ -16,10 +16,17 @@ def outside(c, p, l, fov, asp):  # True only if all corners lie beyond one frust
     f, r, u = R.basis(p, l); th = R.tanh_(fov, asp); tw = th * asp
     V = c - p; z = V @ f; x = V @ r; y = V @ u
     return bool((z < 0.05).all() or (x > z * tw).all() or (x < -z * tw).all() or (y > z * th).all() or (y < -z * th).all())
+# Round 3 (scene/b19-coast-scene @c63921b0, coast_aabbs.json): per-node coast boxes in world (root applied). Root/union box and
+# clouds (island env_cloud_layer, no toggle) are not used. Coast counts visible if ANY node box is visible. Sail/bridge keep the code-constant boxes.
+R3 = os.environ.get('COAST_BOXES', 'r3') == 'r3'
+R3_NODES = {'coast_terrain': ([-14.6, -2.25, 4.5], [13.4, 0.79, 37.3]), 'coast_headland': ([-8.06, -1.22, 29.45], [-2.31, 1.47, 35.25]),
+            'coast_beacon_post': ([-5.68, 1.41, 31.92], [-5.12, 3.0, 32.48]), 'coast_palms': ([-8.59, -1.84, 16.7], [9.67, 5.23, 28.47])}
 def vis_series(cams):
     out = {k: [] for k in BOX}
     for p, l, fov in cams:
         for k, b in BOX.items():
+            if k == 'coast' and R3:
+                out[k].append(any(not all(outside(corners(nb), np.array(p), np.array(l), fov, w / h) for (w, h) in R.SCREENS) for nb in R3_NODES.values())); continue
             out[k].append(not all(outside(corners(k if k == 'coast' else b), np.array(p), np.array(l), fov, w / h) for (w, h) in R.SCREENS))
     return {k: np.array(v) for k, v in out.items()}
 def windows(vs):

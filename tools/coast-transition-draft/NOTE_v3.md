@@ -79,3 +79,12 @@ Total 25.23 s (≤45). Yaw standing max 22.9°/s, p99 57.6°/s² (was 181.6); wa
 Min height below lens on moving frames 1.673 m (frame 338, t 5.63, over coast rock_2); 0 frames <1.6 m. Solids min 1.135 m (gull, frame 343, not in frame). Standing clearance 2.04 m. Face/chest 0 s; margin min 0.110; menu 0; >12 m 0–0.63 s and 21.73–25.22 s, in frame 100 %; first = board lens, last = island lens; no cuts.
 Return windows: frames 919–931 (15.32–15.52 s), 1028–1060 (17.13–17.67 s). Toggle 1044 (t 17.40 s, R5 walk); activation_gate PASS; test_gates.py PASS both directions + negative check.
 Round-3 scene bounds have not arrived; sail/bridge are still padded boxes — recheck pending for both toggle frames (220 and 1044).
+
+## v3.3 round-3 boxes (scene/b19-coast-scene @c63921b0, coast_aabbs.json; read via git show)
+toggle_window.py now uses the per-node coast boxes (terrain, headland, beacon_post, palms; root union and clouds excluded — clouds = island env_cloud_layer, no toggle); coast visible if any node box is visible. Sail/bridge keep the code-constant boxes. `COAST_BOXES=hull` restores the v3.1 mesh-hull check. Camera output unchanged (outbound byte-identical).
+| direction | windows (all 7 screens) | toggle | activation_gate |
+|---|---|---|---|
+| island→coast | frames 210–227 (3.50–3.78 s) | 220 kept | PASS |
+| coast→island | frames 1040–1048 (17.33–17.47 s) | 1044 kept | PASS |
+Cross-check with their aabb_gate.py (out_v3/r3_aabb_gate_crosscheck.jsonl, 18 frames incl. both window edges): coast verdicts agree on every frame when given the same frustum (vfov widened for fit-width on narrow screens). With raw --vfov their tool says coast off at 209/228 and 1039/1049 too (less conservative on portrait screens).
+**Disagreement:** their *estimate* boxes for sail (x -6..3, z 6..82) and bridge (z 3..32) are ON at frames 220 and 1044, and with them there is no window in either direction. My boxes (sail z ≥8.7, bridge z ≥8.0 from TransportLeg/RegionJourneyLayout: pier at z 9.4, bridge starts at the islandApproach end z 8.48) are off. Kept mine per instruction; if runtime nodes really reach z 3–6, the options are a shot-1/3 change (not made; needs approval).
