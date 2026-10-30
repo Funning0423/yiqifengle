@@ -217,7 +217,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   *  (LK_terrain / LK_far_hills, mounted by lakesideJourney() at deck height 66 m ahead, land fill at weight 0 under the skycity
   *  lights) filled the skycity walk background dark green (finstart 62–116). The model stays mounted, batched and filled
   *  (preloaded, no stall/mask at the switch) but inactive until the door; the walk sees the skycity sky. */
- let lakeOpen=false;const openLake=()=>{if(lakeOpen)return;lakeOpen=true;if(lakeModel&&isValid(lakeModel,true)&&shown)lakeModel.active=true;};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+ let lakeOpen=false;const openLake=()=>{if(lakeOpen)return;lakeOpen=true;if(lakeModel&&isValid(lakeModel,true))lakeModel.active=true;};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
  const legHide=new LakesideLegHide()/* b17 night lakeside blocker: earlier legs' leftovers off once she boards */;
  const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);tailStop();rig.active=false;if(isValid(rig,true))rig.destroy();legHide.restore();try{setMooringRopes(director.getScene(),'5a',false);basketObstacleEvent('lakeside:released');}catch{}/* cand7 */batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();publishLakesideRide(null);};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};

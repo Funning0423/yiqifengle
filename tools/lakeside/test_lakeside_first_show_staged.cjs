@@ -8,7 +8,7 @@ const a=ad.indexOf('  let showSerial=0,shown=false;'),b=ad.indexOf('progress(d){
 const snippet=ad.slice(a,b).replace(/const lease:JourneySceneLease=\{route,/,'const lease={')+'};return lease;';
 function make(){const ev=[],after=[],timers=[];const ctx={rig:{_a:false,set active(v){ev.push('rig:'+v);this._a=v;},get active(){return this._a;}},atmosphere:{prime:()=>ev.push('prime')},warmWater:()=>ev.push('warm'),dead:false,
   director:{once:(e,f)=>after.push(f)},setTimeout:(f)=>timers.push(f)};
- const js=ts.transpileModule('function f(rig,atmosphere,warmWater,director,setTimeout){let dead=false;'+snippet+'}',{compilerOptions:{target:7}}).outputText;
+ const js=ts.transpileModule('function f(rig,atmosphere,warmWater,director,setTimeout){let dead=false,lakeModel=null,lakeOpen=false;const isValid=()=>true;'+snippet+'}',{compilerOptions:{target:7}}).outputText;
  const lease=vm.runInNewContext(js+';f',{})(ctx.rig,ctx.atmosphere,ctx.warmWater,ctx.director,ctx.setTimeout);return {lease,ev,after,timers,ctx};}
 const run=(n,f)=>{f();console.log('PASS',n);};
 run('first show: prime + water draw now, the scene on the next drawn frame',()=>{const x=make();x.lease.show(true);assert.deepEqual(x.ev,['prime','warm']);assert.equal(x.ctx.rig.active,false);
