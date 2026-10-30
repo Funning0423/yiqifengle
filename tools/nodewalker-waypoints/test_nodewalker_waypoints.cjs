@@ -155,12 +155,15 @@ checks.push('clearance self-check: off-floor, trunk < 1 m and head-height foliag
 checks.push('per-bend gate: every > 100° bend window, heading peak ≤ cap and accel p99 ≤ cap at 60 fps and 30 fps');
 // 5) default unchanged
 const golden=JSON.parse(fs.readFileSync(path.join(__dirname,'golden-default.json'),'utf8')),now=require('./golden-dump.cjs').dump();
-assert.deepEqual(now,golden,'default NodeWalker plans differ from the fc3123fa golden');assert.equal(Object.keys(W.WAYPOINT_ROUTES).length,0,'production WAYPOINT_ROUTES must stay empty until a route is approved');
+assert.deepEqual(now,golden,'default NodeWalker plans differ from the fc3123fa golden');/* E route (Grok Bot option 1, PREPARED, not merged): WAYPOINT_ROUTES is an EXACT allowlist, nothing else may be present */
+const ROUTE_ALLOW=Object.freeze(['island:I3>I4']);const routeBad=r=>{const k=Object.keys(r).sort(),out=[];for(const x of k)if(!ROUTE_ALLOW.includes(x))out.push('not allowlisted: '+x);return out;};
+assert.deepEqual(routeBad(W.WAYPOINT_ROUTES),[],'WAYPOINT_ROUTES outside the exact allowlist '+ROUTE_ALLOW.join(','));
+assert.ok(routeBad({'island:I3>I4':{},'skycity:S3>S4':{}}).length===1,'allowlist self-check: extra route not caught');assert.ok(routeBad({'island:I3>14':{}}).length===1,'allowlist self-check: typo key not caught');assert.deepEqual(routeBad({}),[],'allowlist self-check: empty table must pass');
 checks.push(`default unchanged: ${Object.keys(golden).length} golden entries (all node pairs planWalk+planSkip, planTapWalk samples) identical to fc3123fa`);
 // 6) GUARD: no live path walks a waypoint route (removed only together with YawFollower A + the uneven-dt gate)
 function splitArgs(src,i){let d=0,a=1,q=null;for(let k=i;k<src.length;k++){const c=src[k];if(q){if(c==='\\')k++;else if(c===q)q=null;continue;}
   if(c==='"'||c==="'"||c==='`'){q=c;continue;}if('([{'.includes(c))d++;else if(')]}'.includes(c)){if(d===0)return src.slice(i,k).trim()?a:0;d--;}else if(c===','&&d===0)a++;}return a;}
-function liveRouteUses(files,routes){const bad=[];if(Object.keys(routes).length)bad.push('WAYPOINT_ROUTES not empty: '+Object.keys(routes).join(','));
+function liveRouteUses(files,routes){const bad=[];for(const k of Object.keys(routes))if(!ROUTE_ALLOW.includes(k))bad.push('WAYPOINT_ROUTES not allowlisted: '+k);
  for(const [f,src0] of files){const src=src0.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
   for(const id of ['WAYPOINT_ROUTES','waypointPolyline','planChained'])if(new RegExp('\\b'+id+'\\b').test(src))bad.push(f+': references '+id);
   if(/from\s+['"][^'"]*NodeWalker['"]/.test(src)){const re=/(?<![.\w])planWalk\s*\(/g;let m;while((m=re.exec(src)))if(splitArgs(src,m.index+m[0].length)>3)bad.push(f+': planWalk with a route argument');}}
@@ -173,9 +176,9 @@ const gBad=liveRouteUses(LIVE,W.WAYPOINT_ROUTES);assert.deepEqual(gBad,[],'GUARD
   ['polyline',"import {waypointPolyline} from './NodeWalker';\nwaypointPolyline('island','I3','I4',{via:[]});"]];
  for(const [n,src] of inj)assert(liveRouteUses([['inj.ts',src]],{}).length>0,'guard self-check not caught: '+n);
  assert(liveRouteUses([['ok.ts',imp+"const p=planWalk('island','I3','I4');this.planWalk(a,b,c,d);"]],{}).length===0,'guard self-check: 3-arg planWalk wrongly flagged');
- assert(liveRouteUses([],{'island:I3>I4':{via:['I4']}}).length>0,'guard self-check not caught: non-empty WAYPOINT_ROUTES');
+ assert(liveRouteUses([],{'island:I5>I6':{via:['I4']}}).length>0,'guard self-check not caught: non-allowlisted WAYPOINT_ROUTES entry');assert(liveRouteUses([],{'island:I3>I4':{via:['I4']}}).length===0,'guard self-check: the allowlisted route must pass');
  selfRows.push({fixture:'guard: route arg / WAYPOINT_ROUTES ref / waypointPolyline ref / non-empty table',fails:'all caught; 3-arg planWalk passes'});}
-checks.push(`GUARD: WAYPOINT_ROUTES empty and none of ${LIVE.length} production scripts reaches a waypoint route (self-check: 4 injections FAIL, 3-arg call passes); removed only with YawFollower A + uneven-dt gate`);
+checks.push(`GUARD: WAYPOINT_ROUTES == exact allowlist [${ROUTE_ALLOW}] (extra route, typo key FAIL; empty passes) and none of ${LIVE.length} production scripts reaches a waypoint route (self-check: 4 injections FAIL, 3-arg call passes); removed only with YawFollower A + uneven-dt gate`);
 console.log('CAPS '+JSON.stringify({headingDegS:+CAP.toFixed(2),from:{characterYawMax:CM.WALK_YAW_MAX_DEG_S,lensYaw:LS.yawOursDegS,armLimit:+armCap.toFixed(2),armM:+ARM.toFixed(3),linMS:LIMITS.linMS},accDegS2:ACC}));
 for(const r of rows)console.log('ROUTE '+JSON.stringify(r));for(const b of bendRows)console.log('BEND '+JSON.stringify(b));for(const x of selfRows)console.log('SELF '+JSON.stringify(x));
 for(const c of checks)console.log('PASS '+c);console.log(JSON.stringify({status:'PASS',checks},null,1));
