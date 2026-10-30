@@ -45,6 +45,8 @@ export class TintSet {
     this.redrawShapes();
   }
   private redrawShapes() { for (let i = 0; i < this.shapes.length; i++) { const s = this.shapes[i]; if (!isValid(s.g, true)) continue; s.g.clear(); s.draw(s.g, Math.max(0, this.night), this.alpha); } }
+  /** Redraw one registered shape now (animated shapes: progress bar growth). */
+  repaint(g: Graphics) { for (let i = 0; i < this.shapes.length; i++) { const s = this.shapes[i]; if (s.g === g && isValid(g, true)) { g.clear(); s.draw(g, Math.max(0, this.night), this.alpha); } } }
   weight() { return Math.max(0, this.night); }
   clear() { this.sprites.length = 0; this.labels.length = 0; this.shapes.length = 0; this.night = -1; }
 }
@@ -244,7 +246,9 @@ export class PopupPanel {
   private reflow: ((geometry: PanelGeometry) => void) | null = null;
   private shade: Graphics; private opacity: UIOpacity; private t = 0; private closing = -1; private done: (() => void) | null = null;
   private toggles: ToggleHandle[] = []; private viewW = 0; private viewH = 0; private dy: number;
-  private reduced = reducedMotion();
+  private reduced = reducedMotion(); private ticks: Array<(dt: number) => void> = [];
+  /** Per-frame content animation (journey rows / bar): runs after the panel's own enter/exit step. */
+  onTick(fn: (dt: number) => void) { this.ticks.push(fn); }
   private safeInsets: PopupSafeInsets | undefined; private safeKey = '';
   constructor(parent: Node, readonly options: PanelOptions, viewport: PopupViewport) {
     this.tint = options.tint || new TintSet(); this.width = options.width || PANEL_WIDTH; this.height = options.height; this.dy = options.dy || 0;
@@ -330,6 +334,7 @@ export class PopupPanel {
     else if (this.t < OPEN_S) this.t = Math.min(OPEN_S, this.t + step);
     const a = this.alpha(); this.opacity.opacity = Math.round(255 * a); this.tint.setAlpha(a); this.layout(this.viewW, this.viewH, this.safeInsets);
     for (let i = 0; i < this.toggles.length; i++) this.toggles[i].update(step);
+    for (let i = 0; i < this.ticks.length; i++) { try { this.ticks[i](step); } catch (e) { console.warn('[POPUP] tick', String(e)); } }
     this.tint.update();
   }
   /** Show fully open now (no pop-in): for a panel that replaces one already on screen. */
@@ -349,6 +354,8 @@ export class PopupStack {
   open(options: PanelOptions): PopupPanel {
     const p = new PopupPanel(this.parent, options, this.viewport()); p.root.setSiblingIndex(this.parent.children.length - 1); this.list.push(p); this.syncInput(); return p;
   }
+  /** Current viewport (screen pt): panels that size themselves in pt (journey book). */
+  view(): PopupViewport { return this.viewport(); }
   top(): PopupPanel | null { this.prune(); for (let i = this.list.length - 1; i >= 0; i--) if (!this.list[i].isClosing) return this.list[i]; return null; }
   find(name: string): PopupPanel | null { this.prune(); for (let i = this.list.length - 1; i >= 0; i--) if (this.list[i].options.name === name && !this.list[i].isClosing) return this.list[i]; return null; }
   /** True while any panel is open or still animating (input to the layer below stays blocked). */

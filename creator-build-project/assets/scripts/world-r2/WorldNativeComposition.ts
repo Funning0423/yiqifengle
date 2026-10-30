@@ -45,6 +45,7 @@ import { RegionNodeStage } from './RegionNodeStage';
 import { ExploreInput } from './ExploreInput';
 import '../region/ExploreGate';
 import { withRegionBoardGuest } from '../region/LakesideBoardGuest';
+import { noteClaimedRegions } from '../ui/JourneyCore';
 // r4-prep B: meadow guest wrap stays here. Sky-city state hiding lives in SkycityBoardLive so the board import stays the r4.2 factory.
 const meadowBoardWithGuest=(context:any)=>withRegionBoardGuest('meadow','MeadowLiveScene',1<<20,createMeadowBoardBackground)(context),skycityBoardWithGuest=(context:any)=>withRegionBoardGuest('skycity','SkycityLiveBackground',1<<20,createSkycityBoardBackground)(context);
 const {ccclass,property}=_decorator;
@@ -237,9 +238,11 @@ export class WorldNativeComposition extends Component {
     const r4=new (R4 as any)({platform:readOnly,journey:this.mainline.journey}).snapshot().stages;
     const r5=(RegionalAPI as any).catalog.filter((x:any)=>x.ordinal===1).map((x:any)=>{const target=this.regionSelection(x.region);return target.ok?{id:target.selection.stageId,region:x.region,seed:target.selection.seed,...(CampaignHost as any).inspectSelection(this.persistence,target.selection)}:{id:x.id,region:x.region,ok:false,reason:target.reason};});
     // Journal display only (x/4 per region): the provider still owns every gate and write.
-    const challenges:Record<string,number>={tide:0,meadow:0,sky:0,lake:0};
-    try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;for(const id of Object.keys(d?.records||{})){const m=/^r05-(tide|meadow|sky)-/.exec(id)||/^r0[45]-(lake)-/.exec(id);if(m)challenges[m[1]]++;}}catch{}
-    return {r4,r5,challenges};
+    const challenges:Record<string,number>={tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0};
+    try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;for(const id of Object.keys(d?.records||{})){const m=/^r05-(tide|meadow|sky)-/.exec(id)||/^r0[45]-(lake)-/.exec(id)||/^r06-(coast|snow)-/.exec(id);if(m)challenges[m[1]]++;}noteClaimedRegions(d?.claimedRegions);}catch{}
+    // new-regions: stage refs for hasData (journey bar denominator); allStages once coast/snow data registers, else the shipped catalog.
+    const list=(RegionalAPI as any).allStages||(RegionalAPI as any).catalog||[],stages=list.map((x:any)=>({id:x.id,region:x.region}));
+    return {r4,r5,challenges,stages};
   }
 
   mainlineStatus(){return this.mainline.createController().snapshot();}

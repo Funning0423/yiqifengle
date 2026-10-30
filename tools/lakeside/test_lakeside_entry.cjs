@@ -8,8 +8,10 @@ const API=require(R+'/index.js'),Journal=require(R+'/progress-journal.js'),Host=
 let n=0;const t=(m,f)=>{f();n++;console.log('PASS',m);};
 const mem=()=>{const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v))};};
 const journey=done=>({readOnly:false,records:Array.from({length:12},(_,i)=>({bestStars:i<done?2:0}))});
-t('regional catalog = shipped 12 + 6 lakeside stages, ordinals 1..6, region lake, ids unique',()=>{
- const lake=API.catalog.filter(s=>s.region==='lake');assert.equal(lake.length,6);assert.equal(API.catalog.length-lake.length,12);
+// new-regions: once coast (r06-coast-01..09) joins the catalog the count becomes 12 + 6 + 9 (CoastWinWitnesses.ts must exist then).
+t('regional catalog = shipped 12 + 6 lakeside stages (+ 9 coast once shipped), ordinals 1..6, region lake, ids unique',()=>{
+ const lake=API.catalog.filter(s=>s.region==='lake'),coast=API.catalog.filter(s=>s.region==='coast');assert.equal(lake.length,6);assert([0,9].includes(coast.length),'coast 0 or 9');assert.equal(API.catalog.length-lake.length-coast.length,12);
+ if(coast.length){const fs=require('node:fs'),p=require('node:path').resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2/CoastWinWitnesses.ts');assert(fs.existsSync(p),'coast in catalog needs CoastWinWitnesses.ts (tools/pre-transition/gen_coast_witnesses.cjs)');}
  assert.deepEqual(lake.map(s=>s.ordinal),[1,2,3,4,5,6]);assert.deepEqual(lake.map(s=>s.id),L.map(s=>s.id));assert.equal(new Set(API.catalog.map(s=>s.id)).size,API.catalog.length);
  for(const s of lake){const run=API.createSession(s.id);assert.equal(run.snapshot().region,'lake');assert.equal(run.snapshot().guide.goalName,'风铃');}});
 t('lake unlock gate: locked until mainline 12 (record 11), then stage 1 opens and stage 2 waits for stage 1',()=>{
@@ -32,11 +34,11 @@ t('stage → scene routing: lake ids use the lakeside lease and board chapter, o
  for(const id of ['r05-tide-01','r05-meadow-01','r05-sky-01','mainline-05','mainline-09'])assert(!LR.requiresLakesideScene({stageId:id}),id);
  const comp=fs.readFileSync(path.join(A,'scripts/world-r2/WorldNativeComposition.ts'),'utf8');
  assert(/requiresLakesideScene\(context\.selection\)\?createLakesideBoardBackground\(context\)/.test(comp),'composition routes lake to the lakeside lease');
- assert(/challenges:Record<string,number>=\{tide:0,meadow:0,sky:0,lake:0\}/.test(comp));
+ assert(/challenges:Record<string,number>=\{tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0\}/.test(comp));
  assert(/'region_lakeside'/.test(fs.readFileSync(path.join(A,'scripts/SharedBundles.ts'),'utf8')),'region_lakeside loads shared_effects first');
  assert(/enterRegion\('lake'\)/.test(fs.readFileSync(path.join(A,'scripts/WorldIntegrationBoot.ts'),'utf8')));});
 t('journey book: 4th chapter 风铃湖畔, x/6 challenges, no mainline stars, milestone 12, chapter art present',()=>{
- const P=H.load('ui/IslandPanels');assert.deepEqual(P.CHAPTERS.map(c=>c.id),['tide','meadow','sky','lake']);
+ const P=H.load('ui/IslandPanels');assert.deepEqual(P.CHAPTERS.map(c=>c.id),['tide','meadow','sky','lake','coast','snow']);
  const all=Array.from({length:12},()=>({bestStars:3}));
  assert.equal(P.chapterSummary({records:all},{lake:9},3).challenges,6);assert.equal(P.chapterSummary({records:all},{lake:2},3).stars,0);
  assert.equal(P.chapterSummary({records:all.map((r,i)=>i<11?r:{bestStars:0})},{},3).locked,true);assert.equal(P.chapterSummary({records:all},{},3).locked,false);

@@ -42,13 +42,17 @@ export function endingLayout(w:number,h:number,safeBottom:number=0,safeTop?:numb
     glowR:A.nightGlow.r*k};
 }
 /** Layout checks of the design's 7-size sheet (src/ending_sheets.py), pure: used by tests and __qfEnding.layoutCheck. */
+/** new-regions SPEC §4 seal row: 6 × Ø40 at 48 pitch (droop 1.2·(i−2.5)², max ≈ 7.5 pt). */
+export const ENDING_SEALS={count:6,d:40,pitch:48,width:5*48+40,droop:1.2*2.5*2.5} as const;
 export function endingLayoutChecks(w:number,h:number,safeBottom:number=0){
   const L=endingLayout(w,h,safeBottom),g=L.girl,sealBottom=L.sealsCy+22,plank={x0:w/2-98,y0:L.titleCy-29,x1:w/2+98,y1:L.titleCy+29};
   const btn={x0:L.edgeInset,y0:L.buttonTop,x1:w-L.edgeInset,y1:L.buttonTop+L.buttonH};
   const hit=(a:any,b:any)=>!(a.x1<=b.x0||b.x1<=a.x0||a.y1<=b.y0||b.y1<=a.y0);
   return {buttonEdge:L.edgeInset>=16,buttonInSafe:btn.y1<=h-L.bot,girlInFrame:g.x0>=0&&g.x1<=w&&g.y0>=0&&g.y1<=h,
     girlClear:!hit(g,btn)&&!hit(g,plank),headBelowSeals:g.y0-sealBottom>=12-1e-6,
-    chimeClear:L.chime.y0>=L.top-1e-6&&L.chime.y1<=plank.y0+1e-6&&L.chime.x0>=0&&L.chime.x1<=w};
+    chimeClear:L.chime.y0>=L.top-1e-6&&L.chime.y1<=plank.y0+1e-6&&L.chime.x0>=0&&L.chime.x1<=w,
+    // new-regions SPEC §4: 6 seals Ø40 / pitch 48 = 280 pt must leave ≥ 20 pt each side.
+    sealsFit:ENDING_SEALS.width<=w-40};
 }
 export interface EndingHost{
   wipe(o:{kind:string;content:{vehicle:'chime'|null;sign:string|null}|null;work:()=>Promise<{ok:boolean;reason?:string}>;ready:()=>boolean}):Promise<{ok:boolean;reason?:string}>;

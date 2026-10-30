@@ -4,7 +4,9 @@ import { BoardArt } from '../ui/BoardArt';
 import { PopupStack } from '../ui/PopupKit';
 import { openBag, openSettings, openUpdate } from '../ui/CommonPanels';
 import { UpdatePromptGate } from '../ui/UpdatePromptCore';
-import { CHAPTERS, openChapter, openJourney, openRest } from '../ui/IslandPanels';
+import { CHAPTERS, chapterSummary, journeyInput, openChapter, openJourney, openRest } from '../ui/IslandPanels';
+import { regionRow } from '../ui/JourneyCore';
+import { setLastRegion } from '../ui/UiPrefs';
 import { warmButton } from '../WarmButton';
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
 import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
@@ -88,7 +90,7 @@ export class IslandJourneyOverlay {
   else if(page==='update'){const upd=(globalThis as any).__qfUpdate;openUpdate(this.popups,()=>{try{upd?.apply?.();}catch(e){console.warn('[UPDATE] apply',String(e));}},()=>this.updateGate.later()).options.onClose=done;}
   else if(page==='rest'){const night=this.safeRead(this.options.dayNight)?.mode==='night';openRest(this.popups,night,()=>{if(live())this.dispatch(this.options.toggleDayNight);}).options.onClose=done;}
   else if(page==='journal'){const status=this.safeRead(this.options.mainlineStatus),gates=this.safeRead(this.options.gates);
-   openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5).options.onClose=done;}
+   openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5,gates?{stages:gates.stages}:null).options.onClose=done;}
   else this.chapter(page);
  }
  private chapter(region:string){
@@ -96,7 +98,9 @@ export class IslandJourneyOverlay {
   // v3.3: an open chapter is the earliest moment the region is likely next; let the host warm its assets (never throws).
   if(this.gate(region)?.ok){try{this.options.prewarm?.(region);}catch{}}
   openChapter(this.popups,region,{gate:()=>this.gate(region),r4Open:()=>!!this.safeRead(this.options.gates)?.r4?.some((x:any)=>x.unlocked),
-   enter:()=>{if(live())this.dispatch(()=>this.options.enterRegion(region));},skycity:()=>{if(live())this.dispatch(this.options.enterSkycity);},
+   stats:()=>{const st=this.safeRead(this.options.mainlineStatus),g=this.safeRead(this.options.gates),i=CHAPTERS.findIndex(c=>c.id===region);const s=chapterSummary(st?.journey,g?.challenges,i);return {stars:s.stars,challenges:s.challenges};},
+   row:()=>{const st=this.safeRead(this.options.mainlineStatus),g=this.safeRead(this.options.gates);return regionRow(region as any,journeyInput(st?.journey,g?.challenges,g?{stages:g.stages}:{stages:[{id:'r05-lake-01',region:'lake'}]}));},
+   enter:()=>{if(live()){setLastRegion(region);this.dispatch(()=>this.options.enterRegion(region));}},skycity:()=>{if(live())this.dispatch(this.options.enterSkycity);},
    legacyTide:()=>{if(live())this.dispatch(this.options.enterR4);},back:()=>{}}).options.onClose=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};
  }
  private box(name:string,parent:Node,x:number,y:number,w:number,h:number){const n=new Node(name);n.layer=Layers.Enum.UI_2D;parent.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,h);return n;}

@@ -91,7 +91,7 @@ const tests=[
  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
- ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],['lakeside-retune-b18','tools/lakeside/test_lakeside_retune_b18.cjs'],['lakeside-stale-board-b18','tools/lakeside/test_lakeside_stale_board_b18.cjs'],['lakeside-stale-notice-ui-b18','tools/lakeside/test_lakeside_stale_notice_ui_b18.cjs'],['lakeside-landing-walk-interrupt','tools/lakeside/test_lakeside_landing_walk_interrupt.cjs'],
+ ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],['new-regions','tools/new-regions/test_new_regions.cjs'],['lakeside-retune-b18','tools/lakeside/test_lakeside_retune_b18.cjs'],['lakeside-stale-board-b18','tools/lakeside/test_lakeside_stale_board_b18.cjs'],['lakeside-stale-notice-ui-b18','tools/lakeside/test_lakeside_stale_notice_ui_b18.cjs'],['lakeside-landing-walk-interrupt','tools/lakeside/test_lakeside_landing_walk_interrupt.cjs'],
  ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],['lakeside-water-fog','tools/lakeside/test_lakeside_water_fog.cjs'],
  ['lakeside-meshopt','tools/lakeside/test_lakeside_meshopt.cjs'],
  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],

@@ -120,7 +120,7 @@ ok('cabin hint curve: 0.4 s in to 0.25, 3 × (0.7 s up to 1, 0.9 s down to 0.25)
 });
 ok('journey book summary: mainline stars per chapter x/12, challenge lock until the same chapter milestone 04/08/12 is cleared, challenge marks x/4', () => {
   const { chapterSummary, CHAPTERS } = H.load('ui/IslandPanels');
-  assert.deepEqual(CHAPTERS.map(c => c.id), ['tide', 'meadow', 'sky', 'lake']); assert.equal(CHAPTERS[0].description, '听潮声，捡起海浪送来的贝壳。');
+  assert.deepEqual(CHAPTERS.map(c => c.id), ['tide', 'meadow', 'sky', 'lake', 'coast', 'snow']); assert.equal(CHAPTERS[0].description, '听潮声，捡起海浪送来的贝壳。');
   const journey = { unlocked: 5, records: Array.from({ length: 12 }, (_, i) => ({ bestStars: i < 4 ? 3 : i === 4 ? 2 : 0 })) };
   const a = chapterSummary(journey, { tide: 3 }, 0), b = chapterSummary(journey, null, 1), c = chapterSummary(journey, {}, 2);
   assert.equal(a.stars, 12); assert.equal(a.locked, false); assert.equal(a.challenges, 3); assert.equal(b.stars, 2); assert.equal(b.locked, true, 'mainline 05 open is not mainline 08 completed'); assert.equal(b.challenges, 0); assert.equal(c.locked, true);

@@ -48,7 +48,7 @@ const all = (x, o = []) => { o.push(x); for (const ch of x.children) all(ch, o);
     assert.deepEqual(C.REGION_TITLE, { meadow: '花粉草甸', skycity: '天空之城', lakeside: '风铃湖畔' });
     assert.equal(C.regionForStage('mainline-05'), 'meadow'); assert.equal(C.regionForStage('mainline-09'), 'skycity'); assert.equal(C.regionForStage('mainline-13'), 'lakeside');
     assert.equal(C.regionForStage('r04-lake-01'), 'lakeside'); for (const id of ['mainline-01', 'mainline-04', 'test', null]) assert.equal(C.regionForStage(id), null);
-    assert(/sky[^\n]*天空回声/.test(fs.readFileSync(S + 'ui/IslandPanels.ts', 'utf8')), 'CHAPTERS sky = 天空回声');
+    assert(/sky[^\n]*天空回声/.test(fs.readFileSync(S + 'ui/JourneyCore.ts', 'utf8')), 'CHAPTERS sky = 天空回声');
     const gl = fs.readdirSync(S + 'ui').filter(f => f.endsWith('.ts')).map(f => fs.readFileSync(S + 'ui/' + f, 'utf8')).join('\n'); assert(!/天空回声[^\n]*天空之城|REGION_TITLE[^\n]*天空回声/.test(gl));
   });
   await ok('7 sizes §4/§8.5: ink block (incl. the 6 pt rise) centred on toast.y clears the info plate and the tray; ≥ 32 pt side margins', () => {

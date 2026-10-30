@@ -21,6 +21,19 @@ export function hasSeenUnlock(id: string): boolean { return seenUnlocks().indexO
 export function markUnlockSeen(id: string) {
   const list = seenUnlocks(); if (list.indexOf(id) >= 0) return; list.push(id); set(SEEN_UNLOCKS_KEY, JSON.stringify(list));
 }
+/** new-regions SPEC §6: red dots (regions entered once) and the journey total the bar last grew to. */
+export const SEEN_REGIONS_KEY = 'qfl.ui.seenRegions', JOURNEY_SEEN_DONE_KEY = 'qfl.ui.journeySeenDone';
+export function seenRegions(): string[] {
+  try { const v = JSON.parse(get(SEEN_REGIONS_KEY) || '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string') : []; } catch (e) { return []; }
+}
+export function markRegionSeen(id: string) { const list = seenRegions(); if (list.indexOf(id) >= 0) return; list.push(id); set(SEEN_REGIONS_KEY, JSON.stringify(list)); }
+/** null = never opened (first open shows the bar at once: nothing to compare against). */
+export function journeySeenDone(): number | null { const v = get(JOURNEY_SEEN_DONE_KEY); const n = v == null ? NaN : Number(v); return Number.isFinite(n) ? n : null; }
+export function setJourneySeenDone(n: number) { set(JOURNEY_SEEN_DONE_KEY, String(n)); }
+/** Focus rule (SPEC §2): the region the player last entered from the journey book. */
+export const LAST_REGION_KEY = 'qfl.ui.lastRegion';
+export function lastRegion(): any { return get(LAST_REGION_KEY) || null; }
+export function setLastRegion(id: string) { set(LAST_REGION_KEY, id); }
 export function cabinHintSeen(): boolean { return get(CABIN_HINT_KEY) === '1'; }
 export function markCabinHintSeen() { set(CABIN_HINT_KEY, '1'); }
 export function reducedMotion(): boolean {
