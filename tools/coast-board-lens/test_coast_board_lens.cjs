@@ -52,7 +52,7 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
  ok(Math.hypot(last[3]-to.position[0],last[4]-to.position[1],last[5]-to.position[2])<2e-4&&Math.hypot(last[6]-to.target[0],last[7]-to.target[1],last[8]-to.target[2])<2e-4&&Math.abs(last[9]-to.fovVerticalDeg)<1e-9,r.screen+' S7 last frame != board pose');
  ok(g.first_frame_eq_live===true,r.screen+' first frame != live lens');ok(g.travel_ground_min>=1.5&&g.travel_solid_min>=0.5,r.screen+' clearance');
  // arrival A (S6 hold, real-model renders): hut fully visible (0 % covered by her, on screen) and the lens >= 1.5 m above ground
- if(MODE==='current')ok(sm.arr_hut_on_screen===true&&sm.arr_hut_covered===0&&sm.arr_hut_pct>0&&sm.arr_ground>=1.5,`${r.screen} arrival: hut covered ${sm.arr_hut_covered} % on-screen ${sm.arr_hut_on_screen} / ground ${sm.arr_ground} m`);
+ if(MODE==='current')ok(sm.arr_hut_on_screen===true&&sm.arr_hut_covered===0&&sm.arr_hut_pct>=6&&sm.arr_ground>=1.5&&sm.arr_her_hf&&sm.arr_her_hf[0]>=0.08&&sm.arr_her_hf[1]<=0.12,`${r.screen} arrival: hut covered ${sm.arr_hut_covered} % on-screen ${sm.arr_hut_on_screen} hut ${sm.arr_hut_pct} % / her height ${sm.arr_her_hf} / ground ${sm.arr_ground} m`);
  const S1END=(sm.shots||REF.summary[r.screen].shots)[1];
  const s7=MODE==='old-s1'?rows:REF.s7[r.screen].map(X);let vmax=0,smax=0,wmax=0,fmax=0;const acc=[];let pw=null;
  for(let i=1;i<s7.length;i++){const a=s7[i-1],b=s7[i],dt=b[1]-a[1],st=Math.hypot(b[3]-a[3],b[4]-a[4],b[5]-a[5]);
@@ -66,12 +66,23 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
  const sc=g.screens[0];ok(sc.min_margin>=0.08&&sc.face_under_menu===0&&g.occlusion_worst_s<=0.5,`${r.screen} her margin ${sc.min_margin} at t ${sc.at_t} / menu ${sc.face_under_menu} / blocked ${g.occlusion_worst_s} s`);
  // v4.1 map-collapse threshold: the WHOLE island->coast transition (S1 map-collapse included) within the limits, total <= 45 s
  const W=motion(rows);ok(within(W),`${r.screen} whole transition v ${W.vmax.toFixed(2)} m/s at t ${W.at.toFixed(2)} step ${W.smax.toFixed(3)} w ${W.wmax.toFixed(1)} acc99 ${W.p99.toFixed(1)} fov ${W.fmax.toFixed(3)}`);ok(e.total<=45,r.screen+' total '+e.total);
- // r2 map-collapse (a): S1 straight dolly <= 7.2 s (S2 0.4 s unchanged), measured island->coast total <= 30.53 s; limits also at 30 fps (every 2nd frame)
- if(MODE==='current'){const sh=sm.shots;ok(sh[1]-sh[0]<=7.2+1e-6&&Math.abs(sh[2]-sh[1]-0.4)<1e-6,`${r.screen} S1 ${(sh[1]-sh[0]).toFixed(3)} s / S2 ${(sh[2]-sh[1]).toFixed(3)} s`);ok(e.total<=30.53,r.screen+' total '+e.total+' > 30.53');
+ // r2 map-collapse (a): S1 straight dolly <= 7.2 s (S2 0.4 s unchanged), measured island->coast total <= 42.53 s (arrival X: S6 5.6 s, S7 14 s; was 30.53); limits also at 30 fps (every 2nd frame)
+ if(MODE==='current'){const sh=sm.shots;ok(sh[1]-sh[0]<=7.2+1e-6&&Math.abs(sh[2]-sh[1]-0.4)<1e-6,`${r.screen} S1 ${(sh[1]-sh[0]).toFixed(3)} s / S2 ${(sh[2]-sh[1]).toFixed(3)} s`);ok(e.total<=42.18,r.screen+' total '+e.total+' > 42.18 (arrival X + S7 walk: S5 0.54 s, S6 9.5 s, S7 14 s)');ok(Math.abs(sh[6]-sh[5]-9.5)<1e-6&&Math.abs(sh[7]-sh[6]-14)<1e-6,`${r.screen} S6 ${(sh[6]-sh[5]).toFixed(3)} s / S7 ${(sh[7]-sh[6]).toFixed(3)} s`);
+  // S7 walk (场景设计部 P2): pause (0,0,10.25) -> stop (0,0,5.15) at 1.2 m/s inside S7, then >=2 s settled idle before the board pose; walk clearance >=1 m from solids (grass listed, not solid)
+  const wk=sm.s7_walk||[];ok(wk.length===2&&wk[0]>=sh[6]&&Math.abs((wk[1]-wk[0])-5.1/1.2)<1e-3&&sh[7]-wk[1]>=1.5-1e-6&&sh[7]-wk[1]<=2.5+1e-6,`${r.screen} S7 walk ${JSON.stringify(wk)} (1.2 m/s, settled 1.5-2.5 s before ${sh[7]})`);
+  // Grok Bot: the walk sits where the camera faces her (cam within 90 deg of her heading); >=50% of the 4.25 s walk inside that window
+  // GGbot ggbot/yawfollower-dt: motion limits on 60 fps, 30 fps and uneven dt [1/90,1/45] s (motion_clocks.py; turn p99 <=200 deg/s^2)
+  const mc=sm.motion_clocks||{};ok(['60fps','30fps','jitter'].every(k=>mc[k]&&mc[k].pass_),`${r.screen} motion clocks ${JSON.stringify(mc)}`);
+  if(r.screen==='390x844')console.log('ok   motion clocks '+Object.entries(mc).map(([k,v])=>`${k} yaw ${v.yaw_max} acc p99 ${v.yaw_acc_p99}/${v.pitch_acc_p99} v ${v.speed_max} step ${v.step_max}`).join(' | '));
+  const fr=sm.s7_front||[];ok(fr.length===2&&fr[0]<=wk[0]&&sm.s7_walk_front_s>=0.5*(wk[1]-wk[0]),`${r.screen} S7 front window ${JSON.stringify(fr)} vs walk ${JSON.stringify(wk)}: ${sm.s7_walk_front_s} s in front`);
+  if(r.screen==='390x844')console.log(`ok   S7 walk ${wk.map(x=>x.toFixed(2)).join('-')} s, settled ${(sh[7]-wk[1]).toFixed(2)} s before landing ${sh[7].toFixed(2)}; camera faces her ${fr.map(x=>x.toFixed(2)).join('-')} s, walk in front ${sm.s7_walk_front_s} s`);
   const W30=motion(rows.filter((_,i)=>i%2===0));ok(within(W30),`${r.screen} whole @30fps v ${W30.vmax.toFixed(2)} step ${W30.smax.toFixed(3)} w ${W30.wmax.toFixed(1)} acc99 ${W30.p99.toFixed(1)} fov ${W30.fmax.toFixed(3)}`);
   const S1=motion(rows.filter(x=>x[1]<=sh[1]+1e-9));console.log(`ok   2 ${r.screen} S1 ${(sh[1]-sh[0]).toFixed(2)} s: v ${S1.vmax.toFixed(2)} m/s, step ${S1.smax.toFixed(3)}; @30fps whole v ${W30.vmax.toFixed(2)}, step ${W30.smax.toFixed(3)}, acc p99 ${W30.p99.toFixed(1)}`);}
  console.log(`ok   2 ${r.screen} whole ${e.total.toFixed(2)} s: v ${W.vmax.toFixed(2)} m/s, step ${W.smax.toFixed(3)}, yaw/pitch ${W.wmax.toFixed(1)}, acc p99 ${W.p99.toFixed(1)}, fov ${W.fmax.toFixed(3)}`);
  console.log(`ok   2 ${r.screen} S7 ${(e.total-e.s7_start).toFixed(2)} s: v ${vmax.toFixed(2)} m/s, step ${smax.toFixed(3)} m, yaw/pitch ${wmax.toFixed(1)} deg/s, acc p99 ${p99.toFixed(1)}, fov ${fmax.toFixed(3)}; ends on board pose`);}
+// S7 walk clearance (tools/coast-transition-draft/s7_walk_clearance.json, own check of 场景设计部 P2)
+{const C=JSON.parse(fs.readFileSync(path.join(__dirname,'../coast-transition-draft/s7_walk_clearance.json'),'utf8'));ok(C.scene==='c64dc349'&&C.solid_min.d>=1.0&&!C.solid_min.soft&&C.veg_nearest.every(v=>v.d>=1.0),'S7 walk clearance '+C.solid_min.d+' m ('+C.solid_min.mesh+') on scene '+C.scene+' (vegetation >=0.3 m tall is solid)');ok(C.route.length_m===5.1&&C.route.start.join()==='0,0,10.25'&&C.route.end.join()==='0,0,5.15','S7 walk route');
+ console.log(`ok   2 S7 walk 0,0,10.25 -> 0,0,5.15 ${C.route.length_m} m: nearest solid ${C.solid_min.d} m (${C.solid_min.mesh}); scene ${C.scene}, vegetation >=0.3 m is solid: ${C.veg_nearest.slice(0,2).map(v=>v.mesh+'@'+v.p[0]+','+v.p[2]+' h'+v.height_m+' '+v.d+' m').join(', ')}`);}
 // 3
 const WFC=path.join(S,'world-r1/WorldFlowComponent.ts'),DIFF=path.join(ROOT,'..','team/cinematic/outbox/20261030-coast-board-lens/01-WorldFlowComponent-enter-level-board-pose.diff');
 const diffFile=process.env.QF_COAST_LENS_DIFF||(fs.existsSync(DIFF)?DIFF:path.join(__dirname,'01-WorldFlowComponent-enter-level-board-pose.diff'));
