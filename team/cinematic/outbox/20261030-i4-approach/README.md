@@ -2,6 +2,7 @@
 
 GGbot-owned files, apply in order (after 20261030-l04-lens-r2):
 1. `NodeWalker-island-i3-i4-E-route.diff` — adds `island:I3>I4` to WAYPOINT_ROUTES (GGbot E via, 8.018 m).
+3. `meta-allowlist-IslandApproachLens.diff` — allowAdd for IslandApproachLens.ts.meta (base: allowlist after l04-lens-r2 meta diff).
 2. `RNS-island-i4-approach.diff` (base: RNS after the l04-lens-r2 diff) — when `island:I3>I4` is wired and no entry pan / departure lens owns the walk, the island FollowWalk writer (existing skyRail slot, single writer) plays `approachClock(islandApproachLens(liveLens, walk, …))`.
 
 Module: `region/IslandApproachLens.ts` (ISLAND_APPROACH takeS 4.0). Gate: `test-island-i4-approach.cjs` (face ≤0.2 s, motion, handover C1/C2 continuity, 7 screens × 60/30 fps).
