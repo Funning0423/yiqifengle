@@ -31,9 +31,9 @@ ok(hit===L.length,`reuse skips not allowed: ${L.length-hit} of ${L.length} have 
   const R=CAL.createCoastMaterialResolver({islandMaterial:isl,coastPalette:()=>tex,makePalette:(src,t)=>{const m={name:'coast_palette',effectFrom:src.name,tex:t,destroyed:false,destroy(){this.destroyed=true;}};made.push(m);return m;}});
   let got=0,errd=0,silent=[],warns=[];const cw=console.warn;console.warn=m=>warns.push(m);const shared={};for(const k of keys.values()){const e=[];console.error=m=>e.push(m);const m=R(k);console.error=ce;
    if(m){got++;if(m.island)shared[k.mesh]=m.name;}else if(e.length)errd++;else silent.push(k.mesh);}
-  console.warn=cw;ok(silent.length===0,label+': silent null for '+silent);ok(CAL.COAST_MATERIAL_MODE!=='island-placeholder'||warns.filter(w=>/PLACEHOLDER/.test(w)).length===1,label+': placeholder console.warn exactly once');const PH=CAL.COAST_MATERIAL_MODE==='island-placeholder';ok(made.length===(PH?0:(tex?1:0)),label+': palette material created '+made.length);
-  ok(PH||!tex||made[0].effectFrom==='M_env_palette'&&made[0].tex===tex,label+': palette = M_env_palette effect + coast texture');
+  console.warn=cw;ok(silent.length===0,label+': silent null for '+silent);ok(warns.filter(w=>/PLACEHOLDER/.test(w)).length===(CAL.COAST_MATERIAL_MODE==='island-placeholder'?1:0),label+': placeholder warn once only in placeholder mode');ok(made.length===0,label+': resolver creates no Material (the loader owns the coast_palette copy)');
+  {const e5=[];console.error=m=>e5.push(m);const pm=R({mesh:'terrain',kind:'std',alpha:1,emit:false,palette:true});console.error=ce;ok(pm&&pm.name==='M_env_palette'&&pm.island,label+': palette:true -> island M_env_palette (shared)');}
   for(const [mesh,n] of Object.entries(CAL.COAST_SHARED_MATERIALS))if(n)ok(ISL.has(n),'mapped island material exists: '+mesh+' -> '+n);
-  R.dispose();ok(made.every(m=>m.destroyed)&&Object.values(mats).every(m=>!m.destroyed),label+': dispose destroys own palette only');
+  R.dispose();ok(Object.values(mats).every(m=>!m.destroyed),label+': island materials untouched by dispose');
   console.log(`info material ${label}: ${keys.size} keys, ${got} resolved, ${errd} console.error, 0 silent; shared ${JSON.stringify(shared)}`);}}
 if(fails){console.log(fails+' FAIL');process.exit(1);}console.log('PASS coast-reuse');

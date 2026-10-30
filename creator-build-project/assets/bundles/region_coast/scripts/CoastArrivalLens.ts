@@ -194,7 +194,7 @@ export const COAST_SHARED_MATERIALS:Readonly<Record<string,string|null>>=Object.
 /** agreed bundle path of 场景设计部's coast palette (region_coast bundle, Texture2D sub-asset) */
 /** ONE switch (Grok Bot 2026-10-30): 'island-placeholder' = opaque coast meshes draw with the island's M_env_palette as is (console.warn once);
  *  'coast-palette' = same M_env_palette returned for palette keys, the LOADER copies it and swaps in textures/coast_palette (场景设计部). */
-export const COAST_MATERIAL_MODE:'island-placeholder'|'coast-palette'='island-placeholder';
+export const COAST_MATERIAL_MODE:'island-placeholder'|'coast-palette'='coast-palette';
 /** resolveMaterial(key): opaque std / palette:true -> the island's M_env_palette (shared, never modified; the loader owns any copy);
  *  translucent/unlit -> COAST_SHARED_MATERIALS by reference; NONE/missing -> null + console.error. Never a silent null, never a new Material. */
 export function createCoastMaterialResolver(d:Readonly<{islandMaterial(name:string):MaterialLike|null}>){let warned=false;

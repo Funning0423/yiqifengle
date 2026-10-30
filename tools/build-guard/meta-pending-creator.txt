@@ -24,3 +24,5 @@ creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalLens.ts
 creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalTrack.ts
 creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLayout.ts
 creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLoader.ts
+creator-build-project/assets/bundles/region_coast/textures
+creator-build-project/assets/bundles/region_coast/textures/coast_palette.png

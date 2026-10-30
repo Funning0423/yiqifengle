@@ -616,8 +616,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalLens.ts",
-    "bytes": 24031,
-    "sha256": "24e2a4941519582c2f808bc5fea95eb9c1c39d3c75b59d197f88f74381238c48"
+    "bytes": 23589,
+    "sha256": "cb5d3be9c97010ff5a77219801f31bec56fe058884ebc89b29fca61a4e79f5e1"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalTrack.ts",
@@ -626,13 +626,13 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLayout.ts",
-    "bytes": 4867,
-    "sha256": "7a5f7ec4658dd1b234623b1af30de41b3bfbc2fddc59e4dec81b67c34fa542e2"
+    "bytes": 5177,
+    "sha256": "712623cf33ccdf198ba6799ade9e4609921751eec801ad296b9de11469326267"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLoader.ts",
-    "bytes": 9512,
-    "sha256": "ecda8bea8704d98a9522942e1db1b0698d51db214cdd95f7149abbba3c77668e"
+    "bytes": 11467,
+    "sha256": "b0f2100e905c40fb37d6aed81e2a669d89a72d6f644475de3c74a2d92f961db9"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 32106,
-    "sha256": "ac56d80fa2dab34d203fa9377482a0ece37d4d55593202fad368ed5033455bc6"
+    "bytes": 32199,
+    "sha256": "1c16e9a553282e8b4b896c68b7cfbbd788441e5799df2d06f425987e81ee33af"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
