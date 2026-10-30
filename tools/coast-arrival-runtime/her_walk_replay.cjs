@@ -14,7 +14,7 @@ const tr=s=>ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2019
 const mods={};function load(abs){if(mods[abs])return mods[abs].exports;const mm={exports:{}};mods[abs]=mm;const dir=path.dirname(abs);new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(mm,mm.exports,r=>r.startsWith('.')?load(path.resolve(dir,r)):require(r));return mm.exports;}
 const CAL=load(path.join(A,'bundles/region_coast/scripts/CoastArrivalLens'));
 function lcg(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return 1/90+(1/45-1/90)*(s/4294967296);};}
-const W=CAL.coastArrivalWalks(),S7=W[W.length-1],T0=28.175,T1=39.9;
+const W=CAL.coastArrivalWalks(),S7=process.env.QF_S7?{...W[W.length-1],start:+process.env.QF_S7.split(",")[0],end:+process.env.QF_S7.split(",")[1]}:W[W.length-1],T0=28.175,T1=Math.max(39.9,S7.end+0.1);
 async function replay(name,clock){const c=makeCharacter();const p0=S7.path[0],p1=S7.path[S7.path.length-1],yaw=Math.atan2(p1[0]-p0[0],p1[2]-p0[2]);
  c.s.cancelAndReset({kind:'standing',controllerRoot:[p0[0],p0[1],p0[2]],yawRad:yaw});let t=T0-2;while(t<T0){const dt=clock();c.s.advance(dt);t+=dt;}
  const frames=[];let started=false,pr=null;

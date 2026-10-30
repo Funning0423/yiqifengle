@@ -78,6 +78,8 @@ export async function playCoastArrival(deps:CoastArrivalDeps):Promise<{ok:boolea
  * walk_start -> walk_loop -> walk_stop_bodyL -> idle_breathing_loop. No yield needed: between walks we write nothing.
  * Adapter lookup = the existing WindAudio route (audio/WindAudio.ts:208-210): scene WorldIntegrationBoot._referenceAdapter
  * (WorldIntegrationBoot.ts:437), adapter.node = her root (SailRide.ts:309). No 'cc' import (string component lookup). */
+/** S7 walk window at runtime (s): 9.4 s for 5.095 m -> planWalk cruise 0.598 m/s = 0.855 x native 0.7 (band 0.75..1.3), walk_start + walk_stop_bodyL kept; ends 2.10 s before the board pose (lead 1.5..2.5). Chosen by her_walk_replay + her_size_walk (390x520 min 39.35 px). */
+export const COAST_S7_WALK:readonly [number,number]=Object.freeze([30.675,40.075]) as any;
 export type CoastWalk=Readonly<{start:number;end:number;path:V3[]}>;
 let walks:CoastWalk[]|null=null;
 /** baked walks: moving spans of her root (>=0.02 m per 0.1 s), path decimated to <=0.02 m chord error (keeps S7 straight = 2 points). */
@@ -87,8 +89,9 @@ export function coastArrivalWalks():CoastWalk[]{if(walks)return walks;if(!herRow
  let i=0;while(i<n){if(!mv(i)){i++;continue;}let j=i;while(j+1<n&&mv(j+1))j++;
   let s0=i,e0=j;while(s0>0&&d2(R[s0-1],R[s0])>1e-9)s0--;while(e0+1<n&&d2(R[e0+1],R[e0])>1e-9)e0++;
   out.push({start:s0/fps,end:e0/fps,path:simplify(R,s0,e0,0.02).map(k=>[R[k][0],R[k][1],R[k][2]] as V3)});i=e0+1;}
- // S7: authored window K.walk exactly (walk_start -> walk_loop -> walk_stop_bodyL inside CharacterMotion)
- const a=at(R,ws),z=R[R.length-1]/* settled stop root (S7 stop, coast (0,0,5.15)) */;out.push({start:ws,end:we,path:[[a[0],a[1],a[2]] as V3,[z[0],z[1],z[2]] as V3]});
+ // S7: same path (S6 pause root -> stop root), retimed to COAST_S7_WALK so CharacterMotion's planWalk keeps walk_start + stop:
+ // the authored K.walk (4.25 s for 5.095 m = 1.2 m/s = 1.71 x native 0.7 m/s) is outside its 0.75..1.3 x native cruise band.
+ const a=at(R,ws),z=R[R.length-1]/* settled stop root (S7 stop, coast (0,0,5.15)) */;out.push({start:COAST_S7_WALK[0],end:COAST_S7_WALK[1],path:[[a[0],a[1],a[2]] as V3,[z[0],z[1],z[2]] as V3]});
  walks=out;return out;}
 const d2=(a:number[],b:number[])=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 function simplify(R:Rows,a:number,b:number,tol:number):number[]{let m=-1,d=0;const A=R[a],B=R[b],L=Math.hypot(B[0]-A[0],B[1]-A[1],B[2]-A[2])||1e-9;
@@ -119,5 +122,33 @@ export function coastArrivalHer(world:any):CoastHerDriver{const W=coastArrivalWa
  drv.dispose=()=>token.cancel();Object.defineProperty(drv,'started',{get:()=>started});(drv as any).errors=errors;return drv;}
 /** puts the driver on the existing world object (no WorldFlowComponent edit): world.coastArrivalHer(f); returns dispose. */
 export function installCoastArrivalHer(world:any):()=>void{const d=coastArrivalHer(world);world.coastArrivalHer=d;return ()=>{d.dispose();if(world.coastArrivalHer===d)delete world.coastArrivalHer;};}
-/** self-registry: the main package never imports this bundle script; WNC reads globalThis.__qfCoast after assetManager.loadBundle('region_coast'). */
-(globalThis as any).__qfCoast=Object.freeze({playCoastArrival,installCoastArrivalHer,COAST_ARRIVAL_TOTAL_S});
+export type CoastRunOptions=Readonly<{resolveReuse?:(name:string)=>any;cancelled?:()=>boolean;resolveMaterial?:(key:any)=>any;
+ /** test seams */ camera?:CameraLike;viewport?:()=>Readonly<{width:number;height:number}>;nextFrame?:()=>Promise<number>}>;
+export type CoastRunResult=Readonly<{ok:boolean;reason:string|null;frames:number;seconds:number;scene:any}>;
+const qfErr=(why:string,e?:unknown)=>{const m='[QF_COAST] '+JSON.stringify({event:'run-coast-arrival',why,error:e===undefined?null:String(e)});console.error(m);return why;};
+/** SINGLE ENTRY (contract: ENTRY_CONTRACT.md): globalThis.__qfCoast.runCoastArrival(world,{resolveReuse,cancelled}).
+ *  1 loadCoastScene(world,opts) (场景设计部, same registry) FIRST; 2 installCoastArrivalHer(world); 3 playCoastArrival; finally uninstall.
+ *  Never rejects; every failure/skip = console.error [QF_COAST] + {ok:false}. Scene handle is kept on success (the board stands in it),
+ *  disposed on failure/cancel. camera = world.worldCamera, frames = world.scheduleOnce + cc.director.getDeltaTime(), viewport = window. */
+/** default resolveReuse: first node named `name` under the world's scene (GGbot's createCoastReuseResolver replaces this when merged). */
+function defaultReuse(world:any):(name:string)=>any{const find=(n:any,name:string):any=>{if(!n)return null;if(n.name===name)return n;for(const c of n.children??[]){const r=find(c,name);if(r)return r;}return null;};
+ return (name:string)=>find(world?.node?.scene??null,name);}
+export async function runCoastArrival(world:any,opts:CoastRunOptions):Promise<CoastRunResult>{
+ const out=(ok:boolean,reason:string|null,frames=0,seconds=0,scene:any=null):CoastRunResult=>Object.freeze({ok,reason,frames,seconds,scene});let scene:any=null;
+ try{if(!world)return out(false,qfErr('no-world'));opts=opts??{};
+  const cancelled=()=>!!opts.cancelled?.()||world.node?.isValid===false,resolveReuse=opts.resolveReuse??defaultReuse(world);
+  const camera=opts.camera??world.worldCamera;if(!camera?.node)return out(false,qfErr('no-world-camera'));
+  const g=globalThis as any,load=g.__qfCoast?.loadCoastScene;if(typeof load!=='function')return out(false,qfErr('no-loadCoastScene'));
+  scene=await load(world,{resolveReuse,resolveMaterial:opts.resolveMaterial,cancelled});
+  if(cancelled()){try{scene?.dispose?.();}catch{}return out(false,qfErr('cancelled-after-scene'));}
+  if(!scene)return out(false,qfErr('scene-null'));
+  const viewport=opts.viewport??(()=>({width:g.window?.innerWidth??0,height:g.window?.innerHeight??0}));
+  const nextFrame=opts.nextFrame??(()=>new Promise<number>(res=>world.scheduleOnce(()=>res(g.cc?.director?.getDeltaTime?.()??1/60),0)));
+  const off=installCoastArrivalHer(world);let r:{ok:boolean;frames:number;seconds:number};
+  try{r=await playCoastArrival({camera,viewport,nextFrame,her:(f:HerFrame)=>world.coastArrivalHer?.(f),cancelled});}finally{off();}
+  if(!r.ok){try{scene.dispose?.();}catch{}return out(false,qfErr('cancelled',r.seconds),r.frames,r.seconds);}
+  return out(true,null,r.frames,r.seconds,scene);}
+ catch(e){try{scene?.dispose?.();}catch{}return out(false,qfErr('error',e));}}
+/** self-registry (merged, not replaced: CoastSceneLoader.ts registers loadCoastScene/unloadCoastScene on the same object). The main
+ *  package never imports this bundle script; WNC reads globalThis.__qfCoast.runCoastArrival after assetManager.loadBundle('region_coast'). */
+{const g=globalThis as any;const o=g.__qfCoast||(g.__qfCoast={});o.runCoastArrival=runCoastArrival;o.playCoastArrival=playCoastArrival;o.installCoastArrivalHer=installCoastArrivalHer;o.COAST_ARRIVAL_TOTAL_S=COAST_ARRIVAL_TOTAL_S;}

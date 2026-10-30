@@ -16,7 +16,7 @@ function lcg(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223
 (async()=>{
  const W=CAL.coastArrivalWalks(),[ws,we]=K.walk;
  ok(W.length>=2,'walks '+W.length);const s7=W[W.length-1];
- ok(Math.abs(s7.start-ws)<=0.1+1e-9&&Math.abs(s7.end-we)<=0.1+1e-9,'S7 window '+s7.start+'-'+s7.end+' vs '+ws+'-'+we);
+ {const [a,b]=CAL.COAST_S7_WALK,lead=K.total-b,len=Math.hypot(s7.path[1][0]-s7.path[0][0],s7.path[1][2]-s7.path[0][2]),v=len/(b-a);ok(s7.start===a&&s7.end===b&&lead>=1.5-1e-9&&lead<=2.5+1e-9&&b<=K.total&&a>=W[W.length-2].end&&v/0.7<=1.3,'S7 window '+s7.start+'-'+s7.end+' lead '+lead+' mean '+v+' m/s');} // runtime S7 = COAST_S7_WALK (retime: authored 4.25 s = 1.71 x native)
  for(const w of W){ok(d3(w.path[0],CAL.arrivalHer(w.start).root)<=0.02,'walk start root '+w.start);ok(d3(w.path[w.path.length-1],CAL.arrivalHer(w.end).root)<=0.02,'walk end root '+w.end);}
  ok(d3(s7.path[s7.path.length-1],[-0.6,s7.path[s7.path.length-1][1],16.35])<1e-3,'S7 stop root '+s7.path[s7.path.length-1]);
  for(const [name,clock] of [['60fps',()=>1/60],['30fps',()=>1/30],['uneven',lcg(0xc0a57)]]){
