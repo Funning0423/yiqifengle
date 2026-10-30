@@ -89,15 +89,19 @@ export function unloadCoastScene(h:CoastSceneHandle|null|undefined){h?.dispose()
  * world = WorldFlowComponent (worldCamera, node, scheduleOnce, ownedModel = island prefab instance, WorldFlowComponent.ts:378).
  * loadCoastScene FIRST (scene_root of the island model) -> installCoastArrivalHer -> playCoastArrival -> finally uninstall.
  * The scene handle is returned to the caller, who disposes it on region change/teardown (dispose also on cancel/failure here). */
-import { renderer } from 'cc';
-import { playCoastArrival, installCoastArrivalHer, createCoastReuseResolver, createCoastMaterialResolver } from './CoastArrivalLens';
+import { Texture2D } from 'cc';
+import { playCoastArrival, installCoastArrivalHer, createCoastReuseResolver, createCoastMaterialResolver, COAST_PALETTE_PATH } from './CoastArrivalLens';
 function findMat(root:Node|null,name:string):Material|null{if(!root)return null;for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m&&m.name===name)return m;return null;}
 /** meshes under root whose vertex data has no a_texCoord (palette materials need UVs) */
 export function coastMeshesWithoutUV(root:Node):string[]{const out=new Set<string>();for(const r of root.getComponentsInChildren(MeshRenderer)){const m:any=r.mesh;if(!m)continue;
  try{if(!m.readAttribute(0,'a_texCoord'))out.add(r.node.name);}catch{out.add(r.node.name);}}return [...out];}
 export async function runCoastArrival(world:any,opts:Readonly<{resolveReuse?:(n:string)=>Node|null;cancelled:()=>boolean}>):Promise<{ok:boolean;scene:CoastSceneHandle|null;reason?:string}>{
  let off:(()=>void)|null=null,scene:CoastSceneHandle|null=null;const island:Node|null=world?.ownedModel??null;
- const mat=createCoastMaterialResolver(n=>findMat(island,n),src=>new renderer.MaterialInstance({parent:src as Material})/* owned per-coast instance; the island's shared material is never written */);
+ let paletteTex:any=null;try{paletteTex=await new Promise<any>((ok)=>{const b=assetManager.getBundle(COAST_BUNDLE);if(!b)return ok(null);b.load(COAST_PALETTE_PATH,Texture2D,(e,t)=>ok(e?null:t));});}catch{paletteTex=null;}
+ if(paletteTex)paletteTex.addRef();
+ const mat0=createCoastMaterialResolver({islandMaterial:n=>findMat(island,n),coastPalette:()=>paletteTex,
+  makePalette:(src:any,tex:any)=>{const m=new Material();m.initialize({effectAsset:src.effectAsset,technique:src.technique,defines:src.passes.map((p:any)=>{const d={...p.defines};delete d.USE_EMISSIVE_MAP;return d;})});m.setProperty('mainTexture',tex);return m;}});
+ const mat=Object.assign((k:any)=>mat0(k),{dispose(){mat0.dispose();if(paletteTex){paletteTex.decRef();paletteTex=null;}}});
  const cancelled=()=>{try{return !!opts?.cancelled?.()||!world?.node?.isValid;}catch{return true;}};
  try{const cam=world?.worldCamera;if(!cam?.node?.isValid||!island?.isValid){console.error(QF_COAST+' arrival: world camera / island model missing');mat.dispose();return {ok:false,scene:null,reason:'no-world'};}
   const sceneRoot=(island.getChildByName('scene_root')??island) as Node;

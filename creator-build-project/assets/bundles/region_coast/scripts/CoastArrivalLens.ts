@@ -123,15 +123,31 @@ export function createCoastReuseResolver(islandRoot:any,sources:Readonly<Record<
   else{n=findName(islandRoot,s.src+'_rig')||findName(islandRoot,s.src);if(!n||n.isValid===false){n=null;console.error('[QF_COAST] reuse: '+name+' -> '+s.src+' is not in the loaded island prefab');}}
   cache.set(name,n);return n;};}
 export type MaterialLike={name?:string;isValid?:boolean;destroy?():void};
-/** resolveMaterial: std + opaque + no emit -> an OWNED copy of the island's M_env_palette (makeCopy(src) = new Material + copy; the
- *  island's shared material is never modified). Every other key (unlit / emit / alpha<1) has no island counterpart agreed by art:
- *  null + console.error (no builtin fallback, no invented colours). M_env_palette samples a palette texture by UV: on a mesh without
- *  UVs every vertex samples one texel (flat colour) — runCoastArrival reports such meshes with console.error (coastMeshesWithoutUV).
- *  dispose() destroys the owned copies. */
-export function createCoastMaterialResolver(findIslandMaterial:(name:string)=>MaterialLike|null,makeCopy:(src:MaterialLike)=>MaterialLike){
- const owned:MaterialLike[]=[];let palette:MaterialLike|null|undefined;
+/** Grok Bot 2026-10-30: translucent/unlit coast meshes use an EXISTING island material (room_no_original_chair.glb, static_seat_preview),
+ *  shared by reference, no per-instance change. null = no suitable island material (reason in MATERIAL_MAP.md) -> console.error. */
+export const COAST_SHARED_MATERIALS:Readonly<Record<string,string|null>>=Object.freeze({
+ foam:'M_env_sea_foam',foam_inner:'M_env_sea_foam',tide_sheet:'M_env_glass_clear',sidepool:'M_env_glass_clear',
+ beacon_line:'M_env_light_beam_v22',beacon_lamp:'M_env_lamp_glow_v22',
+ contact:null,blob:null,footprints:null,net:null,crabtrap_mesh:null,seaglass:null,anemone:null});
+/** agreed bundle path of 场景设计部's coast palette (region_coast bundle, Texture2D sub-asset) */
+export const COAST_PALETTE_PATH='textures/coast_palette_256/texture';
+/** resolveMaterial(key):
+ *  - kind 'std' (opaque): ONE coast palette material per kit session = new Material with M_env_palette's effect/technique/defines and
+ *    mainTexture = coast palette (makePalette). No palette texture -> null + console.error (never the island texture). Owned, destroyed in dispose().
+ *  - otherwise: COAST_SHARED_MATERIALS[mesh] island material by reference (never modified, never destroyed); null entry/missing -> console.error.
+ *  Every key returns a material or logs console.error — never a silent null. */
+export function createCoastMaterialResolver(d:Readonly<{islandMaterial(name:string):MaterialLike|null;coastPalette():any;makePalette(palette:MaterialLike,tex:any):MaterialLike}>){
+ const owned:MaterialLike[]=[];let pal:MaterialLike|null|undefined;
  const fn=((k:{mesh:string;kind:string;alpha:number;emit:boolean})=>{
-  if(k.kind!=='std'||k.alpha<1||k.emit){console.error('[QF_COAST] material: no island material for '+k.mesh+' ('+k.kind+', alpha '+k.alpha+(k.emit?', emit':'')+') - needs an art decision');return null;}
-  if(palette===undefined){const src=findIslandMaterial('M_env_palette');palette=src&&src.isValid!==false?makeCopy(src):null;if(palette)owned.push(palette);else console.error('[QF_COAST] material: island M_env_palette not found');}
-  return palette;}) as ((k:any)=>MaterialLike|null)&{dispose():void;owned:MaterialLike[]};
- fn.owned=owned;fn.dispose=()=>{for(const m of owned.splice(0))try{m.destroy?.();}catch{}palette=undefined;};return fn;}
+  if(k.kind==='std'&&k.alpha>=1&&!k.emit){
+   if(pal===undefined){pal=null;const src=d.islandMaterial('M_env_palette'),tex=d.coastPalette();
+    if(!src||src.isValid===false)console.error('[QF_COAST] material: island M_env_palette not found (effect source)');
+    else if(!tex)console.error('[QF_COAST] material: coast palette texture missing (region_coast/'+COAST_PALETTE_PATH+'); no island-texture fallback');
+    else{pal=d.makePalette(src,tex);owned.push(pal);}}
+   if(!pal)console.error('[QF_COAST] material: no coast palette material for '+k.mesh);return pal;}
+  const name=COAST_SHARED_MATERIALS[k.mesh];
+  if(name===undefined){console.error('[QF_COAST] material: '+k.mesh+' ('+k.kind+', alpha '+k.alpha+') not in COAST_SHARED_MATERIALS');return null;}
+  if(name===null){console.error('[QF_COAST] material: no suitable island material for '+k.mesh+' (see MATERIAL_MAP.md)');return null;}
+  const m=d.islandMaterial(name);if(!m||m.isValid===false){console.error('[QF_COAST] material: island '+name+' for '+k.mesh+' not found');return null;}
+  return m;}) as ((k:any)=>MaterialLike|null)&{dispose():void;owned:MaterialLike[]};
+ fn.owned=owned;fn.dispose=()=>{for(const m of owned.splice(0))try{m.destroy?.();}catch{}pal=undefined;};return fn;}

@@ -20,10 +20,17 @@ ok(Object.values(SRC).reduce((a,x)=>a+x.count,0)===L.length,'COAST_REUSE_SOURCES
 ok(hit===L.length,`reuse skips not allowed: ${L.length-hit} of ${L.length} have no island source`);
 // self-test: a missing source must be caught
 {const r=CAL.createCoastReuseResolver({name:'x',children:[]},SRC);const e2=[];console.error=m=>e2.push(m);const n=r('reuse_palm_tall');console.error=ce;ok(n===null&&e2.length===1,'selftest missing node');}
-// resolveMaterial: owned copy of M_env_palette for std/opaque, null + console.error for the rest, island material untouched
-{const isl={name:'M_env_palette',isValid:true,tag:'island'},made=[];const R=CAL.createCoastMaterialResolver(n=>n==='M_env_palette'?isl:null,src=>{const m={name:src.name,from:src,destroyed:false,destroy(){this.destroyed=true;}};made.push(m);return m;});
- const e3=[];console.error=m=>e3.push(m);const a=R({mesh:'rock_0',kind:'std',alpha:1,emit:false}),b2=R({mesh:'sand',kind:'std',alpha:1,emit:false}),c=R({mesh:'foam',kind:'unlit',alpha:0.92,emit:false}),d=R({mesh:'seaglass',kind:'std',alpha:1,emit:true});console.error=ce;
- ok(a&&a!==isl&&a.from===isl&&a===b2&&made.length===1,'std -> one owned copy of M_env_palette');ok(c===null&&d===null&&e3.length===2,'unlit/emit -> null + console.error');
- R.dispose();ok(made[0].destroyed&&!isl.destroyed,'dispose destroys own copy only');
- const e4=[];console.error=m=>e4.push(m);const R2=CAL.createCoastMaterialResolver(()=>null,x=>x);ok(R2({mesh:'x',kind:'std',alpha:1,emit:false})===null&&e4.length===1,'missing palette -> null + error');console.error=ce;}
+// resolveMaterial (Grok Bot 2026-10-30): every coast material key -> a material or console.error, never a silent null
+{const LAY=load(path.join(A,'bundles/region_coast/scripts/CoastSceneLayout'));const layout=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_coast/data/coast_layout.json'),'utf8'));
+ const keys=new Map();for(const i of LAY.coastInstances(layout))if(!i.reuse)keys.set(i.mesh+'|'+i.kind+'|'+i.alpha,{mesh:i.mesh,kind:i.kind,alpha:i.alpha,emit:i.kind==='unlit'});
+ const ISL=new Set(j.materials.map(m=>m.name)),mats={};const isl=n=>ISL.has(n)?(mats[n]||(mats[n]={name:n,isValid:true,island:true})):null;
+ for(const [label,tex] of [['with coast palette',{tex:1}],['palette missing',null]]){const made=[];
+  const R=CAL.createCoastMaterialResolver({islandMaterial:isl,coastPalette:()=>tex,makePalette:(src,t)=>{const m={name:'coast_palette',effectFrom:src.name,tex:t,destroyed:false,destroy(){this.destroyed=true;}};made.push(m);return m;}});
+  let got=0,errd=0,silent=[];const shared={};for(const k of keys.values()){const e=[];console.error=m=>e.push(m);const m=R(k);console.error=ce;
+   if(m){got++;if(m.island)shared[k.mesh]=m.name;}else if(e.length)errd++;else silent.push(k.mesh);}
+  ok(silent.length===0,label+': silent null for '+silent);ok(made.length===(tex?1:0),label+': palette material created '+made.length+' (once per session)');
+  ok(!tex||made[0].effectFrom==='M_env_palette'&&made[0].tex===tex,label+': palette = M_env_palette effect + coast texture');
+  for(const [mesh,n] of Object.entries(CAL.COAST_SHARED_MATERIALS))if(n)ok(ISL.has(n),'mapped island material exists: '+mesh+' -> '+n);
+  R.dispose();ok(made.every(m=>m.destroyed)&&Object.values(mats).every(m=>!m.destroyed),label+': dispose destroys own palette only');
+  console.log(`info material ${label}: ${keys.size} keys, ${got} resolved, ${errd} console.error, 0 silent; shared ${JSON.stringify(shared)}`);}}
 if(fails){console.log(fails+' FAIL');process.exit(1);}console.log('PASS coast-reuse');
