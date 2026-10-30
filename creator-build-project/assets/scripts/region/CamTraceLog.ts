@@ -70,6 +70,7 @@ export function camLogFrame(camera:any):void{
  else if(st.bad)camLog.out('[QF_CAM_TRACE] frame='+st.fr+' CAM_OK<-'+st.bad+' pn='+f3(pnow()));
  st.bad=bad;
  if(!bad)probeHerFrame(camera,st.fr);
+ if(!bad)probeSceneFrame(camera,st.fr);
 }
 /** full9c probes (界面验收部 acceptance, Grok Bot 2026-10-29). TEST ONLY: every entry point returns at `if(!camLog.on)`, and
  *  the draw listener is only installed from camLogFrame (called only inside `if(camLog.on)`), so the release path runs none of it.
@@ -142,4 +143,19 @@ export function camLogStart(query?:string,g:any=globalThis):boolean{
 /** test-only */
 export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
+/** P2 lakeside gate probe (TEST ONLY, same camLog.on gate as the probes above): [QF_P2_SCENE] at trace frame 2400 and every 10th
+ *  frame of the balloon ascent: active camera, clear colour, fog, active domes and the LK_* renderers the camera can see. */
+const p2={lake:null as any,phase:''};
+export function camProbeLake(model:any,phase:string):void{if(!camLog.on)return;if(model)p2.lake=model;p2.phase=phase;}
+function probeSceneFrame(camera:any,fr:number):void{
+ if(!camLog.on||!(fr===2400||(p2.phase==='ascent'&&fr%10===0)))return;
+ try{const vis=(camera.visibility|0)>>>0,sc=camera.node?.scene,g=sc?.globals,fog=g?.fog,lk:string[]=[],dome:string[]=[];
+  const walk=(n:any)=>{if(!n||!n.activeInHierarchy)return;const nm=String(n.name||'');
+   const r=(n.components||[]).find((c:any)=>c&&c.enabledInHierarchy&&typeof c.sharedMaterials!=='undefined');
+   if(r&&(vis&(n.layer>>>0))!==0){if(/^LK_|LakesideJourney/.test(nm))lk.push(nm);if(/dome|sky/i.test(nm))dome.push(nm);}
+   for(const c of n.children||[])walk(c);};
+  walk(sc);const c=camera.clearColor;
+  camLog.out('[QF_P2_SCENE] '+JSON.stringify({fr,phase:p2.phase||'-',cam:camera.node?.name,clear:c?[c.r,c.g,c.b]:null,flags:camera.clearFlags,
+   fog:fog?{on:fog.enabled,type:fog.type,color:[fog.fogColor.r,fog.fogColor.g,fog.fogColor.b]}:null,dome,lkN:lk.length,lk:lk.slice(0,12),pn:+pnow().toFixed(1)}));
+ }catch{/* probe never throws */}}
 camLogStart();
