@@ -2,9 +2,10 @@
 """Read-only toggle-frame gate for the coast root / sail route.
   python3 aabb_gate.py build   <coast_meshes.json> <coast_layout.json> > coast_aabbs.json     (world AABBs, island scene_root frame)
   python3 aabb_gate.py check   <aabbs.json> --pos x y z --target x y z --vfov 45 --aspect 0.462 [--near 0.1 --far 400]
-                               [--fov-mode auto|vertical|fitwidth] [--screens all]
+                               [--fov-mode auto|vertical|fitwidth] [--screens all] [--boat-speed 0]
 check prints, for every AABB, ON (intersects the view frustum) or off; exit code 1 if anything toggled is ON.
 region_coast_root is an "envelope" (union of its child boxes) and is printed but decided by the children.
+Boxes with "conditional" (wake_trail) are checked only when --boat-speed exceeds their threshold (default 0 = still boat).
 Boxes with "toggled": false (permanent island props, e.g. island_dock) are printed as 'perm' and never fail the gate.
 FOV: the engine's portrait camera is fit-width (holds the horizontal FOV of aspect 0.62), so on portrait screens the
 effective vertical half-angle is tan(vfov/2)*max(1, 0.62/aspect). --fov-mode auto (default) uses that when aspect < 0.62,
@@ -42,7 +43,13 @@ def build(meshes,layout):
   G='GGbot computed 8c98bbfe (glb x node chain)'
   boxes['SailArt sail_boat_whole_route (sailboat incl. sail_gangway_hinge>sail_gangway)']={'min':[-5.851,-1.361,9.538],'max':[1.366,3.85,50.843],'source':G,'toggled':True}
   boxes['SailArt near props (rocks, foam strips/rings, buoys)']={'min':[-9.78,-1.46,9.091],'max':[9.167,0.95,53.62],'source':G,'toggled':True}
-  boxes['SailArt wake_trail envelope (departure only, speed>0.35 m/s)']={'min':[-5.25,-0.86,-4.80],'max':[5.15,-0.86,46.6],'source':'GGbot derived from SAIL_WAKE constants (envelope, not mesh)','toggled':True,'departure_only':True}
+  # wake_trail is CONDITIONAL: emission is exactly 0 while boat speed <= 0.35 m/s (8c98bbfe SailWakeCore.ts:15
+  #   "speedLo:0.35, speedHi:3.2,  // emission ramps in between (m/s)" and :38
+  #   "export function wakeEmission(speed:number):number{return smooth(SAIL_WAKE.speedLo,SAIL_WAKE.speedHi,Math.abs(speed));}").
+  # The gate checks it only when the caller passes --boat-speed > 0.35; in the coast transition the boat is still -> off.
+  # Pending Mac runtime confirmation (__QF_SAIL_WAKE null or shown:false), see MAC-CHECKLIST.md.
+  boxes['SailArt wake_trail envelope (conditional: boat speed > 0.35 m/s)']={'min':[-5.25,-0.86,-4.80],'max':[5.15,-0.86,46.6],'source':'GGbot derived from SAIL_WAKE constants (envelope, not mesh)','toggled':True,
+    'conditional':{'boat_speed_gt':0.35,'basis':['SailWakeCore.ts:15 speedLo:0.35, speedHi:3.2,  // emission ramps in between (m/s)','SailWakeCore.ts:38 wakeEmission(speed)=smooth(speedLo,speedHi,|speed|) -> 0 at speed<=0.35'],'source_commit':'8c98bbfe','mac_confirmed':False}}
   boxes['island_dock (permanent island prop, not toggled)']={'min':[-2.575,-2.35,8.045],'max':[-0.753,0.44,14.45],'source':G,'toggled':False}
   # the old bridge box is dropped: island->meadow is always sail mode (RegionJourneyAdapter.ts:100), bridge mode builds no mesh
   return boxes
@@ -51,7 +58,7 @@ def half_v(vfov,aspect,mode='auto'):
   t=math.tan(math.radians(vfov)/2)
   if mode=='fitwidth' or (mode=='auto' and aspect<0.62):t*=max(1.0,0.62/aspect)
   return t
-def check(boxes,pos,tgt,vfov,aspect,near,far,mode='auto',quiet=False,skip=()):
+def check(boxes,pos,tgt,vfov,aspect,near,far,mode='auto',quiet=False,skip=(),boat_speed=0.0):
   f=[tgt[i]-pos[i] for i in range(3)];l=math.sqrt(sum(v*v for v in f));f=[v/l for v in f]
   up=(0,1,0);r=[f[1]*up[2]-f[2]*up[1],f[2]*up[0]-f[0]*up[2],f[0]*up[1]-f[1]*up[0]];rl=math.sqrt(sum(v*v for v in r));r=[v/rl for v in r]
   u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]]
@@ -62,10 +69,10 @@ def check(boxes,pos,tgt,vfov,aspect,near,far,mode='auto',quiet=False,skip=()):
     for c in cs:
       d=[c[i]-pos[i] for i in range(3)];loc.append((sum(d[i]*r[i] for i in range(3)),sum(d[i]*u[i] for i in range(3)),sum(d[i]*f[i] for i in range(3))))
     planes=[lambda X,Y,Z:Z-near,lambda X,Y,Z:far-Z,lambda X,Y,Z:Z*tw-X,lambda X,Y,Z:Z*tw+X,lambda X,Y,Z:Z*th-Y,lambda X,Y,Z:Z*th+Y]
-    on=all(any(pf(*p)>=0 for p in loc) for pf in planes);perm=b.get('toggled',True) is False or b.get('envelope') or k in skip
+    on=all(any(pf(*p)>=0 for p in loc) for pf in planes);perm=b.get('toggled',True) is False or b.get('envelope') or k in skip or ('conditional' in b and boat_speed<=b['conditional']['boat_speed_gt'])
     if not perm:anyon|=on
     res[k]=on
-    if not quiet:print(('perm' if perm else 'ON ' if on else 'off'),('(on)' if perm and on else ''),k,b['min'],b['max'])
+    if not quiet:print(('cond' if 'conditional' in b and perm else 'perm' if perm else 'ON ' if on else 'off'),('(on)' if perm and on else ''),k,b['min'],b['max'])
   return (anyon,res) if quiet else anyon
 if __name__=='__main__':
   a=sys.argv
@@ -75,9 +82,9 @@ if __name__=='__main__':
       if n in a:i=a.index(n);v=[float(x) for x in a[i+1:i+1+c]];return v if c>1 else v[0]
       return d
     mode=a[a.index('--fov-mode')+1] if '--fov-mode' in a else 'auto'
-    B=load(a[2]);P,T,V,N_,F_=arg('--pos',3),arg('--target',3),arg('--vfov',1,45),arg('--near',1,0.1),arg('--far',1,400)
+    B=load(a[2]);P,T,V,N_,F_=arg('--pos',3),arg('--target',3),arg('--vfov',1,45),arg('--near',1,0.1),arg('--far',1,400);BS=arg('--boat-speed',1,0.0)
     if '--screens' in a:
       bad=False
-      for (w,h) in SCREENS:print('== %dx%d'%(w,h));bad|=check(B,P,T,V,w/h,N_,F_,mode)
+      for (w,h) in SCREENS:print('== %dx%d'%(w,h));bad|=check(B,P,T,V,w/h,N_,F_,mode,boat_speed=BS)
       sys.exit(1 if bad else 0)
-    sys.exit(1 if check(B,P,T,V,arg('--aspect',1,0.462),N_,F_,mode) else 0)
+    sys.exit(1 if check(B,P,T,V,arg('--aspect',1,0.462),N_,F_,mode,boat_speed=BS) else 0)

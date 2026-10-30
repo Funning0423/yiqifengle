@@ -2,7 +2,6 @@ import sys,os,json
 sys.path.insert(0,'/workspace/wt-coast/tools/coast-transition-draft');sys.path.insert(0,'/workspace/tmp-exp/wt-coast-scene/tools/coast-scene')
 import reanchor as R, aabb_gate as G
 B=G.load('/workspace/tmp-exp/coast-build-r4b/coast_aabbs.json')
-WAKE=[k for k in B if 'wake' in k][0]
 def frame(f,mode,skip=()):
   p,l,fov=R.CAM[f];per={};bad=False
   for (w,h) in G.SCREENS:
@@ -20,10 +19,9 @@ def windows(rng,mode,skip):
 d=os.environ.get('DIR','out');out={'dir':d,'frames':len(R.CAM)}
 keys=[220,196,248] if d=='out' else [1044,1040,1048]
 rng=range(150,320) if d=='out' else range(980,1110)
+# boat is still during the coast transition (speed 0) -> conditional wake_trail is off (SailWakeCore.ts:15/:38)
 for mode in ('auto','vertical'):
-  for skip,lab in (((WAKE,),'no_wake'),((),'with_wake')):
-    out['%s_%s_windows'%(mode,lab)]=windows(rng,mode,skip)
+  out['%s_windows'%mode]=windows(rng,mode,())
 for f in keys:
-  bad,per=frame(f,'auto',(WAKE,));out['frame_%d'%f]={'clean':not bad,'per_box_any_screen':{k:any(per[s][k] for s in per) for k in B},'cam':[list(map(float,R.CAM[f][0])),list(map(float,R.CAM[f][1])),float(R.CAM[f][2])]}
-  bad2,_=frame(f,'auto',());out['frame_%d'%f]['clean_incl_wake']=not bad2
+  bad,per=frame(f,'auto',());out['frame_%d'%f]={'clean':not bad,'per_box_any_screen':{k:any(per[s][k] for s in per) for k in B},'cam':[list(map(float,R.CAM[f][0])),list(map(float,R.CAM[f][1])),float(R.CAM[f][2])]}
 print(json.dumps(out,indent=1))

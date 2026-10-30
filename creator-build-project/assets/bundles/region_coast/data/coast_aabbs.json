@@ -112,7 +112,7 @@
   "source": "GGbot computed 8c98bbfe (glb x node chain)",
   "toggled": true
  },
- "SailArt wake_trail envelope (departure only, speed>0.35 m/s)": {
+ "SailArt wake_trail envelope (conditional: boat speed > 0.35 m/s)": {
   "min": [
    -5.25,
    -0.86,
@@ -125,7 +125,15 @@
   ],
   "source": "GGbot derived from SAIL_WAKE constants (envelope, not mesh)",
   "toggled": true,
-  "departure_only": true
+  "conditional": {
+   "boat_speed_gt": 0.35,
+   "basis": [
+    "SailWakeCore.ts:15 speedLo:0.35, speedHi:3.2,  // emission ramps in between (m/s)",
+    "SailWakeCore.ts:38 wakeEmission(speed)=smooth(speedLo,speedHi,|speed|) -> 0 at speed<=0.35"
+   ],
+   "source_commit": "8c98bbfe",
+   "mac_confirmed": false
+  }
  },
  "island_dock (permanent island prop, not toggled)": {
   "min": [
