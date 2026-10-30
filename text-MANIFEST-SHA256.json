@@ -1535,9 +1535,19 @@
     "sha256": "6d16c8049204475d53a7bbd260b317f046871d7d63ae616221049effd7ef9e69"
   },
   {
+    "path": "creator-build-project/assets/bundles/transport_sail/far_meadow_impostor.glb.meta",
+    "bytes": 1986,
+    "sha256": "882de76f8d5c0483ef02d91a5fb99c64ebd2a70221a581c99634774f4d56d7a7"
+  },
+  {
     "path": "creator-build-project/assets/bundles/transport_sail/sailboat.glb.meta",
     "bytes": 9131,
     "sha256": "39489a2802f9356819ed71cfdc4d34353edc96f9faaff7f4892f4e266a92135c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/transport_sail/sea_reef_cluster.glb.meta",
+    "bytes": 1976,
+    "sha256": "8a273a04a5ec95bb9dd1e7303a552fc48f6bfd198fd793e0edc7c0392de97a65"
   },
   {
     "path": "creator-build-project/assets/bundles/transport_sail/textures.meta",
@@ -3182,7 +3192,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
     "bytes": 6700,
-    "sha256": "9e8944a830d653bb3402a5d477dc6606f656f41278a6192a5d2a460562587ea8"
+    "sha256": "09e0eb0c8372535d9683d4bbc5b4230cfeeb63c4a3044667a8ed052cd7cca949"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3212,7 +3222,7 @@
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
     "bytes": 183233,
-    "sha256": "b9c665bb471e5640bac7f87f4f145be5b52463fc9d5c3bae4ec30fdf64592b67"
+    "sha256": "061fe3d4a88d28255afdf602a2b70f6e5764b4792159b3cab324b8f5272983fd"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
