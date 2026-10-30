@@ -1,7 +1,8 @@
 """Load island combined_visual_m.glb + coast bundle (scene/b19-coast-scene 7297fa5f) in island scene_root (=world) frame."""
 import json, math, re, os, numpy as np, trimesh
 R = os.path.dirname(os.path.abspath(__file__)); FIT = os.environ.get('FIT', 'r2')  # r5d = scene/b19-coast-scene @bb238126 (same placement as r2); r2 = scene/b19-coast-scene @73330bef; v2 = @7297fa5f (void placement, kept for before/after)
-W = {'r5d': '/workspace/coast-r5d', 'r2': '/workspace/coast-reanchor-r2', 'v2': '/workspace/coast-reanchor'}[FIT]
+W = os.environ.get('COAST_W') or {'r5d': '/workspace/coast-r5f-9e861a31',  # r5d tools now measure on scene/b19-coast-scene @9e861a31 (r5f; rebuilt by tools/coast-scene/build_coast.py); bb238126 = /workspace/coast-r5d
+     'r2': '/workspace/coast-reanchor-r2', 'v2': '/workspace/coast-reanchor'}[FIT]
 ISLAND_GLB = os.path.join(R, '../../creator-project/assets/firstslice/combined_visual_m.glb')
 COAST_T = np.array({'r5d': [-0.6, -0.845, 21.5], 'r2': [-0.6, -0.845, 21.5], 'v2': [-2.11, -0.6, 17.39]}[FIT]); COAST_YAW = 180.0
 IGNORE = re.compile(r'^(env_sky|env_sea|env_cloud|env_chimney_smoke|env_anim_seagull_fly|env_foam|fx_|env_moon|env_lighthouse_door$|env_window_blind_cards|.*glass|.*beam|.*glow|foam|tide_sheet|beacon_line|contact|seaglass|reuse_cloud)')
@@ -18,6 +19,7 @@ def load():
         m = sc.geometry[g].copy(); m.apply_transform(M); parts.append(('island:' + node, m))
     src = {}
     for f in ['coast_terrain', 'coast_rocks', 'coast_props', 'coast_board', 'coast_pieces']:
+        if not os.path.exists(f'{W}/{f}.glb'): continue  # r5f build has no coast_rocks.glb (rocks are island reuse_)
         s2 = trimesh.load(f'{W}/{f}.glb', force='scene')
         for node in s2.graph.nodes_geometry:
             M, g = s2.graph[node]; m = s2.geometry[g].copy(); m.apply_transform(M); src[node] = m
