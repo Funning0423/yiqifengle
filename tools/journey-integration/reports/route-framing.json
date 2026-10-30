@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-30T10:37:16.972Z",
+ "timeUTC": "2026-10-26T10:32:49.711Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -15,7 +15,7 @@
   {
    "leg": "sail island→meadow",
    "screen": "390x844",
-   "frames": 1383,
+   "frames": 1270,
    "herNotModelledFrames": 0,
    "F1": "PASS",
    "F2": "PASS",
@@ -39,12 +39,12 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.304,
-   "minHeightFrac": 0.0534
+   "minHeightFrac": 0.0612
   },
   {
    "leg": "sail island→meadow",
    "screen": "414x896",
-   "frames": 1383,
+   "frames": 1270,
    "herNotModelledFrames": 0,
    "F1": "PASS",
    "F2": "PASS",
@@ -68,12 +68,12 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.304,
-   "minHeightFrac": 0.0534
+   "minHeightFrac": 0.0612
   },
   {
    "leg": "sail island→meadow",
    "screen": "360x780",
-   "frames": 1383,
+   "frames": 1270,
    "herNotModelledFrames": 0,
    "F1": "PASS",
    "F2": "PASS",
@@ -97,12 +97,12 @@
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.305,
-   "minHeightFrac": 0.0534
+   "minHeightFrac": 0.0612
   },
   {
    "leg": "sail island→meadow",
    "screen": "375x667",
-   "frames": 1383,
+   "frames": 1270,
    "herNotModelledFrames": 0,
    "F1": "PASS",
    "F2": "PASS",
@@ -118,20 +118,20 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 47.5,
-    "atS": 0,
-    "phase": "S-a",
+    "minGapPt": 43.6,
+    "atS": 36.63,
+    "phase": "shore-walk",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.25,
-   "minHeightFrac": 0.0534
+   "minHeightFrac": 0.0612
   },
   {
    "leg": "sail island→meadow",
    "screen": "320x568",
-   "frames": 1383,
+   "frames": 1270,
    "herNotModelledFrames": 0,
    "F1": "PASS",
    "F2": "PASS",
@@ -147,20 +147,20 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 35.4,
-    "atS": 0,
-    "phase": "S-a",
+    "minGapPt": 32.1,
+    "atS": 36.63,
+    "phase": "shore-walk",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.25,
-   "minHeightFrac": 0.0534
+   "minHeightFrac": 0.0612
   },
   {
    "leg": "sail island→meadow",
    "screen": "390x520",
-   "frames": 1383,
+   "frames": 1270,
    "herNotModelledFrames": 0,
    "F1": "PASS",
    "F2": "PASS",
@@ -176,20 +176,20 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 29.5,
-    "atS": 0,
-    "phase": "S-a",
+    "minGapPt": 26.5,
+    "atS": 36.63,
+    "phase": "shore-walk",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.188,
-   "minHeightFrac": 0.0534
+   "minHeightFrac": 0.0612
   },
   {
    "leg": "sail island→meadow",
    "screen": "768x1024",
-   "frames": 1383,
+   "frames": 1270,
    "herNotModelledFrames": 0,
    "F1": "PASS",
    "F2": "PASS",
@@ -205,15 +205,15 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 91.1,
-    "atS": 0,
-    "phase": "S-a",
+    "minGapPt": 85.1,
+    "atS": 36.63,
+    "phase": "shore-walk",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
    "maxWidthFrac": 0.188,
-   "minHeightFrac": 0.0534
+   "minHeightFrac": 0.0612
   },
   {
    "leg": "balloon meadow→skycity",
