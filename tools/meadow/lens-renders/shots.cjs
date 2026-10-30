@@ -16,4 +16,8 @@ for(const [s0,a,b] of [['mainline-06','M2','M3']]){const e=N.REGION_NODES.meadow
  const plan=SL.meadowFoldPlan(RB.meadowBoardCamera(w,h),EC.followPose(e[0],head(e[0],NW.pointAlong(e,3)),w,h,0),e[0],T,w/h);
  for(let i=0;i<=6;i++){const t=T*i/6,p=NW.pointAlong(e,t*NW.WALK_SPEED_MPS),q=NW.pointAlong(e,Math.min(L,t*NW.WALK_SPEED_MPS+.1)),o=NW.pointAlong(e,Math.max(0,t*NW.WALK_SPEED_MPS-.1)),c=SL.meadowFoldPose(plan,p,t),k=`fold_${a}${b}_${i}`,x=RB.girlBoxPt(c,p,w,h);
   J[k]={position:c.position,target:c.target,fov:c.fovVerticalDeg,her:p,yaw:head(o,q)*180/Math.PI,w,h,t};O[k]={ui:[],box:x,edge:x?Math.min(x.l,w-x.r,x.t,h-x.b):null,t};}}
+const MS=load('region/MeadowSceneData.ts');
+if(SL.setMeadowReopenAtM0)for(const [w,h] of S){const ui=RB.girlStandUi(w,h,BL.boardSafeInsets(w,h)),f=node('M0');RB.setMeadowBoardFraming('authored');SL.setMeadowReopenAtM0(true);
+ for(const [tag,c] of [['before',MS.meadowScenePose(w/h)],['after',RB.meadowBoardCamera(w,h)]]){const k='reopen_'+tag+'_'+w+'x'+h,x=RB.girlBoxPt(c,f,w,h);J[k]={position:c.position,target:c.target,fov:c.fovVerticalDeg,her:f,yaw:0,w,h};O[k]={ui,box:x,edge:x?Math.min(x.l,w-x.r,x.t,h-x.b):null};}
+ SL.setMeadowReopenAtM0(false);RB.setMeadowBoardFraming('A');}
 fs.writeFileSync(path.join(OUT,'shots.json'),JSON.stringify(J));fs.writeFileSync(path.join(OUT,'overlay.json'),JSON.stringify(O));console.log(Object.keys(J).length,'shots →',OUT);

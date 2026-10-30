@@ -1,0 +1,352 @@
+[
+ {
+  "walk": "M0>M1",
+  "screen": "390x844",
+  "lengthM": 8.966,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.17,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M0>M1",
+  "screen": "414x896",
+  "lengthM": 8.966,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.17,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M0>M1",
+  "screen": "360x780",
+  "lengthM": 8.966,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.17,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M0>M1",
+  "screen": "375x667",
+  "lengthM": 8.966,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.57,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M0>M1",
+  "screen": "320x568",
+  "lengthM": 8.966,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.17,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M0>M1",
+  "screen": "390x520",
+  "lengthM": 8.966,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.57,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M0>M1",
+  "screen": "768x1024",
+  "lengthM": 8.966,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.17,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M1>M2",
+  "screen": "390x844",
+  "lengthM": 9.091,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.39,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M1>M2",
+  "screen": "414x896",
+  "lengthM": 9.091,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.39,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M1>M2",
+  "screen": "360x780",
+  "lengthM": 9.091,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.39,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M1>M2",
+  "screen": "375x667",
+  "lengthM": 9.091,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.79,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M1>M2",
+  "screen": "320x568",
+  "lengthM": 9.091,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.39,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M1>M2",
+  "screen": "390x520",
+  "lengthM": 9.091,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.79,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M1>M2",
+  "screen": "768x1024",
+  "lengthM": 9.091,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.39,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M2>M3",
+  "screen": "390x844",
+  "lengthM": 9.463,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.04,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M2>M3",
+  "screen": "414x896",
+  "lengthM": 9.463,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.04,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M2>M3",
+  "screen": "360x780",
+  "lengthM": 9.463,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.04,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M2>M3",
+  "screen": "375x667",
+  "lengthM": 9.463,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.44,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M2>M3",
+  "screen": "320x568",
+  "lengthM": 9.463,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.04,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M2>M3",
+  "screen": "390x520",
+  "lengthM": 9.463,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.44,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M2>M3",
+  "screen": "768x1024",
+  "lengthM": 9.463,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.04,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M3>M4",
+  "screen": "390x844",
+  "lengthM": 9.285,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.83,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M3>M4",
+  "screen": "414x896",
+  "lengthM": 9.285,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.83,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M3>M4",
+  "screen": "360x780",
+  "lengthM": 9.285,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.83,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M3>M4",
+  "screen": "375x667",
+  "lengthM": 9.285,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.23,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M3>M4",
+  "screen": "320x568",
+  "lengthM": 9.285,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.83,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M3>M4",
+  "screen": "390x520",
+  "lengthM": 9.285,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 4.23,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M3>M4",
+  "screen": "768x1024",
+  "lengthM": 9.285,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.83,
+  "minSolidM": 6
+ },
+ {
+  "walk": "M4>M6",
+  "screen": "390x844",
+  "lengthM": 9.56,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.35,
+  "minSolidM": 0.8
+ },
+ {
+  "walk": "M4>M6",
+  "screen": "414x896",
+  "lengthM": 9.56,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.35,
+  "minSolidM": 0.8
+ },
+ {
+  "walk": "M4>M6",
+  "screen": "360x780",
+  "lengthM": 9.56,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.35,
+  "minSolidM": 0.8
+ },
+ {
+  "walk": "M4>M6",
+  "screen": "375x667",
+  "lengthM": 9.56,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.75,
+  "minSolidM": 1.12
+ },
+ {
+  "walk": "M4>M6",
+  "screen": "320x568",
+  "lengthM": 9.56,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.35,
+  "minSolidM": 0.8
+ },
+ {
+  "walk": "M4>M6",
+  "screen": "390x520",
+  "lengthM": 9.56,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.75,
+  "minSolidM": 1.12
+ },
+ {
+  "walk": "M4>M6",
+  "screen": "768x1024",
+  "lengthM": 9.56,
+  "direct": true,
+  "maxFaceBlockedS": 0,
+  "blockers": [],
+  "minGroundM": 3.35,
+  "minSolidM": 0.8
+ }
+]

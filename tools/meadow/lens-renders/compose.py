@@ -36,3 +36,12 @@ g.save(OUT+'compare_all_stages_390x844.jpg',quality=85)
 
 fk=sorted([k for k in O if k.startswith('fold_')]);
 if fk:row([label(shot(k),k,'t %.2f s · edge %s'%(O[k]['t'],ed(k))) for k in fk]).save(OUT+'fold_walk_M2M3_390x844.jpg',quality=85)
+
+if any(k.startswith('reopen_') for k in O):
+  row([label(shot('reopen_before_390x844'),'reopen-05 BEFORE (default lens)','390x844 · on the tool button'),label(shot('reopen_after_390x844'),'reopen-05 AFTER (M0 lens)','390x844 · min edge '+ed('reopen_after_390x844'))]).save(OUT+'compare_reopen05_390x844.jpg',quality=85)
+  for tag in ['before','after']:
+    ims=[]
+    for s in S:
+      k=f'reopen_{tag}_{s}';im=label(shot(k),s,'edge '+ed(k));sc=844/im.height if im.height>844 else 1
+      ims.append(im.resize((int(im.width*sc*0.6),int(im.height*sc*0.6))))
+    row(ims).save(OUT+f'strip7_reopen05_{tag}.jpg',quality=85)

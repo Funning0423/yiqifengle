@@ -1,0 +1,60 @@
+diff --git a/creator-build-project/assets/scripts/region/RegionBoardLanding.ts b/creator-build-project/assets/scripts/region/RegionBoardLanding.ts
+index 5f9511e3..fc665bcb 100644
+--- a/creator-build-project/assets/scripts/region/RegionBoardLanding.ts
++++ b/creator-build-project/assets/scripts/region/RegionBoardLanding.ts
+@@ -9,6 +9,7 @@ import {REGION_NODES} from './RegionNodes';
+ import {REGION_CAMERA} from '../world-r1/RegionCameraData';
+ import {TRANSITION_CAM,beginTransitionSpec} from './TransitionCamera';
+ import {camTag} from './CamTraceLog';
++import {meadowBoardNode,meadowReopenAtM0,resetMeadowBoardStage} from './MeadowStageLens';
+ /** 运镜bot: LANDING → BOARD for 04→05 (meadow) and 08→09 (skycity), same approach as 风铃湖畔 (LakesideLandingHook). Pure
+  *  (no engine imports): RegionJourneyAdapter gives the map between the journey copy of the region model and the board copy,
+  *  WorldNativeComposition injects the camera and the frame clock.
+@@ -54,7 +55,7 @@ export type BoardSize=Readonly<{width:number;height:number}>;
+  *  No zone fits (very short screens): meadowScenePose(aspect), i.e. the old camera. refHeightPt: size for aspect-only callers. */
+ /** narrow: boards under belowWidthPt wide (360×780, 375×667, 320×568) have a thinner room left of the tools, where her box is
+  *  width-bound; there the room runs to edgePt from the screen edge (not UI) and she fills `fill` of it. ≥ 390 pt wide: unchanged. */
+-export const MEADOW_BOARD_FRAMING={node:'M1',gapPt:13,fill:0.92,zone:'left',refHeightPt:844,narrow:{belowWidthPt:390,edgePt:6,fill:0.985}} as const;
++export const MEADOW_BOARD_FRAMING={node:'M1',gapPt:13,fill:0.92,zone:'left',refHeightPt:844,narrow:{belowWidthPt:390,edgePt:6,fill:0.985,minEdgePt:8,tightBelowPt:370,tightFill:1}} as const;
+ type GirlZone=Readonly<{id:string;l:number;t:number;r:number;b:number}>;
+ /** UI-free room (pt) beside / below the board UI, already inset by gapPt: strip (tray→tools), left / right of the tool row. */
+ export function meadowGirlZones(width:number,height:number,safe:SafeArea,edgePt?:number):GirlZone[]{
+@@ -64,13 +65,20 @@ export function meadowGirlZones(width:number,height:number,safe:SafeArea,edgePt?
+  return [{id:'strip',l:e,t:top,r:width-e,b:tt-g},{id:'left',l:e,t:top,r:tl-g,b:bottom},{id:'right',l:tr+g,t:top,r:width-e,b:bottom}];
+ }
+ /** Option A for her foot (model / board-rig coordinates) on this screen; null if her box cannot be placed in the zone. */
++/** b20 (Grok Bot: her whole body ≥ 8 pt from every screen edge): on narrow screens her perspective box overhangs the room by
++ *  0.5–0.7 pt, so the room edge is moved in by the measured overhang (one correction, +0.01 pt) until her box is ≥ minEdgePt. */
+ export function meadowFramedPose(base:AuthoredPose,foot:Vec,width:number,height:number,safe:SafeArea):AuthoredPose|null{
++ const NR=MEADOW_BOARD_FRAMING.narrow;let pose=meadowFramedPoseAt(base,foot,width,height,safe,NR.edgePt);if(!pose||width>=NR.belowWidthPt)return pose;
++ const b=girlBoxPt(pose,foot,width,height);if(b&&b.l<NR.minEdgePt){const again=meadowFramedPoseAt(base,foot,width,height,safe,NR.edgePt+(NR.minEdgePt-b.l)+.01);if(again)pose=again;}
++ return pose;
++}
++function meadowFramedPoseAt(base:AuthoredPose,foot:Vec,width:number,height:number,safe:SafeArea,narrowEdgePt:number):AuthoredPose|null{
+  const f=unit(sub(base.target,base.position)),r0=[-f[2],0,f[0]],rl=Math.hypot(r0[0],r0[2])||1,r=[r0[0]/rl,0,r0[2]/rl],u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+  const fov=base.fovVerticalDeg,tv=Math.tan(fov*Math.PI/360),asp=width/height,mid=[foot[0],foot[1]+0.86,foot[2]];
+  const place=(z:number,cx:number,cy:number):AuthoredPose=>{const nx=cx/width*2-1,ny=1-cy/height*2,d=[f[0]+r[0]*nx*tv*asp+u[0]*ny*tv,f[1]+r[1]*nx*tv*asp+u[1]*ny*tv,f[2]+r[2]*nx*tv*asp+u[2]*ny*tv];
+   const p:Vec=[mid[0]-d[0]*z,mid[1]-d[1]*z,mid[2]-d[2]*z];return {position:p,target:[p[0]+f[0]*10,p[1]+f[1]*10,p[2]+f[2]*10],fovVerticalDeg:fov};};
+- const NR=MEADOW_BOARD_FRAMING.narrow,narrow=width<NR.belowWidthPt,fill=narrow?NR.fill:MEADOW_BOARD_FRAMING.fill;
+- const zones=meadowGirlZones(width,height,safe,narrow?NR.edgePt:undefined);let q:GirlZone|null=null;
++ const NR=MEADOW_BOARD_FRAMING.narrow,narrow=width<NR.belowWidthPt,fill=narrow?(width<NR.tightBelowPt?NR.tightFill/* b20: 360/320 wide, 12% + 8 pt edge + 13 pt UI gap leave no slack */:NR.fill):MEADOW_BOARD_FRAMING.fill;
++ const zones=meadowGirlZones(width,height,safe,narrow?narrowEdgePt:undefined);let q:GirlZone|null=null;
+  for(let k=0;k<zones.length;k++)if(zones[k].id===MEADOW_BOARD_FRAMING.zone)q=zones[k];
+  if(!q)return null;const zw=(q.r-q.l)*fill,zh=(q.b-q.t)*fill;if(zw<=4||zh<=4)return null;
+  const cx=(q.l+q.r)/2,cy=(q.t+q.b)/2;let z=REGION_CAMERA.islandCharacter.heightM/(2*tv*zh/height);
+@@ -79,12 +87,12 @@ export function meadowFramedPose(base:AuthoredPose,foot:Vec,width:number,height:
+ }
+ export type MeadowBoardFraming='A'|'authored';
+ let meadowFraming:MeadowBoardFraming='authored';
+-export function setMeadowBoardFraming(kind:MeadowBoardFraming):void{meadowFraming=kind==='A'?'A':'authored';}
++export function setMeadowBoardFraming(kind:MeadowBoardFraming):void{meadowFraming=kind==='A'?'A':'authored';resetMeadowBoardStage();/* b20: a new sail arrival lands on M1 (stage 05) */}
+ export function meadowBoardFraming():MeadowBoardFraming{return meadowFraming;}
+ /** The meadow board camera (board-rig coordinates) for a board of width × height pt: option A on her M1 stand (sail arrival). */
+ export function meadowBoardCamera(width:number,height:number):AuthoredPose{
+- const base=meadowScenePose(width/height);if(meadowFraming!=='A'||!(width>0&&height>0))return base;
+- const nodes=REGION_NODES.meadow.nodes;let foot:Vec|null=null;for(let i=0;i<nodes.length;i++)if(nodes[i].key===MEADOW_BOARD_FRAMING.node)foot=nodes[i].at;
++ const base=meadowScenePose(width/height);if((meadowFraming!=='A'&&!meadowReopenAtM0()/* r3: reopen-at-05 frames M0 */)||!(width>0&&height>0))return base;
++ const nodes=REGION_NODES.meadow.nodes;let foot:Vec|null=null;for(let i=0;i<nodes.length;i++)if(nodes[i].key===meadowBoardNode()/* b20 meadow-board-lens: each board 05–08 frames its own node (MeadowStageLens) */)foot=nodes[i].at;
+  if(!foot)return base;return meadowFramedPose(base,foot,width,height,boardSafeInsets(width,height))||base;
+ }
+ /** The board background camera exactly as the lease writes it (board rig coordinates). */

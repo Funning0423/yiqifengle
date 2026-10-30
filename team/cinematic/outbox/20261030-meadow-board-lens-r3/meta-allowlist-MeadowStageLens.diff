@@ -1,0 +1,18 @@
+commit 9ac93646b0b2f93626cd1873384bc0fc99238335
+Author: 运镜bot <yunjing-bot@local>
+Date:   Fri Oct 30 06:23:46 2026 -0400
+
+    meta-allowlist: allowAdd MeadowStageLens.ts.meta (typescript), exact path only (Grok Bot approved Oct 30)
+
+diff --git a/tools/build-guard/meta-allowlist.json b/tools/build-guard/meta-allowlist.json
+index c4d4418b..ae192c27 100644
+--- a/tools/build-guard/meta-allowlist.json
++++ b/tools/build-guard/meta-allowlist.json
+@@ -49,6 +49,7 @@
+       },
+       "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
+     },
++    "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "运镜bot b20 meadow-board-lens: new script MeadowStageLens.ts (per-stage meadow board lens); pending Grok Bot review"},
+     "creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta": {
+       "allowAdd": {
+         "importer": "typescript"

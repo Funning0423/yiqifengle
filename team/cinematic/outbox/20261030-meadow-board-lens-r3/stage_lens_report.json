@@ -1,0 +1,1128 @@
+{
+ "stages": {
+  "390x844": {
+   "mainline-05": {
+    "position": [
+     7.544,
+     12.753,
+     22.053
+    ],
+    "target": [
+     6.099,
+     10.504,
+     12.417
+    ],
+    "fov": 49.426,
+    "box": [
+     14.3,
+     648.9,
+     58,
+     749.3
+    ],
+    "edgePt": 14.3,
+    "margin": 0.037,
+    "uiGapPt": 15.5,
+    "capsule": false,
+    "groundM": 12.23,
+    "solidM": 6
+   },
+   "mainline-06": {
+    "position": [
+     3.944,
+     13.33,
+     14.453
+    ],
+    "target": [
+     2.499,
+     11.081,
+     4.817
+    ],
+    "fov": 49.426,
+    "box": [
+     14.3,
+     648.9,
+     58,
+     749.3
+    ],
+    "edgePt": 14.3,
+    "margin": 0.037,
+    "uiGapPt": 15.5,
+    "capsule": false,
+    "groundM": 11.54,
+    "solidM": 6
+   },
+   "mainline-07": {
+    "position": [
+     2.344,
+     14.089,
+     5.653
+    ],
+    "target": [
+     0.899,
+     11.84,
+     -3.983
+    ],
+    "fov": 49.426,
+    "box": [
+     14.3,
+     648.9,
+     58,
+     749.3
+    ],
+    "edgePt": 14.3,
+    "margin": 0.037,
+    "uiGapPt": 15.5,
+    "capsule": false,
+    "groundM": 11.16,
+    "solidM": 6
+   },
+   "mainline-08": {
+    "position": [
+     8.344,
+     15.79,
+     -1.147
+    ],
+    "target": [
+     6.899,
+     13.541,
+     -10.783
+    ],
+    "fov": 49.426,
+    "box": [
+     14.3,
+     648.9,
+     58,
+     749.3
+    ],
+    "edgePt": 14.3,
+    "margin": 0.037,
+    "uiGapPt": 15.5,
+    "capsule": false,
+    "groundM": 11.94,
+    "solidM": 6
+   }
+  },
+  "414x896": {
+   "mainline-05": {
+    "position": [
+     7.369,
+     12.389,
+     21.564
+    ],
+    "target": [
+     5.923,
+     10.14,
+     11.928
+    ],
+    "fov": 49.426,
+    "box": [
+     14.5,
+     683.3,
+     62.4,
+     793.5
+    ],
+    "edgePt": 14.5,
+    "margin": 0.035,
+    "uiGapPt": 15.7,
+    "capsule": false,
+    "groundM": 11.79,
+    "solidM": 6
+   },
+   "mainline-06": {
+    "position": [
+     3.769,
+     12.966,
+     13.964
+    ],
+    "target": [
+     2.323,
+     10.717,
+     4.328
+    ],
+    "fov": 49.426,
+    "box": [
+     14.5,
+     683.3,
+     62.4,
+     793.5
+    ],
+    "edgePt": 14.5,
+    "margin": 0.035,
+    "uiGapPt": 15.7,
+    "capsule": false,
+    "groundM": 11.06,
+    "solidM": 6
+   },
+   "mainline-07": {
+    "position": [
+     2.169,
+     13.725,
+     5.164
+    ],
+    "target": [
+     0.723,
+     11.476,
+     -4.472
+    ],
+    "fov": 49.426,
+    "box": [
+     14.5,
+     683.3,
+     62.4,
+     793.5
+    ],
+    "edgePt": 14.5,
+    "margin": 0.035,
+    "uiGapPt": 15.7,
+    "capsule": false,
+    "groundM": 10.75,
+    "solidM": 6
+   },
+   "mainline-08": {
+    "position": [
+     8.169,
+     15.426,
+     -1.636
+    ],
+    "target": [
+     6.723,
+     13.177,
+     -11.272
+    ],
+    "fov": 49.426,
+    "box": [
+     14.5,
+     683.3,
+     62.4,
+     793.5
+    ],
+    "edgePt": 14.5,
+    "margin": 0.035,
+    "uiGapPt": 15.7,
+    "capsule": false,
+    "groundM": 11.5,
+    "solidM": 6
+   }
+  },
+  "360x780": {
+   "mainline-05": {
+    "position": [
+     7.597,
+     12.971,
+     21.879
+    ],
+    "target": [
+     6.151,
+     10.723,
+     12.242
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     613.1,
+     49,
+     706.7
+    ],
+    "edgePt": 8.1,
+    "margin": 0.022,
+    "uiGapPt": 13.5,
+    "capsule": false,
+    "groundM": 12.43,
+    "solidM": 6
+   },
+   "mainline-06": {
+    "position": [
+     3.997,
+     13.548,
+     14.279
+    ],
+    "target": [
+     2.551,
+     11.3,
+     4.642
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     613.1,
+     49,
+     706.7
+    ],
+    "edgePt": 8.1,
+    "margin": 0.022,
+    "uiGapPt": 13.5,
+    "capsule": false,
+    "groundM": 11.74,
+    "solidM": 6
+   },
+   "mainline-07": {
+    "position": [
+     2.397,
+     14.307,
+     5.479
+    ],
+    "target": [
+     0.951,
+     12.059,
+     -4.158
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     613.1,
+     49,
+     706.7
+    ],
+    "edgePt": 8.1,
+    "margin": 0.022,
+    "uiGapPt": 13.5,
+    "capsule": false,
+    "groundM": 11.36,
+    "solidM": 6
+   },
+   "mainline-08": {
+    "position": [
+     8.397,
+     16.008,
+     -1.321
+    ],
+    "target": [
+     6.951,
+     13.76,
+     -10.958
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     613.1,
+     49,
+     706.7
+    ],
+    "edgePt": 8.1,
+    "margin": 0.022,
+    "uiGapPt": 13.5,
+    "capsule": false,
+    "groundM": 12.14,
+    "solidM": 6
+   }
+  },
+  "375x667": {
+   "mainline-05": {
+    "position": [
+     6.65,
+     10.858,
+     18.311
+    ],
+    "target": [
+     5.204,
+     8.61,
+     8.675
+    ],
+    "fov": 49.426,
+    "box": [
+     17.2,
+     515.2,
+     63.9,
+     619.6
+    ],
+    "edgePt": 17.2,
+    "margin": 0.046,
+    "uiGapPt": 13.4,
+    "capsule": false,
+    "groundM": 9.76,
+    "solidM": 6
+   },
+   "mainline-06": {
+    "position": [
+     3.05,
+     11.435,
+     10.711
+    ],
+    "target": [
+     1.604,
+     9.187,
+     1.075
+    ],
+    "fov": 49.426,
+    "box": [
+     17.2,
+     515.2,
+     63.9,
+     619.6
+    ],
+    "edgePt": 17.2,
+    "margin": 0.046,
+    "uiGapPt": 13.4,
+    "capsule": false,
+    "groundM": 9.08,
+    "solidM": 6
+   },
+   "mainline-07": {
+    "position": [
+     1.45,
+     12.194,
+     1.911
+    ],
+    "target": [
+     0.004,
+     9.946,
+     -7.725
+    ],
+    "fov": 49.426,
+    "box": [
+     17.2,
+     515.2,
+     63.9,
+     619.6
+    ],
+    "edgePt": 17.2,
+    "margin": 0.046,
+    "uiGapPt": 13.4,
+    "capsule": false,
+    "groundM": 8.87,
+    "solidM": 6
+   },
+   "mainline-08": {
+    "position": [
+     7.45,
+     13.895,
+     -4.889
+    ],
+    "target": [
+     6.004,
+     11.647,
+     -14.525
+    ],
+    "fov": 49.426,
+    "box": [
+     17.2,
+     515.2,
+     63.9,
+     619.6
+    ],
+    "edgePt": 17.2,
+    "margin": 0.046,
+    "uiGapPt": 13.4,
+    "capsule": false,
+    "groundM": 9.5,
+    "solidM": 6
+   }
+  },
+  "320x568": {
+   "mainline-05": {
+    "position": [
+     6.752,
+     10.475,
+     18.244
+    ],
+    "target": [
+     5.307,
+     8.227,
+     8.608
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     423.6,
+     48.7,
+     513.1
+    ],
+    "edgePt": 8.1,
+    "margin": 0.025,
+    "uiGapPt": 13.7,
+    "capsule": false,
+    "groundM": 9.37,
+    "solidM": 6
+   },
+   "mainline-06": {
+    "position": [
+     3.152,
+     11.052,
+     10.644
+    ],
+    "target": [
+     1.707,
+     8.804,
+     1.008
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     423.6,
+     48.7,
+     513.1
+    ],
+    "edgePt": 8.1,
+    "margin": 0.025,
+    "uiGapPt": 13.7,
+    "capsule": false,
+    "groundM": 8.69,
+    "solidM": 6
+   },
+   "mainline-07": {
+    "position": [
+     1.552,
+     11.811,
+     1.844
+    ],
+    "target": [
+     0.107,
+     9.563,
+     -7.792
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     423.6,
+     48.7,
+     513.1
+    ],
+    "edgePt": 8.1,
+    "margin": 0.025,
+    "uiGapPt": 13.7,
+    "capsule": false,
+    "groundM": 8.48,
+    "solidM": 6
+   },
+   "mainline-08": {
+    "position": [
+     7.552,
+     13.512,
+     -4.956
+    ],
+    "target": [
+     6.107,
+     11.264,
+     -14.592
+    ],
+    "fov": 49.426,
+    "box": [
+     8.1,
+     423.6,
+     48.7,
+     513.1
+    ],
+    "edgePt": 8.1,
+    "margin": 0.025,
+    "uiGapPt": 13.7,
+    "capsule": false,
+    "groundM": 9.1,
+    "solidM": 6
+   }
+  },
+  "390x520": {
+   "mainline-05": {
+    "position": [
+     6.536,
+     9.214,
+     16.357
+    ],
+    "target": [
+     5.091,
+     6.966,
+     6.721
+    ],
+    "fov": 49.426,
+    "box": [
+     24.5,
+     371.7,
+     71,
+     469.2
+    ],
+    "edgePt": 24.5,
+    "margin": 0.063,
+    "uiGapPt": 16.8,
+    "capsule": false,
+    "groundM": 7.83,
+    "solidM": 6
+   },
+   "mainline-06": {
+    "position": [
+     2.936,
+     9.791,
+     8.757
+    ],
+    "target": [
+     1.491,
+     7.543,
+     -0.879
+    ],
+    "fov": 49.426,
+    "box": [
+     24.5,
+     371.7,
+     71,
+     469.2
+    ],
+    "edgePt": 24.5,
+    "margin": 0.063,
+    "uiGapPt": 16.8,
+    "capsule": false,
+    "groundM": 7.2,
+    "solidM": 6
+   },
+   "mainline-07": {
+    "position": [
+     1.336,
+     10.55,
+     -0.043
+    ],
+    "target": [
+     -0.109,
+     8.302,
+     -9.679
+    ],
+    "fov": 49.426,
+    "box": [
+     24.5,
+     371.7,
+     71,
+     469.2
+    ],
+    "edgePt": 24.5,
+    "margin": 0.063,
+    "uiGapPt": 16.8,
+    "capsule": false,
+    "groundM": 7.01,
+    "solidM": 6
+   },
+   "mainline-08": {
+    "position": [
+     7.336,
+     12.251,
+     -6.843
+    ],
+    "target": [
+     5.891,
+     10.003,
+     -16.479
+    ],
+    "fov": 49.426,
+    "box": [
+     24.5,
+     371.7,
+     71,
+     469.2
+    ],
+    "edgePt": 24.5,
+    "margin": 0.063,
+    "uiGapPt": 16.8,
+    "capsule": false,
+    "groundM": 7.57,
+    "solidM": 6
+   }
+  },
+  "768x1024": {
+   "mainline-05": {
+    "position": [
+     5.676,
+     8.59,
+     14.887
+    ],
+    "target": [
+     4.23,
+     6.342,
+     5.251
+    ],
+    "fov": 49.426,
+    "box": [
+     64,
+     741.4,
+     169.7,
+     968.5
+    ],
+    "edgePt": 55.5,
+    "margin": 0.054,
+    "uiGapPt": 21.5,
+    "capsule": false,
+    "groundM": 6.94,
+    "solidM": 6
+   },
+   "mainline-06": {
+    "position": [
+     2.076,
+     9.167,
+     7.287
+    ],
+    "target": [
+     0.63,
+     6.919,
+     -2.349
+    ],
+    "fov": 49.426,
+    "box": [
+     64,
+     741.4,
+     169.7,
+     968.5
+    ],
+    "edgePt": 55.5,
+    "margin": 0.054,
+    "uiGapPt": 21.5,
+    "capsule": false,
+    "groundM": 6.39,
+    "solidM": 6
+   },
+   "mainline-07": {
+    "position": [
+     0.476,
+     9.926,
+     -1.513
+    ],
+    "target": [
+     -0.97,
+     7.678,
+     -11.149
+    ],
+    "fov": 49.426,
+    "box": [
+     64,
+     741.4,
+     169.7,
+     968.5
+    ],
+    "edgePt": 55.5,
+    "margin": 0.054,
+    "uiGapPt": 21.5,
+    "capsule": false,
+    "groundM": 6.29,
+    "solidM": 6
+   },
+   "mainline-08": {
+    "position": [
+     6.476,
+     11.627,
+     -8.313
+    ],
+    "target": [
+     5.03,
+     9.379,
+     -17.949
+    ],
+    "fov": 49.426,
+    "box": [
+     64,
+     741.4,
+     169.7,
+     968.5
+    ],
+    "edgePt": 55.5,
+    "margin": 0.054,
+    "uiGapPt": 21.5,
+    "capsule": false,
+    "groundM": 6.75,
+    "solidM": 6
+   }
+  }
+ },
+ "folds": [
+  {
+   "key": "390x844 M1>M2",
+   "walkS": 7.6,
+   "k": 0.856,
+   "standS": 0
+  },
+  {
+   "key": "390x844 M2>M3",
+   "walkS": 7.92,
+   "k": 0.892,
+   "standS": 0
+  },
+  {
+   "key": "390x844 M3>M4",
+   "walkS": 7.87,
+   "k": 0.783,
+   "standS": 0
+  },
+  {
+   "key": "414x896 M1>M2",
+   "walkS": 7.6,
+   "k": 0.907,
+   "standS": 0
+  },
+  {
+   "key": "414x896 M2>M3",
+   "walkS": 7.92,
+   "k": 0.945,
+   "standS": 0
+  },
+  {
+   "key": "414x896 M3>M4",
+   "walkS": 7.87,
+   "k": 0.822,
+   "standS": 0
+  },
+  {
+   "key": "360x780 M1>M2",
+   "walkS": 7.6,
+   "k": 0.855,
+   "standS": 0
+  },
+  {
+   "key": "360x780 M2>M3",
+   "walkS": 7.92,
+   "k": 0.891,
+   "standS": 0
+  },
+  {
+   "key": "360x780 M3>M4",
+   "walkS": 7.87,
+   "k": 0.781,
+   "standS": 0
+  },
+  {
+   "key": "375x667 M1>M2",
+   "walkS": 7.6,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "375x667 M2>M3",
+   "walkS": 7.92,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "375x667 M3>M4",
+   "walkS": 7.87,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "320x568 M1>M2",
+   "walkS": 7.6,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "320x568 M2>M3",
+   "walkS": 7.92,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "320x568 M3>M4",
+   "walkS": 7.87,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "390x520 M1>M2",
+   "walkS": 7.6,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "390x520 M2>M3",
+   "walkS": 7.92,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "390x520 M3>M4",
+   "walkS": 7.87,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "768x1024 M1>M2",
+   "walkS": 7.6,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "768x1024 M2>M3",
+   "walkS": 7.92,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "768x1024 M3>M4",
+   "walkS": 7.87,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "390x844 M0>M1 reopen",
+   "walkS": 7.53,
+   "k": 0.848,
+   "standS": 0
+  },
+  {
+   "key": "414x896 M0>M1 reopen",
+   "walkS": 7.53,
+   "k": 0.898,
+   "standS": 0
+  },
+  {
+   "key": "360x780 M0>M1 reopen",
+   "walkS": 7.53,
+   "k": 0.847,
+   "standS": 0
+  },
+  {
+   "key": "375x667 M0>M1 reopen",
+   "walkS": 7.53,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "320x568 M0>M1 reopen",
+   "walkS": 7.53,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "390x520 M0>M1 reopen",
+   "walkS": 7.53,
+   "k": 1,
+   "standS": 0
+  },
+  {
+   "key": "768x1024 M0>M1 reopen",
+   "walkS": 7.53,
+   "k": 1,
+   "standS": 0
+  }
+ ],
+ "reopen": {
+  "390x844": {
+   "defaultBox": [
+    85.7,
+    693.2,
+    109.2,
+    751.7
+   ],
+   "defaultOverlap": {
+    "rect": [
+     74,
+     691,
+     153,
+     772
+    ],
+    "areaPt2": 1380,
+    "ofHerPct": 100
+   },
+   "position": [
+    7.144,
+    11.675,
+    30.853
+   ],
+   "box": [
+    14.3,
+    648.9,
+    58,
+    749.3
+   ],
+   "edgePt": 14.3,
+   "overlap": null,
+   "uiGapPt": 15.5,
+   "groundM": 12.39,
+   "solidM": 6
+  },
+  "414x896": {
+   "defaultBox": [
+    90.9,
+    735.9,
+    116,
+    798
+   ],
+   "defaultOverlap": {
+    "rect": [
+     78,
+     740,
+     162,
+     826
+    ],
+    "areaPt2": 1448,
+    "ofHerPct": 93.1
+   },
+   "position": [
+    6.969,
+    11.311,
+    30.364
+   ],
+   "box": [
+    14.5,
+    683.3,
+    62.4,
+    793.5
+   ],
+   "edgePt": 14.5,
+   "overlap": null,
+   "uiGapPt": 15.7,
+   "groundM": 11.89,
+   "solidM": 6
+  },
+  "360x780": {
+   "defaultBox": [
+    78.9,
+    640.6,
+    100.7,
+    694.7
+   ],
+   "defaultOverlap": {
+    "rect": [
+     62,
+     628,
+     139,
+     706
+    ],
+    "areaPt2": 1179,
+    "ofHerPct": 100
+   },
+   "position": [
+    7.197,
+    11.893,
+    30.679
+   ],
+   "box": [
+    8.1,
+    613.1,
+    49,
+    706.7
+   ],
+   "edgePt": 8.1,
+   "overlap": null,
+   "uiGapPt": 13.5,
+   "groundM": 12.56,
+   "solidM": 6
+  },
+  "375x667": {
+   "defaultBox": [
+    101.1,
+    547.8,
+    119.7,
+    594.1
+   ],
+   "defaultOverlap": {
+    "rect": [
+     90,
+     521,
+     154,
+     587
+    ],
+    "areaPt2": 731,
+    "ofHerPct": 84.8
+   },
+   "position": [
+    6.25,
+    9.78,
+    27.111
+   ],
+   "box": [
+    17.2,
+    515.2,
+    63.9,
+    619.6
+   ],
+   "edgePt": 17.2,
+   "overlap": null,
+   "uiGapPt": 13.4,
+   "groundM": 9.84,
+   "solidM": 6
+  },
+  "320x568": {
+   "defaultBox": [
+    86.4,
+    466.5,
+    102.3,
+    505.9
+   ],
+   "defaultOverlap": {
+    "rect": [
+     62,
+     422,
+     126,
+     488
+    ],
+    "areaPt2": 341,
+    "ofHerPct": 54.6
+   },
+   "position": [
+    6.352,
+    9.397,
+    27.044
+   ],
+   "box": [
+    8.1,
+    423.6,
+    48.7,
+    513.1
+   ],
+   "edgePt": 8.1,
+   "overlap": null,
+   "uiGapPt": 13.7,
+   "groundM": 9.46,
+   "solidM": 6
+  },
+  "390x520": {
+   "defaultBox": [
+    127.6,
+    427.1,
+    142.2,
+    463.1
+   ],
+   "defaultOverlap": {
+    "rect": [
+     97,
+     374,
+     161,
+     440
+    ],
+    "areaPt2": 188,
+    "ofHerPct": 35.8
+   },
+   "position": [
+    6.136,
+    8.136,
+    25.157
+   ],
+   "box": [
+    24.5,
+    371.7,
+    71,
+    469.2
+   ],
+   "edgePt": 24.5,
+   "overlap": null,
+   "uiGapPt": 16.8,
+   "groundM": 7.94,
+   "solidM": 6
+  },
+  "768x1024": {
+   "defaultBox": [
+    251.3,
+    841,
+    279.9,
+    912
+   ],
+   "defaultOverlap": {
+    "rect": [
+     239,
+     863,
+     333,
+     959
+    ],
+    "areaPt2": 1403,
+    "ofHerPct": 69.1
+   },
+   "position": [
+    5.276,
+    7.512,
+    23.687
+   ],
+   "box": [
+    64,
+    741.4,
+    169.7,
+    968.5
+   ],
+   "edgePt": 55.5,
+   "overlap": null,
+   "uiGapPt": 21.5,
+   "groundM": 7.07,
+   "solidM": 6
+  }
+ }
+}
