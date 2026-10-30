@@ -43,7 +43,7 @@ FAILS if the coast root is active on any frame showing the island map lens (v24-
 | direction | toggle | result |
 |---|---|---|
 | island→coast | frame 220 (t 3.667 s, shot 3) | PASS: all three off-screen at 219 and 220; map-lens frame 0 has coast inactive |
-| coast→island (real return path) | frame 1189 (t 19.817 s, R7 start) | PASS: all three off-screen at 1188 and 1189; map-lens frame 1459 has coast inactive |
+| coast→island (real return path) | superseded by v3.2: frame 1044 (t 17.40 s) | PASS |
 
 ### Clearance evidence (clearance_evidence.py, every frame at 60 fps; out_v3/clearance_evidence.json, evidence_min_solid_clearance.png)
 - The 1.36 m figure is **distance to the nearest solid**, not height above ground: frame 588, t 9.80 s, shot 3 (walk; ramp/S0 area). Object coast:gull (local (-2.40, 1.48, 11.00) = world ≈ (1.8, 0.64, 10.5) on the gull rock), nearest point (1.409, 0.905, 10.335), lens (1.414, 2.260, 10.359), lens moving 0.034 m/frame. The gull point is NOT in the 390x844 frame (it is beside/below the lens). Height below the lens at that frame is 1.86 m.
@@ -62,3 +62,20 @@ She walks stop z 16.35 → S1 → 3 steps up → S0 → R → W → exit_path_17
 | R7 rise to live island lens | 19.33–24.33 | 5.0 | ends exactly on v24-readable (last frame) |
 Total 24.33 s. Gates (7 screens): yaw standing 39.8°/s p99 182°/s² · walking 65.0°/s p99 70 · standing clearance 2.01 m · solids 1.02 m (gull, frame 349, t 5.82, not in frame) · height below on moving frames min 1.544 m (frame 352, t 5.87, over coast rock_2), 0 frames < 1.5 · face/chest blocked 0 s · margin min 0.209 portrait / 0.146 / 0.110 · menu over face 0 · >12 m 0–0.63 s and 20.83–24.32 s, in frame 100 % · first = board lens, last = island lens · no cuts.
 Return off-screen windows: frames 919–932 (15.32–15.53 s), 1044–1091 (17.40–18.18 s), 1160–1218 (19.33–20.30 s); toggle chosen 1189.
+
+## v3.2 return smoothing (Grok Bot conditions on the return); outbound byte-identical
+- R6 0.6 → 1.5 s and the lens holds az 165 while she stops (was az 160→170); her heading eases onto the last path segment over the 2 s before the stop. This removed the old switch spike (±660°/s² at 17.7 and 18.7 s).
+- R3/R4 lens h 2.9/3.0 → 3.15 over the gull rock and rock_2.
+| # | t (s) | dur |
+|---|---|---|
+| R1 descent from board lens | 0–3.0 | 3.0 |
+| R2 settle | 3.0–3.4 | 0.4 |
+| R3 terrace | 3.4–8.19 | 4.79 |
+| R4 step-up | 8.19–9.99 | 1.8 |
+| R5 island path | 9.99–18.73 | 8.73 |
+| R6 arrive at exit_point | 18.73–20.23 | 1.5 |
+| R7 rise to island lens | 20.23–25.23 | 5.0 |
+Total 25.23 s (≤45). Yaw standing max 22.9°/s, p99 57.6°/s² (was 181.6); walking 65.0°/s, p99 70.0. Per-shot p99 ≤70.5 everywhere.
+Min height below lens on moving frames 1.673 m (frame 338, t 5.63, over coast rock_2); 0 frames <1.6 m. Solids min 1.135 m (gull, frame 343, not in frame). Standing clearance 2.04 m. Face/chest 0 s; margin min 0.110; menu 0; >12 m 0–0.63 s and 21.73–25.22 s, in frame 100 %; first = board lens, last = island lens; no cuts.
+Return windows: frames 919–931 (15.32–15.52 s), 1028–1060 (17.13–17.67 s). Toggle 1044 (t 17.40 s, R5 walk); activation_gate PASS; test_gates.py PASS both directions + negative check.
+Round-3 scene bounds have not arrived; sail/bridge are still padded boxes — recheck pending for both toggle frames (220 and 1044).

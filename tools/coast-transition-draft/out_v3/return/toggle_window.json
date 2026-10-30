@@ -3,36 +3,28 @@
  "windows_frames": [
   [
    919,
-   932
+   931
   ],
   [
-   1044,
-   1091
-  ],
-  [
-   1160,
-   1218
+   1028,
+   1060
   ]
  ],
  "windows_t": [
   [
    15.317,
-   15.533
+   15.517
   ],
   [
-   17.4,
-   18.183
-  ],
-  [
-   19.333,
-   20.3
+   17.133,
+   17.667
   ]
  ],
- "frames": 1460,
+ "frames": 1514,
  "visible_frames": {
-  "coast": 1328,
-  "sail": 1108,
-  "bridge": 1074
+  "coast": 1468,
+  "sail": 1080,
+  "bridge": 1053
  },
  "island_map_lens_sees": {
   "coast": true,
@@ -40,10 +32,10 @@
   "bridge": true
  },
  "activation_gate": {
-  "toggle_frame": 1189,
-  "toggle_t": 19.817,
+  "toggle_frame": 1044,
+  "toggle_t": 17.4,
   "map_lens_frames": [
-   1459
+   1513
   ],
   "coast_active_on_map_frames": [],
   "visible_at_toggle": {

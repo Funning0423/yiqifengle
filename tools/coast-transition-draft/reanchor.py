@@ -33,7 +33,7 @@ else:
 LEN_ISL = float(np.linalg.norm(np.diff(np.array(isl), axis=0), axis=1).sum())
 WALK = 1.2; STEP_S = 1.8
 T_S1, T_S2 = float(os.environ.get('T_S1', 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 5.0))
-if RET: T_S1 = float(os.environ.get('T_S1', 3.0))
+if RET: T_S1 = float(os.environ.get('T_S1', 3.0)); T_S6 = float(os.environ.get('T_S6', 1.5))  # v3.2: R6 0.6 -> 1.5 s (standing yaw accel)
 T = np.cumsum([0, T_S1, T_S2, T_TER, STEP_S, T_PATH, T_S6, T_S7] if RET else [0, T_S1, T_S2, T_PATH, STEP_S, T_TER, T_S6, T_S7]); TOTAL = T[-1]
 SHOTS = ['S1 map-collapse handover', 'S2 heading settle 0.4 s', 'S3 island exit path lead', 'S4 step-down profile',
          'S5 terrace lead', 'S6 stop + look back at lighthouse', 'S7 orbit-rise to board pose']
@@ -70,8 +70,10 @@ def heading_at(i):  # smoothed travel heading (look-ahead 0.6 m); standing at do
     if RET:  # she stands facing -Z (back toward the island) from the first frame
         if t < T[2]: return 180.0
         j = min(len(TS) - 1, i + int(0.5 * FPS)); a = max(0, i - int(0.5 * FPS)); d = SM[j] - SM[a]
-        if np.hypot(d[0], d[2]) < 0.05: d = SM[-1] - SM[np.searchsorted(TS, T[5] - 1.0)]
-        return math.degrees(math.atan2(d[0], d[2])) % 360
+        dl = isl[0] - isl[1]; hl = math.degrees(math.atan2(dl[0], dl[2])) % 360  # v3.2: ease onto the last path-segment heading over 2 s before the stop
+        if np.hypot(d[0], d[2]) < 0.05 or t >= T[5]: return hl
+        h = math.degrees(math.atan2(d[0], d[2])) % 360; u = min(1, max(0, (t - (T[5] - 2.0)) / 2.0)); u = u * u * (3 - 2 * u)
+        return h + ((hl - h + 180) % 360 - 180) * u
     if t < T[1]: return 0.0
     j = min(len(TS) - 1, i + int(0.5 * FPS)); a = max(0, i - int(0.5 * FPS))
     d = SM[j] - SM[a]
@@ -102,9 +104,10 @@ if RET:  # front-RIGHT on the coast (same side as the board lens, so R1 needs no
     # path: a front lens would sit inside the lighthouse at the door, and the live island lens is behind her (+Z)
     KEYS = [(T[0], 'world'),
         (T[1], 30, 3.8, 2.6, 1.0, -0.2, 44), (T[2], 28, 3.6, 2.6, 1.0, -0.2, 44),
-        (T[3], 35, 3.5, 2.9, 1.0, -0.2, 44), (T[3] + 1.0, 45, 3.5, 3.0, 0.9, 0.0, 45),
+        (T[3], 35, 3.5, 3.15, 1.0, -0.2, 44), (T[3] + 1.0, 45, 3.5, 3.15, 0.9, 0.0, 45),  # v3.2: h 2.9 -> 3.15 over the gull rock / rock_2
         (T[4] + 1.5, 60, 3.4, 2.7, 1.0, 0.0, 44), (T[4] + 5.0, 150, 3.2, 2.45, 1.0, 0.0, 44),
-        (T[5], 160, 3.6, 2.5, 1.0, 0.0, 44), (T[6], 170, 4.0, 2.6, 1.0, 0.0, 44), (T[7], 'world')]
+        (T[5], 165, 3.8, 2.55, 1.0, 0.0, 44), (T[6], 165, 4.0, 2.6, 1.0, 0.0, 44),  # v3.2: no azimuth change while she stops
+        (T[7], 'world')]
 START_POSE, END_POSE = (BOARD_POSE, ISLAND_LIVE) if RET else (ISLAND_LIVE, BOARD_POSE)
 def ease(u): return u * u * u * (u * (6 * u - 15) + 10)
 def rel_pose(k, i):

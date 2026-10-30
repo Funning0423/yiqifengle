@@ -1,26 +1,26 @@
 {
  "yaw_standing": {
-  "max_rate": 39.8,
-  "p99_acc": 181.6,
+  "max_rate": 22.9,
+  "p99_acc": 57.6,
   "pass": true
  },
  "yaw_walking": {
   "max_rate": 65.0,
-  "p99_acc": 70.3,
+  "p99_acc": 70.0,
   "pass": true
  },
- "max_lens_step_m_per_frame": 0.3,
- "max_step_t": 21.85,
+ "max_lens_step_m_per_frame": 0.326,
+ "max_step_t": 22.9,
  "hard_cuts": 0,
  "first_frame_eq_live": true,
  "last_frame_eq_board": true,
- "clear_standing_min": 2.005,
+ "clear_standing_min": 2.044,
  "clear_standing_who": "island:env_island_props_merged",
- "travel_solid_min": 1.016,
+ "travel_solid_min": 1.135,
  "travel_solid_who": "coast:gull@-2.40,1.48,11.00",
- "travel_solid_t": 5.8,
- "travel_ground_min": 1.544,
- "travel_ground_t": 5.87,
+ "travel_solid_t": 5.7,
+ "travel_ground_min": 1.673,
+ "travel_ground_t": 5.63,
  "clear_pass": true,
  "her_ground_check": {
   "Estop": -0.846,
@@ -38,8 +38,8 @@
    0.63
   ],
   [
-   20.83,
-   24.32
+   21.73,
+   25.22
   ]
  ],
  "screens": [
@@ -115,10 +115,10 @@
    8.192,
    9.992,
    18.725,
-   19.325,
-   24.325
+   20.225,
+   25.225
   ],
-  "total": 24.325,
+  "total": 25.225,
   "island_path_len": 10.48,
   "terrace_len": 5.75
  },
@@ -129,10 +129,10 @@
   "reuse_palm_tall"
  ],
  "activation_gate": {
-  "toggle_frame": 1189,
-  "toggle_t": 19.817,
+  "toggle_frame": 1044,
+  "toggle_t": 17.4,
   "map_lens_frames": [
-   1459
+   1513
   ],
   "coast_active_on_map_frames": [],
   "visible_at_toggle": {
@@ -155,15 +155,11 @@
  "toggle_windows_frames": [
   [
    919,
-   932
+   931
   ],
   [
-   1044,
-   1091
-  ],
-  [
-   1160,
-   1218
+   1028,
+   1060
   ]
  ]
 }
