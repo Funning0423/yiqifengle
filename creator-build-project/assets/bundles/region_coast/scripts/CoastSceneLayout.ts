@@ -14,10 +14,12 @@ export type CoastLayoutEntry=Readonly<{mesh:string;p:V3;rz:number;s:number;tilt?
 export type CoastLayout=Readonly<{placement?:{position:V3;yaw_deg:number;scale:number};layout:readonly CoastLayoutEntry[]}>;
 export type MatKind='std'|'unlit';
 export type CoastInstance=Readonly<{index:number;mesh:string;reuse:boolean;position:V3;eulerDeg:V3;scale:number;
-  kind:MatKind;alpha:number;castShadow:boolean;receiveShadow:boolean;anim:string|null}>;
+  kind:MatKind;alpha:number;/** opaque palette mesh: coast_palette clone of the island M_env_palette */palette:boolean;castShadow:boolean;receiveShadow:boolean;anim:string|null}>;
 
 export const COAST_BUNDLE='region_coast';
 export const COAST_LAYOUT_PATH='data/coast_layout';
+/** coast palette (env_palette_256 layout; bands 0/11/12 coast swatches, band 13 = island emissive band unchanged). */
+export const COAST_PALETTE_PATH='textures/coast_palette/texture';
 export const COAST_MODELS_DIR='models';
 export const COAST_ROOT=Object.freeze({name:'region_coast_root',position:[-0.6,-0.845,21.5] as V3,yawDeg:180,scale:1});
 /** Node names inside models/*.glb == layout mesh names (checked by tools/coast-scene/test_coast_scene_loader.cjs). */
@@ -32,7 +34,7 @@ export function coastInstances(L:CoastLayout):CoastInstance[]{
   const out:CoastInstance[]=[];L.layout.forEach((e,index)=>{if(e.piece||/^piece_/.test(e.mesh))return;   // runtime layout has none; never mount board pieces here
     const f=COAST_MESH_FLAGS[e.mesh]||{},unlit=!!(f.unlit||f.emit||e.mesh==='reuse_cloud');
     out.push({index,mesh:e.mesh,reuse:!!e.reuse,position:[e.p[0],e.p[1],e.p[2]],
-      eulerDeg:[e.tilt?e.tilt[0]:0,e.rz*180/Math.PI,e.tilt?e.tilt[1]:0],scale:e.s,kind:unlit?'unlit':'std',alpha:f.alpha??1,
+      eulerDeg:[e.tilt?e.tilt[0]:0,e.rz*180/Math.PI,e.tilt?e.tilt[1]:0],scale:e.s,kind:unlit?'unlit':'std',alpha:f.alpha??1,palette:(f.alpha??1)>=1&&!f.unlit,
       castShadow:!!(e.cast_shadow||CAST_RE.test(e.mesh))&&!f.unlit,receiveShadow:!(e.receive_shadow===false||f.unlit),anim:e.anim??null});});
   return out;}
 /** World point (island scene_root frame) of a coast-local point under COAST_ROOT (yaw about +Y). */

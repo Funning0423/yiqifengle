@@ -823,4 +823,11 @@ for g,names in groups.items():
   for extra in ({'export_vertex_color':'ACTIVE'},{'export_colors':True},{}):
     try:bpy.ops.export_scene.gltf(**kw,**extra);break
     except TypeError:continue
+# r6b coast palette (Grok Bot option B, 2026-10-30): glb/ (vertex colour) -> glb_palette/ (TEXCOORD_0 into coast_palette.png, no COLOR_0)
+#   coast_palette.png = island env_palette_256 (frozen, read-only) with bands 0/11/12 rewritten as coast swatches; sand snapped to island sand.
+#   the Creator bundle takes glb_palette/*.glb -> models/, coast_palette.png -> textures/; stats in palette_uv_stats.json / coast_palette.json
+import subprocess as _sp,os as _os
+_here=_os.path.dirname(_os.path.abspath(__file__));_pal=_os.path.join(_here,'../../art-src/board-ui/_deps/ui-props/textures/env_palette_256.png')
+_isl=_os.path.join(_here,'../../creator-project/assets/firstslice/combined_visual_m.glb')
+_sp.run(['python3',_os.path.join(_here,'coast_palette.py'),_pal,_isl,OUT+'/glb',OUT+'/coast_palette.png',OUT+'/coast_palette.json',OUT+'/glb_palette',OUT+'/palette_uv_stats.json'],check=True)
 print('DONE')
