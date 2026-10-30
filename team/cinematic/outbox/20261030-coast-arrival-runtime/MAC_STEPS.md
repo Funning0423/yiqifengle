@@ -9,8 +9,8 @@ one DevTools; free disk >= 9 GiB. Any console line containing `[QF_COAST]` (cons
 3. Build WeChat (WITHOUT diff 02); report the region_coast subpackage bytes (must stay <= 943,718 B) and the main package bytes
    (must not change vs the previous build). grep the main package for `COAST_ARRIVAL_TRACK` / `__qfCoast` / `coast.arrival`: 0 hits.
 4. Self-registry on Creator 3.8.8 (still without diff 02): in DevTools console on the built game run
-   `cc.assetManager.loadBundle('region_coast',(e)=>console.log('[YJ_REG]',e,typeof globalThis.__qfCoast?.playCoastArrival,typeof globalThis.__qfCoast?.installCoastArrivalHer))`
-   PASS = `[YJ_REG] null function function`. Anything else = FAIL (stop; diff 02 must not be applied).
+   `cc.assetManager.loadBundle('region_coast',(e)=>console.log('[YJ_REG]',e,typeof globalThis.__qfCoast?.runCoastArrival,typeof globalThis.__qfCoast?.loadCoastScene,Object.isFrozen(globalThis.__qfCoast)))`
+   PASS = `[YJ_REG] null function function false`. Anything else = FAIL (stop; diff 02 must not be applied).
 5. Only after diff 02 is approved and applied: rebuild; main package grows only by WNC line 156 (desktop estimate +1,391 B minified,
    no new module / require); region_coast unchanged vs step 3.
 6. Run with ?qfcoastkit=1, record island->coast arrival + board landing (screen recording) on 390x844 AND 390x520:
