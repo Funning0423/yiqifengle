@@ -3121,8 +3121,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts",
-    "bytes": 24638,
-    "sha256": "d8ec26e62d51023f43d1fa8dff1183b8e1551ef66595365e34991945ca9c99ba"
+    "bytes": 25834,
+    "sha256": "f5545aaa7bba913208b3b8e5da6b532de94fc2fb17846879c567a584310a1fdc"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts.meta",
@@ -3181,8 +3181,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 6796,
-    "sha256": "7bec2501366ac609572fec209d850e5cb84d4cb675a55d065ebaff0597b3c629"
+    "bytes": 7340,
+    "sha256": "9783b121a7b2984565ec1e9d890e355fa7cce285c9441b74e7c76b543967d7f0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -4881,8 +4881,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 109630,
-    "sha256": "028c3238ae5c3ddf9b9ada659c9a98b09a8b4662692965ca84989bcfff248a6c"
+    "bytes": 113897,
+    "sha256": "1cb83b13f1ed2de0dd885bd321b4ba80ee5d854c2c9e83210edb03e8ac5e049e"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4931,8 +4931,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 58432,
-    "sha256": "bfcf25330e046c47c4bf8e067a4815041a50d8dcac01b7fb070b28d59f62b8d3"
+    "bytes": 58619,
+    "sha256": "97f6d1dac5431c150f3040257bce21f6915bff92089b15df8918d8e1b0d2a287"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -5061,8 +5061,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30188,
-    "sha256": "4e86b2eb57fb98b20152589764191ef0c7b78ff445792ef56467d90c4e3eb418"
+    "bytes": 30341,
+    "sha256": "de9abe066030f0195cd4be441512e6eea01ac86f216a5754fb9d771d866c357e"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
