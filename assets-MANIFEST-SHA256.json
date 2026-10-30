@@ -516,43 +516,38 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/board/piece_badge.png",
-    "bytes": 25494,
-    "sha256": "e5612b07fd785b95b447c73152c491fda3e5c4076d1b4b259608c3f0f1768618"
+    "bytes": 12745,
+    "sha256": "9dd3526a99790b6e96dc412467166a9d8e521c76b48fcb3ef8b8840b089314db"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/board/piece_conch.png",
-    "bytes": 29084,
-    "sha256": "f9d5a8fc4fc17d0f292cbb99418cb97dbd0fae40f993e60277cc4bcc0eb66b83"
+    "bytes": 10651,
+    "sha256": "9e2401db5461a44b472017e51b95f6fd1f061a0655c46baa5717615d80144242"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/board/piece_coral.png",
-    "bytes": 26717,
-    "sha256": "f1827a0e708d92e9797e5440df0c6eb7f56da5b0867f84a5cde3459e13a6ea44"
+    "bytes": 10461,
+    "sha256": "9b285f844f7e8e4f0aa7a77872088164a312c0f1171849a9a4975016f73d05df"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/board/piece_float.png",
-    "bytes": 25172,
-    "sha256": "7a061940acc2603b933dbf1a1fd30c02d0b1dede7ad19bc87cc4405f874f52c1"
+    "bytes": 10050,
+    "sha256": "70b087177a7f60780f5699aafafcaaf0f25043fe56f38b113b3414885bb1ac2e"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/board/piece_scallop.png",
-    "bytes": 23467,
-    "sha256": "5b18beebb239601866f1706da7a6b864c6bdea17b2e3867caa367be8bb4d05b4"
+    "bytes": 9765,
+    "sha256": "c2838c6e7a66788ac05c85ff738fbc99a0e0f397b4db90378e4092492bb0205f"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/board/piece_star.png",
-    "bytes": 21756,
-    "sha256": "263d5f613d1990754e79fc7de51ac44e82ec0afa40d62e7e94f232ce8f9b15e7"
+    "bytes": 10350,
+    "sha256": "88797b7d415f7060d8ed695fdbc2fea7c2dbfea1e824eebd91fc751e48614eb7"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/models/coast_board.glb",
     "bytes": 268996,
     "sha256": "be5818b24fedee110099330ef547ef5906f5f7014e6f6d58f6ce0df8a498c9fe"
-  },
-  {
-    "path": "creator-build-project/assets/bundles/region_coast/models/coast_pieces.glb",
-    "bytes": 149344,
-    "sha256": "2f4f3959408537fdb1ed3ac65950ce6560e65efa46f8e75b41a8ba952d2105b1"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/models/coast_props.glb",
