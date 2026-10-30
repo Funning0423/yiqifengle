@@ -30,7 +30,7 @@ const REGIONS={
   // b20 island-walk-fixes: env_prop_palm_young_01 is SKINNED; this loader ignores skins and puts it ~3 m off (x5-7.4,z4-6.3). Its rendered
   // trunk (glTF skin / Blender / engine) stands at x2.6-3.5, z2.25-3.05 m, which the I4-I5 edge walked through. Route-only keep-out (walkability unchanged).
   // b20 i4nudge: young-palm keep-out widened to 1.45 m (trunk/root >= 1.09 m from every route); two grass-tuft keep-outs (props_merged tops 0.2-0.3 m) at the new I4 legs.
-  routeAvoid:[[3.04,2.64,1.45],[4.6,3.8,0.35],[3.85,4.8,0.3],[4.8,7.9,0.9],[7.6,7.2,0.75],[2.1,3.5,0.5]],
+  routeAvoid:[[3.04,2.64,1.45],[4.6,3.8,0.35],[3.85,4.8,0.3],[4.8,7.8,1.3],[7.6,7.2,0.75],[2.1,3.5,0.5]],
  },
  meadow:{
   file:'creator-build-project/assets/bundles/region_meadow/env_meadow.glb',
