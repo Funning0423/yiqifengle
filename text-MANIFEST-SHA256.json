@@ -2760,6 +2760,16 @@
     "sha256": "ed01a42ec15405710ec62d7612a6c95cafb3ee26b399afec6c1b49d7bb4e3177"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/IslandStageLens.ts",
+    "bytes": 8995,
+    "sha256": "8726973618ec8959aa70740c36e975bc017a0d2c5d701af7b05a9b96167f6aee"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/IslandStageLens.ts.meta",
+    "bytes": 171,
+    "sha256": "72dfdbd726866dcc0fa13e9da4468307294130fe0dba669f307879540d2cea5c"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/JourneyTransport.ts",
     "bytes": 3670,
     "sha256": "5afcdb4d6550e206e3e1d25565ddeea88ddb9b8e65e52a81e46cb0a7f31e05f3"
