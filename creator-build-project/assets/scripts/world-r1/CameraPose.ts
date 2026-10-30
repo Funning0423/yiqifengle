@@ -229,18 +229,16 @@ export type CameraWriteLog = { writes: number; last: CameraPose | null; lastSour
 export const cameraWriteLog: CameraWriteLog = { writes: 0, last: null, lastSource: '', rejected: 0, trackAborts: 0, lastAbort: '' };
 /** Test-only ?camTrace=1 (region/CamTrace.ts sets it); null = off. */
 export const cameraWriteHook: { trace: ((source: string) => void) | null; log: ((camera: any, pose: CameraPose, source: string) => void) | null } = { trace: null, log: null };
-/** Engine frame number (cc.director, -1 if absent = no merging). */
-export const camWriteFrame = { get: null as null | (() => number) };
-function camFrame(): number { try { if (camWriteFrame.get) return camWriteFrame.get(); const d = (globalThis as any).cc?.director; return d && typeof d.getTotalFrames === 'function' ? d.getTotalFrames() : -1; } catch { return -1; } }
-export const wf = { fr: -1, cam: null as unknown, merged: 0 };
+let wfr = -1, wcam: unknown = null;
 /** THE single writer: position, rotation, then fov. Invalid poses are rejected (logged, camera untouched). */
 export function applyCameraPose(camera: CameraLike, pose: CameraPose, source: string, opts?: { allowRoll?: boolean }): boolean {
   let bad = validateCameraPose(pose); if (bad === 'roll-not-zero' && opts?.allowRoll) bad = null;
   if (bad) { cameraWriteLog.rejected++; console.warn('applyCameraPose rejected', source, bad, pose); return false; }
-  // onewriter: a 2nd write in the same engine frame that matches the 1st (≤1 cm, ≤~0.5°, ≤0.05° fov) is merged, not re-applied.
-  const fr = camFrame(), l = cameraWriteLog.last;
-  if (fr >= 0 && fr === wf.fr && camera === wf.cam && l && Math.hypot(pose.position[0] - l.position[0], pose.position[1] - l.position[1], pose.position[2] - l.position[2]) <= 0.01 && Math.abs(pose.rotation[0] * l.rotation[0] + pose.rotation[1] * l.rotation[1] + pose.rotation[2] * l.rotation[2] + pose.rotation[3] * l.rotation[3]) >= 0.99999 && Math.abs(pose.fovVerticalDeg - l.fovVerticalDeg) <= 0.05) { wf.merged++; return true; }
-  wf.fr = fr; wf.cam = camera;
+  // onewriter: a 2nd write in the same engine frame matching the 1st (≤1 cm, ≤~0.5°, ≤0.05° fov) is merged, not re-applied.
+  let fr = -1; try { fr = (globalThis as any).cc.director.getTotalFrames(); } catch { }
+  const l = cameraWriteLog.last, q = pose.position, r = pose.rotation;
+  if (fr >= 0 && fr === wfr && camera === wcam && l && (q[0] - l.position[0]) ** 2 + (q[1] - l.position[1]) ** 2 + (q[2] - l.position[2]) ** 2 <= 1e-4 && Math.abs(r[0] * l.rotation[0] + r[1] * l.rotation[1] + r[2] * l.rotation[2] + r[3] * l.rotation[3]) >= 0.99999 && Math.abs(pose.fovVerticalDeg - l.fovVerticalDeg) <= 0.05) return true;
+  wfr = fr; wcam = camera;
   camera.node.setWorldPosition(pose.position[0], pose.position[1], pose.position[2]);
   camera.node.setWorldRotation(pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]);
   camera.fov = pose.fovVerticalDeg;

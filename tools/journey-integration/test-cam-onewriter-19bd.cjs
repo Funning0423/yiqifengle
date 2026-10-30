@@ -9,9 +9,9 @@ const D2R=Math.PI/180;
 const parse=l=>{const m=/pos=([-\d.,]+) yaw=([-\d.]+) pitch=([-\d.]+) fov=([-\d.]+).* fr=(\d+)/.exec(l);const p=m[1].split(',').map(Number),y=+m[2]*D2R,pi=+m[3]*D2R;
  return {fr:+m[5],pose:CP.fromLookAt({position:p,target:[p[0]+Math.cos(pi)*Math.sin(y)*10,p[1]+Math.sin(pi)*10,p[2]-Math.cos(pi)*Math.cos(y)*10]},+m[4])};};
 function replay(rows,arb){let fr=0,phys={};const cam={fov:0,node:{setWorldPosition(){phys[fr]=(phys[fr]||0)+1;},setWorldRotation(){}}};
- CP.camWriteFrame.get=arb?()=>fr:()=>-1;CP.wf.fr=-1;CP.wf.cam=null;CP.cameraWriteLog.last=null;
+ const g0=globalThis.cc;let k=0;globalThis.cc={director:{getTotalFrames:()=>arb?fr:--k}}/* off = a new frame per write (19bd812a) */;CP.cameraWriteLog.last=null;
  for(const r of rows){fr=r.fr;assert.ok(CP.applyCameraPose(cam,r.pose,'replay'));}
- CP.camWriteFrame.get=null;return Object.values(phys).filter(n=>n>1).length;}
+ globalThis.cc=g0;return Object.values(phys).filter(n=>n>1).length;}
 const results=[];
 for(const seg of ['finstart','m']){const rows=fs.readFileSync(path.join(__dirname,'fixtures/onewriter-19bd812a',seg+'-multi.txt'),'utf8').trim().split('\n').map(parse);
  const frames=new Set(rows.map(r=>r.fr)).size,before=replay(rows,false),after=replay(rows,true);
