@@ -1,4 +1,5 @@
-# 系统界面设计稿：健康游戏忠告 / 设置 / 版本更新（v1）
+# 系统界面设计稿：健康游戏忠告 / 设置 / 版本更新（v1.1）
+> v1 d9b0cf7c 已获 Grok Bot 批准。v1.1 有四处变更：PopupKit 320/180 ms 已批准；信息标识整块缺省，并加「占位」门禁（§1.4）；震动图标已补齐；暂停面板只换开关样式，已批准。
 UI设计部 · 2026-10-29 · 分支 `ui/system-panels`，基于 `ggbot/full9c-final` 19bd812a（目前最新的 ggbot 候选链；没有改游戏代码）
 基准尺寸 390×844 pt，单位都是 pt。全部参数在 `src/params.json`，图片由 `src/build.py` 和 `src/annot.py` 生成。
 
@@ -16,7 +17,7 @@ UI设计部 · 2026-10-29 · 分支 `ui/system-panels`，基于 `ggbot/full9c-fi
 - 出处：新闻出版总署《关于在游戏出版物中登载〈健康游戏忠告〉的通知》（新出音〔2003〕861号）。要求是「游戏开始前……在画面的显著位置全文登载」。
 - 核对来源：维基文库通知全文 https://zh.wikisource.org/wiki/关于在游戏出版物中登载《健康游戏忠告》的通知 、央视转载 https://www.cctv.com/health/20030924/100690.shtml 、中新网 https://www.chinanews.com.cn/n/2003-09-24/26/350056.html ，三处一致。
 - 仓库现状：`git grep 健康游戏` 没有找到文案或资源，FEATURE_GAP 第 2 项也标为 ❌。
-- **信息标识（著作权人、出版单位、批准文号、出版物号）全部是【占位】**，需要 Funning 提供。规则：没有版号时这一块**整块不显示**，不要显示「占位」二字；有版号时按标注位置显示。
+- **信息标识（著作权人、出版单位、批准文号、出版物号）**：拿到 Funning 提供的信息之前，**整块不显示**，任何构建里都不能出现「占位」二字。设计稿中的〔占位〕只用来示意位置，不是文案。门禁见 §1.4。
 
 ### 1.2 版式（见 `annot_advisory_390.png`）
 | 元素 | 规格 |
@@ -42,6 +43,29 @@ UI设计部 · 2026-10-29 · 分支 `ui/system-panels`，基于 `ggbot/full9c-fi
 - 「减少动态」开着时：不上浮，只淡入淡出。
 - 关键帧 `keyframes_advisory.png`（0 / 150 / 400 / 1600 / 2700 / 2850 / 3000 ms）。
 
+### 1.4 信息标识缺省与「占位」门禁（Blocker，给 GGbot）
+**配置**：新建 `assets/scripts/ui/PublicationInfo.ts`，导出
+```ts
+export const PUBLICATION_INFO: { copyright?: string; publisher?: string; approval?: string; isbn?: string } = {};
+```
+- 缺省就是空对象，**不要写任何替代文字**（不写「占位」「待定」「TBD」「XXX」，也不写空格）。
+- 渲染规则：四项全部是非空字符串，才显示整个信息块；只要有一项缺失，整块不创建节点，正文位置不变。不允许只显示一部分。
+- 将来填写时只改这一个文件，内容由 Funning 提供。
+
+**门禁**：出现「占位」两个字即失败。
+1. **源码扫描**（快，在 pre-build 和 run-suite 里跑）：`rg -n "占位" creator-build-project/assets creator-build-project/build-templates`。
+   - 扫描所有 .ts、.js、.json、.prefab、.scene、.meta、.txt、.md。代码注释也不例外，注释改用 "placeholder"，以免误判。
+   - 命中即退出码 1，并打印文件和行号。
+   - 当前 19bd812a 在这两个目录里命中 0 处（已核对）。
+2. **构建产物扫描**（权威）：在 `tools/build-guard/build-wechat-guarded.sh` 完成构建后，或在 `tools/check_wechat_build.py` 里加 `check_no_placeholder(build_dir)`。
+   - 扫描微信构建输出目录：`build/wechatgame/**`，含 `game.js`、`first-screen.js`、`src/**`、`assets/**`、`subpackages/**`、`*.json`。
+   - 对所有文本文件按 UTF-8 查找字面量「占位」。JS 和 JSON 还要查 `\u5360\u4f4d`（Cocos 序列化或压缩后可能转义成这种形式）。
+   - 二进制文件（png、bin、ttf）跳过。
+   - 命中即失败，报告路径和偏移。
+3. **字体子集校验**：给忠告页字体做子集时，字表从 `PUBLICATION_INFO` 和四句原文动态生成，不要硬编码「占位」二字。
+4. **测试**：在 `tools/build-guard/test_build_guard.sh` 加一条反例：往临时构建目录写一个含「占位」的 json，门禁必须失败；再放一个干净样本，门禁必须通过。
+5. **范围**：设计目录 `ui-design/**` 和 `product/**` 不进构建，不在扫描范围内。这里的〔占位〕是示意标注，也是脚本 `src/params.json` 生成示意图用的字段，GGbot 实现时**不要复制这些字段**。
+
 ## 2. 设置面板
 ### 2.1 结构（见 `annot_settings_390.png`）
 音乐 · 音效 · 震动 ┆ 虚线 ┆ 夜色 · 减少动态 ┆ 关于 · 版本
@@ -53,7 +77,7 @@ UI设计部 · 2026-10-29 · 分支 `ui/system-panels`，基于 `ggbot/full9c-fi
 - 行：高 54；图标 30pt，在 x+46；文字 Bold 18pt #5A3A1E，在 x+74；开关右缘距面板 28pt。**整行都是触控区**（280×54），点文字也能切换。两组之间距离 14pt，中间是 1.5pt 虚线 #D9BF8C（6/6）。
 - 关闭按钮：Ø34 奶油圆，底厚 2.5pt #624B32，× 线宽 2.6 #5A3A1E；触控区 44×44；圆心离框角 24pt。点遮罩也会关闭。
 - 底行「关于《咦，起风了》 · v0.1 ›」Regular 13pt #7A5A3A（4.5:1 以上），整行 44pt 可点，进入现有 openAbout。
-- 图标：音乐、音效、夜色（icon_moon）、减少动态沿用 `board_art/popup/*`。**震动图标是占位**（设计稿里是手绘的手机加波纹），需要美术按 icon_sfx 的风格补一张 `popup/icon_vibrate.png`。
+- 图标：沿用 `board_art/popup/*`。**震动图标已补**：`creator-build-project/assets/bundles/board_art/popup/icon_vibrate.png`，220×252，透明底，和其他图标同高 252。它是低多边形木壳手机加两侧暖黄震动弧，配色取自 icon_sfx：木棕 #9A5F2E 和 #B0733C，暗面 #7A4520，屏幕 #E9E4D2 和 #F6F3E8，弧 #F0D98E 和 #C9A85A，4 倍超采样后用 LANCZOS 缩小做抗锯齿。`.meta` 照 icon_sfx 复制，uuid 是新的 f2b1d3d2-502d-55fb-9665-65da7a3cfeb1。三张图标并排对比见 `icons_compare.png`，生成脚本是 `src/make_icon_vibrate.py`。
 
 ### 2.2 开关（`toggle_states.png`）
 | 状态 | 轨道 52×30 r15 | 旋钮 Ø24 |
@@ -73,7 +97,7 @@ UI设计部 · 2026-10-29 · 分支 `ui/system-panels`，基于 `ggbot/full9c-fi
 | 震动 | **目前没有开关**；唯一的调用是 `wx.vibrateShort({type:'light'})` | ui/BoardPanels.ts:116（开宝箱） | 新键 **`qfl.ui.vibrate`**（'1'/'0'，默认 '1'）。在 `ui/UiPrefs.ts` 加 `vibrateEnabled()` 和 `vibrate(type='light')`，所有震动都走它：关闭时直接 return，**不调用 wx.vibrateShort**。BoardPanels.ts:116 改成用它。以后新增震动（消除、过关等）也只能走它 |
 | 夜色 | `globalThis.__worldDayNight.snapshot()/toggle()` | world-r1/WorldFlowComponent.ts:514；ui/CommonPanels.ts:30 | 开关 on=night。`__worldDayNight` 不存在时把开关置灰（α0.45，不可点） |
 | 减少动态 | `reducedMotion()` / `setReducedMotion()`；键 `forest-v33-reduced-motion` | ui/UiPrefs.ts:6 | 不变 |
-| 面板入口 | `openSettings(stack)` | ui/CommonPanels.ts:41；被 IslandJourneyOverlay.ts:84 和 ManagedMobileBoardUI.ts:971 调用 | 原地改布局。暂停面板 BoardPanels.ts:26–31 里的音乐、音效开关改用同一个开关组件；那里暂时不加震动，以免暂停面板变挤 |
+| 面板入口 | `openSettings(stack)` | ui/CommonPanels.ts:41；被 IslandJourneyOverlay.ts:84 和 ManagedMobileBoardUI.ts:971 调用 | 原地改布局。暂停面板 BoardPanels.ts:26–31 里的音乐、音效开关改用同一个开关组件；这一项**已批准**：那里只换开关样式，不加震动 |
 
 ## 3. 版本更新弹窗
 - **触发**：`wx.getUpdateManager()` 的 `onUpdateReady` 先只记一个标记 `pendingUpdate`，**不立刻弹窗**，等到安全时机再弹：回到小岛主页且没有其他弹窗、不在棋盘中、不在转场或演出中。如果冷启动时就已经就绪，在忠告页结束、进入主页后的第 600 ms 弹出。`onUpdateFailed` 静默处理，只写日志。
@@ -94,7 +118,7 @@ UI设计部 · 2026-10-29 · 分支 `ui/system-panels`，基于 `ggbot/full9c-fi
 | 抬手回弹 | 120 ms | easeOutBack(1.4) |
 | 开关滑动 | 180 ms | easeOutCubic |
 | 忠告页 | 进 400 / 出 300 ms | easeOutCubic / easeInQuad |
-- **注意**：现在 `PopupKit.ts:13–14` 是 `OPEN_S=0.22`、`CLOSE_S=0.15`，进入的 220 ms 低于验收要求的 250–400 ms，而且缩放用 easeOutCubic，退出用 alpha 线性。建议改成 `OPEN_S=0.32`、`CLOSE_S=0.18`，用上面两条贝塞尔曲线，透明度也用同一组曲线。这会影响所有弹窗，属于全局改动，GGbot 实现时一并改，界面验收部做一次全弹窗回归。
+- **已批准（Grok Bot，2026-10-29）**：PopupKit 全局改为进入 320 ms、退出 180 ms。原因：现在 `PopupKit.ts:13–14` 是 `OPEN_S=0.22`、`CLOSE_S=0.15`，进入的 220 ms 低于验收要求的 250–400 ms，而且缩放用 easeOutCubic，退出用 alpha 线性。建议改成 `OPEN_S=0.32`、`CLOSE_S=0.18`，用上面两条贝塞尔曲线，透明度也用同一组曲线。这会影响所有弹窗，属于全局改动，GGbot 实现时一并改，界面验收部做一次全弹窗回归。
 - 「减少动态」开着时：不缩放、不上浮，只淡入淡出，时长不变。
 - 关键帧 `keyframes_settings.png`、`keyframes_update.png`；动效演示 `system_panels_anim.mp4`（390×844，30 fps，约 9 s：忠告页 → 设置进入 → 震动关闭 → 退出 → 更新弹窗进入 → 按下 → 退出）。
 
@@ -113,11 +137,12 @@ UI设计部 · 2026-10-29 · 分支 `ui/system-panels`，基于 `ggbot/full9c-fi
 | `sizes_7_advisory.png` / `sizes_7_settings.png` / `sizes_7_update.png` | 7 尺寸拼图（即 sizes_7，每个界面一张） |
 | `toggle_states.png`、`settings_states.png`、`update_states.png` | 开关各状态、面板混合状态和按下态、更新按钮按下态 |
 | `keyframes_*.png`、`system_panels_anim.mp4` | 动效 |
-| `src/` | render.py、build.py、annot.py、params.json，以及从 board_art 复制来的图标 |
+| `icons_compare.png` | 音乐、音效、震动三图标并排对比 |
+| `src/` | render.py、build.py、annot.py、icons_compare.py、make_icon_vibrate.py、params.json，以及从 board_art 复制来的图标 |
 
 ## 7. 不确定项
 1. 版号和信息标识：内容需要 Funning 提供；纯广告游戏是否必须显示，以资质审核为准（FEATURE_GAP 第 5 项）。
-2. 震动图标需要美术补正式图（现为占位）。
+2. ~~震动图标~~：已补齐（v1.1）。
 3. 忠告页「每次冷启动都显示」是按常见做法和「游戏开始前」的字面要求定的；热启动（onShow）不显示。
-4. 把 PopupKit 的全局时长改成 320/180 ms 会影响所有弹窗的手感，需要 Grok Bot 确认后再改。
+4. ~~PopupKit 改为 320/180 ms~~：已批准。
 5. 「昼夜」改成「夜色」开关：功能不变，只改了交互形式。
