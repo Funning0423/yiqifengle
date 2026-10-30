@@ -22,7 +22,7 @@ def seal(kind):
   for i in range(12):  # 分面明暗
     a0,a1=math.radians(15+30*i),math.radians(45+30*i); f='#9C6233' if math.sin((a0+a1)/2)<0 else '#7C4A22'
     d.polygon([((cx+53*math.cos(a0))*S,(cy+53*math.sin(a0))*S),((cx+53*math.cos(a1))*S,(cy+53*math.sin(a1))*S),((cx+44*math.cos(a1))*S,(cy+44*math.sin(a1))*S),((cx+44*math.cos(a0))*S,(cy+44*math.sin(a0))*S)],fill=f)
-  ring={'coast':'#E2B25A','snow':'#8FA8D8'}[kind]; E(cx,cy,44,ring); E(cx,cy,38,'#FFF6E2')
+  ring={'coast':'#E2B25A','coast_night':'#E2B25A','snow':'#8FA8D8'}[kind]; E(cx,cy,44,ring); E(cx,cy,38,'#FFF6E2')
   m=Image.new('L',im.size,0); ImageDraw.Draw(m).ellipse([(cx-36)*S,(cy-36)*S,(cx+36)*S,(cy+36)*S],fill=255)
   L=Image.new('RGBA',im.size,(0,0,0,0)); q=ImageDraw.Draw(L)
   P=lambda pts:[(x*S,y*S) for x,y in pts]
@@ -36,6 +36,23 @@ def seal(kind):
     q.polygon(P([(cx+5,cy-18),(cx+15,cy-18),(cx+10,cy-26)]),fill='#D2553A')
     gl=Image.new('RGBA',im.size,(255,224,140,0)); ImageDraw.Draw(gl).ellipse([(cx-2)*S,(cy-30)*S,(cx+22)*S,(cy-14)*S],fill=(255,224,140,200)); L.alpha_composite(gl.filter(ImageFilter.GaussianBlur(4*S)))
     for i,yy in enumerate((cy+20,cy+28)): q.line(P([(cx-34+i*4,yy),(cx-26+i*4,yy-3),(cx-18+i*4,yy),(cx-10+i*4,yy-3)]),fill='#FFFFFF',width=int(2.2*S))
+  elif kind=='coast_night':
+    for i in range(30):
+      f=i/29; q.rectangle([0,int((cy-40+i*2.7)*S),W*S,int((cy-40+(i+1)*2.7)*S)+1],fill=(int(36+30*f),int(48+40*f),int(96+40*f)))
+    q.rectangle([0,(cy+6)*S,W*S,H*S],fill='#1E4A66')
+    for sx,sy,r_ in ((cx-24,cy-20,1.6),(cx-12,cy-28,1.2),(cx-28,cy-4,1.0),(cx+26,cy-8,1.2)): q.ellipse(P([(sx-r_,sy-r_),(sx+r_,sy+r_)]),fill='#FFF3C8')
+    q.polygon(P([(cx-18,cy-4),(cx-14,cy-12),(cx-20,cy-14)]),fill='#F2E2A8')   # 月牙（低多边形）
+    beam=Image.new('RGBA',im.size,(255,214,120,0)); bq=ImageDraw.Draw(beam)
+    bq.polygon(P([(cx+10,cy-20),(cx-40,cy-34),(cx-40,cy-12)]),fill=(255,214,120,120)); bq.polygon(P([(cx+10,cy-20),(cx+44,cy-30),(cx+44,cy-16)]),fill=(255,214,120,70))
+    L.alpha_composite(beam.filter(ImageFilter.GaussianBlur(1.5*S)))
+    q.polygon(P([(cx-40,cy+40),(cx-40,cy+20),(cx-6,cy+12),(cx+40,cy+24),(cx+40,cy+40)]),fill='#3A4A6A')  # 夜里的礁岸
+    q.polygon(P([(cx-6,cy+12),(cx+40,cy+24),(cx+40,cy+40),(cx+8,cy+40)]),fill='#2C3A56')
+    q.polygon(P([(cx+4,cy+16),(cx+16,cy+16),(cx+13,cy-14),(cx+7,cy-14)]),fill='#E8E2D4'); q.polygon(P([(cx+10,cy+16),(cx+16,cy+16),(cx+13,cy-14),(cx+10,cy-14)]),fill='#BDB6A8')
+    for yy in (cy+4,cy-6): q.polygon(P([(cx+5.5,yy),(cx+14.5,yy),(cx+14.2,yy+4),(cx+5.8,yy+4)]),fill='#B84A34')
+    q.rectangle(P([(cx+6.5,cy-21),(cx+13.5,cy-14)]),fill='#FFD678'); q.polygon(P([(cx+5,cy-21),(cx+15,cy-21),(cx+10,cy-28)]),fill='#B84A34')
+    gl=Image.new('RGBA',im.size,(255,214,120,0)); ImageDraw.Draw(gl).ellipse([(cx-2)*S,(cy-30)*S,(cx+22)*S,(cy-8)*S],fill=(255,214,120,170)); L.alpha_composite(gl.filter(ImageFilter.GaussianBlur(4*S)))
+    for i,yy in enumerate((cy+14,cy+22)): q.line(P([(cx+8,yy),(cx+12,yy)]),fill='#FFD678',width=int(1.6*S))  # 水面倒影
+    q.line(P([(cx-34,cy+30),(cx-26,cy+27),(cx-18,cy+30)]),fill='#6FA0C0',width=int(2*S))
   else:
     q.rectangle([0,0,W*S,H*S],fill='#D8E4F4')
     q.polygon(P([(cx-40,cy+30),(cx-8,cy-22),(cx+40,cy+30)]),fill='#8C9CC0')      # 山
@@ -72,7 +89,7 @@ def window(kind):
     for sx,sy in ((30,20),(180,26),(140,14)): q.ellipse(P([(sx-1.5,sy-1.5),(sx+1.5,sy+1.5)]),fill='#FFFFFF')
   m=Image.new('L',im.size,0); ImageDraw.Draw(m).rounded_rectangle([5*S,5*S,(W-5)*S,(H-5)*S],radius=10*S,fill=255)
   im.paste(L,(0,0),m); return im.resize((W,H),Image.LANCZOS)
-for k in ('coast','snow'):
-  seal(k).save(f'{ART}/reward_seal_{k}_draft.png'); window(k).save(f'{ART}/region_{k}_draft.png')
-seal('blank').save(f'{ART}/reward_seal_blank_draft.png')
+RAW=os.path.join(ART,'raw'); os.makedirs(RAW,exist_ok=True)
+outs={'reward_seal_coast':seal('coast_night'),'reward_seal_coast_day':seal('coast'),'reward_seal_snow':seal('snow'),'region_coast':window('coast'),'region_snow':window('snow'),'reward_seal_blank_ref':seal('blank')}
+for k,v in outs.items(): v.save(f'{RAW}/{k}.png')
 print('ok')

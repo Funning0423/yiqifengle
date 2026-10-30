@@ -1,0 +1,52 @@
+[
+ {
+  "file": "reward_seal_coast.png",
+  "size": [
+   115,
+   128
+  ],
+  "colors": 96,
+  "before_B": 16232,
+  "after_B": 3523
+ },
+ {
+  "file": "reward_seal_coast_day.png",
+  "size": [
+   115,
+   128
+  ],
+  "colors": 96,
+  "before_B": 14594,
+  "after_B": 3140
+ },
+ {
+  "file": "reward_seal_snow.png",
+  "size": [
+   115,
+   128
+  ],
+  "colors": 96,
+  "before_B": 13665,
+  "after_B": 3008
+ },
+ {
+  "file": "region_coast.png",
+  "size": [
+   208,
+   136
+  ],
+  "colors": 128,
+  "before_B": 5987,
+  "after_B": 1795
+ },
+ {
+  "file": "region_snow.png",
+  "size": [
+   208,
+   136
+  ],
+  "colors": 128,
+  "before_B": 8392,
+  "after_B": 2262
+ }
+]

@@ -21,7 +21,7 @@ def old_journey(W=390,H=844,K=4,n=4):
     l=cv.layer(); d=ImageDraw.Draw(l); cv.text(d,W/2,H-24,'↑ 6 张卡总高 %d pt，超出屏幕'%ph,13,hx('#D2553A')); cv.comp(l)
   return cv
 J=journey(K=4).out(2); save(J,'journey_390.png')
-save(row([lab(old_journey(K=3).out(2),'现状：4 张大卡（450 pt 高）'),lab(old_journey(K=3,n=6).out(2),'若直接加到 6 张：约 620 pt，挤满屏且 568 高放不下'),lab(J,'新：焦点卡 + 5 行紧凑行，整页 520 pt（不随地区数增长）')]),'compare_journey.png')
+save(row([lab(old_journey(K=3).out(2),'现状：4 张大卡（450 pt 高）'),lab(old_journey(K=3,n=6).out(2),'若直接加到 6 张：约 620 pt，挤满屏且 568 高放不下'),lab(J,'新：焦点卡 + 5 行，整页 520 pt；示例 湖畔 2/6、海岸可前往（二者均在主线 12 后并行开启）')]),'compare_journey.png')
 CH=chapter(K=4).out(2); save(CH,'chapter_coast_390.png')
 E=ending(K=4).out(2); save(E,'ending_390.png')
 save(row([lab(ending(K=4,old=True).out(2),'现状：4 枚印章'),lab(E,'新：6 枚印章（雪山未得为空白章）')]),'compare_ending.png')
@@ -31,13 +31,13 @@ for nm,fn in (('journey',lambda W,H:journey(W,H,K=2)),('chapter',lambda W,H:chap
 cases=[('未揭晓（远方）',{'tide':4,'meadow':2,'sky':0,'lake':0,'coast':0,'snow':0},'meadow'),
        ('已知未开启（灰章+条件）',{'tide':4,'meadow':4,'sky':2,'lake':0,'coast':0,'snow':0},'sky'),
        ('新开启（红点 · 可前往）',{'tide':4,'meadow':4,'sky':4,'lake':0,'coast':0,'snow':0},'sky'),
-       ('进行中（青色进度）',{'tide':4,'meadow':4,'sky':4,'lake':6,'coast':3,'snow':1},'coast'),
-       ('全部完成',{'tide':4,'meadow':4,'sky':4,'lake':6,'coast':9,'snow':6},'snow')]
+       ('进行中（湖畔全通，雪山待数据）',{'tide':4,'meadow':4,'sky':4,'lake':6,'coast':3,'snow':0},'coast'),
+       ('有数据地区全部完成 27/27',{'tide':4,'meadow':4,'sky':4,'lake':6,'coast':9,'snow':0},'coast')]
 save(row([lab(journey(K=3,prog=p,focus=f).out(1.6),t,20) for t,p,f in cases],16),'states_journey.png')
 save(row([lab(chapter(K=3,rid=r,state=s).out(1.6),t,20) for r,s,t in (('snow','locked','未开启'),('coast','open','可前往'),('coast','progress','进行中'),('coast','done','完成'),('coast','open','按下（当帧下沉 3pt）'))][:4]+[lab(chapter(K=3,pressed=True).out(1.6),'按钮按下（当帧）',20)],16),'states_chapter.png')
 # 印章对照
-cv=Cv(420,150,6); l=cv.layer(); d=ImageDraw.Draw(l); cv.rr(d,0,0,420,150,18,hx(C['face'])); cv.comp(l)
-for i,(p,t) in enumerate(((art('reward_seal_lake'),'湖畔（现有）'),(art('reward_seal_coast'),'海岸（新）'),(art('reward_seal_snow'),'雪山（新）'),(art('reward_seal_blank'),'未得 / 未揭晓'))):
+cv=Cv(520,150,6); l=cv.layer(); d=ImageDraw.Draw(l); cv.rr(d,0,0,520,150,18,hx(C['face'])); cv.comp(l)
+for i,(p,t) in enumerate(((art('reward_seal_lake'),'湖畔（现有）'),(art('reward_seal_coast'),'海岸·夜航印记'),(art('reward_seal_snow'),'雪山（新）'),(art('reward_seal_blank'),'空白章（代码绘制）'))):
   img(cv,p,60+i*100,62,72,80); l=cv.layer(); d=ImageDraw.Draw(l); cv.text(d,60+i*100,128,t,12,hx(C['brown'])); cv.comp(l)
 save(cv.out(2),'seals_compare.png')
 # 关键帧

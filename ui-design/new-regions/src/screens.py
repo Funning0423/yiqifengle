@@ -3,11 +3,13 @@ import os,sys; sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from render import *
 ARTD=os.path.join(OUT,'art')
 REG=[dict(id='tide',name='潮汐小径',n=4,col='#5FA8C8'),dict(id='meadow',name='花粉草甸',n=4,col='#7DB55A'),dict(id='sky',name='天空回声',n=4,col='#8E9FD6'),
-     dict(id='lake',name='风铃湖畔',n=6,col='#E09A5A'),dict(id='coast',name='海岸',n=9,col='#E2B25A'),dict(id='snow',name='雪山隘口',n=6,col='#7F98CC')]
-TOTAL=sum(r['n'] for r in REG)
+     dict(id='lake',name='风铃湖畔',n=6,col='#E09A5A'),dict(id='coast',name='海岸',n=9,col='#E2B25A'),dict(id='snow',name='雪山隘口',n=6,col='#7F98CC',nodata=True)]
+# 分母与分段只取「已有关卡数据」的地区（雪山无数据 → 27；有数据后自动 33）
+DATA=[r for r in REG if not r.get('nodata')]
+TOTAL=sum(r['n'] for r in DATA)
 DESC={'coast':'沿着海滩捡贝壳，一步步走向灯塔。','snow':'踩着新雪，去山口听风铃。'}
 def art(name):
-  for p in (os.path.join(HERE,name+'.png'),os.path.join(ARTD,name+'_draft.png')):
+  for p in (os.path.join(HERE,name+'.png'),os.path.join(ARTD,name+'.png'),os.path.join(HERE,name+'_ref.png')):
     if os.path.exists(p): return p
 def sealp(rid,state): return art('reward_seal_blank') if state in('far','locked_seal') else art('reward_seal_'+rid)
 def img(cv,path,cx,cy,w,h,gray=False,alpha=1.0):
@@ -33,21 +35,21 @@ def status(prog):
     elif i in('lake','coast'):
       out[i]='done' if d>=r['n'] else ('progress' if main>=12 and d>0 else ('open' if main>=12 else ('locked' if main>=8 else 'far')))
     else:
-      lk=prog.get('lake',0)>=6; out[i]='done' if d>=r['n'] else ('progress' if lk and d>0 else ('open' if lk else ('locked' if main>=12 else 'far')))
+      lk=False if r.get('nodata') else prog.get('lake',0)>=6; out[i]='done' if d>=r['n'] else ('progress' if lk and d>0 else ('open' if lk else ('locked' if main>=12 else 'far')))
   return out
 EXAMPLE={'tide':4,'meadow':4,'sky':4,'lake':2,'coast':0,'snow':0}
 def bar(cv,x,y,w,h,prog,fill_k=1.0):
   l=cv.layer(); d=ImageDraw.Draw(l); cv.rr(d,x,y+1,w,h,h/2,hx('#CDB990')); cv.rr(d,x,y,w,h,h/2,hx('#E6D7B8'))
   cv.comp(l)
   # 分段：按关卡数比例；段间 2pt 缝；已完成部分用地区色
-  gap=2; ux=(w-gap*(len(REG)-1))/TOTAL; cx=x; budget=sum(prog.values())*fill_k
+  gap=2; ux=(w-gap*(len(DATA)-1))/TOTAL; cx=x; budget=sum(prog.values())*fill_k
   m=Image.new('L',cv.im.size,0); ImageDraw.Draw(m).rounded_rectangle([cv.P(x),cv.P(y),cv.P(x+w),cv.P(y+h)],radius=cv.P(h/2),fill=255)
   l=cv.layer(); d=ImageDraw.Draw(l)
-  for r in REG:
+  for r in DATA:
     sw=ux*r['n']; dn=min(prog.get(r['id'],0),r['n']); take=max(0,min(dn,budget)); budget-=dn
     if take>0: d.rectangle([cv.P(cx),cv.P(y),cv.P(cx+sw*take/r['n']),cv.P(y+h)],fill=hx(r['col']))
     cx+=sw
-    if r is not REG[-1]: d.rectangle([cv.P(cx),cv.P(y-1),cv.P(cx+gap),cv.P(y+h+1)],fill=hx(C['face']))
+    if r is not DATA[-1]: d.rectangle([cv.P(cx),cv.P(y-1),cv.P(cx+gap),cv.P(y+h+1)],fill=hx(C['face']))
     cx+=gap
   l.putalpha(Image.composite(l.getchannel('A'),Image.new('L',l.size,0),m)); cv.comp(l)
 def journey(W=390,H=844,K=4,prog=None,p=1.0,closing=False,focus='lake',pressRow=None,bar_k=1.0,stagger_t=None):
@@ -59,7 +61,7 @@ def journey(W=390,H=844,K=4,prog=None,p=1.0,closing=False,focus='lake',pressRow=
   if a<=0.01: return cv
   sub=Cv(W,H,K); l=sub.layer(); d=ImageDraw.Draw(l)
   sub.text(d,W/2,y+36,'旅程册',22,hx(C['brown']),spacing=6)
-  done=sum(prog.values()); sub.text(d,W/2,y+78,f'旅程  {round(done*bar_k)} / {TOTAL}',15,hx(C['ink']),spacing=1); sub.comp(l)
+  done=sum(prog.get(r['id'],0) for r in DATA); sub.text(d,W/2,y+78,f'旅程  {round(done*bar_k)} / {TOTAL}',15,hx(C['ink']),spacing=1); sub.comp(l)
   ix=x+24; iw=pw-48; bar(sub,ix,y+96,iw,10,prog,bar_k)
   close_btn(sub,x+pw-24,y+24)
   def rowalpha(i):
