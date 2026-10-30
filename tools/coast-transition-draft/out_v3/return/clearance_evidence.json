@@ -1,0 +1,41 @@
+{
+ "direction": "return",
+ "min_solid": {
+  "m": 1.135,
+  "frame": 343,
+  "t": 5.717,
+  "shot": "R3 terrace lead back",
+  "object": "coast:gull@-2.40,1.48,11.00",
+  "nearest_point": [
+   1.409,
+   0.905,
+   10.335
+  ],
+  "lens": [
+   1.245,
+   2.01,
+   10.533
+  ],
+  "lens_moving": true,
+  "lens_speed_m_per_frame": 0.0185,
+  "nearest_point_in_frame_390x844": false,
+  "height_below_at_that_frame": 1.673
+ },
+ "min_height_below_moving": {
+  "m": 1.673,
+  "frame": 338,
+  "t": 5.633,
+  "shot": "R3 terrace lead back",
+  "over": "coast:rock_2@-2.40,0.55,11.00",
+  "lens": [
+   1.235,
+   1.992,
+   10.623
+  ]
+ },
+ "min_height_below_all_frames": 1.673,
+ "moving_frames": 1495,
+ "moving_frames_below_1_5m": 0,
+ "min_dist_to_her": 3.25,
+ "min_solid_moving": 1.135
+}

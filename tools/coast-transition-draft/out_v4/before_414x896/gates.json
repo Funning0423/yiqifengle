@@ -1,0 +1,114 @@
+{
+ "yaw_standing": {
+  "max_rate": 82.8,
+  "p99_acc": 92.3,
+  "pass": true
+ },
+ "yaw_walking": {
+  "max_rate": 42.4,
+  "p99_acc": 97.3,
+  "pass": true
+ },
+ "max_lens_step_m_per_frame": 0.99,
+ "max_step_t": 0.62,
+ "motion_s7_pushin": {
+  "yaw_max": 82.8,
+  "pitch_max": 35.7,
+  "yaw_acc_p99": 89.3,
+  "pitch_acc_p99": 43.4,
+  "speed_max": 7.34,
+  "step_max": 0.122,
+  "fov_step_max": 0.031,
+  "pass": true
+ },
+ "motion_whole": {
+  "yaw_max": 82.8,
+  "pitch_max": 41.4,
+  "yaw_acc_p99": 98.0,
+  "pitch_acc_p99": 147.6,
+  "speed_max": 59.38,
+  "step_max": 0.99,
+  "fov_step_max": 0.031,
+  "pass": false
+ },
+ "motion_whole_fail_shots": [
+  "S1 map-collapse handover"
+ ],
+ "last_frame_pose_err": {
+  "pos_m": 7.062899411959686e-07,
+  "look_m": 1.817926732011273e-06,
+  "fov": 2.07529936346873e-07
+ },
+ "hard_cuts": 0,
+ "first_frame_eq_live": true,
+ "last_frame_eq_board": true,
+ "clear_standing_min": 1.441,
+ "clear_standing_who": "coast:piece_star@0.00,0.11,-1.03",
+ "travel_solid_min": 1.136,
+ "travel_solid_who": "coast:fisher_hut@-3.10,0.03,6.70",
+ "travel_solid_t": 13.43,
+ "travel_ground_min": 1.524,
+ "travel_ground_t": 18.33,
+ "clear_pass": true,
+ "her_ground_check": {
+  "door": -0.004,
+  "S0": -0.243,
+  "S1": -0.673,
+  "Estop": -0.846
+ },
+ "occlusion_worst_s": 0,
+ "occlusion_who": null,
+ "occlusion_pass": true,
+ "far_12m_s": 2.15,
+ "far_12m_segments": [
+  [
+   0.0,
+   1.1
+  ],
+  [
+   22.28,
+   23.32
+  ]
+ ],
+ "screens": [
+  {
+   "screen": "414x896",
+   "min_margin": 0.059,
+   "at_t": 4.4,
+   "margin_pass": false,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 100.0
+  }
+ ],
+ "timeline": {
+  "T": [
+   0.0,
+   2.0,
+   2.4,
+   11.133,
+   12.933,
+   17.725,
+   18.325,
+   23.325
+  ],
+  "total": 23.325,
+  "island_path_len": 10.48,
+  "terrace_len": 5.75
+ },
+ "island_live_src": "RegionCameraData.ts island.variants['v24-readable'] (islandPoseSource) @7297fa5f",
+ "coast_missing_meshes(proxied=none)": [
+  "reuse_bush",
+  "reuse_flowers",
+  "reuse_grass_a",
+  "reuse_grass_b",
+  "reuse_palm_lean",
+  "reuse_palm_tall",
+  "reuse_rock_0",
+  "reuse_rock_1",
+  "reuse_rock_2",
+  "reuse_rock_s0",
+  "reuse_rock_s1",
+  "reuse_rock_s2"
+ ]
+}

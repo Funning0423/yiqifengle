@@ -1,0 +1,163 @@
+{
+ "yaw_standing": {
+  "max_rate": 22.9,
+  "p99_acc": 57.6,
+  "pass": true
+ },
+ "yaw_walking": {
+  "max_rate": 65.0,
+  "p99_acc": 70.0,
+  "pass": true
+ },
+ "max_lens_step_m_per_frame": 0.326,
+ "max_step_t": 22.9,
+ "hard_cuts": 0,
+ "first_frame_eq_live": true,
+ "last_frame_eq_board": true,
+ "clear_standing_min": 2.044,
+ "clear_standing_who": "island:env_island_props_merged",
+ "travel_solid_min": 1.135,
+ "travel_solid_who": "coast:gull@-2.40,1.48,11.00",
+ "travel_solid_t": 5.7,
+ "travel_ground_min": 1.673,
+ "travel_ground_t": 5.63,
+ "clear_pass": true,
+ "her_ground_check": {
+  "Estop": -0.846,
+  "S1": -0.843,
+  "S0": -0.297,
+  "exit_point": -0.004
+ },
+ "occlusion_worst_s": 0,
+ "occlusion_who": null,
+ "occlusion_pass": true,
+ "far_12m_s": 4.13,
+ "far_12m_segments": [
+  [
+   0.0,
+   0.63
+  ],
+  [
+   21.73,
+   25.22
+  ]
+ ],
+ "screens": [
+  {
+   "screen": "390x844",
+   "min_margin": 0.209,
+   "at_t": 0.0,
+   "margin_pass": true,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 0.0
+  },
+  {
+   "screen": "414x896",
+   "min_margin": 0.21,
+   "at_t": 0.0,
+   "margin_pass": true,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 0.0
+  },
+  {
+   "screen": "360x780",
+   "min_margin": 0.21,
+   "at_t": 0.0,
+   "margin_pass": true,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 0.0
+  },
+  {
+   "screen": "375x667",
+   "min_margin": 0.147,
+   "at_t": 0.0,
+   "margin_pass": true,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 0.0
+  },
+  {
+   "screen": "320x568",
+   "min_margin": 0.146,
+   "at_t": 0.0,
+   "margin_pass": true,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 0.0
+  },
+  {
+   "screen": "390x520",
+   "min_margin": 0.11,
+   "at_t": 0.0,
+   "margin_pass": true,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 0.0
+  },
+  {
+   "screen": "768x1024",
+   "min_margin": 0.11,
+   "at_t": 0.0,
+   "margin_pass": true,
+   "face_under_menu": 0,
+   "far_in_frame_pct": 100.0,
+   "lighthouse_upper_right_pct": 0.0
+  }
+ ],
+ "timeline": {
+  "T": [
+   0.0,
+   3.0,
+   3.4,
+   8.192,
+   9.992,
+   18.725,
+   20.225,
+   25.225
+  ],
+  "total": 25.225,
+  "island_path_len": 10.48,
+  "terrace_len": 5.75
+ },
+ "island_live_src": "RegionCameraData.ts island.variants['v24-readable'] (islandPoseSource) @7297fa5f",
+ "coast_missing_meshes(proxied=none)": [
+  "reuse_bush",
+  "reuse_palm_lean",
+  "reuse_palm_tall"
+ ],
+ "activation_gate": {
+  "toggle_frame": 1044,
+  "toggle_t": 17.4,
+  "map_lens_frames": [
+   1513
+  ],
+  "coast_active_on_map_frames": [],
+  "visible_at_toggle": {
+   "coast": false,
+   "sail": false
+  },
+  "visible_at_toggle_minus_1": {
+   "coast": false,
+   "sail": false
+  },
+  "island_map_lens_sees": {
+   "coast": true,
+   "sail": true
+  },
+  "sail_wake_code": {
+   "pass_": true,
+   "fails": [],
+   "boat_speed_max": 0.0
+  },
+  "pass_": true
+ },
+ "toggle_windows_frames": [
+  [
+   1040,
+   1048
+  ]
+ ]
+}
