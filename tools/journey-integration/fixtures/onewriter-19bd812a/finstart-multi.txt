@@ -1,0 +1,24 @@
+2026-10-30T01:03:37.842Z log [QF_CAM_TRACE] f=1 t=3.838 pos=-1.32,1.386,-2.114 yaw=30.209 pitch=-3.517 fov=75 w=world.setCamera fr=145
+2026-10-30T01:03:37.879Z log [QF_CAM_TRACE] f=2 t=3.875 pos=-1.32,1.386,-2.114 yaw=30.209 pitch=-3.517 fov=75 w=world.setCamera MULTI=2 fr=145
+2026-10-30T01:03:38.933Z log [QF_CAM_TRACE] f=3 t=4.929 pos=-1.32,1.386,-2.114 yaw=30.209 pitch=-3.517 fov=75 w=world.animateCamera CHANGE<-world.setCamera fr=146
+2026-10-30T01:03:38.979Z log [QF_CAM_TRACE] f=4 t=4.975 pos=-1.315,1.39,-2.121 yaw=30.176 pitch=-3.646 fov=74.982 w=world.animateCamera MULTI=2 fr=146
+2026-10-30T01:03:41.933Z log [QF_CAM_TRACE] f=103 t=7.929 pos=-1.934,1.82,-3.55 yaw=65.772 pitch=-25.873 fov=67.2 w=world.animateCamera fr=245
+2026-10-30T01:03:41.963Z log [QF_CAM_TRACE] f=104 t=7.959 pos=-1.934,1.82,-3.55 yaw=65.794 pitch=-25.869 fov=67.204 w=world.animateCamera MULTI=2 fr=245
+2026-10-30T01:03:49.969Z log [QF_CAM_TRACE] f=290 t=15.965 pos=-1.214,1.694,-2.307 yaw=153.098 pitch=-16.833 fov=68 w=world.animateCamera fr=500
+2026-10-30T01:03:50.006Z log [QF_CAM_TRACE] f=291 t=16.002 pos=-1.212,1.693,-2.304 yaw=153.131 pitch=-16.83 fov=68.003 w=world.animateCamera MULTI=2 fr=500
+2026-10-30T01:04:28.050Z log [QF_CAM_TRACE] f=619 t=54.046 pos=-3.692,3.09,-0.028 yaw=165.987 pitch=-11.453 fov=50 w=world.setCamera JUMP=50.296m/150.526deg fr=888
+2026-10-30T01:04:28.241Z log [QF_CAM_TRACE] f=620 t=54.237 pos=-3.692,3.09,-0.028 yaw=165.987 pitch=-11.453 fov=50 w=RegionJourneyCore:onFrame CHANGE<-world.setCamera MULTI=2 fr=888
+2026-10-30T01:06:43.073Z log [QF_CAM_TRACE] f=1238 t=189.069 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=world.setCamera CHANGE<-RegionJourneyCore:onFrame fr=1506
+2026-10-30T01:06:43.078Z log [QF_CAM_TRACE] f=1239 t=189.074 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=world.setCamera MULTI=2 fr=1506
+2026-10-30T01:06:44.677Z log [QF_CAM_TRACE] f=1240 t=190.673 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=LiveHandoff CHANGE<-world.setCamera fr=1531
+2026-10-30T01:06:44.807Z log [QF_CAM_TRACE] f=1241 t=190.803 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=LiveHandoff MULTI=2 fr=1531
+2026-10-30T01:08:17.877Z log [QF_CAM_TRACE] f=2173 t=283.873 pos=19.513,20.378,94.523 yaw=169.329 pitch=-5.057 fov=46 w=world.setCamera CHANGE<-BalloonTransit:B5 fr=2463
+2026-10-30T01:08:17.879Z log [QF_CAM_TRACE] f=2174 t=283.875 pos=19.513,20.378,94.523 yaw=169.329 pitch=-5.057 fov=46 w=world.setCamera MULTI=2 fr=2463
+2026-10-30T01:08:33.651Z log [QF_CAM_TRACE] f=2321 t=299.647 pos=5.345,28.279,108.083 yaw=76.126 pitch=-17.269 fov=55 w=regionBoardHandoff fr=2757
+2026-10-30T01:08:33.674Z log [QF_CAM_TRACE] f=2322 t=299.67 pos=5.345,28.279,108.083 yaw=76.126 pitch=-17.269 fov=55 w=regionLandingToBoard CHANGE<-regionBoardHandoff MULTI=2 fr=2757
+2026-10-30T01:08:37.050Z log [QF_CAM_TRACE] f=2327 t=303.046 pos=61.298,25.198,113.392 yaw=162.897 pitch=1.014 fov=48 w=region.node-lens fr=2800
+2026-10-30T01:08:37.051Z log [QF_CAM_TRACE] f=2328 t=303.047 pos=61.298,25.198,113.392 yaw=162.897 pitch=1.014 fov=48 w=region.node-lens MULTI=2 fr=2800
+2026-10-30T01:08:47.647Z log [QF_CAM_TRACE] f=2346 t=313.643 pos=75.473,20.35,127.651 yaw=108.013 pitch=2.002 fov=45 w=region.node-lens JUMP=0.202m/0.561deg fr=2896
+2026-10-30T01:08:47.647Z log [QF_CAM_TRACE] f=2347 t=313.643 pos=75.473,20.35,127.651 yaw=108.013 pitch=2.002 fov=45 w=region.node-lens MULTI=2 fr=2896
+2026-10-30T01:09:57.321Z log [QF_CAM_TRACE] f=3003 t=383.317 pos=75.473,20.35,127.651 yaw=108.013 pitch=2.002 fov=45 w=world.setCamera JUMP=58.124m/69.217deg fr=3611
+2026-10-30T01:09:57.328Z log [QF_CAM_TRACE] f=3004 t=383.324 pos=75.473,20.35,127.651 yaw=108.013 pitch=2.002 fov=45 w=world.setCamera MULTI=2 fr=3611
