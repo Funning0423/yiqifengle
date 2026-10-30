@@ -101,10 +101,10 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     // 运镜bot r5 (meadow-girlsize A): the sail arrival ends at M1 → closer board camera.
     setMeadowBoardFraming('A');
     const warmed=sail?takeSailWarm():null;
-    model=mountRegion(def,prefab,rig);
+    // P0 wipe: the warm rig is used as is; the old path instantiated a second meadow here and destroyed it (a full mount inside the 3 s window).
+    if(warmed){model=warmed;rig.addChild(model);}else model=mountRegion(def,prefab,rig);
     // 运镜bot: the prefab's own root transform = the board copy's transform in its (identity) board rig, before the journey places it.
     boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);
-    if(warmed){model.removeFromParent();model.destroy();model=warmed;rig.addChild(model);boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);}
     for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
     if(to==='meadow'){
      for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}

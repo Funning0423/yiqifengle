@@ -1,6 +1,6 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
-import {LAKESIDE_L12_HOLD_MS,armSkycityWarmOnSailRide,warmSkycityLegStaged} from '../region/TransitionPreload';
+import {LAKESIDE_L12_HOLD_MS,armSkycityWarmOnSailRide,warmMeadowLegStaged,warmSkycityLegStaged} from '../region/TransitionPreload';
 import {SKY_WARM_GAP_FAST_MS,continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
@@ -105,7 +105,7 @@ export class WorldNativeComposition extends Component {
     });
     try {const result=await world.initialize(levels,undefined,'motion');if(!result.ok)throw Error(result.reason);}
     catch(error){this.releaseOwned();throw error;}
-    (this as any).warmSkyIfMeadow?.('boot')/* full9c-b: resume at the meadow */;
+    (this as any).warmSkyIfMeadow?.('boot')/* full9c-b: resume at the meadow */;(this as any).warmMeadowIfIsland?.('boot')/* P0 wipe */;
     if(typeof RegionNodeStage==='function'&&typeof ExploreInput==='function'){
      const stage=this.node.getComponent(RegionNodeStage)||this.node.addComponent(RegionNodeStage);
      stage.attach(this.worldCamera);
@@ -207,6 +207,7 @@ export class WorldNativeComposition extends Component {
     /* full7 item 4 (fallback 0 on the cold checkpoint-12 path): lake open (L12 done) and heading for skycity/lakeside → warm the
      * lakeside assets now, during the earlier legs / the walk, not at the 继续旅程 tap (3 s budget unchanged). */
     try{if(order.indexOf(target)>=order.indexOf('skycity')&&(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'lakeside')?.ok)void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{/* warm only */}
+    if(current==='island')(this as any).warmMeadowIfIsland?.('ensure',true)/* P0 wipe: last resort; no-op when already warm */;
     if(current==='meadow'&&order.indexOf(target)>=order.indexOf('skycity'))(this as any).warmSkyIfMeadow?.('ensure')/* full9c-b: last resort; no-op when already warm */;
     if(current==='island'&&order.indexOf(target)>=order.indexOf('skycity')&&typeof armSkycityWarmOnSailRide==='function')armSkycityWarmOnSailRide();/* typeof: method-replay tests eval this body *//* full9c: warm the balloon leg during the sail */
     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;
@@ -340,6 +341,15 @@ export class WorldNativeComposition extends Component {
       if((this.world.commands().snapshot().journey?.region||'island')!=='meadow')return;
       if(!force&&!(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'skycity')?.ok)return;
       void warmSkycityLegStaged(SKY_WARM_GAP_FAST_MS);
+    }catch{/* warm only */}
+  }
+  /** P0 wipe: staged meadow warm while she is on the island side (home / island walk), for every entry that can sail. */
+  warmMeadowIfIsland(_why:string,force=false):void{
+    try{
+      if(typeof warmMeadowLegStaged!=='function'||!this.world)return;const w=this.world,scene=director.getScene();if(!scene)return;
+      if((w.commands().snapshot().journey?.region||'island')!=='island')return;
+      if(!force&&!(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'meadow')?.ok)return;
+      void warmMeadowLegStaged(scene,()=>['home','island'].includes(w.commands().snapshot().state));
     }catch{/* warm only */}
   }
   /** Web / QA only (`?balloonPreview=1`). WeChat release ignores it. No on-screen test banner. */

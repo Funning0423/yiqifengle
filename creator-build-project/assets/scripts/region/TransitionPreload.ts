@@ -1,5 +1,6 @@
-import {EffectAsset,JsonAsset,assetManager} from 'cc';
-import {PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
+import {Director,EffectAsset,JsonAsset,assetManager,director,type Node} from 'cc';
+import {preloadMeadowForSail} from './SailPreload';
+import {MEADOW_LEG_STAGES,PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
 import {REGIONS,loadRegionPrefab} from './RegionLoader';
 import {loadBundlePrefab} from './TransportVehicle';
 import {prewarmLakesideAssets} from './LakesideBoardBackground';
@@ -58,4 +59,27 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
   return all;
  })();
  return skyStaged;
+}
+
+/* P0 wipe: staged island→meadow warm (see MEADOW_LEG_STAGES). Each stage logs ms and the longest frame seen while it ran
+ * (frameMaxMs) so the Mac run shows the island frame cost. Cached: repeated calls are free; a failed stage only logs. */
+let meadowStaged:Promise<boolean>|null=null;
+export function warmMeadowLegStaged(parent:Node,stable:()=>boolean,gap=SKY_WARM_GAP_MS):Promise<boolean>{
+ if(meadowStaged)return meadowStaged;
+ const wait=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
+ const run:Record<string,()=>Promise<unknown>>={
+  'bundle:region_meadow':()=>bundle('region_meadow').then(ok=>{if(!ok)throw Error('bundle');}),
+  'bundle:transport_sail':()=>bundle('transport_sail').then(ok=>{if(!ok)throw Error('bundle');}),
+  'prefab:env_meadow':()=>loadRegionPrefab(REGIONS.meadow),
+  'mount:meadow-warm-rig':async()=>{while(!stable())await wait(gap);await preloadMeadowForSail(parent);},
+ };
+ meadowStaged=(async()=>{let all=true;
+  for(const st of MEADOW_LEG_STAGES){let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};
+   try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}
+   const t0=Date.now();let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
+   try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}
+   try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok}));}catch{}
+   await wait(gap);}
+  if(!all)meadowStaged=null;return all;})();
+ return meadowStaged;
 }

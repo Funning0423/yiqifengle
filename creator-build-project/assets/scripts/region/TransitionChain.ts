@@ -135,6 +135,11 @@ export const SKY_LEG_STAGES=Object.freeze([
  {id:'prefab:transit_clouds_merged',ms:150},{id:'prefab:transit_night_dome',ms:80},{id:'prefab:far_meadow_card',ms:60},
  {id:'json:balloon_flightpath',ms:40},{id:'effect:balloon-grade',ms:40}] as const);
 export const SKY_LEG_MOUNT_MS=700;
+/** P0 wipe (Mac 19bd812a: WindWipe leg meadow prepare-slow 3.06/3.17 s, no [QF_PRELOAD] meadow line): the meadow warm ran only at the
+ *  mainline-04 board, so a sail from the island without L4 in this session (returning player, preTransition) loaded + instantiated
+ *  the 5.5 MB meadow inside the 3 s window (16 s on the swapping Mac). Now staged from world init on the island, one load per
+ *  stage with a gap; the instantiate stage only runs while she is in a stable place (home / island), never on a walk. */
+export const MEADOW_LEG_STAGES=Object.freeze([{id:'bundle:region_meadow',ms:1800},{id:'bundle:transport_sail',ms:400},{id:'prefab:env_meadow',ms:450},{id:'mount:meadow-warm-rig',ms:700}] as const);
 /** Gap between warm stages so each load lands on its own frames (no fps hitch on the sail). */
 export const SKY_WARM_GAP_MS=300;
 export const SKY_WARM_WINDOW=Object.freeze({sailRideS:43,arrivalWalkS:29});

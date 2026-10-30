@@ -67,6 +67,7 @@ export class PreTransitionRunner{
   try{
    fast(true);
    if(spec.place==='home')return await this.toPlace('home');
+   if(!['island','result','skycity-visit'].includes(spec.place))(this.d.composition as any).warmMeadowIfIsland?.('pre',true)/* P0 wipe */;
    let r=await this.toPlace('island');if(!r.ok)return r;
    let prof:any=null;
    if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);if(!prof.ok)return prof;}
