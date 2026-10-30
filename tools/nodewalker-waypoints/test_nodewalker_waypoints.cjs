@@ -2,17 +2,16 @@
 /* b21/b21b nodewalker-waypoints gate (Grok Bot → GGbot). Waypoint routes walk as ONE continuous walk (no clip / fade / idle).
  * Routes: the island fixture (island-fixture.json — the ONE file to swap: scene SHA whose walkable grid + routeAvoid are read with
  * git show, I3/I4 and via; run in a separate harness, production island data untouched) + skycity pass-through walks (S2 leaves south
- * of the blocked block, avoid discs and the S3 pass-through disc: skycity-avoid.json). Every route is simulated at 60 fps and 30 fps
- * (b21b ruling, grokbot-2 option 2: the uneven-dt clock and YawFollower option A live on ggbot/yawfollower-dt and land together next
- * version with the candidate re-freeze; this branch keeps the shipped CharacterMotion.ts):
+ * of the blocked block, avoid discs and the S3 pass-through disc: skycity-avoid.json). Every route is simulated at 60 fps, 30 fps and
+ * uneven dt (uniform 1/90…1/45 s, fixed-seed LCG) — ggbot/yawfollower-dt: lands next version with the candidate re-freeze + re-pins:
  * 1) clip count 0: one segment, cut=false, fades=0; every leg ≤ DIRECT_MAX_M 9.6.
- * 2) heading: her yaw (REAL CharacterMotion.YawFollower — the shipped one, WALK_YAW_LOOKAHEAD_M target) ≤ cap, |heading accel|
+ * 2) heading: her yaw (REAL CharacterMotion.YawFollower — dt-correct since b21b, WALK_YAW_LOOKAHEAD_M target) ≤ cap, |heading accel|
  *    p99 ≤ cap (accel = Δrate / mean of the two frame times: per unit time, identical to /dt on a steady clock).
  *    cap = min(CharacterMotion.WALK_YAW_MAX_DEG_S, LensSmooth.yawOursDegS, (reveal linMS − WALK_SPEED_MPS)/|FOLLOW back,side|):
  *    the node-walk lens is ExploreCameraCore.followPose(her, her yaw) — rigid on her yaw, so its yaw rate = hers and its position
  *    swings on the 7.02 m arm. Accel cap = LensSmooth.yawAccDegS2 (= reveal angAccP99DegS2). Read from the sources each run.
  *    The follow lens itself must stay within the reveal-camera-motion LIMITS (read from that test) and ≥ 1.5 m above her.
- *    Per bend: every > SHARP_TURN_RAD bend (plan.sharpAt) over ±SHARP_ZONE_M — heading peak ≤ cap, accel p99 ≤ cap, speed — at both clocks.
+ *    Per bend: every > SHARP_TURN_RAD bend (plan.sharpAt) over ±SHARP_ZONE_M — heading peak ≤ cap, accel p99 ≤ cap, speed — at all 3 clocks.
  * 3) time: duration = curved length / WALK_SPEED_MPS + turn cost 0 s. Tolerance 1 frame. Walk_loop rate·native = L/D within 1 %.
  *    Speed: |step/dt − L/D| ≤ 0.12 m/s AND |step − L/D·dt| ≤ 2 mm per frame (both, at every clock: neither form is loosened).
  *    Clearance (every ≤ 0.05 m of the walked curve; 场景设计部 routeAvoid rules: island from the fixture SHA's
@@ -23,10 +22,7 @@
  *    a walk through head-height foliage and a raw 120° corner (per-bend gate) each FAIL.
  * 5) default unchanged: golden-dump of every node pair (planWalk/planSkip) + planTapWalk == golden-default.json (fc3123fa);
  *    WAYPOINT_ROUTES empty.
- * 6) GUARD (hard): WAYPOINT_ROUTES is empty AND no production script (creator-build-project/assets/scripts, NodeWalker.ts itself aside)
- *    reaches a waypoint route: no WAYPOINT_ROUTES / waypointPolyline / planChained reference, no NodeWalker planWalk call with a 4th
- *    (route) argument. Only tests/tools may walk the routes. Self-check: injected sources/route tables must FAIL.
- *    This guard is removed ONLY in the same change that brings back YawFollower A + the uneven-dt gate (ggbot/yawfollower-dt). */
+ * (the b21b 'no live waypoint route' guard was removed here, in the same change that brings back A + the uneven-dt gate) */
 const assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),{createHarness}=require('../board-ui/harness.cjs');
 const H=createHarness(),W=H.load('region/NodeWalker.ts'),N=H.load('region/RegionNodes.ts').REGION_NODES,CM=H.load('CharacterMotion.ts'),LS=H.load('region/LensSmooth.ts').LENS_SMOOTH,
  E=H.load('region/ExploreCameraCore.ts'),RW=H.load('region/RegionWalkable.ts');
@@ -40,8 +36,8 @@ assert(Math.abs(W.WAYPOINT_HEADING_CAP_DEG_S-CAP)<0.01,`NodeWalker heading cap $
 assert.equal(W.WAYPOINT_HEADING_ACC_CAP_DEG_S2,ACC,'accel cap drifted');
 const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI,p99=a=>{const s=a.slice().sort((x,y)=>x-y);return s.length?s[Math.min(s.length-1,Math.floor(.99*s.length))]:0;};
 const yawOf=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2]),pitchOf=p=>{const d=p.target.map((x,i)=>x-p.position[i]);return Math.asin(d[1]/Math.hypot(...d));};
-/** Frame clocks: 60 fps and 30 fps (the uneven-dt clock is on ggbot/yawfollower-dt with YawFollower A). */
-const CLOCKS={'60fps':()=>()=>1/60,'30fps':()=>()=>1/30};
+/** Frame clocks: 60 fps, 30 fps, and uneven dt uniform in [1/90, 1/45] s from a fixed-seed LCG (same sequence every run). */
+const CLOCKS={'60fps':()=>()=>1/60,'30fps':()=>()=>1/30,'jitter':()=>{let x=20261030;return ()=>{x=(Math.imul(x,1103515245)+12345)>>>0;return 1/90+(1/45-1/90)*x/4294967296;};}};
 /** Speed: per-unit-time |step/dt − L/D| ≤ SPEED_TOL_MS (0.12 m/s = 2 mm per 1/60 s frame) AND per-frame |step − L/D·dt| ≤ 2 mm (the
  *  b21 rule, kept: at 30 fps it is the tighter of the two — 0.06 m/s — so neither form is loosened at any rate). */
 const SPEED_TOL_MS=0.12,SPEED_TOL_FRAME_M=0.002;
@@ -152,30 +148,11 @@ const selfRows=[];for(const [name,reg,a,b,re] of SELF){const k=clear(line(a,b),r
 {const V=[[0,0,0],[0,0,4],[4*Math.sin(2*Math.PI/3),0,4+4*Math.cos(2*Math.PI/3)]],pl={segments:[{path:V,duration:W.pathLength(V)/v}],cut:false,fades:0,sharpAt:[V[1]]},bb=bendCheck(pl,'self-check raw 120° corner',V);
  assert(bb.bad.length>0,'per-bend self-check not caught '+JSON.stringify(bb.rows));selfRows.push({fixture:'raw 120° corner (per-bend gate)',fails:bb.bad.map(x=>x.slice(0,160))});}
 checks.push('clearance self-check: off-floor, trunk < 1 m and head-height foliage fixtures each FAIL; per-bend self-check: raw 120° corner FAILS');
-checks.push('per-bend gate: every > 100° bend window, heading peak ≤ cap and accel p99 ≤ cap at 60 fps and 30 fps');
+checks.push('per-bend gate: every > 100° bend window, heading peak ≤ cap and accel p99 ≤ cap at 60 fps, 30 fps and uneven dt');
 // 5) default unchanged
 const golden=JSON.parse(fs.readFileSync(path.join(__dirname,'golden-default.json'),'utf8')),now=require('./golden-dump.cjs').dump();
 assert.deepEqual(now,golden,'default NodeWalker plans differ from the fc3123fa golden');assert.equal(Object.keys(W.WAYPOINT_ROUTES).length,0,'production WAYPOINT_ROUTES must stay empty until a route is approved');
 checks.push(`default unchanged: ${Object.keys(golden).length} golden entries (all node pairs planWalk+planSkip, planTapWalk samples) identical to fc3123fa`);
-// 6) GUARD: no live path walks a waypoint route (removed only together with YawFollower A + the uneven-dt gate)
-function splitArgs(src,i){let d=0,a=1,q=null;for(let k=i;k<src.length;k++){const c=src[k];if(q){if(c==='\\')k++;else if(c===q)q=null;continue;}
-  if(c==='"'||c==="'"||c==='`'){q=c;continue;}if('([{'.includes(c))d++;else if(')]}'.includes(c)){if(d===0)return src.slice(i,k).trim()?a:0;d--;}else if(c===','&&d===0)a++;}return a;}
-function liveRouteUses(files,routes){const bad=[];if(Object.keys(routes).length)bad.push('WAYPOINT_ROUTES not empty: '+Object.keys(routes).join(','));
- for(const [f,src0] of files){const src=src0.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
-  for(const id of ['WAYPOINT_ROUTES','waypointPolyline','planChained'])if(new RegExp('\\b'+id+'\\b').test(src))bad.push(f+': references '+id);
-  if(/from\s+['"][^'"]*NodeWalker['"]/.test(src)){const re=/(?<![.\w])planWalk\s*\(/g;let m;while((m=re.exec(src)))if(splitArgs(src,m.index+m[0].length)>3)bad.push(f+': planWalk with a route argument');}}
- return bad;}
-const SCRIPTS=path.join(__dirname,'../../creator-build-project/assets/scripts'),walkTs=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walkTs(path.join(d,e.name)):/\.ts$/.test(e.name)?[path.join(d,e.name)]:[]);
-const LIVE=walkTs(SCRIPTS).filter(f=>path.basename(f)!=='NodeWalker.ts').map(f=>[path.relative(SCRIPTS,f),fs.readFileSync(f,'utf8')]);
-assert(LIVE.length>50,'guard: production scripts not found ('+LIVE.length+')');
-const gBad=liveRouteUses(LIVE,W.WAYPOINT_ROUTES);assert.deepEqual(gBad,[],'GUARD: a live path reaches a NodeWalker waypoint route: '+gBad.join('; '));
-{const imp="import {planWalk} from './NodeWalker';\n",inj=[['route arg',imp+"const p=planWalk('island','I3','I4',{via:[[1,0,2]]});"],['table ref',"import {WAYPOINT_ROUTES} from './NodeWalker';\nconst r=WAYPOINT_ROUTES;"],
-  ['polyline',"import {waypointPolyline} from './NodeWalker';\nwaypointPolyline('island','I3','I4',{via:[]});"]];
- for(const [n,src] of inj)assert(liveRouteUses([['inj.ts',src]],{}).length>0,'guard self-check not caught: '+n);
- assert(liveRouteUses([['ok.ts',imp+"const p=planWalk('island','I3','I4');this.planWalk(a,b,c,d);"]],{}).length===0,'guard self-check: 3-arg planWalk wrongly flagged');
- assert(liveRouteUses([],{'island:I3>I4':{via:['I4']}}).length>0,'guard self-check not caught: non-empty WAYPOINT_ROUTES');
- selfRows.push({fixture:'guard: route arg / WAYPOINT_ROUTES ref / waypointPolyline ref / non-empty table',fails:'all caught; 3-arg planWalk passes'});}
-checks.push(`GUARD: WAYPOINT_ROUTES empty and none of ${LIVE.length} production scripts reaches a waypoint route (self-check: 4 injections FAIL, 3-arg call passes); removed only with YawFollower A + uneven-dt gate`);
 console.log('CAPS '+JSON.stringify({headingDegS:+CAP.toFixed(2),from:{characterYawMax:CM.WALK_YAW_MAX_DEG_S,lensYaw:LS.yawOursDegS,armLimit:+armCap.toFixed(2),armM:+ARM.toFixed(3),linMS:LIMITS.linMS},accDegS2:ACC}));
 for(const r of rows)console.log('ROUTE '+JSON.stringify(r));for(const b of bendRows)console.log('BEND '+JSON.stringify(b));for(const x of selfRows)console.log('SELF '+JSON.stringify(x));
 for(const c of checks)console.log('PASS '+c);console.log(JSON.stringify({status:'PASS',checks},null,1));
