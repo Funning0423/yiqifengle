@@ -1,8 +1,10 @@
-import { _decorator, Component, game, Game, BlockInputEvents, Color, EventTouch, Graphics, Label, Layers, Node, Sprite, UIOpacity, UITransform, Vec3, isValid } from 'cc';
+import { _decorator, Component, game, Game, BlockInputEvents, tween, Tween, Color, EventTouch, Graphics, Label, Layers, Node, Sprite, UIOpacity, UITransform, Vec3, isValid } from 'cc';
 import { GameAudio } from '../audio/GameAudio';
 import { ART_PX, BoardArt } from './BoardArt';
 import { textRgb, tintRgb, uiNightWeight, type TextRole, type TintKind } from './NightTint';
 import { reducedMotion } from './UiPrefs';
+import { OPEN_S, CLOSE_S, PRESS_SCALE, PRESS_SINK, RELEASE_S, TOGGLE_S, easeOutBack, easeOutCubic, enterAt, exitAt } from './PopupMotion';
+export { OPEN_S, CLOSE_S } from './PopupMotion';
 /** Unified popup kit (INTEGRATION §3): one light-wood 9-slice frame without pegs, width 680 px of the 750 design,
  *  baked title on a plank centred on the top edge, 3-slice buttons, toggles, slider. Everything inside a panel is laid
  *  out in 750-design pixels: the panel body is scaled by popupScale(), so slice borders and fonts keep their art size.
@@ -10,15 +12,12 @@ import { reducedMotion } from './UiPrefs';
 export const PANEL_WIDTH = 680;
 export const CONTENT_TOP = 104;
 export const CONTENT_BOTTOM = 72;
-export const OPEN_S = 0.22;
-export const CLOSE_S = 0.15;
 export const SHADE = { rgb: [16, 28, 34], alpha: 0.35 } as const;
 export function popupScale(width: number, height: number): number { return Math.max(0.3, Math.min(width / 750, height / 1300, 0.62)); }
 export type Sound = 'button' | 'back' | 'tool' | 'none';
 export function playSound(kind: Sound) {
   try { const a = GameAudio.instance; if (!a) return; if (kind === 'button') a.onButton(); else if (kind === 'back') a.onUiBack(); else if (kind === 'tool') a.onToolTap(); } catch (e) { /* sound is optional */ }
 }
-const easeOut = (t: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
 export function uiNode(name: string, parent: Node | null, width = 0, height = 0): Node {
   const n = new Node(name); n.layer = Layers.Enum.UI_2D; if (parent) parent.addChild(n); n.addComponent(UITransform).setContentSize(width, height); return n;
 }
@@ -46,6 +45,8 @@ export class TintSet {
     this.redrawShapes();
   }
   private redrawShapes() { for (let i = 0; i < this.shapes.length; i++) { const s = this.shapes[i]; if (!isValid(s.g, true)) continue; s.g.clear(); s.draw(s.g, Math.max(0, this.night), this.alpha); } }
+  /** Redraw one registered shape now (animated shapes: progress bar growth). */
+  repaint(g: Graphics) { for (let i = 0; i < this.shapes.length; i++) { const s = this.shapes[i]; if (s.g === g && isValid(g, true)) { g.clear(); s.draw(g, Math.max(0, this.night), this.alpha); } } }
   weight() { return Math.max(0, this.night); }
   clear() { this.sprites.length = 0; this.labels.length = 0; this.shapes.length = 0; this.night = -1; }
 }
@@ -110,7 +111,7 @@ function pointerId(e: EventTouch | undefined) {
 }
 /** Press sinks 3px; leaving/re-entering changes feedback, but only an owner release inside activates. */
 export function pressable(node: Node, content: Node, tap: () => void, opts: { sound?: Sound; enabled?: () => boolean; onPress?: (down: boolean) => void } = {}): PressHandle {
-  let owner: number | null = null, down = false, disposed = false; const base = new Vec3();
+  let owner: number | null = null, down = false, disposed = false; const base = new Vec3(), baseScale = new Vec3(1, 1, 1);
   const ready = () => !disposed && pressNodeReady(node) && (!opts.enabled || opts.enabled());
   const hit = (e: EventTouch) => {
     const p = e && typeof e.getLocation === 'function' ? e.getLocation() : null;
@@ -118,14 +119,17 @@ export function pressable(node: Node, content: Node, tap: () => void, opts: { so
   };
   const press = (on: boolean) => {
     if (on === down) return; down = on;
-    if (isValid(content, true)) { if (on) { base.set(content.position); content.setPosition(base.x, base.y - 3, base.z); } else content.setPosition(base.x, base.y, base.z); }
+    // SPEC §4: press = same frame (scale 0.96, sink 3); release = 120 ms easeOutBack(1.4) back to rest.
+    if (isValid(content, true)) { Tween.stopAllByTarget(content); if (on) { base.set(content.position); baseScale.set(content.scale); content.setPosition(base.x, base.y - PRESS_SINK, base.z); content.setScale(baseScale.x * PRESS_SCALE, baseScale.y * PRESS_SCALE, baseScale.z); } else { content.setPosition(base.x, base.y, base.z); if (reducedMotion()) content.setScale(baseScale); else tween(content).to(RELEASE_S, { scale: baseScale.clone() }, { easing: (k: number) => easeOutBack(k) }).start(); } }
     if (isValid(node, true) && isValid(content, true)) opts.onPress?.(on);
   };
   const cancel = () => { owner = null; press(false); };
   const start = (e: EventTouch) => { if (!e) return; e.propagationStopped = true; const id = pointerId(e); if (owner !== null || id === null || !ready() || !hit(e)) return; owner = id; press(true); };
   const move = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; if (!ready()) { cancel(); return; } press(hit(e)); };
   const abort = (e: EventTouch) => { if (owner !== null && pointerId(e) === owner) cancel(); };
-  const end = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; const activate = ready() && hit(e); cancel(); if (!activate) return; GameAudio.notifyUserGesture(); playSound(opts.sound || 'button'); tap(); };
+  const end = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; const activate = ready() && hit(e); cancel(); if (!activate) return; GameAudio.notifyUserGesture(); playSound(opts.sound || 'button'); tap();
+    // The action fires on release without waiting for the 120 ms spring; if it closed the popup, settle at rest at once.
+    if (!pressNodeReady(node) && isValid(content, true)) { Tween.stopAllByTarget(content); content.setScale(baseScale); } };
   node.on(Node.EventType.TOUCH_START, start); node.on(Node.EventType.TOUCH_MOVE, move);
   node.on(Node.EventType.TOUCH_CANCEL, abort); node.on(Node.EventType.TOUCH_END, end);
   const cleanup = bindInputLifetime(node, cancel);
@@ -168,11 +172,11 @@ export function artToggle(parent: Node, tint: TintSet, x: number, y: number, h: 
   const onOp = onS.node.addComponent(UIOpacity);
   const knob = artSprite(node, 'popup/toggle_knob', 0, 0, h * 0.86, h * 0.86, 'Knob'); tint.sprite(knob, 'ui');
   let value = on, t = on ? 1 : 0;
-  const paint = () => { knob.node.setPosition(-w / 2 + h * 0.5 + (w - h) * t, -h * 0.02, 0); onOp.opacity = Math.round(255 * t); };
+  const paint = () => { const e = easeOutCubic(value ? t : 1 - t), k = value ? e : 1 - e; knob.node.setPosition(-w / 2 + h * 0.5 + (w - h) * k, -h * 0.02, 0); onOp.opacity = Math.round(255 * k); };
   paint();
   pressable(node, knob.node, () => { value = !value; change(value); }, { sound: 'button' });
   return { node, set(v: boolean, animate = false) { value = v; if (!animate) { t = v ? 1 : 0; paint(); } }, value: () => value,
-    update(dt: number) { const target = value ? 1 : 0; if (t === target) return; t = target > t ? Math.min(1, t + dt / 0.15) : Math.max(0, t - dt / 0.15); paint(); } };
+    update(dt: number) { const target = value ? 1 : 0; if (t === target) return; t = target > t ? Math.min(1, t + dt / TOGGLE_S) : Math.max(0, t - dt / TOGGLE_S); paint(); } };
 }
 export interface SliderHandle { node: Node; set(v: number): void; value(): number }
 /** Music volume slider: toggle_off rail, toggle_on fill clipped to the value, knob 1.5× rail height (0 new art). */
@@ -237,12 +241,14 @@ export interface PanelOptions {
 export class PopupPanel {
   readonly root: Node; readonly body: Node; readonly tint: TintSet;
   width: number; height: number;
-  private frame: Node; private plank: Node;
+  private frame: Node; plank: Node;
   private layoutStrategy: ((width: number, height: number, safeInsets?: PopupSafeInsets) => PanelGeometry) | null = null;
   private reflow: ((geometry: PanelGeometry) => void) | null = null;
   private shade: Graphics; private opacity: UIOpacity; private t = 0; private closing = -1; private done: (() => void) | null = null;
   private toggles: ToggleHandle[] = []; private viewW = 0; private viewH = 0; private dy: number;
-  private reduced = reducedMotion();
+  private reduced = reducedMotion(); private ticks: Array<(dt: number) => void> = [];
+  /** Per-frame content animation (journey rows / bar): runs after the panel's own enter/exit step. */
+  onTick(fn: (dt: number) => void) { this.ticks.push(fn); }
   private safeInsets: PopupSafeInsets | undefined; private safeKey = '';
   constructor(parent: Node, readonly options: PanelOptions, viewport: PopupViewport) {
     this.tint = options.tint || new TintSet(); this.width = options.width || PANEL_WIDTH; this.height = options.height; this.dy = options.dy || 0;
@@ -306,12 +312,14 @@ export class PopupPanel {
     this.frame.getComponent(UITransform)!.setContentSize(this.width / this.frame.scale.x, this.height / this.frame.scale.y);
     this.plank.setPosition(0, geometry.titleY ?? this.height / 2, 0);
     this.root.getComponent(UITransform)!.setContentSize(width, height); this.shade.node.getComponent(UITransform)!.setContentSize(width, height);
-    const k = this.reduced ? 1 : this.closing >= 0 ? 1 - 0.04 * easeOut(1 - this.closing / CLOSE_S) : 0.92 + 0.08 * easeOut(this.t / OPEN_S);
+    const k = this.motion().scale;
     this.body.setScale(s * k, s * k, 1); this.body.setPosition(geometry.offsetX ?? 0, geometry.offsetY ?? -this.dy * s, 0);
     this.reflow?.(geometry);
     this.paintShade(this.alpha());
   }
-  private alpha() { return this.closing >= 0 ? Math.max(0, this.closing / CLOSE_S) : Math.min(1, this.t / OPEN_S); }
+  /** SPEC §4: enter 320 ms cubic-bezier(0.05,0.7,0.1,1), exit 180 ms cubic-bezier(0.3,0,0.8,0.15); alpha on the same curves. */
+  private motion() { return this.closing >= 0 ? exitAt(CLOSE_S - this.closing, this.reduced) : enterAt(this.t, this.reduced); }
+  private alpha() { return this.motion().alpha; }
   private paintShade(a: number) {
     const g = this.shade; g.clear(); g.fillColor = new Color(SHADE.rgb[0], SHADE.rgb[1], SHADE.rgb[2], Math.round(255 * SHADE.alpha * a));
     g.rect(-this.viewW / 2, -this.viewH / 2, this.viewW, this.viewH); g.fill();
@@ -324,8 +332,9 @@ export class PopupPanel {
     const step = Math.max(0, Math.min(dt, 0.1));
     if (this.closing >= 0) { this.closing = Math.max(0, this.closing - step); if (this.closing <= 0) { this.finish(); return; } }
     else if (this.t < OPEN_S) this.t = Math.min(OPEN_S, this.t + step);
-    const a = this.alpha(); this.opacity.opacity = Math.round(255 * easeOut(a)); this.tint.setAlpha(a); this.layout(this.viewW, this.viewH, this.safeInsets);
+    const a = this.alpha(); this.opacity.opacity = Math.round(255 * a); this.tint.setAlpha(a); this.layout(this.viewW, this.viewH, this.safeInsets);
     for (let i = 0; i < this.toggles.length; i++) this.toggles[i].update(step);
+    for (let i = 0; i < this.ticks.length; i++) { try { this.ticks[i](step); } catch (e) { console.warn('[POPUP] tick', String(e)); } }
     this.tint.update();
   }
   /** Show fully open now (no pop-in): for a panel that replaces one already on screen. */
@@ -345,6 +354,8 @@ export class PopupStack {
   open(options: PanelOptions): PopupPanel {
     const p = new PopupPanel(this.parent, options, this.viewport()); p.root.setSiblingIndex(this.parent.children.length - 1); this.list.push(p); this.syncInput(); return p;
   }
+  /** Current viewport (screen pt): panels that size themselves in pt (journey book). */
+  view(): PopupViewport { return this.viewport(); }
   top(): PopupPanel | null { this.prune(); for (let i = this.list.length - 1; i >= 0; i--) if (!this.list[i].isClosing) return this.list[i]; return null; }
   find(name: string): PopupPanel | null { this.prune(); for (let i = this.list.length - 1; i >= 0; i--) if (this.list[i].options.name === name && !this.list[i].isClosing) return this.list[i]; return null; }
   /** True while any panel is open or still animating (input to the layer below stays blocked). */

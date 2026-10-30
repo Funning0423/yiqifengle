@@ -2,8 +2,12 @@ import { Node, UITransform, Graphics, Color, Label, Layers, UIOpacity, isValid }
 import { ManagedToolArt } from '../ManagedToolArt';
 import { BoardArt } from '../ui/BoardArt';
 import { PopupStack } from '../ui/PopupKit';
-import { openBag, openSettings } from '../ui/CommonPanels';
-import { CHAPTERS, openChapter, openJourney, openRest } from '../ui/IslandPanels';
+import { openBag, openSettings, openUpdate } from '../ui/CommonPanels';
+import { UpdatePromptGate } from '../ui/UpdatePromptCore';
+import { CHAPTERS, chapterSummary, journeyInput, openRest } from '../ui/IslandPanels';
+import { warmJourneyUi, withJourneyUi } from '../ui/JourneyUi';
+import { regionRow } from '../ui/JourneyCore';
+import { setLastRegion } from '../ui/UiPrefs';
 import { warmButton } from '../WarmButton';
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
 import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
@@ -11,15 +15,15 @@ import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type Prop
 const TAP_TARGET:Record<string,PropTapTarget>={bag:'bag',journal:'book',settings:'settings'};
 
 type Options={prewarm?:(region:string)=>void;invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
-type Page='bag'|'journal'|'settings'|'rest'|'tide'|'meadow'|'sky'|'lake';
+type Page='bag'|'journal'|'settings'|'rest'|'update'|'tide'|'meadow'|'sky'|'lake';
 export { CHAPTERS };
 /** Island presentation only. Closed: three compact utilities (bag / journey book / full settings). Regions are chapters
  * in the journey book, never a second wall of island buttons. The island rest opens from the cabin (openRest).
  * Every dialog is a lite popup (ui/PopupKit); providers retain every gate and write. */
 export class IslandJourneyOverlay {
  private root:Node;private dock:Node;private layer:Node;private popups:PopupStack;private toolArt:ManagedToolArt;private lastMs=0;
- private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private serial=0;
- private propMode=false;private tags:Node[]=[];private tagSlots:PropButtonSlot[]=[];private tagNight=-1;
+ private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private deferred=false;private serial=0;
+ private updateGate=new UpdatePromptGate();private propMode=false;private tags:Node[]=[];private tagSlots:PropButtonSlot[]=[];private tagNight=-1;
  constructor(parent:Node,private options:Options){
   this.root=this.box('IslandJourneyOverlay',parent,0,0,1,1);this.root.active=false;
   this.dock=this.box('IslandUtilityDock',this.root,0,0,1,1);
@@ -31,12 +35,14 @@ export class IslandJourneyOverlay {
   }
   this.layer=this.box('IslandPopups',this.root,0,0,1,1);
   this.popups=new PopupStack(this.layer,()=>({width:this.width||1,height:this.height||1}));
-  this.toolArt=this.root.addComponent(ManagedToolArt);this.toolArt.initialize(()=>{});void BoardArt.shared().load('popup');void BoardArt.shared().load('r2');void BoardArt.shared().load('r3');
+  this.toolArt=this.root.addComponent(ManagedToolArt);this.toolArt.initialize(()=>{});void BoardArt.shared().load('popup');void warmJourneyUi();void BoardArt.shared().load('r2');void BoardArt.shared().load('r3');
  }
  sync(width:number,height:number,enabled:boolean){
   if(this.dead||!isValid(this.root,true))return;const resized=width!==this.width||height!==this.height;this.enabled=enabled;this.root.active=enabled;
-  if(!enabled){this.close();return;}
-  const now=Date.now(),dt=this.lastMs?Math.min(.1,(now-this.lastMs)/1000):0;this.lastMs=now;this.popups.update(dt);if(this.page&&!this.popups.any())this.page=null;if(!this.page&&!this.dock.active)this.dock.active=true;
+  if(!enabled){this.updateGate.tick(0,null,{islandHome:false,popupOpen:false,board:true,transition:true});this.close();return;}
+  const now=Date.now(),dt=this.lastMs?Math.min(.1,(now-this.lastMs)/1000):0;this.lastMs=now;this.popups.update(dt);if(this.page&&!this.popups.any()&&!this.deferred)this.page=null;if(!this.page&&!this.dock.active)this.dock.active=true;
+  // System-panels §3: update popup only at a quiet island-home moment (overlay enabled = island, not board/transition/busy).
+  const upd=(globalThis as any).__qfUpdate;if(this.updateGate.tick(dt,upd,{islandHome:true,popupOpen:!!this.page||this.popups.any(),board:false,transition:false}))this.open('update');
   // T9n: tags follow the props' night weight (repaint only on a visible step; ends exact)
   if(this.propMode&&this.tags.length){const nw=propNightWeight();if(Math.abs(nw-this.tagNight)>=.02||nw!==this.tagNight&&(nw===0||nw===1)){this.tagNight=nw;if(!resized)this.paintTags();}}
   this.width=width;this.height=height;if(!resized)return;this.root.getComponent(UITransform)!.setContentSize(width,height);const portrait=width<height,bottom=portrait?34:20,gap=Math.min(100,(width-48)/3);
@@ -72,7 +78,7 @@ export class IslandJourneyOverlay {
    g.fillColor=new Color(c.fill);g.roundRect(-w/2,-h/2,w,h,r);g.fill();g.strokeColor=new Color(c.edge);g.lineWidth=lw;g.roundRect(-w/2+lw/2,-h/2+lw/2,w-lw,h-lw,r-lw/2);g.stroke();
    const l=tag.getComponentInChildren(Label)!;l.color=new Color(c.text);l.fontSize=s.tag.fontSize;l.lineHeight=s.tag.fontSize+4;l.node.getComponent(UITransform)!.setContentSize(w,h);});
  }
- close(){this.page=null;this.serial++;this.popups?.clear();if(isValid(this.dock,true))this.dock.active=true;}
+ close(){this.deferred=false;this.page=null;this.serial++;this.popups?.clear();if(isValid(this.dock,true))this.dock.active=true;}
  private open(page:Page){if(this.dead||!this.enabled)return;this.page=page;this.serial++;this.dock.active=false;this.root.setSiblingIndex(this.root.parent!.children.length-1);this.paint();}
  private dispatch(fn:()=>any){if(!this.enabled||this.dead||!this.page)return;this.close();this.options.invoke(fn);}
  private safeRead(fn:()=>any){try{return fn();}catch{return null;}}
@@ -82,18 +88,21 @@ export class IslandJourneyOverlay {
   const done=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};
   if(page==='bag'){const status=this.safeRead(this.options.mainlineStatus);openBag(this.popups,status?.journey,'island',this.toolArt).options.onClose=done;}
   else if(page==='settings')openSettings(this.popups,{onClose:done});
+  else if(page==='update'){const upd=(globalThis as any).__qfUpdate;openUpdate(this.popups,()=>{try{upd?.apply?.();}catch(e){console.warn('[UPDATE] apply',String(e));}},()=>this.updateGate.later()).options.onClose=done;}
   else if(page==='rest'){const night=this.safeRead(this.options.dayNight)?.mode==='night';openRest(this.popups,night,()=>{if(live())this.dispatch(this.options.toggleDayNight);}).options.onClose=done;}
   else if(page==='journal'){const status=this.safeRead(this.options.mainlineStatus),gates=this.safeRead(this.options.gates);
-   openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5).options.onClose=done;}
+   this.deferred=withJourneyUi(ui=>{this.deferred=false;if(!live())return;ui.openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5,gates?{stages:gates.stages}:null).options.onClose=done;},'journal')==='deferred';}
   else this.chapter(page);
  }
  private chapter(region:string){
   const serial=this.serial,live=()=>!this.dead&&this.enabled&&serial===this.serial&&!!this.page;
   // v3.3: an open chapter is the earliest moment the region is likely next; let the host warm its assets (never throws).
   if(this.gate(region)?.ok){try{this.options.prewarm?.(region);}catch{}}
-  openChapter(this.popups,region,{gate:()=>this.gate(region),r4Open:()=>!!this.safeRead(this.options.gates)?.r4?.some((x:any)=>x.unlocked),
-   enter:()=>{if(live())this.dispatch(()=>this.options.enterRegion(region));},skycity:()=>{if(live())this.dispatch(this.options.enterSkycity);},
-   legacyTide:()=>{if(live())this.dispatch(this.options.enterR4);},back:()=>{}}).options.onClose=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};
+  this.deferred=withJourneyUi(ui=>{this.deferred=false;if(!live())return;ui.openChapter(this.popups,region,{gate:()=>this.gate(region),r4Open:()=>!!this.safeRead(this.options.gates)?.r4?.some((x:any)=>x.unlocked),
+   stats:()=>{const st=this.safeRead(this.options.mainlineStatus),g=this.safeRead(this.options.gates),i=CHAPTERS.findIndex(c=>c.id===region);const s=chapterSummary(st?.journey,g?.challenges,i);return {stars:s.stars,challenges:s.challenges};},
+   row:()=>{const st=this.safeRead(this.options.mainlineStatus),g=this.safeRead(this.options.gates);return regionRow(region as any,journeyInput(st?.journey,g?.challenges,g?{stages:g.stages}:{stages:[{id:'r05-lake-01',region:'lake'}]}));},
+   enter:()=>{if(live()){setLastRegion(region);this.dispatch(()=>this.options.enterRegion(region));}},skycity:()=>{if(live())this.dispatch(this.options.enterSkycity);},
+   legacyTide:()=>{if(live())this.dispatch(this.options.enterR4);},back:()=>{}}).options.onClose=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};},'chapter')==='deferred';
  }
  private box(name:string,parent:Node,x:number,y:number,w:number,h:number){const n=new Node(name);n.layer=Layers.Enum.UI_2D;parent.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,h);return n;}
  private text(parent:Node,value:string,x:number,y:number,size:number,w:number,color='#355f53'){const n=this.box('Text',parent,x,y,w,size+10),l=n.addComponent(Label);l.string=value;l.fontSize=size;l.lineHeight=size+4;l.color=new Color(color);l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;l.overflow=Label.Overflow.SHRINK;return l;}

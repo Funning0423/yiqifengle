@@ -67,7 +67,7 @@ function clock(){let t=0;const log=[];const self={log,now:()=>t,wait:async s=>{t
  // 12 ending v2 (UI设计部 SPEC §3 v2.1): 7 sizes pass the design's layout checks; layered day/night art present with .meta
  {const fs=require('fs'),path=require('path');
   for(const [w,h] of [[320,568],[360,780],[375,667],[390,844],[393,852],[414,896],[430,932]]){const c=E.endingLayoutChecks(w,h,0);for(const k of Object.keys(c))assert(c[k],w+'x'+h+' '+k);}
-  const L=E.endingLayout(320,568,0);assert(L.girl.y1-L.girl.y0>=48-1e-6&&L.girl.y0-(L.sealsCy+22)>=12-1e-6);
+  const L=E.endingLayout(320,568,0);assert(L.girl.y1-L.girl.y0>=48-1e-6&&L.girl.y0-L.seals.bottom>=6-1e-6) // UI设计部 r3: head-to-seal gap spec 6 pt (was 12 pt below a Ø40 single row); 48 pt minimum unchanged;
   assert.equal(E.endingSwayDeg(0),0);assert(Math.abs(E.endingSwayDeg(0.8)-4)<1e-9);assert(Math.abs(E.endingSwayDeg(2.4)+4)<1e-9);
   const dir=path.join(__dirname,'../../creator-build-project/assets/resources/ending');
   for(const m of ['day','night'])for(const f of ['end_bg_'+m+'.jpg','end_girl_'+m+'.png']){assert(fs.existsSync(path.join(dir,f))&&fs.existsSync(path.join(dir,f+'.meta')),f);}

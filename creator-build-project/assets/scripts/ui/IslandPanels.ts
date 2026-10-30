@@ -1,71 +1,37 @@
-import { Color, Graphics, UITransform } from 'cc';
+import { Color, Graphics } from 'cc';
 import { PopupPanel, PopupStack, uiNode } from './PopupKit';
 import { tintRgb } from './NightTint';
 /** Island-only panels (c-popups round2 compose_lite.journey_lite / compose2.island_rest): journey book, chapter page and
  *  the island rest opened from the cabin. Layout numbers are 750-design px. */
-export const CHAPTERS: ReadonlyArray<{ id: 'tide' | 'meadow' | 'sky' | 'lake'; name: string; description: string }> = [
-  { id: 'tide', name: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。' },
-  { id: 'meadow', name: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。' },
-  { id: 'sky', name: '天空回声', description: '连起光的回声，探索云上的远方。' },
-  { id: 'lake', name: '风铃湖畔', description: '夕阳下的湖面，敲响漂在水上的风铃。' },
-];
+import { REGION_DEFS, RegionKey, RegionRow, JourneyInput, journeyRows } from './JourneyCore';
+import { seenRegions } from './UiPrefs';
+export type ChapterId = RegionKey;
+/** new-regions SPEC §13: 9 regions; `stages` = stages counted by the journey bar, `color` = region colour. */
+export const CHAPTERS: ReadonlyArray<{ id: ChapterId; name: string; short: string; subtitle?: string; description: string; stages: number; color: number[] }> = REGION_DEFS.map(d => ({ id: d.id, name: d.name, short: d.short, subtitle: d.subtitle, description: d.description, stages: d.stages, color: d.color }));
 /** 风铃湖畔 has no mainline stages of its own: it opens after mainline 12 (journey record 11, same as the provider's
  *  progress-journal LAKE_GATE_RECORD) and has 6 challenge stages. */
 export const LAKE_GATE_RECORD = 11, LAKE_STAGES = 6;
 export function chapterMilestone(region: number): number { return CHAPTERS[region]?.id === 'lake' ? LAKE_GATE_RECORD + 1 : (region + 1) * 4; }
-export interface ChapterSummary { stars: number; challenges: number; locked: boolean }
-/** Mainline stars only (x/12 per region, levels region*4..+3); challenge marks x/4; a region is locked until the mainline reaches it. */
-export function chapterSummary(journey: any, challenges: Record<string, number> | null | undefined, region: number, gate?: any): ChapterSummary {
+export interface ChapterSummary { stars: number; challenges: number; locked: boolean; done: number; total: number; state: RegionRow['state'] }
+/** Island data (overlay → panels): mainline journey + the composition's islandGates() (challenges counts, stage refs). */
+export function journeyInput(journey: any, challenges: Record<string, number> | null | undefined, gates?: any): JourneyInput {
+  return { records: Array.isArray(journey?.records) ? journey.records : [], regionDone: (challenges || {}) as any,
+    stages: Array.isArray(gates?.stages) ? gates.stages : null, seen: seenRegions(), lastPlayed: gates?.lastPlayed || null };
+}
+/** Mainline stars (x/12 per region, levels region*4..+3) and challenge marks stay on the chapter page; done/total/state per SPEC §2.1. */
+export function chapterSummary(journey: any, challenges: Record<string, number> | null | undefined, region: number, gate?: any, stages?: any): ChapterSummary {
   const records: any[] = Array.isArray(journey?.records) ? journey.records : [];
-  const lake = CHAPTERS[region]?.id === 'lake';
-  let stars = 0; if (!lake) for (let i = region * 4; i < region * 4 + 4; i++) stars += Math.max(0, Math.min(3, Number(records[i]?.bestStars) || 0));
-  const required = chapterMilestone(region) - 1;
-  return { stars, challenges: Math.max(0, Math.min(lake ? LAKE_STAGES : 4, Number(challenges?.[CHAPTERS[region].id]) || 0)), locked: gate ? !gate.ok : !records[required]?.bestStars };
+  const c = CHAPTERS[region], r5 = REGION_DEFS[region]?.provider === 'r5';
+  let stars = 0; if (!r5) for (let i = region * 4; i < region * 4 + 4; i++) stars += Math.max(0, Math.min(3, Number(records[i]?.bestStars) || 0));
+  const required = r5 && c?.id !== 'lake' ? LAKE_GATE_RECORD : chapterMilestone(region) - 1;
+  const row = journeyRows({ records, regionDone: challenges as any, stages: stages || defaultStages() }).find(x => x.id === c?.id);
+  let locked = gate ? !gate.ok : !records[required]?.bestStars; if (row && (row.state === 'locked' || row.state === 'far')) locked = true;
+  return { stars, challenges: Math.max(0, Math.min(r5 ? c.stages : 4, Number(challenges?.[c?.id]) || 0)), locked, done: row?.done || 0, total: c?.stages || 0, state: row?.state || 'far' };
 }
-const SIGN_W = 544, SIGN_H = 176, GAP = 32, WIN_W = 208, WIN_H = 136;
-export function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void, gates?: any[]): PopupPanel {
-  const ph = 104 + CHAPTERS.length * SIGN_H + (CHAPTERS.length - 1) * GAP + 72, p = stack.open({ name: 'JourneyPanel', height: ph, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
-  for (let i = 0; i < CHAPTERS.length; i++) {
-    const c = CHAPTERS[i], s = chapterSummary(journey, challenges, i, gates?.find(x => x.region === c.id)), cy = 104 + i * (SIGN_H + GAP) + SIGN_H / 2, ix = -SIGN_W / 2 + 24, tx = ix + WIN_W + 24;
-    const b = p.button('secondary', '', 0, cy, SIGN_W, SIGN_H, () => openChapter(c.id), { name: 'Chapter-' + c.id });
-    const face = b.node.getChildByName('Face')!; face.getChildByName('Plate')!.active = false;
-    const sign = p.sprite('r2/sign_plank_3s', 0, 0, SIGN_W, SIGN_H, 'ui', face); sign.node.setPosition(0, 0, 0); sign.node.setSiblingIndex(0); sign.grayscale = s.locked;
-    const win = p.sprite('r2/region_' + c.id, ix + WIN_W / 2, cy, WIN_W, WIN_H); win.grayscale = s.locked;
-    const seal = p.sprite('popup/reward_seal_' + c.id, ix + 12, cy - WIN_H / 2 + 12, 64, 64); seal.grayscale = s.locked;
-    if (s.locked) p.sprite('r2/icon_lock', ix + WIN_W / 2, cy, undefined, 64);
-    const title = p.sprite('r2/chapter_' + c.id, 0, cy - 40); const tw = title.node.getComponent(UITransform)!.width; title.node.setPosition(tx + tw / 2, p.at(0, cy - 40)[1], 0); title.grayscale = s.locked;
-    if (s.locked) { p.text('挑战需通关主线 ' + String(chapterMilestone(i)).padStart(2, '0'), tx, cy + 16, 24, 'grey', { align: 'left', width: 260, bold: false }); continue; }
-    if (c.id !== 'lake') { p.sprite('popup/star_full', tx + 16, cy + 8, 32, 32); p.text(s.stars + '/12', tx + 40, cy + 8, 24, 'brown', { align: 'left', width: 120 }); }
-    const label = '挑战 ' + s.challenges + '/' + (c.id === 'lake' ? LAKE_STAGES : 4), pill = uiNode('ChallengePill', p.body, 200, 36), pp = p.at(tx, cy + 52); pill.setPosition(pp[0], pp[1], 0);
-    const w = 44 + label.length * 22;
-    p.tint.shape(pill.addComponent(Graphics), (g, night, a) => {
-      const fill = tintRgb('ui', night, [236, 244, 240]), edge = tintRgb('ui', night, [100, 168, 164]), flag = tintRgb('ui', night, [58, 120, 118]), al = Math.round(255 * a);
-      g.fillColor = new Color(fill[0], fill[1], fill[2], al); g.roundRect(0, -18, w, 36, 18); g.fill();
-      g.strokeColor = new Color(edge[0], edge[1], edge[2], al); g.lineWidth = 2; g.roundRect(0, -18, w, 36, 18); g.stroke();
-      g.strokeColor = new Color(flag[0], flag[1], flag[2], al); g.lineWidth = 3; g.moveTo(16, 10); g.lineTo(16, -10); g.stroke();
-      g.fillColor = new Color(flag[0], flag[1], flag[2], al); g.moveTo(17, 10); g.lineTo(29, 6); g.lineTo(17, 1); g.close(); g.fill();
-    });
-    p.text(label, tx + 30, cy + 52, 24, 'teal', { align: 'left', width: 200 });
-  }
-  return p;
-}
-export interface ChapterActions { gate: () => any; r4Open: () => boolean; enter: () => void; skycity: () => void; legacyTide: () => void; back: () => void }
-/** Chapter page (no dedicated art yet): region window, the new description, the provider gate's button. */
-export function openChapter(stack: PopupStack, id: string, a: ChapterActions): PopupPanel {
-  const c = CHAPTERS.find(x => x.id === id) || CHAPTERS[0], extra = id === 'tide' || id === 'sky';
-  const ph = 104 + 208 + 32 + 40 + 48 + 104 + (extra ? 24 + 96 : 0) + 24 + 96 + 72, p = stack.open({ name: 'ChapterPanel', height: ph, title: c.name, titleArt: 'r2/chapter_' + c.id, closable: true });
-  p.sprite('r2/region_' + c.id, 0, 104 + 104, 320, 320 * WIN_H / WIN_W);
-  p.text(c.description, 0, 104 + 208 + 32 + 20, 28, 'brown2', { bold: false, width: 600, name: 'ChapterDescription' });
-  const gate = a.gate(), reason = gate?.reason;
-  const blocked = reason === 'stage-locked' ? '需通关主线 ' + String(chapterMilestone(CHAPTERS.indexOf(c))).padStart(2, '0') : reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : '暂不可进入';
-  let y = 104 + 208 + 32 + 40 + 48 + 52;
-  const go = p.button('primary', gate?.ok ? '继续挑战' : blocked, 0, y, 480, 104, () => { if (a.gate()?.ok) a.enter(); }, { fontSize: 36, name: 'Continue-' + c.id }); go.setEnabled(!!gate?.ok);
-  y += 52;
-  if (id === 'sky') { y += 24 + 48; p.button('secondary', '前往天空城 · 3D 场景', 0, y, 480, 96, () => a.skycity(), { fontSize: 32, name: 'VisitSkycity' }); y += 48; }
-  if (id === 'tide') { y += 24 + 48; const open = a.r4Open(); const b = p.button('secondary', open ? '旧日潮汐' : '旧日潮汐 · 未开启', 0, y, 480, 96, () => { if (a.r4Open()) a.legacyTide(); }, { fontSize: 32, name: 'LegacyTide' }); b.setEnabled(open); y += 48; }
-  y += 24 + 48; p.button('secondary', '返回章节', 0, y, 480, 96, () => p.close(a.back), { fontSize: 32, name: 'BackToChapters', sound: 'back' });
-  return p;
-}
+/** Without a stage list (tests / older callers) the shipped regions count as having data; coast / snow do not. */
+export function defaultStages() { return [{ id: 'r05-lake-01', region: 'lake' }]; }
+export interface ChapterActions { gate: () => any; r4Open: () => boolean; enter: () => void; skycity: () => void; legacyTide: () => void; back: () => void; row?: () => RegionRow | null; stats?: () => { stars: number; challenges: number } | null }
+/** Journey book / region page / ending seals: lazy UI in bundles/board_art/journey_ui, reached through ui/JourneyUi.ts. */
 /** 海岛小憩 (opened by tapping the cabin): day / night windows (night = the day picture × K_SEA × 0.9), one primary button. */
 export function openRest(stack: PopupStack, night: boolean, toggle: () => void): PopupPanel {
   const w = 232, h = 184, ph = 104 + 200 + 24 + 40 + 48 + 104 + 72, p = stack.open({ name: 'RestPanel', height: ph, title: '海岛小憩', titleArt: 'r2/title_rest', closable: true });

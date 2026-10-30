@@ -220,6 +220,11 @@
     "sha256": "3e7fa9fd9242d939e2772fc06c3c2cbd2d2a141cceb41dd403aa6ecb03c722f8"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
+    "bytes": 21584,
+    "sha256": "a2969c1266114d0ba1dc644fc8514d6f439996e9c423211f033d346bc9e3b890"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/licenses.meta",
     "bytes": 169,
     "sha256": "c9a1b6d647f0b993fcb613caa1e8b496d9c07fa9291e3b2f65d44a6661840db4"
@@ -338,6 +343,11 @@
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_sun.png.meta",
     "bytes": 992,
     "sha256": "4682d249a90a07a486acffac2993b991d829f9c261e38f2c1427dd3bfd84df9a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_vibrate.png.meta",
+    "bytes": 996,
+    "sha256": "648fbd20adaacdd93cd68369d8bc71b962f12994186327d0fa8c47d95983ccd6"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/panel_frame_9s.png.meta",
@@ -1981,8 +1991,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 102090,
-    "sha256": "5de1f0cd1bd917d81c60341b65b0085807afea13004e45306c1042df8a101af3"
+    "bytes": 102296,
+    "sha256": "e1686898ebf8fb988dedac2d88d4422cc171571a503d5953fb643a50cdd229c3"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -2761,8 +2771,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideArrivalCore.ts",
-    "bytes": 7877,
-    "sha256": "cb35a906e85c64b82ba542fad9fc81e48a3e714f96465ce0135ecd1d9a658ac8"
+    "bytes": 7963,
+    "sha256": "dcfee7a1231c4c6befa511859e435f92a3b169edce0aa326e70dbd63356f7d83"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideArrivalCore.ts.meta",
@@ -4116,8 +4126,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
-    "bytes": 67306,
-    "sha256": "b52dbc61d54301ea378c64d97984734fe16b9f0fb2ac78337cb9b40c7c0b14b0"
+    "bytes": 67073,
+    "sha256": "d5993afac13a065c2801b8fe1467ed8a7529ca6d1dcde34b312dc4dd2efe781f"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -4146,8 +4156,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts",
-    "bytes": 18413,
-    "sha256": "ea8f893887682488a7d0ff6e64ef3ca1355c8a4e84f4b68b4312adce0ce5c06a"
+    "bytes": 21948,
+    "sha256": "4bab2c4f53ac2f853412ed0440f3c725699ca5926031e4a5dfa6aaac73822880"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts.meta",
@@ -4196,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts",
-    "bytes": 7208,
-    "sha256": "4a7405153962a878f8f57357de31593f79e7fba182cb998668bfa52efbcb104f"
+    "bytes": 7438,
+    "sha256": "4c5777911005f9ca85ba2049b2219bf17558ff80b85aabcb8b3f979686cd023c"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/EndingScreen.ts.meta",
@@ -4206,8 +4216,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts",
-    "bytes": 9066,
-    "sha256": "db9dc7f829057140f441f5b678020505052ece14ce97ccc521b92dd68a398896"
+    "bytes": 5480,
+    "sha256": "4420b959d5d18fc4ff56de6239121283e65cf31f3c29565a50d66f7abdd1bb99"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts.meta",
@@ -4225,6 +4235,11 @@
     "sha256": "2d329fb3ee4a66873ce0240d303a0f9db3214f0770f47cff7fca50da881d18ad"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts",
+    "bytes": 9148,
+    "sha256": "de73c9aa83229c13308033ea4bf009abb6cbc63283c4f4716117e312197192b8"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/JourneyNavigationSkin.ts",
     "bytes": 2186,
     "sha256": "050ab501333d26208689678d71b1d3f634cd0fefa45c23e9fe73df366c1857c4"
@@ -4233,6 +4248,11 @@
     "path": "creator-build-project/assets/scripts/ui/JourneyNavigationSkin.ts.meta",
     "bytes": 171,
     "sha256": "da06ba2e532a1fc81969b1365e509b2fd3907ecdfc3f882767d4dce286912e32"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/JourneyUi.ts",
+    "bytes": 3547,
+    "sha256": "95ed9a2eb2ec1508f4940c3ac61e9fead479dd0e16e1afbe376f12b06b772766"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/LakesideArrivalUI.ts",
@@ -4266,13 +4286,23 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
-    "bytes": 29727,
-    "sha256": "28ba1286b999ab4f56ff3b284682f72a2fd6064710c0402dea81304dc944585e"
+    "bytes": 31409,
+    "sha256": "ca4db7a446b8b6e5c1e32187df7270e74f7f9ce131354bc5180e17c4450b4bf9"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",
     "bytes": 171,
     "sha256": "8e779e0160bd39b1c41a28cb111be32b1d8e6f554e49788e80eba9022bf977b3"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/PopupMotion.ts",
+    "bytes": 2630,
+    "sha256": "fd72ea9c533ce8e58f0d3a9e7c12919d805547a2f7a4c79092e3e550e0239ffa"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/PublicationInfo.ts",
+    "bytes": 939,
+    "sha256": "9141b78833ace11e93282b5fa31ebddc6023ea99d283e46fadbc70a2208c2494"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitle.ts",
@@ -4286,8 +4316,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitleCore.ts",
-    "bytes": 11024,
-    "sha256": "5e37da045e8bc09b84df1efae79747eb763c842d4dd8264aff9760bfd0a1b70c"
+    "bytes": 11026,
+    "sha256": "9ca9158142afdfc18eb5d963f174d5f9bf0516b32633ef203f54fa2efa6a50e1"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitleCore.ts.meta",
@@ -4296,8 +4326,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts",
-    "bytes": 9049,
-    "sha256": "e4c730f318d08afb88d4485b2525b0def7d28d4bdcd0351a6f54699045d2ed9a"
+    "bytes": 9055,
+    "sha256": "63eda2443f0f1ba5cd3228c0c2de22927f93a15b474f4a9b5559ec5f86ef32af"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts.meta",
@@ -4306,8 +4336,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts",
-    "bytes": 7486,
-    "sha256": "711edb91c240bf39d0eb960d00b427217d775045e2edf12a111e47679984fae2"
+    "bytes": 7633,
+    "sha256": "328270452f32397c576ea979e67eb753c879932ef7ba881dfa5fe5d9a2d311db"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts.meta",
@@ -4316,13 +4346,18 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/UiPrefs.ts",
-    "bytes": 2197,
-    "sha256": "deae1c998cd5d8a7ace3c0f51ac5081b2d92b5a79691d83506f9a6f7e0bd2ab6"
+    "bytes": 4762,
+    "sha256": "e0b69e65add392761d8b46093348995b93ff586ca0172231917c57fb1a947368"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/UiPrefs.ts.meta",
     "bytes": 171,
     "sha256": "e9744a891f443e5c8289fb29c748d98407bd165d619c619a72f031b7af7e940f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/UpdatePromptCore.ts",
+    "bytes": 1631,
+    "sha256": "e4d98b6424e8917da7855b730897819345b4355ca0f83235934d467b30c45d60"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WarmButtonGeometry.ts",
@@ -4556,8 +4591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts",
-    "bytes": 5595,
-    "sha256": "971942b36c13cd98ae65c0a24ba51df1a0b94d0505a615795067172fb18d5c61"
+    "bytes": 8148,
+    "sha256": "69875a8d46fd3100b5bd67c3120775f98080952d3da8006cf8a9d4cbc90e1b91"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/EndingFlow.ts.meta",
@@ -4626,8 +4661,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
-    "bytes": 10114,
-    "sha256": "065e587877ff954aafb794de54540944042f991b95346faa0981e99a3609041e"
+    "bytes": 11840,
+    "sha256": "1c72dd0aa1fdbde1c72a5682c00a1a20dbab2ad582f8d5cd38c29423b1aa8f77"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
@@ -4727,7 +4762,7 @@
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts",
     "bytes": 10612,
-    "sha256": "2d69562e92b49c281782f449f9b9debf4263f04a284b5c6fc04f7116f475a116"
+    "sha256": "7ff53bdfd79fc77750175c0807db93c91d5e2387c9b4917a08ca040293843eb2"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts.meta",
@@ -4896,8 +4931,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 58012,
-    "sha256": "cd8c4c1ed8828699da4c5cd84616139f6fde84d5ed09f5bec7f35b6c104ce3ba"
+    "bytes": 58432,
+    "sha256": "bfcf25330e046c47c4bf8e067a4815041a50d8dcac01b7fb070b28d59f62b8d3"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -4921,8 +4956,8 @@
   },
   {
     "path": "creator-build-project/build-templates/wechatgame/first-screen.js",
-    "bytes": 10302,
-    "sha256": "5d8fc4a049b9027b157e19d30d266a7dd51848e0bb50bfb05a9359883c383458"
+    "bytes": 13777,
+    "sha256": "c34831527f233dba6bb1cacd25ff5cb58fb579a08e9e53f51c34c668bc1d060e"
   },
   {
     "path": "creator-build-project/package.json",
@@ -5026,8 +5061,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 29246,
-    "sha256": "a6185e6ec84822fd7046b607245320ff9c83413aa4faac5b8bf21ecd62353f5e"
+    "bytes": 29860,
+    "sha256": "37e3c6243357aacfd4f76527df1e4b0a053156ead4e41b94851295cb4acf573f"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

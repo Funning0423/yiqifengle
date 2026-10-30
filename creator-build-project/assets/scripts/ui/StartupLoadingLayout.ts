@@ -28,9 +28,9 @@ export const HINTS = ['风从海上来……', '她在窗前坐下……', '灯�
 export const SAFE = { top: 0.089, bottom: 0.88 };
 /** Fill / pinwheel / hint fade in after the scene layer's first frame (spec 0.2-0.3 s). */
 export const INTRO_FADE_S = 0.25;
-/** Whole layer (picture + cream mask) fades out once the room is ready (PM spec 0.6-0.8 s, ease-out) after one held opaque
+/** Whole layer (picture + cream mask) fades out once the room is ready (U1 audit 2026-10-29: 0.45 s, easeInOutCubic) after one held opaque
  * frame; room hints wait for the end. */
-export const OUTRO_FADE_S = 0.7;
+export const OUTRO_FADE_S = 0.45;
 /** Displayed progress eases toward the REAL stage target (no timer-driven creep). */
 export const PROGRESS_TAU_S = 0.18;
 
@@ -51,6 +51,7 @@ export function visibleDesignRect(W: number, H: number) {
 function clamp01(v: number) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 export function smoothstep01(t: number) { t = clamp01(t); return t * t * (3 - 2 * t); }
 export function easeOutCubic(t: number) { t = clamp01(t); const u = 1 - t; return 1 - u * u * u; }
+export function easeInOutCubic(t: number) { t = clamp01(t); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 /** Ribbon head for progress p in [0,1]: fill range of the 496-px FILLED sprite + pinwheel centre (design px). */
 export function ribbonHead(p: number) {
  p = clamp01(p);
@@ -103,5 +104,5 @@ export class LoadingTimeline {
  }
  /** 0..255 opacity of the fill/pinwheel/hint group (multiplied by layerOpacity by UIOpacity cascading). */
  introOpacity() { return this.introT < 0 ? 0 : Math.round(255 * smoothstep01(this.introT / INTRO_FADE_S)); }
- layerOpacity() { return this.outroT < 0 ? 255 : Math.round(255 * (1 - easeOutCubic(this.outroT / OUTRO_FADE_S))); }
+ layerOpacity() { return this.outroT < 0 ? 255 : Math.round(255 * (1 - easeInOutCubic(this.outroT / OUTRO_FADE_S))); }
 }

@@ -118,5 +118,7 @@ case "$TARGET" in
   both)   build_one "$HERE/wechat-release.json" "$STRIP_PROBES"; SUMMARY="wechat-release $LAST_TOTAL (strip=$STRIP_PROBES)"; build_one "$HERE/web-test.json" 0; SUMMARY="$SUMMARY | web-test $LAST_TOTAL (probes)";;
   *) die "target must be wechat, web or both";;
 esac
+# system-panels SPEC §1.4: authoritative artifact scan (build/wechatgame/**, literal + \u-escaped); any hit fails the build.
+if [ -f "$HERE/check-no-placeholder.cjs" ] && command -v node >/dev/null 2>&1; then node "$HERE/check-no-placeholder.cjs" --root "$HERE/../.." || die "placeholder word found in source/build output"; fi
 if [ "$KEEP_CACHE" != 1 ]; then clean_cache; echo "caches removed (library/temp); set KEEP_CACHE=1 to keep"; fi
 echo "BUILD GUARD PASSED: $SUMMARY  (output under creator-build-project/build/)  HEAD=$GUARD_SHORT tree=$GUARD_TREE"
