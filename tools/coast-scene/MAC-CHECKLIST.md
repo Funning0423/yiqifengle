@@ -8,7 +8,7 @@ Run these on the Mac before the coast gate items are moved into the test suite. 
    - Check all 7 screen sizes: 390×844, 414×896, 360×780, 375×667, 320×568, 390×520, 768×1024.
    - Expected clean windows (fit-width gate): 210–227 and 1040–1048.
 3. **Stubs and visibility.**
-   - While the coast is inactive, region_coast_root and its children (coast_board, coast_pieces, coast_rocks, coast_terrain, coast_props) are inactive.
+   - While the coast is inactive, region_coast_root and its children (coast_board, coast_rocks, coast_terrain, coast_props) are inactive. coast_pieces.glb is NOT in the region_coast bundle any more (preview/sprite-export only: tools/coast-scene/preview/coast_pieces.glb); the board uses the 2D sprites board/piece_*.png.
    - SailArt children are inactive while the coast is active.
    - No fallback placeholder planks appear: island_dock, island_dock_ramp and sail_gangway placeholders show up only if a glb is missing.
 4. **Wake trail during the coast transition.**
