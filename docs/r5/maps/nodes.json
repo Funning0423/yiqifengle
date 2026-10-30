@@ -138,11 +138,11 @@
    },
    {
     "k": "M3",
-    "name": "弯道 bend — mainline-07",
+    "name": "弯道 bend — mainline-07 (b20: was [-3,4,-8.4])",
     "at": [
      -3,
-     4,
-     -8.4
+     4.14,
+     -9.6
     ]
    },
    {
@@ -191,16 +191,16 @@
    {
     "from": "M2",
     "to": "M3",
-    "walkM": 8.3,
-    "walkS": 6.9,
-    "climbM": 0.62
+    "walkM": 9.5,
+    "walkS": 7.9,
+    "climbM": 0.76
    },
    {
     "from": "M3",
     "to": "M4",
-    "walkM": 10.5,
-    "walkS": 8.7,
-    "climbM": 1.84
+    "walkM": 9.3,
+    "walkS": 7.9,
+    "climbM": 1.7
    },
    {
     "from": "M4",
