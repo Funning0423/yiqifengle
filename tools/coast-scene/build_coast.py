@@ -617,7 +617,7 @@ for i in range(A):
   a=i/A*6.283;r=1+0.22*noise.noise(Vector((math.cos(a)*1.7,math.sin(a)*1.7,21)));ring.append(bm.verts.new((math.cos(a)*r,math.sin(a)*r,-0.03)));mid.append(bm.verts.new((math.cos(a)*r*0.62,math.sin(a)*r*0.62,0.05)))
 for i in range(A):j=(i+1)%A;bm.faces.new((cen,mid[i],mid[j]));bm.faces.new((mid[i],ring[i],ring[j],mid[j]))
 add_bm('grasspatch',bm,lambda p,f:mix(hx('#4f9a3a'),hx('#8fbf4a'),0.5+0.5*noise.noise(p*2.3)));bm.free()
-new('buoy');cone_at('buoy',0.16,0.12,0.5,10,lambda p,f:(hx('#D98E4E') if p.z<0.32 else hx('#fbf8ec')) if p.z<0.42 else hx('#D98E4E'),Matrix.Translation((0,0,0.25)))
+new('buoy');cone_at('buoy',0.16,0.12,0.5,10,lambda p,f:(hx('#E3AE80') if p.z<0.32 else hx('#fbf8ec')) if p.z<0.42 else hx('#E3AE80'),Matrix.Translation((0,0,0.25)))   # r5e2: buoy body toned to the island roof family (rendered S was 0.87)
 cone_at('buoy',0.05,0.05,0.18,6,lambda p,f:hx('#ffcf78'),Matrix.Translation((0,0,0.59)))
 # ---------- layout (Blender Z-up coordinates, metres; board centre = origin) ----------
 random.seed(77);L=[]
