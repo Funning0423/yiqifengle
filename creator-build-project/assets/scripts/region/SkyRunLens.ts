@@ -20,9 +20,9 @@ export const skyRailHas=w=>runs(w).length>0,skyRailPose=(w,h)=>rail(w,h)?.p??nul
 export function skyRailJoinPlan(w,a,b,o=false){const s=J[w]?.[o?'o':'i'];if(!s)return null;const P=[a.position,...g(s,3),b.position],c=len(P,1);return {P,c,a,b,T:M.max(.6,c[c.length-1]/4)};}
 export function skyRailJoin(j,x,h?){const e=ss(x),p=at(j.P,j.c,e),u=M.min(.4,.6/j.T);
  return lk(p,mx(mx(h?un(sb(ch(h),p)):mx(D(j.a),D(j.b),e),D(j.a),1-ss(x/u)),D(j.b),ss((x-1+u)/u)),j.a[f]+(j.b[f]-j.a[f])*e);}
-export function skyRailFollow(w){let r=-1,q,h0,j,t=0;
- return (h,dt)=>{const x=rail(w,h);if(!x)return null;const X=x.p.position;
-  if(!j&&q&&(x.r!=r||H(...sb(X,q.position))>.6)){const m=x.r==r+1&&J[w]?.[x.l<2?'k':'m'],P=[q.position,...(m?g(m,3):[]),X],c=len(P,1),a=un(sb(ch(h0),q.position)),b=un(sb(ch(h),q.position));
-   j={P,c,e:X,A:ch(h0),T:M.max(.6,M.min(c[c.length-1]/4,M.max(x.l-1,1.5))),U:M.max(.3,M.acos(M.max(-1,M.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])))*.54)};t=0;}
-  r=x.r;h0=h;if(j){t+=dt;const e=ss(t/j.T);if(e<1){const p=at(j.P,j.c,e).map((v,i)=>v+(X[i]-j.e[i])*e);return q=lk(p,sb(mx(j.A,mx(ch(h),x.p.target,e),ss(t/j.U)),p),x.p[f]);}j=null;}
-  return q=x.p;};}
+export function skyRailFollow(w){let r=-1,q,h0,j,t=0,Z=0;
+ return (h,dt)=>{const x=rail(w,h);if(!x)return null;if(x.r!=r)Z=0;const S=Z?lk(F.position,D(F),F[f]):x.p,X=S.position;
+  if(!j&&q&&(x.r!=r||H(...sb(X,q.position))>.6)){const k=x.r==r+1&&x.l<2&&J[w]?.k,m=k||x.r==r+1&&J[w]?.m;if(k)Z=1;const E=k?F.position:X,P=[q.position,...(m?g(m,3):[]),E],c=len(P,1),a=un(sb(ch(h0),q.position)),b=un(sb(ch(h),q.position));
+   j={P,c,e:E,A:ch(h0),T:M.max(.6,M.min(c[c.length-1]/4,M.max(x.l-1,1.5))),U:M.max(.3,M.acos(M.max(-1,M.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])))*.54)};t=0;}
+  r=x.r;h0=h;const Y=Z?lk(F.position,D(F),F[f]):x.p,V=Y.position;if(j){t+=dt;const e=ss(t/j.T);if(e<1){const p=at(j.P,j.c,e).map((v,i)=>v+(V[i]-j.e[i])*e);return q=lk(p,sb(mx(j.A,mx(ch(h),Y.target,e),ss(t/j.U)),p),Y[f]+(Z?(x.p[f]-Y[f])*(1-e):0));}j=null;}
+  return q=Y;};}
