@@ -1,0 +1,10 @@
+--- /workspace/f8/web-test/application.js	2026-10-29 20:12:18.822092497 -0400
++++ application.js	2026-10-29 20:21:31.919861050 -0400
+@@ -45,6 +45,7 @@
+                 // assets: {
+                 //      preloadBundles: [{ bundle: 'main', version: 'xxx' }],
+                 // }
++                launch: (location.search.indexOf('snowshot')>=0?{launchScene:''}:undefined),
+                 profiling: {
+                   showFPS: this.showFPS
+                 }

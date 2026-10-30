@@ -1,0 +1,41 @@
+--- /workspace/f8/web-test/index.js	2026-10-29 20:12:20.462055209 -0400
++++ index.js	2026-10-29 20:21:08.687609332 -0400
+@@ -1,28 +1,11 @@
+ System.register(["./application.js"], function (_export, _context) {
+-  "use strict";
+-
+   var Application, canvas, $p, bcr, application;
+-  function topLevelImport(url) {
+-    return System["import"](url);
+-  }
+-  return {
+-    setters: [function (_applicationJs) {
+-      Application = _applicationJs.Application;
+-    }],
+-    execute: function () {
+-      canvas = document.getElementById('GameCanvas');
+-      $p = canvas.parentElement;
+-      bcr = $p.getBoundingClientRect();
+-      canvas.width = bcr.width;
+-      canvas.height = bcr.height;
+-      application = new Application();
+-      topLevelImport('cc').then(function (engine) {
+-        return application.init(engine);
+-      }).then(function () {
+-        return application.start();
+-      })["catch"](function (err) {
+-        console.error(err);
+-      });
+-    }
+-  };
+-});
+\ No newline at end of file
++  return { setters: [function (a) { Application = a.Application; }], execute: function () {
++    canvas = document.getElementById('GameCanvas'); $p = canvas.parentElement; bcr = $p.getBoundingClientRect();
++    canvas.width = bcr.width; canvas.height = bcr.height; application = new Application();
++    System["import"]('cc').then(function (engine) { window.cc = engine; return application.init(engine); })
++    .then(function () { return application.start(); })
++    .then(function () { var s=document.createElement('script'); s.src='snowshot.js?'+Date.now(); document.body.appendChild(s); })
++    ["catch"](function (err) { console.error(err); });
++  } };
++});
