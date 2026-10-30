@@ -32,3 +32,17 @@ Proposed root fixes for GGbot (optional, merge already makes them single-write):
 - cam-onewriter-19bd (suite): replays the 19 Mac pairs through the real applyCameraPose: before 12/7 multi frames, after 0/0; real conflict still written; next frame writes.
 - lens-clearance-gate.cjs --trace <console.log>: every camTrace writer judged with the same RULE (S≥0.5, B≥0.5, H≥0.5, G 1.5 travel / 1.1 standing; J stays with check_camera_jumps --register). --must-fail-writers: a sample 0.2 m above the skycity floor labelled as each of 17 writers must be caught (suite: lens-clearance-all-writers). PASS.
 - 19bd812a finstart trace judged (old code, not final-cam): FAIL — world.setCamera 4 samples (t 337.9 s, 0.23 m to env_sky_static_palette, sky→lake start) and region.node-lens 2 (t 312.6 s, 0.17 m above env_sky_ruins). SkyWalkShot min 1.41 m, B5/board 1.83 m. Needs a Mac camTrace of the final-cam+onewriter build.
+
+## Root fixes (one writer per frame at the source; the 04 merge stays as a guard)
+Order: 01–03 final-cam, 04 CameraPose merge (committed), 05–08 GGbot, 09 CameraPose track start (committed). All 9 apply clean in order on 18965329.
+| diff | rows fixed | change |
+|---|---|---|
+| 05 RegionJourneyCore | 1506/1502 (onFrame+walk), 1531/1527 (LiveHandoff ×2), 2463 (B5→arrival), 888/876 + 3611 (ride start re-write, likely) | observe(): walk write only if onFrame did not write (:258/:264); ride end no longer re-writes this.camera after unpatch (:335); walkContinuous writes the live lens only when it could not be read fresh (:378) |
+| 06 RegionBoardLanding | 2757 | regionLandingToBoard exact branch: gap 0 (handoff's :161 write is on screen) = no write |
+| 07 WorldFlowComponent | 145/152 | setCamera adapter: same stable Pose object with no camera write since = no write (boot restore ×2, WorldFlowCore:321/329/334) |
+| 08 RegionNodeStage | 2896 (+2800 likely) | lateUpdate anim tail (:1251): the end pose is written once by done(), not by sample(seconds) AND done() |
+| 09 CameraPose (ours) | 146/262, 245/339, 500 | createCameraTrack: the run()-synchronous first tick (same frame as the hold / previous track end) writes nothing; the track starts next frame |
+Not proven by source (no CALLER stacks): 2800 node-lens (RegionNodeStage :1059 sync view + openExplore) and the exact 3611 writer — a Mac run with camTraceStacks=1 will name them; the merge guards them meanwhile.
+None of these is in WorldIntegrationBoot.ts / ScreenCover.ts (the reviewed-controller-change file is WorldIntegrationBoot.ts).
+Gate cam-onewriter-19bd source mode (merge off, real source paths): 19bd812a = 8 doubles over 7 paths FAIL; this set = 0 PASS. Replay mode (merge guard) unchanged: 12/7 → 0/0.
+Size (05–09, comment-stripped JS): +252 B raw / +82 B gz. Whole camera set vs d3b8e5e4: +8531 raw / +3445 gz.
