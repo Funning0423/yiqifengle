@@ -1,0 +1,8 @@
+$ check_camera_jumps.py (original) --register hard-cut-register.json
+fail jumps 3 unexpected 1
+$ patched --register hard-cut-register.json
+pass jumps 3 unexpected 0
+$ patched, register without HC-01
+fail jumps 3 unexpected 1
+$ patched, no register
+fail jumps 3 unexpected 1

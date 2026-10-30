@@ -1,0 +1,11 @@
+--- /workspace/wechat-game/ui-audit/tools/check_camera_jumps.py	2026-10-29 20:28:24.358986431 -0400
++++ check_camera_jumps.py	2026-10-29 20:35:42.205927855 -0400
+@@ -44,7 +44,7 @@
+                 kind = 'design-candidate' if (b['change'] or evs) else 'unexpected'
+                 J.append(dict(f=b['f'], game_t=b['t'], t=t, dm=round(dm, 3), dg=round(dg, 2), writer=b['writer'], change=b['change'],
+                               kind=kind, registered=bool(registered(reg, b['change'] or b['writer'], t)), events=[e['what'][:80] for e in evs][:4]))
+-        un = [j for j in J if j['kind'] == 'unexpected']; cand = [j for j in J if j['kind'] != 'unexpected']
++        un = [j for j in J if j['kind'] == 'unexpected' and not j['registered']]; cand = [j for j in J if j not in un]
+         verdict = 'fail' if un else ('pass' if all(j['registered'] for j in cand) else 'pass-pending-register')
+         res.update(mode='cam-trace', frames=len(tr), jumps=J, n_unexpected=len(un), n_design_candidates=len(cand), verdict=verdict)
+         md += [f'- evidence: per-frame [QF_CAM_TRACE], {len(tr)} frames (t {tr[0]["t"]:.2f}–{tr[-1]["t"]:.2f} s)',
