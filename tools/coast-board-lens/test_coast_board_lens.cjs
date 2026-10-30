@@ -36,7 +36,9 @@ function motion(rs){let vmax=0,smax=0,wmax=0,fmax=0,at=0;const acc=[];let pw=nul
   if(st/dt>vmax){vmax=st/dt;at=b[1];}smax=Math.max(smax,st);wmax=Math.max(wmax,Math.abs(wv[0]),Math.abs(wv[1]));fmax=Math.max(fmax,Math.abs(b[9]-a[9]));if(pw)acc.push(Math.max(Math.abs(wv[0]-pw[0]),Math.abs(wv[1]-pw[1]))/dt);pw=wv;}
  acc.sort((a,b)=>a-b);return {vmax,smax,wmax,fmax,p99:acc[Math.floor(0.99*(acc.length-1))],at};}
 const within=m=>m.vmax<=8&&m.smax<=0.5&&m.wmax<=90&&m.p99<=200&&m.fmax<=1.5;
-const REF=JSON.parse(fs.readFileSync(path.join(__dirname,'ref_transition.json'),'utf8')),OLD=JSON.parse(fs.readFileSync(path.join(__dirname,'ref_old.json'),'utf8'));
+const REF=(R=>{if(R.v!==2)return R;const dec=(a,n,f0)=>{const cols=[];for(let c=0;c<7;c++){let v=0;const col=[];for(let i=0;i<n;i++){v+=a[c*n+i];col.push(v/R.scale);}cols.push(col);}
+  return Array.from({length:n},(_,i)=>[(f0+i)/R.fps,...cols.map(c=>c[i])]);};
+ return {shared:dec(R.shared,R.n_shared,0),s7:Object.fromEntries(Object.keys(R.s7).map(s=>[s,dec(R.s7[s],R.s7_len[s],R.n_shared-1)])),summary:R.summary};})(JSON.parse(fs.readFileSync(path.join(__dirname,'ref_transition.json'),'utf8'))),OLD=JSON.parse(fs.readFileSync(path.join(__dirname,'ref_old.json'),'utf8'));
 const MODE=process.env.QF_COAST_REF||'current';   // 'old-s1' / 'old-s3': negative checks on the stored pre-fix numbers (must FAIL)
 const X=f=>[0,f[0],0,f[1],f[2],f[3],f[4],f[5],f[6],f[7]];
 for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
