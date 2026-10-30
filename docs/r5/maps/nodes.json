@@ -21,11 +21,11 @@
    },
    {
     "k": "I3",
-    "name": "东滩 east beach (crab) — mainline-03",
+    "name": "北滩 north beach (crab) — mainline-03",
     "at": [
-     8.1,
-     -0.36,
-     6.1
+      6.1,
+      -0.452,
+      9.1
     ]
    },
    {
@@ -67,15 +67,15 @@
    {
     "from": "I2",
     "to": "I3",
-    "walkM": 7.705,
-    "walkS": 6.42,
+    "walkM": 4.014,
+    "walkS": 3.35,
     "climbM": -0.35
    },
    {
     "from": "I3",
     "to": "I4",
-    "walkM": 5.2,
-    "walkS": 4.4,
+    "walkM": 8.794,
+    "walkS": 7.33,
     "climbM": 0.45
    },
    {

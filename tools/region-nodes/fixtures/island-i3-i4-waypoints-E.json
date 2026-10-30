@@ -1,0 +1,92 @@
+{
+ "note": "b20 option E (\u573a\u666f\u8bbe\u8ba1\u90e8, Grok Bot chose E 2026-10-30): I3 (6.1,-0.452,9.1) -> I4 (3.9,0.09,3.9), one continuous waypoint walk round the north end of the lean_01 canopy. y = RegionWalkable floor. Curve per ggbot/nodewalker-waypoints@b1b42327 planChained: 7.776 m / 6.48 s (polyline 8.409 m, 1 leg). Baked graph edge I3-I4 uses the same via (8.794 m, single walk today).",
+ "region": "island",
+ "from": "I3",
+ "to": "I4",
+ "via": [
+  [
+   4.9,
+   -0.42,
+   9.3
+  ],
+  [
+   3.7,
+   -0.43,
+   9.3
+  ],
+  [
+   3.3,
+   -0.04,
+   8.5
+  ],
+  [
+   2.8,
+   0.01,
+   7.5
+  ],
+  [
+   3,
+   0.01,
+   6.3
+  ],
+  [
+   3.75,
+   0.05,
+   5.4
+  ]
+ ],
+ "check": {
+  "polylineM": 8.409,
+  "segmentsM": [
+   1.217,
+   1.2,
+   0.976,
+   1.119,
+   1.217,
+   1.172,
+   1.508
+  ],
+  "maxSegM": 1.508,
+  "curveM": 7.776,
+  "curveS": 6.48,
+  "legsM": [
+   8.408707100188677
+  ],
+  "unwalkableSamples": 0,
+  "trunkMinM": {
+   "env_prop_palm_lean_01": 1.403,
+   "env_prop_palm_tall_01": 8.513,
+   "env_prop_palm_young_01": 1.104,
+   "beach_palm_tall#beach_palm_tall": 2.897,
+   "beach_palm_short#beach_palm_short": 2.214
+  },
+  "frondClips": [],
+  "headroomHits": 0,
+  "standHeadFacePct": {
+   "pushin": 0,
+   "board": 0
+  },
+  "leanPushinEpisodes": [],
+  "followBlocked": [
+   [
+    1.2,
+    6,
+    [
+     "beach_palm_short:beach_palm_short"
+    ]
+   ]
+  ],
+  "I2I3": {
+   "len": 4.014,
+   "s": 3.35,
+   "trunk": {
+    "env_prop_palm_lean_01": 0.865,
+    "env_prop_palm_tall_01": 10.015,
+    "env_prop_palm_young_01": 5.05,
+    "beach_palm_tall#beach_palm_tall": 2.2,
+    "beach_palm_short#beach_palm_short": 2.214
+   },
+   "clip": []
+  }
+ }
+}
