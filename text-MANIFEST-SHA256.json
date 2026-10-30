@@ -3810,11 +3810,6 @@
     "sha256": "a3d7f87c2d1e61bd2250d3d876d3d09bce0512fac150d457ea9ab31dbe527857"
   },
   {
-    "path": "creator-build-project/assets/scripts/regional-r05/runtime/coast-levels-data.js.meta",
-    "bytes": 170,
-    "sha256": "d4ea2fe1e66eff0a14cc74635747b20d9270c71d64fcb0b34a17907e42b26dff"
-  },
-  {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js",
     "bytes": 3458,
     "sha256": "dfefbb8f82c9fa61c22174e2cf1bd75d819b86b725726ae926ed335110b81185"
