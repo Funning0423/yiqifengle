@@ -21,6 +21,7 @@ def add_bm(name,bm,colfn,M=None):
     vs=[v.co.copy() for v in f.verts]
     if M:vs=[M@v for v in vs]
     if name.startswith('piece_'):   # r5d: soft painted shading — smooth vertex normals for the baked paint (no facets)
+      global _FC;_FC=sum(vs,Vector())/len(vs)   # r5f: face centre for per-face bands (scallop ribs)
       R3=(M.to_3x3() if M else Matrix.Identity(3));cs=[colfn(vv,_N((R3@v.normal).normalized())) for vv,v in zip(vs,f.verts)]
     else:cs=[colfn(v,f) for v in vs]
     for i in range(1,len(vs)-1):
@@ -353,7 +354,7 @@ for nm,off,wid,z in [('foam',0.0,0.34,-0.012),('foam_inner',0.55,0.18,-0.03)]:
     bm=bmesh.new();a=bm.verts.new((x,ya,z));b=bm.verts.new((x2,yc,z));c=bm.verts.new((x2,yd,z));d=bm.verts.new((x,yb,z));bm.faces.new((a,b,c,d))
     add_bm(nm,bm,lambda p,f:Vector((1,1,1)));bm.free()
 # ===== 6. pieces (6 types, thick, single meshes, ≤200 tris each) =====
-PC={'conch':'#A8642A','star':'#D9731A','coral':'#F05A4C','float':'#4374BC','scallop':'#348A7C','badge':'#468F30'}   # r5e: a further step deeper (median toward 2.0)   # r5d: one step deeper vs the darker sage slab (floor 1.19)
+PC={'conch':'#A8642A','star':'#D9731A','coral':'#FF4A3A','float':'#4374BC','scallop':'#348A7C','badge':'#468F30'}   # r5e: a further step deeper (median toward 2.0)   # r5d: one step deeper vs the darker sage slab (floor 1.19)
 _PC_R5C=None   # r5c: conch, starfish, coral knob, blue mussel, teal scallop, kelp leaf   # r5b: island-calibrated (acorn/strawberry/blueberry/leaf/shell value+saturation)   # r5: pastel natural (scallop = island teal band)
 LDIR=Vector((-0.45,0.35,0.82)).normalized()   # r5c: island sprite key light (top-left), baked; pieces render unlit (matte, no specular)
 def paint(c,n,hi=1.12,lo=0.62):   # r5d: clear light/dark sides (was 1.1/0.8)
@@ -399,7 +400,7 @@ for i in range(5):   # r5e: raised dots along each arm (island-sprite detail)
 # coral: trunk + 3 branches merged, dark base
 new('piece_coral')   # r5c: rounded knob coral, matte (replaces trunk+rim)
 for (x,y,z,r) in [(0,0,0.45,0.46),(0.38,0.12,0.36,0.34),(-0.36,0.16,0.38,0.34),(0.05,-0.38,0.34,0.34),(0.1,0.3,0.74,0.3),(-0.15,-0.1,0.82,0.28)]:
-  bm=ico(S*r,2);add_bm('piece_coral',bm,lambda p,f:paint(mix(hx(PC['coral']),hx('#FFE0CC'),0.85) if noise.noise(p*11)>0.12 else hx(PC['coral']),f.normal),Matrix.Translation((x*S,y*S,z*S)));bm.free()
+  bm=ico(S*r,2);add_bm('piece_coral',bm,lambda p,f:paint(mix(hx(PC['coral']),hx('#FFE0CC'),0.85) if noise.noise(p*11)>0.22 else hx(PC['coral']),f.normal),Matrix.Translation((x*S,y*S,z*S)));bm.free()
 # r5c: blue mussel (replaces the glossy glass float): elongated rounded shell, matte
 new('piece_float');bm=bmesh.new();bmesh.ops.create_uvsphere(bm,u_segments=12,v_segments=10,radius=1)
 _BL=bm.verts.layers.int.new('band')
@@ -409,7 +410,7 @@ for v in bm.verts:
 _MF=Matrix.Translation((0,0,S*0.22))@Matrix.Rotation(0.6,4,'Z');_BK={tuple(round(c,4) for c in (_MF@v.co)):v[_BL] for v in bm.verts}
 add_bm('piece_float',bm,lambda p,f:paint(mix(hx(PC['float']),hx('#C4DBF6'),0.72) if _BK.get(tuple(round(c,4) for c in p),0) else mix(hx(PC['float']),hx('#152B5C'),0.66),f.normal),_MF);bm.free()
 # scallop: ribbed fan, solid
-new('piece_scallop');bm=bmesh.new();N=10;RIB={}   # r5e: upright ribbed fan (island shell aspect), leaning back 40 deg, hinge on the slab
+new('piece_scallop');bm=bmesh.new();N=6;RIB={}   # r5e: upright ribbed fan (island shell aspect), leaning back 40 deg, hinge on the slab
 LEAN=math.radians(45);R_=S*1.32;T_=S*0.08
 def _lean(x,y,z):return (x,y*math.cos(LEAN)+z*math.sin(LEAN),-y*math.sin(LEAN)+z*math.cos(LEAN))
 hf=bm.verts.new(_lean(0,-T_,0.03));hb=bm.verts.new(_lean(0,T_,0.03));fr=[];bk=[]
@@ -422,8 +423,9 @@ for i in range(N):
 bm.faces.new((hf,fr[0],bk[0],hb));bm.faces.new((hf,hb,bk[N],fr[N]));bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 def _scol(p,f):
   # rib shading: angle around the hinge in the un-leaned fan plane
-  y=p.y*math.cos(LEAN)-p.z*math.sin(LEAN);z=p.y*math.sin(LEAN)+p.z*math.cos(LEAN);a=math.atan2(z-0.03,p.x);k=(a-math.pi*0.3)/(math.pi*0.4/N)
-  c=hx(PC['scallop'])*(1.08 if abs(k-round(k))<0.22 and round(k)%2 else 0.9)
+  q=_FC;y=q.y*math.cos(LEAN)-q.z*math.sin(LEAN);zq=q.y*math.sin(LEAN)+q.z*math.cos(LEAN);k=(math.atan2(zq-0.03,q.x)-math.pi*0.3)/(math.pi*0.4/N)
+  z=p.y*math.sin(LEAN)+p.z*math.cos(LEAN)
+  c=hx(PC['scallop'])*(1.25 if int(math.floor(k))%2 else 0.7)
   if math.hypot(p.x,z-0.03)>R_*0.9:c=mix(c,hx('#BDEBDF'),0.35)
   return paint(c,f.normal)
 add_bm('piece_scallop',bm,_scol);bm.free()
@@ -450,6 +452,7 @@ for k_ in range(4):   # r5e: side veins (raised thin strips), 4 per side
     for t_ in sb.faces:pass
     add_bm('piece_badge',sb,lambda p,f:paint(hx('#A9D46A'),Vector((0,0,1))),Matrix.Rotation(0.5,4,'Z'));sb.free()
 add_bm('piece_badge',bm,lambda p,f:paint(mix(hx(PC['badge']),hx('#A9D46A'),0.7) if abs(p.x)<S*0.035 else hx(PC['badge']),f.normal),Matrix.Rotation(0.5,4,'Z'));bm.free()
+FSC={'conch':1.25,'star':0.89,'coral':1.18,'float':0.92,'scallop':1.06,'badge':1.29}   # r5f: per-type footprint -> island median 0.84 of cell
 ZK={'conch':1.05,'star':1.5,'coral':1.1,'float':1.5,'scallop':1.0,'badge':1.7}   # r5d: chunky upright volume (visible sides from the board camera)
 for k in PC:
   m=MESH['piece_'+k];m['tris']=[tuple(Vector((v.x,v.y,v.z*ZK[k])) for v in t) for t in m['tris']]
@@ -659,7 +662,7 @@ for r in range(7):
 for (r,c,x,y,z) in SL:
   zz=z+SLAB_TOP-0.05      # sits on the shell bed in the dry hollow
   _dy=0.2 if LAY[r][c]=='scallop' else 0.0   # r5e2: scallop shadow under the leaning shell body
-  put('contact',x+0.05,y-0.04+_dy,zz+0.004,0,1.2,piece=True,receive_shadow=False);put('piece_'+LAY[r][c],x,y+0.03,zz,random.uniform(-.15,.15),1.24,piece=True,cell=[r,c])   # r5c: island fill ratio (~0.75 cell), sits slightly high like the sprites
+  put('contact',x+0.05,y-0.04+_dy,zz+0.004,0,1.2,piece=True,receive_shadow=False);put('piece_'+LAY[r][c],x,y+0.03,zz,random.uniform(-.15,.15),1.24*FSC[LAY[r][c]],piece=True,cell=[r,c])   # r5c: island fill ratio (~0.75 cell), sits slightly high like the sprites
 # props / animals
 put('arrival_steps',0,0,0);put('board_rim',0,0,0,receive_shadow=True)
 for (dx_,dy_) in STEP_DRIFT:put('drift',dx_,dy_,ground_z(dx_,dy_)-0.005,(dx_*3.1+dy_)%6.28,0.55)   # r4d: sand drift against the step base
