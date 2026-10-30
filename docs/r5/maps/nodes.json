@@ -21,29 +21,29 @@
    },
    {
     "k": "I3",
-    "name": "东滩 east beach (crab) — mainline-03",
+    "name": "北滩 north beach (crab) — mainline-03",
     "at": [
-     8.1,
-     -0.36,
-     6.1
+      6.1,
+      -0.452,
+      9.1
     ]
    },
    {
     "k": "I4",
-    "name": "灯塔脚 lighthouse foot — mainline-04",
+    "name": "灯塔东南草坡 lighthouse SE lawn — mainline-04 (b19 方案 E: was 灯塔脚 [4.5,0.23,-4.9]; b20 i4nudge: was [4.1,0.11,2.7], out from under palm_young_01 canopy)",
     "at": [
-     4.5,
-     0.23,
-     -4.9
+     3.9,
+     0.09,
+     3.9
     ]
    },
    {
     "k": "I5",
-    "name": "西岬 west cape (palm) — 挑战/探索",
+    "name": "西岬 west cape (palm) — 挑战/探索 (b20: was [-4.5,0.13,-0.9])",
     "at": [
-     -4.5,
-     0.13,
-     -0.9
+     -2.7,
+     0.151,
+     0.7
     ]
    },
    {
@@ -67,33 +67,33 @@
    {
     "from": "I2",
     "to": "I3",
-    "walkM": 6.5,
-    "walkS": 5.5,
+    "walkM": 4.014,
+    "walkS": 3.35,
     "climbM": -0.35
    },
    {
     "from": "I3",
     "to": "I4",
-    "walkM": 13.2,
-    "walkS": 11,
-    "climbM": 0.59
+    "walkM": 8.794,
+    "walkS": 7.33,
+    "climbM": 0.45
    },
    {
     "from": "I4",
     "to": "I5",
-    "walkM": 19.5,
-    "walkS": 16.3,
-    "climbM": -0.1
+    "walkM": 8.677,
+    "walkS": 7.23,
+    "climbM": 0.05
    },
    {
     "from": "I5",
     "to": "I6",
-    "walkM": 11.4,
-    "walkS": 10.5,
-    "climbM": -0.73
+    "walkM": 9.097,
+    "walkS": 7.58,
+    "climbM": -0.32
    }
   ],
-  "totalWalkM": 57.6,
+  "totalWalkM": 37.7,
   "reachableAreaM2": 147,
   "heightRange": [
    -0.6,

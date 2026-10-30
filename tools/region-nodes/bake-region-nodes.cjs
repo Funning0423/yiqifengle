@@ -9,7 +9,7 @@
  * Usage: node tools/region-nodes/bake-region-nodes.cjs [--check]
  */
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),zlib=require('node:zlib');
-const {load}=require('../journey-integration/occlusion/lib-glb.cjs');
+const {load,nodeWorlds,vertexMapper}=require('../journey-integration/occlusion/lib-glb.cjs');
 const ROOT=path.resolve(__dirname,'../..');
 const OUT_TS=path.join(ROOT,'creator-build-project/assets/scripts/region/RegionNodes.ts');
 const OUT_JSON=path.join(ROOT,'tools/region-nodes/region-nodes.json');
@@ -27,6 +27,10 @@ const REGIONS={
   start:[-2.1,0,5.3],sea:-0.6,explore:[-15,-16,19,18],
   // b19 dock models: the resident pier (region_island/ui-props/island_dock.glb, island coordinates) is floor + solid
   extras:[{file:'creator-build-project/assets/bundles/region_island/ui-props/island_dock.glb',floor:/island_dock/,solid:/island_dock/}],
+  // b20 island-walk-fixes: env_prop_palm_young_01 is SKINNED; this loader ignores skins and puts it ~3 m off (x5-7.4,z4-6.3). Its rendered
+  // trunk (glTF skin / Blender / engine) stands at x2.6-3.5, z2.25-3.05 m, which the I4-I5 edge walked through. Route-only keep-out (walkability unchanged).
+  // b20 i4nudge: young-palm keep-out widened to 1.45 m (trunk/root >= 1.09 m from every route); two grass-tuft keep-outs (props_merged tops 0.2-0.3 m) at the new I4 legs.
+  routeAvoid:[[3.04,2.64,1.45],[4.6,3.8,0.35],[3.85,4.8,0.3],[4.8,7.8,1.3],[7.6,7.2,0.75],[2.1,3.5,0.5],[0.15,8.85,1.3]],
  },
  meadow:{
   file:'creator-build-project/assets/bundles/region_meadow/env_meadow.glb',
@@ -69,9 +73,9 @@ const NODES={
  island:[
   {key:'I1',at:[-2.1,0,5.3],role:'mainline',stageId:'mainline-01'},
   {key:'I2',at:[2.5,0,8.1],role:'mainline',stageId:'mainline-02'},
-  {key:'I3',at:[8.1,-0.36,6.1],role:'mainline',stageId:'mainline-03'},
-  {key:'I4',at:[4.5,0.23,-4.9],role:'mainline',stageId:'mainline-04'},
-  {key:'I5',at:[-4.5,0.13,-0.9],role:'optional',opens:'challenge-island'},
+  {key:'I3',at:[6.1,-0.452,9.1],role:'mainline',stageId:'mainline-03'/* b20 option E (Grok Bot): was [8.1,-0.36,6.1] (stand 67% hidden by beach_palm_short, I3-I4 lean_01 push-in 89%); trees unchanged */},
+  {key:'I4',at:[3.9,0.089,3.9],role:'mainline',stageId:'mainline-04'/* b19 island-depart-walk (方案 E): was [4.5,0.23,-4.9] (I4-I6 18.03 m, cut 4.1 m + fade + 3.6 m); b20 i4nudge: was [4.1,0.11,2.7] (stood under the skinned palm_young_01 canopy: crown/face grazed in the L04 push-in) -> 1.25 m NW, canopy clear */},
+  {key:'I5',at:[-2.7,0.151,0.7],role:'optional',opens:'challenge-island'/* b20 island-walk-fixes: was [-4.5,0.13,-0.9] (I4-I5 10.94 m, I5-I6 11.44 m, both cut); now both <= DIRECT_MAX_M */},
   {key:'I6',at:[-1.5,-0.18,9.3],role:'departure'},
  ],
  meadow:[
@@ -183,23 +187,21 @@ async function decodeDraco(file,spec){
   return {fixture:gz,sha:sha256(gz)};
  }
  const draco=require(path.join(dir,'draco3d.js'));const decMod=await draco.createDecoderModule({});
- const mul=(A,B)=>{const C=new Array(16).fill(0);for(let r=0;r<4;r++)for(let c=0;c<4;c++)for(let k=0;k<4;k++)C[c*4+r]+=A[k*4+r]*B[c*4+k];return C;};
- const trs=n=>{if(n.matrix)return n.matrix.slice();const [x,y,z,w]=n.rotation||[0,0,0,1],[sx,sy,sz]=n.scale||[1,1,1],t=n.translation||[0,0,0];
-  return [(1-2*(y*y+z*z))*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,2*(x*y-z*w)*sy,(1-2*(x*x+z*z))*sy,2*(y*z+x*w)*sy,0,2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*(x*x+y*y))*sz,0,t[0],t[1],t[2],1];};
- const xf=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2]+M[12],M[1]*v[0]+M[5]*v[1]+M[9]*v[2]+M[13],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]+M[14]];
  const stampGlb=(gfile,floorRx,solidRx,addTri)=>{
   const raw=fs.readFileSync(path.join(ROOT,gfile));const jl=raw.readUInt32LE(12),doc=JSON.parse(raw.subarray(20,20+jl).toString());
   const binOff=20+jl+8,bin=raw.subarray(binOff,binOff+raw.readUInt32LE(20+jl));
-  const parent={};doc.nodes.forEach((n,i)=>(n.children||[]).forEach(c=>{parent[c]=i;}));
-  const glob=i=>{let M=trs(doc.nodes[i]);for(let k=parent[i];k!==undefined;k=parent[k])M=mul(trs(doc.nodes[k]),M);return M;};
-  doc.nodes.forEach((node,i)=>{if(node.mesh===undefined)return;const name=node.name||'';const isF=floorRx.test(name),isS=solidRx.test(name);if(!isF&&!isS)return;const M=glob(i);
+  // b20 skin-bounds: vertices go through lib-glb vertexMapper (skinned → joint world · inverseBind, as Creator renders them)
+  const worlds=nodeWorlds(doc),ibm=si=>{const A=doc.accessors[doc.skins[si].inverseBindMatrices],v=doc.bufferViews[A.bufferView],o=(v.byteOffset||0)+(A.byteOffset||0);return k=>Array.from({length:16},(_,e)=>bin.readFloatLE(o+(k*16+e)*4));};
+  doc.nodes.forEach((node,i)=>{if(node.mesh===undefined)return;const name=node.name||'';const isF=floorRx.test(name),isS=solidRx.test(name);if(!isF&&!isS)return;const map=vertexMapper(doc,i,worlds,node.skin!==undefined?ibm(node.skin):null);
    for(const pr of doc.meshes[node.mesh].primitives){const ext=pr.extensions&&pr.extensions.KHR_draco_mesh_compression;if(!ext)continue;
     const bv=doc.bufferViews[ext.bufferView],data=bin.subarray(bv.byteOffset||0,(bv.byteOffset||0)+bv.byteLength);
     const d=new decMod.Decoder(),buf=new decMod.DecoderBuffer();buf.Init(new Int8Array(data.buffer,data.byteOffset,data.byteLength),data.byteLength);
     const mesh=new decMod.Mesh();if(!d.DecodeBufferToMesh(buf,mesh).ok())throw Error('draco '+name);
     const attr=d.GetAttributeByUniqueId(mesh,ext.attributes.POSITION),nv=mesh.num_points(),nf=mesh.num_faces(),pos=new decMod.DracoFloat32Array();
     d.GetAttributeFloatForAllPoints(mesh,attr,pos);const P=new Array(nv);
-    for(let v=0;v<nv;v++)P[v]=xf(M,[pos.GetValue(v*3),pos.GetValue(v*3+1),pos.GetValue(v*3+2)]);
+    const rd=id=>{if(id===undefined)return null;const a=d.GetAttributeByUniqueId(mesh,id),arr=new decMod.DracoFloat32Array();d.GetAttributeFloatForAllPoints(mesh,a,arr);const nc=a.num_components(),o=new Float64Array(nv*4);for(let v=0;v<nv;v++)for(let c=0;c<Math.min(4,nc);c++)o[v*4+c]=arr.GetValue(v*nc+c);decMod.destroy(arr);return o;};
+    const JJ=node.skin!==undefined?rd(ext.attributes.JOINTS_0):null,WW=node.skin!==undefined?rd(ext.attributes.WEIGHTS_0):null;
+    for(let v=0;v<nv;v++)P[v]=map([pos.GetValue(v*3),pos.GetValue(v*3+1),pos.GetValue(v*3+2)],JJ&&JJ.subarray(v*4,v*4+4),WW&&WW.subarray(v*4,v*4+4));
     const face=new decMod.DracoInt32Array();
     for(let f=0;f<nf;f++){d.GetFaceFromMesh(mesh,f,face);addTri(isF,isS,P[face.GetValue(0)],P[face.GetValue(1)],P[face.GetValue(2)]);}
     [pos,face,mesh,buf,d].forEach(o=>decMod.destroy(o));}});};
@@ -249,7 +251,8 @@ function emit(baked){
 const CLEAR_EDGES={skycity:[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4','S6']]},EXEMPT_M=0.45,CLEAR_M=0.4;
 // S4-S6: after the new gap at (2.6,-7) rejoin the pre-b19 x=3 lane with straight clear segments and keep the pre-b19 arrival
 // (3,-25)→S6 (the T-02 finale shot F1/F4 is tuned to that arrival heading; the grid route arrived at -135° and failed F1/F4).
-const EDGE_VIA={},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
+/* b20 option E: I3-I4 waypoints (x,z; y = walkable floor) round the north end of the lean_01 canopy; same list as tools/region-nodes/fixtures/island-i3-i4-waypoints-E.json for NodeWalker waypoint walks */
+const EDGE_VIA={island:{'I4-I6':[[0.5,7.3],[-0.9,7.7]]/* b20: >=1 m from beach_palm_tall trunk */,'I3-I4':[[4.9,9.3],[3.7,9.3],[3.3,8.5],[2.8,7.5],[3.0,6.3],[3.75,5.4]]}},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
 function clearBuffer(M,A,B,id){// unwalkable = the RUNTIME walk grid (RegionWalkableData via RegionWalkable.walkFloorY), which is what she and the tests walk on
  const RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts');
  const blockedXZ=(x,z)=>RW.walkFloorY(id,x,z)===null,buf=new Set(),pad=6;
