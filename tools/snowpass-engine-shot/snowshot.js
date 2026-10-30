@@ -7,6 +7,8 @@ const ld=(b,p,t)=>new Promise((ok,no)=>b.load(p,t,(e,a)=>e?no(e):ok(a)));
 const KINDS=['strawberry','leaf','blueberry','flower','acorn','shell'];
 const AID=(q.get('aid')||'').split(',').filter(Boolean);           // kinds that get the dark outline + slate base
 const NOP=q.get('nopieces')==='1';
+const SNOWART=q.get('snowart')==='1';  // region_snowpass/board 变体（精灵自带细描边），从 web 根的 snowart/ 读
+const ldRemote=u=>new Promise((ok,no)=>assetManager.loadRemote(u,(e,img)=>{if(e)return no(e);const t=new Texture2D();t.image=img;ok(t);}));
 function mat(col,opt={}){const m=new Material();m.initialize({effectName:opt.unlit?'builtin-unlit':'builtin-standard',technique:opt.blend?1:0,
   defines:Object.assign({},opt.tex?(opt.unlit?{USE_TEXTURE:true}:{USE_ALBEDO_MAP:true}):{},opt.alpha?{USE_ALPHA_TEST:true}:{})});
   if(opt.unlit)m.setProperty('mainColor',col);else{m.setProperty('mainColor',col);m.setProperty('roughness',opt.rough??0.85);m.setProperty('metallic',0);}
@@ -54,14 +56,14 @@ async function go(){
   const ab=await loadB('board_art');const blob=blobTex();const blobM=mat(new Color(255,255,255,255),{unlit:true,tex:blob,blend:true});
   const slate=mat(new Color(84,92,120,255),{rough:0.7});
   if(!NOP){const camRot=cn.worldRotation;
-    for(let i=0;i<7;i++)for(let j=0;j<7;j++){const k=[3,0,5,2,1,4,2,3,1,5,0,2,4,3,5,2,4,1,3,0,2,1,3,0,2,5,4,1,4,5,2,3,0,1,3,2,1,4,0,5,3,2,0,3,1,2,4,5,3][i*7+j],kind=KINDS[k];const tex=await ld(ab,'board/piece_'+kind+'/texture',Texture2D);
+    for(let i=0;i<7;i++)for(let j=0;j<7;j++){const k=[3,0,5,2,1,4,2,3,1,5,0,2,4,3,5,2,4,1,3,0,2,1,3,0,2,5,4,1,4,5,2,3,0,1,3,2,1,4,0,5,3,2,0,3,1,2,4,5,3][i*7+j],kind=KINDS[k];const tex=SNOWART?await ldRemote('snowart/piece_'+kind+'.png'):await ld(ab,'board/piece_'+kind+'/texture',Texture2D);
       const aid=AID.includes(kind);const p=new Node('piece_'+kind);board.addChild(p);p.setPosition((i-3)*CELL,0.13,(j-3)*CELL);
       if(aid)cyl(p,'base',0.31,0.07,new Vec3(0,0.035,0),slate);
       const bq=quad(p,'contact',0.78,0.5,blobM,false);bq.setRotationFromEuler(-90,0,0);bq.setPosition(0.08,0.012+(aid?0.07:0),0.12);
       let t=tex;if(aid){t=outlined(tex.image.data||tex.image._nativeAsset||tex.image.nativeAsset||tex.image);}
       const sm=mat(new Color(255,255,255,255),{tex:t,alpha:true,rough:0.6});const sz=aid?0.92*(216/192):0.92;
       const card=quad(p,'sprite',sz,sz,sm,true);card.getComponent(MeshRenderer).receiveShadow=0;card.setWorldRotation(camRot);card.setPosition(0,0.46+(aid?0.07:0),0);
-      S.pieces.push({kind,i,j,aid});}
+      S.pieces.push({kind,i,j,aid,snowart:SNOWART});}
   }
   await new Promise(r=>setTimeout(r,800));
   for(const pc of S.pieces){const w=new Vec3(BX+(pc.i-3)*CELL,gy+0.6,BZ+(pc.j-3)*CELL);const o=new Vec3();cam.worldToScreen(w,o);pc.sx=o.x;pc.sy=o.y;}
