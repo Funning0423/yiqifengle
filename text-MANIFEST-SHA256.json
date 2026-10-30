@@ -3221,8 +3221,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
-    "bytes": 6457,
-    "sha256": "bd35a03c26f4933ea782b6033533edb7590932beeb744f5aaa2e1c30807b9b40"
+    "bytes": 6511,
+    "sha256": "887982d0a23c161f7a9105dc7858982c69ca6be938d4cd70ff53573d6e0d8e22"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3741,8 +3741,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts",
-    "bytes": 13080,
-    "sha256": "12e7055e380f9d0cbfd3740ccc24707fc106917f5875147cb869bcc1ae1ffefb"
+    "bytes": 13128,
+    "sha256": "a15d0af0e5c9707a46b8830a60c56fa42d2bebb5f1af583a54d701e710c1a3a4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts.meta",
