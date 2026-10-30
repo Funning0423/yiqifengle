@@ -2751,13 +2751,23 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/IslandLensOccluders.ts",
-    "bytes": 20784,
-    "sha256": "b1af8b6c03a3f5f407c993fb7c2321c302ce75f3afd319203391c68e8fff2535"
+    "bytes": 20635,
+    "sha256": "37fb2f079b33ce035ae47e6deea98a9f806fcf8444983457113ee8d2719658e7"
   },
   {
     "path": "creator-build-project/assets/scripts/region/IslandLensOccluders.ts.meta",
     "bytes": 171,
     "sha256": "ed01a42ec15405710ec62d7612a6c95cafb3ee26b399afec6c1b49d7bb4e3177"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/IslandStageLens.ts",
+    "bytes": 8995,
+    "sha256": "8726973618ec8959aa70740c36e975bc017a0d2c5d701af7b05a9b96167f6aee"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/IslandStageLens.ts.meta",
+    "bytes": 171,
+    "sha256": "72dfdbd726866dcc0fa13e9da4468307294130fe0dba669f307879540d2cea5c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/JourneyTransport.ts",
@@ -2811,8 +2821,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts",
-    "bytes": 19948,
-    "sha256": "b6783ba8f5d0c83a2a06b7b08a3e74f01563edb805dae28cbbd41834a716bd61"
+    "bytes": 20851,
+    "sha256": "1db1c8ed49f74dc980cdefb58d9d0ac47bbfff10055fcbff27e8d4ae3574a079"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta",
@@ -3080,6 +3090,16 @@
     "sha256": "0daba6bbf77ee132e0e36450ea1fe672f2140abdb31d1284b5227e04a5e26f8d"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/MeadowStageLens.ts",
+    "bytes": 8404,
+    "sha256": "9e299580c1fba8567ba32c5e482ef208977012dcb4421ff7ba98dba12073a021"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta",
+    "bytes": 170,
+    "sha256": "c8a2de7c0c561d187c704557fe9299b4c17f4c44627b7f37492e0c62daa45daf"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/NodeBoardPose.ts",
     "bytes": 2161,
     "sha256": "3891f9027e05fa045f7356e741ae755e1f261117fc95e0d173897263230e1524"
@@ -3121,8 +3141,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts",
-    "bytes": 24638,
-    "sha256": "d8ec26e62d51023f43d1fa8dff1183b8e1551ef66595365e34991945ca9c99ba"
+    "bytes": 25834,
+    "sha256": "f5545aaa7bba913208b3b8e5da6b532de94fc2fb17846879c567a584310a1fdc"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionBoardLanding.ts.meta",
@@ -3181,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts",
-    "bytes": 6796,
-    "sha256": "7bec2501366ac609572fec209d850e5cb84d4cb675a55d065ebaff0597b3c629"
+    "bytes": 7340,
+    "sha256": "9783b121a7b2984565ec1e9d890e355fa7cce285c9441b74e7c76b543967d7f0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodePlay.ts.meta",
@@ -3201,8 +3221,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
-    "bytes": 6700,
-    "sha256": "09e0eb0c8372535d9683d4bbc5b4230cfeeb63c4a3044667a8ed052cd7cca949"
+    "bytes": 6511,
+    "sha256": "887982d0a23c161f7a9105dc7858982c69ca6be938d4cd70ff53573d6e0d8e22"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3231,8 +3251,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
-    "bytes": 183233,
-    "sha256": "061fe3d4a88d28255afdf602a2b70f6e5764b4792159b3cab324b8f5272983fd"
+    "bytes": 183117,
+    "sha256": "f85b9ac0d2b2e24576ab23d6b5c4d552cc316d35b259bc6bdaaba6610a888fcb"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
@@ -3721,8 +3741,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts",
-    "bytes": 12508,
-    "sha256": "f4ee0ac34f802b312d32ce36a0f937072f4019360263227b94ccaa556964ee75"
+    "bytes": 13128,
+    "sha256": "a15d0af0e5c9707a46b8830a60c56fa42d2bebb5f1af583a54d701e710c1a3a4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts.meta",
@@ -3741,8 +3761,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 43567,
-    "sha256": "f75c27578ce50fcb07e232dc280d0140b9502273471f8c3b25fcbd9cd8f7992b"
+    "bytes": 43680,
+    "sha256": "3b1bd968b0d2b196eaa1926555507943023b89658c3ac9b293b87f5d4687d9da"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
@@ -4536,8 +4556,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 73122,
-    "sha256": "e24a0f7bc736a1c0e9f788d473aabd1fa511f1b4830f00bd0f0aecbf53893233"
+    "bytes": 73979,
+    "sha256": "061d63f1d70abd333ec5394158f79cb1fc973a3304ad4471a9f4db33a6dcff1e"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -4881,8 +4901,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 109630,
-    "sha256": "028c3238ae5c3ddf9b9ada659c9a98b09a8b4662692965ca84989bcfff248a6c"
+    "bytes": 114808,
+    "sha256": "e3d18760c0748ee7c2e22cefb43314a5e1158e08f6398926f1f158b680c75bad"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -4931,8 +4951,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 58432,
-    "sha256": "bfcf25330e046c47c4bf8e067a4815041a50d8dcac01b7fb070b28d59f62b8d3"
+    "bytes": 58928,
+    "sha256": "0fefb9d734a54eb3c2d1cac54c80f33a2cd8aa9e7f644cdcf9558ee5ff706956"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -5061,8 +5081,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30126,
-    "sha256": "8d879ab9ef46a45eba590cbc378ad56881b1b3a4c2ba933fbf3cbe5a88922abb"
+    "bytes": 31179,
+    "sha256": "16e67163ad086f23e66fe9bc4c46a47e5227a3f5a411b5da58afb678b2ea0caa"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

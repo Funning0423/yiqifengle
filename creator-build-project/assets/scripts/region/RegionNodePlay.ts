@@ -70,6 +70,12 @@ export async function runRewardWalk(character:Pick<CharacterAdapter,'perform'|'c
  const transport:TransportKind|'walk'=spec.departure&&spec.nextRegion?transportFor(spec.region,spec.nextRegion):'walk';
  return {transport,departure:spec.departure,segments:plan.segments.length,region:spec.region,to:spec.to,timedOut};
 }
+/** r3 reopen-at-05 (运镜bot): from M0 (where reopenAfterKill puts her) to the 05 stand M1, one direct walk (8.966 m ≤ DIRECT_MAX_M). */
+export async function runMeadowReopenWalk(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<WalkResult>{
+ const plan=planWalk('meadow','M0','M1');
+ const timedOut=await runPlan(character,plan,'meadow','M1',place,timeoutMs);
+ return {transport:'walk',departure:false,segments:plan.segments.length,region:'meadow',to:'M1',timedOut};
+}
 /** After mainline-12 she leaves the stair top and walks north to the star-ring terrace. */
 export async function runSkyFinale(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<WalkResult>{
  const plan=planWalk('skycity','S4','S6');

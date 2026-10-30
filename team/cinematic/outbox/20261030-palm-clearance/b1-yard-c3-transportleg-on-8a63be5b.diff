@@ -1,0 +1,92 @@
+diff --git a/tools/journey-integration/c3-transport-leg.cjs b/tools/journey-integration/c3-transport-leg.cjs
+new file mode 100644
+index 00000000..ff7362fc
+--- /dev/null
++++ b/tools/journey-integration/c3-transport-leg.cjs
+@@ -0,0 +1,17 @@
++'use strict';
++// C3 rule for region/TransportLeg.ts (b1-yard-balloon, option a, Grok Bot approved): byte-identical to the base except
++// exact pinned lines. Each pinned line may be the base line or exactly its pinned new content (exact strings, not patterns).
++// Combined allowlist: SAIL_M1_LOCAL (GGbot walk merge 8a63be5b, final M1 93ac386e) + K0 (运镜bot palm clearance, a1c4c07d).
++const assert=require('assert');
++const PINS=[
++ {key:'SAIL_M1_LOCAL',old:'export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];',new:'export const SAIL_M1_LOCAL:Vec=[2.2,2.803,6.8];/* b20 meadow-walk-fixes: = baked RegionNodes M1 on the path (was [2.6,2.2,11.6], then [2.6,2.764,6.8]) */'},
++ {key:'K0',old:'const K0:SailOff={back:12,side:-4,up:4,fov:50,look:2,orb:0};',new:'const K0:SailOff={back:10.5,side:-4.2,up:4,fov:60,look:0.5,orb:0};'},
++];
++function checkTransportLeg(base,src,label='region/TransportLeg.ts',baseRef='base'){
++ const bl=base.split('\n'),sl=src.split('\n');
++ for(const p of PINS){const i=bl.indexOf(p.old);assert.ok(i>=0&&bl.indexOf(p.old,i+1)<0,'C3: base '+p.key+' line not found once in '+label);}
++ assert.equal(sl.length,bl.length,'C3: '+label+' changed vs '+baseRef+' (line count '+sl.length+' != '+bl.length+'; only the pinned SAIL_M1_LOCAL / K0 lines may differ)');
++ for(let i=0;i<bl.length;i++){if(sl[i]===bl[i])continue;const p=PINS.find(q=>q.old===bl[i]);
++  assert.ok(p&&sl[i]===p.new,'C3: '+label+' changed vs '+baseRef+' at line '+(i+1)+' (only the pinned SAIL_M1_LOCAL / K0 lines may differ): '+JSON.stringify(sl[i]));}
++}
++module.exports={checkTransportLeg,PINS};
+diff --git a/tools/journey-integration/test-b1-yard-balloon.cjs b/tools/journey-integration/test-b1-yard-balloon.cjs
+index 326be8be..e363acca 100644
+--- a/tools/journey-integration/test-b1-yard-balloon.cjs
++++ b/tools/journey-integration/test-b1-yard-balloon.cjs
+@@ -75,12 +75,9 @@ const res={};
+   const body=s=>{const i=s.indexOf('const b1Draw=()=>{');return s.slice(i,s.indexOf('director.on(Director.EVENT_BEFORE_DRAW,b1Draw)',i)).replace(/\n\s*if\(!b1Drawn\)\{gapPh\('firstDraw-wait'\);[\s\S]*?\/\* hold the real previous frame, single writer \(before-draw\) \*\//,'');};
+   const H0='const b1Draw=()=>{if(dead||!b1On)return;';assert.ok(body(base).startsWith(H0),'C3: base B1 writer head moved');
+   assert.equal(body(src),H0+'b1Hold=b1Hold||liveWorldPose();'+body(base).slice(H0.length),'C3: B1 writer changed beyond the hold branch + the b1-ease b1Hold latch');}
+- /* TransportLeg.ts: byte-identical to BASE except exactly one line, SAIL_M1_LOCAL, pinned to its exact new content (option a, approved by grokbot-2 2026-10-30):
+-  * the meadow M1 move 505ceb63 ([2.6,2.2,11.6] -> [2.6,2.764,6.8]) then 93ac386e (-> [2.2,2.803,6.8], = baked RegionNodes M1 on the path). Exact string, not a pattern. */
+- const SAIL_M1_OLD='export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];',SAIL_M1_NEW='export const SAIL_M1_LOCAL:Vec=[2.2,2.803,6.8];/* b20 meadow-walk-fixes: = baked RegionNodes M1 on the path (was [2.6,2.2,11.6], then [2.6,2.764,6.8]) */';
+- for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){let b=gitShow(f);if(b===null)continue;
+-  if(f==='region/TransportLeg.ts'){const L=b.split('\n'),i=L.indexOf(SAIL_M1_OLD);assert.ok(i>=0&&L.indexOf(SAIL_M1_OLD,i+1)<0,'C3: base SAIL_M1_LOCAL line not found once');L[i]=SAIL_M1_NEW;b=L.join('\n');}
+-  assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE+(f==='region/TransportLeg.ts'?' (only the pinned SAIL_M1_LOCAL line may differ)':''));}
++ /* TransportLeg.ts: byte-identical to BASE except exactly the pinned SAIL_M1_LOCAL (8a63be5b) and K0 (palm clearance) lines; combined exact-line allowlist + negative self-test: c3-transport-leg*.cjs */
++ for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b===null)continue;
++  if(f==='region/TransportLeg.ts')require('./c3-transport-leg.cjs').checkTransportLeg(b,fs.readFileSync(S+f,'utf8'),f,BASE);else assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE);}
+  /* fullN: TransitionChain.ts may change only in its generated preload section + additive lines (rule + negative self-test: c3-transition-chain*.cjs) */
+  {const f='region/TransitionChain.ts',b=gitShow(f);if(b!==null)require('./c3-transition-chain.cjs').checkTransitionChain(b,fs.readFileSync(S+f,'utf8'),f,BASE);}
+  const plan=planFor(M2),v0=plan.vehicle(0),c0=plan.camera(0),PIN={v0:[-5.3,5.25,102.5],c0:[-20.6,8.25,89.6]}/* m run plan0 (3 dp log) */;
+diff --git a/tools/journey-integration/test-c3-transport-leg.cjs b/tools/journey-integration/test-c3-transport-leg.cjs
+new file mode 100644
+index 00000000..b8b73ecf
+--- /dev/null
++++ b/tools/journey-integration/test-c3-transport-leg.cjs
+@@ -0,0 +1,30 @@
++'use strict';
++// Negative self-test for the b1-yard-balloon C3 TransportLeg rule. All mutations are in memory; the real file is only read.
++const assert=require('assert'),fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
++const {checkTransportLeg,PINS}=require('./c3-transport-leg.cjs');
++const ROOT=path.resolve(__dirname,'../..'),F='creator-build-project/assets/scripts/region/TransportLeg.ts',BASE='19bd812a';
++const src=fs.readFileSync(path.join(ROOT,F),'utf8'),base=execFileSync('git',['show',BASE+':'+F],{cwd:ROOT,encoding:'utf8',maxBuffer:1<<26});
++const fails=(s,what)=>{assert.notEqual(s,src,'mutation not applied: '+what);assert.throws(()=>checkTransportLeg(base,s,F,BASE),e=>e instanceof assert.AssertionError&&/C3:/.test(e.message),what+' did not FAIL');console.log('ok   '+what+' FAILs C3');};
++const sub=(s,a,b)=>{assert.ok(s.split(a).length===2,'not unique: '+a);return s.replace(a,b);};
++// 0) committed file passes; base passes; both pins applied passes (merge with 8a63be5b)
++checkTransportLeg(base,src,F,BASE);console.log('ok   committed TransportLeg.ts passes C3');
++checkTransportLeg(base,base,F,BASE);console.log('ok   base passes C3');
++let both=base;for(const p of PINS)both=sub(both,p.old,p.new);checkTransportLeg(base,both,F,BASE);console.log('ok   SAIL_M1_LOCAL+K0 pinned passes C3');
++for(const variant of [src,both]){const tag=variant===src?'[head]':'[merged]';
++ const K=PINS.find(p=>p.key==='K0').new,M=PINS.find(p=>p.key==='SAIL_M1_LOCAL').new;
++ const v=variant.includes(K)?variant:sub(variant,PINS[1].old,K);
++ // (i) any other line changed / added / deleted
++ fails(sub(v,'export const SAIL_K0_BLEND_S=5;','export const SAIL_K0_BLEND_S=6;'),tag+' other line (SAIL_K0_BLEND_S) edit');
++ fails(sub(v,'export const SAIL_K0_BLEND_S=5;','export const SAIL_K0_BLEND_S=5; '),tag+' other line trailing space');
++ fails(sub(v,K,'/* c */\n'+K),tag+' added line above K0');
++ fails(sub(v,'export const SAIL_K0_BLEND_S=5;\n',''),tag+' deleted other line');
++ // (ii) every K0 number
++ for(const [k,a,b] of [['back','10.5','10.6'],['side','-4.2','-4.3'],['up','4','4.1'],['fov','60','61'],['look','0.5','0.6'],['orb','0','1']])
++  fails(sub(v,K,K.replace(k+':'+a+',',k+':'+b+',').replace(k+':'+a+'}',k+':'+b+'}')),tag+' K0 '+k+' '+a+'->'+b);
++ // SAIL_M1_LOCAL: each number, and a variant of the pinned text
++ const m=v.includes(M)?v:sub(v,PINS[0].old,M);
++ for(const [a,b] of [['[2.2,','[2.3,'],[',2.803,',',2.804,'],[',6.8];',',6.9];']])fails(sub(m,M,M.replace(a,b)),tag+' SAIL_M1_LOCAL '+a+'->'+b);
++ fails(sub(m,M,M.split('/*')[0]),tag+' SAIL_M1_LOCAL without its pinned comment');
++}
++assert.equal(fs.readFileSync(path.join(ROOT,F),'utf8'),src,'real file changed');
++console.log('c3-transport-leg-selftest: PASS');
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 13643e39..70980981 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -117,7 +117,7 @@ const tests=[
+  ['snowpass-grey','tools/scene-fx/test_snowpass_grey.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-leg-hide','tools/journey-integration/test-lakeside-leg-hide.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-reach','tools/lakeside/test_lakeside_reach.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['region-landing-hook','tools/journey-integration/test-region-landing-hook.cjs'],['board-handoff','tools/journey-integration/test-board-handoff.cjs'],['lake-leg-c','tools/transitions-continuous/test_lake_leg_c.cjs'],['basket-close','tools/transitions-continuous/test_basket_close.cjs'],['live-start','tools/transitions-continuous/test_live_start.cjs'],['t02-dock','tools/transitions-continuous/test_t02_dock.cjs'],['gangway-frame','tools/transitions-continuous/test_gangway_frame.cjs'],['cam-trace-log','tools/journey-integration/test-cam-trace-log.cjs'],['solid-frame','tools/transitions-continuous/test_solid_frame.cjs'],['meadow-prewalk-follow','tools/transitions-continuous/test_meadow_prewalk_follow.cjs'],['camera-collision','tools/transitions-continuous/test_camera_collision.cjs'],['collision-gate-m2-mustfail','tools/transitions-continuous/test_collision_gate_m2.cjs'],['collision-gate-sail-mustfail','tools/transitions-continuous/test_collision_gate_sail.cjs'],['flat-frames','tools/transitions-continuous/test_flat_frames.cjs'],['sky-resume-follow','tools/skycity-walk/test_sky_resume_follow.cjs'],['sky-resume-plans-fresh','tools/skycity-walk/test_sky_resume_plans_fresh.cjs'],['sky-resume-fallback-reuse','tools/skycity-walk/test_sky_resume_fallback_reuse.cjs']/* full9b option A: forced fallback, 6 starts + S0L × 8 offsets ≤ 0.75 m, 7 screens, real mesh, HARD */,['fence-gate','tools/transitions-continuous/test_fence_gate.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+  ['cam-single-writer','tools/journey-integration/test-cam-single-writer.cjs'],['board-bg-single-write','tools/journey-integration/test-board-bg-single-write.cjs'],['balloon-first-frame','tools/journey-integration/test-balloon-first-frame.cjs'],['b1-yard-balloon','tools/journey-integration/test-b1-yard-balloon.cjs'],['probes','tools/journey-integration/test-probes.cjs'],['transition-totals','tools/journey-integration/test-transition-totals.cjs'],['cam-trace-bounded','tools/journey-integration/test-cam-trace-bounded.cjs'],['b1-gap-log','tools/journey-integration/test-b1-gap-log.cjs']/* full9b P0: camTrace ON re-entry guard, bounded lines/stacks, no promises *//* full9b P0: one camera writer per frame on the balloon legs (Mac MULTI=2/3) */,
+- ['balloon-hold-writer','tools/journey-integration/test-balloon-hold-writer.cjs'],['sky-lake-walk-budget','tools/journey-integration/test-sky-lake-walk-budget.cjs'],['skycity-root-frame','tools/journey-integration/test-skycity-root-frame.cjs'],['p2-lakeside-gate','tools/journey-integration/test-p2-lakeside-gate.cjs'],['c-prewalk-clouds','tools/journey-integration/test-c-prewalk-clouds.cjs'],['c3-transition-chain-selftest','tools/journey-integration/test-c3-transition-chain.cjs'],/* fullN: clip19 prewalk-cloud-paint landed via 8c98bbfe */['walk-edge-length','tools/region-nodes/test_walk_edge_length.cjs'],
++ ['balloon-hold-writer','tools/journey-integration/test-balloon-hold-writer.cjs'],['sky-lake-walk-budget','tools/journey-integration/test-sky-lake-walk-budget.cjs'],['skycity-root-frame','tools/journey-integration/test-skycity-root-frame.cjs'],['p2-lakeside-gate','tools/journey-integration/test-p2-lakeside-gate.cjs'],['c-prewalk-clouds','tools/journey-integration/test-c-prewalk-clouds.cjs'],['c3-transition-chain-selftest','tools/journey-integration/test-c3-transition-chain.cjs'],['c3-transport-leg-selftest','tools/journey-integration/test-c3-transport-leg.cjs'],/* fullN: clip19 prewalk-cloud-paint landed via 8c98bbfe */['walk-edge-length','tools/region-nodes/test_walk_edge_length.cjs'],
+  ['sky-resume-begin','tools/skycity-walk/test_sky_resume_begin.cjs'],
+  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],['lakeside-diag','tools/lakeside/test_lakeside_diag.cjs'],
+  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
