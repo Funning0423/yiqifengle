@@ -1,5 +1,5 @@
 import json,math,numpy as np
-L=json.load(open('coast-build-r4b/coast_layout.json'))['layout'];M=json.load(open('coast-build-r4b/coast_meshes.json'))
+L=json.load(open('coast-build-r4b/coast_layout_full.json'))['layout'];M=json.load(open('coast-build-r4b/coast_meshes.json'))
 T=np.array(M['terrain']['positions']).reshape(-1,3,3)  # Y-up local: (x, h, -y)
 def gh(X,Z):
   best=None

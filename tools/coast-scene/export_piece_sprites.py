@@ -2,6 +2,7 @@
 # (192x192 RGBA, transparent, 55deg board camera, matte baked paint = emission of the vertex colours).
 # usage (1, render):  blender -b --python export_piece_sprites.py -- <coast_pieces.glb> <rawdir>
 # usage (2, sprites): python3 export_piece_sprites.py post <rawdir> <outdir> [--size 192|128]
+# usage (3, ship):    python3 sprite_palette.py <post outdir> <bundle board dir>   (palette PNGs actually shipped in region_coast/board)
 #   crops each raw render to its alpha bbox, scales the longest side to the island median (140 px at 192, i.e. 0.729 of the canvas),
 #   centres it at the island sprite centre (y 98.5 at 192, scaled), adds a soft warm contact shadow; filenames piece_<kind>.png (bb238126 names).
 import sys
