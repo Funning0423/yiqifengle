@@ -3,6 +3,7 @@ import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
 import {LAKESIDE_L12_HOLD_MS,armSkycityWarmOnSailRide,warmMeadowLegStaged,warmSkycityLegStaged} from '../region/TransitionPreload';
 import {SKY_WARM_GAP_FAST_MS,continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
+import {REGION_NODES} from '../region/RegionNodes';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry } from 'cc';
@@ -382,7 +383,8 @@ export class WorldNativeComposition extends Component {
     const commands=this.world.commands();
     armSailQa();
     if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
-    try{this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[4.5,0.231,-4.9],yawRad:0});}catch(error){console.error('[QF_SAIL] sailqa stand failed',error);}
+    /* b20 运镜bot: stand on the baked I4 (island toWorld = identity), not a hardcoded pre-r5 point (was [4.5,0.231,-4.9]) */
+    try{const i4=REGION_NODES.island.nodes.find(n=>n.key==='I4');if(!i4)throw new Error('no island I4');this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[i4.at[0],i4.at[1],i4.at[2]],yawRad:i4.faceDeg*Math.PI/180});}catch(error){console.error('[QF_SAIL] sailqa stand failed',error);}
     try{const q=typeof location!=='undefined'?String(location.search||''):'';if(q.includes('night=1'))await (globalThis as any).__worldDayNight?.set?.('night');else await (globalThis as any).__worldDayNight?.set?.('day');}catch{}
     if(commands.snapshot().state!=='island')return {ok:false,reason:'sailqa-not-island'};
     return commands.travelRegion('meadow');
