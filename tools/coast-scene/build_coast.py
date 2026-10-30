@@ -104,7 +104,7 @@ for k in range(6):
   name='slab_%d'%k;new(name);random.seed(100+k);wet=k>=4
   base,dark=hx(SLABC[k][0]),hx(SLABC[k][1]);h=SLAB_TOP;A=14
   def outline(a,k=k):
-    c,s_=abs(math.cos(a)),abs(math.sin(a));r=0.5*(c**9+s_**9)**(-1/9)
+    c,s_=abs(math.cos(a)),abs(math.sin(a));r=0.468*(c**9+s_**9)**(-1/9)   # r5f: base 0.89 of the cell, gap 0.10 (island L13)
     return min(r,0.66)*(1+0.035*noise.noise(Vector((math.cos(a)*2.3+k*1.7,math.sin(a)*2.3,k))))-0.012
   RF=[0.0,0.3,0.55,0.72,0.84,0.92,0.97,1.0]   # r5: island-rock density
   bm=bmesh.new();rings=[]
@@ -161,10 +161,13 @@ for ri in range(1,len(RB)-1):
   for ai in range(A):bm.faces.new((rows[ri][ai],rows[ri+1][ai],rows[ri+1][(ai+1)%A],rows[ri][(ai+1)%A]))
 bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 def rbcol(p,f):
-  c=mix(hx('#A9B7AD'),hx('#9DAAA0'),0.5+0.5*noise.noise(p*2.5))   # r5d: seam floor one step below the slabs   # r5c: cream tray floor in the seams
+  c=mix(hx('#BAC8BE'),hx('#B2C0B6'),0.5+0.5*noise.noise(p*2.5))   # r5f: tray floor one value step below the slabs (island gap V0.76 vs tile 0.81)   # r5d: seam floor one step below the slabs   # r5c: cream tray floor in the seams
   if False:c=mix(c,hx('#8DB07A'),min(1,(p.y-1.8)/2.2)*0.4)   # wet, algae seaward
   return c
-add_bm('reef_base',bm,rbcol);bm.free();bake_ao('reef_base',rays=8,dist=0.4,strength=0.4)
+bm.normal_update()
+for _f in bm.faces:
+  if _f.normal.z<0:_f.normal_flip()   # r5f: open disc — keep faces up (was back-face culled; gaps showed sand)
+add_bm('reef_base',bm,rbcol);bm.free();bake_ao('reef_base',rays=8,dist=0.4,strength=0.15)
 new('weed');random.seed(12)
 for i in range(7):
   a=random.random()*6.28;r=random.uniform(0,0.06);hh=random.uniform(0.07,0.14)
@@ -298,6 +301,7 @@ def ground_z(x,y):
   if y<-8.5 and abs(x)>1.9 and z>0.3:z+=0.07*noise.noise(Vector((x*0.6,y*0.6,11)))+0.02*math.sin(x*2.4+y*0.9)   # r5b: gentle undulation + ripples
   if abs(x)<1.3 and -12.1<=y<-4.2:z=0.0+0.015*noise.noise(Vector((x,y,6)))   # terrace corridor S1..E
   elif abs(x)<1.7 and -12.1<=y<-4.2:z=min(z,0.6)*(abs(x)-1.3)/0.4
+  if abs(x)<3.85 and abs(y)<3.85:z=min(z,-0.02)   # r5f: sand stays under the tray floor (gaps show the sage floor, not sand)
   return max(z,-1.4)
 new('terrain');bm=bmesh.new();X0,X1,Y0,Y1=-14,14,-17,16;S=0.8   # smooth-shaded in r5b
 nx=int((X1-X0)/S);ny=int((Y1-Y0)/S);V={}
@@ -349,7 +353,7 @@ for nm,off,wid,z in [('foam',0.0,0.34,-0.012),('foam_inner',0.55,0.18,-0.03)]:
     bm=bmesh.new();a=bm.verts.new((x,ya,z));b=bm.verts.new((x2,yc,z));c=bm.verts.new((x2,yd,z));d=bm.verts.new((x,yb,z));bm.faces.new((a,b,c,d))
     add_bm(nm,bm,lambda p,f:Vector((1,1,1)));bm.free()
 # ===== 6. pieces (6 types, thick, single meshes, ≤200 tris each) =====
-PC={'conch':'#A8642A','star':'#D9731A','coral':'#E0403A','float':'#4374BC','scallop':'#348A7C','badge':'#468F30'}   # r5e: a further step deeper (median toward 2.0)   # r5d: one step deeper vs the darker sage slab (floor 1.19)
+PC={'conch':'#A8642A','star':'#D9731A','coral':'#F05A4C','float':'#4374BC','scallop':'#348A7C','badge':'#468F30'}   # r5e: a further step deeper (median toward 2.0)   # r5d: one step deeper vs the darker sage slab (floor 1.19)
 _PC_R5C=None   # r5c: conch, starfish, coral knob, blue mussel, teal scallop, kelp leaf   # r5b: island-calibrated (acorn/strawberry/blueberry/leaf/shell value+saturation)   # r5: pastel natural (scallop = island teal band)
 LDIR=Vector((-0.45,0.35,0.82)).normalized()   # r5c: island sprite key light (top-left), baked; pieces render unlit (matte, no specular)
 def paint(c,n,hi=1.12,lo=0.62):   # r5d: clear light/dark sides (was 1.1/0.8)
@@ -395,7 +399,7 @@ for i in range(5):   # r5e: raised dots along each arm (island-sprite detail)
 # coral: trunk + 3 branches merged, dark base
 new('piece_coral')   # r5c: rounded knob coral, matte (replaces trunk+rim)
 for (x,y,z,r) in [(0,0,0.45,0.46),(0.38,0.12,0.36,0.34),(-0.36,0.16,0.38,0.34),(0.05,-0.38,0.34,0.34),(0.1,0.3,0.74,0.3),(-0.15,-0.1,0.82,0.28)]:
-  bm=ico(S*r,2);add_bm('piece_coral',bm,lambda p,f:paint(mix(hx(PC['coral']),hx('#FFC2A8'),0.8) if noise.noise(p*22)>0.25 else hx(PC['coral']),f.normal),Matrix.Translation((x*S,y*S,z*S)));bm.free()
+  bm=ico(S*r,2);add_bm('piece_coral',bm,lambda p,f:paint(mix(hx(PC['coral']),hx('#FFE0CC'),0.85) if noise.noise(p*11)>0.12 else hx(PC['coral']),f.normal),Matrix.Translation((x*S,y*S,z*S)));bm.free()
 # r5c: blue mussel (replaces the glossy glass float): elongated rounded shell, matte
 new('piece_float');bm=bmesh.new();bmesh.ops.create_uvsphere(bm,u_segments=12,v_segments=10,radius=1)
 _BL=bm.verts.layers.int.new('band')
@@ -403,7 +407,7 @@ for v in bm.verts:
   x,y,z=v.co;t=(y+1)/2;w=0.46+0.36*math.sin(math.pi*min(1,t*1.15))**0.7;bd=int(round(math.acos(max(-1,min(1,z)))/(math.pi/10)))%2;v[_BL]=bd;k_=1.1 if bd else 0.94   # r5e2: bold concentric growth bands (relief + value step)
   v.co=Vector((x*S*w*1.1*k_,y*S*0.82*k_,max(z,-0.25)*S*0.42))
 _MF=Matrix.Translation((0,0,S*0.22))@Matrix.Rotation(0.6,4,'Z');_BK={tuple(round(c,4) for c in (_MF@v.co)):v[_BL] for v in bm.verts}
-add_bm('piece_float',bm,lambda p,f:paint(mix(hx(PC['float']),hx('#B4D0F2'),0.6) if _BK.get(tuple(round(c,4) for c in p),0) else mix(hx(PC['float']),hx('#1A3266'),0.55),f.normal),_MF);bm.free()
+add_bm('piece_float',bm,lambda p,f:paint(mix(hx(PC['float']),hx('#C4DBF6'),0.72) if _BK.get(tuple(round(c,4) for c in p),0) else mix(hx(PC['float']),hx('#152B5C'),0.66),f.normal),_MF);bm.free()
 # scallop: ribbed fan, solid
 new('piece_scallop');bm=bmesh.new();N=10;RIB={}   # r5e: upright ribbed fan (island shell aspect), leaning back 40 deg, hinge on the slab
 LEAN=math.radians(45);R_=S*1.32;T_=S*0.08
@@ -751,6 +755,9 @@ L[:]=[d for d in L if not (d['mesh'].startswith(('reuse_rock','blob','reuse_flow
 for sg in (-1,1):
   for (x,y,m,sc) in [(3.3,-7.0,'reuse_grass_a',2.4),(2.45,-7.45,'reuse_grass_b',2.1),(4.1,-7.35,'reuse_grass_b',2.5),(2.9,-7.2,'reuse_flowers',1.6),(3.8,-6.8,'reuse_flowers',1.4),(3.5,-7.6,'reuse_grass_a',2.2),(4.4,-6.7,'reuse_grass_a',2.0)]:
     put(m,sg*x,y,gzt(sg*x,y),0.7*sg,sc,reuse=True)
+# r5f: small arrival-foreground sand props (instances of existing island-style meshes: 0 new triangles), all at runtime z>=10.6 (outside every game framing)
+for (m,x,y,rz,sc) in [('shells_scatter',-1.5,-11.4,0.3,0.8),('starfish_deco',-1.15,-12.05,1.1,1.0),('reuse_flowers',-2.05,-11.9,0.4,0.95),('drift',-1.75,-12.5,0.2,0.5),('reuse_rock_0',-2.25,-11.05,0.7,0.22),('shells_scatter',1.7,-11.6,1.9,0.6)]:
+  put(m,x,y,gzt(x,y)+(0.0 if m!='drift' else -0.01),rz,sc,reuse=m.startswith('reuse_'))
 SMOOTH=lambda n:n.startswith(('slab_','reuse_rock','piece_','headland','terrain','board_rim','fisher_hut'))
 # r5: pastel lift for pieces (render tone mapping saturates; island pieces read soft)
 pass   # r5b: pastel lift removed
