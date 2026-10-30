@@ -3201,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
-    "bytes": 6700,
-    "sha256": "09e0eb0c8372535d9683d4bbc5b4230cfeeb63c4a3044667a8ed052cd7cca949"
+    "bytes": 6709,
+    "sha256": "cb235e563833ff95338442b8289a59880331f9c04d55ad85684d1f7982bd59da"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3741,8 +3741,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 43567,
-    "sha256": "f75c27578ce50fcb07e232dc280d0140b9502273471f8c3b25fcbd9cd8f7992b"
+    "bytes": 43674,
+    "sha256": "84f96db5b174747a9f37038bd868e47faf37f0ff1c4e5b607258620b4498d3de"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",

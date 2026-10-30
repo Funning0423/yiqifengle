@@ -6,7 +6,7 @@ import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, 
  * M0 is 3 m upstream of the published river node so the shore walk stays inside the 30.5 s budget. */
 export const SAIL_I6:Vec=[-1.9,-0.6,10.1];
 export const SAIL_M0_LOCAL:Vec=[0.2,1.4,17];
-export const SAIL_M1_LOCAL:Vec=[2.6,2.764,6.8];/* b20 meadow-walk-fixes: = baked RegionNodes M1 (was [2.6,2.2,11.6]) */
+export const SAIL_M1_LOCAL:Vec=[2.2,2.803,6.8];/* b20 meadow-walk-fixes: = baked RegionNodes M1 on the path (was [2.6,2.2,11.6], then [2.6,2.764,6.8]) */
 /** Drops the sail copy of the meadow so the sea covers its southern lowland. Bridge mode still uses meadowOffset. */
 export const SAIL_MEADOW_SINK=1.35;
 /** Boat waterline (= transit sea_plane). Kept at −0.91 to match art berth / sea_plane. */

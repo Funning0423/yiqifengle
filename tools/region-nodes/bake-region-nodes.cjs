@@ -78,8 +78,8 @@ const NODES={
   {key:'I6',at:[-1.5,-0.18,9.3],role:'departure'},
  ],
  meadow:[
-  {key:'M0',at:[0.2,1.22,20],role:'arrival'},
-  {key:'M1',at:[2.6,2.76,6.77],role:'mainline',stageId:'mainline-05'},
+  {key:'M0',at:[1.8,1.725,15.6],role:'arrival'/* b20 meadow-walk-fixes: was [0.2,1.22,20] (M0-M1 14.19 m cut), then [0.2,1.76,15.2] (on grass); now on the path */},
+  {key:'M1',at:[2.2,2.76,6.8],role:'mainline',stageId:'mainline-05'},
   {key:'M2',at:[-1.4,3.41,-0.94],role:'mainline',stageId:'mainline-06'},
   {key:'M3',at:[-3.0,4.14,-9.64],role:'mainline',stageId:'mainline-07'},
   {key:'M4',at:[3,5.84,-16.4],role:'mainline',stageId:'mainline-08'},
