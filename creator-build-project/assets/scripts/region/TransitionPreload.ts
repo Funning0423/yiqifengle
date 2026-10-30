@@ -1,6 +1,6 @@
 import {Director,EffectAsset,JsonAsset,assetManager,director,type Node} from 'cc';
 import {meadowSplitLoad,preloadMeadowForSail} from './SailPreload';
-import {MEADOW_LEG_STAGES,PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
+import {MEADOW_LEG_STAGES,PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,stageOk,type PreloadItem} from './TransitionChain';
 import {REGIONS,loadRegionPrefab} from './RegionLoader';
 import {loadBundlePrefab} from './TransportVehicle';
 import {prewarmLakesideAssets} from './LakesideBoardBackground';
@@ -52,8 +52,8 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
  skyStaged=(async()=>{
   let all=true;
   for(const st of SKY_LEG_STAGES){
-   const t0=Date.now();let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
-   try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'skycity',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,ok}));}catch{}
+   const t0=Date.now();let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;const ms=Date.now()-t0;
+   try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'skycity',stage:st.id,ms,budgetMs:st.ms,loaded:ok,ok:stageOk(ok,ms,st.ms)}));}catch{}
    await wait();
   }
   return all;
@@ -78,7 +78,7 @@ export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SK
   for(const st of MEADOW_LEG_STAGES){
    /*QF_PROBE_BEGIN*/let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}const t0=Date.now();/*QF_PROBE_END*/
    let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
-   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok}));}catch{}/*QF_PROBE_END*/
+   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}const ms=Date.now()-t0;try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms,budgetMs:st.ms,frameMaxMs:max,loaded:ok,ok:stageOk(ok,ms,st.ms)}));}catch{}/*QF_PROBE_END*/
    await wait(gap);}
   if(!all)meadowStaged=null;return all;})();
  return meadowStaged;

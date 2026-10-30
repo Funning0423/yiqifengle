@@ -161,6 +161,9 @@ export function splitNextBatch(k:number,workMs:number,budget=SPLIT_BUDGET_MS):nu
  *  the 5.5 MB meadow inside the 3 s window (16 s on the swapping Mac). Now staged from world init on the island, one load per
  *  stage with a gap; the instantiate stage only runs while she is in a stable place (home / island), never on a walk. */
 export const MEADOW_LEG_STAGES=Object.freeze([{id:'bundle:region_meadow',ms:1800},{id:'bundle:transport_sail',ms:400},{id:'split:env_meadow',ms:1200},{id:'prefab:env_meadow',ms:450},{id:'mount:meadow-warm-rig',ms:700}] as const);
+/** Stage-log verdict (Mac dedf8853: split:env_meadow 32304/1200, transport_sail 783–1048/400, warm-rig 1572–1764/700 all logged ok:true):
+ *  ok only when the stage finished AND ms <= its budgetMs. Budgets are never raised here; tools/preload-size/check-stage-log.cjs re-checks Mac logs. */
+export function stageOk(finished:boolean,ms:number,budgetMs:number):boolean{return finished&&Number.isFinite(ms)&&ms<=budgetMs;}
 /** Gap between warm stages so each load lands on its own frames (no fps hitch on the sail). */
 export const SKY_WARM_GAP_MS=300;
 export const SKY_WARM_WINDOW=Object.freeze({sailRideS:43,arrivalWalkS:29});
