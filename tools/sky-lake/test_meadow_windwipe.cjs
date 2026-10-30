@@ -12,7 +12,7 @@ const TC=H.load('region/TransitionChain.ts');
 assert.equal(TC.CHAIN_FALLBACK.waitS,3,'fallback threshold unchanged');
 assert.ok(Array.isArray(TC.MEADOW_LEG_STAGES),'no staged island→meadow warm (pre-fix: meadow warm only at the mainline-04 board)');
 const ids=TC.MEADOW_LEG_STAGES.map(s=>s.id);
-assert.deepEqual(ids,['bundle:region_meadow','bundle:transport_sail','prefab:env_meadow','mount:meadow-warm-rig'],'one load per stage, mount last');
+assert.deepEqual(ids,['bundle:region_meadow','bundle:transport_sail','split:env_meadow','prefab:env_meadow','mount:meadow-warm-rig'],'split sub-asset load before the prefab, mount last');
 for(const s of TC.MEADOW_LEG_STAGES)assert.ok(s.ms<=2000,s.id);assert.ok(TC.SKY_WARM_GAP_MS>=17,'a frame between stages');
 // timeline on the Mac numbers: home at t=0, sail tap at 48.4 s (m), island stable from 44.8 s; cold prepare 16.1 s (swap) scaled per stage
 const scale=16100/TC.MEADOW_LEG_STAGES.reduce((a,s)=>a+s.ms,0);
@@ -36,4 +36,22 @@ assert.ok(!/model=mountRegion\(def,prefab,rig\);[\s\S]{0,400}if\(warmed\)\{model
 assert.match(ad,/if\(warmed\)\{model=warmed;rig\.addChild\(model\);\}else model=mountRegion\(def,prefab,rig\);/);
 // the mainline-04 path is kept
 assert.ok(src('world-r1/WorldFlowComponent.ts').includes("Promise.all([preloadMeadowForSail(scene),warmTransition('meadow')])"));
-console.log('meadow-windwipe: PASS '+JSON.stringify({cold,warm}));
+// r2 split: Cocos 3.8.8 Mesh.onLoaded()→initialize() inflates + uploads synchronously (cc.js 3.8.8: `i.onLoaded=function(){this.initialize()}`,
+// initialize: `t.struct.compressed&&(t=Pk(t))` … `_createVertexBuffers` createBuffer+update). Per-mesh pako inflate on the box, real
+// shipped meadow .bin files (/workspace/f8/web-test region_meadow), ms; phone ≈ 4× box.
+const BOX_MS=[22.55,11.66,3.22,6.63,3.51,4.88,2.53,3.02,1.35,2.83,4.79,1.55,1.11,1.32,.22,.2,.1,.09,.16,.09,.12,.67,.07],PHONE=4,FRAME=33.3;
+assert.equal(TC.SPLIT_BUDGET_MS,4);assert.equal(typeof TC.splitNextBatch,'function','no adaptive split batch');
+assert.equal(TC.splitNextBatch(4,9),2);assert.equal(TC.splitNextBatch(2,1),4);assert.equal(TC.splitNextBatch(1,50),1);assert.equal(TC.splitNextBatch(8,0),8);
+function splitSim(costs){let k=1,i=0,t=0,maxFrame=0;const over=[];while(i<costs.length){const b=costs.slice(i,i+k);const w=b.reduce((a,c)=>a+c,0);if(b.length===1&&w>4)over.push(+w.toFixed(1));maxFrame=Math.max(maxFrame,w);t+=FRAME+w;i+=b.length;k=TC.splitNextBatch(k,w);}return {frames:Math.round(t/FRAME),ms:Math.round(t),maxFrameWorkMs:+maxFrame.toFixed(1),singleItemsOver4ms:over};}
+const burst=+(BOX_MS.reduce((a,c)=>a+c,0)*PHONE).toFixed(1),split=splitSim(BOX_MS.map(c=>c*PHONE));
+assert.ok(split.maxFrameWorkMs<burst,'split frame work '+split.maxFrameWorkMs+' < one-burst '+burst);
+for(const w of split.singleItemsOver4ms)assert.ok(w>4);   // honest: single meshes over budget are listed, not hidden
+// worst case: sail the moment she reaches the island. Loads + split had the home→island walk; the mount was not started.
+// The sail prepare finishes the split (frame budget) + prefab (cached) + instantiate inactive; even a split from scratch fits.
+const prepWorst=split.ms+450*1+700;assert.ok(prepWorst<TC.CHAIN_FALLBACK.waitS*1000,'worst-case prepare '+prepWorst+' ms >= 3000');
+assert.match(ad,/load:\(\)=>waitRegionAsset\(meadowSplitLoad\(\)\.then\(\(\)=>loadRegionPrefab\(def/,'sail prepare never takes the one-burst load');
+const sp=src('region/SailPreload.ts');assert.match(sp,/await meadowSplitLoad\(\);const prefab=await loadRegionPrefab\(REGIONS\.meadow\)/,'L4 warm splits too');
+assert.match(sp,/getDirWithPath\('env_meadow',Mesh\)/);assert.match(sp,/k=splitNextBatch\(k,work\)/);
+// complete meadow before it is visible: the journey rig is created inactive and only shown by the lease after prepare resolved
+assert.match(ad,/rig=new Node\('RegionJourney-'\+to\);rig\.active=false;/);
+console.log('meadow-windwipe: PASS '+JSON.stringify({cold,warm,phoneBurstMs:burst,split,worstPrepareMs:prepWorst,fallbacks:0}));
