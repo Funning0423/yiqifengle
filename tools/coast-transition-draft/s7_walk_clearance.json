@@ -1,0 +1,153 @@
+{
+ "route": {
+  "start": [
+   0,
+   0,
+   10.25
+  ],
+  "end": [
+   0,
+   0,
+   5.15
+  ],
+  "length_m": 5.1,
+  "speed_ms": 1.2,
+  "seconds": 4.25
+ },
+ "solid_min": {
+  "mesh": "arrival_steps",
+  "p": [
+   0,
+   0,
+   0
+  ],
+  "d": 1.038,
+  "soft": false
+ },
+ "solid_nearest": [
+  {
+   "mesh": "arrival_steps",
+   "p": [
+    0,
+    0,
+    0
+   ],
+   "d": 1.038,
+   "soft": false
+  },
+  {
+   "mesh": "crabtrap",
+   "p": [
+    -1.6,
+    0.0,
+    4.7
+   ],
+   "d": 1.309,
+   "soft": false
+  },
+  {
+   "mesh": "crabtrap_mesh",
+   "p": [
+    -1.6,
+    0.0,
+    4.7
+   ],
+   "d": 1.33,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_rock_s1",
+   "p": [
+    -1.75,
+    0.16,
+    8.6
+   ],
+   "d": 1.367,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_rock_s2",
+   "p": [
+    1.8,
+    0.2,
+    8.7
+   ],
+   "d": 1.485,
+   "soft": false
+  },
+  {
+   "mesh": "piece_conch",
+   "p": [
+    0.0,
+    0.11,
+    2.97
+   ],
+   "d": 1.618,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_rock_s0",
+   "p": [
+    2.15,
+    0.01,
+    7.5
+   ],
+   "d": 1.707,
+   "soft": false
+  },
+  {
+   "mesh": "reuse_rock_s2",
+   "p": [
+    -2.15,
+    -0.01,
+    7.4
+   ],
+   "d": 1.891,
+   "soft": false
+  }
+ ],
+ "soft_nearest": [
+  {
+   "mesh": "reuse_grass_b",
+   "p": [
+    1.3,
+    -0.0,
+    7.9
+   ],
+   "d": 0.969,
+   "soft": true
+  },
+  {
+   "mesh": "reuse_grass_b",
+   "p": [
+    -1.3,
+    -0.03,
+    5.15
+   ],
+   "d": 1.015,
+   "soft": true
+  },
+  {
+   "mesh": "reuse_grass_a",
+   "p": [
+    -1.3,
+    -0.02,
+    7.9
+   ],
+   "d": 1.126,
+   "soft": true
+  },
+  {
+   "mesh": "reuse_grass_b",
+   "p": [
+    1.45,
+    -0.0,
+    7.0
+   ],
+   "d": 1.215,
+   "soft": true
+  }
+ ],
+ "rim_outer_z": 3.95,
+ "end_to_rim_m": 1.2
+}
