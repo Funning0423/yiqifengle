@@ -36,10 +36,10 @@ function measure(poses,dt,w,h,id,gate,rowsKey){let prev=null,pr=null,acc=[],mx={
   if(dt>1/45){ok(face<=LIM.face+1e-9,`${id} face blocked ${face.toFixed(2)} s`);ok(minG>=LIM.ground,`${id} ground ${minG}`);ok(minS>=LIM.solid,`${id} solid ${minS}`);ok(minM>=LIM.margin,`${id} margin ${minM.toFixed(3)}`);ok(cap===0,`${id} capsule ${cap}`);}}
  if(rowsKey)report.rows[rowsKey]=rows;return s;}
 for(const [w,h] of SCREENS)for(const fps of [60,30]){const dt=1/fps,id=`${w}x${h} ${fps}fps`,base=liveFollow(w,h,dt),live=base[0];
- report.before[id]=measure(base,dt,w,h,id,false,fps===30&&w===390?'before390':null);
+ report.before[id]=measure(base,dt,w,h,id,false,fps===30&&w===390&&h===844?'before390':null);
  const lens=AL.islandApproachLens(live,walk,w,h,boxes),poses=[];for(let k=0;k*dt<=T+0.5+1e-9;k++)poses.push(lens.at(k*dt));
  ok(Math.hypot(...poses[0].position.map((x,i)=>x-live.position[i]))<1e-6,`${id} first write != live lens`);
- report.after[id]=measure(poses,dt,w,h,id,true,fps===30&&w===390?'after390':null);
+ report.after[id]=measure(poses,dt,w,h,id,true,fps===30&&w===390&&h===844?'after390':null);
  const th=lens.handoverS,e=1e-4,a=lens.at(th-e),c=lens.at(th+e),dv=(p,q)=>Math.hypot(...p.position.map((x,i)=>x-q.position[i])),dd=(p,q)=>{const u=ya(p),v=ya(q);return Math.hypot(((u[0]-v[0]+540)%360-180),u[1]-v[1]);};
  const k0=Math.round(th/dt),f=[lens.at((k0-1)*dt),lens.at(k0*dt),lens.at((k0+1)*dt),lens.at((k0+2)*dt)];
  const vel=(p,q)=>p.position.map((x,i)=>(x-q.position[i])/dt),va=vel(f[2],f[1]),vb=vel(f[1],f[0]),jump=Math.hypot(...va.map((x,i)=>x-vb[i]));
