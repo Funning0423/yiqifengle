@@ -109,22 +109,29 @@ export function coastArrivalHer(world:any):CoastHerDriver{const W=coastArrivalWa
  drv.dispose=()=>token.cancel();Object.defineProperty(drv,'started',{get:()=>started});(drv as any).errors=errors;return drv;}
 /** puts the driver on the existing world object (no WorldFlowComponent edit): world.coastArrivalHer(f); returns dispose. */
 export function installCoastArrivalHer(world:any):()=>void{const d=coastArrivalHer(world);world.coastArrivalHer=d;return ()=>{d.dispose();if(world.coastArrivalHer===d)delete world.coastArrivalHer;};}
-/* ---- GGbot resolveReuse: coast reuse:true props cloned from the island model that is ALREADY in the scene during the arrival
- * (WorldFlowComponent.ts:378 instantiates firstsliceModel = static_seat_preview room_no_original_chair.glb prefab, RegionLoader.ts:27,
- * WIB:459/523; still mounted under the world node while the island->coast arrival plays). No load, no new bytes, no bundle copy.
- * Only the island prefab's own nodes count as sources; a name without a source is NOT skipped silently: null + console.error. */
-export const COAST_REUSE_SOURCES:Readonly<Record<string,string|null>>=Object.freeze({
- reuse_palm_tall:'env_prop_palm_tall_01_rig',reuse_palm_lean:'env_prop_palm_lean_01_rig',   // skinned palms: clone the rig root (skin + bones)
- // not present in the island prefab (art/x ISLAND-EXTERIOR glbs were only baked into the offline coast preview):
- reuse_grass_a:null,reuse_grass_b:null,reuse_flowers:null,reuse_bush:null,reuse_cloud:null,
- reuse_rock_0:null,reuse_rock_1:null,reuse_rock_2:null,reuse_rock_s0:null,reuse_rock_s1:null,reuse_rock_s2:null});
+/* ---- GGbot resolveReuse / resolveMaterial for loadCoastScene (CoastSceneLoader.ts 1062a72b contract). Pure (no 'cc').
+ * Island model in the scene during the arrival: WorldFlowComponent.ts:378 instantiates firstsliceModel = static_seat_preview
+ * room_no_original_chair.glb prefab (RegionLoader.ts:27, WIB:459/523), mounted under the world node until the world is torn down.
+ * Nothing is loaded and no bytes are copied: only nodes/materials of that prefab are used. */
 type NodeLike={name:string;children:NodeLike[];isValid?:boolean};
 function findName(n:NodeLike|null|undefined,name:string):NodeLike|null{if(!n)return null;if(n.name===name)return n;for(const c of n.children||[]){const r=findName(c,name);if(r)return r;}return null;}
-/** resolveReuse for mountCoastScene: world = WorldFlowComponent (its node holds the island model). Returns the island node to
- *  instantiate (the loader clones it), or null + console.error('[QF_COAST] ...'). Lookups are cached per name. */
-export function createCoastReuseResolver(world:any):(mesh:string)=>any{const cache=new Map<string,any>();
- return (mesh:string)=>{if(cache.has(mesh))return cache.get(mesh);const src=COAST_REUSE_SOURCES[mesh];let n:any=null;
-  if(src===undefined)console.error('[QF_COAST] reuse: unknown mesh '+mesh);
-  else if(src===null)console.error('[QF_COAST] reuse: no island source for '+mesh+' (not in the island prefab)');
-  else{n=findName(world?.node,src);if(!n||n.isValid===false){n=null;console.error('[QF_COAST] reuse: island node '+src+' for '+mesh+' not in scene');}}
-  cache.set(mesh,n);return n;};}
+/** sources = COAST_REUSE_SOURCES (CoastSceneLayout). Skinned island props are cloned from their rig root (src+'_rig': skin + bones);
+ *  otherwise the node named src. null + console.error when the island prefab has no such node. Cached per name. */
+export function createCoastReuseResolver(islandRoot:any,sources:Readonly<Record<string,{src:string}>>):(name:string)=>any{const cache=new Map<string,any>();
+ return (name:string)=>{if(cache.has(name))return cache.get(name);const s=sources[name];let n:any=null;
+  if(!s)console.error('[QF_COAST] reuse: unknown name '+name);
+  else{n=findName(islandRoot,s.src+'_rig')||findName(islandRoot,s.src);if(!n||n.isValid===false){n=null;console.error('[QF_COAST] reuse: '+name+' -> '+s.src+' is not in the loaded island prefab');}}
+  cache.set(name,n);return n;};}
+export type MaterialLike={name?:string;isValid?:boolean;destroy?():void};
+/** resolveMaterial: std + opaque + no emit -> an OWNED copy of the island's M_env_palette (makeCopy(src) = new Material + copy; the
+ *  island's shared material is never modified). Every other key (unlit / emit / alpha<1) has no island counterpart agreed by art:
+ *  null + console.error (no builtin fallback, no invented colours). M_env_palette samples a palette texture by UV: on a mesh without
+ *  UVs every vertex samples one texel (flat colour) — runCoastArrival reports such meshes with console.error (coastMeshesWithoutUV).
+ *  dispose() destroys the owned copies. */
+export function createCoastMaterialResolver(findIslandMaterial:(name:string)=>MaterialLike|null,makeCopy:(src:MaterialLike)=>MaterialLike){
+ const owned:MaterialLike[]=[];let palette:MaterialLike|null|undefined;
+ const fn=((k:{mesh:string;kind:string;alpha:number;emit:boolean})=>{
+  if(k.kind!=='std'||k.alpha<1||k.emit){console.error('[QF_COAST] material: no island material for '+k.mesh+' ('+k.kind+', alpha '+k.alpha+(k.emit?', emit':'')+') - needs an art decision');return null;}
+  if(palette===undefined){const src=findIslandMaterial('M_env_palette');palette=src&&src.isValid!==false?makeCopy(src):null;if(palette)owned.push(palette);else console.error('[QF_COAST] material: island M_env_palette not found');}
+  return palette;}) as ((k:any)=>MaterialLike|null)&{dispose():void;owned:MaterialLike[]};
+ fn.owned=owned;fn.dispose=()=>{for(const m of owned.splice(0))try{m.destroy?.();}catch{}palette=undefined;};return fn;}

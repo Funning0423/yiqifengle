@@ -1,83 +1,121 @@
 /**
  * 海岸 A runtime scene loader (?qfcoastkit=1 only). 场景设计部 2026-10-30.
- * Lives in the region_coast subpackage: this module is only evaluated after that bundle is loaded, which only happens on the
- * kit path, so with the flag off no code here runs and every pinned file stays byte-identical.
+ * PRIMARY ENTRY (module export, same bundle): loadCoastScene(world, {resolveReuse, resolveMaterial, cancelled}) -> CoastSceneHandle|null.
+ * Also registered as globalThis.__qfCoast.loadCoastScene / unloadCoastScene when this module is evaluated (only on the kit path:
+ * the module lives in the region_coast bundle, which only the kit path loads). The single wiring point is the bundle's
+ * globalThis.__qfCoast.runCoastArrival (运镜bot/GGbot): await loadCoastScene(...) FIRST, then her install -> playCoastArrival -> finally uninstall.
  *
- * No pop-in contract: mountCoastScene() builds the whole tree on a DETACHED, INACTIVE root (nothing is in any scene while
- * loading/instantiating), then in one synchronous step adds it under `parent` and activates it. The caller awaits it BEFORE
- * playCoastArrival(); runCoastArrivalWithScene() is that ordered sequence (bundle -> layout + glbs -> build -> show -> camera).
- * On any failure the half-built root is destroyed (never shown) and the arrival still plays (warned, like the arrival hook).
- * reuse:true entries (island exterior props) are not in this bundle: they go through deps.resolveReuse or are skipped + counted.
+ * No pop-in: the whole tree is built on a DETACHED, INACTIVE root; one synchronous step attaches it under the world node and activates it.
+ * No silent degradation: every failure / skip / unresolved name is console.error('[QF_COAST] ...'). There is NO builtin-material fallback:
+ * materials come only from opts.resolveMaterial (island/meadow material set, owned by the caller). Missing required options = error, nothing shown.
+ * cancelled() is checked after every async step; a cancelled mount releases what it loaded and shows nothing.
+ * dispose(): destroys every instantiated node and decRefs the bundle assets this loader loaded (layout + glb prefabs). Island templates
+ * (resolveReuse) and caller materials (resolveMaterial) are never released or destroyed here.
  */
-import { assetManager, AssetManager, Color, instantiate, isValid, JsonAsset, Material, MeshRenderer, Node, Prefab } from 'cc';
+import { assetManager, AssetManager, Asset, instantiate, isValid, JsonAsset, Material, MeshRenderer, Node, Prefab } from 'cc';
 import { coastBoardKitFromFlag } from '../../../scripts/ui/BoardProjection';
-import { COAST_BUNDLE, COAST_LAYOUT_PATH, COAST_MODELS_DIR, COAST_ROOT, coastInstances, type CoastLayout, type CoastInstance } from './CoastSceneLayout';
-import { playCoastArrival, installCoastArrivalHer, createCoastReuseResolver, type CoastArrivalDeps } from './CoastArrivalLens';
-import { director } from 'cc';
+import { COAST_BUNDLE, COAST_LAYOUT_PATH, COAST_MODELS_DIR, COAST_REUSE_SOURCES, COAST_ROOT, coastInstances, type CoastLayout, type CoastInstance, type MatKind } from './CoastSceneLayout';
 
-export type CoastMountResult=Readonly<{root:Node|null;placed:number;skippedReuse:number;missing:string[];reason?:string}>;
-export type CoastMountDeps=Readonly<{parent:Node;deadlineMs?:number;resolveReuse?:(mesh:string)=>Node|null;
-  /** test seam: defaults to the real engine calls */
-  kitOn?:()=>boolean}>;
+export const QF_COAST='[QF_COAST]';
+export type CoastMaterialKey=Readonly<{mesh:string;kind:MatKind;alpha:number;emit:boolean}>;
+export type CoastSceneOptions=Readonly<{
+  /** REQUIRED. name in COAST_REUSE_SOURCES -> an already-loaded island node to CLONE (the loader instantiate()s it; never mutated/released). null = unresolved (error). */
+  resolveReuse:(name:string)=>Node|null;
+  /** REQUIRED. coast mesh -> island/meadow Material (shared, caller-owned; never destroyed here). null = unavailable (error, mesh not mounted). */
+  resolveMaterial:(key:CoastMaterialKey)=>Material|null;
+  /** REQUIRED. true once the scene is torn down / region changed: the mount aborts cleanly at the next step. */
+  cancelled:()=>boolean;
+  deadlineMs?:number;
+  /** test seam */ kitOn?:()=>boolean}>;
+export type CoastSceneHandle=Readonly<{root:Node;placed:number;reusePlaced:number;errors:readonly string[];dispose():void}>;
+/** world = the island scene_root node (identity frame of coast_layout.json placement), or an object carrying it. */
+export type CoastWorld=Node|Readonly<{sceneRoot?:Node|null;node?:Node|null;root?:Node|null}>;
 
+const err=(msg:string)=>{console.error(QF_COAST+' '+msg);return msg;};
 const deadline=<T>(p:Promise<T>,ms:number)=>{let t:any;return Promise.race([p,new Promise<never>((_,no)=>{t=setTimeout(()=>no(Error('coast-asset-timeout')),ms);})]).finally(()=>clearTimeout(t));};
-const loadBundle=()=>new Promise<AssetManager.Bundle>((ok,no)=>assetManager.loadBundle(COAST_BUNDLE,(e,b)=>e||!b?no(e||Error('no bundle')):ok(b)));
+const loadBundle=()=>new Promise<AssetManager.Bundle>((ok,no)=>{const b=assetManager.getBundle?.(COAST_BUNDLE);if(b)return ok(b);assetManager.loadBundle(COAST_BUNDLE,(e,x)=>e||!x?no(e||Error('no bundle')):ok(x));});
 const loadJson=(b:AssetManager.Bundle)=>new Promise<JsonAsset>((ok,no)=>b.load(COAST_LAYOUT_PATH,JsonAsset,(e,a)=>e||!a?no(e||Error('no layout')):ok(a)));
 const loadPrefabs=(b:AssetManager.Bundle)=>new Promise<Prefab[]>((ok,no)=>b.loadDir(COAST_MODELS_DIR,Prefab,(e,l)=>e?no(e):ok(l||[])));
-
-const mats=new Map<string,Material>();
-function coastMaterial(kind:'std'|'unlit',alpha:number):Material{const key=kind+alpha;let m=mats.get(key);if(m)return m;m=new Material();
-  m.initialize({effectName:kind==='unlit'?'builtin-unlit':'builtin-standard',technique:alpha<1?1:0,defines:{USE_VERTEX_COLOR:true}});
-  if(kind==='std'){m.setProperty('roughness',0.88);m.setProperty('metallic',0);m.setProperty('mainColor',new Color(255,255,255,255));}
-  mats.set(key,m);return m;}
+function worldNode(w:CoastWorld|null|undefined):Node|null{if(!w)return null;if(w instanceof Node)return w;const o=w as any;return o.sceneRoot||o.node||o.root||null;}
 function findDeep(n:Node,name:string):Node|null{if(n.name===name&&n.getComponent(MeshRenderer))return n;for(const c of n.children){const r=findDeep(c,name);if(r)return r;}return null;}
+function setTRS(n:Node,i:CoastInstance){n.setPosition(i.position[0],i.position[1],i.position[2]);n.setRotationFromEuler(i.eulerDeg[0],i.eulerDeg[1],i.eulerDeg[2]);n.setScale(i.scale,i.scale,i.scale);}
 
-function place(root:Node,tpl:Node,i:CoastInstance){const n=instantiate(tpl);n.name=i.mesh;n.setPosition(i.position[0],i.position[1],i.position[2]);
-  n.setRotationFromEuler(i.eulerDeg[0],i.eulerDeg[1],i.eulerDeg[2]);n.setScale(i.scale,i.scale,i.scale);
-  const r=n.getComponent(MeshRenderer);if(r){r.setMaterial(coastMaterial(i.kind,i.alpha),0);r.shadowCastingMode=i.castShadow?1:0;r.receiveShadow=i.receiveShadow?1:0;}
-  root.addChild(n);}
-
-/** Builds the coast tree hidden and shows it in one step. Flag off: returns immediately, touches nothing. */
-export async function mountCoastScene(deps:CoastMountDeps):Promise<CoastMountResult>{
-  if(!(deps.kitOn??coastBoardKitFromFlag)())return {root:null,placed:0,skippedReuse:0,missing:[],reason:'kit-off'};
-  const ms=deps.deadlineMs??20000;let root:Node|null=null;
-  try{const b=await deadline(loadBundle(),ms);const [json,prefabs]=await Promise.all([deadline(loadJson(b),ms),deadline(loadPrefabs(b),ms*1.5)]);
+export async function loadCoastScene(world:CoastWorld,opts:CoastSceneOptions):Promise<CoastSceneHandle|null>{
+  if(!(opts?.kitOn??coastBoardKitFromFlag)())return null;   // flag off: no engine call, no log
+  const parent=worldNode(world);
+  const miss=[!parent&&'world node',typeof opts?.resolveReuse!=='function'&&'resolveReuse',typeof opts?.resolveMaterial!=='function'&&'resolveMaterial',typeof opts?.cancelled!=='function'&&'cancelled'].filter(Boolean);
+  if(miss.length){err('scene not mounted: missing '+miss.join(', '));return null;}
+  const ms=opts.deadlineMs??20000,held:Asset[]=[];let root:Node|null=null,lib:Node|null=null;
+  const release=()=>{if(lib&&isValid(lib))lib.destroy();lib=null;if(root&&isValid(root))root.destroy();root=null;for(const a of held.splice(0))a.decRef();};
+  const gone=()=>{if(!opts.cancelled())return false;console.warn(QF_COAST+' scene mount cancelled (teardown/region change)');release();return true;};
+  try{const b=await deadline(loadBundle(),ms);if(gone())return null;
+    const [json,prefabs]=await Promise.all([deadline(loadJson(b),ms),deadline(loadPrefabs(b),ms*1.5)]);
+    json.addRef();held.push(json);for(const p of prefabs){p.addRef();held.push(p);}if(gone())return null;
     const L=json.json as CoastLayout;root=new Node(COAST_ROOT.name);root.active=false;   // detached + inactive until the end
     root.setPosition(COAST_ROOT.position[0],COAST_ROOT.position[1],COAST_ROOT.position[2]);root.setRotationFromEuler(0,COAST_ROOT.yawDeg,0);root.setScale(COAST_ROOT.scale,COAST_ROOT.scale,COAST_ROOT.scale);
-    const lib=new Node('coast_glb_templates');for(const p of prefabs)lib.addChild(instantiate(p));
-    const tpl=new Map<string,Node|null>();let placed=0,skippedReuse=0;const missing:string[]=[];
+    lib=new Node('coast_glb_templates');for(const p of prefabs)lib.addChild(instantiate(p));
+    const tpl=new Map<string,Node|null>(),mats=new Map<string,Material|null>(),errors:string[]=[];let placed=0,reusePlaced=0;
     for(const i of coastInstances(L)){
-      let t=tpl.get(i.mesh);if(t===undefined){t=i.reuse?(deps.resolveReuse?.(i.mesh)??null):findDeep(lib,i.mesh);tpl.set(i.mesh,t);}
-      if(!t||!isValid(t)){if(i.reuse)skippedReuse++;else if(!missing.includes(i.mesh))missing.push(i.mesh);continue;}
-      place(root,t,i);placed++;}
-    lib.destroy();
-    if(!isValid(deps.parent))throw Error('parent gone');
-    deps.parent.addChild(root);root.active=true;   // single synchronous show: whole coast appears in the same frame
-    if(missing.length)console.error('[QF_COAST] scene: missing meshes',missing.join(','));
-    return {root,placed,skippedReuse,missing};
-  }catch(e){if(root&&isValid(root))root.destroy();console.error('[QF_COAST] scene mount skipped',String((e as any)?.message??e));
-    return {root:null,placed:0,skippedReuse:0,missing:[],reason:String((e as any)?.message??e)};}}
+      let t=tpl.get(i.mesh);
+      if(t===undefined){
+        if(i.reuse){if(!COAST_REUSE_SOURCES[i.mesh])errors.push(err('reuse name not in COAST_REUSE_SOURCES: '+i.mesh));
+          try{t=opts.resolveReuse(i.mesh);}catch(e){t=null;}if(!t||!isValid(t)){t=null;errors.push(err('reuse unresolved: '+i.mesh+' ('+(COAST_REUSE_SOURCES[i.mesh]?.count??'?')+' instances not mounted)'));}}
+        else{t=findDeep(lib,i.mesh);if(!t)errors.push(err('mesh missing in models/*.glb: '+i.mesh));}
+        tpl.set(i.mesh,t);}
+      if(!t)continue;
+      if(i.reuse){const n=instantiate(t);n.name=i.mesh;n.active=true;setTRS(n,i);root.addChild(n);reusePlaced++;continue;}   // keeps the island's own materials
+      const mk=i.mesh+'|'+i.kind+'|'+i.alpha;let m=mats.get(mk);
+      if(m===undefined){try{m=opts.resolveMaterial({mesh:i.mesh,kind:i.kind,alpha:i.alpha,emit:i.kind==='unlit'});}catch(e){m=null;}
+        if(!m||!isValid(m)){m=null;errors.push(err('material unavailable for '+i.mesh+' (no fallback; mesh not mounted)'));}mats.set(mk,m);}
+      if(!m)continue;
+      const n=instantiate(t);n.name=i.mesh;setTRS(n,i);const r=n.getComponent(MeshRenderer);
+      if(r){r.setMaterial(m,0);r.shadowCastingMode=i.castShadow?1:0;r.receiveShadow=i.receiveShadow?1:0;}
+      root.addChild(n);placed++;}
+    lib.destroy();lib=null;
+    if(gone())return null;
+    if(!isValid(parent!)){err('scene not mounted: world node destroyed');release();return null;}
+    const shown=root;parent!.addChild(shown);shown.active=true;root=null;   // single synchronous show
+    const mine=held.splice(0);let done=false;
+    const handle:CoastSceneHandle={root:shown,placed,reusePlaced,errors,dispose(){if(done)return;done=true;if(isValid(shown))shown.destroy();for(const a of mine)a.decRef();}};
+    return handle;
+  }catch(e){err('scene mount failed: '+String((e as any)?.message??e));release();return null;}}
 
-/** The ordered kit-on sequence for the arrival hook: scene fully built and shown BEFORE the first camera write. */
-export async function runCoastArrivalWithScene(arrival:CoastArrivalDeps,scene:CoastMountDeps){
-  const s=await mountCoastScene(scene);const a=await playCoastArrival(arrival);return {scene:s,arrival:a};}
-/* ---- GGbot: the ONE kit-on entry (contract: globalThis.__qfCoast.runCoastArrival(world,{resolveReuse,cancelled})).
- * Registered when this bundle script is evaluated, i.e. only after assetManager.loadBundle('region_coast') on the kit path —
- * no main-package import of bundle scripts. world = WorldFlowComponent (worldCamera, node, scheduleOnce).
- * Order: loadCoastScene (mountCoastScene) -> installCoastArrivalHer -> playCoastArrival -> uninstall in finally. Errors: console.error [QF_COAST]. */
-export type CoastEntryOpts=Readonly<{resolveReuse?:(mesh:string)=>Node|null;cancelled?:()=>boolean}>;
-export async function runCoastArrival(world:any,opts:CoastEntryOpts={}):Promise<{ok:boolean;reason?:string;scene?:CoastMountResult}>{
- let off:(()=>void)|null=null;
- try{const cam=world?.worldCamera,parent=world?.node;if(!cam?.node?.isValid||!parent?.isValid){console.error('[QF_COAST] arrival: world camera/node missing');return {ok:false,reason:'no-world'};}
-  const cancelled=()=>!!opts.cancelled?.()||!parent.isValid;
-  const scene=await mountCoastScene({parent,resolveReuse:(opts.resolveReuse??createCoastReuseResolver(world)) as any});
-  if(!scene.root)console.error('[QF_COAST] arrival: coast scene not mounted ('+(scene.reason??'?')+')');
-  if(scene.skippedReuse||scene.missing.length)console.error('[QF_COAST] arrival: scene incomplete: reuse skipped '+scene.skippedReuse+', missing '+scene.missing.join(','));
-  if(cancelled())return {ok:false,reason:'cancelled',scene};
+export function unloadCoastScene(h:CoastSceneHandle|null|undefined){h?.dispose();}
+
+// self-registration (module evaluation = region_coast bundle loaded = kit path). Merges, never replaces, the bundle's __qfCoast object.
+{const g=globalThis as any;const o=g.__qfCoast||(g.__qfCoast={});o.loadCoastScene=loadCoastScene;o.unloadCoastScene=unloadCoastScene;}
+
+/* ---- GGbot: the single kit-on wiring point globalThis.__qfCoast.runCoastArrival(world,{resolveReuse?,cancelled}).
+ * world = WorldFlowComponent (worldCamera, node, scheduleOnce, ownedModel = island prefab instance, WorldFlowComponent.ts:378).
+ * loadCoastScene FIRST (scene_root of the island model) -> installCoastArrivalHer -> playCoastArrival -> finally uninstall.
+ * The scene handle is returned to the caller, who disposes it on region change/teardown (dispose also on cancel/failure here). */
+import { renderer } from 'cc';
+import { playCoastArrival, installCoastArrivalHer, createCoastReuseResolver, createCoastMaterialResolver } from './CoastArrivalLens';
+function findMat(root:Node|null,name:string):Material|null{if(!root)return null;for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m&&m.name===name)return m;return null;}
+/** meshes under root whose vertex data has no a_texCoord (palette materials need UVs) */
+export function coastMeshesWithoutUV(root:Node):string[]{const out=new Set<string>();for(const r of root.getComponentsInChildren(MeshRenderer)){const m:any=r.mesh;if(!m)continue;
+ try{if(!m.readAttribute(0,'a_texCoord'))out.add(r.node.name);}catch{out.add(r.node.name);}}return [...out];}
+export async function runCoastArrival(world:any,opts:Readonly<{resolveReuse?:(n:string)=>Node|null;cancelled:()=>boolean}>):Promise<{ok:boolean;scene:CoastSceneHandle|null;reason?:string}>{
+ let off:(()=>void)|null=null,scene:CoastSceneHandle|null=null;const island:Node|null=world?.ownedModel??null;
+ const mat=createCoastMaterialResolver(n=>findMat(island,n),src=>new renderer.MaterialInstance({parent:src as Material})/* owned per-coast instance; the island's shared material is never written */);
+ const cancelled=()=>{try{return !!opts?.cancelled?.()||!world?.node?.isValid;}catch{return true;}};
+ try{const cam=world?.worldCamera;if(!cam?.node?.isValid||!island?.isValid){console.error(QF_COAST+' arrival: world camera / island model missing');mat.dispose();return {ok:false,scene:null,reason:'no-world'};}
+  const sceneRoot=(island.getChildByName('scene_root')??island) as Node;
+  scene=await loadCoastScene({sceneRoot},{resolveReuse:opts?.resolveReuse??createCoastReuseResolver(island,COAST_REUSE_SOURCES),resolveMaterial:mat as any,cancelled});
+  if(!scene){console.error(QF_COAST+' arrival: coast scene not mounted');}
+  else{const noUV=coastMeshesWithoutUV(scene.root);if(noUV.length)console.error(QF_COAST+' palette material on meshes without UVs (flat colour until the palette-UV rebake): '+noUV.join(','));}
+  if(cancelled()){scene?.dispose();mat.dispose();return {ok:false,scene:null,reason:'cancelled'};}
   off=installCoastArrivalHer(world);
-  const r=await playCoastArrival({camera:cam,viewport:()=>({width:window.innerWidth,height:window.innerHeight}),cancelled,
-   nextFrame:()=>new Promise<number>(res=>world.scheduleOnce(()=>res(director.getDeltaTime()),0)),her:(f)=>world.coastArrivalHer?.(f)});
-  return {ok:r.ok,reason:r.ok?undefined:'cancelled',scene};
- }catch(e){console.error('[QF_COAST] arrival failed',String((e as any)?.message??e));return {ok:false,reason:String((e as any)?.message??e)};}
- finally{try{off?.();}catch(e){console.error('[QF_COAST] arrival uninstall',String(e));}}}
-try{const g:any=globalThis;g.__qfCoast=Object.freeze({...(g.__qfCoast||{}),runCoastArrival});}catch(e){console.error('[QF_COAST] entry register failed',String(e));}
+  const r=await playCoastArrival({camera:cam,cancelled,viewport:()=>({width:window.innerWidth,height:window.innerHeight}),
+   nextFrame:()=>new Promise<number>(res=>world.scheduleOnce((dt:number)=>res(dt),0)),her:f=>world.coastArrivalHer?.(f)});
+  if(!r.ok){scene?.dispose();mat.dispose();return {ok:false,scene:null,reason:'cancelled'};}
+  const s=scene;if(!s){mat.dispose();return {ok:true,scene:null};}
+  let done=false;const onGone=()=>handle.dispose();
+  const handle:CoastSceneHandle={root:s.root,placed:s.placed,reusePlaced:s.reusePlaced,errors:s.errors,dispose(){if(done)return;done=true;try{island.off?.(Node.EventType.NODE_DESTROYED,onGone);}catch{}s.dispose();mat.dispose();
+   const g=globalThis as any;if(g.__qfCoast?.current===handle)g.__qfCoast.current=null;}};
+  island.once?.(Node.EventType.NODE_DESTROYED,onGone)/* teardown: island model destroyed -> release coast assets + owned materials */;
+  (globalThis as any).__qfCoast.current=handle/* region change: caller disposes via __qfCoast.current?.dispose() (idempotent) */;
+  return {ok:true,scene:handle};
+ }catch(e){console.error(QF_COAST+' arrival failed: '+String((e as any)?.message??e));scene?.dispose();mat.dispose();return {ok:false,scene:null,reason:String((e as any)?.message??e)};}
+ finally{try{off?.();}catch(e){console.error(QF_COAST+' arrival uninstall: '+String(e));}}}
+{const g=globalThis as any;const o=g.__qfCoast||(g.__qfCoast={});o.runCoastArrival=runCoastArrival;}
