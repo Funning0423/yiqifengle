@@ -67,7 +67,37 @@ async function runMustFail(){const fx=JSON.parse(fs.readFileSync(path.join(__dir
  for(const s of M.samples){const r=judge(s.pWorld9ec,{solid:[sc9.solid],soft:[sc9.soft],travel:false});out.push({case:'3 T-02 last shot through the steps (key-try2 #42)',tS:+(M.approachStartTS+s.t).toFixed(2),pos:s.pWorld9ec,v:r.v,solidM:r2(r.solidM),solidTag:r.solidTag,groundM:r.groundM===Infinity?'none ≤40 m':r2(r.groundM),enclosed:!!r.enclosed});}
  const per={};for(const o of out){const p=per[o.case]||(per[o.case]={samples:0,caught:0,first:null});p.samples++;if(o.v.length){p.caught++;if(!p.first)p.first=o;}}
  return {per,out};}
-(async()=>{if(has('--must-fail-9ec')){const {per,out}=await runMustFail();const ok=Object.keys(per).length===3&&Object.values(per).every(p=>p.caught>0);
+// ---------- onewriter: EVERY camera writer of a real camTrace (Mac console.log) — Grok Bot 2026-10-29 (19bd812a: 12 writer kinds unchecked) ----------
+// Each QF_CAM_TRACE write sample (any w=) inside the skycity/lakeside meshes' reach is judged with the same RULE (S/E/B/H/G); the balloon
+// comes from the nearest ACTOR boat (≤1 s), her from ACTOR her. Standing writers (walk/node/board) use groundStandM, all others travel.
+// Coverage: every writer seen in the window must have judged samples (no "unchecked"); J (frame step) stays with check_camera_jumps --register.
+const STAND_W=/^(SkyWalkShot|region\.node-lens|[a-z]+\.board-background)/;
+function parseTrace(txt){const W=[],A=[];for(const l of txt.split('\n')){let m=/QF_CAM_TRACE\] f=\d+ t=([\d.]+) pos=([-\d.e]+),([-\d.e]+),([-\d.e]+) .* w=(\S+)/.exec(l);if(m){W.push({t:+m[1],p:[+m[2],+m[3],+m[4]],w:m[5].replace(/:(follow|blend|hold)$/,'')});continue;}
+ m=/QF_CAM_TRACE\] t=([\d.]+) ACTOR step=(\S+) her=([-\d.,]+) boat=([-\d.,]+)/.exec(l);if(m)A.push({t:+m[1],step:m[2],her:m[3].split(',').map(Number),boat:m[4].split(',').map(Number)});}return {W,A};}
+async function judgeTrace(W,A,off,yawDeg){const sc=await scene(off),m=await require('./clip3/sky-lake-model.cjs')(),sky=[sc.solid],both=[sc.solid,m.G.lakeOnly];
+ // the lakeside meshes exist only once the skycity walk/finale is over (sky→lake ride); before that only skycity is loaded
+ let lakeFrom=arg('--lake-from')!=null?+arg('--lake-from'):-1;if(lakeFrom<0)for(const s of W)if(STAND_W.test(s.w)&&L.clearance(sky,s.p,25).m<Infinity)lakeFrom=Math.max(lakeFrom,s.t);
+ const per={};let ai=0;
+ for(const s of W){const per_w=per[s.w]||(per[s.w]={samples:0,judged:0,viol:0,first:null,solidMin:9,groundMin:99});per_w.samples++;const solid=lakeFrom>=0&&s.t>lakeFrom?both:sky;
+  const near=L.clearance(solid,s.p,25);if(near.m===Infinity)continue/* outside both scenes: not this gate's (meadow = collision-gate) */;
+  while(ai+1<A.length&&A[ai+1].t<=s.t)ai++;const a=A[ai]&&Math.abs(A[ai].t-s.t)<=1?A[ai]:null;
+  const bal=a&&/^(B|C)\d/.test(a.step)?L.bvh(L.balloonObjs(a.boat,yawDeg)):null,her=a?[a.her,add(a.her,[0,1.7,0])]:null;
+  const r=judge(s.p,{solid,soft:[sc.soft],balloon:bal,her,travel:!STAND_W.test(s.w)});per_w.judged++;per_w.solidMin=Math.min(per_w.solidMin,r.solidM);per_w.groundMin=Math.min(per_w.groundMin,r.groundM);
+  if(r.v.length){per_w.viol++;if(!per_w.first)per_w.first={t:s.t,p:s.p,v:r.v,tag:r.solidTag};}}
+ return per;}
+// must-fail per writer: each writer's own first judged sample is pushed into the nearest solid mesh hit → that writer must be caught.
+async function runTrace(file,mustFail){const {W,A}=parseTrace(/\.gz$/.test(file)?require('zlib').gunzipSync(fs.readFileSync(file)).toString('utf8'):fs.readFileSync(file,'utf8'));const off=arg('--sky-off')?JSON.parse(arg('--sky-off')):[0,0,0];
+ const per=await judgeTrace(W,A,off,+(arg('--balloon-yaw')||0));const inWin=Object.entries(per).filter(([,v])=>v.judged>0).map(([k])=>k);
+ if(!mustFail)return {per,fails:Object.entries(per).filter(([,v])=>v.viol).map(([k,v])=>({writer:k,...v}))};
+ const sc=await scene(off),m=await require('./clip3/sky-lake-model.cjs')(),solid=[sc.solid,m.G.lakeOnly],caught={};
+ const ref=W.find(x=>STAND_W.test(x.w)&&L.groundBelow(solid,x.p,40).m<3);if(!ref)return {caught:{},writers:[]};
+ const g=L.groundBelow(solid,ref.p,40),bad=[ref.p[0],ref.p[1]-g.m+0.2,ref.p[2]]/* 0.2 m above the floor = S+G for any writer */;
+ const all=[...new Set([...inWin,...W.map(x=>x.w),'world.setCamera','world.animateCamera','world.enterLevel','TransitionCamera','LiveHandoff','RegionJourneyCore:onFrame','SkyWalkShot','BalloonTransit:prewalk','BalloonTransit:B1','BalloonTransit:B1-hold','BalloonTransit:flight','BalloonTransit:B5','region.node-lens','regionBoardHandoff','regionLandingToBoard'])];
+ for(const w of (arg('--writers')||all.join(',')).split(',')){const per2=await judgeTrace([{t:ref.t,p:bad,w},{t:ref.t,p:ref.p,w:'ref'}],A,off,0);caught[w]=per2[w].viol>0&&per2[w].first.v.includes(STAND_W.test(w)?'S':'G')?'CAUGHT':'MISSED';}
+ return {caught,writers:Object.keys(caught)};}
+(async()=>{if(arg('--trace')){const mf=has('--must-fail-writers'),r=await runTrace(arg('--trace'),mf);console.log(JSON.stringify(r,null,1));
+  const ok=mf?Object.values(r.caught).every(x=>x==='CAUGHT')&&r.writers.length>0:r.fails.length===0;console.log(JSON.stringify({status:ok?'PASS':'FAIL'}));process.exit(ok?0:1);}
+ if(has('--must-fail-9ec')){const {per,out}=await runMustFail();const ok=Object.keys(per).length===3&&Object.values(per).every(p=>p.caught>0);
   console.log(JSON.stringify({tool:'lens-clearance-gate --must-fail-9ec',rule:RULE,per},null,1));if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({per,out},null,1));
   console.log(JSON.stringify({status:ok?'PASS (all three 9ec5323c penetrations are caught)':'FAIL (gate misses a known 9ec5323c penetration)'}));process.exit(ok?0:1);}
  const {rows,fails}=await runCurrent();console.table(rows.map(r=>({case:r.case,screen:r.screen,seg:r.seg,n:r.samples,viol:r.violations,enc:r.enclosed,solid:r.solidMinM,balloon:r.balloonMinM,her:r.herMinM,ground:r.groundMinM,soft:r.softMinM,step:r.maxStepM,T:r.approachS})));
