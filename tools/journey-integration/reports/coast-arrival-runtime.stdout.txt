@@ -1,0 +1,10 @@
+ok   total 42.175 s, walk 35.575-39.825 s (1.2 m/s), settle lead 2.350 s
+ok   390x844: runtime vs ref 0.693 mm / 0.0071 deg / fov 0.0040 deg, 1 writer, ends on board pose; 60fps v 7.82 step 0.130 w 58.8 acc99 92.3 fov 0.062 | 30fps v 7.82 step 0.261 w 58.7 acc99 91.9 fov 0.123 | uneven v 7.82 step 0.173 w 58.7 acc99 95.2 fov 0.081
+ok   414x896: runtime vs ref 0.693 mm / 0.0071 deg / fov 0.0040 deg, 1 writer, ends on board pose; 60fps v 7.82 step 0.130 w 58.8 acc99 92.3 fov 0.062 | 30fps v 7.82 step 0.261 w 58.8 acc99 91.9 fov 0.123 | uneven v 7.82 step 0.173 w 58.8 acc99 104.2 fov 0.078
+ok   360x780: runtime vs ref 0.693 mm / 0.0071 deg / fov 0.0040 deg, 1 writer, ends on board pose; 60fps v 7.82 step 0.130 w 58.7 acc99 92.3 fov 0.062 | 30fps v 7.82 step 0.261 w 58.7 acc99 91.9 fov 0.123 | uneven v 7.82 step 0.174 w 58.7 acc99 94.9 fov 0.079
+ok   375x667: runtime vs ref 0.693 mm / 0.0071 deg / fov 0.0040 deg, 1 writer, ends on board pose; 60fps v 7.82 step 0.130 w 59.9 acc99 92.3 fov 0.062 | 30fps v 7.82 step 0.261 w 59.8 acc99 91.9 fov 0.123 | uneven v 7.82 step 0.172 w 60.0 acc99 92.7 fov 0.080
+ok   320x568: runtime vs ref 0.693 mm / 0.0071 deg / fov 0.0040 deg, 1 writer, ends on board pose; 60fps v 7.82 step 0.130 w 68.7 acc99 106.1 fov 0.062 | 30fps v 7.82 step 0.261 w 68.7 acc99 91.9 fov 0.123 | uneven v 7.82 step 0.174 w 68.7 acc99 101.3 fov 0.081
+ok   390x520: runtime vs ref 0.693 mm / 0.0071 deg / fov 0.0040 deg, 1 writer, ends on board pose; 60fps v 7.82 step 0.130 w 65.6 acc99 102.1 fov 0.062 | 30fps v 7.82 step 0.261 w 65.5 acc99 91.9 fov 0.123 | uneven v 7.82 step 0.173 w 65.5 acc99 99.5 fov 0.074
+ok   768x1024: runtime vs ref 0.718 mm / 0.0071 deg / fov 0.0040 deg, 1 writer, ends on board pose; 60fps v 7.82 step 0.130 w 74.5 acc99 108.9 fov 0.062 | 30fps v 7.82 step 0.261 w 74.4 acc99 95.9 fov 0.123 | uneven v 7.82 step 0.174 w 74.5 acc99 106.3 fov 0.082
+ok   self-tests (second writer, step >0.5 m caught)
+PASS coast-arrival-runtime

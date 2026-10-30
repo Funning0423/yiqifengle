@@ -37,7 +37,7 @@
       ],
       "actualComponentEventRoute": true,
       "registered": true,
-      "hint": "天空挑战已开放；天空城另有 3D 场景入口",
+      "hint": "天空挑战已开放",
       "backgroundCycles": 3,
       "native": false
     }
