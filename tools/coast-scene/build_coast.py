@@ -359,20 +359,21 @@ def shade(c,hi=1.12,lo=0.7):
 def pshade(c):return lambda p,f:paint(c,f.normal)
 S=0.42
 # conch: ONE swept spiral mesh (no separate ring -> no interpenetration)
-new('piece_conch');bm=bmesh.new();rings=[];NR=11;NS=10
+new('piece_conch');bm=bmesh.new();_BL=bm.verts.layers.int.new('band');rings=[];NR=11;NS=10
 for i in range(NR+1):
   t=i/NR;z=t*S*1.45;r=S*0.62*(1-t)**0.85+0.02
   row=[]
   for j in range(NS):
-    a=j/NS*6.283;rr=r*(1+0.22*max(0,math.sin(a*1+t*14)))   # whorl ridge spirals up the shell
-    row.append(bm.verts.new((math.cos(a)*rr,math.sin(a)*rr,z)))
+    a=j/NS*6.283;bd=int(t*5.5)%2;rr=r*(1.15 if bd else 0.95)*(1+0.06*math.sin(a+t*9))   # r5e2: 5-6 bold whorl bands with real relief
+    vv=bm.verts.new((math.cos(a)*rr,math.sin(a)*rr,z));vv[_BL]=bd;row.append(vv)
   rings.append(row)
 for i in range(NR):
   for j in range(NS):k=(j+1)%NS;bm.faces.new((rings[i][j],rings[i][k],rings[i+1][k],rings[i+1][j]))
 bm.faces.new(list(reversed(rings[0])))
 bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 M=Matrix.Translation((0,0,S*0.42))@Matrix.Rotation(math.radians(70),4,'X')@Matrix.Translation((0,0,-S*0.55))
-add_bm('piece_conch',bm,lambda p,f:(mix(hx(PC['conch']),hx('#FFE7D2'),0.7) if math.sin(math.atan2(p.y,p.x)+p.z*30)>0.55 else hx(PC['conch']))*0+paint(hx(PC['conch']) if math.sin(math.atan2(p.y,p.x)+p.z*30)<=0.35 else mix(hx(PC['conch']),hx('#F6DDB8'),0.75),f.normal),M);bm.free()
+_BK={tuple(round(c,4) for c in (M@v.co)):v[_BL] for v in bm.verts}
+add_bm('piece_conch',bm,lambda p,f:paint(mix(hx(PC['conch']),hx('#F8E2C0'),0.8) if _BK.get(tuple(round(c,4) for c in p),0) else hx(PC['conch'])*0.86,f.normal),M);bm.free()   # r5e2: light/dark value step per band
 # star
 new('piece_star');bm=bmesh.new();vs=[]
 for i in range(10):
@@ -396,11 +397,13 @@ new('piece_coral')   # r5c: rounded knob coral, matte (replaces trunk+rim)
 for (x,y,z,r) in [(0,0,0.45,0.46),(0.38,0.12,0.36,0.34),(-0.36,0.16,0.38,0.34),(0.05,-0.38,0.34,0.34),(0.1,0.3,0.74,0.3),(-0.15,-0.1,0.82,0.28)]:
   bm=ico(S*r,2);add_bm('piece_coral',bm,lambda p,f:paint(mix(hx(PC['coral']),hx('#FFC2A8'),0.8) if noise.noise(p*22)>0.25 else hx(PC['coral']),f.normal),Matrix.Translation((x*S,y*S,z*S)));bm.free()
 # r5c: blue mussel (replaces the glossy glass float): elongated rounded shell, matte
-new('piece_float');bm=bmesh.new();bmesh.ops.create_uvsphere(bm,u_segments=12,v_segments=8,radius=1)
+new('piece_float');bm=bmesh.new();bmesh.ops.create_uvsphere(bm,u_segments=12,v_segments=10,radius=1)
+_BL=bm.verts.layers.int.new('band')
 for v in bm.verts:
-  x,y,z=v.co;t=(y+1)/2;w=0.46+0.36*math.sin(math.pi*min(1,t*1.15))**0.7
-  v.co=Vector((x*S*w*1.1,y*S*0.82,max(z,-0.25)*S*0.42))
-add_bm('piece_float',bm,lambda p,f:paint(mix(hx(PC['float']),hx('#BFD6F2'),0.55) if p.y<-S*0.62 else (mix(hx(PC['float']),hx('#24427A'),0.45) if math.sin(p.y*22)>0.35 else hx(PC['float'])),f.normal),Matrix.Translation((0,0,S*0.22))@Matrix.Rotation(0.6,4,'Z'));bm.free()
+  x,y,z=v.co;t=(y+1)/2;w=0.46+0.36*math.sin(math.pi*min(1,t*1.15))**0.7;bd=int(round(math.acos(max(-1,min(1,z)))/(math.pi/10)))%2;v[_BL]=bd;k_=1.1 if bd else 0.94   # r5e2: bold concentric growth bands (relief + value step)
+  v.co=Vector((x*S*w*1.1*k_,y*S*0.82*k_,max(z,-0.25)*S*0.42))
+_MF=Matrix.Translation((0,0,S*0.22))@Matrix.Rotation(0.6,4,'Z');_BK={tuple(round(c,4) for c in (_MF@v.co)):v[_BL] for v in bm.verts}
+add_bm('piece_float',bm,lambda p,f:paint(mix(hx(PC['float']),hx('#B4D0F2'),0.6) if _BK.get(tuple(round(c,4) for c in p),0) else mix(hx(PC['float']),hx('#1A3266'),0.55),f.normal),_MF);bm.free()
 # scallop: ribbed fan, solid
 new('piece_scallop');bm=bmesh.new();N=10;RIB={}   # r5e: upright ribbed fan (island shell aspect), leaning back 40 deg, hinge on the slab
 LEAN=math.radians(45);R_=S*1.32;T_=S*0.08
@@ -420,7 +423,7 @@ def _scol(p,f):
   if math.hypot(p.x,z-0.03)>R_*0.9:c=mix(c,hx('#BDEBDF'),0.35)
   return paint(c,f.normal)
 add_bm('piece_scallop',bm,_scol);bm.free()
-sb=ico(1.0,1);add_bm('piece_scallop',sb,lambda p,f:paint(hx(PC['scallop'])*0.95,f.normal),Matrix.Translation((0,0.0,0.05))@Matrix.Diagonal((R_*0.3,S*0.16,0.07,1)));sb.free()   # r5e: rounded hinge (solid foot on the slab)
+sb=ico(1.0,1);add_bm('piece_scallop',sb,lambda p,f:paint(hx(PC['scallop'])*0.95,f.normal),Matrix.Translation((0,0.04,0.03))@Matrix.Diagonal((R_*0.46,S*0.24,0.035,1)));sb.free()   # r5e: rounded hinge (solid foot on the slab)
 # lighthouse badge: thick disc + white tower + lamp
 new('piece_badge');bm=bmesh.new();NL=9;top=[];bot=[]   # r5c: kelp leaf (replaces lantern-on-disc)
 for i in range(NL+1):
@@ -601,11 +604,11 @@ for t in _m['tris']:
 _m['cols']=_nc
 new('fisher_hut')   # r5c: small fisher's hut, island bands: shingle roof, slate walls, wood door/trim
 sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);bmesh.ops.bevel(sb,geom=sb.edges[:],offset=0.08,segments=2,affect='EDGES')
-add_bm('fisher_hut',sb,lambda p,f:mix(hx('#7FA6C8'),hx('#A8C6DE'),0.5+0.5*f.normal.z),Matrix.Translation((0,0,0.5))@Matrix.Diagonal((1.3,1.0,1.0,1)));sb.free()
+add_bm('fisher_hut',sb,lambda p,f:mix(hx('#98B8D2'),hx('#BCD4E6'),0.5+0.5*f.normal.z),Matrix.Translation((0,0,0.5))@Matrix.Diagonal((1.3,1.0,1.0,1)));sb.free()
 for sgn in (-1,1):
   sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);bmesh.ops.bevel(sb,geom=sb.edges[:],offset=0.12,segments=2,affect='EDGES')
   add_bm('fisher_hut',sb,lambda p,f:mix(hx('#D98E4E'),hx('#EFB070'),max(0,f.normal.z)),Matrix.Translation((0,sgn*0.33,1.17))@Matrix.Rotation(-sgn*0.62,4,'X')@Matrix.Diagonal((1.55,0.86,0.1,1)));sb.free()
-sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);add_bm('fisher_hut',sb,lambda p,f:mix(hx('#7FA6C8'),hx('#A8C6DE'),0.5+0.5*f.normal.z),Matrix.Translation((0,0,1.0))@Matrix.Rotation(math.pi/4,4,'X')@Matrix.Diagonal((1.28,0.54,0.54,1)));sb.free()   # r5d: gable fill under the roof
+sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);add_bm('fisher_hut',sb,lambda p,f:mix(hx('#98B8D2'),hx('#BCD4E6'),0.5+0.5*f.normal.z),Matrix.Translation((0,0,1.0))@Matrix.Rotation(math.pi/4,4,'X')@Matrix.Diagonal((1.28,0.54,0.54,1)));sb.free()   # r5d: gable fill under the roof
 sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);add_bm('fisher_hut',sb,lambda p,f:hx('#a3723d'),Matrix.Translation((0.25,-0.505,0.36))@Matrix.Diagonal((0.36,0.03,0.66,1)));sb.free()
 sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);add_bm('fisher_hut',sb,lambda p,f:hx('#fff3c6'),Matrix.Translation((-0.32,-0.505,0.6))@Matrix.Diagonal((0.26,0.03,0.24,1)));sb.free()
 bake_ao('fisher_hut',rays=8,dist=0.5,strength=0.35)
@@ -614,7 +617,7 @@ for i in range(A):
   a=i/A*6.283;r=1+0.22*noise.noise(Vector((math.cos(a)*1.7,math.sin(a)*1.7,21)));ring.append(bm.verts.new((math.cos(a)*r,math.sin(a)*r,-0.03)));mid.append(bm.verts.new((math.cos(a)*r*0.62,math.sin(a)*r*0.62,0.05)))
 for i in range(A):j=(i+1)%A;bm.faces.new((cen,mid[i],mid[j]));bm.faces.new((mid[i],ring[i],ring[j],mid[j]))
 add_bm('grasspatch',bm,lambda p,f:mix(hx('#4f9a3a'),hx('#8fbf4a'),0.5+0.5*noise.noise(p*2.3)));bm.free()
-new('buoy');cone_at('buoy',0.16,0.12,0.5,10,lambda p,f:(hx('#d9822f') if p.z<0.32 else hx('#fbf8ec')) if p.z<0.42 else hx('#d9822f'),Matrix.Translation((0,0,0.25)))
+new('buoy');cone_at('buoy',0.16,0.12,0.5,10,lambda p,f:(hx('#D98E4E') if p.z<0.32 else hx('#fbf8ec')) if p.z<0.42 else hx('#D98E4E'),Matrix.Translation((0,0,0.25)))
 cone_at('buoy',0.05,0.05,0.18,6,lambda p,f:hx('#ffcf78'),Matrix.Translation((0,0,0.59)))
 # ---------- layout (Blender Z-up coordinates, metres; board centre = origin) ----------
 random.seed(77);L=[]
@@ -651,7 +654,8 @@ for r in range(7):
     opts=[k for k in KINDS if not (c>=2 and LAY[r][c-1]==k==LAY[r][c-2]) and not (r>=2 and LAY[r-1][c]==k==LAY[r-2][c])];LAY[r][c]=random.choice(opts)
 for (r,c,x,y,z) in SL:
   zz=z+SLAB_TOP-0.05      # sits on the shell bed in the dry hollow
-  put('contact',x+0.05,y-0.04,zz+0.004,0,1.2,piece=True,receive_shadow=False);put('piece_'+LAY[r][c],x,y+0.03,zz,random.uniform(-.15,.15),1.24,piece=True,cell=[r,c])   # r5c: island fill ratio (~0.75 cell), sits slightly high like the sprites
+  _dy=0.2 if LAY[r][c]=='scallop' else 0.0   # r5e2: scallop shadow under the leaning shell body
+  put('contact',x+0.05,y-0.04+_dy,zz+0.004,0,1.2,piece=True,receive_shadow=False);put('piece_'+LAY[r][c],x,y+0.03,zz,random.uniform(-.15,.15),1.24,piece=True,cell=[r,c])   # r5c: island fill ratio (~0.75 cell), sits slightly high like the sprites
 # props / animals
 put('arrival_steps',0,0,0);put('board_rim',0,0,0,receive_shadow=True)
 for (dx_,dy_) in STEP_DRIFT:put('drift',dx_,dy_,ground_z(dx_,dy_)-0.005,(dx_*3.1+dy_)%6.28,0.55)   # r4d: sand drift against the step base
@@ -714,7 +718,7 @@ put('gull',3.9,4.25,0.36,-0.6,1.0,anim='gull_perch')
 put('gull',-3.0,12.0,4.5,0.9,1.0,anim='gull_fly',k=0);put('gull',2.5,14.0,5.5,1.2,0.9,anim='gull_fly',k=1)
 put('bottle',-3.5,SHORE+6.0,-0.02,0.4,1.0,anim='bottle')
 put('beacon_post',HL[0]+0.2,HL[1]+0.3,HTOP,0.6,1.0,cast_shadow=True);put('beacon_lamp',HL[0]+0.2,HL[1]+0.3,HTOP,0.6,1.0,anim='lamp')
-HUTS=[(1.35,-9.0,-0.55)]   # r5e: fully outside the game frame (roof peeked at 8.3)   # r5e: ONE hero hut for the arrival view, outside the game frame (game-view corners cleared)
+HUTS=[(8.4,2.5,-0.8)]   # r5e2: runtime (7.3,-0.6): on the arrival view's centre line, outside the game frustum for dist 18-24 on all 3 aspects   # r5e: fully outside the game frame (roof peeked at 8.3)   # r5e: ONE hero hut for the arrival view, outside the game frame (game-view corners cleared)
 _HUTS_R5D=[(-3.1,-6.7,0.5),(3.1,-6.7,-0.45)]   # r5d: further into the game view   # r5c accents: bottom corners of the game view; the right one also sits in the arrival view
 L[:]=[d for d in L if not (d['mesh'].startswith(('reuse_grass','reuse_flowers','blob','boulder_','reuse_rock','shells_scatter','drift')) and any(math.hypot(d['p'][0]-hx_,d['p'][1]-hy_)<1.6 for hx_,hy_,_ in HUTS))]
 # r5e: clean arrival foreground — drop the big left rock group (+ its perched gull, flowers, shells) left of the steps
@@ -725,9 +729,9 @@ for (x,y,sc) in [(-4.3,-6.9,1.15),(4.35,-6.7,1.1),(-2.2,-8.3,0.9),(2.2,-8.4,0.9)
   if any(math.hypot(x-hx_,y-hy_)<1.9 for hx_,hy_,_ in HUTS) or (x<-1.5 and -13<y<-9.4):continue   # r5e: no patch under the hut (sand-mound caveat) / clean arrival fg
   put('grasspatch',x,y,gzt(x,y)-0.01,_r,sc,receive_shadow=True)
 for (hx_,hy_,hr) in HUTS:
-  gp('fisher_hut',hx_,hy_,hr,1.0,dz=-0.05,cast_shadow=True);blob(hx_,hy_,1.9)   # r5e: hero scale
+  gp('fisher_hut',hx_,hy_,hr,1.5,dz=-0.05,cast_shadow=True);blob(hx_,hy_,1.9)   # r5e: hero scale
   put('reuse_bush',hx_+1.0,hy_-0.75,gzt(hx_+1.0,hy_-0.75),1,0.7,reuse=True)   # r5e: one bush tucked behind-right
-  gp('beacon_post',hx_-0.2,hy_-1.0,0.6,0.85,cast_shadow=True);gp('beacon_lamp',hx_-0.2,hy_-1.0,0.6,0.85,anim='lamp')   # r5e: hero = orange-roof blue hut + beacon
+  gp('beacon_post',hx_-1.35,hy_+0.35,0.6,0.85,cast_shadow=True);gp('beacon_lamp',hx_-1.35,hy_+0.35,0.6,0.85,anim='lamp')   # r5e: hero = orange-roof blue hut + beacon
 put('buoy',-1.6,SHORE+3.2,-0.08,0,1.4,anim='bell');put('buoy',2.4,SHORE+5.0,-0.08,0,1.4,anim='bell')
 put('fisher_hut',HL[0]-0.9,HL[1]-0.6,HTOP-0.33,0.4,0.75,cast_shadow=True)   # r5c accent on the headland (bg_v3)
 put('reuse_palm_tall',-6.4,SHORE-1.4,ground_z(-6.4,SHORE-1.4),0.4,1.0,reuse=True,cast_shadow=True)
