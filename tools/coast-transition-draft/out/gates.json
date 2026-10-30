@@ -1,0 +1,83 @@
+{
+ "yaw_standing": {
+  "max_rate": 30.6,
+  "p99_acc": 128.1,
+  "pass": true
+ },
+ "yaw_walking": {
+  "max_rate": 73.1,
+  "p99_acc": 151.2,
+  "pass": true
+ },
+ "min_clearance_m": 1.138,
+ "min_clearance_t": 1.0,
+ "clearance_pass": true,
+ "first_frame_eq_live": true,
+ "max_lens_step_m_per_frame": 0.2049,
+ "hard_cuts": 0,
+ "screens": [
+  {
+   "screen": "390x844",
+   "min_margin": 0.101,
+   "at_t": 14.2,
+   "margin_pass": true,
+   "face_under_menu_frames": 0,
+   "worst_block_s": 0,
+   "block_pass": true
+  },
+  {
+   "screen": "414x896",
+   "min_margin": 0.101,
+   "at_t": 14.2,
+   "margin_pass": true,
+   "face_under_menu_frames": 0,
+   "worst_block_s": 0,
+   "block_pass": true
+  },
+  {
+   "screen": "360x780",
+   "min_margin": 0.101,
+   "at_t": 14.2,
+   "margin_pass": true,
+   "face_under_menu_frames": 0,
+   "worst_block_s": 0,
+   "block_pass": true
+  },
+  {
+   "screen": "375x667",
+   "min_margin": 0.101,
+   "at_t": 14.2,
+   "margin_pass": true,
+   "face_under_menu_frames": 0,
+   "worst_block_s": 0,
+   "block_pass": true
+  },
+  {
+   "screen": "320x568",
+   "min_margin": 0.101,
+   "at_t": 14.2,
+   "margin_pass": true,
+   "face_under_menu_frames": 0,
+   "worst_block_s": 0,
+   "block_pass": true
+  },
+  {
+   "screen": "390x520",
+   "min_margin": 0.15,
+   "at_t": 14.83,
+   "margin_pass": true,
+   "face_under_menu_frames": 0,
+   "worst_block_s": 0,
+   "block_pass": true
+  },
+  {
+   "screen": "768x1024",
+   "min_margin": 0.15,
+   "at_t": 14.83,
+   "margin_pass": true,
+   "face_under_menu_frames": 0,
+   "worst_block_s": 0,
+   "block_pass": true
+  }
+ ]
+}
