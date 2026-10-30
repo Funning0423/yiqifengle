@@ -1,0 +1,17 @@
+NOT APPLIED — needs Grok Bot approval (WorldNativeComposition.ts is GGbot-owned and was ruled untouched).
+Why: nothing at runtime runs before enter-level for region 'coast'. coast-kit.js create()/restore() are called from the level
+lease inside WorldFlowCore.enterLevel, in the same call that starts the enter-level push-in (playEnterCover), and coast-kit.js has
+no camera, frame clock or character access. A 42 s arrival cannot run there without a second camera writer and without the board
+revealing over it. The one existing yield point is WorldFlowComponent's hold (live lens == coastBoardPose -> 0 writes, set at
+WNC:156); CoastArrivalLens ends exactly on that pose, so if it runs BEFORE enterLevel the push-in yields with no WFC change.
+Minimal change (one statement, kit-on only; kit off = byte-identical behaviour):
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -156 +156 @@
+-    if(coastKit){const w=window.innerWidth,h=window.innerHeight;this.world?.setEnterLevelEnd?.(()=>coastBoardPose(w,h));}
++    if(coastKit){const w=window.innerWidth,h=window.innerHeight;this.world?.setEnterLevelEnd?.(()=>coastBoardPose(w,h));const cam=this.worldCamera;if(cam?.node?.isValid){try{await new Promise<void>((ok,no)=>assetManager.loadBundle('region_coast',e=>e?no(e):ok()));const m:any=await import('../../bundles/region_coast/scripts/CoastArrivalLens');await m.playCoastArrival({camera:cam,viewport:()=>({width:w,height:h}),nextFrame:()=>new Promise<number>(r=>this.scheduleOnce(()=>r(director.getDeltaTime()),0)),her:(f:any)=>(this.world as any)?.coastArrivalHer?.(f)});}catch(e){console.warn('[QF_COAST] arrival skipped',String(e));}}}
+(+ `assetManager` in the existing 'cc' import if not already there.)
+Open item for GGbot (character owner): `coastArrivalHer(f)` = set her root to f.root / heading f.heading and play f.clip at
+f.clipTime on her SkeletalAnimation (walk_start / walk_loop / walk_stop_bodyL / idle_breathing_loop) without changing CharacterMotion.ts.
+Open item for 场景设计部: the coast scene meshes (bundles/region_coast/models/*.glb, coast_layout.json) are not mounted by any
+runtime script and have no .meta yet; the arrival shows the coast only after they are placed at coast root (-0.6,-0.845,21.5) yaw 180.
