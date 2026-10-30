@@ -40,3 +40,14 @@ Run these on 390×844 and on one screen under 700 pt tall (375×667 or 320×568)
 4. Ending girl size at 390×844: see the r2 report. 135 pt does not fit there without the girl's head running into seal row 2 (the size is still capped by the space).
 5. Popup regression pass: open and close every popup once (journey book, every region page, settings/system panels, update, rest, result, ending). Check there is no overlap, clipping or broken motion, in both day and night.
 Box preview screenshots: team/ggbot/outbox/20261029-new-regions-r2/. They come from a harness-to-canvas renderer, so the 9-slice panel backgrounds, 3D chime and night tint are not drawn exactly.
+
+## r3 ending layout cascade (UI设计部 c+b)
+The layout tries these steps in order on each screen and stops at the first one that lets the girl be full size:
+① girl top margin 14 → 8. ② head-to-seal gap 8 → 6 (design value). ③ two rows at Ø32 → 30 → 28 (column pitch 44·d/36, row gap 40·d/36).
+④ a single centred row of 9 seals: d = min(28, ⌊(W−40)/11⌋), gap 0.25·d, 20 pt side margins, entry left → right; seal art, shadow and animation step are unchanged.
+⑤ only on screens under 700 pt tall: row-1 plank clearance 15 → 10. ⑥ only then shrink the girl (never below 48 pt). The head is ≥6 pt below the seals on every screen.
+Expected result: 320×568 → 1 row of Ø25, clearance 10, girl 73.8 pt (67%). 375×667 → 1 row of Ø28, clearance 10, girl 106.6 pt (82%). 360×780 → 1 row of Ø28. 390×844 → 2 rows of Ø28. 393×852 → Ø30. 414×896 and 430×932 → Ø36. On every screen from 780 pt tall the girl is full size.
+On device: check the single row on 375×667. The 9 seals must be evenly spaced and centred, and drop in from left to right.
+
+## 远方 for regions with no data
+Railway, cloud-sea and hot spring valley (no stage data) show only 「远方」 / 「· · ·」 with no seal and no blank seal. They can't be tapped and aren't counted. UI设计部 confirmed this overrides SPEC §13.1 (淡章).
