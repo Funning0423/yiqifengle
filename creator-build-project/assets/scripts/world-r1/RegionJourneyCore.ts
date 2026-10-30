@@ -255,13 +255,13 @@ export class RegionJourneyController {
  observe(actor:CharacterAdapter,world:WorldLease,dt:number=0):void{
   // b17r7: a held ride (set-off cover pending) gets NO onFrame at all, not just no camera write: the sail driver's step dresses
   // its scene (SailArt.sync hides the island sea) and that showed as a grey sea under the half-faded cover (audit 0.31-0.40 s).
-  if(this.lease?.onFrame&&!this.rideHold){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target){this.camera=pose;CT()?.d('RegionJourneyCore:onFrame');world.setCamera(pose);}}catch{}}
+  let w=0;if(this.lease?.onFrame&&!this.rideHold){try{const pose=this.lease.onFrame(dt||0);if(pose&&pose.position&&pose.target){this.camera=pose;CT()?.d('RegionJourneyCore:onFrame');world.setCamera(pose);w=1;}}catch{}}
   if(!this.activePath||!this.lease||!this.startCamera)return;
   const f=actor.walkProgress?.();if(typeof f!=='number'||!Number.isFinite(f))return;
   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
-  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);
+  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);if(!w)world.setCamera(this.camera)/* onewriter: onFrame already wrote this frame */;
   this.leaseProgress();
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
@@ -332,7 +332,7 @@ export class RegionJourneyController {
     try{await token.wait(this.lease.ride(actor,world,token));}finally{this.unpatch?.();}token.check();
     this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
     const beforeRide=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-beforeRide[0],this.root[2]-beforeRide[2]);
-    if(this.camera)world.setCamera(this.camera);if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!)/* b15: a ride tail (offscreen exit walk) still owns her */;
+    /* onewriter: the ride's last write is on screen (this.camera = it); no re-write in the same frame */if(!(this.lease as any).tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!)/* b15: a ride tail (offscreen exit walk) still owns her */;
     this.region=this.lease.route.to;this.phase='arrived';this.target=null;this.pruneScenes();
    }else if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
     const L=routeLength(path),tm=this.lease.route.timing,timing=tm?(this.distance>0?remainingTiming(routeLength(this.lease.route.path),L,tm):tm):null;

@@ -4,7 +4,7 @@
 // A = pre-full9c (old finale pose, old plan), B = restored (S6 finale pose + SKY_FINALE_CITY_LOCAL, plan as baked), C = the rejected
 // regen (S6 pose, city dragged by the pose: arm -2.2). Flat z-buffer of the real skycity mesh; her = red box, face = yellow dot. 390x844.
 const fs=require('fs');const ROOT=process.cwd();const H=require(ROOT+'/tools/board-ui/harness.cjs').createHarness();
-const SW=H.load('region/SkyWalkShot.ts'),FS=H.load('region/SkyFinaleShot.ts'),TS=H.load('region/TransitionStaging.ts'),AD=H.load('region/TransitionAnchorData.ts'),SO=H.load('region/SkycityLensOccluders.ts');
+const LSm=H.load('region/LensSmooth.ts'),SW=H.load('region/SkyWalkShot.ts'),FS=H.load('region/SkyFinaleShot.ts'),TS=H.load('region/TransitionStaging.ts'),AD=H.load('region/TransitionAnchorData.ts'),SO=H.load('region/SkycityLensOccluders.ts');
 const RL=require(ROOT+'/tools/journey-integration/route/route-legs.cjs');const OUT=process.argv[2]||'/tmp/walkab';fs.mkdirSync(OUT,{recursive:true});
 const M5=TS.TRANSITION_STAGING.skyMooring5a,L2W=q=>SW.skyLocalToWorld(M5,q),o0=L2W([0,0,0]),ex=L2W([1,0,0]).map((v,i)=>v-o0[i]),ez=L2W([0,0,1]).map((v,i)=>v-o0[i]);
 const W2L=p=>{const d=[p[0]-o0[0],p[2]-o0[2]];return [d[0]*ex[0]+d[1]*ex[2],p[1]-o0[1],d[0]*ez[0]+d[1]*ez[2]];};
@@ -28,6 +28,6 @@ const TT=[0,1,2,3,4,5.2,7,9,11,13,15,V.A.total-0.05];
   for(const [a,b,c,d] of [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){draw([...v[a],...v[b],...v[c]],[235,40,40]);draw([...v[a],...v[c],...v[d]],[235,40,40]);}
   const fd=pr([feet[0],feet[1]+1.5,feet[2]]);for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const x=Math.round(fd[0])+dx,y=Math.round(fd[1])+dy;if(x>=0&&y>=0&&x<Wd&&y<Hh){const j=y*Wd+x;img[j*3]=255;img[j*3+1]=230;img[j*3+2]=0;}}
   const file=`${OUT}/${lab}-t${t.toFixed(1)}.ppm`;fs.writeFileSync(file,Buffer.concat([Buffer.from(`P6 ${Wd} ${Hh} 255\n`),img]));
-  frames.push({lab,t:+t.toFixed(2),file,camLocal:P.map(v=>+v.toFixed(3)),camStepFromA:null});}
+  frames.push({lab,t:+t.toFixed(2),file,herMargin7:+Math.min(...LSm.LENS_SMOOTH.screens.map(sc=>LSm.herMargin(ps.position,ps.target,ps.fovVerticalDeg,S.her(t).feet,[sc]))).toFixed(2),camLocal:P.map(v=>+v.toFixed(3)),camStepFromA:null});}
  for(const f of frames){const a=frames.find(g=>g.lab==='A'&&g.t===f.t);f.camStepFromA=+Math.hypot(...f.camLocal.map((v,i)=>v-a.camLocal[i])).toFixed(3);}
  fs.writeFileSync(OUT+'/frames.json',JSON.stringify(frames,null,1));console.log(JSON.stringify(frames.filter(f=>f.lab!=='A').map(f=>[f.lab,f.t,f.camStepFromA])));})().catch(e=>{console.error(e);process.exit(1);});

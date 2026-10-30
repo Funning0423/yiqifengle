@@ -437,7 +437,8 @@ export class WorldFlowComponent extends Component {
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).
       const toCameraPose=(pose:Pose):CameraPose=>fromLookAt(pose,(globalThis as any).__QF_BALLOON_LENS&&pose.fovVerticalDeg?pose.fovVerticalDeg:camera.fov);
-      const setCamera=(pose:Pose)=>{this.noteCinematic();this.roomLook.reset();this.islandRail?.reset();if((globalThis as any).__QF_BALLOON_LENS){camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=0.3;if(!(camera.far>=2500))camera.far=2500;}if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
+      let placed:Pose|null=null,placedN=-1;
+      const setCamera=(pose:Pose)=>{if(pose===placed&&cameraWriteLog.writes===placedN)return/* onewriter: same stable pose re-placed, no write since */;this.noteCinematic();this.roomLook.reset();this.islandRail?.reset();if((globalThis as any).__QF_BALLOON_LENS){camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=0.3;if(!(camera.far>=2500))camera.far=2500;}if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);placed=pose;placedN=cameraWriteLog.writes;};
       let alive=true;
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};

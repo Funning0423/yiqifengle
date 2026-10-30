@@ -159,7 +159,7 @@ const tests=[
  ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
  ['lens-clearance','tools/region-nodes/test_lens_clearance.cjs'],
-  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],
+  ['t02-sky-final','tools/region-nodes/test_t02_sky_final.cjs'],['finale-stand','tools/region-nodes/test_finale_stand.cjs'],['clip19-regressions','tools/journey-integration/test-clip19-regressions.cjs'],/* clip19: 19bd812a camera regressions R1–R4 */['sky-walk-endshots','tools/region-nodes/test_sky_walk_endshots.cjs'],['walk5a-in-frame','tools/skycity-walk/test_walk5a_in_frame.cjs'],['sky-finale-rail','tools/region-nodes/test_sky_finale_rail.cjs'],['sky-walk-whole','tools/region-nodes/test_sky_walk_whole.cjs'],['landing-move','tools/transitions-continuous/test_landing_move.cjs'],['lens-trajectory-clearance','tools/journey-integration/lens-clearance-gate.cjs'],['lens-trajectory-9ec-must-fail','tools/journey-integration/test-lens-clearance-9ec-must-fail.cjs'],/* clip3: whole-trajectory lens vs real meshes + balloon + her + ground */
  ['transport-balloon','tools/journey-integration/test-transport-balloon.cjs'],
  ['balloon-windsource-bound','tools/journey-integration/test-balloon-windsource-bound.cjs'],
   ['balloon-sun-continuity','tools/journey-integration/test-balloon-sun-continuity.cjs'],['lakeside-touchdown-timeline','tools/journey-integration/test-lakeside-touchdown-timeline.cjs'],['balloon-sky-dome-yaw','tools/journey-integration/test-balloon-sky-dome-yaw.cjs'],['balloon-light-handoff','tools/journey-integration/test-balloon-light-handoff.cjs'],['qa-skip','tools/journey-integration/test-qa-skip.cjs'],['pre-transition','tools/journey-integration/test-pre-transition.cjs'],['journey-prune','tools/journey-integration/test-journey-prune.cjs'],['island-exit-explore','tools/journey-integration/test-island-exit-explore.cjs'],['island-explore-touch','tools/journey-integration/test-island-explore-touch.cjs'],['lakeside-exit-explore','tools/journey-integration/test-lakeside-exit-explore.cjs'],
@@ -189,7 +189,7 @@ const tests=[
  ['basket-obstacle-runtime','tools/transition-spaces/test-basket-obstacle-runtime.cjs'],['vertex-color-black','tools/skycity/test_vertex_color_black.cjs'],['static-names','tools/static-names/check-names.cjs'],/* cand10: whole-project tsc gate on undefined names / unresolved imports */['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
 ];
 /* P0 r16: geometry-heavy checks (real GLB triangles, ~155 s alone) get 360 s; everything else keeps 180 s. */
-const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000};
+const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000,'lens-trajectory-clearance':600000,'clip19-regressions':600000,'sky-walk-whole':360000};
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
 // GGbot b17: non-gating REPORT tests (运镜bot route matrix). They run and keep their reports; a nonzero exit is status REPORT, never FAIL.

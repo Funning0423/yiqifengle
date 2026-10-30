@@ -233,7 +233,8 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   if(waterAsset){const water=lakesideWaterMaterial(waterAsset);owned.push(water);applyLakesideWaterMode(water,lakesideDayNightMode());useLakesideWater(model,water);
    offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});journeyWater=water;}
   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
-  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
+  // clip19: lake from the ride's S6, not the prepare-time root (19bd812a: board checkpoint, lake hill over the mooring)
+  const M5C=TRANSITION_STAGING.skyMooring5a,L=lakesideJourney(continuousTransitions()&&M5C.option==='C'?[...M5C.walkWorld[0]] as Vec:start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
   // 运镜bot r5 lakeside-landing-cam: ONE shot from the skycity camera to the standing landing pose E (= this screen's board
   // camera, LAKESIDE_CAMERA_LAYOUT.landing via lakesideRouteLanding): the flight lens ends exactly on E, so the 1 s landing hook
   // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.

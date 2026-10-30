@@ -181,6 +181,9 @@ function createHarness(options = {}) {
     const module = { exports: {} }; cache.set(file, module);
     const req = spec => { const r = resolve(file, spec); return r.kind === 'cc' ? cc : r.kind === 'env' ? { DEBUG: !!options.debug, EDITOR: false, PREVIEW: false, WECHAT: false } : r.kind === 'override' ? overrides[r.rel] : r.kind === 'ts' ? load(r.file) : require(r.id); };
     new Function('exports', 'require', 'module', '__filename', '__dirname', out)(module.exports, req, module, file, path.dirname(file));
+    /* full9c: tools-only companion (code moved out of assets/ for the bundle budget) — its exports are merged in, the asset's own win */
+    const comp = path.join(ROOT, 'tools/asset-companions', path.relative(SCRIPTS, file));
+    if (!path.relative(SCRIPTS, file).startsWith('..') && fs.existsSync(comp)) { const c = load(comp); for (const k of Object.keys(c)) if (!(k in module.exports)) module.exports[k] = c[k]; }
     return module.exports;
   }
   const flush = async (n = 6) => { for (let i = 0; i < n; i++) await new Promise(r => setImmediate(r)); };

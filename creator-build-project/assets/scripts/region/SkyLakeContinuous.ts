@@ -74,11 +74,13 @@ export function skyLakeContinuous(R:LakesideBalloonRide,door:Pose,k=SKY_LAKE_CON
  /* lift lens = T-03 lift lens re-based so it frames the data basket: offset = data basket − T-03 basket on the same clock */
  const liftLens=(tau:number):Pose=>{const t=rideT(Math.max(flightAt,tau)),v=veh(t),q=basket(Math.max(flightAt,tau)),dd:Vec=[q[0]-v[0],q[1]-v[1],q[2]-v[2]],p=flightLens(t);
   return {position:[p.position[0]+dd[0],p.position[1]+dd[1],p.position[2]+dd[2]],target:[p.target[0]+dd[0],p.target[1]+dd[1],p.target[2]+dd[2]],fovVerticalDeg:p.fovVerticalDeg};};
+ let bB=-1;const orbitBlend=(a:Pose,b:Pose,e:number):Pose=>{const c=a.target,P=Math.PI,sp=p=>[Math.atan2(p[0]-c[0],p[2]-c[2]),Math.hypot(p[0]-c[0],p[2]-c[2]),p[1]-c[1]],A=sp(a.position),B=sp(b.position),z=A[0]+((B[0]-A[0]+3*P)%(2*P)-P)*e,r=A[1]+(B[1]-A[1])*e;
+  return {...blendPose(a,b,e),position:[c[0]+Math.sin(z)*r,c[1]+A[2]+(B[2]-A[2])*e+.9*Math.sin(P*e),c[2]+Math.cos(z)*r] as any};};
  const cam=(tau:number,from:Pose|null):Pose=>{
   if(tau<walkS)return K.walkCam?K.walkCam(tau):R.camera(walkClock(tau),from);
   if(tau<flightAt){if(!walkEnd||walkFrom!==from){walkFrom=from;walkEnd=K.walkCam?K.walkCam(walkS):R.camera(R.walkS-1e-6,from);}const out=traj?liftLens(flightAt)/* lens placed for the data mooring */:flightLens(R.liftT),u=(tau-walkS)/Math.max(1e-3,boardS);
    /* full2-cam E: close-up through the door beat (in 0–0.3, hold, out 0.75–1 onto the lift lens) when the caller gives one */
-   const close=K.boardClose?K.boardClose(tau):null;if(close){const BI=.3,BO=.75;return u<BI?blendPose(walkEnd,close,minJerk(u/BI)):u<BO?close:blendPose(close,out,minJerk((u-BO)/(1-BO)));}
+   const close=K.boardClose?K.boardClose(tau):null;if(close){if(bB<0){const y=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2]);bB=Math.min(.45,Math.max(.3,1.875*Math.abs(((y(K.boardClose!(walkS+.3*boardS))-y(walkEnd))*180/Math.PI+540)%360-180)/85/Math.max(1e-3,boardS)));}const BI=bB,BO=.75;return u<BI?orbitBlend(walkEnd,close,minJerk(u/BI)):u<BO?close:blendPose(close,out,minJerk((u-BO)/(1-BO)));}
    return blendPose(walkEnd,out,minJerk(u));}
   if(traj&&tau<liftEndAt)return liftLens(tau);
   return traj&&tau<touchdownAt?shift(flightLens(rideT(tau)),dW(tau)):flightLens(rideT(tau));};

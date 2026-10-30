@@ -68,10 +68,13 @@ const res={};
 // ---------- condition 3 ----------
 {const base=gitShow('region/BalloonTransit.ts');
  if(base){const pick=(s,a,b)=>{const i=s.indexOf(a);assert.ok(i>=0,'C3: missing '+a);return s.slice(i,s.indexOf(b,i));};
-  for(const [a,b] of [['const applyInflate=()=>{','};'],['const cam0=plan.camera(0)','\n'],['const b1Lens=():Pose=>','\n'],['const plan=balloonBeats(','\n'],['let inflateT=','\n']])
+  for(const [a,b] of [['const applyInflate=()=>{','};'],['const cam0=plan.camera(0)','\n'],['const plan=balloonBeats(','\n'],['let inflateT=','\n']])
    assert.equal(pick(src,a,b),pick(base,a,b),'C3: B1 first-frame code changed vs '+BASE+': '+a);
+  // final-cam b1-ease (运镜bot): B1 eases from the held live lens (b1Hold) instead of cam0, no cam0 end blend; exact pin, nothing else may differ.
+  assert.equal(pick(src,'const b1Lens=():Pose=>','\n'),'const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(b1Hold??cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return close;};','C3: B1 lens line != final-cam b1-ease');
   const body=s=>{const i=s.indexOf('const b1Draw=()=>{');return s.slice(i,s.indexOf('director.on(Director.EVENT_BEFORE_DRAW,b1Draw)',i)).replace(/\n\s*if\(!b1Drawn\)\{gapPh\('firstDraw-wait'\);[\s\S]*?\/\* hold the real previous frame, single writer \(before-draw\) \*\//,'');};
-  assert.equal(body(src),body(base),'C3: B1 writer changed beyond the hold branch');}
+  const H0='const b1Draw=()=>{if(dead||!b1On)return;';assert.ok(body(base).startsWith(H0),'C3: base B1 writer head moved');
+  assert.equal(body(src),H0+'b1Hold=b1Hold||liveWorldPose();'+body(base).slice(H0.length),'C3: B1 writer changed beyond the hold branch + the b1-ease b1Hold latch');}
  for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/TransitionChain.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b!==null)assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE);}
  const plan=planFor(M2),v0=plan.vehicle(0),c0=plan.camera(0),PIN={v0:[-5.3,5.25,102.5],c0:[-20.6,8.25,89.6]}/* m run plan0 (3 dp log) */;
  for(let i=0;i<3;i++){assert.ok(Math.abs(v0.pos[i]-PIN.v0[i])<0.06,'C3 v0 '+v0.pos);assert.ok(Math.abs(c0.position[i]-PIN.c0[i])<6e-4,'C3 cam0 '+c0.position);}

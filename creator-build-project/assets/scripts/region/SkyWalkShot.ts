@@ -35,7 +35,8 @@ export function skyWalkShot(path:readonly Vec[],walkMps:number,gazeS:number,boxe
  const head=Math.atan2(d0[0],d0[1]),mid=path[Math.floor(path.length/2)],away=Math.atan2(mid[0]-city[0],mid[2]-city[2]);
  let az=((away-head)*180/Math.PI+540)%360-180;az=Math.max(-k.azMaxDeg,Math.min(k.azMaxDeg,az*k.cityLean));
  const shot=followShot(her,tl.total,boxes,{...HER_SHOT,azDeg:az,arm:k.arm,up:k.up,lookUp:k.lookUp,fov:k.fov,driftAzDeg:k.driftAzDeg,driftArm:k.driftArm,driftPeriodS:k.driftPeriodS,driftFromS:gazeS+k.driftFromS,liftSearch:(k as any).liftSearch,armSearch:(k as any).armSearch,plan:(k as any).plan,okFn:(k as any).okFn} as any);
- const pose=(t:number):Pose=>{const p=shot.pose(t),c=city,q=p.target;return {position:p.position,target:[q[0]+(c[0]-q[0])*k.cityPull,q[1]+(c[1]-q[1])*k.cityPull,q[2]+(c[2]-q[2])*k.cityPull],fovVerticalDeg:p.fovVerticalDeg};};
+ const pose=(t:number):Pose=>{const p=shot.pose(t),P=p.position,a=P.map((v,i)=>p.target[i]-v),b=P.map((v,i)=>city[i]-v),la=Math.hypot(...a)||1,lb=Math.hypot(...b)||1,x=k.cityPull,
+  th=Math.acos(Math.max(-1,Math.min(1,(a[0]*b[0]+a[1]*b[1]+a[2]*b[2])/la/lb))),sn=Math.sin(th),d=a.map((v,i)=>th<1e-6?v/la:v/la*Math.sin((1-x)*th)/sn+b[i]/lb*Math.sin(x*th)/sn);return {position:P,target:P.map((v,i)=>v+d[i]*la) as any,fovVerticalDeg:p.fovVerticalDeg};};
  const mj=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10-15*u+6*u*u);},wrap=(a:number)=>((a+3*Math.PI)%(2*Math.PI))-Math.PI;
  const polar=(p:Pose,f:Vec)=>{const dx=p.position[0]-f[0],dz=p.position[2]-f[2],tx=p.target[0]-p.position[0],ty=p.target[1]-p.position[1],tz=p.target[2]-p.position[2];
   return {az:Math.atan2(dx,dz),r:Math.hypot(dx,dz),h:p.position[1]-f[1],vy:Math.atan2(tx,tz),vp:Math.atan2(ty,Math.hypot(tx,tz)),fov:p.fovVerticalDeg??45};};
