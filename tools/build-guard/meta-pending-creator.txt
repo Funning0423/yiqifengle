@@ -1,0 +1,28 @@
+# Metas Creator 3.8.8 still has to generate on the Mac (one exact path per line, no wildcards). Checked by tools/build-guard/meta-missing.cjs.
+# After the Mac import: commit the generated .meta files and delete their lines here; a line whose .meta exists FAILS (stale). Must end empty.
+creator-build-project/assets/bundles/board_art/journey_ui
+creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts
+creator-build-project/assets/bundles/board_art/popup/reward_seal_coast.png
+creator-build-project/assets/bundles/board_art/r2/region_coast.png
+creator-build-project/assets/bundles/region_coast
+creator-build-project/assets/bundles/region_coast/board
+creator-build-project/assets/bundles/region_coast/board/piece_badge.png
+creator-build-project/assets/bundles/region_coast/board/piece_conch.png
+creator-build-project/assets/bundles/region_coast/board/piece_coral.png
+creator-build-project/assets/bundles/region_coast/board/piece_float.png
+creator-build-project/assets/bundles/region_coast/board/piece_scallop.png
+creator-build-project/assets/bundles/region_coast/board/piece_star.png
+creator-build-project/assets/bundles/region_coast/data
+creator-build-project/assets/bundles/region_coast/data/coast_layout.json
+creator-build-project/assets/bundles/region_coast/models
+creator-build-project/assets/bundles/region_coast/models/coast_board.glb
+creator-build-project/assets/bundles/region_coast/models/coast_props.glb
+creator-build-project/assets/bundles/region_coast/models/coast_rocks.glb
+creator-build-project/assets/bundles/region_coast/models/coast_terrain.glb
+creator-build-project/assets/bundles/region_coast/scripts
+creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalLens.ts
+creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalTrack.ts
+creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLayout.ts
+creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLoader.ts
+creator-build-project/assets/bundles/region_coast/textures
+creator-build-project/assets/bundles/region_coast/textures/coast_palette.png

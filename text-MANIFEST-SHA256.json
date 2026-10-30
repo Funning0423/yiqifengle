@@ -615,6 +615,26 @@
     "sha256": "4753b971364ba81164ab66f2c7a6da71701a87fa85d3448d83ac610d6b70977d"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalLens.ts",
+    "bytes": 23589,
+    "sha256": "cb5d3be9c97010ff5a77219801f31bec56fe058884ebc89b29fca61a4e79f5e1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalTrack.ts",
+    "bytes": 19255,
+    "sha256": "e0a736debbd750c5e486f7192770449565bcc80b452a53b899343a148b44662f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLayout.ts",
+    "bytes": 5177,
+    "sha256": "712623cf33ccdf198ba6799ade9e4609921751eec801ad296b9de11469326267"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLoader.ts",
+    "bytes": 11467,
+    "sha256": "b0f2100e905c40fb37d6aed81e2a669d89a72d6f644475de3c74a2d92f961db9"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island.meta",
     "bytes": 408,
     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
@@ -4976,8 +4996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 58964,
-    "sha256": "663e60d6d63c5288c6f9b42678dbb8191a7eab5373671f1d204d31d267946012"
+    "bytes": 59547,
+    "sha256": "eb3b3b2b491c6767f5d7b7855d8dd117e998b0b1baffa15995323f8e8da20803"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -5106,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 31669,
-    "sha256": "7f63e154fd2492b72b6b9f8a6455aef732f06c3ef46b982c4910f60c00f1e970"
+    "bytes": 32199,
+    "sha256": "1c16e9a553282e8b4b896c68b7cfbbd788441e5799df2d06f425987e81ee33af"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

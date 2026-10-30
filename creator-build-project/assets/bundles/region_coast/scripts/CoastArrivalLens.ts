@@ -10,7 +10,7 @@
 import { applyCameraPose, fromLookAt, type CameraLike, type LookAtPose, type V3 } from '../../../scripts/world-r1/CameraPose';
 import { coastBoardPose } from '../../../scripts/region/CoastBoardLens';
 import { COAST_ARRIVAL_TRACK as K } from './CoastArrivalTrack';
-import { loadCoastScene, coastIslandMaterial, loadCoastPalette, makeCoastPaletteMaterial } from './CoastSceneLoader';
+import { loadCoastScene, coastIslandMaterial, coastBundleNode } from './CoastSceneLoader';
 import { COAST_REUSE_SOURCES } from './CoastSceneLayout';   // 场景设计部 1062a72b, same bundle
 export const COAST_ARRIVAL_SOURCE='coast.arrival';
 export const COAST_ARRIVAL_SCREENS=Object.freeze(Object.keys(K.s7));
@@ -140,15 +140,13 @@ function defaultReuse(world:any):(name:string)=>any{const find=(n:any,name:strin
  *  via result.scene.dispose()). Never rejects; every failure = console.error [QF_COAST]. */
 export async function runCoastArrival(world:any,opts:CoastRunOptions):Promise<CoastRunResult>{
  const out=(ok:boolean,reason:string|null,frames=0,seconds=0,scene:any=null):CoastRunResult=>Object.freeze({ok,reason,frames,seconds,scene});let scene:any=null;
- let ownedMats:any=null;const drop=()=>{try{scene?.dispose?.();}catch(e){qfErr('scene-dispose',e);}scene=null;try{ownedMats?.dispose?.();}catch{}ownedMats=null;};
+ const drop=()=>{try{scene?.dispose?.();}catch(e){qfErr('scene-dispose',e);}scene=null;};
  try{if(!world)return out(false,qfErr('no-world'));opts=opts??{};
   const cancelled=()=>!!opts.cancelled?.()||world.node?.isValid===false;
   // GGbot defaults (the WNC statement passes neither): island prefab instance (WorldFlowComponent.ownedModel, WFC:378) is the reuse/material source
   const island:any=world.ownedModel??null,islandRoot=island?.getChildByName?.('scene_root')??island;
-  const resolveReuse=opts.resolveReuse??(island?createCoastReuseResolver(island,COAST_REUSE_SOURCES):defaultReuse(world));
-  const palTex:any=!opts.resolveMaterial&&COAST_MATERIAL_MODE==='coast-palette'?await loadCoastPalette(COAST_PALETTE_PATH):null;
-  const mats=opts.resolveMaterial?null:createCoastMaterialResolver({islandMaterial:(n:string)=>coastIslandMaterial(island,n),coastPalette:()=>palTex,makePalette:makeCoastPaletteMaterial});
-  ownedMats=mats;
+  const resolveReuse=opts.resolveReuse??(island?createCoastReuseResolver(island,COAST_REUSE_SOURCES,coastBundleNode):defaultReuse(world));
+  const mats=opts.resolveMaterial?null:createCoastMaterialResolver({islandMaterial:(n:string)=>coastIslandMaterial(island,n)});
   const resolveMaterial=opts.resolveMaterial??mats!;
   const camera=opts.camera??world.worldCamera;if(!camera?.node)return out(false,qfErr('no-world-camera'));
   const g=globalThis as any;
@@ -160,7 +158,9 @@ export async function runCoastArrival(world:any,opts:CoastRunOptions):Promise<Co
   const off=installCoastArrivalHer(world);let r:{ok:boolean;frames:number;seconds:number};
   try{r=await playCoastArrival({camera,viewport,nextFrame,her:(f:HerFrame)=>world.coastArrivalHer?.(f),cancelled});}finally{off();}
   if(!r.ok){drop();return out(false,'cancelled',r.frames,r.seconds);}
-  const sc=scene,om=ownedMats;const handle=om?{...sc,dispose(){sc.dispose();om.dispose();}}:sc;
+  // GGbot: keep the handle reachable after the arrival (the board stands in the coast): __qfCoast.current, idempotent dispose that also clears it.
+  const sc=scene,g2=globalThis as any;let gone=false;const handle={...sc,get disposed(){return gone;},dispose(){if(gone)return;gone=true;try{sc.dispose();}catch(e){qfErr('scene-dispose',e);}if(g2.__qfCoast?.current===handle)g2.__qfCoast.current=null;}};
+  try{g2.__qfCoast?.current?.dispose?.();}catch{}if(g2.__qfCoast)g2.__qfCoast.current=handle;
   return out(true,null,r.frames,r.seconds,handle);}
  catch(e){drop();return out(false,qfErr('error',e));}}
 /** self-registry (merged, not replaced: CoastSceneLoader.ts registers loadCoastScene/unloadCoastScene on the same object). The main
@@ -172,12 +172,17 @@ export async function runCoastArrival(world:any,opts:CoastRunOptions):Promise<Co
  * Nothing is loaded and no bytes are copied: only nodes/materials of that prefab are used. */
 type NodeLike={name:string;children:NodeLike[];isValid?:boolean};
 function findName(n:NodeLike|null|undefined,name:string):NodeLike|null{if(!n)return null;if(n.name===name)return n;for(const c of n.children||[]){const r=findName(c,name);if(r)return r;}return null;}
-/** sources = COAST_REUSE_SOURCES (CoastSceneLayout). Skinned island props are cloned from their rig root (src+'_rig': skin + bones);
- *  otherwise the node named src. null + console.error when the island prefab has no such node. Cached per name. */
-export function createCoastReuseResolver(islandRoot:any,sources:Readonly<Record<string,{src:string}>>):(name:string)=>any{const cache=new Map<string,any>();
+/** Island-only reuse names (Grok Bot 2026-10-30 option b): the two palm rigs come from the mounted island prefab; every other reuse
+ *  name (grass/flowers/rocks/bush, baked into region_coast by 场景设计部) is looked up in the coast bundle FIRST. */
+export const COAST_REUSE_FROM_ISLAND:ReadonlySet<string>=new Set(['reuse_palm_tall','reuse_palm_lean']);
+/** resolveReuse(name): 1) coastLookup(name) = node named `name` in the loaded region_coast model prefabs; 2) only for
+ *  COAST_REUSE_FROM_ISLAND: island node src+'_rig' (skinned: rig root with skin + bones) or src. Else null + console.error. Cached. */
+export function createCoastReuseResolver(islandRoot:any,sources:Readonly<Record<string,{src:string}>>,coastLookup?:(name:string)=>any):(name:string)=>any{const cache=new Map<string,any>();
  return (name:string)=>{if(cache.has(name))return cache.get(name);const s=sources[name];let n:any=null;
   if(!s)console.error('[QF_COAST] reuse: unknown name '+name);
-  else{n=findName(islandRoot,s.src+'_rig')||findName(islandRoot,s.src);if(!n||n.isValid===false){n=null;console.error('[QF_COAST] reuse: '+name+' -> '+s.src+' is not in the loaded island prefab');}}
+  else{try{n=coastLookup?.(name)??null;}catch{n=null;}
+   if(!n&&COAST_REUSE_FROM_ISLAND.has(name))n=findName(islandRoot,s.src+'_rig')||findName(islandRoot,s.src);
+   if(!n||n.isValid===false){n=null;console.error('[QF_COAST] reuse: '+name+' not in region_coast models'+(COAST_REUSE_FROM_ISLAND.has(name)?' nor in the island prefab ('+s.src+')':' (awaiting 场景设计部 bake)'));}}
   cache.set(name,n);return n;};}
 export type MaterialLike={name?:string;isValid?:boolean;destroy?():void};
 /** Grok Bot 2026-10-30: translucent/unlit coast meshes use an EXISTING island material (room_no_original_chair.glb, static_seat_preview),
@@ -187,29 +192,19 @@ export const COAST_SHARED_MATERIALS:Readonly<Record<string,string|null>>=Object.
  beacon_line:'M_env_light_beam_v22',beacon_lamp:'M_env_lamp_glow_v22',
  contact:null,blob:null,footprints:null,net:null,crabtrap_mesh:null,seaglass:null,anemone:null});
 /** agreed bundle path of 场景设计部's coast palette (region_coast bundle, Texture2D sub-asset) */
-/** ONE switch (Grok Bot 2026-10-30): 'island-placeholder' = opaque coast meshes use the island's M_env_palette BY REFERENCE until
- *  场景设计部's coast_palette lands; 'coast-palette' = new Material on the M_env_palette effect + region_coast coast palette texture. */
-export const COAST_MATERIAL_MODE:'island-placeholder'|'coast-palette'='island-placeholder';
-export const COAST_PALETTE_PATH='textures/coast_palette_256/texture';
-/** resolveMaterial(key):
- *  - kind 'std' (opaque): ONE coast palette material per kit session = new Material with M_env_palette's effect/technique/defines and
- *    mainTexture = coast palette (makePalette). No palette texture -> null + console.error (never the island texture). Owned, destroyed in dispose().
- *  - otherwise: COAST_SHARED_MATERIALS[mesh] island material by reference (never modified, never destroyed); null entry/missing -> console.error.
- *  Every key returns a material or logs console.error — never a silent null. */
-export function createCoastMaterialResolver(d:Readonly<{islandMaterial(name:string):MaterialLike|null;coastPalette():any;makePalette?(palette:MaterialLike,tex:any):MaterialLike}>){
- const owned:MaterialLike[]=[];let pal:MaterialLike|null|undefined,warned=false;
- const fn=((k:{mesh:string;kind:string;alpha:number;emit:boolean})=>{
-  if(k.kind==='std'&&k.alpha>=1&&!k.emit){
-   if(COAST_MATERIAL_MODE==='island-placeholder'){const m=d.islandMaterial('M_env_palette');if(!m||m.isValid===false){console.error('[QF_COAST] material: island M_env_palette not found');return null;}
-    if(!warned){warned=true;console.warn('[QF_COAST] material: PLACEHOLDER island M_env_palette (shared, by reference) on opaque coast meshes until coast_palette lands');}return m;}
-   if(pal===undefined){pal=null;const src=d.islandMaterial('M_env_palette'),tex=d.coastPalette();
-    if(!src||src.isValid===false)console.error('[QF_COAST] material: island M_env_palette not found (effect source)');
-    else if(!tex)console.error('[QF_COAST] material: coast palette texture missing (region_coast/'+COAST_PALETTE_PATH+'); no island-texture fallback');
-    else if(!d.makePalette)console.error('[QF_COAST] material: no palette factory');else{pal=d.makePalette(src,tex);owned.push(pal);}}
-   if(!pal)console.error('[QF_COAST] material: no coast palette material for '+k.mesh);return pal;}
+/** ONE switch (Grok Bot 2026-10-30): 'island-placeholder' = opaque coast meshes draw with the island's M_env_palette as is (console.warn once);
+ *  'coast-palette' = same M_env_palette returned for palette keys, the LOADER copies it and swaps in textures/coast_palette (场景设计部). */
+export const COAST_MATERIAL_MODE:'island-placeholder'|'coast-palette'='coast-palette';
+/** resolveMaterial(key): opaque std / palette:true -> the island's M_env_palette (shared, never modified; the loader owns any copy);
+ *  translucent/unlit -> COAST_SHARED_MATERIALS by reference; NONE/missing -> null + console.error. Never a silent null, never a new Material. */
+export function createCoastMaterialResolver(d:Readonly<{islandMaterial(name:string):MaterialLike|null}>){let warned=false;
+ const fn=((k:{mesh:string;kind:string;alpha:number;emit:boolean;palette?:boolean})=>{
+  if(k.palette===true||(k.kind==='std'&&k.alpha>=1&&!k.emit)){const m=d.islandMaterial('M_env_palette');if(!m||m.isValid===false){console.error('[QF_COAST] material: island M_env_palette not found');return null;}
+   if(COAST_MATERIAL_MODE==='island-placeholder'&&!warned){warned=true;console.warn('[QF_COAST] material: PLACEHOLDER island M_env_palette (island palette texture) on opaque coast meshes until coast_palette lands');}
+   return m;}
   const name=COAST_SHARED_MATERIALS[k.mesh];
   if(name===undefined){console.error('[QF_COAST] material: '+k.mesh+' ('+k.kind+', alpha '+k.alpha+') not in COAST_SHARED_MATERIALS');return null;}
   if(name===null){console.error('[QF_COAST] material: no suitable island material for '+k.mesh+' (see MATERIAL_MAP.md)');return null;}
   const m=d.islandMaterial(name);if(!m||m.isValid===false){console.error('[QF_COAST] material: island '+name+' for '+k.mesh+' not found');return null;}
-  return m;}) as ((k:any)=>MaterialLike|null)&{dispose():void;owned:MaterialLike[]};
- fn.owned=owned;fn.dispose=()=>{for(const m of owned.splice(0))try{m.destroy?.();}catch{}pal=undefined;};return fn;}
+  return m;}) as ((k:any)=>MaterialLike|null)&{dispose():void};
+ fn.dispose=()=>{};return fn;}

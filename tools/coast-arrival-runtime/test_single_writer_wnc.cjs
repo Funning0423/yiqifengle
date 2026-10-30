@@ -22,8 +22,15 @@ let SCENE=null;globalThis.__yjSceneStub={loadCoastScene:(w,o)=>SCENE(w,o),unload
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}return c;};
 // --- patched WNC (temp copy) ---
 const WNC_REL='creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts',DIFF=path.join(ROOT,'team/cinematic/outbox/20261030-coast-arrival-runtime/02-WorldNativeComposition-coast-arrival.diff');
-const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'yj-wnc-'));fs.mkdirSync(path.dirname(path.join(tmp,WNC_REL)),{recursive:true});fs.copyFileSync(path.join(ROOT,WNC_REL),path.join(tmp,WNC_REL));
-cp.execFileSync('git',['apply','--unsafe-paths','--directory=.',DIFF],{cwd:tmp});const orig=fs.readFileSync(path.join(ROOT,WNC_REL),'utf8').split('\n'),pat=fs.readFileSync(path.join(tmp,WNC_REL),'utf8').split('\n');fs.rmSync(tmp,{recursive:true,force:true});
+// GGbot (diff 02 APPLIED, Grok Bot 2026-10-30): original = WNC at the pinned pre-hook base (663e60d6…6012); the tree must equal
+// base + diff 02 exactly (nothing else), and the kit-off checks below compare the tree's line 156 with the original line 156.
+const ORIG_SHA='663e60d6d63c5288c6f9b42678dbb8191a7eab5373671f1d204d31d267946012',BASE='398b6c63';
+const origTxt=cp.execFileSync('git',['show',BASE+':'+WNC_REL],{cwd:ROOT,encoding:'utf8',maxBuffer:1<<26});
+if(require('crypto').createHash('sha256').update(origTxt).digest('hex')!==ORIG_SHA){console.log('FAIL pre-hook WNC base hash changed');process.exit(1);}
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'yj-wnc-'));fs.mkdirSync(path.dirname(path.join(tmp,WNC_REL)),{recursive:true});fs.writeFileSync(path.join(tmp,WNC_REL),origTxt);
+cp.execFileSync('git',['apply','--unsafe-paths','--directory=.',DIFF],{cwd:tmp});const tree=fs.readFileSync(path.join(ROOT,WNC_REL),'utf8'),patTxt=fs.readFileSync(path.join(tmp,WNC_REL),'utf8');fs.rmSync(tmp,{recursive:true,force:true});
+if(tree!==patTxt){console.log('FAIL tree WNC != pre-hook WNC + diff 02 (extra edits)');process.exit(1);}
+const orig=origTxt.split('\n'),pat=tree.split('\n');
 {const d=orig.map((l,i)=>l===pat[i]?null:i+1).filter(Boolean);ok(orig.length===pat.length&&JSON.stringify(d)==='[8,156]','patched WNC differs on lines '+d);
  ok(pat[155].startsWith('    if(coastKit){')&&pat[155].startsWith(orig[155].slice(0,-1)),'patched 156 = original statement extended inside the same if(coastKit){...}');
  ok((pat[155].match(/;/g)||[]).length>0&&!/\bimport\b|require\(/.test(pat[155]),'156: no import/require of a bundle script');}
