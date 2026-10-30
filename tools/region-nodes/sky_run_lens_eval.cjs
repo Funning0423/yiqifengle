@@ -9,7 +9,7 @@ const RLx=(()=>{try{return H.load(S('region/SkyRunLens.ts'));}catch{return null;
 const RL=require(ROOT+'/tools/journey-integration/route/route-legs.cjs'),M=TS.TRANSITION_STAGING.skyMooring5a;
 const D26=[];for(const x of[-1,0,1])for(const y of[-1,0,1])for(const z of[-1,0,1])if(x||y||z){const L=Math.hypot(x,y,z);D26.push([x/L,y/L,z/L]);}
 const FA=!!process.env.FINALE_A,R=180/Math.PI,BL=Number(process.env.BL||2),POL=process.env.POLICY||'run';
-module.exports=async function evalWalks(walks,opt={}){const SO_=H.load(S('region/SkycityLensOccluders.ts')),RING=SO_.SKYCITY_LENS_OCCLUDERS_CINE_RING/* walk-shot planning only (not the explore orbit set) */,SKO=[...SO_.SKYCITY_LENS_OCCLUDERS,...RING],Bx=SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));const geo=await RL.geometry(),W=p=>SW.skyLocalToWorld(M,p),hit=(a,b)=>RL.hit(geo.skyJ,W(a),W(b)),res={};
+module.exports=async function evalWalks(walks,opt={}){const SO_=H.load(S('region/SkycityLensOccluders.ts')),RING=SO_.SKYCITY_LENS_OCCLUDERS_CINE_RING||[]/* walk-shot planning only (not the explore orbit set) */,SKO=[...SO_.SKYCITY_LENS_OCCLUDERS,...RING],Bx=SKO.map(b=>({min:[b[0],b[1],b[2]],max:[b[3],b[4],b[5]]}));const geo=await RL.geometry(),W=p=>SW.skyLocalToWorld(M,p),hit=(a,b)=>RL.hit(geo.skyJ,W(a),W(b)),res={};
  for(const [a,b] of walks){const sg=NW.planWalk('skycity',a,b).segments;const per={};
   for(const [w,h] of LS.LENS_SMOOTH.screens){
    const mk=(q,yaw)=>{const Rg=rig('skycity','S3',q.slice(),{modelAt:[0,0,0]}),st=Rg.st;st.yaw=()=>yaw;st.viewport=()=>({w,h});st.sceneBoxes=()=>[];st.lens='FollowWalk';st.tickLens(1/60);return {raw:Rg.cam(),held:p=>occludeHeld.call(st,p,RING.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]],l:st.skyL})))};};
