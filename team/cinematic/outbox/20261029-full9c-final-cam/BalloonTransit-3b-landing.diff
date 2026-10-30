@@ -1,0 +1,34 @@
+--- a/creator-build-project/assets/scripts/region/BalloonTransit.ts
++++ b/creator-build-project/assets/scripts/region/BalloonTransit.ts
+@@ -681,6 +681,8 @@
+    const cues:Array<[number,string]>=Object.entries(json.cues).map(([name,t])=>[t,name]).sort((a,b)=>a[0]-b[0]);
+    let dcWorst=0,dcAt=0,frames=0,lastFade=-1;
+    let flightFrom:Pose|null|undefined=undefined,flightBlendS=0;
++   const LAND_PRE_S=2,LAND_MOVE_S=5;let land:{c0:number;spot:{position:Vec};T:number}|null|undefined=contChain?undefined:null;
++   const landPose=(from:Pose,tau:number):Pose|null=>{if(!land||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(from,basketClosePose(land.spot.position,[g.x,g.y,g.z]),minJerk(tau/land.T));};
+    const apply=(writeCam=true)=>{
+     const t=Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)));/* transitions: 30 s ride clock → 36 s flight file */
+     const sample=plan.vehicle(t);
+@@ -689,7 +691,12 @@
+     const fs=(view as any)?.getFrameSize?.(),plan0=plan.camera(t,fs?{w:fs.width,h:fs.height}:undefined)/* b19: seam framing is aspect-aware */;
+     // full8 P1-a: the flight starts from the LIVE lens (B1 close-up / lens-cleared pose), not a step onto plan.camera(0) (m2: 1.72 m in one 77 ms frame)
+     if(flightFrom===undefined){flightFrom=liveWorldPose();const g=flightFrom?Math.hypot(flightFrom.position[0]-plan0.position[0],flightFrom.position[1]-plan0.position[1],flightFrom.position[2]-plan0.position[2]):0;flightBlendS=flightBlendSeconds(g);}
+-    const pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
++    let pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;
++    if(land===undefined&&clock.t>=RIDE_DURATION-LAND_PRE_S&&girl&&isValid(girl,true)){const e=plan.vehicle(plan.total),o:Vec=[e.pos[0],e.pos[1],e.pos[2]],yd=e.yaw*180/Math.PI,end=plan.camera(plan.total);let sp:{position:Vec}|null=null;
++     try{sp=basketCloseSpot(basketToWorld(o,yd,TRANSITION_STAGING.basket.doorOutB),o,transitionOccluderBoxes() as any,undefined,[end]);}catch{sp=null;}
++     land=sp?{c0:clock.t,spot:sp,T:Math.max(LAND_MOVE_S,RIDE_DURATION-clock.t+speedSafeS(end.position,sp.position,BASKET_CLOSE.blendOutS))}:null;}
++    if(land){const p=landPose(plan0,clock.t-land.c0);if(p)pose=p;}
++    if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
+     const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
+     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
+     paint(t);
+@@ -734,7 +741,7 @@
+     // panning with her down the step to S0; the ride ends on it (RegionJourneyCore keeps a ride's last lens; D hands it to the board).
+     const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
+     try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
+-    const b5Lens=():Pose|null=>{if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
++    const b5Lens=():Pose|null=>{if(land)return landPose(camEnd,RIDE_DURATION-land.c0+b5Cam);if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
+     let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
+     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
+     try{

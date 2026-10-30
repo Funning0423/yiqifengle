@@ -1,91 +1,61 @@
 diff --git a/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts b/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
-index 4930c4c1..500c76a1 100644
+index 4930c4c1..034243ec 100644
 --- a/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
 +++ b/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
-@@ -3,15 +3,15 @@ import {MINIGAME} from 'cc/env';
- import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
- import type {Pose,Vec} from '../world-r1/WorldFlowCore';
- import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
--import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,propFacingPose,ROBOT_FACING,PROP_CLEAR_M,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
-+import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,propFacingPose,ROBOT_FACING,PROP_CLEAR_M,followLookUp,followPose,mapPose,markersLook,nearestGap,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
+@@ -6,9 +6,6 @@ import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
+ import {BLEND_S,LENS_CLEAR_M,blendPose,finaleLook,finalePose,propFacingPose,ROBOT_FACING,PROP_CLEAR_M,followLookUp,followPose,mapPose,markersLook,retreatClear,type Aabb,type LensState} from '../region/ExploreCameraCore';
  import {FreeOrbit,ORBIT_LIMITS,orbitColliderName,type OrbitBox,type OrbitPlace} from '../region/FreeOrbit';
  import {setExploreEnabled} from '../region/ExploreGate';
- /** full9c: the T-02 approach starts when she is this far from S6 (the old walk end, 运镜bot t02: start/min clearance 0.44 m). */
- export const FINALE_APPROACH_LEAD_M=1.05;
+-/** full9c: the T-02 approach starts when she is this far from S6 (the old walk end, 运镜bot t02: start/min clearance 0.44 m). */
+-export const FINALE_APPROACH_LEAD_M=1.05;
 -const dist3=(a:readonly number[],b:readonly number[])=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
  import {REGION_NODES,type RegionId} from '../region/RegionNodes';
  import {derive,walkPair,type NodePhase} from '../region/RegionNodeProgress';
--import {planWalk} from '../region/NodeWalker';
-+import {planWalk,pointAlong} from '../region/NodeWalker';
-+import {SKY_FINALE_EARLY_M,SKY_RUN_BLEND_S,skyRunLens} from '../region/SkyRunLens';
- import {performBounded,runRewardWalk,runSkyFinale,type PathPlace} from '../region/RegionNodePlay';
- import {emitTransitCue} from '../region/TransitAudioHooks';
- import {PROP_NODES,SCENE_PROPS,propFeedback,resolveTap,pickMarker,type Gesture} from './ExploreInput';
-@@ -24,13 +24,13 @@ import {bgCamHeld,bgCamHold,bgCamRelease,bgCamWanted} from '../region/BgCamGate'
+ import {planWalk} from '../region/NodeWalker';
+@@ -24,7 +21,8 @@ import {bgCamHeld,bgCamHold,bgCamRelease,bgCamWanted} from '../region/BgCamGate'
  import {qaHooksEnabled,qaYawFacing} from './QaSkip';
  import {ISLAND_PROPS,signFrontView} from './IslandPropsLayout';
  import {signShot} from '../region/SignShot';
 -import {SKY_FINALE,SKY_FINALE_POSE_LOCAL,skyFinaleApproach,skyFinaleApproachPose} from '../region/SkyFinaleShot';
-+import {SKY_FINALE,SKY_FINALE_POSE_LOCAL,skyFinaleRailPose} from '../region/SkyFinaleShot';
++import {SKY_FINALE,SKY_FINALE_POSE_LOCAL} from '../region/SkyFinaleShot';
++import {skyRailHas,skyRailJoin,skyRailJoinPlan,skyRailPose,type RailPose} from '../region/SkyRunLens';
  import {SKY_DEPARTURE,finaleAutoContinueAtS} from '../region/SkyFinaleDeparture';
  import {onWipeCovered,onWipeRevealed,addWipeBeforeReveal} from '../world-r1/ScreenCover';
  import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
- import {LAKESIDE_DECK_ZONES,LAKESIDE_LENS_OCCLUDERS} from '../region/LakesideLensOccluders';
- import {ISLAND_LENS_OCCLUDERS} from '../region/IslandLensOccluders';
--import {SKYCITY_LENS_OCCLUDERS} from '../region/SkycityLensOccluders';
-+import {SKYCITY_LENS_OCCLUDERS,SKYCITY_LENS_OCCLUDERS_CINE_RING} from '../region/SkycityLensOccluders';
- import {ArmSmoother} from '../region/ArmSmoother';
- import {AVOID,LENS_PITCH_MAX_DEG,herOcclusion,lensLevel,nearSphere,toFrame,type FrameBox} from '../region/LensAvoid';
- import {LENS_SMOOTH,OffsetSmoother,frameHer,posOf,sphOf,wrapDeg} from '../region/LensSmooth';
-@@ -135,7 +135,22 @@ export class RegionNodeStage extends Component{
-   const m=model.worldMatrix,v=new Vec3();
-   return path.map(p=>{Vec3.transformMat4(v,new Vec3(p[0],p[1],p[2]),m);return [v.x,v.y,v.z] as Vec;});
-  }
-- private place(region:StageRegion):PathPlace{return path=>this.toWorld(region,path);}
-+ private place(region:StageRegion):PathPlace{const plan=this.runPlanFor;let i=0;return path=>{const w=this.toWorld(region,path);if(region==='skycity'&&plan)this.beginSkyRun(plan,i++,w);return w;};}
-+ /* full9c (运镜bot endshots): skycity reward / finale runs — the raw follow lens (skycity occlude() is unguarded) hid her behind the star
-+  * ring at S4 and sat in the palette block on S4→S6. Per run: planned clear start / end poses (occludeHeld, once), SkyRunLens per frame. */
-+ private runPlanFor:{segments:readonly {path:readonly (readonly number[])[];duration:number}[]}|null=null;
-+ private skyRun:{t:number;tr:number;end:Vec;startHeld:Pose;endHeld:Pose;startClear:boolean;onTr:(()=>void)|null}|null=null;
-+ private finaleEarly:(()=>void)|null=null;
-+ private skyRail:(()=>Pose)|null=null;
-+ private beginSkyRun(plan:{segments:readonly {duration:number}[]},i:number,w:Vec[]){
-+  const seg=plan.segments[i];if(!seg||w.length<2){this.skyRun=null;return;}
-+  const {w:vw,h}=this.viewport(),n=w.length,end=w[n-1],pa=w[n-2],lu=followLookUp('skycity',99);
-+  const yE=Math.atan2(end[0]-pa[0],end[2]-pa[2]),y0=Math.atan2(w[1][0]-w[0][0],w[1][2]-w[0][2]);
-+  let L=0;for(let k=1;k<n;k++)L+=Math.hypot(w[k][0]-w[k-1][0],w[k][1]-w[k-1][1],w[k][2]-w[k-1][2]);
-+  const early=i===plan.segments.length-1&&this.finaleEarly?SKY_FINALE_EARLY_M:0,Lr=Math.max(0,L-early),tr=seg.duration*Lr/Math.max(1e-6,L);
-+  const ring=this.skyL?SKYCITY_LENS_OCCLUDERS_CINE_RING.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]],l:this.skyL}) as FrameBox):[]/* state_ring_before: walk-shot planning only */,raw0=followPose(w[0],y0,vw,h,lu),bx=[...(this.lakesideOccluders()||[]),...ring],o=herOcclusion(raw0.position,w[0],bx);
-+  this.skyRun={t:0,tr,end,startHeld:this.occludeHeld(raw0,ring),endHeld:this.occludeHeld(followPose(early?pointAlong(w,Lr):end,yE,vw,h,lu),ring),
-+   startClear:!o.face&&!o.chest&&nearestGap(raw0.position,bx)>=0.35,onTr:early?this.finaleEarly:null};}
-  private readPose():Pose{
-   const cam=this.camera!;const n=cam.node,p=n.worldPosition,f=n.forward;
-   return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:cam.fov};
-@@ -274,8 +289,9 @@ export class RegionNodeStage extends Component{
-   await this.blend(BLEND_S.boardToFollow,board,()=>held);
+@@ -270,12 +268,14 @@ export class RegionNodeStage extends Component{
+   const board=this.readPose();
+   this.lens='BoardToFollow';setExploreEnabled(false);
+   /* b17r13: the reward close-up is held for her walk, so it blends to the occlusion-planned pose (Mac r13b: a stone pillar filled its right half) */
+-  const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
+-  await this.blend(BLEND_S.boardToFollow,board,()=>held);
++  const wk=spec.from+'>'+spec.to,rail=spec.region==='skycity'?this.skyRailOf(wk):null;
++  if(rail)await this.skyJoin(wk,board,rail,false);else{const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
++  await this.blend(BLEND_S.boardToFollow,board,()=>held);}
    this.lens='FollowWalk';setExploreEnabled(true);
    this.handOrbitBack(spec.region);
-+  this.runPlanFor=spec.region==='skycity'?planWalk(spec.region,spec.from,spec.to):null;
++  this.skyRail=rail;
    try{await runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));}
 -  finally{setExploreEnabled(false);}
-+  finally{setExploreEnabled(false);this.runPlanFor=null;this.skyRun=null;}
++  finally{setExploreEnabled(false);this.skyRail=null;}
    /* sail-blue (Mac d3fe578e night, frames 26-29: beach close-up → 1 blank frame → island wide): a departure walk that hands straight
     * into a continuous ride (04→05 sail, 08→09 balloon) must NOT blend back to the parked board lens and switch the world layers off
     * (restoreBoard → presentNodeWalkWorld(false)): the level is being left, so that pose/blank is never meant to be seen. Keep the
-@@ -302,30 +318,23 @@ export class RegionNodeStage extends Component{
+@@ -283,7 +283,7 @@ export class RegionNodeStage extends Component{
+   if(handoff&&spec.departure){this.releaseForJourney();return;}
+   const arrived=this.readPose();
+   this.lens='FollowToBoard';
+-  await this.blend(BLEND_S.followToBoard,arrived,()=>board);
++  if(rail)await this.skyJoin(wk,arrived,()=>board,true);else await this.blend(BLEND_S.followToBoard,arrived,()=>board);
+   this.restoreBoard();
+  }
+  /** Like restoreBoard, but the world layers, the girl and the camera stay exactly as on screen (handoff to a continuous ride). */
+@@ -302,33 +302,27 @@ export class RegionNodeStage extends Component{
    const {w,h}=this.viewport();
    const board=this.readPose();
    this.lens='BoardToFollow';
 -  await this.blend(BLEND_S.boardToFollow,board,()=>followPose(this.girl(),this.yaw(),w,h,8));
-+  /* full9c T-02 clip3 (运镜bot): the finale lens is SKY_FINALE_RAILS (SkyFinaleShot.skyFinaleRailPose), a path baked on the REAL skycity
-+   * mesh (floors and steps included; gate lens-trajectory-clearance). It is keyed on her position, so planSkip / skipped walks ride the
-+   * same rail, and the last run eases onto the stand shot over the last 1.05 m before S6 (the approach), ending ON it. This replaces the
-+   * held follow lens + skyFinaleApproach, which scored only the lens boxes (no floors/steps < 2.2 m) and swept through the S4 stairs
-+   * (9ec5323c key-try2 #42) or started 0.17 m from env_sky_static_palette. The board blend lands on the rail start, so no cut. */
-+  this.skycityAllOccluders();
-+  const rail=():Pose=>{const L=this.skyL;if(!L)return followPose(this.girl(),this.yaw(),w,h,8);const r=skyFinaleRailPose(toFrame(L,this.girl()));
-+   const [p,t]=this.toWorld('skycity',[r.position as Vec,r.target as Vec]);return {position:p,target:t,fovVerticalDeg:r.fovVerticalDeg};};
-+  await this.blend(BLEND_S.boardToFollow,board,rail);
++  const rail=this.skyRailOf('S4>S6');
++  if(rail)await this.skyJoin('S4>S6',board,rail,false);else await this.blend(BLEND_S.boardToFollow,board,()=>followPose(this.girl(),this.yaw(),w,h,8));
    this.lens='FollowWalk';setExploreEnabled(true);
    this.handOrbitBack('skycity');
 -  /* full9c (运镜bot bisect 0e3cb879 0.59 m → 4d3d2503 0.17 m): with her stand ON S6 the follow lens there sits 0.17 m off env_sky_static_palette
@@ -97,6 +67,8 @@ index 4930c4c1..500c76a1 100644
 -  try{while(!walkDone&&dist3(this.girl(),s6W)>FINALE_APPROACH_LEAD_M)await new Promise<void>(r=>setTimeout(r,16));}
 -  finally{setExploreEnabled(false);}
 -  const leadM=dist3(this.girl(),s6W);
++  /* full9c (运镜bot): the walk rides the S4>S6 rail (SkyRunLens, baked on the real mesh), which eases onto the T-02 stand shot over the
++   * last 1.05 m and ends ON it; the board joins it on a mesh-planned path (SKY_JOINS). Replaces the follow lens + skyFinaleApproach. */
 +  this.skyRail=rail;
 +  try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);this.skyRail=null;}
    this.lens='FollowWalk';
@@ -111,36 +83,26 @@ index 4930c4c1..500c76a1 100644
 -  try{console.info('[QF_FINALE_APPROACH] '+JSON.stringify({leadM:+leadM.toFixed(3),walkDone,T:+ap.T.toFixed(2)}));}catch{/* diag */}
 -  await this.blendPath(ap.T,t=>skyFinaleApproachPose(from,shot,g,t,ap.T,ap.dir))/* orbits round her the clear way, never a straight cut; her walk (already running) finishes under it */;
 -  await walk;
-+  /* T-02 (Grok Bot approved Oct 25): the low side angle 7 m from her (SkyFinaleShot: her ≈ 26 % of the frame, the star-ring arc across
-+   * the top, the city between). The rail already ends on it; held until a drag/tap, or auto-continue (armFinaleContinue). */
 +  this.writePose(this.skyFinalePose(),false);this.finaleApproachS=0;
    this.recordFinaleEnd();
    this.openExplore('skycity');
   }
-@@ -741,12 +750,12 @@ export class RegionNodeStage extends Component{
-   const r=this.lensPull.apply(pose,this.girl(),boxes,dt,undefined,undefined,this.orbit.engaged()&&(this.orbit.shouldWrite()||this.groundWalking),this.deckElev(),!this.groundWalking&&this.lens!=='FollowWalk');return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
-  }
-  /** Held / blended-to follow lens (reward close-up): the planned clear pose, no spring (the blend is the ease). */
-- private occludeHeld(pose:Pose):Pose{
-+ private occludeHeld(pose:Pose,extra:readonly OccBox[]=[]):Pose{
-   const proxies=this.lakesideOccluders();if(!proxies)return pose;
-   // + the live scene's own renderer AABBs (≤ 14 m across, ≥ 0.5 m tall): props placed at runtime (signpost, palms, the r13b
-   //   reward pillar) that no generated proxy knows about. Her own box contains her chest, so LensGuard skips it.
-   const live=this.sceneBoxes().filter(b=>Math.max(b.max[0]-b.min[0],b.max[2]-b.min[2])<=14&&b.max[1]-b.min[1]>=0.5).map(b=>({min:[b.min[0],b.min[1],b.min[2]],max:[b.max[0],b.max[1],b.max[2]]}) as OccBox);
--  const boxes=[...proxies,...live];
-+  const boxes=[...proxies,...live,...extra];
-   const r=new LensGuard().solveStatic(pose,this.girl(),boxes);return {...pose,position:[r.position[0],r.position[1],r.position[2]],target:[r.target[0],r.target[1],r.target[2]]};
-  }
-  private writeOrbit(dt:number){
-@@ -892,7 +901,10 @@ export class RegionNodeStage extends Component{
++ /** full9c: skycity walk lens on walk w's rail (model-local rail → world), or null (no rail / no skycity frame). */
++ private skyRail:(()=>Pose)|null=null;
++ private skyRailOf(w:string):(()=>Pose)|null{this.skycityAllOccluders();const L=this.skyL;if(!L||!skyRailHas(w))return null;return ()=>this.skyW(skyRailPose(w,toFrame(L,this.girl()))!);}
++ private skyW(r:RailPose):Pose{const [p,t]=this.toWorld('skycity',[r.position as Vec,r.target as Vec]);return {position:p,target:t,fovVerticalDeg:r.fovVerticalDeg};}
++ private skyLoc(p:Pose):RailPose{const L=this.skyL!;return {position:toFrame(L,p.position),target:toFrame(L,p.target),fovVerticalDeg:p.fovVerticalDeg??48};}
++ /** board ⇄ rail move on the mesh-planned SKY_JOINS path (≥ 0.6 s, eased); out = rail end → board. */
++ private async skyJoin(w:string,from:Pose,to:()=>Pose,out:boolean){const j=skyRailJoinPlan(w,this.skyLoc(from),this.skyLoc(to()),out);
++  if(!j){await this.blend(out?BLEND_S.followToBoard:BLEND_S.boardToFollow,from,to);return;}await this.blendPath(j.T,t=>this.skyW(skyRailJoin(j,t/j.T)));}
+  /** T-02: the baked S6 shot (skycity model-local → world). */
+  skyFinalePose():Pose{const [p,t]=this.toWorld('skycity',[SKY_FINALE_POSE_LOCAL.position as Vec,SKY_FINALE_POSE_LOCAL.target as Vec]);return {position:p,target:t,fovVerticalDeg:SKY_FINALE_POSE_LOCAL.fovVerticalDeg};}
+  finaleApproachS=0;
+@@ -892,6 +886,7 @@ export class RegionNodeStage extends Component{
    if(this.anim||this.holdPose||(this.lens!=='MapExplore'&&this.lens!=='FollowWalk'))return;
    if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded)||(this.entry&&this.orbit.seeded))this.writeOrbit(dt);
    else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
--  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
-+  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');let p=this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt);
-+   if(this.region==='skycity'&&this.skyRail){this.writePose(this.skyRail(),false);return;}
-+   const r=this.region==='skycity'?this.skyRun:null;if(r){r.t+=Math.max(0,Math.min(0.1,dt||0));p=skyRunLens(p,r.startHeld,r.endHeld,Math.min(r.t,r.tr),r.tr,SKY_RUN_BLEND_S,r.startClear,this.girl());if(r.onTr&&r.t>=r.tr){const cb=r.onTr;r.onTr=null;this.writePose(p,false);cb();return;}}
-+   this.writePose(p,false);}
++  else if(this.lens==='FollowWalk'&&this.exploring&&this.region==='skycity'&&this.skyRail)this.writePose(this.skyRail(),false);
+   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
   }
   private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
-   const {w,h}=this.viewport(),g=this.girl();
