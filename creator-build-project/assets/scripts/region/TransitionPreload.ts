@@ -64,14 +64,14 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
 /* P0 wipe: staged island→meadow warm (see MEADOW_LEG_STAGES). Each stage logs ms and the longest frame seen while it ran
  * (frameMaxMs) so the Mac run shows the island frame cost. Cached: repeated calls are free; a failed stage only logs. */
 let meadowStaged:Promise<boolean>|null=null;
-export function warmMeadowLegStaged(parent:Node,stable:()=>boolean,gap=SKY_WARM_GAP_MS):Promise<boolean>{
+export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SKY_WARM_GAP_MS):Promise<boolean>{
  if(meadowStaged)return meadowStaged;
  const wait=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
  const run:Record<string,()=>Promise<unknown>>={
   'bundle:region_meadow':()=>bundle('region_meadow').then(ok=>{if(!ok)throw Error('bundle');}),
   'bundle:transport_sail':()=>bundle('transport_sail').then(ok=>{if(!ok)throw Error('bundle');}),
   'prefab:env_meadow':()=>loadRegionPrefab(REGIONS.meadow),
-  'mount:meadow-warm-rig':async()=>{while(!stable())await wait(gap);await preloadMeadowForSail(parent);},
+  'mount:meadow-warm-rig':async()=>{let s;while((s=stable())===false)await wait(gap);if(s==='gone')throw Error('left-island');await preloadMeadowForSail(parent);},/* 'gone': she left the island side; the sail prepare mounts */
  };
  meadowStaged=(async()=>{let all=true;
   for(const st of MEADOW_LEG_STAGES){let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};

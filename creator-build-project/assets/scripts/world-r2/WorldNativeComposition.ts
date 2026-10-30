@@ -349,7 +349,7 @@ export class WorldNativeComposition extends Component {
       if(typeof warmMeadowLegStaged!=='function'||!this.world)return;const w=this.world,scene=director.getScene();if(!scene)return;
       if((w.commands().snapshot().journey?.region||'island')!=='island')return;
       if(!force&&!(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'meadow')?.ok)return;
-      void warmMeadowLegStaged(scene,()=>['home','island'].includes(w.commands().snapshot().state));
+      void warmMeadowLegStaged(scene,()=>{try{const s=w.commands().snapshot();return (s.journey?.region||'island')!=='island'||!!s.journey?.target?'gone':['home','island'].includes(s.state);}catch{return 'gone';}});
     }catch{/* warm only */}
   }
   /** Web / QA only (`?balloonPreview=1`). WeChat release ignores it. No on-screen test banner. */

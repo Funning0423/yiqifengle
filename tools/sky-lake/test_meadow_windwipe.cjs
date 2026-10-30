@@ -26,9 +26,9 @@ const cold=sim(false),warm=sim(true);
 assert.ok(cold.fallback,'model reproduces the Mac fallback');assert.ok(!warm.fallback,'warmed prepare '+warm.prepareMs+' ms >= 3000');
 // wiring: boot, ensureRegion from the island, preTransition (before the home→island walk); mount only in a stable place
 const tp=src('region/TransitionPreload.ts'),wn=src('world-r2/WorldNativeComposition.ts'),pr=src('world-r2/PreTransitionRun.ts'),ad=src('region/RegionJourneyAdapter.ts');
-assert.match(tp,/export function warmMeadowLegStaged\(parent:Node,stable:\(\)=>boolean/);assert.match(tp,/while\(!stable\(\)\)await wait\(gap\);await preloadMeadowForSail\(parent\)/);
+assert.ok(tp.includes("export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone'"));assert.ok(tp.includes("while((s=stable())===false)await wait(gap);if(s==='gone')throw Error('left-island');await preloadMeadowForSail(parent);"),'mount waits for a stable place and stops when she left the island');
 assert.match(tp,/frameMaxMs:max/,'each stage logs its longest frame');
-assert.match(wn,/warmMeadowIfIsland\(_why:string,force=false\)/);assert.match(wn,/\['home','island'\]\.includes\(w\.commands\(\)\.snapshot\(\)\.state\)/);
+assert.match(wn,/warmMeadowIfIsland\(_why:string,force=false\)/);assert.ok(wn.includes("['home','island'].includes(s.state)")&&wn.includes("!!s.journey?.target?'gone'"),'stable = home/island; gone once a journey is pending');
 for(const w of ['boot','ensure'])assert.ok(wn.includes(`warmMeadowIfIsland?.('${w}'`),'warm not wired: '+w);
 assert.match(pr,/warmMeadowIfIsland\?\.\('pre',true\)[^\n]*\n\s*let r=await this\.toPlace\('island'\)/,'preTransition warms before the walk to the island');
 // the journey prepare reuses the warm rig instead of instantiating (and destroying) a second meadow
