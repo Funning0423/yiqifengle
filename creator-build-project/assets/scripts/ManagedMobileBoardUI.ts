@@ -843,6 +843,7 @@ export class ManagedMobileBoardUI extends Component {
       sprite.spriteFrame = tile ? (this.kitGridCache ? this.kitPieceFrame(tile.type % 6) : BoardArt.shared().frame(PIECE_KEYS[tile.type % 6])) : null; art.active = !!tile;
       const sel = this.selected === i, size = P * CELL.piece * (bomb ? CELL.bombPiece : 1);
       art.setPosition(0, lift + (sel ? 4 : 0), 0); art.getComponent(UITransform)!.setContentSize(size, size);
+      if (this.kitGridCache && this.kit.lighting) { const L = this.kit.lighting, ks = P * L.pieceFill; art.setPosition(0, (0.5 - L.anchorY) * ks + (sel ? 4 : 0), 0); art.getComponent(UITransform)!.setContentSize(ks, ks); }
       const ribbon = special === 'row' ? 'board/special_line_h' : special === 'column' ? 'board/special_line_v' : null;
       if (ribbon && tile) { this.setFrame(this.over[i], ribbon); this.place(this.over[i].node, x, y + lift + (sel ? 4 : 0), P * CELL.special); } else this.over[i].node.active = false;
       const root = roots.find((r: any) => Array.isArray(r) ? r[0] === i : r === i), piece = region === 'tide' ? pieces.find((p: any) => p.index === i && !p.done) : null;

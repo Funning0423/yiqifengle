@@ -94,7 +94,7 @@ export const COAST_KIT: RegionBoardKit = Object.freeze({
     compact: Object.freeze({ pending: false, source: 'CompactHud.compactHudLayout limits (ui/coast-compact-hud 46649fd4 SPEC §3/§5; chosen by Grok Bot 10/30; SPEC final)', trigger: Object.freeze({ portrait: true, maxHeight: 600 }), screens: Object.freeze({
       '320x568': [131, 474] as const, '390x520': [131, 426] as const }), ruleGuidePlateBottom: 131 }),
   }) }),
-  lighting: Object.freeze({ pieceFill: 0.75, anchorY: 0.18, shadowM: 0.62, shadowOpacity: 0.3, shadowColor: '#3d4a3a', tint: '#ffffff', source: 'r5d bb238126: sprites exported with the board_art method under the coast scene light (same as the slabs); fill 0.75 = REPORT coast 3D' }),
+  lighting: Object.freeze({ pieceFill: 1.21 /* r5f sprite_spec: display = local cell width × 1.21 (192² sprites, body 140 px) */, anchorY: 1 - 98.5 / 192 /* r5f: tile centre at sprite y 98.5/192 */, shadowM: 0.62, shadowOpacity: 0.3, shadowColor: '#3d4a3a', tint: '#ffffff', source: 'r5d bb238126: sprites exported with the board_art method under the coast scene light (same as the slabs); r5f 9e861a31 sprite_spec (coast-board-pilot-data-r5f)' }),
   topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
 });
 const KITS = new Map<string, RegionBoardKit>();

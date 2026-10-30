@@ -621,8 +621,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/data/coast_aabbs.json",
-    "bytes": 2084,
-    "sha256": "acef0a305b7e4b84f339b2c92cc500bc04194027e63752fa16d3f7ee1667e793"
+    "bytes": 2085,
+    "sha256": "1ea02ad15d90c06f65f5a7aad1c48ef197a4cc62820de3a5d8c4abaf28ae6648"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/data/coast_aabbs.json.meta",
@@ -631,8 +631,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/data/coast_layout.json",
-    "bytes": 39625,
-    "sha256": "f0df07aa71c73502d51555715c2731e9250e231e27342c0ed4b67f442984f603"
+    "bytes": 41381,
+    "sha256": "273304bdad8404b53a091f7f4591a36d9519dc2ef61c3f646353df0cb4ef5103"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/data/coast_layout.json.meta",
@@ -2051,8 +2051,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 104976,
-    "sha256": "a6b0ada70455de060b3c732b92e8f3ac95b52ac48091d7652be443cec03b142c"
+    "bytes": 105199,
+    "sha256": "25679c02e1b5f50990b1f7e97117f48df31a3ccd80e7273fe8393aaf426ad766"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -4196,8 +4196,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardKit.ts",
-    "bytes": 14737,
-    "sha256": "bb98737bac46294184bf603746a0376b7a010901f079d4247f01817522c7ea8f"
+    "bytes": 14904,
+    "sha256": "947d26db032bdb731d41247689bd748addff1a1bbb80e9137bff68f9c7bfc7eb"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
