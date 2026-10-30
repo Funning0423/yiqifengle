@@ -21,7 +21,7 @@ const gh=p=>{let b=null;for(const o of ground){o.bb??=J.bbox(o.tris);if(p[0]<o.b
 const ci=J.Cam.islandPoseEntry(),u=v=>{const n=Math.hypot(...v);return v.map(x=>x/n);},fw=u(ci.target.map((x,i)=>x-ci.position[i])),clamp=f=>Math.min(CP.CAMERA_FIXED.maxFov,Math.max(CP.CAMERA_FIXED.minFov,f));
 const live={position:ci.position.slice(),target:ci.position.map((x,i)=>x+fw[i]*40),fovVerticalDeg:clamp(ci.fovVerticalDeg)},end0={position:ci.position.map((x,i)=>x+fw[i]*2.6),target:live.target.slice(),fovVerticalDeg:clamp(ci.fovVerticalDeg-6)};
 const boardLens=(her,w,h)=>IL?IL.islandBoardAim(end0,her,w,h):end0;
-const nodes=RN.REGION_NODES.island.nodes.filter(n=>n.role==='mainline');
+const nodes=RN.REGION_NODES.island.nodes.filter(n=>n.role==='mainline'||n.role==='optional')/* b20 i5: I5 (challenge-island stage-05 board) too */;
 let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};const report={wired,live,end0,nodes:{},push:{}};
 const fwd=q=>CP.rotate(q,[0,0,-1]),ya=q=>{const d=fwd(q);return [Math.atan2(d[0],-d[2])*180/Math.PI,Math.asin(Math.max(-1,Math.min(1,d[1])))*180/Math.PI];};
 for(const n of nodes){const her=n.at,face=[her[0],her[1]+1.38,her[2]],chest=[her[0],her[1]+1.05,her[2]];report.nodes[n.key]={at:her,screens:{}};
