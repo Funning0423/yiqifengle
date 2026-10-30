@@ -3,16 +3,20 @@
  *  (scene/b19-coast-scene @bb238126, coast root (-0.6,-0.845,21.5) yaw 180 under island scene_root).
  *  Default = 场景设计部 D2 (r5d game view): pos (-0.6,15.3333,13.3593), quat (0,0.851965,0.523599,0) (pitch 63.148), vfov 50, look
  *  point (-0.6,-0.845,21.55). Only the DISTANCE along that look line changes per aspect, and only where the proposal fails:
- *  the shortest distance (1 mm) at which board rim + 49 pieces and her body keep frame margin >= 0.08.
+ *  r2 item 3 (Grok Bot ruling (i)): the shortest distance (1 mm) at which the playable cells and her face keep >= 8 pt from the
+ *  screen sides and the per-screen keep-out bands (coastKeepout; compact HUD on portrait h<=600). Old 0.08 frame rule: landscape only.
  *  Single writer: this module never writes the camera. The coast arrival push-in (journey S7) ends exactly on coastBoardPose();
  *  WorldFlowComponent's enter-level then holds when the live lens already equals it (no write), otherwise pushes into it
  *  within COAST_MOTION_LIMITS (coastPushSeconds). After the reveal nothing writes. */
 import { remapProgress, rotationFromLookAt } from '../world-r1/CameraPose';
 import type { LookAtPose, V3, TrackOptions } from '../world-r1/CameraPose';
+import { boardLayout } from '../ui/BoardLayout';
 export const COAST_BOARD_LENS=Object.freeze({quat:[0,0.851965,0.523599,0] as readonly number[],lookWorld:[-0.6,-0.845,21.55] as V3,proposedDistance:18.1335,fovVerticalDeg:50,margin:0.08,
   coastRoot:[-0.6,-0.845,21.5] as V3,coastYawDeg:180});
 /** Frozen per-aspect distances (m) for the 7 test screens; other sizes solve with the same rule. */
-export const COAST_BOARD_DISTANCE:Readonly<Record<string,number>>=Object.freeze({'390x844':23.306,'414x896':23.307,'360x780':23.332,'375x667':19.424,'320x568':19.387,'390x520':18.1335,'768x1024':18.1335});
+/** Frozen per-aspect distances (m) for the 7 test screens (r2 item 3 final, tools/coast-board-lens/final_poses.py): the shortest
+ *  distance at which coastBoardKeepoutFits holds. Other portrait sizes solve with the same rule. */
+export const COAST_BOARD_DISTANCE:Readonly<Record<string,number>>=Object.freeze({'390x844':18.649,'414x896':18.608,'360x780':18.73,'375x667':19.546,'320x568':16.995,'390x520':17.725,'768x1024':15.878});
 /** Grok Bot limits, per real dt. */
 export const COAST_MOTION_LIMITS=Object.freeze({yawPitchDegS:90,angAccP99DegS2:200,speedMS:8,stepMPerFrame:0.5,fovDegPerFrame:1.5});
 /** The generic enter-level ease (WorldFlowComponent playEnterLevel). */
@@ -42,9 +46,43 @@ export function coastBoardFits(distance:number,w:number,h:number):boolean{
   return true;
 }
 export function coastBoardInBand(distance:number,w:number,h:number):boolean{const pose=coastBoardPoseAt(distance),b=coastBoardBand(w,h);return FIT_BOARD.every(p=>{const y=project(pose,w/h,p).y*h;return y>=b.lo&&y<=b.hi;});}
+/** Keep-out bands (pt, y down): portrait h<=600 -> UI设计部 c2d10462 compact HUD (top [0,131], tool hot-zone top h-94);
+ *  otherwise the current HUD (BoardLayout.boardLayout, boardSafeInsets defaults): top = hint banner bottom (BoardKit topNoGo),
+ *  tool hot-zone top = toolsY-32. */
+export function coastKeepout(w:number,h:number):{top:number;tool:number;compact:boolean}{
+  if(w<h*1.1&&h<=600)return {top:131,tool:h-94,compact:true};
+  const L=boardLayout(w,h,{top:47,bottom:34,left:0,right:0,capsule:{left:w-93,top:51,right:w-6,bottom:83}});
+  return {top:Math.round((L.toast.y+L.toast.height/2)*10)/10,tool:L.tools.y-32,compact:false};
+}
+/** Coast-local playable cell grid (7x7, 1 m cells, slab top y 0.12) and her face at the stop. */
+const CELL_Y=0.12,FACE:V3=[-0.6,0.57421625,16.35];
+const EDGE:readonly V3[]=[[-3.5,-3.5],[3.5,-3.5],[-3.5,3.5],[3.5,3.5]].map(([x,z])=>toWorld([x,CELL_Y,z]));
+/** Projected cell centres (pt), row 0 = far row. */
+export function coastCellCentres(distance:number,w:number,h:number):[number,number][]{
+  const pose=coastBoardPoseAt(distance),out:[number,number][]=[];
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){const q=project(pose,w/h,toWorld([c-3,CELL_Y,r-3]));out.push([q.x*w,q.y*h]);}
+  return out;
+}
+/** Grok Bot margin rule: playable-cell outer edge >= 8 pt from the screen sides and the keep-out bands (the stone frame may
+ *  leave the screen, symmetric in x by construction: yaw 0, look x = board centre); her face >= 8 pt from both bands. */
+export function coastBoardKeepoutFits(distance:number,w:number,h:number,gap=8):boolean{
+  const pose=coastBoardPoseAt(distance),k=coastKeepout(w,h);
+  for(const p of EDGE){const q=project(pose,w/h,p),x=q.x*w,y=q.y*h;if(!(q.z>0)||x<gap||x>w-gap||y<k.top+gap||y>k.tool-gap)return false;}
+  const f=project(pose,w/h,FACE),fx=f.x*w,fy=f.y*h;return f.z>0&&fy>=k.top+gap&&fy<=k.tool-gap&&fx>=gap&&fx<=w-gap;
+}
+/** Tap rule (PLAN 2.3 nearest-centre): far-row short side of the valid area inside the 44 pt box, and wrong taps of 2000
+ *  seeded uniform +-8 pt taps per cell. */
+export function coastBoardTap(distance:number,w:number,h:number):{farShortPt:number;wrongTaps:number;taps:number}{
+  const C=coastCellCentres(distance,w,h),near=(x:number,y:number)=>{let b=0,bd=Infinity;for(let j=0;j<49;j++){const d=(C[j][0]-x)**2+(C[j][1]-y)**2;if(d<bd){bd=d;b=j;}}return b;};
+  let ss=Infinity;for(let i=0;i<7;i++){const ext=[0,0];for(let a=0;a<2;a++)for(const sg of [1,-1]){let t=0;while(t<22){const x=C[i][0]+(a===0?sg*(t+0.05):0),y=C[i][1]+(a===1?sg*(t+0.05):0);if(near(x,y)!==i)break;t+=0.05;}ext[a]+=t;}ss=Math.min(ss,ext[0],ext[1]);}
+  let seed=7,bad=0;const rnd=()=>{seed=(seed*1103515245+12345)>>>0;return seed/4294967296;};
+  for(let i=0;i<49;i++)for(let n=0;n<2000;n++)if(near(C[i][0]+(rnd()*16-8),C[i][1]+(rnd()*16-8))!==i)bad++;
+  return {farShortPt:Math.round(ss*10)/10,wrongTaps:bad,taps:49*2000};
+}
 export function coastBoardDistance(w:number,h:number):number{
   const k=Math.round(w)+'x'+Math.round(h);if(k in COAST_BOARD_DISTANCE)return COAST_BOARD_DISTANCE[k];
-  const d0=COAST_BOARD_LENS.proposedDistance;if(coastBoardFits(d0,w,h))return d0;let lo=d0,hi=80;if(!coastBoardFits(hi,w,h))return hi;for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(coastBoardFits(mid,w,h))hi=mid;else lo=mid;}return Math.ceil(hi*1000)/1000;
+  const fits=w<h?coastBoardKeepoutFits:coastBoardFits;let lo=6,hi=80;if(!fits(hi,w,h))return hi;
+  for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(fits(mid,w,h))hi=mid;else lo=mid;}return Math.ceil(hi*1000)/1000;
 }
 /** The official board pose for a logical viewport (pt). */
 export function coastBoardPose(w:number,h:number):LookAtPose{return coastBoardPoseAt(coastBoardDistance(w,h));}

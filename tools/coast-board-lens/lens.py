@@ -73,8 +73,11 @@ DIST = {}  # filled by distance_for (cached); table frozen in lens_table.json
 def distance_for(w, h):
     k = (w, h)
     if k not in DIST:
+        g = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'final_poses.json')  # item 3 final (r2): per-screen keep-out fit
+        if os.path.exists(g):
+            for s_, r in json.load(open(g)).items(): DIST[tuple(map(int, s_.split('x')))] = r['distance_m']
         f = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scene_d2_table.json')
-        if os.path.exists(f):
+        if k not in DIST and os.path.exists(f):
             for r in json.load(open(f))['screens']: DIST[tuple(map(int, r['screen'].split('x')))] = r['distance_m']
         if k not in DIST: DIST[k] = solve_d(LENS, w, h, fitset())
     return DIST[k]

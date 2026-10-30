@@ -1,7 +1,6 @@
 'use strict';
 // coast-board-lens gate (运镜bot cine/b20-coast-board-lens). Default pose = 场景设计部 D2 (r5d game view); distance-only per aspect.
-// 1) region/CoastBoardLens.ts: 7-screen distances = scene_d2_table.json (python, real r5d mesh); the TS solver reproduces them;
-//    margin >=0.08 for board + her; proposal kept where it already passes.
+// 1) region/CoastBoardLens.ts: 7-screen distances = final_poses.json (r2 item 3 (i)); keep-out + tap rules on projected cells.
 // 2) arrival push-in (journey S7, ref_transition.json (packed from out_v4 by pack_ref.py)): last frame == coastBoardPose(w,h);
 //    first frame == live island lens; motion limits per real dt over S7: yaw/pitch <=90 deg/s, ang accel p99 <=200, <=8 m/s,
 //    <=0.5 m/frame, fov <=1.5 deg/frame; ground >=1.5 m, solids >=0.5 m (gates.json).
@@ -14,18 +13,23 @@ const tr=src=>ts.transpileModule(src,{compilerOptions:{target:ts.ScriptTarget.ES
 const mods={};function load(rel){if(mods[rel])return mods[rel].exports;const m={exports:{}};mods[rel]=m;const dir=path.dirname(rel);
  new Function('module','exports','require',tr(fs.readFileSync(path.join(S,rel+'.ts'),'utf8')))(m,m.exports,r=>r.startsWith('.')?load(path.join(dir,r)):require(r));return m.exports;}
 const CP=load('world-r1/CameraPose'),CB=load('region/CoastBoardLens');
-const T=JSON.parse(fs.readFileSync(path.join(__dirname,'scene_d2_table.json'),'utf8'));
+// r2 item 3 final (Grok Bot ruling (i)): final_poses.json (python, keepout_r2 rule) = CoastBoardLens per screen; per-aspect projected
+// cells: keep-out rule (cells + face >= 8 pt from the screen sides and the bands; compact HUD on portrait h<=600) and tap rule
+// (far-row short side >= 28 pt, 0 wrong taps of 2000 +-8 pt per cell), shortest distance, D2 quat.
+const FP=JSON.parse(fs.readFileSync(path.join(__dirname,'final_poses.json'),'utf8'));
+const T={screens:Object.keys(FP).map(s=>({screen:s,...FP[s]}))};
 const L=CB.COAST_MOTION_LIMITS;let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}};
-// 1
-for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number),d=CB.coastBoardDistance(w,h),p=CB.coastBoardPose(w,h).position;
+ok(T.screens.length===7,'7 screens');
+for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number),d=CB.coastBoardDistance(w,h),p=CB.coastBoardPose(w,h).position,k=CB.coastKeepout(w,h);
  ok(Math.abs(d-r.distance_m)<1e-9,r.screen+' table '+d+' vs '+r.distance_m);
  ok(Math.hypot(p[0]-r.pos[0],p[1]-r.pos[1],p[2]-r.pos[2])<2e-3,r.screen+' pos '+p);
- ok(r.final_pass&&r.final.board_margin>=0.08&&r.final.her_margin>=0.08&&!r.final.menu_over_face&&r.final.menu_over_cells===0,r.screen+' python checks');
- ok(CB.coastBoardFits(d,w,h),r.screen+' TS fit at '+d);
- if(d>T.proposal.distance+1e-6)ok(!CB.coastBoardFits(d-0.02,w,h),r.screen+' TS: not the shortest distance');
- else ok(Math.abs(d-T.proposal.distance)<1e-3&&r.as_proposed_pass,r.screen+' proposal kept only if it passes');
- const q=CP.rotationFromLookAt(p,CB.coastBoardTarget());ok(Math.abs(Math.abs(q[0]*0+q[1]*0.851965+q[2]*0.523599+q[3]*0)-1)<1e-5,r.screen+' quat != D2');}
-console.log('ok   1 pose table: 7 screens, distance-only, margins >=0.08, menu clear');
+ ok(k.compact===(h<=600)&&k.compact===(r.band_kind==='compact')&&Math.abs(k.top-r.band_pt[0])<0.05&&Math.abs(k.tool-r.band_pt[1])<0.05,r.screen+' keep-out band '+JSON.stringify(k)+' vs '+r.band_pt);
+ ok(CB.coastBoardKeepoutFits(d,w,h),r.screen+' keep-out rule at '+d);ok(!CB.coastBoardKeepoutFits(d-0.002,w,h),r.screen+' not the shortest keep-out distance');
+ const C=CB.coastCellCentres(d,w,h),tp=CB.coastBoardTap(d,w,h);ok(C.every(([x,y])=>x>=8&&x<=w-8&&y>=k.top+8&&y<=k.tool-8),r.screen+' cell centre in a keep-out band');
+ ok(tp.farShortPt>=28&&tp.wrongTaps===0&&tp.taps===98000,`${r.screen} tap far short ${tp.farShortPt} pt wrong ${tp.wrongTaps}`);
+ ok(Math.abs(tp.farShortPt-r.far_short_pt)<=0.1&&r.pass===true&&r.wrong_taps===0,r.screen+' TS tap != python '+r.far_short_pt);
+ const q=CP.rotationFromLookAt(p,CB.coastBoardTarget());ok(Math.abs(Math.abs(q[0]*0+q[1]*0.851965+q[2]*0.523599+q[3]*0)-1)<1e-5,r.screen+' quat != D2');
+ console.log(`ok   1 ${r.screen} ${k.compact?'compact':'current'} HUD [0,${k.top}]/${k.tool}: D ${d}, far-row short ${tp.farShortPt} pt, wrong ${tp.wrongTaps}/${tp.taps}`);}
 // 2
 function motion(rs){let vmax=0,smax=0,wmax=0,fmax=0,at=0;const acc=[];let pw=null;const ang=x=>{const f=[x[6]-x[3],x[7]-x[4],x[8]-x[5]],l=Math.hypot(...f);return [Math.atan2(f[0],f[2])*180/Math.PI,Math.asin(f[1]/l)*180/Math.PI];};
  for(let i=1;i<rs.length;i++){const a=rs[i-1],b=rs[i],dt=b[1]-a[1],st=Math.hypot(b[3]-a[3],b[4]-a[4],b[5]-a[5]),A=ang(a),B=ang(b),dy=((B[0]-A[0]+540)%360)-180,wv=[dy/dt,(B[1]-A[1])/dt];

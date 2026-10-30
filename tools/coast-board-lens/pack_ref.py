@@ -19,4 +19,4 @@ json.dump(pack(D), open(H + '/ref_transition.json', 'w'), separators=(',', ':'))
 old = {}
 if os.path.isdir(D + '/old'): o = pack(D + '/old'); old['s1_old'] = dict(shared=o['shared'][:int(2.2 * 60)], summary={s: o['summary'][s] for s in S})
 if os.path.isdir(D + '/old_s3'): old['s3_old'] = {s: summ(f'{D}/old_s3/{s}') for s in S}
-json.dump(old, open(H + '/ref_old.json', 'w'), separators=(',', ':'))
+if old: json.dump(old, open(H + '/ref_old.json', 'w'), separators=(',', ':'))  # keep the stored pre-fix numbers when old dirs are absent

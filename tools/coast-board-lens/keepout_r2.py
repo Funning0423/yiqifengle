@@ -17,7 +17,8 @@ def ev(Pp, d, w, h, band):
     r = dict(cells_x_pt=[round(float(x.min()), 1), round(float(x.max()), 1)], cells_y_pt=[round(float(y.min()), 1), round(float(y.max()), 1)], band_pt=list(band),
              face_pt=[round(float(fx), 1), round(float(fy), 1)], gap_left=round(float(x.min()), 1), gap_right=round(float(w - x.max()), 1), gap_top=round(float(y.min() - top), 1), gap_bottom=round(float(bot - y.max()), 1),
              face_gap_tool=round(float(bot - fy), 1), face_gap_top=round(float(fy - top), 1))
-    r['ok'] = bool(min(r['gap_left'], r['gap_right'], r['gap_top'], r['gap_bottom']) >= 8 and r['face_gap_tool'] >= 8 and r['face_gap_top'] >= 8 and 8 <= fx <= w - 8 and all(q[:, 2] > 0)); return r
+    # r2 final: compare UNROUNDED gaps (the 1 dp report values let 7.95 pt pass)
+    r['ok'] = bool(min(x.min(), w - x.max(), y.min() - top, bot - y.max()) >= 8 and bot - fy >= 8 and fy - top >= 8 and 8 <= fx <= w - 8 and all(q[:, 2] > 0)); return r
 def solve(Pp, w, h, band):
     a, b = 6.0, 60.0
     if not ev(Pp, b, w, h, band)['ok']: return None
@@ -36,9 +37,11 @@ def full(dz, w, h, band):
     r['pass'] = bool(r['ok'] and r['far_short_pt'] >= 28 and r['wrong_taps'] == 0); return r
 def best(w, h, band):
     c = [(solve(P(dz), w, h, band) or 99, float(dz)) for dz in np.round(np.arange(-4, 4.01, 0.1), 2)]; return min(c)[1]
-out = {}
-for s, B in BANDS.items():
-    w, h = map(int, s.split('x'))
-    out[s] = {'ii_shift_current_hud': full(best(w, h, B['current']), w, h, B['current']), 'i_compact_hud': full(0.0, w, h, B['compact']), 'i_plus_ii': full(best(w, h, B['compact']), w, h, B['compact'])}
-    for k, r in out[s].items(): print(s, k, json.dumps({x: r[x] for x in ('dz', 'distance_m', 'far_short_pt', 'far_cell_height_pt', 'wrong_taps', 'gap_left', 'gap_right', 'gap_top', 'gap_bottom', 'face_gap_tool', 'pass')}))
-json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'keepout_r2.json'), 'w'), indent=1)
+def _main():
+  out = {}
+  for s, B in BANDS.items():
+      w, h = map(int, s.split('x'))
+      out[s] = {'ii_shift_current_hud': full(best(w, h, B['current']), w, h, B['current']), 'i_compact_hud': full(0.0, w, h, B['compact']), 'i_plus_ii': full(best(w, h, B['compact']), w, h, B['compact'])}
+      for k, r in out[s].items(): print(s, k, json.dumps({x: r[x] for x in ('dz', 'distance_m', 'far_short_pt', 'far_cell_height_pt', 'wrong_taps', 'gap_left', 'gap_right', 'gap_top', 'gap_bottom', 'face_gap_tool', 'pass')}))
+  json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'keepout_r2.json'), 'w'), indent=1)
+if __name__ == '__main__': _main()
