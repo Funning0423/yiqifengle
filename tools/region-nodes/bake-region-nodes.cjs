@@ -77,7 +77,7 @@ const NODES={
  meadow:[
   {key:'M0',at:[0.2,1.22,20],role:'arrival'},
   {key:'M1',at:[2.6,2.76,6.77],role:'mainline',stageId:'mainline-05'},
-  {key:'M2',at:[-1.4,3.19,1.2],role:'mainline',stageId:'mainline-06'},
+  {key:'M2',at:[-1.4,3.41,-0.94],role:'mainline',stageId:'mainline-06'},
   {key:'M3',at:[-3,4,-8.4],role:'mainline',stageId:'mainline-07'},
   {key:'M4',at:[3,5.84,-16.4],role:'mainline',stageId:'mainline-08'},
   {key:'M5',at:[6.6,6.47,-21.2],role:'optional',opens:'challenge-meadow'},

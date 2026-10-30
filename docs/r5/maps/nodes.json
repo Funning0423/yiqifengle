@@ -129,11 +129,11 @@
    },
    {
     "k": "M2",
-    "name": "坡腰 hillside — mainline-06",
+    "name": "坡腰 hillside — mainline-06 (b20: was [-1.4,3.19,1.2])",
     "at": [
      -1.4,
-     3.19,
-     1.2
+     3.38,
+     -0.8
     ]
    },
    {
@@ -184,16 +184,16 @@
    {
     "from": "M1",
     "to": "M2",
-    "walkM": 7.3,
-    "walkS": 6.1,
-    "climbM": 0.43
+    "walkM": 9.3,
+    "walkS": 7.7,
+    "climbM": 0.62
    },
    {
     "from": "M2",
     "to": "M3",
-    "walkM": 10.3,
-    "walkS": 8.6,
-    "climbM": 0.81
+    "walkM": 8.3,
+    "walkS": 6.9,
+    "climbM": 0.62
    },
    {
     "from": "M3",
