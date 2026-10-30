@@ -23,8 +23,10 @@ const all = (x, o = []) => { o.push(x); for (const ch of x.children) all(ch, o);
   await ok('timeline §5: 0 s α0 +6 pt, ease-out cubic in to 0.4 s, hold to 1.6 s, ease-in quad out, done at 2.0 s', () => {
     assert(near(C.REGION_TITLE_TOTAL_S, 2.0)); const s0 = C.regionTitleState(0); assert.equal(s0.alpha, 0); assert.equal(s0.dy, 6);
     const m = C.regionTitleState(0.2); assert(near(m.alpha, 1 - 0.125)); assert(near(m.dy, 6 * 0.125));
-    for (const t of [0.4, 1.0, 1.599]) assert.deepEqual(C.regionTitleState(t), { alpha: 1, dy: 0, done: false });
-    assert(near(C.regionTitleState(1.8).alpha, 0.75)); assert.equal(C.regionTitleState(1.8).dy, 0); assert.equal(C.regionTitleState(2.0).done, true);
+    assert.equal(C.REGION_TITLE_TIMING.inS, 0.4); assert.equal(C.REGION_TITLE_TIMING.holdS, 1.35); assert.equal(C.REGION_TITLE_TIMING.outS, 0.25);
+    assert(near(C.REGION_TITLE_TIMING.inS + C.REGION_TITLE_TIMING.holdS + C.REGION_TITLE_TIMING.outS, 2.0), 'U1 retime keeps the 2.0 s total');
+    for (const t of [0.4, 1.0, 1.749]) assert.deepEqual(C.regionTitleState(t), { alpha: 1, dy: 0, done: false });
+    assert(near(C.regionTitleState(1.875).alpha, 0.75), 'easeInQuad out over 0.25 s'); assert.equal(C.regionTitleState(1.875).dy, 0); assert.equal(C.regionTitleState(2.0).done, true);
   });
   await ok('style switch §10: default B; A kept as backup; __qfConfig.regionTitleStyle overrides; B params = spec_params.json "B"', () => {
     const P = JSON.parse(fs.readFileSync(ROOT + '/ui-design/region-title/spec_params.json', 'utf8'));

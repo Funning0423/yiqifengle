@@ -705,7 +705,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
 /** The host repaints the result after a claim; the next (claimed) panel plays the lid opening when this is recent. */
 let chestTappedAt = -1e12;
 /** R1: the opening 3D chest carried from the tapped panel into the repainted (claimed) one, plus the score's world y. */
-export const CHEST_HANDOFF_MS = 3000, SCORE_EASE_S = 0.25;
+export const CHEST_HANDOFF_MS = 3000, SCORE_EASE_S = 0.20;
 let chestAdopted = false;
 let chestHandoff: { rig: ResultChest3D; at: number; scoreY: number | null } | null = null;
 function disposeChestHandoff() { const h = chestHandoff; chestHandoff = null; try { h?.rig.dispose(); if (h && isValid(h.rig.node, true)) h.rig.node.destroy(); } catch { } }

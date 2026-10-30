@@ -24,6 +24,8 @@ export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? 
 /** b-board v3.1 board skin: wood tray with tile_a/b bases, piece_* art, obstacles, specials; top-left pause + one info
  *  plate; ≤3 tool slots; transient toast; idle auto-hint (5 s, then every 8 s); every dialog is a lite popup. */
 function countNodes(n: Node): number { let k = 1; for (const c of n.children) k += countNodes(c); return k; }
+/** Toast / say(): enter = toastFade (200 ms), exit 150 ms (U1 audit 2026-10-29). */
+const TOAST_OUT_S = 0.15;
 @ccclass('ManagedMobileBoardUI')
 export class ManagedMobileBoardUI extends Component {
   private managed: any = null; private disposing = false; private frameKinds = new Set<string>(); private presentationError: string | null = null;
@@ -937,7 +939,7 @@ export class ManagedMobileBoardUI extends Component {
     if (this.hintClock.tick(dt, active)) this.autoHint();
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
-    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
+    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / TOAST_OUT_S); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
     this.staleNotice(s);
     if (!titleUp && this.toastT < 0 && !this.noticeUp && this.titleGate.pending()) { const q = this.titleGate.next(); if (q) this.say(q.text, q.fade, q.valid); }
     if (!titleUp && this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
