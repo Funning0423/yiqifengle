@@ -125,7 +125,9 @@ export function pressable(node: Node, content: Node, tap: () => void, opts: { so
   const start = (e: EventTouch) => { if (!e) return; e.propagationStopped = true; const id = pointerId(e); if (owner !== null || id === null || !ready() || !hit(e)) return; owner = id; press(true); };
   const move = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; if (!ready()) { cancel(); return; } press(hit(e)); };
   const abort = (e: EventTouch) => { if (owner !== null && pointerId(e) === owner) cancel(); };
-  const end = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; const activate = ready() && hit(e); cancel(); if (!activate) return; GameAudio.notifyUserGesture(); playSound(opts.sound || 'button'); tap(); };
+  const end = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; const activate = ready() && hit(e); cancel(); if (!activate) return; GameAudio.notifyUserGesture(); playSound(opts.sound || 'button'); tap();
+    // The action fires on release without waiting for the 120 ms spring; if it closed the popup, settle at rest at once.
+    if (!pressNodeReady(node) && isValid(content, true)) { Tween.stopAllByTarget(content); content.setScale(baseScale); } };
   node.on(Node.EventType.TOUCH_START, start); node.on(Node.EventType.TOUCH_MOVE, move);
   node.on(Node.EventType.TOUCH_CANCEL, abort); node.on(Node.EventType.TOUCH_END, end);
   const cleanup = bindInputLifetime(node, cancel);

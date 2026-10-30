@@ -2,19 +2,19 @@
  "status": "PASS",
  "canary": "detected (ok)",
  "mode": "fast",
- "seconds": 50.8,
+ "seconds": 66.8,
  "removedFaces": 1800,
  "samples": 12600,
- "solidTris": 53193,
- "glbSha": "7a9150c4ea6930a6ced3c221a7e03057aaf46b3bae09d1a5ad9f1ff9422cdc5b",
- "cams": 34188,
+ "solidTris": 53310,
+ "glbSha": "7b8787596c21cea7d3cc354e401217ef6dab8a50b0f710ecc83be17badff9bc7",
+ "cams": 34181,
  "camsByTag": {
   "board": 7,
   "finale": 2,
   "flightkey": 247,
   "arrival": 343,
   "depart": 224,
-  "orbit": 33365
+  "orbit": 33358
  },
  "holesSeenBy": 0,
  "hits": []

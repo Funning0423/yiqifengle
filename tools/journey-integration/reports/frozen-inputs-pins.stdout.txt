@@ -1,0 +1,1 @@
+{"test":"frozen-inputs-pins","pins":320,"bad":0,"status":"PASS"}

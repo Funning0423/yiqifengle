@@ -1,11 +1,11 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-26T10:32:44.945Z",
+ "timeUTC": "2026-10-30T01:11:57.010Z",
  "fps": 30,
  "clearanceM": 1.1,
  "geometry": {
   "skycityMeshes": 37,
-  "skycityTris": 88054,
+  "skycityTris": 88167,
   "lakesideInstances": 813,
   "islandObjs": 34,
   "meadowObjs": 20,

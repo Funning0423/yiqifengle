@@ -20,16 +20,32 @@ const PK=fs.readFileSync(path.join(S,'ui/PopupKit.ts'),'utf8');
 assert.ok(!/OPEN_S\s*=\s*0\.22|CLOSE_S\s*=\s*0\.15/.test(PK),'old 220/150 gone');assert.ok(/enterAt\(this\.t/.test(PK)&&/exitAt\(CLOSE_S - this\.closing/.test(PK),'PopupPanel uses the shared curves');
 assert.ok(/content\.setScale\(baseScale\.x \* PRESS_SCALE/.test(PK)&&/tween\(content\)\.to\(RELEASE_S/.test(PK),'press same frame / release 120 ms easeOutBack');
 // 2) advisory (first-screen.js)
-const FSRC=fs.readFileSync(path.join(ROOT,'creator-build-project/build-templates/wechatgame/first-screen.js'),'utf8');
-const ctx={module:{exports:{}},console,Promise,Date,Math,JSON};ctx.exports=ctx.module.exports;ctx.GameGlobal=ctx;vm.createContext(ctx);vm.runInContext(FSRC,ctx);const F=ctx.module.exports;
+const FSRC=fs.readFileSync(path.join(ROOT,'tools/first-screen/src/first-screen.js'),'utf8');/* readable source for code checks */
+const FRUN=fs.readFileSync(process.env.QF_FIRST_SCREEN||path.join(ROOT,'creator-build-project/build-templates/wechatgame/first-screen.js'),'utf8');/* behaviour: shipped (minified) or source */
+const ctx={module:{exports:{}},console,Promise,Date,Math,JSON};ctx.exports=ctx.module.exports;ctx.GameGlobal=ctx;vm.createContext(ctx);vm.runInContext(FRUN,ctx);const F=ctx.module.exports;
 assert.equal(F.ADVISORY.totalMs,3000);assert.equal(F.ADVISORY.lockMs,1500);
 assert.equal(F.ADVISORY_LINES.join(''),'抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。','legal text verbatim');
 assert.equal(F.advisoryTap(1499,-1),-1,'tap inside the 1.5 s lock ignored');assert.equal(F.advisoryTap(1500,-1),1500);assert.equal(F.advisoryTap(2000,1600),1600,'first accepted tap kept');
-assert.equal(F.advisoryFrame(2999,-1,false).done,false);assert.equal(F.advisoryFrame(3000,-1,false).done,true,'3.0 s total');
-assert.equal(F.advisoryFrame(1000,-1,false).alpha,1);assert.equal(F.advisoryFrame(1000,-1,false).hint,0,'no skip hint before 1.5 s');assert.equal(F.advisoryFrame(1800,-1,false).hint,1);
-assert.equal(F.advisoryFrame(1700,1600,false).done,false);assert.equal(F.advisoryFrame(1900,1600,false).done,true,'tap → 300 ms fade, then done');
-assert.equal(F.advisoryFrame(1900,1200,false).done,false,'a locked-period tap time never shortens it');
-assert.ok(F.advisoryFrame(100,-1,false).dy>0);assert.equal(F.advisoryFrame(100,-1,true).dy,0,'reduced: no rise');
+// handoff path A: engine ready early (end() at 1.0 s) → 3.0 s total, fade from 2.7 s
+assert.equal(F.advisoryFrame(2999,-1,false,1000).done,false);assert.equal(F.advisoryFrame(3000,-1,false,1000).done,true,'3.0 s total');assert.ok(F.advisoryFrame(2850,-1,false,1000).alpha<1);
+// handoff path B: engine not ready at 3.0 s → full advisory frame held (never blank), fade starts when end() arrives (5.0 s)
+for(const t of [2700,3000,4000,4999]){const f=F.advisoryFrame(t,-1,false,-1);assert.equal(f.alpha,1,'held at '+t);assert.equal(f.done,false);assert.equal(f.hold,true);}
+assert.equal(F.advisoryFrame(5000,-1,false,5000).alpha,1);assert.ok(F.advisoryFrame(5150,-1,false,5000).alpha<1);assert.equal(F.advisoryFrame(5300,-1,false,5000).done,true);
+assert.equal(F.advisoryFrame(2000,1600,false,-1).alpha,1,'tap while loading keeps the frame');
+assert.equal(F.advisoryFrame(1000,-1,false,500).alpha,1);assert.equal(F.advisoryFrame(1000,-1,false,500).hint,0,'no skip hint before 1.5 s');assert.equal(F.advisoryFrame(1800,-1,false,500).hint,1);
+assert.equal(F.advisoryFrame(1700,1600,false,500).done,false);assert.equal(F.advisoryFrame(1900,1600,false,500).done,true,'tap → 300 ms fade, then done');
+assert.equal(F.advisoryFrame(1900,1200,false,500).done,false,'a locked-period tap time never shortens it');
+assert.ok(F.advisoryFrame(100,-1,false,-1).dy>0);assert.equal(F.advisoryFrame(100,-1,true,-1).dy,0,'reduced: no rise');
+// end() integration: end() before 3.0 s resolves only after the advisory; engine loading is never blocked by start()
+assert.ok(/advisoryDone\(\)\.then\(nextFrame\)/.test(FSRC)&&/adv\.endAt = now\(\) - adv\.t0/.test(FSRC),'end() marks engine-ready, then waits');
+{const st=FSRC.slice(FSRC.indexOf('function start('),FSRC.indexOf('/* fg-update-manager'));assert.ok(!/advisoryDone/.test(st),'start() promise does not wait for the advisory (engine + subpackages load in parallel)');}
+// font: explicit chain, design sizes, shrink-to-fit without wrapping
+assert.equal(F.ADVISORY_FONTS,'"Noto Serif SC","Songti SC",serif,sans-serif');
+{const mk=em=>({font:'',measureText(ch){const px=+/(\d+)px/.exec(this.font)[1];return {width:px*em};}});
+ let c=mk(1);assert.equal(F.fitFont(c,F.ADVISORY_LINES,'',17*2,2*2,780-96),1);assert.equal(c.font,'34px "Noto Serif SC","Songti SC",serif,sans-serif','17 pt @2x when it fits');
+ c=mk(1.25);const k=F.fitFont(c,F.ADVISORY_LINES,'',17,2,252);assert.ok(k<1,'wide sans fallback shrinks');let w=0;for(const l of F.ADVISORY_LINES){let x=0;for(let i=0;i<l.length;i++)x+=c.measureText(l[i]).width+(i?2*k:0);w=Math.max(w,x);}assert.ok(w<=252,'fits, no wrap: '+w);
+ c=mk(1);F.fitFont(c,['健康游戏忠告'],'bold ',22,6,300);assert.equal(c.font,'bold 22px "Noto Serif SC","Songti SC",serif,sans-serif','title 22 pt bold');}
+assert.ok(/40 \* k\) \* pt/.test(FSRC),'line height stays 40 pt');
 assert.ok(/G\.__qfAdvisory\) return/.test(FSRC),'once per process (cold start only; warm start = onShow, file not re-run)');
 assert.ok(/advisoryDone\(\)\.then\(nextFrame\)/.test(FSRC),'engine handoff waits for the advisory');
 assert.ok(!/onShow/.test(FSRC.slice(FSRC.indexOf('function startAdvisory'),FSRC.indexOf('function stopAdvisory'))),'not hooked to onShow');

@@ -42,7 +42,7 @@
    "region": "skycity",
    "minArmM": 12,
    "settledArmM": 12,
-   "maxLensMS": 18,
+   "maxLensMS": 16.6,
    "orbitDist": 12,
    "firstDragGlideS": 4.88,
    "ok": true

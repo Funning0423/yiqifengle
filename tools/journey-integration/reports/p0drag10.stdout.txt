@@ -2,7 +2,7 @@
  "test": "p0drag10",
  "ok": true,
  "Q1": {
-  "boxes": 2717,
+  "boxes": 2713,
   "ro": {
    "her": [
     8.59,
@@ -17,7 +17,7 @@
     "heightOverLimitM": 4.469,
     "max025sPitchDeg": 43.5,
     "max025sHeightM": 4.64,
-    "framesInsideGeometry": 46,
+    "framesInsideGeometry": 26,
     "longestFaceChestOcclusionS": 0.94,
     "longestOcclusionFromQaHookS": 0,
     "minHerMargin": 0.59,
@@ -26,23 +26,23 @@
    },
    "after": {
     "frames": 3600,
-    "maxPitchStepDeg": 0.42,
-    "maxHeightStepM": 0.039,
+    "maxPitchStepDeg": 0,
+    "maxHeightStepM": 0.001,
     "pitchOverLimitDeg": 0,
     "heightOverLimitM": 0,
-    "max025sPitchDeg": 5.5,
-    "max025sHeightM": 0.49,
+    "max025sPitchDeg": 0,
+    "max025sHeightM": 0,
     "framesInsideGeometry": 0,
-    "longestFaceChestOcclusionS": 0.33,
-    "longestOcclusionFromQaHookS": 0.81,
+    "longestFaceChestOcclusionS": 0,
+    "longestOcclusionFromQaHookS": 0,
     "minHerMargin": 0.61,
-    "minArmM": 6.76,
-    "minViewPitchDeg": -25.4,
+    "minArmM": 7.34,
+    "minViewPitchDeg": -17,
     "hookRelease": null
    },
    "perf": {
-    "avgMs": 0.16,
-    "p99Ms": 0.91
+    "avgMs": 0.162,
+    "p99Ms": 1.28
    }
   },
   "pock": {
@@ -75,7 +75,7 @@
     "max025sPitchDeg": 0,
     "max025sHeightM": 0,
     "framesInsideGeometry": 0,
-    "longestFaceChestOcclusionS": 0.02,
+    "longestFaceChestOcclusionS": 0.17,
     "longestOcclusionFromQaHookS": 0,
     "minHerMargin": 0.61,
     "minArmM": 7.34,
@@ -83,8 +83,8 @@
     "hookRelease": null
    },
    "perf": {
-    "avgMs": 0.196,
-    "p99Ms": 1.01
+    "avgMs": 0.154,
+    "p99Ms": 0.99
    }
   },
   "ok": true
@@ -95,8 +95,8 @@
    "key": "S2",
    "yaw": -45,
    "at": [
-    -6.6,
-    -0.055,
+    -7,
+    -0.059,
     19
    ]
   },
@@ -104,15 +104,15 @@
    "ok": true,
    "region": "skycity",
    "at": [
-    -6.6,
-    -0.055,
+    -7,
+    -0.059,
     19
    ],
    "yaw": -45,
    "pitch": 12
   },
   "maxYawDriftDeg3s": 0,
-  "yawOffAfterManualDrag15sDeg": 17.1,
+  "yawOffAfterManualDrag15sDeg": 10.9,
   "ok": true
  },
  "Q3": {

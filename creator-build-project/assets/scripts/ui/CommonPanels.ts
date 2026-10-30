@@ -233,16 +233,24 @@ export function badge(p: PopupPanel, n: Node, text: string) {
 }
 // ---------------- version update (system-panels SPEC §3) ----------------
 /** One focus: 「重启更新」; 「稍后」 is a thin text line. No ×, the shade does not close it. */
+export const PINWHEEL = { r: 54, glowR: 88, glowBlur: 23, hubR: 7.7, revPerS: 0.5 } as const;
 export function openUpdate(stack: PopupStack, apply: () => void, later: () => void): PopupPanel {
   const ph = 640, p = stack.open({ name: 'UpdatePanel', height: ph, title: '', closable: false });
   p.plank.active = false;
   const mill = uiNode('Pinwheel', p.body, 200, 200), mp = p.at(0, 150); mill.setPosition(mp[0], mp[1], 0);
-  const BL: number[][] = [[232, 128, 52], [55, 127, 108], [242, 181, 68], [201, 119, 58]], R = 60;
+  // SPEC §3 (pt × 750/390): blades R28 → 54 px, glow #FFDC8C α59% R46 blur 12 → 88 / 23 px, hub Ø8 #FFF0CB → r 7.7 px.
+  // Graphics has no MSAA here, so edges are feathered: each blade is filled, then stroked 1.6 px at half alpha (≈ 1 px AA ramp).
+  const BL: number[][] = [[0xE8, 0x80, 0x34], [0x37, 0x7F, 0x6C], [0xF2, 0xB5, 0x44], [0xC9, 0x77, 0x3A]], R = PINWHEEL.r;
   p.tint.shape(mill.addComponent(Graphics), (g, night, a) => {
-    const k = 1 - 0.35 * night; g.fillColor = new Color(255, 220, 140, Math.round(150 * a)); g.circle(0, 0, R * 1.6); g.fill();
-    for (let i = 0; i < 4; i++) { const c = BL[i], q = i * Math.PI / 2; g.fillColor = new Color(Math.round(c[0] * k), Math.round(c[1] * k), Math.round(c[2] * k), Math.round(255 * a));
-      g.moveTo(0, 0); g.lineTo(Math.cos(q) * R, Math.sin(q) * R); g.lineTo(Math.cos(q + 0.9) * R * 0.62, Math.sin(q + 0.9) * R * 0.62); g.close(); g.fill(); }
-    g.fillColor = new Color(255, 240, 203, Math.round(255 * a)); g.circle(0, 0, 9); g.fill();
+    const k = 1 - 0.35 * night;
+    for (let i = 0; i < 8; i++) { const u = i / 7, rr = PINWHEEL.glowR - PINWHEEL.glowBlur * (1 - u); g.fillColor = new Color(0xFF, 0xDC, 0x8C, Math.round(255 * 0.59 * a / 8)); g.circle(0, 0, rr); g.fill(); }
+    for (let i = 0; i < 4; i++) {
+      const c = BL[i], q = i * Math.PI / 2, col = (al: number) => new Color(Math.round(c[0] * k), Math.round(c[1] * k), Math.round(c[2] * k), Math.round(255 * al * a));
+      const path = () => { g.moveTo(0, 0); g.lineTo(Math.cos(q) * R, Math.sin(q) * R); g.lineTo(Math.cos(q + 0.9) * R * 0.62, Math.sin(q + 0.9) * R * 0.62); g.close(); };
+      g.fillColor = col(1); path(); g.fill(); g.lineWidth = 1.6; g.strokeColor = col(0.5); path(); g.stroke();
+    }
+    g.fillColor = new Color(0xFF, 0xF0, 0xCB, Math.round(255 * a)); g.circle(0, 0, PINWHEEL.hubR); g.fill();
+    g.lineWidth = 1.4; g.strokeColor = new Color(0xFF, 0xF0, 0xCB, Math.round(128 * a)); g.circle(0, 0, PINWHEEL.hubR + 0.4); g.stroke();
   });
   p.text('新版本已准备好', 0, 286, 42, 'brown', { name: 'UpdateTitle' });
   p.text('重启后即可体验新版本。', 0, 362, 30, 'brown2', { bold: false, name: 'UpdateLine' });
@@ -250,6 +258,6 @@ export function openUpdate(stack: PopupStack, apply: () => void, later: () => vo
   const l = p.text('稍后', 0, 572, 28, 'brown2', { bold: false, name: 'UpdateLater' }); l.node.getComponent(UITransform)!.setContentSize(250, 92);
   pressable(l.node, l.node, () => p.close(later), { sound: 'back' });
   const update = p.update.bind(p); let t = 0;
-  p.update = (dt: number) => { update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (isValid(mill, true) && !reducedMotion()) mill.angle = -180 * t; };
+  p.update = (dt: number) => { update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (isValid(mill, true) && !reducedMotion()) mill.angle = -360 * PINWHEEL.revPerS * t; };
   return p;
 }

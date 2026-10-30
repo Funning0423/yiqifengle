@@ -19,7 +19,7 @@ const fs=require('fs'),path=require('path'),vm=require('vm'),os=require('os'),as
 const root=path.resolve(__dirname,'..','..');
 const ts=(()=>{try{return require('../qf-env.cjs').typescript();}catch(e){const p=path.join(root,'..','..','character-core','lighthouse-island-astra-ultra','tools','vendor-node','node_modules','typescript');if(fs.existsSync(p))return require(p);throw e;}})();
 const S=path.join(root,'creator-build-project/assets/scripts'),T=path.join(root,'creator-build-project/build-templates');
-const FS_JS=path.join(T,'wechatgame/first-screen.js');
+const FS_JS=process.env.QF_FIRST_SCREEN||path.join(T,'wechatgame/first-screen.js');
 const checks=[],report={};const ok=(name,extra)=>{checks.push(name);if(extra!==undefined)report[name]=extra;};
 const near=(a,b,eps,msg)=>assert(Math.abs(a-b)<=eps,msg+' '+a+' vs '+b);
 const turn=()=>new Promise(r=>setImmediate(r));

@@ -1,0 +1,5 @@
+PASS fresh L11 entry: run.ready, no PausePanel
+PASS island restored entry: run.ready, no PausePanel; background return pauses (panel edge: board-runtime lock return)
+PASS meadow restored entry: run.ready, no PausePanel; background return pauses (panel edge: board-runtime lock return)
+PASS skycity restored entry: run.ready, no PausePanel; background return pauses (panel edge: board-runtime lock return)
+PASS pause button still opens PausePanel

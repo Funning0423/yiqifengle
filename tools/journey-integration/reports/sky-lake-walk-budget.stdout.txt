@@ -1,0 +1,25 @@
+{
+ "test": "sky-lake-walk-budget",
+ "status": "PASS",
+ "results": [
+  {
+   "id": "path length = data, no detour",
+   "status": "PASS",
+   "pathM": 16.97,
+   "straightM": 16.86,
+   "ratio": 1.007
+  },
+  {
+   "id": "walk speed 1.2 m/s, basket steps 0.9 m/s (never faster)",
+   "status": "PASS",
+   "walkS": 14.14
+  },
+  {
+   "id": "design from S6 (game time) ≤ 50 s; LEG_TIME designS is that value",
+   "status": "PASS",
+   "designS": 33.7,
+   "macB": 35.21,
+   "overS": 1.51
+  }
+ ]
+}

@@ -11,7 +11,7 @@ PASS tool intro: each bar tool is introduced once (qfl.ui.seenTools), never agai
 PASS night: board sprites multiply by K_UI, text recolours, board tiles too; back to day restores
 PASS beacon cell: lighthouse + ring on the current target, faint dots for beaconRoute.slice(cursor + 1)
 PASS invalid swap: no commit, both pieces shake (reduced motion: no shake)
-PASS settings music slider: drag updates the volume, release and cancel keep it
+PASS settings switches (system-panels SPEC §2): music = volume 0 + qfl.audio.musicLast, row is the hit area, vibrate key
 PASS info plate: goals, divider, moves icon and count stay inside hud_levelplate; title stays on the top row
 PASS teardown: onDestroy clears popups and host; later updates are inert
 {"status":"PASS","checks":16,"scope":"Real board-ui ManagedMobileBoardUI + panels on Cocos memory doubles (tools/board-ui/harness.cjs); not rendering, device touch or WeChat"}

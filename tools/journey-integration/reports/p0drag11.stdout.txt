@@ -43,8 +43,8 @@
      0.8
     ],
     "exactLocalNewSet": [
-     0.75,
-     0.75
+     0.54,
+     0.54
     ]
    }
   },
@@ -89,15 +89,15 @@
      0.93
     ],
     "exactLocalNewSet": [
-     0.88,
-     0.88
+     0.54,
+     0.54
     ]
    }
   },
   "ok": true
  },
  "Q1": {
-  "boxes": 2717,
+  "boxes": 2713,
   "skd_po": {
    "her": [
     13.02,
@@ -138,8 +138,8 @@
     }
    },
    "perf": {
-    "avgMs": 0.117,
-    "p99Ms": 1.09
+    "avgMs": 0.138,
+    "p99Ms": 1.3
    }
   },
   "skd_ro": {
@@ -150,9 +150,9 @@
    ],
    "turnFrom": 566.268,
    "before_mac_exactBoxes": {
-    "longestFaceS": 0.75,
-    "longestChestS": 0.75,
-    "framesInsideGeometry": 4,
+    "longestFaceS": 0.54,
+    "longestChestS": 0.54,
+    "framesInsideGeometry": 3,
     "maxPitchStepDeg": 1.03,
     "maxHeightStepM": 0.115,
     "pitchOverLimitDeg": 0.63,
@@ -164,8 +164,8 @@
     "minViewPitchDeg": -51.5
    },
    "after": {
-    "longestFaceS": 0,
-    "longestChestS": 0,
+    "longestFaceS": 0.17,
+    "longestChestS": 0.22,
     "framesInsideGeometry": 0,
     "maxPitchStepDeg": 0,
     "maxHeightStepM": 0,
@@ -178,8 +178,8 @@
     "minViewPitchDeg": -12
    },
    "perf": {
-    "avgMs": 0.134,
-    "p99Ms": 0.99
+    "avgMs": 0.151,
+    "p99Ms": 1.33
    }
   },
   "skn_po": {
@@ -192,7 +192,7 @@
    "before_mac_exactBoxes": {
     "longestFaceS": 0.25,
     "longestChestS": 7.75,
-    "framesInsideGeometry": 6,
+    "framesInsideGeometry": 0,
     "maxPitchStepDeg": 0.53,
     "maxHeightStepM": 0.069,
     "pitchOverLimitDeg": 0.1,
@@ -218,8 +218,8 @@
     "minViewPitchDeg": -27.3
    },
    "perf": {
-    "avgMs": 0.099,
-    "p99Ms": 0.74
+    "avgMs": 0.11,
+    "p99Ms": 0.84
    }
   },
   "skn_ro": {
@@ -230,8 +230,8 @@
    ],
    "turnFrom": 567.119,
    "before_mac_exactBoxes": {
-    "longestFaceS": 0.88,
-    "longestChestS": 0.88,
+    "longestFaceS": 0.54,
+    "longestChestS": 0.54,
     "framesInsideGeometry": 4,
     "maxPitchStepDeg": 1.01,
     "maxHeightStepM": 0.108,
@@ -244,8 +244,8 @@
     "minViewPitchDeg": -51.9
    },
    "after": {
-    "longestFaceS": 0,
-    "longestChestS": 0,
+    "longestFaceS": 0.1,
+    "longestChestS": 0.15,
     "framesInsideGeometry": 0,
     "maxPitchStepDeg": 0,
     "maxHeightStepM": 0,
@@ -258,8 +258,8 @@
     "minViewPitchDeg": -12
    },
    "perf": {
-    "avgMs": 0.126,
-    "p99Ms": 0.9
+    "avgMs": 0.116,
+    "p99Ms": 0.86
    }
   },
   "ok": true
@@ -282,7 +282,7 @@
   "clearAfterS": 0.4166666666666667,
   "endSeen": true,
   "insideFrames": 6,
-  "maxLensStepM": 0.24,
+  "maxLensStepM": 0.225,
   "ok": true
  },
  "Q3": {
