@@ -17,6 +17,8 @@ const route=leg.sailRoute();
 const tl=leg.sailBeats(route.length);
 const shore=leg.shoreWalkM();
 // b20 meadow-walk-fixes (Grok Bot, option a): M1 moved 4.9 m up the path so M1-M4 walks are uncut; M0→M1 chord 5.96 → 10.57 m (was ≤6.4)
+// Cap source: 505ceb63 M1, design 10.567 m + ~0.23 m tolerance (Grok Bot 2026-10-30; geometry change, chord = |SAIL_M0_LOCAL→SAIL_M1_LOCAL|).
+// TODO(b20 M0/M1 final): 场景设计部 is still moving M0/M1 — recompute this cap the same way (new design chord + ~0.23 m) and drop 10.8; it must not stay wide.
 assert(shore<=10.8,'shore walk '+shore);
 assert(tl.build05S<=30.5,'build05 '+tl.build05S);
 assert(tl.arrivalS<=12+1e-6,'arrival '+tl.arrivalS);
