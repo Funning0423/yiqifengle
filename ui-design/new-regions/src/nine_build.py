@@ -1,5 +1,11 @@
 import os,sys,shutil,subprocess; sys.path.insert(0,os.path.dirname(os.path.abspath(__file__))); from nine import *
-from build import lab,row as hrow
+from PIL import ImageFont
+def lab(img,txt,size=26):
+  f=ImageFont.truetype(SERIF_B,size,index=2); w,h=img.size; o=Image.new('RGBA',(w,h+size+20),(250,244,232,255)); o.alpha_composite(img,(0,size+20)); ImageDraw.Draw(o).text((w//2,10),txt,font=f,fill=(60,40,20),anchor='mt'); return o
+def hrow(imgs,gap=24):
+  H=max(i.height for i in imgs); o=Image.new('RGBA',(sum(i.width for i in imgs)+gap*(len(imgs)+1),H+2*gap),(250,244,232,255)); x=gap
+  for i in imgs: o.alpha_composite(i,(x,gap)); x+=i.width+gap
+  return o
 def save(img,name): img.convert('RGB').save(os.path.join(NOUT,name),optimize=True); print(name,img.size,flush=True)
 SIZES=[(320,568),(360,780),(375,667),(390,844),(402,874),(414,896),(430,932)]
 ims=[]
@@ -14,12 +20,6 @@ st1={'tide':'done','meadow':'progress','sky':'locked','lake':'far','coast':'far'
 p1={'tide':4,'meadow':2,'sky':0,'lake':0,'coast':0,'snow':0,'rail':0,'cloud':0,'spring':0}
 import nine; nine.FOCUS='meadow'; a=planC(K=3,prog=p1,st=st1)[0].out(1.5)
 nine.FOCUS='coast'; b=planC(K=3,pressed=5)[0].out(1.5)
-st3=dict(ST,coast='done',snow='done'); p3=dict(EX,coast=9,snow=6); nine.FOCUS='snow'; c=planC(K=3,prog=p3,st=st3)[0].out(1.5); nine.FOCUS='coast'
-save(hrow([lab(a,'早期：完成 / 进行中 / 未开启 / 远方',20),lab(b,'中期：「雪山山口」格按下（当帧底色变深）',20),lab(c,'后期：前 6 区完成，7–9 远方（条件待定）',20)],16),'states_C.png')
-e=[]
-for lay,t in (('one','单排 Ø28 间距 31'),('arc','大弧 Ø32'),('two','两排 5+4 Ø36（推荐）')):
-  e.append(lab(ending9(K=3,layout=lay).out(1.5),t+' · 390',20)); e.append(lab(ending9(320,568,K=3,layout=lay).out(1.5),'320×568',20))
-save(hrow(e,16),'ending9_options.png')
-save(ending9(K=4).out(2),'ending9_390.png'); save(ending9(320,568,K=4).out(2),'ending9_320x568.png')
-save(hrow([lab(ending9(K=1.5,t=t).out(1),f'{int(t*1000)} ms',16) for t in (0,0.15,0.3,0.5,0.75)],12),'ending9_keyframes.png')
+st3=dict(ST,coast='done',snow='done',rail='open',cloud='open',spring='locked'); p3=dict(EX,coast=9,snow=6); nine.FOCUS='snow'; c=planC(K=3,prog=p3,st=st3)[0].out(1.5); nine.FOCUS='coast'
+save(hrow([lab(a,'早期：完成 / 进行中 / 未开启 / 远方',20),lab(b,'中期：铁路/云海为灰章+条件，温泉谷为远方；雪山格按下',20),lab(c,'后期：铁路、云海可前往、温泉谷「铁路云海后」',20)],16),'states_C.png')
 print('minseg 320:',planC(320,568,K=1)[2],' 390:',planC(K=1)[2])

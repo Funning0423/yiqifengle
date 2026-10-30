@@ -9,7 +9,9 @@ R9=[dict(id='tide',name='潮汐小径',short='潮汐小径',n=4,col='#5FA8C8'),d
     dict(id='rail',name='秋日铁路',short='秋日铁路',n=6,col='#C9773A'),dict(id='cloud',name='黎明云海',short='黎明云海',n=8,col='#E8A0A8'),dict(id='spring',name='温泉谷',short='温泉谷',n=8,col='#6FB8A8')]
 # 示例：主线 12、湖畔 6 全通；海岸 3/9；雪山已开 0/6；铁路/云海/温泉谷 开启条件待定 → 远方
 EX={'tide':4,'meadow':4,'sky':4,'lake':6,'coast':3,'snow':0,'rail':0,'cloud':0,'spring':0}
-ST={'tide':'done','meadow':'done','sky':'done','lake':'done','coast':'progress','snow':'open','rail':'far','cloud':'far','spring':'far'}
+# 开启条件（Grok Bot 2026-10-29）：铁路=海岸 9 关全通；云海=雪山 6 关全通；温泉谷=铁路与云海都全通（终点）
+COND={'lake':'主线12后','coast':'主线12后','snow':'湖畔通关后','rail':'海岸通关后','cloud':'雪山通关后','spring':'铁路云海后','sky':'主线08后','meadow':'主线04后'}
+ST={'tide':'done','meadow':'done','sky':'done','lake':'done','coast':'progress','snow':'open','rail':'locked','cloud':'locked','spring':'far'}
 DATA_ALL=True  # 方案图按 9 区全部有数据画分段（最坏情况：55 关、9 段）
 def seal_of(rid,s): 
   p=art('reward_seal_'+rid) if s not in('far',) else None
@@ -92,7 +94,7 @@ def planC(W=390,H=844,K=3,prog=EX,st=None,pressed=None):
     sd=28 if compact else 32; img(cv,seal_of(r['id'],s),cx+tw/2,cy+(18 if compact else 21),sd,sd*128/115,gray=(s=='locked'),alpha=(0.8 if s=='far' else 1))
     l=cv.layer(); d=ImageDraw.Draw(l); ny=cy+th-(26 if compact else 30)
     cv.text(d,cx+tw/2,ny,r['short'] if s!='far' else '远方',12.5,hx(C['brown'] if s not in('far','locked') else C['brown2']),spacing=0.5)
-    t={'done':f"{r['n']}/{r['n']} ✓",'progress':f"{prog[r['id']]}/{r['n']}",'open':'可前往','locked':'未开启','far':'· · ·'}[s]
+    t={'done':f"{r['n']}/{r['n']} ✓",'progress':f"{prog[r['id']]}/{r['n']}",'open':'可前往','locked':COND.get(r['id'],'未开启'),'far':'· · ·'}[s]
     cv.text(d,cx+tw/2,ny+(14 if compact else 16),t,11,hx(C['teal'] if s in('progress','open') else (C['ink'] if s=='done' else C['brown2'])),bold=s in('progress','open'))
     if s=='open': d.ellipse([cv.P(cx+tw-14),cv.P(cy+6),cv.P(cx+tw-7),cv.P(cy+13)],fill=hx('#E2553A'))
     cv.comp(l)
