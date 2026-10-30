@@ -4,7 +4,7 @@
  *  (copied alongside, unmodified): total bytes of <build>/{assets,remote,subpackages}/<bundle>/ (first found).
  *  The data lives in the QF_GEN_PRELOAD_BYTES block of TransitionChain.ts (existing file: no new .meta).
  *    --measure <build> [--json f] [--md f]       table: committed vs built
- *    --write <build | table.json> [--source "label"]   regenerate the block (table.json = their {bundle,actual} rows)
+ *    --write <build | table.json> [--source "label"] [--measured-rev <rev>]   regenerate the block (+ preload-source-pins.json)
  *    --check <build> [--tol 0.02]                gate: exit 1 if any bundle is missing or |committed-built| > tol × built */
 const fs=require('fs'),path=require('path');
 const TS=process.env.QF_TRANSITION_CHAIN||path.join(__dirname,'../../creator-build-project/assets/scripts/region/TransitionChain.ts');
@@ -32,7 +32,9 @@ if(require.main===module){const a=process.argv.slice(2),opt=k=>{const i=a.indexO
   else{const m=measure(target,names);for(const k of names){if(!m[k]){console.log('FAIL MISSING '+k+' in '+target);process.exit(1);}bytes[k]=m[k].bytes;}}
   for(const k of names)if(bytes[k]==null){console.log('FAIL no size for '+k);process.exit(1);}
   const ordered={};for(const k of names)ordered[k]=bytes[k];
-  fs.writeFileSync(TS,rewrite(src,ordered,opt('--source')||('built '+path.resolve(target)+' '+new Date().toISOString())));console.log('WROTE PRELOAD_BYTES '+JSON.stringify(ordered));process.exit(0);}
+  fs.writeFileSync(TS,rewrite(src,ordered,opt('--source')||('built '+path.resolve(target)+' '+new Date().toISOString())));console.log('WROTE PRELOAD_BYTES '+JSON.stringify(ordered));
+  if(opt('--measured-rev')){const P=require('./preload-source-pins.cjs');P.write(require('child_process').execFileSync('git',['rev-parse',opt('--measured-rev')],{cwd:path.join(__dirname,'../..'),encoding:'utf8'}).trim(),opt('--source'));console.log('WROTE preload-source-pins.json (sources of '+opt('--measured-rev')+')');}
+  else console.log('NOTE: pass --measured-rev <rev the build was made from> to refresh preload-source-pins.json (the box gate fails TABLE_CHANGED until then)');process.exit(0);}
  const m=measure(target,names),r=check(blk.bytes,m,Number(opt('--tol')||TOL));
  const md='| bundle | committed B | built B | Δ | rel | where |\n|---|---:|---:|---:|---:|---|\n'+r.rows.map(x=>`| ${x.bundle} | ${x.committed} | ${x.built??'missing'} | ${x.delta??'—'} | ${x.rel??'—'} | ${x.where||''} |`).join('\n')+'\n';
  console.log(md);if(opt('--md'))fs.writeFileSync(opt('--md'),md);if(opt('--json'))fs.writeFileSync(opt('--json'),JSON.stringify({source:blk.source,rows:r.rows},null,1));

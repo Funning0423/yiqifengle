@@ -41,7 +41,7 @@ const {ccclass,property}=_decorator;
  * transparent (not ray-hit) and kept because it sits above the doorway. Others (cat, lamp props, mobile, plants,
  * blind cards) were never hit and are disabled on the island as before. Native visual check still required. */
 const DOORWAY_INTERIOR=new Set(['env_interior_shell','env_interior_props_merged','env_int_anim_window_breeze','env_interior_glass']);
-type Job={elapsed:number;seconds:number;tick:(t:number)=>void;resolve:()=>void;reject:(e:Error)=>void;off:()=>void};
+type Job={elapsed:number;seconds:number;tick:(t:number)=>void;resolve:()=>void;reject:(e:Error)=>void;off:()=>void;holdFr?:number};
 function resolvePath(root:Node,path:string):Node {
   let node:Node|null=root;for(const part of path.split('/'))node=node?.getChildByName(part)??null;
   if(!node&&!path.includes('/')){
@@ -439,7 +439,9 @@ export class WorldFlowComponent extends Component {
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).
       const toCameraPose=(pose:Pose):CameraPose=>fromLookAt(pose,(globalThis as any).__QF_BALLOON_LENS&&pose.fovVerticalDeg?pose.fovVerticalDeg:camera.fov);
       let placed:Pose|null=null,placedN=-1;
-      const setCamera=(pose:Pose)=>{if(pose===placed&&cameraWriteLog.writes===placedN)return/* onewriter: same stable pose re-placed, no write since */;this.noteCinematic();this.roomLook.reset();this.islandRail?.reset();if((globalThis as any).__QF_BALLOON_LENS){camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=0.3;if(!(camera.far>=2500))camera.far=2500;}if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);placed=pose;placedN=cameraWriteLog.writes;};
+      /** true when the live camera already sits on cp (≤1 mm, |dot|≥0.999999, ≤0.001° fov): nothing to write. */
+      const holds=(cp:CameraPose):boolean=>{const n=camera.node;if(!n||!n.isValid)return false;const w=n.worldPosition,q=n.worldRotation,r=cp.rotation;return (w.x-cp.position[0])**2+(w.y-cp.position[1])**2+(w.z-cp.position[2])**2<=1e-6&&Math.abs(q.x*r[0]+q.y*r[1]+q.z*r[2]+q.w*r[3])>=0.999999&&Math.abs(camera.fov-cp.fovVerticalDeg)<=1e-3;};
+      const setCamera=(pose:Pose)=>{if(pose===placed&&cameraWriteLog.writes===placedN)return/* onewriter: same stable pose re-placed, no write since */;this.noteCinematic();this.roomLook.reset();this.islandRail?.reset();if((globalThis as any).__QF_BALLOON_LENS){camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=0.3;if(!(camera.far>=2500))camera.far=2500;}const cp=toCameraPose(pose);if(holds(cp)){placed=pose;placedN=cameraWriteLog.writes;return/* fullN single writer: the camera already shows this stable pose (e.g. a walk track ended on it); a re-write would be a 2nd writer in the frame the enter-level push-in starts (Mac dedf8853 MULTI=2) */;}if(!applyCameraPose(camera,cp,'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);placed=pose;placedN=cameraWriteLog.writes;};
       let alive=true;
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
@@ -476,7 +478,7 @@ export class WorldFlowComponent extends Component {
           let path:Pose[]|null=null;try{path=this.enterLevelLook();}catch(error){console.warn('enter-level shot skipped',String(error));}
           if(!path)return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});
           const track=createCameraTrack(camera,path,'world.enterLevel',{easeIn:0.14,easeOut:0.4});
-          return this.run(ENTER_LEVEL_SHOT_S,token,p=>{this.noteCinematic();camTag('enter-level');track.tick(p);});
+          return this.run(ENTER_LEVEL_SHOT_S,token,p=>{this.noteCinematic();camTag('enter-level');track.tick(p);},true);
         },
         animateCamera:(path,seconds,t,options,progress,onSample)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
@@ -488,10 +490,12 @@ export class WorldFlowComponent extends Component {
       };
     } catch(e) {this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.room360?.dispose();this.room360=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;model.destroy();this.ownedModel=null;throw e;}
   }
-  private run(seconds:number,token:Cancellation,tick:(p:number)=>void):Promise<void> {
+  /** holdUntilRendered (enter-level push-in): the start sample is p=0 and the clock only starts on the first update of a LATER
+   *  render frame, so a stall between start and the first draw (Mac dedf8853: ~0.6 s, fr 817) never advances the shot. */
+  private run(seconds:number,token:Cancellation,tick:(p:number)=>void,holdUntilRendered=false):Promise<void> {
     token.check();if(!Number.isFinite(seconds)||seconds<=0){tick(1);return Promise.resolve();}
     return new Promise<void>((resolve,reject)=>{
-      const job:Job={elapsed:0,seconds,tick,resolve,reject,off:()=>{}};
+      const job:Job={elapsed:0,seconds,tick,resolve,reject,off:()=>{}};if(holdUntilRendered)job.holdFr=director.getTotalFrames();
       job.off=token.onCancel(()=>{this.jobs.delete(job);reject(new Cancelled());});this.jobs.add(job);try{tick(0);}catch(e){this.jobs.delete(job);job.off();reject(e instanceof Error?e:Error(String(e)));}
     });
   }
@@ -532,7 +536,7 @@ export class WorldFlowComponent extends Component {
     if(this.nightOverride===null){this.dayNightClock+=frameDt;if(this.dayNightClock>=60){this.dayNightClock=0;const next:DayNightMode=localNight(new Date())?'night':'day';if(next!==this.dayNightMode)this.setDayNight(next,false);}}
     try {this.flow.advance(frameDt);}catch(e){this.safetyFailure=String(e);this.flow.fault(this.safetyFailure);throw e;}
     for(const j of Array.from(this.jobs)) {
-      if(!this.jobs.has(j))continue;j.elapsed+=frameDt;
+      if(!this.jobs.has(j))continue;if(j.holdFr!==undefined){if(director.getTotalFrames()===j.holdFr)continue/* no frame drawn since p=0 */;j.holdFr=undefined;}j.elapsed+=frameDt;
       try {j.tick(Math.min(1,j.elapsed/j.seconds));if(j.elapsed>=j.seconds){this.jobs.delete(j);j.off();j.resolve();}}
       catch(e){this.jobs.delete(j);j.off();j.reject(e instanceof Error?e:Error(String(e)));}
     }

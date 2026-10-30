@@ -288,7 +288,7 @@ export class WorldFlow {
       this.world.setLayers(visible?ISLAND:NONE);this.world.setRoomLightWeight?.(0);this.world.setExteriorKey?.(0);
       this.journey.restore(this.character!,this.world,visible);this.world.assertStaticWorld();return;
     }
-    this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
+    (globalThis as any).__qfCamTag?.t('WorldFlowCore:restore')/* camTrace writer name (CamTraceLog; no-op when off); pure core: no import */;this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
     this.world.setRoomLightWeight?.(this.stable==='home'?1:0);
