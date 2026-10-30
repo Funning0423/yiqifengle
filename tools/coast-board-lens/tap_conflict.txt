@@ -1,0 +1,16 @@
+HUD-fit
+390x844 23.309 {'far_short_pt': 36.8, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+414x896 23.31 {'far_short_pt': 38.8, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+360x780 23.334 {'far_short_pt': 34.0, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+375x667 19.427 {'far_short_pt': 34.6, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+320x568 23.55 {'far_short_pt': 24.5, 'wrong_taps': 0, 'taps': 98000, 'pass': False}
+390x520 30.675 {'far_short_pt': 17.4, 'wrong_taps': 1173, 'taps': 98000, 'pass': False}
+768x1024 18.1335 {'far_short_pt': 44.0, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+margin-only
+390x844 23.306 {'far_short_pt': 36.8, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+414x896 23.307 {'far_short_pt': 38.8, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+360x780 23.332 {'far_short_pt': 34.0, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+375x667 19.424 {'far_short_pt': 34.6, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+320x568 19.387 {'far_short_pt': 29.5, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+390x520 18.1335 {'far_short_pt': 28.8, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
+768x1024 18.1335 {'far_short_pt': 44.0, 'wrong_taps': 0, 'taps': 98000, 'pass': True}
