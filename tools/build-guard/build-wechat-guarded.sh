@@ -20,6 +20,9 @@ P="$REPO/creator-build-project"
 MIN_BYTES=${MIN_BYTES:-15000000}; MAX_TRIES=${MAX_TRIES:-3}; KEEP_CACHE=${KEEP_CACHE:-0}
 LOG_DIR=${LOG_DIR:-$HERE/logs}; ERR_TEXT='当前初始场景不存在'
 TARGET=${1:-wechat}
+# Preload sizes (fg-preload-sizes): every good build is measured against the committed PRELOAD_BYTES block in TransitionChain.ts
+# (tools/preload-size/preload-bytes.cjs --check, tolerance PRELOAD_TOL=0.02 = 2 %). Drift fails the build and prints the --write command.
+PRELOAD_GATE=${PRELOAD_GATE:-1}; PRELOAD_TOL=${PRELOAD_TOL:-0.02}
 NODE=${NODE:-node}; STRIP_PROBES=${STRIP_PROBES:-1}; QF_STAGE_ROOT=${QF_STAGE_ROOT:-$HOME/wt/qf-stage}
 MAX_TOTAL_BYTES=${MAX_TOTAL_BYTES:-24641536}; MAX_MAIN_BYTES=${MAX_MAIN_BYTES:-4000000}
 die(){ echo; echo "################################################################"; echo "BUILD GUARD FAILED: $*"; echo "################################################################"; exit 2; }
@@ -42,6 +45,7 @@ restore_meta(){
   git ls-files --others --exclude-standard -z -- '*.meta' | xargs -0 rm -f 2>/dev/null
   true
 }
+if [ "$PRELOAD_GATE" = 1 ]; then "$NODE" -e 1 2>/dev/null || die "NODE ($NODE) not runnable; the preload-bytes gate needs node (PRELOAD_GATE=0 only for a throwaway build)"; fi
 if [ "${SKIP_CREATOR_CHECK:-0}" != 1 ] && pgrep -f "MacOS/CocosCreator " >/dev/null 2>&1; then die "another Cocos Creator is running; close it first"; fi
 if [ -n "$(dirty)" ]; then dirty | head -20; die "git tree is not clean before building (commit/stash first)"; fi
 if [ "$STRIP_PROBES" = 1 ] && [ "$TARGET" != web ]; then
@@ -80,6 +84,10 @@ build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
       if [ -d "$dest/subpackages" ]; then
         echo "   ROOT $(find "$dest" -type f -not -path '*/subpackages/*' -exec wc -c {} + | awk '$2!="total"{s+=$1}END{print s+0}')"
         for d in "$dest"/subpackages/*; do [ -d "$d" ] && echo "   SUB $(basename "$d") $(bytes "$d")"; done
+      fi
+      if [ "$PRELOAD_GATE" = 1 ]; then
+        "$NODE" "$REPO/tools/preload-size/preload-bytes.cjs" --check "$dest" --tol "$PRELOAD_TOL" --md "$LOG_DIR/preload-bytes.$out.$GUARD_SHORT.md" --json "$LOG_DIR/preload-bytes.$out.$GUARD_SHORT.json" \
+          || die "[$out] PRELOAD_BYTES differ from the built bundles by > $PRELOAD_TOL (table: $LOG_DIR/preload-bytes.$out.$GUARD_SHORT.md)"
       fi
       if [ "$strip" = 1 ]; then
         "$NODE" "$HERE/release-gates.cjs" --probe-free "$dest" || die "[$out] RELEASE GATE: probe code in release output"

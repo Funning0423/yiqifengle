@@ -1,0 +1,104 @@
+[
+ {
+  "target": "meadow",
+  "stage": "mainline-04",
+  "bundle": "region_meadow",
+  "planBytes": 5500847,
+  "prefab": "",
+  "where": "assets/region_meadow",
+  "actual": 3292010,
+  "gzip": 3051116,
+  "files": 60,
+  "parts": {
+   "config+index": 5079,
+   "import": 125707,
+   "native": 3161224
+  },
+  "delta": -2208837
+ },
+ {
+  "target": "meadow",
+  "stage": "mainline-04",
+  "bundle": "transport_sail",
+  "planBytes": 1011317,
+  "prefab": "",
+  "where": "assets/transport_sail",
+  "actual": 796612,
+  "gzip": 667159,
+  "files": 75,
+  "parts": {
+   "config+index": 7973,
+   "import": 54569,
+   "native": 734070
+  },
+  "delta": -214705
+ },
+ {
+  "target": "skycity",
+  "stage": "mainline-08",
+  "bundle": "region_skycity",
+  "planBytes": 1961205,
+  "prefab": "",
+  "where": "assets/region_skycity",
+  "actual": 3979071,
+  "gzip": 3139451,
+  "files": 88,
+  "parts": {
+   "config+index": 7544,
+   "import": 592397,
+   "native": 3379130
+  },
+  "delta": 2017866
+ },
+ {
+  "target": "skycity",
+  "stage": "mainline-08",
+  "bundle": "region_transit_balloon",
+  "planBytes": 1036082,
+  "prefab": "transport_balloon",
+  "where": "assets/region_transit_balloon",
+  "actual": 531712,
+  "gzip": 447693,
+  "files": 34,
+  "parts": {
+   "config+index": 4363,
+   "import": 104177,
+   "native": 423172
+  },
+  "delta": -504370
+ },
+ {
+  "target": "lakeside",
+  "stage": "mainline-12",
+  "bundle": "region_lakeside",
+  "planBytes": 2030414,
+  "prefab": "",
+  "where": "assets/region_lakeside",
+  "actual": 1168515,
+  "gzip": 885821,
+  "files": 121,
+  "parts": {
+   "config+index": 19301,
+   "import": 339722,
+   "native": 809492
+  },
+  "delta": -861899
+ },
+ {
+  "target": "lakeside",
+  "stage": "mainline-12",
+  "bundle": "region_transit_balloon",
+  "planBytes": 1036082,
+  "prefab": "transport_balloon",
+  "where": "assets/region_transit_balloon",
+  "actual": 531712,
+  "gzip": 447693,
+  "files": 34,
+  "parts": {
+   "config+index": 4363,
+   "import": 104177,
+   "native": 423172
+  },
+  "delta": -504370
+ }
+]

@@ -2,7 +2,7 @@
 # Dry-run self-test for build-wechat-guarded.sh with a fake Creator (no Cocos needed). Runs on Linux and macOS bash 3.2.
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd); SCR=${QF_SCRATCH_ROOT:-$HOME/wt}; mkdir -p "$SCR"; T=$(mktemp -d "$SCR/qf-guard-test.XXXXXX"); trap 'rm -rf "$T"' EXIT
-export QF_STAGE_ROOT=$T/stage NODE=${NODE:-node}
+export QF_STAGE_ROOT=$T/stage PRELOAD_GATE=0 NODE=${NODE:-node}   # cases 1-10: build mechanics only; preload gate in cases 11-12
 fail(){ echo "SELFTEST FAIL: $*"; exit 1; }
 mkrepo(){ R=$T/repo$1; mkdir -p "$R/creator-build-project/assets/scripts" "$R/tools/build-guard"
   cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$R/tools/build-guard/"
@@ -17,6 +17,7 @@ P=""; C=""; while [ $# -gt 0 ]; do case "$1" in --project) P=$2; shift;; --build
 n=$(cat "$PLAN.n" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "$PLAN.n"; what=$(sed -n "${n}p" "$PLAN")
 out=$(sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$C" | head -1)
 mkdir -p "$P/build/$out/subpackages/main" "$P/library" "$P/temp"; echo cache > "$P/library/x"
+if [ -n "${FAKE_BUNDLES:-}" ]; then "$NODE" -e 'const [b,o,s]=process.argv.slice(1),fs=require("fs");const blk=require(b+"/tools/preload-size/preload-bytes.cjs").readBlock(fs.readFileSync(b+"/creator-build-project/assets/scripts/region/TransitionChain.ts","utf8"));for(const [k,v] of Object.entries(blk.bytes)){fs.mkdirSync(o+"/subpackages/"+k,{recursive:true});fs.writeFileSync(o+"/subpackages/"+k+"/n.bin",Buffer.alloc(Math.round(v*s)));}' "$(dirname "$P")" "$P/build/$out" "$FAKE_BUNDLES"; fi
 if [ "$what" = good ]; then { cat "$P"/assets/scripts/*.ts; head -c 3000000 /dev/zero | tr '\0' ' '; } | head -c 3000000 > "$P/build/$out/game.js"; head -c 13000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
 else head -c 2300000 /dev/zero > "$P/build/$out/game.bin"; echo "Error: 当前初始场景不存在或在 Bundle 中，无法设置为初始场景。"
   for f in "$P"/assets/scripts/*.meta; do echo '{"ver":"0.0.1","importer":"*"}' > "$f"; done; echo '{}' > "$P/assets/scripts/new.ts.meta"; exit 36; fi
@@ -60,4 +61,11 @@ R=$(mkrepo 8); c=$(MAX_MAIN_BYTES=2999999 run "$R" wechat 8 "good"); [ "$c" = 2 
 R=$(mkrepo 9); c=$(MAX_TOTAL_BYTES=15999999 run "$R" wechat 9 "good"); [ "$c" = 2 ] || fail "case9 exit $c"; grep -q "FAIL SIZE TOTAL" "$T/out9" || fail "case9 total msg"
 # 10) unbalanced marker -> release refuses before building
 R=$(mkrepo 10); printf '/*QF_PROBE_BEGIN*/x\n' >> "$R/creator-build-project/assets/scripts/probe.ts"; (cd "$R" && git -c user.email=t@t -c user.name=t commit -qam bad); c=$(run "$R" wechat 10 "good"); [ "$c" = 2 ] || fail "case10 exit $c"; grep -q "unclosed" "$T/out10" || fail "case10 msg"
-echo "SELFTEST PASS (10 cases + provenance)"
+# 11) preload gate on (STRIP_PROBES=0: size gate covered by 8/9): built bundles == committed PRELOAD_BYTES -> pass, table written; 12) 3 % drift -> loud fail
+mkpre(){ R=$(mkrepo $1); mkdir -p "$R/tools/preload-size" "$R/creator-build-project/assets/scripts/region"; cp "$HERE/../preload-size/preload-bytes.cjs" "$R/tools/preload-size/"
+  cp "$HERE/../../creator-build-project/assets/scripts/region/TransitionChain.ts" "$R/creator-build-project/assets/scripts/region/"; (cd "$R" && git add -A && git -c user.email=t@t -c user.name=t commit -qm pre); echo "$R"; }
+R=$(mkpre 11); c=$(STRIP_PROBES=0 PRELOAD_GATE=1 FAKE_BUNDLES=1 run "$R" wechat 11 "good"); cat "$T/out11"; [ "$c" = 0 ] || fail "case11 exit $c"
+grep -q "PASS preload-bytes gate 5 bundles" "$T/out11" || fail "case11 gate"; ls "$R"/tools/build-guard/logs/preload-bytes.wechat-release.*.md >/dev/null || fail "case11 table"
+R=$(mkpre 12); c=$(STRIP_PROBES=0 PRELOAD_GATE=1 FAKE_BUNDLES=1.03 run "$R" wechat 12 "good"); [ "$c" = 2 ] || fail "case12 exit $c"
+grep -q "FAIL DRIFT region_skycity" "$T/out12" && grep -q "PRELOAD_BYTES differ" "$T/out12" || fail "case12 msg"
+echo "SELFTEST PASS (12 cases + provenance)"
