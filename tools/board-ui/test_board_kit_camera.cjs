@@ -47,6 +47,15 @@ for(const k of SC){const [w,h]=k.split('x').map(Number),fx=F.camera_per_aspect.s
 {const b=B.projectBoard(kit,320,568,{distanceM:15.97});const sh={...b,rim:b.rim.map(p=>({...p,x:p.x+6}))},e=B.edgeReport(sh,{variant:'x',pending:false,top:0,bottom:568});assert.ok(e.problems.some(p=>/asymmetric/.test(p)),'self-check: asymmetric bleed not detected');}
 {const b=B.projectBoard(kit,320,568,{distanceM:12.5}),e=B.edgeReport(b,{variant:'x',pending:false,top:0,bottom:568});assert.ok(e.cutOnCorner,'self-check: corner cut not detected');}
 console.log(`ok   finalAspects = [${cam.finalAspects.join(',')}]; 7 screens: pose = fixture (运镜bot final r2) (quat/FOV identical, distance only), look-at offset 0 = fixture, offset moves along the ground only; 49 tiles world exact, projection worst ${worst.toFixed(3)} pt`);
+// Grok Bot ruling (A): the 28 pt rule reads 运镜bot's tapShortSide_pt (short side of the far-row nearest-centre tap area) ≥ 28 and
+// wrong_taps = 0; cellProjectedHeight_pt is informational. Our own far-row effective short side must agree (≤ 0.15 pt).
+function tapGate(fixture){const out=[];for(const k of Object.keys(fixture.camera_per_aspect.screens)){const sc=fixture.camera_per_aspect.screens[k],v=sc.tapShortSide_pt;
+  if(typeof v!=='number'||!Number.isFinite(v)){out.push(k+': tapShortSide_pt missing');continue;}if(v<28)out.push(k+': tapShortSide_pt '+v+' < 28');if(sc.wrong_taps!==0)out.push(k+': wrong_taps '+sc.wrong_taps);
+  const [w,h]=k.split('x').map(Number),mine=Math.min(...E.farRow(B,B.projectBoard(kit,w,h)).map(f=>f.short));if(Math.abs(mine-v)>0.15)out.push(k+': kit far-row short '+mine.toFixed(2)+' ≠ tapShortSide_pt '+v);}return out;}
+assert.match(F.camera_per_aspect.tap_rule,/tapShortSide_pt/);
+{const bad=JSON.parse(JSON.stringify(F));delete bad.camera_per_aspect.screens['390x520'].tapShortSide_pt;assert.ok(tapGate(bad).some(x=>/390x520: tapShortSide_pt missing/.test(x)),'self-check: missing tapShortSide_pt not detected');}
+{const tg=tapGate(F);for(const x of tg)fail.push('tap: '+x);
+ console.log('ok   tapShortSide_pt (ruling A) ≥ 28, wrong_taps 0, = kit far-row short side: '+Object.entries(F.camera_per_aspect.screens).map(([k,v])=>k+' '+v.tapShortSide_pt+' (cell h '+v.cellProjectedHeight_pt+', info)').join(' · ')+'; self-check: missing field FAILs');}
 console.log('ok   BoardKit.ts / BoardProjection.ts write no camera (setEnterLevelEnd provider only)');
 console.log('ok   self-checks: tiles at the edge, asymmetric bleed, corner cut each detected');
 for(const r of rows)console.log('     EDGE '+r);
