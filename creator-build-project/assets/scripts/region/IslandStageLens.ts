@@ -5,7 +5,10 @@
  *  (smoothed) position, ending exactly on the follow pose at I6 before she boards. Limits (Grok Bot, per real dt, 7 screens):
  *  yaw/pitch <= 90 deg/s, angular accel p99 <= 200 deg/s^2, <= 8 m/s, <= 0.5 m/frame, fov <= 1.5 deg/frame; gate: island-stage04-lens. */
 import type {Pose,Vec} from '../world-r1/WorldFlowCore';
-export const ISLAND_STAGE_LENS=Object.freeze({preS:0.4,rampS:1.0,endS:0.2,arcM:8,arcY:4.5,k1:0.8,k2:1.0,smooth:4,walkMps:1.2,panInS:0.6,herLookM:1.1});
+export const ISLAND_STAGE_LENS=Object.freeze({preS:0.4,rampS:1.0,endS:0.2,arcM:8,arcY:4.5,k1:0.8,k2:1.0,smooth:4,walkMps:1.2,panInS:0.6,herLookM:1.1,
+ /* exit pose (b20 7eecdca8, skinned palms): 'hero' = on the island v2.2 hero axis, sea side of I6, she walks toward the lens with the
+    lighthouse behind her; >= 3 m from all (skinned) geometry. The old follow@I6 sat 1.62 m (1.38 m after the palm move) from palm_young_01. */
+ end:'hero' as 'hero'|'follow',heroAzDeg:-15,heroDistM:6,heroUpM:3.2,heroAimM:1.2,heroBowM:8});
 type V=[number,number,number];
 const sub=(a:readonly number[],b:readonly number[]):V=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
 const unit=(v:readonly number[]):V=>{const n=Math.hypot(v[0],v[1],v[2])||1;return [v[0]/n,v[1]/n,v[2]/n];};
@@ -17,17 +20,21 @@ function along(path:readonly Vec[],c:readonly number[],d:number):V{const L=c[c.l
 function herAt(path:readonly Vec[],c:readonly number[],t:number):V{const v=ISLAND_STAGE_LENS.walkMps,o:V=[0,0,0];let ws=0;for(let k=-10;k<=10;k++){const w=1-Math.abs(k)/11,q=along(path,c,(t+k*0.06)*v);o[0]+=q[0]*w;o[1]+=q[1]*w;o[2]+=q[2]*w;ws+=w;}return [o[0]/ws,o[1]/ws+ISLAND_STAGE_LENS.herLookM,o[2]/ws];}
 /** Her heading at the walk end (radians, atan2(dx,dz)), averaged over the last 1.2 m. */
 export function endHeading(path:readonly Vec[]):number{const c=cum(path),L=c[c.length-1],a=along(path,c,L-1.2),b=along(path,c,L);return Math.atan2(b[0]-a[0],b[2]-a[2]);}
+/** The hero-axis exit pose for a walk ending at C (fov kept from the follow pose). */
+export function heroEnd(walk:readonly Vec[],fov=48):Pose{const K=ISLAND_STAGE_LENS,C=walk[walk.length-1],a=K.heroAzDeg*Math.PI/180;
+ return {position:[C[0]+K.heroDistM*Math.sin(a),C[1]+K.heroUpM,C[2]+K.heroDistM*Math.cos(a)] as Vec,target:[C[0],C[1]+K.heroAimM,C[2]] as Vec,fovVerticalDeg:fov};}
 export type StageLens={seconds:number;preS:number;at:(t:number)=>Pose;end:Pose};
 /** DEPARTURE. from = live lens on the reveal frame; walk = her planned walk (world); follow = the follow pose at the walk end. t=0 is the
  *  reveal; she starts walking at preS; the lens lands on follow at preS+walkS-endS and holds. */
-export function islandDepartLens(from:Pose,walk:readonly Vec[],follow:Pose):StageLens{
- const K=ISLAND_STAGE_LENS,c=cum(walk),walkS=c[c.length-1]/K.walkMps,W=K.preS+walkS-K.endS,C=walk[walk.length-1],R=K.arcM,P=from.position;
+export function islandDepartLens(from:Pose,walk:readonly Vec[],follow0:Pose):StageLens{
+ const K=ISLAND_STAGE_LENS,hero=K.end==='hero',follow=hero?heroEnd(walk,follow0.fovVerticalDeg??48):follow0,c=cum(walk),walkS=c[c.length-1]/K.walkMps,W=K.preS+walkS-K.endS,C=walk[walk.length-1],R=K.arcM,P=from.position;
  const az=(p:readonly number[])=>Math.atan2(p[0]-C[0],p[2]-C[2]);const D=Math.hypot(P[0]-C[0],P[2]-C[2]);
  let a0=az(P)+(D>R?Math.acos(R/D):0),a1=az(follow.position);while(a1<a0)a1+=2*Math.PI;
  const Wa:V=[C[0]+R*Math.sin(a0),K.arcY,C[2]+R*Math.cos(a0)];let pts:V[]=[];
- for(let i=0;i<=30;i++){const u=i/30;pts.push([P[0]+(Wa[0]-P[0])*u,P[1]+(Wa[1]-P[1])*u,P[2]+(Wa[2]-P[2])*u]);}
+ if(hero){const Q=follow.position,lx=-(Q[2]-P[2]),lz=Q[0]-P[0],ln=Math.hypot(lx,lz)||1;for(let i=0;i<=60;i++){const u=i/60,b=K.heroBowM*Math.sin(Math.PI*u)/ln;pts.push([P[0]+(Q[0]-P[0])*u+lx*b,P[1]+(Q[1]-P[1])*u,P[2]+(Q[2]-P[2])*u+lz*b]);}}
+ else{for(let i=0;i<=30;i++){const u=i/30;pts.push([P[0]+(Wa[0]-P[0])*u,P[1]+(Wa[1]-P[1])*u,P[2]+(Wa[2]-P[2])*u]);}
  const rE=Math.hypot(follow.position[0]-C[0],follow.position[2]-C[2]);
- for(let i=1;i<=60;i++){const u=i/60,a=a0+(a1-a0)*u,r=R+(rE-R)*mj(u);pts.push([C[0]+r*Math.sin(a),K.arcY+(follow.position[1]-K.arcY)*mj(u),C[2]+r*Math.cos(a)]);}
+ for(let i=1;i<=60;i++){const u=i/60,a=a0+(a1-a0)*u,r=R+(rE-R)*mj(u);pts.push([C[0]+r*Math.sin(a),K.arcY+(follow.position[1]-K.arcY)*mj(u),C[2]+r*Math.cos(a)]);}}
  for(let k=0;k<K.smooth;k++){const q:V[]=[pts[0]];for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1];q.push([.75*a[0]+.25*b[0],.75*a[1]+.25*b[1],.75*a[2]+.25*b[2]],[.25*a[0]+.75*b[0],.25*a[1]+.75*b[1],.25*a[2]+.75*b[2]]);}q.push(pts[pts.length-1]);pts=q;}
  pts[pts.length-1]=[follow.position[0],follow.position[1],follow.position[2]];
  const pc=cum(pts),len=pc[pc.length-1],RA=K.rampS,v=1/(W-RA);

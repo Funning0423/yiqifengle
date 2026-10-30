@@ -8,6 +8,13 @@
 //   capsule never over her face (entry: face/chest + margin reported only, see below), first write = the live lens, departure ends on the follow pose at I6, reveal→boarding <= 8 s.
 // FAILs on 96dfbd33 (legacy blend: 46-60 m in 0.6 s). Writes reports/island-stage04-lens.json (per-frame rows).
 const fs=require('fs'),path=require('path');const J=require('./journey-scene.cjs');const {H,S}=J;
+// Skinned palms: lib-glb / the node bake ignore skins, so the room palms sit ~3 m off. Swap in rest-pose skinned triangles
+// (occlusion/skin-island-palms.py, sha-pinned). PALM_MOVE=1 applies 场景设计部's env_prop_palm_young_01 shift (-0.7,0,-0.7).
+const SK=JSON.parse(require('zlib').gunzipSync(fs.readFileSync(__dirname+'/occlusion/island-palms-skinned.json.gz')));
+{const g=fs.readFileSync(J.B?J.B+SK.glb:path.join(__dirname,'../../creator-build-project/assets/bundles/',SK.glb));require('assert').equal(require('crypto').createHash('sha256').update(g).digest('hex'),SK.sha256,'room glb changed: rerun skin-island-palms.py');}
+const PM=process.env.PALM_MOVE==='1'?[-0.7,0,-0.7]:[0,0,0];
+for(const o of J.island){const t=SK.objects[o.name];if(!t)continue;const mv=o.name==='env_prop_palm_young_01'?PM:[0,0,0];o.tris=Float64Array.from(t,(x,i)=>x+mv[i%3]);o.bb=undefined;}
+
 const E=H.load(S+'region/ExploreCameraCore.ts'),NW=H.load(S+'region/NodeWalker.ts'),LS=H.load(S+'region/LensSmooth.ts'),F=H.load(S+'region/SkyFinaleShot.ts');
 const RN=fs.readFileSync(S+'world-r2/RegionNodeStage.ts','utf8');
 const wired=/islandDepartLens\(board,isl,/.test(RN)&&/islandEntryPan\(board,isl\)/.test(RN)&&/\(this\.region==='skycity'\|\|this\.region==='island'\)&&this\.skyRail/.test(RN);
@@ -21,17 +28,17 @@ const unit=v=>{const n=Math.hypot(...v);return v.map(x=>x/n);};const ya=p=>{cons
 const lu=E.followLookUp('island',99),walk=(a,b)=>{const pl=NW.planWalk('island',a,b);return {pl,path:pl.segments.flatMap((s,i)=>i?s.path.slice(1):s.path)};};
 // push-in end exactly as WorldFlowComponent.enterLevelLook from the island lens (reach 40, step 2.6, fov-6)
 const ci=J.Cam.islandPoseEntry(),fw=unit(ci.target.map((x,i)=>x-ci.position[i]));
-const P0={position:ci.position.map((x,i)=>x+fw[i]*2.6),target:ci.position.map((x,i)=>x+fw[i]*40),fovVerticalDeg:ci.fovVerticalDeg-6};
+const P0={position:process.env.PUSHIN==='T2'?[-8.447,14.736,46.405]:ci.position.map((x,i)=>x+fw[i]*2.6),target:ci.position.map((x,i)=>x+fw[i]*40),fovVerticalDeg:ci.fovVerticalDeg-6};
 const board={position:ci.position.slice(),target:ci.target.slice(),fovVerticalDeg:ci.fovVerticalDeg};
 function shot(kind,w,h){ // returns {at(t)->pose, her(t), W (settle), total}
  const dep=kind==='departure',{pl,path:p}=dep?walk('I4','I6'):walk('I3','I4'),L=NW.pathLength(p),from=dep?P0:board;
  if(IL&&pl.segments.length===1){const end=E.followPose(p[p.length-1],IL.endHeading(p),w,h,lu);
   const l=dep?IL.islandDepartLens(from,p,end):IL.islandEntryPan(from,p);const pre=l.preS;
-  return {at:l.at,her:t=>NW.pointAlong(p,Math.max(0,Math.min(L,(t-pre)*1.2))),W:l.seconds,total:l.seconds,end:dep?end:null,from};}
+  return {at:l.at,her:t=>NW.pointAlong(p,Math.max(0,Math.min(L,(t-pre)*1.2))),W:l.seconds,total:l.seconds,end:dep?l.end:null,from};}
  // legacy (96dfbd33): blend 0.6 s onto the follow pose at her start (yaw 0), then the held/follow lens for the visible walk(s)
  const B=E.BLEND_S.boardToFollow,held=E.followPose(p[0],0,w,h,lu),vis=NW.visibleSeconds(pl),fade=pl.fades?0.52:0;
  return {at:t=>t<B?E.blendPose(from,held,t,B):held,her:t=>NW.pointAlong(p,Math.max(0,Math.min(L,(t-B)*1.2))),W:B,total:B+vis+fade,end:null,from};}
-let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};const report={wired,rows:{},summary:{}};
+let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};const report={wired,skinned:true,palmMove:PM,pushIn:process.env.PUSHIN||'T1',rows:{},summary:{},blockers:{}};const id0=k=>k;
 for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps of [60,30]){
  const s=shot(kind,w,h),dt=1/fps,Tend=s.W+1;let prev=null,pr=null,acc=[],mx={yaw:0,pitch:0,v:0,step:0,fov:0},minG=99,minS=99,minM=9,hid=0,cap=0,rows=[];
  for(let k=0;k*dt<=Tend+1e-9;k++){const t=k*dt,p=s.at(t),her=s.her(t);
@@ -40,7 +47,7 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
    if(pr)acc.push(Math.hypot(yr-pr[0],qr-pr[1])/dt);pr=[yr,qr];if(fps===60&&w===390)rows.push({t:+t.toFixed(3),stepM:+st.toFixed(3),ms:+(st/dt).toFixed(2),yawDegS:+yr.toFixed(1),pitchDegS:+qr.toFixed(1),fov:+p.fovVerticalDeg.toFixed(2)});}
   if(fps===30){const g=gh(p.position);if(g!==null)minG=Math.min(minG,g);minS=Math.min(minS,J.clearance(p.position,solids,3)[0]);
    minM=Math.min(minM,LS.herMargin(p.position,p.target,p.fovVerticalDeg,her,[[w,h]]));const face=[her[0],her[1]+1.38,her[2]],chest=[her[0],her[1]+1.05,her[2]];
-   if(J.blockers(occ,p.position,face).length||J.blockers(occ,p.position,chest).length)hid+=dt;const v=F.ndc(p.position,p.target,p.fovVerticalDeg,w,h,face);if(v){const px=(v[0]+1)/2*w,py=(1-v[1])/2*h;if(px>=w-98&&px<=w&&py>=0&&py<=92)cap++;}}
+   {const bl=[...J.blockers(occ,p.position,face),...J.blockers(occ,p.position,chest)];if(bl.length){hid+=dt;if(w===390){for(const n of new Set(bl.map(b=>b.name||b)))(report.blockers[id0(kind)]??={})[n]=+(((report.blockers[id0(kind)]||{})[n]||0)+dt).toFixed(3);}}}const v=F.ndc(p.position,p.target,p.fovVerticalDeg,w,h,face);if(v){const px=(v[0]+1)/2*w,py=(1-v[1])/2*h;if(px>=w-98&&px<=w&&py>=0&&py<=92)cap++;}}
   prev=p;}
  acc.sort((a,b)=>a-b);const p99=acc.length?acc[Math.floor(acc.length*0.99)]:0,id=`${kind} ${w}x${h} ${fps}fps`;
  const first=Math.hypot(...s.at(0).position.map((x,i)=>x-s.from.position[i]));
@@ -49,7 +56,7 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
  if(fps===30){ok(minG>=LIM.ground,`${id} ground ${minG.toFixed(2)}`);ok(minS>=LIM.solid,`${id} solid ${minS.toFixed(2)}`);
   /* entry framing (face/chest, margin) is REPORTED, not gated: open item (palm_young_01 / beach_palm_short on the 50 m island-lens sight line, I3 starts outside the board lens) */
   if(kind==='departure'){ok(hid<=LIM.hidden,`${id} face/chest hidden ${hid.toFixed(2)} s`);ok(minM>=LIM.margin,`${id} margin ${minM.toFixed(3)}`);}ok(cap===0,`${id} capsule ${cap}`);
-  if(kind==='departure'){ok(s.total<=LIM.total,`${id} reveal→boarding ${s.total.toFixed(2)} s`);if(s.end){const e=s.at(s.W);ok(Math.hypot(...e.position.map((x,i)=>x-s.end.position[i]))<1e-6,`${id} end != follow@I6`);}}}
+  if(kind==='departure'){ok(s.total<=LIM.total,`${id} reveal→boarding ${s.total.toFixed(2)} s`);if(s.end){const e=s.at(s.W);ok(Math.hypot(...e.position.map((x,i)=>x-s.end.position[i]))<1e-6,`${id} end != follow@I6`);if(fps===30){const cl=J.clearance(s.end.position,solids,6)[0],g=gh(s.end.position);(report.endPose??={})[id]={clearM:+cl.toFixed(2),pos:s.end.position.map(x=>+x.toFixed(3))};(report.endPose[id]).groundM=g===null?null:+g.toFixed(2);ok(cl>=3,`${id} follow@I6 ${cl.toFixed(2)} m from geometry (<3)`);ok(g===null||g>=1.5,`${id} follow@I6 ground ${g}`);}}}}
  report.summary[id]={yawDegS:+mx.yaw.toFixed(1),pitchDegS:+mx.pitch.toFixed(1),accP99:+p99.toFixed(0),ms:+mx.v.toFixed(2),stepM:+mx.step.toFixed(3),fovPerFrame:+mx.fov.toFixed(3),...(fps===30?{groundM:+minG.toFixed(2),solidM:+minS.toFixed(2),hiddenS:+hid.toFixed(2),margin:+minM.toFixed(3),capsule:cap,totalS:+s.total.toFixed(2)}:{})};
  if(rows.length)report.rows[kind]=rows;}
 fs.mkdirSync(path.join(__dirname,'reports'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/island-stage04-lens.json'),JSON.stringify(report));
