@@ -389,7 +389,7 @@ export class RegionJourneyController {
  adoptLive(root?:Vec|null,yawRad?:number):boolean{const l:any=this.lease;if(!l||!l.ride||this.phase!=='ready'||this.distance!==0||this.busy)return false;
   this.refreshLive();if(root&&root.every(n=>Number.isFinite(n))){this.root=[root[0],root[1],root[2]];if(Number.isFinite(yawRad))this.yaw=yawRad!;}return true;}
  private refreshLive():void{try{const c=this.adapter.readCamera();if(c&&[...c.position,...c.target].every(n=>Number.isFinite(n))){this.camera=c;this.startCamera=c;}}catch{/* keep */}}
- restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root&&!(this.lease as any)?.tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);if(this.camera){CT()?.t('RegionJourneyCore:restore');world.setCamera(this.camera);}actor.setVisible(visible);this.show(visible);}
+ restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root&&!(this.lease as any)?.tail&&!(actor as any).__qfWalkTail)actor.cancelAndReset(this.position()!);if(this.camera&&visible){CT()?.t('RegionJourneyCore:restore');world.setCamera(this.camera);}/* reveal-restore: hidden journey (board up / paused) keeps the live camera; the visible restore places it */actor.setVisible(visible);this.show(visible);}
  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
  /** b17r10 memory: legs used to pile up until 「主页」 (island→meadow sail + meadow→skycity balloon + skycity→lakeside all alive on
   *  the lakeside board, +64–80 MB JS). On arrival keep only the leg that arrived and the leg that built its departure region
