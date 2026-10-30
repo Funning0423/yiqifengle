@@ -1,0 +1,472 @@
+{
+  "about": "Explicit registry of every sha-pin field found by sha-pin-coverage.cjs. Unregistered pins fail. kind unchecked = known debt (2026-10-29 baseline), values frozen; give each a verifying check and switch it to verified. Edits need Grok Bot's review.",
+  "pins": [
+    {
+      "file": "creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts",
+      "key": "actorSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "1b8233ab11cde81bcae7da514570af290f131006233a71ad32df28272e4bb109"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+      "key": "glbSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "d04ed172aaef0e078998190452beea235b6b57e8b9a0812a3daabd803232a5c2"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+      "key": "metadataSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "2574851333232e3cfe1641cba6fcc5ece45af2084d1023ca478064c05690217c"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+      "key": "motionSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "467f936a393c8afad91d9fdd23b95032125c0320296299e4895e7e2e6b6d10df"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/audio/FootstepData.ts",
+      "key": "glbSHA256",
+      "count": 2,
+      "kind": "unchecked",
+      "valuesSha256": "92d70ec5ccaf253a1c6d64ad6933a10259df2d661f27dd18298034314484be4d"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js",
+      "key": "authoringSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "2a66b886aff46128c23a9ec0034c7fed9536a08a69e7f22f5e453bd182a77fab"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js",
+      "key": "contentSHA256",
+      "count": 36,
+      "kind": "unchecked",
+      "valuesSha256": "3900d428de7f7cf8ee7a6cad160ac59e93f480fcca9ad9d5257c1a12cd853345"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js",
+      "key": "engineSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "c505b82e8ba6c9cb187f2c16d08a4910401c85ca598a102661f75ee2a7980a07"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
+      "key": "derivedGLBSHA256",
+      "count": 1,
+      "kind": "embedded",
+      "note": "frozen-inputs-pins embeddedPins -> env_meadow.glb"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
+      "key": "sourceGLBSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "5d93ee119792c1f856186fe76a4b93723e7201ace7cb4de2959de8bb227e89fd"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
+      "key": "zipSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "9910d6098cbbf0c1a8ea3def188be6dbd2f8f84ba81ff0d44f9bf3d48e46a570"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/RegionNodes.ts",
+      "key": "sourceSha256",
+      "count": 3,
+      "kind": "verified",
+      "checkedBy": "region-nodes-data",
+      "via": [
+        "tools/region-nodes/bake-region-nodes.cjs"
+      ]
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
+      "key": "sourceSha256",
+      "count": 4,
+      "kind": "verified",
+      "checkedBy": "lakeside-walkable",
+      "via": [
+        "tools/region-walkable/bake-region-walkable.cjs"
+      ],
+      "note": "bake --check regenerates the whole file incl. every sourceSha256 from the glbs"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/region/SailGangwayExtras.ts",
+      "key": "SAIL_GANGWAY_GLB_SHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "97541e51ab9eda8c5ebd44c2a755d37f5d5e18d35d22710391e79d39d443fcd6"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts",
+      "key": "compositeSha256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "aeeb28bca0bf26773b1776026aa6f41d69ef19d91c75f951ec7512a29407a32e"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r1/CharacterReference.ts",
+      "key": "blendSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "3893766b666aa5053d2936fcb5e11b5542cacf0032e21a98e2b861c5977e3e0b"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r1/CharacterReference.ts",
+      "key": "sourceSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "39b28b919b87dbc86f43e10da88e72ca3fc5b62b5f67a173a6b0716ea9ea3036"
+    },
+    {
+      "file": "creator-build-project/assets/scripts/world-r2/LegacyJourneyReader.ts",
+      "key": "JOURNEY_SOURCE_SHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "b46cce90bc92e94542a1917c4467e3a6c04b594a2c377f0f231f4620f87fdca7"
+    },
+    {
+      "file": "tools/audio_gesture_scope.json",
+      "key": "afterSha256",
+      "count": 3,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/audio_gesture_scope.json",
+      "key": "beforeSha256",
+      "count": 3,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/creator-assetdb-init-fix/fix-cocos-assetdb-init.py",
+      "key": "MANAGER_SHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "153d2b9b04303c2e11bfd0b046acb5b004ed7c61cfca83a7672682d676156b04"
+    },
+    {
+      "file": "tools/creator-assetdb-init-fix/fix-cocos-assetdb-init.py",
+      "key": "ORIGINAL_SHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "7d3d04c3d92fdf7951b182cd8a31eb2da5818402fe8d3347a7dc763920ac7145"
+    },
+    {
+      "file": "tools/exit-footsteps/ground_map.json",
+      "key": "glbSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "efca75f0b23a314cd4314c7790283bf8452f011f90d4af476b718fabeed56096"
+    },
+    {
+      "file": "tools/integrated_3d_scope.json",
+      "key": "afterSha256",
+      "count": 2,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/integrated_3d_scope.json",
+      "key": "beforeSha256",
+      "count": 2,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/journey-integration/frozen-production-inputs.json",
+      "key": "characterControllerSectionSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "7a9436894ec9c7687f407eda4a2de027f4db4d9f2bfd7ea1b8db842d02de278a"
+    },
+    {
+      "file": "tools/journey-integration/frozen-production-inputs.json",
+      "key": "sha256",
+      "count": 320,
+      "kind": "verified",
+      "checkedBy": "frozen-inputs-pins"
+    },
+    {
+      "file": "tools/journey-integration/occlusion/fixture-occluders.json",
+      "key": "binSha256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "7d7e75b02e1cd01dbee700c99abbe9e384a6ca02dee8fbbbe3f8d49c696ab0f4"
+    },
+    {
+      "file": "tools/journey-integration/occlusion/fixture-occluders.json",
+      "key": "sha256",
+      "count": 5,
+      "kind": "unchecked",
+      "valuesSha256": "f836f44a3a504ddf8b625a61be43c002d9b91cf11b0a4d0faad8b74792edb810"
+    },
+    {
+      "file": "tools/lakeside-walkable/lakeside-walkable.json",
+      "key": "sourceSha256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "8cac1b9fecd47d0916f47f7a039f41e2753e610c20ff4865359c6acf0eae90d8"
+    },
+    {
+      "file": "tools/legacy-independent-review/preserved-c5b4d6d/tools/journey-integration/frozen-production-inputs.json",
+      "key": "characterControllerSectionSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/legacy-independent-review/preserved-c5b4d6d/tools/journey-integration/frozen-production-inputs.json",
+      "key": "sha256",
+      "count": 311,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/legacy-test-repair/reviewed-controller-change.json",
+      "key": "baselineSectionSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/legacy-test-repair/reviewed-controller-change.json",
+      "key": "candidateSectionSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/region-levels/input-identity.json",
+      "key": "manifestSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "0c051160daa90c9bb0efd310ba3f6c95cb2a57482aaf015c530f18ab467b877f"
+    },
+    {
+      "file": "tools/region-levels/verification-summary.json",
+      "key": "sha256",
+      "count": 4,
+      "kind": "unchecked",
+      "valuesSha256": "951c2eb243911ddbaa156efc2a2a98abb94a1df9ccb907ae7c558152ef60dcf8"
+    },
+    {
+      "file": "tools/region-levels/verified-mainline.json",
+      "key": "engineSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "8a43e083270a24c3255ebb1f0f75073f005894fa520d676a8f147724a7ad7b21"
+    },
+    {
+      "file": "tools/region-levels/verified-mainline.json",
+      "key": "expectedStateSHA256",
+      "count": 36,
+      "kind": "verified",
+      "checkedBy": "region-levels"
+    },
+    {
+      "file": "tools/region-nodes/region-nodes.json",
+      "key": "sha256",
+      "count": 3,
+      "kind": "verified",
+      "checkedBy": "region-nodes-data",
+      "via": [
+        "tools/region-nodes/bake-region-nodes.cjs"
+      ],
+      "pinnedFile": "RegionNodes.ts",
+      "note": "bake --check rewrites region-nodes.json from the glbs and compares RegionNodes.ts, which carries the same shas"
+    },
+    {
+      "file": "tools/repair_wrist_topology.py",
+      "key": "inputSHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "cf6563add1e51379cfa941f63db87359a038b8d9e7a39370a391d8b214daa9e1"
+    },
+    {
+      "file": "tools/sail-voyage/standin_impostor_tris.json",
+      "key": "sha256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "c441a9bfa5a136790a5fec04569e972d2e3059146d009eb362ef0a7a80ae155e"
+    },
+    {
+      "file": "tools/sleeve-recovery/evidence/storage-diff.json",
+      "key": "sha256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/t5/test_room_light_blend.cjs",
+      "key": "T5_PARTS_SHA256",
+      "count": 1,
+      "kind": "unchecked",
+      "valuesSha256": "7d6f181100a9b5494ce80ef45028390112b56025547f120dab4a7fde2709db73"
+    },
+    {
+      "file": "tools/test_cloud_integration_review.cjs",
+      "key": "sha256",
+      "count": 3,
+      "kind": "unchecked",
+      "valuesSha256": "95e8ec008ccba7d811daf739a7c1953539b5f4350eaa81a30995f0246e0ac543"
+    },
+    {
+      "file": "tools/verified_restoration_scope.json",
+      "key": "afterSha256",
+      "count": 6,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/verified_restoration_scope.json",
+      "key": "beforeSha256",
+      "count": 6,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/verified_restoration_scope.json",
+      "key": "uiAfterSha256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/verified_restoration_scope.json",
+      "key": "uiBeforeSha256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-repair/evidence/candidate-scope.json",
+      "key": "baselineSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-repair/evidence/candidate-scope.json",
+      "key": "candidateSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/elbow-intersections-final-scope.json",
+      "key": "appliesToFinalGLBSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/elbow-intersections-final-scope.json",
+      "key": "computedFromGLBSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/native-winding-correction.json",
+      "key": "afterImportSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/native-winding-correction.json",
+      "key": "afterNativeSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/native-winding-correction.json",
+      "key": "beforeImportSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/native-winding-correction.json",
+      "key": "beforeNativeSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/native-winding-correction.json",
+      "key": "finalGLBSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/native-winding-correction.json",
+      "key": "inputGLBSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/storage-diff.json",
+      "key": "sha256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/topology-repair-final.json",
+      "key": "inputSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/topology-repair-final.json",
+      "key": "outputSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/topology-verification-final.json",
+      "key": "baselineSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/topology-verification-final.json",
+      "key": "candidateSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/visual-review-final.json",
+      "key": "finalGLBSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/wrist-topology/evidence/winding-rejection.json",
+      "key": "rejectedSHA256",
+      "count": 1,
+      "kind": "record",
+      "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    }
+  ]
+}
