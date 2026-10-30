@@ -7,29 +7,41 @@ FB='/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
 import os
 if not os.path.exists(FB): FB='/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc'
 def F(pt): return ImageFont.truetype(FB,int(pt*S))
-BROWN=(107,74,43);TEAL=(31,107,104);CREAM=(255,244,220)
+NIGHT=[False]
+K=[0.621,0.591,0.562]
+def nk(c): return tuple(round(c[i]*K[i]) for i in range(3))+tuple(c[3:]) if NIGHT[0] else c
+BR=lambda:(30,19,8) if NIGHT[0] else (99,63,33)
+TL=lambda:(6,30,34) if NIGHT[0] else (38,98,104)
+BROWN=(99,63,33);TEAL=(38,98,104);CREAM=(255,244,220)
+NAME=['贝壳湾']
+FORMAL='拖动相邻两颗，三颗一样就消除'
 img=lambda f:Image.open(f).convert('RGBA')
 PL=img(A+'hud_levelplate.png');PA=img(A+'hud_pause.png');MV=img(A+'icon_moves.png')
 TOOLS=[img(A+t) for t in ['tool_starlight.png','tool_windbell.png','tool_tidebottle.png']]
 PIECES=[img(P+'piece_%s.png'%n) for n in ['conch','star','coral','float','scallop','badge']]
 def paste(c,im,x,y,w,h):  # pt box top-left
-    r=im.resize((max(1,int(w*S)),max(1,int(h*S))),Image.LANCZOS);c.alpha_composite(r,(int(x*S),int(y*S)))
+    r=im.resize((max(1,int(w*S)),max(1,int(h*S))),Image.LANCZOS)
+    if NIGHT[0]:
+        ch=r.split();r=Image.merge('RGBA',[ch[i].point(lambda v,k=K[i]:int(v*k)) for i in range(3)]+[ch[3]])
+    c.alpha_composite(r,(int(x*S),int(y*S)))
 def sliced(c,x,y,w,h):  # 3-slice horizontally, plate height scaled
     k=h/129;l,r=15,19;L=PL.crop((0,0,l,129));M=PL.crop((l,0,411-r,129));R=PL.crop((411-r,0,411,129))
     paste(c,L,x,y,l*k,h);paste(c,M,x+l*k,y,w-(l+r)*k,h);paste(c,R,x+w-r*k,y,r*k,h)
-def text(d,x,y,s,pt,col,anchor='lm'): d.text((x*S,y*S),s,font=F(pt),fill=col,anchor=anchor)
+def text(d,x,y,s,pt,col,anchor='lm'):
+    col=BR() if col==BROWN else TL() if col==TEAL else col
+    d.text((x*S,y*S),s,font=F(pt),fill=col,anchor=anchor)
 def scene(w,h,D):
     c=Image.new('RGBA',(w*S,h*S));d=ImageDraw.Draw(c)
     for yy in range(h*S):  # warm sand gradient
-        t=yy/(h*S);d.line([(0,yy),(w*S,yy)],fill=(int(226-20*t),int(205-22*t),int(160-25*t),255))
+        t=yy/(h*S);d.line([(0,yy),(w*S,yy)],fill=nk((int(226-20*t),int(205-22*t),int(160-25*t),255)))
     pr=lambda x,z,y=.15:tuple(v*S for v in proj(w,h,D,x,y,z))
     rim=[pr(-3.95,-3.95),pr(3.95,-3.95),pr(3.95,3.95),pr(-3.95,3.95)]
     sh=Image.new('RGBA',c.size);ImageDraw.Draw(sh).polygon([(p[0],p[1]+10*S) for p in rim],fill=(80,60,40,90));c.alpha_composite(sh.filter(ImageFilter.GaussianBlur(8*S)))
-    d.polygon(rim,fill=(196,170,128,255));d.polygon([pr(-3.5,-3.5),pr(3.5,-3.5),pr(3.5,3.5),pr(-3.5,3.5)],fill=(150,128,96,255))
+    d.polygon(rim,fill=nk((196,170,128,255)));d.polygon([pr(-3.5,-3.5),pr(3.5,-3.5),pr(3.5,3.5),pr(-3.5,3.5)],fill=nk((150,128,96,255)))
     for r in range(7):
         for col in range(7):
             x0,z0=col-3-.465,r-3-.465;x1,z1=x0+.93,z0+.93
-            d.polygon([pr(x0,z0,.12),pr(x1,z0,.12),pr(x1,z1,.12),pr(x0,z1,.12)],fill=(214,206,188,255) if (r+col)%2 else (200,192,174,255))
+            d.polygon([pr(x0,z0,.12),pr(x1,z0,.12),pr(x1,z1,.12),pr(x0,z1,.12)],fill=nk((214,206,188,255)) if (r+col)%2 else nk((200,192,174,255)))
     for r in range(7):
         for col in range(7):
             cx,cy=proj(w,h,D,col-3,.12,r-3);a=proj(w,h,D,col-3-.5,.12,r-3)[0];b=proj(w,h,D,col-3+.5,.12,r-3)[0];s=(b-a)*1.15
@@ -37,7 +49,7 @@ def scene(w,h,D):
     return c
 def pause(c,g): paste(c,PA,38-20.5,g['py']-20.5,41,41)
 def capsule(c,w,py):
-    d=ImageDraw.Draw(c);d.rounded_rectangle([(w-93)*S,(py-16)*S,(w-6)*S,(py+16)*S],radius=16*S,fill=(255,255,255,230),outline=(210,210,210,255),width=S)
+    d=ImageDraw.Draw(c);d.rounded_rectangle([(w-93)*S,(py-16)*S,(w-6)*S,(py+16)*S],radius=16*S,fill=(255,255,255,230) if not NIGHT[0] else (60,60,64,230),outline=(210,210,210,255),width=S)
 def goals_row(c,d,x,cy,pt,icon,gap,moves_pt):
     for i,(p,n) in enumerate([(0,'12'),(2,'9')]):
         paste(c,PIECES[p],x,cy-icon/2,icon,icon);x+=icon+3;text(d,x,cy,n,pt,BROWN);x+=d.textlength(n,font=F(pt))/S+gap
@@ -55,27 +67,41 @@ def old(w,h,D):
 def toast(c,d,cx,cy,s,maxw,pt,h=32):
     tw=min(maxw,d.textlength(s,font=F(pt))/S+28);d.rounded_rectangle([(cx-tw/2)*S,(cy-h/2)*S,(cx+tw/2)*S,(cy+h/2)*S],radius=h/2*S,fill=(255,244,220,240),outline=(196,166,120),width=int(1.5*S))
     text(d,cx,cy,s,pt,BROWN,'mm')
+def pill(c,d,x0,cy,w,h,lines,pt,align='mm'):
+    d.rounded_rectangle([x0*S,(cy-h/2)*S,(x0+w)*S,(cy+h/2)*S],radius=min(h/2,14)*S,fill=nk((255,244,220,240)),outline=nk((196,166,120)),width=int(1.5*S))
+    lh=14;y=cy-(len(lines)-1)*lh/2
+    for ln in lines: text(d,x0+w/2,y,ln,pt,BROWN,'mm');y+=lh
+def wrap(d,s,pt,maxw):
+    if d.textlength(s,font=F(pt))/S<=maxw: return [s]
+    i=s.index('，')+1; return [s[:i],s[i:]]
+def fit_name(d,num,name,pt,maxw):
+    t=num+' · '+name
+    if d.textlength(t,font=F(pt))/S<=maxw: return t
+    while name and d.textlength(num+' · '+name+'…',font=F(pt))/S>maxw: name=name[:-1]
+    return num+' · '+name+'…'
 def tools(c,d,w,ty,size,step):
     for i in range(3):
         x=w/2+(i-1)*step;paste(c,TOOLS[i],x-size/2,ty-size/2,size,size)
         r=8.5 if size<55 else 10;bx,by=x+size*0.32,ty+size*0.3
-        d.ellipse([(bx-r)*S,(by-r)*S,(bx+r)*S,(by+r)*S],fill=(255,244,220),outline=(196,166,120),width=S);text(d,bx,by,'3',11 if size<55 else 13.5,BROWN,'mm')
+        d.ellipse([(bx-r)*S,(by-r)*S,(bx+r)*S,(by+r)*S],fill=nk((255,244,220)),outline=nk((196,166,120)),width=S);text(d,bx,by,'3',11 if size<55 else 13.5,BROWN,'mm')
 def new(w,h,D,show_toast=False):
     c=scene(w,h,D);d=ImageDraw.Draw(c);py=67;capsule(c,w,py);pause(c,{'py':py})
     sl,sr=70,w-93-10
-    if show_toast: toast(c,d,(sl+sr)/2,py,'拖动相邻两颗，三颗一样就消除' if sr-sl>200 else '相邻两颗交换消除',sr-sl,12)
+    if show_toast:
+        ls=wrap(d,FORMAL,12,sr-sl-20);tw=max(d.textlength(l,font=F(12))/S for l in ls)+20
+        pill(c,d,sl,py,tw,36,ls,12)
     else:
-        t='05 · 贝壳湾';tw=d.textlength(t,font=F(13))/S+24
-        d.rounded_rectangle([sl*S,(py-14)*S,(sl+tw)*S,(py+14)*S],radius=14*S,fill=(255,244,220,235),outline=(196,166,120),width=int(1.5*S));text(d,sl+12,py,t,13,BROWN)
+        t=fit_name(d,'05',NAME[0],13,sr-sl-24);tw=d.textlength(t,font=F(13))/S+24
+        d.rounded_rectangle([sl*S,(py-14)*S,(sl+tw)*S,(py+14)*S],radius=14*S,fill=nk((255,244,220,235)),outline=nk((196,166,120)),width=int(1.5*S));text(d,sl+12,py,t,13,BROWN)
     pw=min(214,w-24);sliced(c,w/2-pw/2,95,pw,36)
     tmp=Image.new('RGBA',c.size);ww=goals_row(tmp,ImageDraw.Draw(tmp),0,0,15,22,8,15);goals_row(c,d,w/2-ww/2,113.5,15,22,8,15)
     tools(c,d,w,h-34-34,48,64);return c
 def fin(c): return c.resize((c.width//S*2,c.height//S*2),Image.LANCZOS)
 DS={(320,568):(24.719,15.97),(390,520):(23.003,14.719)}
-for (w,h),(db,da) in [i for i in DS.items() if i[0][0]==320]:
+for (w,h),(db,da) in DS.items():
     b,a=fin(old(w,h,db)),fin(new(w,h,da));a2=fin(new(w,h,da,True))
     pad=60;W=b.width*3+pad*4;H=b.height+150;cv=Image.new('RGB',(W,H),(250,246,238));dd=ImageDraw.Draw(cv);f=ImageFont.truetype(FB,30)
-    for i,(im,lab) in enumerate([(b,'现状'),(a,'紧凑版'),(a2,'紧凑版 · 提示出现时（2 s）')]):
+    for i,(im,lab) in enumerate([(b,'现状'),(a,'紧凑版'),(a2,'紧凑版 · 提示出现时（T=3.7 s）')]):
         x=pad+i*(b.width+pad);cv.paste(im,(x,110),im);dd.rectangle([x-1,109,x+b.width,110+b.height],outline=(170,150,120),width=2);dd.text((x,40),lab,font=f,fill=BROWN)
     cv.save(OUT+'compare_%dx%d.png'%(w,h))
     # annotation
@@ -95,4 +121,19 @@ for (w,h),(db,da) in [i for i in DS.items() if i[0][0]==320]:
             ad.line([(X,ys*2),(X,yn*2)],fill=(20,150,60),width=8)
         ad.rectangle([4,350*2-26,330,350*2],fill=(255,255,255));ad.text((8,350*2-26),'绿：出屏切口 y345–436，两侧各 11.5 pt',font=fa,fill=(20,150,60))
     an.save(OUT+'annot_%dx%d.png'%(w,h))
+for (w,h),(db,da) in DS.items():
+    NIGHT[0]=True;a=fin(new(w,h,da));a2=fin(new(w,h,da,True));NIGHT[0]=False
+    pad=60;cv=Image.new('RGB',(a.width*2+pad*3,a.height+150),(250,246,238));dd=ImageDraw.Draw(cv);f=ImageFont.truetype(FB,30)
+    for i,(im,lab) in enumerate([(a,'夜间 · 紧凑版'),(a2,'夜间 · 提示出现时')]):
+        x=pad+i*(a.width+pad);cv.paste(im,(x,110),im);dd.rectangle([x-1,109,x+a.width,110+a.height],outline=(170,150,120),width=2);dd.text((x,40),lab,font=f,fill=BROWN)
+    cv.save(OUT+'night_%dx%d.png'%(w,h))
+# long name crop 320
+crops=[]
+for nm in ['贝壳湾','灯塔下的潮汐小路']:
+    NAME[0]=nm;im=fin(new(320,568,15.97)).crop((0,80,640,280));crops.append((nm,im))
+NAME[0]='贝壳湾'
+cv=Image.new('RGB',(640*2+90,200+120),(250,246,238));dd=ImageDraw.Draw(cv);f=ImageFont.truetype(FB,26)
+for i,(nm,im) in enumerate(crops):
+    x=30+i*(640+30);cv.paste(im,(x,90));dd.rectangle([x-1,89,x+640,290],outline=(170,150,120),width=2);dd.text((x,30),('正常：' if i==0 else '超长（8 字）→ 截断：')+nm,font=f,fill=BROWN)
+cv.save(OUT+'longname_320x568.png')
 print('ok')
