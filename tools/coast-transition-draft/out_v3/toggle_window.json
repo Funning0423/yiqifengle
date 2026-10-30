@@ -15,13 +15,11 @@
  "frames": 1400,
  "visible_frames": {
   "coast": 1382,
-  "sail": 1050,
-  "bridge": 1075
+  "sail": 1143
  },
  "island_map_lens_sees": {
   "coast": true,
-  "sail": true,
-  "bridge": true
+  "sail": true
  },
  "activation_gate": {
   "toggle_frame": 220,
@@ -32,18 +30,15 @@
   "coast_active_on_map_frames": [],
   "visible_at_toggle": {
    "coast": false,
-   "sail": false,
-   "bridge": false
+   "sail": false
   },
   "visible_at_toggle_minus_1": {
    "coast": false,
-   "sail": false,
-   "bridge": false
+   "sail": false
   },
   "island_map_lens_sees": {
    "coast": true,
-   "sail": true,
-   "bridge": true
+   "sail": true
   },
   "pass_": true
  }
