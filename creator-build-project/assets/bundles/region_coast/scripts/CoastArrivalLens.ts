@@ -13,13 +13,20 @@ import { COAST_ARRIVAL_TRACK as K } from './CoastArrivalTrack';
 export const COAST_ARRIVAL_SOURCE='coast.arrival';
 export const COAST_ARRIVAL_SCREENS=Object.freeze(Object.keys(K.s7));
 type Rows=number[][];
-function dec(a:readonly number[],n:number,cols:number):Rows{const out:Rows=Array.from({length:n},()=>new Array(cols).fill(0));
- for(let c=0;c<cols;c++){let v=0;for(let i=0;i<n;i++){v+=a[c*n+i];out[i][c]=v/K.scale;}}return out;}
+type Keys=readonly [string,string];   // [frame deltas, value deltas (1e-4 ints)], each a zigzag-varint string (bake_track.py pack())
+const A64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+function unpack(s:string):number[]{const o:number[]=[];let u=0,sh=0;for(let i=0;i<s.length;i++){const d=A64.indexOf(s[i]);u+=(d&31)*2**sh;
+ if(d&32){sh+=5;continue;}o.push(u%2?-(u+1)/2:u/2);u=0;sh=0;}return o;}
+/** v3 decode: piecewise-linear keys per column -> n frames (float, /scale). */
+function col(k:Keys,n:number):number[]{const K:number[]=[],V:number[]=[],f=unpack(k[0]),d=unpack(k[1]);let a=0,b=0;for(let i=0;i<f.length;i++){a+=f[i];b+=d[i];K.push(a);V.push(b);}
+ const out=new Array(n);let j=0;for(let i=0;i<n;i++){while(j+1<K.length&&K[j+1]<i)j++;out[i]=(j+1>=K.length?V[V.length-1]:V[j]+(V[j+1]-V[j])*(i-K[j])/(K[j+1]-K[j]))/K_SCALE;}return out;}
+const K_SCALE:number=K.scale;
+function dec(cols:readonly Keys[],n:number,base?:Rows):Rows{const c=cols.map(k=>col(k,n));return Array.from({length:n},(_,i)=>c.map((x,k)=>x[i]+(base?base[i][k]:0)));}
 const cache=new Map<string,Rows>();let herRows:Rows|null=null;
 /** the baked track for the nearest authored screen (exact key, else closest aspect). */
 export function arrivalScreen(w:number,h:number):string{const k=w+'x'+h;if((K.s7 as any)[k])return k;let best=COAST_ARRIVAL_SCREENS[0],d=1e9;
  for(const s of COAST_ARRIVAL_SCREENS){const [a,b]=s.split('x').map(Number),e=Math.abs(a/b-w/h);if(e<d){d=e;best=s;}}return best;}
-export function arrivalRows(screen:string):Rows{let r=cache.get(screen);if(r)return r;const sh=dec(K.shared,K.n_shared,7),s7=dec((K.s7 as any)[screen],(K.s7_len as any)[screen],7);
+export function arrivalRows(screen:string):Rows{let r=cache.get(screen);if(r)return r;const n7=(K.s7_len as any)[screen],sh=dec(K.shared as any,K.n_shared),b7=dec((K.s7 as any)[K.base],n7),s7=screen===K.base?b7:dec((K.s7 as any)[screen],n7,b7);
  r=sh.concat(s7.slice(1));cache.set(screen,r);return r;}
 export const COAST_ARRIVAL_TOTAL_S:number=K.total;
 const lerp=(a:number[],b:number[],u:number)=>a.map((v,i)=>v+(b[i]-v)*u);
@@ -29,7 +36,7 @@ export function arrivalPose(w:number,h:number,t:number):LookAtPose{if(t>=K.total
  return {position:[r[0],r[1],r[2]] as V3,target:[r[3],r[4],r[5]] as V3,fovVerticalDeg:r[6]};}
 export type HerFrame=Readonly<{root:V3;clip:string;clipTime:number;heading:V3}>;
 /** her root (world) and the clip/time she plays at t. */
-export function arrivalHer(t:number):HerFrame{if(!herRows)herRows=dec(K.her,K.n_her,3);const r=at(herRows,Math.min(t,K.total)),C=K.clips,[ws,we]=K.walk;
+export function arrivalHer(t:number):HerFrame{if(!herRows)herRows=dec(K.her as any,K.n_her);const r=at(herRows,Math.min(t,K.total)),C=K.clips,[ws,we]=K.walk;
  const r2=at(herRows,Math.min(t+0.1,K.total)),hd=[r2[0]-r[0],0,r2[2]-r[2]],l=Math.hypot(hd[0],hd[2]);
  let clip:string=C.idle,ct=0;
  if(t<ws){const p=at(herRows,Math.max(0,t-0.1)),moving=Math.hypot(r2[0]-p[0],r2[2]-p[2])>0.02;clip=moving?C.walk:C.idle;ct=t;}
