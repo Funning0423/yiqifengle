@@ -1,0 +1,18 @@
+{
+ "advisory": {"bgTop":"#FBF4E4","bgBottom":"#F2E1C0","glow":"#FFF6DA","hill1":"#E8D2A6","hill1f":"#E1C797","hill2":"#DCC08E",
+  "titleY":300,"titleSize":22,"titleTracking":6,"ruleW":64,"ruleGap":24,"firstLineDy":72,"lineH":40,"bodySize":17,"bodyTracking":2,
+  "lines":["抵制不良游戏，拒绝盗版游戏。","注意自我保护，谨防受骗上当。","适度游戏益脑，沉迷游戏伤身。","合理安排时间，享受健康生活。"],
+  "footer":["著作权人：〔占位〕　出版单位：〔占位〕","批准文号：〔占位〕　出版物号：〔占位〕"],
+  "footSize":11,"footLineH":17,"footBottom":104,"hintBottom":56,
+  "fadeIn_ms":400,"fadeIn_curve":"easeOutCubic","rise_pt":6,"total_ms":3000,"fadeOut_ms":300,"fadeOut_curve":"easeInQuad","skipAfter_ms":1500},
+ "settings": {"w":320,"h":404,"minMargin":20,"dy":-8,"titleY":38,"titleSize":22,"firstRowY":92,"rowH":54,"groupGap":14,
+  "iconX":46,"iconH":30,"labelX":74,"labelSize":18,"toggleRight":28,"footBottom":32,"footSize":13,"closeInset":24,"closeD":34,
+  "toggle":{"track":[52,30],"knob":24,"slide_ms":180,"slide_curve":"easeOutCubic","press_knob_extra":6},
+  "rows":[{"key":"music","label":"音乐","icon":"music"},{"key":"sfx","label":"音效","icon":"sfx"},{"key":"vibrate","label":"震动","icon":"vibrate"},
+          {"key":"night","label":"夜色","icon":"moon"},{"key":"motion","label":"减少动态","icon":"motion"}]},
+ "update": {"w":300,"h":300,"minMargin":20,"dy":-12,"emblemY":68,"emblemR":28,"emblemGlow":46,"titleY":134,"titleSize":20,"title":"新版本已准备好",
+  "bodyY":170,"bodySize":15,"body":"重启后即可体验新版本。","btnY":226,"btnW":220,"btnH":52,"btn":"重启更新","laterY":272,"laterSize":14,"later":"稍后"},
+ "motion": {"popupEnter_ms":320,"popupEnter_curve":"cubic-bezier(0.05,0.7,0.1,1.0)","popupEnter_scale":[0.92,1.0],"popupEnter_alpha_ms":190,
+  "popupExit_ms":180,"popupExit_curve":"cubic-bezier(0.3,0.0,0.8,0.15)","popupExit_scale":[1.0,0.96],"shade_alpha":0.35,
+  "press_down_ms":0,"press_scale":0.96,"press_drop_pt":3,"release_ms":120,"release_curve":"easeOutBack(1.4)"}
+}
