@@ -6,7 +6,7 @@ const fs=require('fs'),path=require('path'),ts=require(process.env.QF_TYPESCRIPT
 const ROOT=path.resolve(__dirname,'../..'),A=path.join(ROOT,'creator-build-project/assets');
 const tr=src=>ts.transpileModule(src,{compilerOptions:{target:ts.ScriptTarget.ES2019,module:ts.ModuleKind.CommonJS}}).outputText;
 const mods={};function load(abs){if(mods[abs])return mods[abs].exports;const m={exports:{}};mods[abs]=m;const dir=path.dirname(abs);
- new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
+ new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r==='cc'?{Node:class{},Material:class{}}:r.endsWith('/CoastSceneLoader')?{}:r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
 const CAL=load(path.join(A,'bundles/region_coast/scripts/CoastArrivalLens')),SRC=load(path.join(A,'bundles/region_coast/scripts/CoastSceneLayout')).COAST_REUSE_SOURCES;
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}};
 const b=fs.readFileSync(path.join(A,'bundles/static_seat_preview/room/room_no_original_chair.glb')),j=JSON.parse(b.slice(20,20+b.readUInt32LE(12)).toString());
@@ -26,10 +26,10 @@ ok(hit===L.length,`reuse skips not allowed: ${L.length-hit} of ${L.length} have 
  const ISL=new Set(j.materials.map(m=>m.name)),mats={};const isl=n=>ISL.has(n)?(mats[n]||(mats[n]={name:n,isValid:true,island:true})):null;
  for(const [label,tex] of [['with coast palette',{tex:1}],['palette missing',null]]){const made=[];
   const R=CAL.createCoastMaterialResolver({islandMaterial:isl,coastPalette:()=>tex,makePalette:(src,t)=>{const m={name:'coast_palette',effectFrom:src.name,tex:t,destroyed:false,destroy(){this.destroyed=true;}};made.push(m);return m;}});
-  let got=0,errd=0,silent=[];const shared={};for(const k of keys.values()){const e=[];console.error=m=>e.push(m);const m=R(k);console.error=ce;
+  let got=0,errd=0,silent=[],warns=[];const cw=console.warn;console.warn=m=>warns.push(m);const shared={};for(const k of keys.values()){const e=[];console.error=m=>e.push(m);const m=R(k);console.error=ce;
    if(m){got++;if(m.island)shared[k.mesh]=m.name;}else if(e.length)errd++;else silent.push(k.mesh);}
-  ok(silent.length===0,label+': silent null for '+silent);ok(made.length===(tex?1:0),label+': palette material created '+made.length+' (once per session)');
-  ok(!tex||made[0].effectFrom==='M_env_palette'&&made[0].tex===tex,label+': palette = M_env_palette effect + coast texture');
+  console.warn=cw;ok(silent.length===0,label+': silent null for '+silent);ok(CAL.COAST_MATERIAL_MODE!=='island-placeholder'||warns.filter(w=>/PLACEHOLDER/.test(w)).length===1,label+': placeholder console.warn exactly once');const PH=CAL.COAST_MATERIAL_MODE==='island-placeholder';ok(made.length===(PH?0:(tex?1:0)),label+': palette material created '+made.length);
+  ok(PH||!tex||made[0].effectFrom==='M_env_palette'&&made[0].tex===tex,label+': palette = M_env_palette effect + coast texture');
   for(const [mesh,n] of Object.entries(CAL.COAST_SHARED_MATERIALS))if(n)ok(ISL.has(n),'mapped island material exists: '+mesh+' -> '+n);
   R.dispose();ok(made.every(m=>m.destroyed)&&Object.values(mats).every(m=>!m.destroyed),label+': dispose destroys own palette only');
   console.log(`info material ${label}: ${keys.size} keys, ${got} resolved, ${errd} console.error, 0 silent; shared ${JSON.stringify(shared)}`);}}

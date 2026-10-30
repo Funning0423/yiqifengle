@@ -13,7 +13,7 @@ const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
 const ROOT=path.resolve(__dirname,'../..'),A=path.join(ROOT,'creator-build-project/assets');
 const tr=src=>ts.transpileModule(src,{compilerOptions:{target:ts.ScriptTarget.ES2019,module:ts.ModuleKind.CommonJS}}).outputText;
 const mods={};function load(abs){if(mods[abs])return mods[abs].exports;const m={exports:{}};mods[abs]=m;const dir=path.dirname(abs);
- new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
+ new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r==='cc'?(globalThis.__yjCcStub||{}):(r.endsWith('/CoastSceneLoader')&&globalThis.__yjSceneStub)?globalThis.__yjSceneStub:r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
 const CP=load(path.join(A,'scripts/world-r1/CameraPose')),CB=load(path.join(A,'scripts/region/CoastBoardLens'));
 const CAL=load(path.join(A,'bundles/region_coast/scripts/CoastArrivalLens'));
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}};
@@ -29,7 +29,7 @@ const HS=JSON.parse(fs.readFileSync(path.join(__dirname,'s7_her_size_runtime.jso
 function lcg(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return 1/90+(1/45-1/90)*(s/4294967296);};}
 async function run(w,h,clock){const writes=[];let fr=0;const node={setWorldPosition(){},setWorldRotation(){}},camera={node,fov:45};
  const prev=CP.cameraWriteHook.trace;CP.cameraWriteHook.trace=s=>writes.push({fr,s});const poses=[],her=[];let t=0;
- const res=await CAL.playCoastArrival({camera,viewport:()=>({width:w,height:h}),nextFrame:async()=>{fr++;const dt=clock();t+=dt;return dt;},her:f=>her.push(f),
+ const res=await CAL.playCoastArrival({camera,viewport:()=>({width:w,height:h}),nextFrame:async()=>{fr++;const dt=clock();t+=dt;return dt;},her:f=>her.push({...f,root:[...f.root],heading:[...f.heading]}),
   });CP.cameraWriteHook.trace=prev;return {writes,res,her};}
 function poseAt(w,h,t){return CAL.arrivalPose(w,h,t);}
 function motion(samples){let vmax=0,smax=0,wmax=0,fmax=0;const ay=[],ap=[];let pw=null;

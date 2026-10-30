@@ -41,7 +41,7 @@ b7 = cols_fast(R['s7'][BASE], R['s7_len'][BASE])  # raw base; total error <= bas
 TB = ctol(b7, 0.0013, 2.8, 20)
 s7 = {s: [keys(c, TB[k]) if s == BASE else keys([x - y for x, y in zip(c, b7[k])], T[k]) for T in [ctol(cols_fast(R['s7'][s], R['s7_len'][s]), 0.0013, 2.8, 20)] for k, c in enumerate(cols_fast(R['s7'][s], R['s7_len'][s]))] for s in R['s7']}
 rows = list(csv.DictReader(open(os.path.join(sys.argv[1], '390x844/frames.csv'))))
-her = [keys([round(float(r[k]) * 1e4) for r in rows], 4) for k in ('hx', 'hy', 'hz')]
+her = [keys([round(float(r[k]) * 1e4) for r in rows], 0) for k in ('hx', 'hy', 'hz')]  # exact (tol 0): stationary spans stay exactly still for coastArrivalWalks()
 A64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
 def pack(ints):  # zigzag varint, 5 data bits + 1 continue bit per char (A64); CoastArrivalLens.ts unpack()
     o = []
