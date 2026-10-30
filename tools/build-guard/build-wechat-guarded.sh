@@ -7,12 +7,12 @@
 #
 # Usage: bash tools/build-guard/build-wechat-guarded.sh [wechat|web|both]      (default: wechat)
 # Env:   CREATOR=/path/to/CocosCreator.app/Contents/MacOS/CocosCreator  (required; or a fake builder for tests)
-#        MIN_BYTES=15000000  MAX_TRIES=3  KEEP_CACHE=0  LOG_DIR=<repo>/tools/build-guard/logs  SKIP_CREATOR_CHECK=0
+#        MIN_BYTES=15000000  MAIN_MAX=4000000  MAX_TRIES=3  KEEP_CACHE=0  LOG_DIR=<repo>/tools/build-guard/logs  SKIP_CREATOR_CHECK=0
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=${REPO_ROOT:-$(cd "$HERE/../.." && pwd)}
 P="$REPO/creator-build-project"
-MIN_BYTES=${MIN_BYTES:-15000000}; MAX_TRIES=${MAX_TRIES:-3}; KEEP_CACHE=${KEEP_CACHE:-0}
+MIN_BYTES=${MIN_BYTES:-15000000}; MAIN_MAX=${MAIN_MAX:-4000000}; MAX_TRIES=${MAX_TRIES:-3}; KEEP_CACHE=${KEEP_CACHE:-0}
 LOG_DIR=${LOG_DIR:-$HERE/logs}; ERR_TEXT='当前初始场景不存在'
 TARGET=${1:-wechat}
 die(){ echo; echo "################################################################"; echo "BUILD GUARD FAILED: $*"; echo "################################################################"; exit 2; }
@@ -57,6 +57,15 @@ build_one(){ # $1 = config json
       if [ -d "$dest/subpackages" ]; then
         echo "   ROOT $(find "$dest" -type f -not -path '*/subpackages/*' -exec wc -c {} + | awk '$2!="total"{s+=$1}END{print s+0}')"
         for d in "$dest"/subpackages/*; do [ -d "$d" ] && echo "   SUB $(basename "$d") $(bytes "$d")"; done
+      fi
+      # fg-mainpkg-gate: first package (everything outside subpackages/) must be <= MAIN_MAX (4,000,000 B). Not retried: a
+      # rebuild cannot shrink it. With game.json present, check-main-package.cjs also measures by game.json roots and scans
+      # the output for privacy-relevant wx APIs.
+      root=$(find "$dest" -type f -not -path '*/subpackages/*' -exec wc -c {} + 2>/dev/null | awk '$2!="total"{s+=$1}END{print s+0}')
+      if [ "$root" -gt "$MAIN_MAX" ]; then clean_cache; die "[$out] first package ROOT $root B > MAIN_MAX $MAIN_MAX B"; fi
+      echo "   MAIN_GATE ROOT $root <= $MAIN_MAX"
+      if [ "$out" = wechat-release ] && [ -f "$dest/game.json" ]; then
+        node "$HERE/check-main-package.cjs" --out "$dest" | tail -3 || die "[$out] main-package/privacy gate failed (check-main-package.cjs)"
       fi
       LAST_TOTAL=$size; return 0
     fi

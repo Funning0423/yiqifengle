@@ -1,9 +1,4 @@
-ReferenceError: RL is not defined
-    at /workspace/wt-f8/tools/skycity-walk/test_sky_resume_follow.cjs:19:22
-    at Object.<anonymous> (/workspace/wt-f8/tools/skycity-walk/test_sky_resume_follow.cjs:39:311)
-    at Module._compile (node:internal/modules/cjs/loader:1529:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-    at Module.load (node:internal/modules/cjs/loader:1275:32)
-    at Module._load (node:internal/modules/cjs/loader:1096:12)
-    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
-    at node:internal/main/run_main_module:28:49
+Error: draco3d not found: set DRACO3D
+    at skyLocal (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:40:124)
+    at async Object.geometry (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:141:12)
+    at async /workspace/wt/fg-gate/tools/skycity-walk/test_sky_resume_follow.cjs:21:22

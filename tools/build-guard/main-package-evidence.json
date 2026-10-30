@@ -1,0 +1,12 @@
+{
+ "schema": "qf-main-package-evidence/v1",
+ "note": "Last real guard build (Mac, build-wechat-guarded.sh). Update this file from each new guard log; the gate re-checks it.",
+ "source": "/workspace/qifengle/test-reports/20261026T1847_cand-9ec5323c/guard9c.log",
+ "sourceSha256": "9cdd69298be6797f2094fb36eb565cbb2da0a0941030ecbf4d838b3cdc021767",
+ "guardHead": "0f49c0a3b5c244a662a6fa3751fae2bccbf452ba",
+ "candidate": "9ec5323c",
+ "utc": "2026-10-26T22:47:49Z",
+ "rootBytes": 1871139,
+ "totalBytes": 24604096,
+ "mainBundleSubpackageBytes": 2342909
+}

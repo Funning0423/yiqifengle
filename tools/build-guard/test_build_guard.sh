@@ -15,7 +15,8 @@ P=""; C=""; while [ $# -gt 0 ]; do case "$1" in --project) P=$2; shift;; --build
 n=$(cat "$PLAN.n" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "$PLAN.n"; what=$(sed -n "${n}p" "$PLAN")
 out=$(sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$C" | head -1)
 mkdir -p "$P/build/$out/subpackages/main" "$P/library" "$P/temp"; echo cache > "$P/library/x"
-if [ "$what" = good ]; then head -c 9000000 /dev/zero > "$P/build/$out/game.bin"; head -c 7000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
+if [ "$what" = good ]; then head -c 3000000 /dev/zero > "$P/build/$out/game.bin"; head -c 13000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
+elif [ "$what" = bigroot ]; then head -c 4000001 /dev/zero > "$P/build/$out/game.bin"; head -c 12000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
 else head -c 2300000 /dev/zero > "$P/build/$out/game.bin"; echo "Error: 当前初始场景不存在或在 Bundle 中，无法设置为初始场景。"
   for f in "$P"/assets/scripts/*.meta; do echo '{"ver":"0.0.1","importer":"*"}' > "$f"; done; echo '{}' > "$P/assets/scripts/new.ts.meta"; exit 36; fi
 F
@@ -33,6 +34,10 @@ H=$(cd "$R" && git rev-parse HEAD); TR=$(cd "$R" && git rev-parse 'HEAD^{tree}')
 head -1 "$T/out1" | grep -Eq "^== GUARD HEAD=$H tree=$TR short=$S utc=[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]{8}Z" || fail "case1b header"
 L=$R/tools/build-guard/logs; [ -f "$L/wechat-release.$S.try3.log" ] || fail "case1b sha log name"; head -1 "$L/wechat-release.$S.try3.log" | grep -q "HEAD=$H tree=$TR" || fail "case1b log header"
 [ -L "$L/wechat-release.try3.log" ] && grep -q "HEAD=$H" "$L/wechat-release.try3.log" || fail "case1b legacy log name"
+# 1c) fg-mainpkg-gate: first package 4,000,001 B -> loud failure without retry; 3,000,000 B case above printed MAIN_GATE
+grep -q "MAIN_GATE ROOT 3000000 <= 4000000" "$T/out1" || fail "case1c main gate line"
+R=$(mkrepo 1c); c=$(run "$R" wechat 1c "bigroot good"); cat "$T/out1c"
+[ "$c" = 2 ] || fail "case1c exit $c"; grep -q "first package ROOT 4000001 B > MAIN_MAX 4000000 B" "$T/out1c" || fail "case1c message"; grep -q "try 2/3" "$T/out1c" && fail "case1c retried"
 # 2) bad x3 -> loud failure, exit 2, metas restored, caches gone
 R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
 [ "$c" = 2 ] || fail "case2 exit $c"; grep -q "BUILD GUARD FAILED" "$T/out2" || fail "case2 not loud"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case2 dirty"
