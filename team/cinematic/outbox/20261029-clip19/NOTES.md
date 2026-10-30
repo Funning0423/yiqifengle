@@ -53,3 +53,10 @@ On the branch without the diffs, R1 and R3 FAIL by design. The rows are source-t
 - collision-gate: defaults to the sail frame when the trace has no B1 write.
 - Image: 4_meadow_m407-431_before-after.png
 - UPDATE: we now write the cloud paint fix ourselves: BalloonTransit-prewalk-cloud-paint.diff adds paint(0) after the clouds are attached (BalloonTransit.ts:386) and before the pre-walk (~:603). It hides/places clouds_city_sea and clouds_floor. Applied last in the ordered set, in a separate hunk from b1-ease/3b-landing. paint(0) is the B1 t=0 state, so opacity is continuous at B1 entry. Size: BalloonTransit 72432→72553 B raw (+121), 24424→24488 B gzip (+64).
+
+## GGbot rebase (cd0893ea)
+- BalloonTransit-prewalk-cloud-paint.diff now targets cd0893ea (after the yard-balloon latch). The old base version is kept as -on18965329.diff.
+- Applies on: cd0893ea alone; cd0893ea + rail/b1-ease/3b-landing in either order; and 6b78cccc + rail/b1-ease/3b + RJA lake + paint. b1-ease md5 is cb67d58a, read from wt-final-cam.
+- test-c-prewalk-clouds: PASS with paint, FAIL without it (jump at frame 122).
+- RJA lake-departure + 6b78cccc compose: the lake is placed from S6 and still hidden until openLake() at the door.
+- test-b1-yard-balloon-b1ease.diff pins the exact b1-ease B1 line and the exact b1Hold latch. With b1-ease: PASS. Without it: FAIL.
