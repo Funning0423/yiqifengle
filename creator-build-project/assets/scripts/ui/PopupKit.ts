@@ -1,8 +1,10 @@
-import { _decorator, Component, game, Game, BlockInputEvents, Color, EventTouch, Graphics, Label, Layers, Node, Sprite, UIOpacity, UITransform, Vec3, isValid } from 'cc';
+import { _decorator, Component, game, Game, BlockInputEvents, tween, Tween, Color, EventTouch, Graphics, Label, Layers, Node, Sprite, UIOpacity, UITransform, Vec3, isValid } from 'cc';
 import { GameAudio } from '../audio/GameAudio';
 import { ART_PX, BoardArt } from './BoardArt';
 import { textRgb, tintRgb, uiNightWeight, type TextRole, type TintKind } from './NightTint';
 import { reducedMotion } from './UiPrefs';
+import { OPEN_S, CLOSE_S, PRESS_SCALE, PRESS_SINK, RELEASE_S, TOGGLE_S, easeOutBack, easeOutCubic, enterAt, exitAt } from './PopupMotion';
+export { OPEN_S, CLOSE_S } from './PopupMotion';
 /** Unified popup kit (INTEGRATION §3): one light-wood 9-slice frame without pegs, width 680 px of the 750 design,
  *  baked title on a plank centred on the top edge, 3-slice buttons, toggles, slider. Everything inside a panel is laid
  *  out in 750-design pixels: the panel body is scaled by popupScale(), so slice borders and fonts keep their art size.
@@ -10,15 +12,12 @@ import { reducedMotion } from './UiPrefs';
 export const PANEL_WIDTH = 680;
 export const CONTENT_TOP = 104;
 export const CONTENT_BOTTOM = 72;
-export const OPEN_S = 0.22;
-export const CLOSE_S = 0.15;
 export const SHADE = { rgb: [16, 28, 34], alpha: 0.35 } as const;
 export function popupScale(width: number, height: number): number { return Math.max(0.3, Math.min(width / 750, height / 1300, 0.62)); }
 export type Sound = 'button' | 'back' | 'tool' | 'none';
 export function playSound(kind: Sound) {
   try { const a = GameAudio.instance; if (!a) return; if (kind === 'button') a.onButton(); else if (kind === 'back') a.onUiBack(); else if (kind === 'tool') a.onToolTap(); } catch (e) { /* sound is optional */ }
 }
-const easeOut = (t: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
 export function uiNode(name: string, parent: Node | null, width = 0, height = 0): Node {
   const n = new Node(name); n.layer = Layers.Enum.UI_2D; if (parent) parent.addChild(n); n.addComponent(UITransform).setContentSize(width, height); return n;
 }
@@ -110,7 +109,7 @@ function pointerId(e: EventTouch | undefined) {
 }
 /** Press sinks 3px; leaving/re-entering changes feedback, but only an owner release inside activates. */
 export function pressable(node: Node, content: Node, tap: () => void, opts: { sound?: Sound; enabled?: () => boolean; onPress?: (down: boolean) => void } = {}): PressHandle {
-  let owner: number | null = null, down = false, disposed = false; const base = new Vec3();
+  let owner: number | null = null, down = false, disposed = false; const base = new Vec3(), baseScale = new Vec3(1, 1, 1);
   const ready = () => !disposed && pressNodeReady(node) && (!opts.enabled || opts.enabled());
   const hit = (e: EventTouch) => {
     const p = e && typeof e.getLocation === 'function' ? e.getLocation() : null;
@@ -118,7 +117,8 @@ export function pressable(node: Node, content: Node, tap: () => void, opts: { so
   };
   const press = (on: boolean) => {
     if (on === down) return; down = on;
-    if (isValid(content, true)) { if (on) { base.set(content.position); content.setPosition(base.x, base.y - 3, base.z); } else content.setPosition(base.x, base.y, base.z); }
+    // SPEC §4: press = same frame (scale 0.96, sink 3); release = 120 ms easeOutBack(1.4) back to rest.
+    if (isValid(content, true)) { Tween.stopAllByTarget(content); if (on) { base.set(content.position); baseScale.set(content.scale); content.setPosition(base.x, base.y - PRESS_SINK, base.z); content.setScale(baseScale.x * PRESS_SCALE, baseScale.y * PRESS_SCALE, baseScale.z); } else { content.setPosition(base.x, base.y, base.z); if (reducedMotion()) content.setScale(baseScale); else tween(content).to(RELEASE_S, { scale: baseScale.clone() }, { easing: (k: number) => easeOutBack(k) }).start(); } }
     if (isValid(node, true) && isValid(content, true)) opts.onPress?.(on);
   };
   const cancel = () => { owner = null; press(false); };
@@ -168,11 +168,11 @@ export function artToggle(parent: Node, tint: TintSet, x: number, y: number, h: 
   const onOp = onS.node.addComponent(UIOpacity);
   const knob = artSprite(node, 'popup/toggle_knob', 0, 0, h * 0.86, h * 0.86, 'Knob'); tint.sprite(knob, 'ui');
   let value = on, t = on ? 1 : 0;
-  const paint = () => { knob.node.setPosition(-w / 2 + h * 0.5 + (w - h) * t, -h * 0.02, 0); onOp.opacity = Math.round(255 * t); };
+  const paint = () => { const e = easeOutCubic(value ? t : 1 - t), k = value ? e : 1 - e; knob.node.setPosition(-w / 2 + h * 0.5 + (w - h) * k, -h * 0.02, 0); onOp.opacity = Math.round(255 * k); };
   paint();
   pressable(node, knob.node, () => { value = !value; change(value); }, { sound: 'button' });
   return { node, set(v: boolean, animate = false) { value = v; if (!animate) { t = v ? 1 : 0; paint(); } }, value: () => value,
-    update(dt: number) { const target = value ? 1 : 0; if (t === target) return; t = target > t ? Math.min(1, t + dt / 0.15) : Math.max(0, t - dt / 0.15); paint(); } };
+    update(dt: number) { const target = value ? 1 : 0; if (t === target) return; t = target > t ? Math.min(1, t + dt / TOGGLE_S) : Math.max(0, t - dt / TOGGLE_S); paint(); } };
 }
 export interface SliderHandle { node: Node; set(v: number): void; value(): number }
 /** Music volume slider: toggle_off rail, toggle_on fill clipped to the value, knob 1.5× rail height (0 new art). */
@@ -237,7 +237,7 @@ export interface PanelOptions {
 export class PopupPanel {
   readonly root: Node; readonly body: Node; readonly tint: TintSet;
   width: number; height: number;
-  private frame: Node; private plank: Node;
+  private frame: Node; plank: Node;
   private layoutStrategy: ((width: number, height: number, safeInsets?: PopupSafeInsets) => PanelGeometry) | null = null;
   private reflow: ((geometry: PanelGeometry) => void) | null = null;
   private shade: Graphics; private opacity: UIOpacity; private t = 0; private closing = -1; private done: (() => void) | null = null;
@@ -306,12 +306,14 @@ export class PopupPanel {
     this.frame.getComponent(UITransform)!.setContentSize(this.width / this.frame.scale.x, this.height / this.frame.scale.y);
     this.plank.setPosition(0, geometry.titleY ?? this.height / 2, 0);
     this.root.getComponent(UITransform)!.setContentSize(width, height); this.shade.node.getComponent(UITransform)!.setContentSize(width, height);
-    const k = this.reduced ? 1 : this.closing >= 0 ? 1 - 0.04 * easeOut(1 - this.closing / CLOSE_S) : 0.92 + 0.08 * easeOut(this.t / OPEN_S);
+    const k = this.motion().scale;
     this.body.setScale(s * k, s * k, 1); this.body.setPosition(geometry.offsetX ?? 0, geometry.offsetY ?? -this.dy * s, 0);
     this.reflow?.(geometry);
     this.paintShade(this.alpha());
   }
-  private alpha() { return this.closing >= 0 ? Math.max(0, this.closing / CLOSE_S) : Math.min(1, this.t / OPEN_S); }
+  /** SPEC §4: enter 320 ms cubic-bezier(0.05,0.7,0.1,1), exit 180 ms cubic-bezier(0.3,0,0.8,0.15); alpha on the same curves. */
+  private motion() { return this.closing >= 0 ? exitAt(CLOSE_S - this.closing, this.reduced) : enterAt(this.t, this.reduced); }
+  private alpha() { return this.motion().alpha; }
   private paintShade(a: number) {
     const g = this.shade; g.clear(); g.fillColor = new Color(SHADE.rgb[0], SHADE.rgb[1], SHADE.rgb[2], Math.round(255 * SHADE.alpha * a));
     g.rect(-this.viewW / 2, -this.viewH / 2, this.viewW, this.viewH); g.fill();
@@ -324,7 +326,7 @@ export class PopupPanel {
     const step = Math.max(0, Math.min(dt, 0.1));
     if (this.closing >= 0) { this.closing = Math.max(0, this.closing - step); if (this.closing <= 0) { this.finish(); return; } }
     else if (this.t < OPEN_S) this.t = Math.min(OPEN_S, this.t + step);
-    const a = this.alpha(); this.opacity.opacity = Math.round(255 * easeOut(a)); this.tint.setAlpha(a); this.layout(this.viewW, this.viewH, this.safeInsets);
+    const a = this.alpha(); this.opacity.opacity = Math.round(255 * a); this.tint.setAlpha(a); this.layout(this.viewW, this.viewH, this.safeInsets);
     for (let i = 0; i < this.toggles.length; i++) this.toggles[i].update(step);
     this.tint.update();
   }

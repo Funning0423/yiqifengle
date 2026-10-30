@@ -5,7 +5,7 @@ import { ResultChest3D } from '../ResultChest3D';
 import { TOOL_NAMES } from '../world-r2/ManagedTools';
 import { BoardArt, HERO_KEYS, TOOL_KEYS, toolDisplaySize } from './BoardArt';
 import { CONTENT_BOTTOM, CONTENT_TOP, PopupPanel, PopupStack, makeLabel, measure, pressable, uiNode } from './PopupKit';
-import { markToolSeen, reducedMotion, setReducedMotion } from './UiPrefs';
+import { markToolSeen, musicOn, reducedMotion, setMusicOn, setReducedMotion, setVibrateEnabled, vibrate, vibrateEnabled } from './UiPrefs';
 /** Panels shared by the board and the island (INTEGRATION §3 / r2 / r3): settings, about, licence text, bag, first-get
  *  tool intro and the reward claim ("获得"). Layout numbers are the 750-design px of c-popups/src/compose*.py. */
 export interface ToolArtSource { frame(kind: string): SpriteFrame | null }
@@ -38,27 +38,31 @@ export function toolArt(p: PopupPanel, kind: string, x: number, y: number, w: nu
   const s = n.addComponent(Sprite); s.sizeMode = Sprite.SizeMode.CUSTOM; s.spriteFrame = f; p.tint.sprite(s, 'ui'); return s;
 }
 // ---------------- settings ----------------
+/** System-panels SPEC §2: one control type (switch) — 音乐 · 音效 · 震动 ┆ 夜色 · 减少动态 ┆ 关于. Whole row is the hit area. */
+export const SETTINGS_ROWS = ['MusicToggle', 'SfxToggle', 'VibrateToggle', 'NightToggle', 'ReducedMotion'] as const;
 export function openSettings(stack: PopupStack, opts: { onClose?: () => void; onAbout?: () => void } = {}): PopupPanel {
-  const p = stack.open({ name: 'SettingsPanel', height: 768, title: '设置', titleArt: 'popup/title_2', closable: true, onClose: opts.onClose });
-  const audio = GameAudio.instance, rows = [136, 248, 360, 472];
-  iconRow(p, 'popup/icon_music', '音乐', rows[0]);
-  p.slider(162, rows[0], 236, 32, audio ? audio.getMusicVolume() : 0.4, v => { GameAudio.instance?.setMusicVolume(v); }, 'MusicVolume');
-  iconRow(p, 'popup/icon_sfx', '音效', rows[1]);
-  p.toggle(230, rows[1], 56, !(audio?.isSfxMuted() ?? false), on => { GameAudio.instance?.setSfxMuted(!on); }, 'SfxToggle');
-  iconRow(p, 'popup/icon_sun', '昼夜', rows[2]);
+  const RH = 112, y0 = 150, gap = 30, ph = 900;
+  const p = stack.open({ name: 'SettingsPanel', height: ph, title: '设置', titleArt: 'popup/title_2', closable: true, onClose: opts.onClose });
+  const ys = [y0, y0 + RH, y0 + RH * 2, y0 + RH * 3 + gap, y0 + RH * 4 + gap];
+  const row = (i: number, icon: string, label: string, on: boolean, change: (on: boolean) => void, name: string, enabled = true) => {
+    const hit = uiNode('Row-' + name, p.body, 600, RH), hp = p.at(0, ys[i]); hit.setPosition(hp[0], hp[1], 0);
+    iconRow(p, icon, label, ys[i]);
+    const t = p.toggle(236, ys[i], 56, on, change, name);
+    if (!enabled) { const op = t.node.addComponent(UIOpacity); op.opacity = 115; t.node.on(Node.EventType.TOUCH_START, (e: any) => { if (e) e.propagationStopped = true; }, null, true); return t; }
+    pressable(hit, hit, () => { const v = !t.value(); t.set(v, true); change(v); }, { sound: 'button' });
+    return t;
+  };
+  row(0, 'popup/icon_music', '音乐', musicOn(GameAudio.instance), on => setMusicOn(GameAudio.instance, on), 'MusicToggle');
+  row(1, 'popup/icon_sfx', '音效', !(GameAudio.instance?.isSfxMuted() ?? false), on => { GameAudio.instance?.setSfxMuted(!on); }, 'SfxToggle');
+  row(2, 'popup/icon_vibrate', '震动', vibrateEnabled(), on => { setVibrateEnabled(on); if (on) vibrate('light'); }, 'VibrateToggle');
+  const div = uiNode('Divider', p.body, 540, 4), dp = p.at(0, ys[2] + RH / 2 + gap / 2); div.setPosition(dp[0], dp[1], 0);
+  p.tint.shape(div.addComponent(Graphics), (g, night, al) => { const k = 1 - 0.4 * night; g.strokeColor = new Color(Math.round(217 * k), Math.round(191 * k), Math.round(140 * k), Math.round(255 * al)); g.lineWidth = 3; for (let x = -270; x < 270; x += 24) { g.moveTo(x, 0); g.lineTo(x + 12, 0); } g.stroke(); });
   const dn = dayNight();
-  const day = p.button('primary', '晴昼', 80, rows[2], 136, 62, () => pick('day'), { icon: 'popup/icon_sun', iconScale: 0.5, fontSize: 24, name: 'Day' });
-  const night = p.button('secondary', '夜色', 222, rows[2], 136, 62, () => pick('night'), { icon: 'popup/icon_moon', iconScale: 0.5, fontSize: 24, name: 'Night' });
-  const paintSeg = (mode: string) => { day.setKind(mode === 'day' ? 'primary' : 'secondary'); night.setKind(mode === 'night' ? 'primary' : 'secondary'); };
-  function pick(mode: string) { const now = dayNight(); if (!now) return; if (now.mode !== mode) { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } } const after = dayNight(); paintSeg(after ? after.mode : mode); }
-  paintSeg(dn ? dn.mode : 'day'); if (!dn) { day.setEnabled(false); night.setEnabled(false); }
-  iconRow(p, 'popup/icon_motion', '减少动态', rows[3]);
-  p.toggle(230, rows[3], 56, reducedMotion(), on => setReducedMotion(on), 'ReducedMotion');
-  const y = rows[3] + 112 + 24;
-  const about = uiNode('AboutRow', p.body, 560, 100); const ap = p.at(0, y + 22); about.setPosition(ap[0], ap[1], 0);
-  p.sprite('popup/icon_about', -240, y + 20, undefined, 56);
-  p.text('关于《咦，起风了》', -196, y, 32, 'brown', { align: 'left', width: 420 });
-  const version = p.text(buildLabel(), -196, y + 44, 26, 'brown2', { align: 'left', width: 420, bold: false, name: 'BuildLabel' });
+  row(3, 'popup/icon_moon', '夜色', dn?.mode === 'night', on => { const now = dayNight(); if (!now) return; if ((now.mode === 'night') !== on) { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } } }, 'NightToggle', !!dn);
+  row(4, 'popup/icon_motion', '减少动态', reducedMotion(), on => setReducedMotion(on), 'ReducedMotion');
+  const y = ys[4] + RH / 2 + 56;
+  const about = uiNode('AboutRow', p.body, 560, 92); const ap = p.at(0, y); about.setPosition(ap[0], ap[1], 0);
+  const version = p.text('关于《咦，起风了》 · ' + BUILD_VERSION + ' ›', 0, y, 26, 'brown2', { bold: false, width: 560, name: 'BuildLabel' });
   pressable(about, version.node, () => (opts.onAbout || (() => openAbout(stack)))(), { sound: 'button' });
   return p;
 }
@@ -226,4 +230,26 @@ export function badge(p: PopupPanel, n: Node, text: string) {
     g.lineWidth = 3; g.strokeColor = new Color(149, 103, 55, Math.round(255 * a)); g.circle(0, 0, r); g.stroke();
   });
   const l = makeLabel(n, text, 0, 0, 22, { width: 48 }); p.tint.label(l, 'brown');
+}
+// ---------------- version update (system-panels SPEC §3) ----------------
+/** One focus: 「重启更新」; 「稍后」 is a thin text line. No ×, the shade does not close it. */
+export function openUpdate(stack: PopupStack, apply: () => void, later: () => void): PopupPanel {
+  const ph = 640, p = stack.open({ name: 'UpdatePanel', height: ph, title: '', closable: false });
+  p.plank.active = false;
+  const mill = uiNode('Pinwheel', p.body, 200, 200), mp = p.at(0, 150); mill.setPosition(mp[0], mp[1], 0);
+  const BL: number[][] = [[232, 128, 52], [55, 127, 108], [242, 181, 68], [201, 119, 58]], R = 60;
+  p.tint.shape(mill.addComponent(Graphics), (g, night, a) => {
+    const k = 1 - 0.35 * night; g.fillColor = new Color(255, 220, 140, Math.round(150 * a)); g.circle(0, 0, R * 1.6); g.fill();
+    for (let i = 0; i < 4; i++) { const c = BL[i], q = i * Math.PI / 2; g.fillColor = new Color(Math.round(c[0] * k), Math.round(c[1] * k), Math.round(c[2] * k), Math.round(255 * a));
+      g.moveTo(0, 0); g.lineTo(Math.cos(q) * R, Math.sin(q) * R); g.lineTo(Math.cos(q + 0.9) * R * 0.62, Math.sin(q + 0.9) * R * 0.62); g.close(); g.fill(); }
+    g.fillColor = new Color(255, 240, 203, Math.round(255 * a)); g.circle(0, 0, 9); g.fill();
+  });
+  p.text('新版本已准备好', 0, 286, 42, 'brown', { name: 'UpdateTitle' });
+  p.text('重启后即可体验新版本。', 0, 362, 30, 'brown2', { bold: false, name: 'UpdateLine' });
+  p.button('primary', '重启更新', 0, 470, 460, 108, () => p.close(apply), { fontSize: 36, name: 'ApplyUpdate' });
+  const l = p.text('稍后', 0, 572, 28, 'brown2', { bold: false, name: 'UpdateLater' }); l.node.getComponent(UITransform)!.setContentSize(250, 92);
+  pressable(l.node, l.node, () => p.close(later), { sound: 'back' });
+  const update = p.update.bind(p); let t = 0;
+  p.update = (dt: number) => { update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (isValid(mill, true) && !reducedMotion()) mill.angle = -180 * t; };
+  return p;
 }

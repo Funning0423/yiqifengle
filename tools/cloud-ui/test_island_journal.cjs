@@ -35,7 +35,7 @@ function bounds(n,w,h){const p=n.worldPosition,t=n.getComponent(UITransform),s=n
   o.open('sky');tap(node(o,'ChapterPanel','VisitSkycity'));assert.deepEqual(calls.slice(-2),['invoke','skycity']);o.open('tide');tap(node(o,'ChapterPanel','LegacyTide'));assert.deepEqual(calls.slice(-2),['invoke','r4']);
   gates.r4=[{unlocked:false}];o.open('tide');tap(node(o,'ChapterPanel','LegacyTide'));assert.equal(calls.length,8,'legacy tide locked');o.close();
   assert(o.openRest());assert.equal(top(o),'RestPanel');assert(!o.openRest(),'one page at a time');tap(node(o,'RestPanel','DayNight'));settle(o);assert.deepEqual(calls.slice(-2),['invoke','dayNight']);assert(!o.isOpen());
-  o.open('settings');assert.equal(top(o),'SettingsPanel');for(const n of ['MusicVolume','SfxToggle','Day','Night','ReducedMotion','AboutRow'])assert(node(o,'SettingsPanel',n),'full settings row '+n);assert(!node(o,'SettingsPanel','ReturnHome'),'settings no longer returns home (tap the lighthouse)');assert(!node(o,'SettingsPanel','DayNight'),'island rest moved to the cabin');o.dispose();
+  o.open('settings');assert.equal(top(o),'SettingsPanel');for(const n of ['MusicToggle','SfxToggle','VibrateToggle','NightToggle','ReducedMotion','AboutRow'])assert(node(o,'SettingsPanel',n),'full settings row '+n);assert(!node(o,'SettingsPanel','ReturnHome'),'settings no longer returns home (tap the lighthouse)');assert(!node(o,'SettingsPanel','DayNight'),'island rest moved to the cabin');o.dispose();
   assert(!calls.includes('invoke-while-open'),'every command closes the page before it runs');
   checks.push('journey book → chapter page → enter / gate recheck / back; skycity, legacy tide (locked when r4 closed), cabin rest day/night and full settings; each command closes the popup first');
  }

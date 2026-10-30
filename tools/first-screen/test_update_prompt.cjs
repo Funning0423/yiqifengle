@@ -10,14 +10,13 @@ function fakeWx(answer){const h={},calls=[];const um={onCheckForUpdate:f=>h.chec
 {const {g,m}=load();assert.equal(typeof m.installUpdatePrompt,'function','installUpdatePrompt exported (fails on old first-screen.js)');assert.equal(g.__qfUpdate,undefined);assert.equal(m.installUpdatePrompt(null),false);}
 {const {g}=load({});assert.equal(g.__qfUpdate,undefined,'wx without getUpdateManager (old base lib) -> no-op');}
 {const {g}=load({getUpdateManager:()=>{throw Error('devtools');}});assert.equal(g.__qfUpdate,undefined,'throwing manager is harmless');}
-// WeChat: confirm -> applyUpdate once
+// WeChat (system-panels SPEC §3): onUpdateReady only raises the signal (no system modal); the in-game popup calls st.apply() once
 {const f=fakeWx(true);const {g,m}=load(f.wx);assert.equal(f.calls[0],'get');f.h.check({hasUpdate:true});assert.equal(g.__qfUpdate.hasUpdate,true);
- assert.equal(f.calls.includes('apply'),false,'no apply before ready');f.h.ready();
- const modal=f.calls.find(c=>Array.isArray(c));assert.deepEqual(modal,['modal','发现新版本','新版本已准备好，重启即可更新。','重启','稍后']);
+ assert.equal(g.__qfUpdate.apply(),false,'no apply before ready');f.h.ready();assert.equal(g.__qfUpdate.ready,true);
+ assert.equal(f.calls.filter(Array.isArray).length,0,'no system modal');assert.equal(g.__qfUpdate.apply(),true);assert.equal(g.__qfUpdate.apply(),false,'apply once');
  assert.equal(f.calls.filter(c=>c==='apply').length,1);assert.equal(m.installUpdatePrompt(f.wx),false,'installs once');}
-// cancel -> no apply; failure flagged, no modal
-{const f=fakeWx(false);const {g}=load(f.wx);f.h.ready();assert.equal(f.calls.includes('apply'),false);f.h.fail();assert.equal(g.__qfUpdate.failed,true);}
-{const f=fakeWx(true);const {g}=load(f.wx);f.h.check({hasUpdate:false});f.h.fail();assert.equal(f.calls.filter(Array.isArray).length,0,'no modal on failure / no update');}
+// failure: flagged silently, nothing applied
+{const f=fakeWx(false);const {g}=load(f.wx);f.h.fail();assert.equal(g.__qfUpdate.failed,true);assert.equal(g.__qfUpdate.ready,false);assert.equal(f.calls.includes('apply'),false);}
 // first-screen contract unchanged
 {const {m}=load();for(const k of ['start','end','setProgress','coverTransform','coverVertices'])assert.equal(typeof m[k],'function',k);}
 console.log('PASS update-prompt');

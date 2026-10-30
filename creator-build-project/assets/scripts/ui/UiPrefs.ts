@@ -28,3 +28,20 @@ export function reducedMotion(): boolean {
   try { return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
 }
 export function setReducedMotion(on: boolean) { set(REDUCED_MOTION_KEY, on ? 'true' : 'false'); }
+/** Vibration switch (system-panels SPEC §2.3): '1'/'0', default on. Every vibration in the game goes through vibrate(). */
+export const VIBRATE_KEY = 'qfl.ui.vibrate';
+export function vibrateEnabled(): boolean { return get(VIBRATE_KEY) !== '0'; }
+export function setVibrateEnabled(on: boolean) { set(VIBRATE_KEY, on ? '1' : '0'); }
+export function vibrate(type: 'light' | 'medium' | 'heavy' = 'light'): boolean {
+  if (!vibrateEnabled()) return false;
+  try { const w = (globalThis as any).wx; if (!w || typeof w.vibrateShort !== 'function') return false; w.vibrateShort({ type }); return true; } catch (e) { return false; }
+}
+/** Music on/off without setMuted (which would also stop SFX): off = volume 0, previous volume kept in qfl.audio.musicLast. */
+export const MUSIC_LAST_KEY = 'qfl.audio.musicLast';
+export interface MusicVolume { getMusicVolume(): number; setMusicVolume(v: number): void }
+export function musicOn(a: MusicVolume | null | undefined): boolean { return (a?.getMusicVolume() ?? 0.4) > 0; }
+export function setMusicOn(a: MusicVolume | null | undefined, on: boolean) {
+  if (!a) return;
+  if (!on) { const v = a.getMusicVolume(); if (v > 0) set(MUSIC_LAST_KEY, String(v)); a.setMusicVolume(0); return; }
+  const last = Number(get(MUSIC_LAST_KEY)); a.setMusicVolume(Number.isFinite(last) && last > 0 ? Math.min(1, last) : 0.4);
+}

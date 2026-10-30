@@ -41,4 +41,16 @@ R=$(mkrepo 2); c=$(run "$R" wechat 2 "bad bad bad"); cat "$T/out2"
 R=$(mkrepo 3); echo x >> "$R/creator-build-project/assets/scripts/a1.ts.meta"; c=$(run "$R" wechat 3 "good"); [ "$c" = 2 ] || fail "case3 exit $c"; grep -q "not clean before" "$T/out3" || fail "case3 msg"
 # 4) both targets, each good first time
 R=$(mkrepo 4); c=$(run "$R" both 4 "good good"); [ "$c" = 0 ] || fail "case4 exit $c"; grep -q "web-test 16000000" "$T/out4" || fail "case4 both"
-echo "SELFTEST PASS (4 cases + provenance)"
+# 5) placeholder gate (system-panels SPEC §1.4): dirty build sample (literal and \u-escaped) must fail, clean sample must pass
+P=$T/ph; mkdir -p "$P/bad/build/wechatgame/src" "$P/esc/build/wechatgame" "$P/good/build/wechatgame/src" "$P/src/creator-build-project/assets"
+W=$(printf '\345\215\240\344\275\215')
+printf '{"t":"%s"}\n' "$W" > "$P/bad/build/wechatgame/src/settings.json"
+printf 'var a="\\u5360\\u4f4d";\n' > "$P/esc/build/wechatgame/game.js"
+printf '{"t":"ok"}\n' > "$P/good/build/wechatgame/src/settings.json"; head -c 64 /dev/urandom > "$P/good/build/wechatgame/x.png"
+printf '// %s\n' "$W" > "$P/src/creator-build-project/assets/a.ts"
+node "$HERE/check-no-placeholder.cjs" --root "$P/bad" > "$T/ph1" 2>&1 && fail "case5 literal hit passed"; grep -q "settings.json:1" "$T/ph1" || fail "case5 no path:line"
+node "$HERE/check-no-placeholder.cjs" --root "$P/esc" > "$T/ph2" 2>&1 && fail "case5 escaped hit passed"
+node "$HERE/check-no-placeholder.cjs" --root "$P/src" > "$T/ph3" 2>&1 && fail "case5 source comment hit passed"
+node "$HERE/check-no-placeholder.cjs" --root "$P/good" > "$T/ph4" 2>&1 || { cat "$T/ph4"; fail "case5 clean sample failed"; }
+node "$HERE/check-no-placeholder.cjs" --root "$HERE/../.." > "$T/ph5" 2>&1 || { cat "$T/ph5"; fail "case5 repo source has the placeholder word"; }
+echo "SELFTEST PASS (5 cases + provenance)"

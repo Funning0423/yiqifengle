@@ -2,7 +2,8 @@ import { Node, UITransform, Graphics, Color, Label, Layers, UIOpacity, isValid }
 import { ManagedToolArt } from '../ManagedToolArt';
 import { BoardArt } from '../ui/BoardArt';
 import { PopupStack } from '../ui/PopupKit';
-import { openBag, openSettings } from '../ui/CommonPanels';
+import { openBag, openSettings, openUpdate } from '../ui/CommonPanels';
+import { UpdatePromptGate } from '../ui/UpdatePromptCore';
 import { CHAPTERS, openChapter, openJourney, openRest } from '../ui/IslandPanels';
 import { warmButton } from '../WarmButton';
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
@@ -11,7 +12,7 @@ import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type Prop
 const TAP_TARGET:Record<string,PropTapTarget>={bag:'bag',journal:'book',settings:'settings'};
 
 type Options={prewarm?:(region:string)=>void;invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
-type Page='bag'|'journal'|'settings'|'rest'|'tide'|'meadow'|'sky'|'lake';
+type Page='bag'|'journal'|'settings'|'rest'|'update'|'tide'|'meadow'|'sky'|'lake';
 export { CHAPTERS };
 /** Island presentation only. Closed: three compact utilities (bag / journey book / full settings). Regions are chapters
  * in the journey book, never a second wall of island buttons. The island rest opens from the cabin (openRest).
@@ -19,7 +20,7 @@ export { CHAPTERS };
 export class IslandJourneyOverlay {
  private root:Node;private dock:Node;private layer:Node;private popups:PopupStack;private toolArt:ManagedToolArt;private lastMs=0;
  private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private serial=0;
- private propMode=false;private tags:Node[]=[];private tagSlots:PropButtonSlot[]=[];private tagNight=-1;
+ private updateGate=new UpdatePromptGate();private propMode=false;private tags:Node[]=[];private tagSlots:PropButtonSlot[]=[];private tagNight=-1;
  constructor(parent:Node,private options:Options){
   this.root=this.box('IslandJourneyOverlay',parent,0,0,1,1);this.root.active=false;
   this.dock=this.box('IslandUtilityDock',this.root,0,0,1,1);
@@ -35,8 +36,10 @@ export class IslandJourneyOverlay {
  }
  sync(width:number,height:number,enabled:boolean){
   if(this.dead||!isValid(this.root,true))return;const resized=width!==this.width||height!==this.height;this.enabled=enabled;this.root.active=enabled;
-  if(!enabled){this.close();return;}
+  if(!enabled){this.updateGate.tick(0,null,{islandHome:false,popupOpen:false,board:true,transition:true});this.close();return;}
   const now=Date.now(),dt=this.lastMs?Math.min(.1,(now-this.lastMs)/1000):0;this.lastMs=now;this.popups.update(dt);if(this.page&&!this.popups.any())this.page=null;if(!this.page&&!this.dock.active)this.dock.active=true;
+  // System-panels §3: update popup only at a quiet island-home moment (overlay enabled = island, not board/transition/busy).
+  const upd=(globalThis as any).__qfUpdate;if(this.updateGate.tick(dt,upd,{islandHome:true,popupOpen:!!this.page||this.popups.any(),board:false,transition:false}))this.open('update');
   // T9n: tags follow the props' night weight (repaint only on a visible step; ends exact)
   if(this.propMode&&this.tags.length){const nw=propNightWeight();if(Math.abs(nw-this.tagNight)>=.02||nw!==this.tagNight&&(nw===0||nw===1)){this.tagNight=nw;if(!resized)this.paintTags();}}
   this.width=width;this.height=height;if(!resized)return;this.root.getComponent(UITransform)!.setContentSize(width,height);const portrait=width<height,bottom=portrait?34:20,gap=Math.min(100,(width-48)/3);
@@ -82,6 +85,7 @@ export class IslandJourneyOverlay {
   const done=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};
   if(page==='bag'){const status=this.safeRead(this.options.mainlineStatus);openBag(this.popups,status?.journey,'island',this.toolArt).options.onClose=done;}
   else if(page==='settings')openSettings(this.popups,{onClose:done});
+  else if(page==='update'){const upd=(globalThis as any).__qfUpdate;openUpdate(this.popups,()=>{try{upd?.apply?.();}catch(e){console.warn('[UPDATE] apply',String(e));}},()=>this.updateGate.later()).options.onClose=done;}
   else if(page==='rest'){const night=this.safeRead(this.options.dayNight)?.mode==='night';openRest(this.popups,night,()=>{if(live())this.dispatch(this.options.toggleDayNight);}).options.onClose=done;}
   else if(page==='journal'){const status=this.safeRead(this.options.mainlineStatus),gates=this.safeRead(this.options.gates);
    openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5).options.onClose=done;}
