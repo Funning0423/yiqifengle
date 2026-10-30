@@ -201,8 +201,11 @@
       "file": "tools/journey-integration/occlusion/fixture-occluders.json",
       "key": "binSha256",
       "count": 1,
-      "kind": "unchecked",
-      "valuesSha256": "7d7e75b02e1cd01dbee700c99abbe9e384a6ca02dee8fbbbe3f8d49c696ab0f4"
+      "kind": "verified",
+      "checkedBy": "route-occlusion",
+      "via": [
+        "tools/journey-integration/journey-scene.cjs"
+      ]
     },
     {
       "file": "tools/journey-integration/occlusion/fixture-occluders.json",
