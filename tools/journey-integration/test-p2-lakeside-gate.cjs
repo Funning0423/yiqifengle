@@ -25,10 +25,12 @@ if(gate&&show){
 const rs=src.indexOf("arrivalMark('ride-start')"),line=src.slice(rs,src.indexOf('\n',rs));
 ok(rs>0&&!/openLake\(\)/.test(line),'ride-start does not open the lake');
 ok(/const boardIn=async\(\)=>\{legClock\.mark\('door'\);openLake\(\);/.test(src),'door mark opens the lake');
-ok(/openLake\(\);if\(camLog\.on\)camProbeLake\(null,'landed'\);pub\(R\.T,true\);arrivalMark\('touchdown'/.test(src),'touchdown opens the lake (fallback)');
+ok(/openLake\(\);(\/\*QF_PROBE_BEGIN\*\/)?if\(camLog\.on\)camProbeLake\(null,'landed'\);(\/\*QF_PROBE_END\*\/)?pub\(R\.T,true\);arrivalMark\('touchdown'/.test(src),'touchdown opens the lake (fallback)');
 ok(/arrivalMark\('skip'\);openLake\(\);/.test(src),'skip opens the lake');
 ok((src.match(/openLake\(\)/g)||[]).length===3,'openLake called exactly at door/touchdown/skip');
-const calls=src.match(/[^\n;{]{0,20}camProbeLake\(/g)||[];ok(calls.length>=1&&calls.every(c=>/if\(camLog\.on\)camProbeLake\($/.test(c)||/import/.test(c)),'adapter calls camProbeLake only inside if(camLog.on)');
+const idx=[...src.matchAll(/camProbeLake\(/g)].map(m=>m.index);ok(idx.length>=3&&idx.every(i=>{const b=src.lastIndexOf('/*QF_PROBE_BEGIN*/',i),e=src.lastIndexOf('/*QF_PROBE_END*/',i);return b>e&&(/if\(camLog\.on\)$/.test(src.slice(b,i))||/import|,$/.test(src.slice(b-60,i)));}),'adapter calls camProbeLake only inside if(camLog.on), within QF_PROBE markers');
 ok(/export function camProbeLake\([^)]*\):void\{if\(!camLog\.on\)return;/.test(log)&&/function probeSceneFrame[^\n]*\n if\(!camLog\.on\|\|/.test(log),'probe bodies gated by camLog.on');
 ok(!/QF_P2_SCENE/.test(src),'no [QF_P2_SCENE] literal outside CamTraceLog');
+{const i=log.indexOf('[QF_P2_SCENE]'),b=log.lastIndexOf('/*QF_PROBE_BEGIN*/',i),e=log.lastIndexOf('/*QF_PROBE_END*/',i);ok(i>0&&b>e,'[QF_P2_SCENE] probe inside QF_PROBE markers (release strip)');}
+ok(/QF_P2_SCENE/.test(fs.readFileSync(path.join(__dirname,'../build-guard/release-probe-symbols.json'),'utf8')),'QF_P2_SCENE listed in release-probe-symbols literal');
 if(fail){console.error('p2-lakeside-gate: FAIL '+fail);process.exit(1);}console.log('p2-lakeside-gate: PASS');

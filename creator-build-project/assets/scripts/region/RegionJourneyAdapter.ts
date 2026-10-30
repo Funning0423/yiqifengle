@@ -8,7 +8,7 @@ import {SKY_LAKE_CONT,lakeBasketYaw,skyLakeContinuous,type SkyLake} from './SkyL
 import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './TransitionAnchorData';
 import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
 import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
-import {camTag,camLog,camActorProbe,camProbeLake} from './CamTraceLog';
+import {camTag,camLog,camActorProbe/*QF_PROBE_BEGIN*/,camProbeLake/*QF_PROBE_END*/} from './CamTraceLog';
 import {SKY_PRE_FOLLOW,SKY_LAKE_AT_S6_M,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
 import {skyResumeBegin} from './SkyResumeLens'/* full9c: 运镜bot f3ad48bb, pose-only; we stay the only writer */;
 import {skyLakeEntry} from './SkyLakeEntry';
@@ -339,7 +339,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
    // T-03 (GGbot): arrival trace + board preload from the set-off (P1 45 s: the board preload used to start only at atmosphere
    // weight 0.9, i.e. at the very end of the route, so the board mount ran after the landing instead of during the flight)
-   legClock.mark('walk');arrivalMark('ride-start');void preloadLakesideBoard();if(camLog.on)camProbeLake(lakeModel,'walk');
+   legClock.mark('walk');arrivalMark('ride-start');void preloadLakesideBoard();/*QF_PROBE_BEGIN*/if(camLog.on)camProbeLake(lakeModel,'walk');/*QF_PROBE_END*/
    // T-03 skip API: the skip badge (2nd viewing on) runs a WindWipe 'ride'; under the cover it calls this, which jumps the
    // ride clock to touchdown (R.T) on the next tick; resolves once the touchdown frame has been applied.
    const flightAt=R.cutT+K.boardBlackS/2;let skipReq=false,skipped=false,landedOk:()=>void=()=>{};const landed=new Promise<void>(r=>{landedOk=r;});
@@ -355,7 +355,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      {const S=TRANSITION_STAGING.basket.seat;girl.setPosition(S[0],-.1,S[2]);}/* door2: seat (−0.032,0,0.099) facing exit door B */girl.setRotationFromEuler(0,moored.seatYawDeg(moored.startYawRad*180/Math.PI),0);};
     boardFn=()=>board();
     const apply=(writeCam=true)=>{
-     const t=Math.min(clock.t,R.T);if(camLog.on)camProbeLake(null,t>=R.liftT&&t<R.T?'ascent':t<R.liftT?'board':'landed');const pos=sl&&atC&&tau<sl.touchdownAt?sl.basket(tau):sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
+     const t=Math.min(clock.t,R.T);/*QF_PROBE_BEGIN*/if(camLog.on)camProbeLake(null,t>=R.liftT&&t<R.T?'ascent':t<R.liftT?'board':'landed');/*QF_PROBE_END*/const pos=sl&&atC&&tau<sl.touchdownAt?sl.basket(tau):sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
      if(sl&&atC&&isValid(vehicle,true))vehicle.setRotationFromEuler(0,lakeBasketYaw(sl,tau,M5.worldYawDeg,moored.doorYawDeg),0)/* moored −68.19 → landing (door B exit) */;
      {const m=t<R.liftT;if(m!==ropes5a){ropes5a=m;setMooringRopes(director.getScene(),'5a',m);}}/* cand7: 5a rope while the basket is moored, stowed at lift-off */
      if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
@@ -403,7 +403,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
    // T-03: touchdown hook for the place-name sign (GGbot): ride.T s after the segment start
    // T-03 sign (GGbot LakesideArrivalUI): the event carries the sign timing, so a retimed landing only changes LAKESIDE_TOUCHDOWN
-   openLake();if(camLog.on)camProbeLake(null,'landed');pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.mark('touchdown');legClock.stop({to:'touchdown',designS:+(sl?sl.touchdownAt:R.T).toFixed(2)/* full9b: game-time design from S6 (walk+door+stepIn+ignite+lift+flight); R.T is the compressed ride clock */,rideClockS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
+   openLake();/*QF_PROBE_BEGIN*/if(camLog.on)camProbeLake(null,'landed');/*QF_PROBE_END*/pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.mark('touchdown');legClock.stop({to:'touchdown',designS:+(sl?sl.touchdownAt:R.T).toFixed(2)/* full9b: game-time design from S6 (walk+door+stepIn+ignite+lift+flight); R.T is the compressed ride clock */,rideClockS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
    try{(globalThis as any).__qfLakesideTouchdownAt=R.T;director.emit(LAKESIDE_TOUCHDOWN.event,{atS:R.T,skipped,signAtS:LAKESIDE_TOUCHDOWN.signAtS,signS:LAKESIDE_TOUCHDOWN.signS,boardByS:lakesideBoardByS()/* option B: board blend START (touchdown +5.3); board reached when her walk is in, ≈ +12.0 */});}catch{/* listeners only */}
    landedOk();
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);

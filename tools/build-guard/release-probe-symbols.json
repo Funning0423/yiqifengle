@@ -1,0 +1,5 @@
+{
+  "_doc": "Release gate symbol list (release-gates.cjs --probe-free). Any test-only log/probe wrapped in /*QF_PROBE_BEGIN*/…/*QF_PROBE_END*/ is stripped generically by strip-probes.cjs; ADD its unique log tag / global here so the release build is proven free of it. literal = plain substring; regex = JS regex source. Never list tags that predate the probes and ship on purpose (e.g. the BalloonTransit [QF_B1_GAP] totalMs summary, bdd3c6d7).",
+  "literal": ["__QF_PROBE_HER", "QF_HER_FRAME", "QF_PROBE", "QF_P2_SCENE"],
+  "regex": {"B1_GAP_PER_CUT": "\\[QF_B1_GAP\\] ?[\"'`]\\s*\\+\\s*JSON\\.stringify\\(\\s*\\{\\s*[\"']?cut[\"']?\\s*:"}
+}
