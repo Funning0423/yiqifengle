@@ -2811,8 +2811,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts",
-    "bytes": 19948,
-    "sha256": "b6783ba8f5d0c83a2a06b7b08a3e74f01563edb805dae28cbbd41834a716bd61"
+    "bytes": 20851,
+    "sha256": "1db1c8ed49f74dc980cdefb58d9d0ac47bbfff10055fcbff27e8d4ae3574a079"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideCameraLayout.ts.meta",
@@ -3751,8 +3751,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts",
-    "bytes": 43674,
-    "sha256": "84f96db5b174747a9f37038bd868e47faf37f0ff1c4e5b607258620b4498d3de"
+    "bytes": 43680,
+    "sha256": "3b1bd968b0d2b196eaa1926555507943023b89658c3ac9b293b87f5d4687d9da"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransportLeg.ts.meta",
@@ -5071,8 +5071,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30505,
-    "sha256": "0a2389c3235ca58815e72764584d84c823cf3a323e02c1e803b1a8da6ef2909b"
+    "bytes": 30589,
+    "sha256": "2b50672be42e91344a34ca4910b5d7160a07379cf910f23349864eaf0cad8da9"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

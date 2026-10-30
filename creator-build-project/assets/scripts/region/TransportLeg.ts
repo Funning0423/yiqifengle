@@ -167,7 +167,7 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
  * (the old side:-5.8 shot). Last 10% of S-c holds this pose for the K2 still.
  */
 /** b16 item 4: S-a walk lens (her right, behind the jetty, aimed 6 m behind the bow at her path). */
-const K0:SailOff={back:12,side:-4,up:4,fov:50,look:2,orb:0};
+const K0:SailOff={back:10.5,side:-4.2,up:4,fov:60,look:0.5,orb:0};
 export const SAIL_K0_BLEND_S=5;
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 /**
