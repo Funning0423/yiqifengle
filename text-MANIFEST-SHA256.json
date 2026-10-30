@@ -3211,8 +3211,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
-    "bytes": 6470,
-    "sha256": "cec0d1d01a1af84785751b3e3dc521d8e4038d1fb3377b445f2e5f08c6333bd3"
+    "bytes": 6457,
+    "sha256": "bd35a03c26f4933ea782b6033533edb7590932beeb744f5aaa2e1c30807b9b40"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
