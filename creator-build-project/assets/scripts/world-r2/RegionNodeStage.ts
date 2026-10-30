@@ -25,6 +25,7 @@ import {ISLAND_PROPS,signFrontView} from './IslandPropsLayout';
 import {signShot} from '../region/SignShot';
 import {SKY_FINALE,SKY_FINALE_POSE_LOCAL} from '../region/SkyFinaleShot';
 import {skyRailFollow,skyRailHas,skyRailJoin,skyRailJoinPlan,type RailPose} from '../region/SkyRunLens';
+import {endHeading,islandDepartLens,islandEntryPan,stageLensClock} from '../region/IslandStageLens';
 import {SKY_DEPARTURE,finaleAutoContinueAtS} from '../region/SkyFinaleDeparture';
 import {onWipeCovered,onWipeRevealed,addWipeBeforeReveal} from '../world-r1/ScreenCover';
 import {LensGuard,LENS_GUARD,guardEval,proxiesToWorld,type OccBox} from '../region/LensOcclusion';
@@ -274,11 +275,16 @@ export class RegionNodeStage extends Component{
   /* b17r13: the reward close-up is held for her walk, so it blends to the occlusion-planned pose (Mac r13b: a stone pillar filled its right half) */
   const wk=spec.from+'>'+spec.to,rail=spec.region==='skycity'?this.skyRailOf(wk):null;
   if(spec.region==='meadow'){await this.meadowRewardFold(character,fromStage,toStage,spec,board,meadow,w,h);if(handoff&&spec.departure){this.releaseForJourney();return;}if(meadow){this.restoreBoard();return;}}
-  if(rail)await this.skyJoin(wk,board,rail,false);else{const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
+  /* b20 方案 E (运镜bot IslandStageLens; scene c651ba8c I4): island stage-04 walks never blend 46-60 m in 0.6 s. Entry I3>I4: the board
+   * lens pans onto her; departure I4>I6: the live lens rides a tangent line + arc to the follow pose at I6 over the uncut walk. */
+  const seg=spec.region==='island'&&!rail?planWalk('island',spec.from,spec.to).segments:null,isl=seg&&seg.length===1?this.toWorld('island',seg[0].path):null;
+  const dep=isl&&spec.departure?islandDepartLens(board,isl,followPose(isl[isl.length-1],endHeading(isl),w,h,followLookUp('island',99))):null;
+  const ent=isl&&!spec.departure&&spec.to==='I4'?islandEntryPan(board,isl):null;
+  if(rail)await this.skyJoin(wk,board,rail,false);else if(dep)await this.blendPath(dep.preS,t=>dep.at(t));else if(!ent){const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
   await this.blend(BLEND_S.boardToFollow,board,()=>held);}
   this.lens='FollowWalk';setExploreEnabled(true);
   this.handOrbitBack(spec.region);
-  this.skyRail=rail;
+  this.skyRail=rail||(dep?stageLensClock(dep,dep.preS):ent?stageLensClock(ent):null);
   try{await runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));}
   finally{setExploreEnabled(false);this.skyRail=null;}
   /* sail-blue (Mac d3fe578e night, frames 26-29: beach close-up → 1 blank frame → island wide): a departure walk that hands straight
@@ -928,7 +934,7 @@ export class RegionNodeStage extends Component{
   if(this.anim||this.holdPose||(this.lens!=='MapExplore'&&this.lens!=='FollowWalk'))return;
   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded)||(this.entry&&this.orbit.seeded))this.writeOrbit(dt);
   else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
-  else if(this.lens==='FollowWalk'&&this.exploring&&this.region==='skycity'&&this.skyRail)this.writePose(this.skyRail(dt),false);
+  else if(this.lens==='FollowWalk'&&this.exploring&&(this.region==='skycity'||this.region==='island')&&this.skyRail)this.writePose(this.skyRail(dt),false);
   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
  }
  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
