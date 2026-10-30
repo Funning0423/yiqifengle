@@ -67,7 +67,7 @@ UI设计部 · 2026-10-29 · 分支 `ui/new-regions`，基于 `ggbot/fg-system-p
 - `reward_seal_coast_draft.png`：金沙色内环，灯塔、沙滩、海浪，塔顶有暖光。`reward_seal_snow_draft.png`：灰蓝内环，雪峰加一颗金星。两张都是 115×128，木环、挂环和内环的结构与现有 4 枚相同。`reward_seal_blank_draft.png`：空白章。
 - `region_coast_draft.png` 和 `region_snow_draft.png`：208×136 地区小窗。
 - 现有 4 张地区窗是引擎渲染图，这两张是扁平的低多边形示意，**正式资源需要场景设计部用引擎渲染**（海岸可复用小岛灯塔，雪山可用 SP_snowpass 驿站）。印章可以由我按这两张精修后直接出正式图。
-- 资源命名：正式图放 `board_art/popup/reward_seal_coast.png`、`reward_seal_snow.png`、`reward_seal_blank.png`，`board_art/r2/region_coast.png`、`region_snow.png`、`chapter_coast.png`、`chapter_snow.png`，**都不带 _draft**。`art/` 只是设计目录，不进构建。代码、资源、文件名和注释里都不要出现「占位」二字（构建门禁）；地区缺图时走现有 grayscale 加锁的逻辑，不要写替代文字。
+- 资源命名：正式图放 `board_art/popup/reward_seal_coast.png`、`reward_seal_snow.png`、`reward_seal_blank.png`，`board_art/r2/region_coast.png`、`region_snow.png`、`chapter_coast.png`、`chapter_snow.png`，**都不带 _draft**。`art/` 只是设计目录，不进构建。代码、资源、文件名和注释里都不要出现 system-panels SPEC §1.4 门禁所禁的那个词；地区缺图时走现有 grayscale 加锁的逻辑，不要写替代文字。
 
 ## 6. 动效（U1–U3，`keyframes_journey.png`、`keyframes_ending.png`、`new_regions_anim.mp4`）
 | 动作 | 时长 | 曲线 |
@@ -101,7 +101,7 @@ UI设计部 · 2026-10-29 · 分支 `ui/new-regions`，基于 `ggbot/fg-system-p
 | 印章名 | `ManagedMobileBoardUI.ts:1031` 地区名映射只有 4 个；:1001 领取 icon | 加 `coast:'海岸'`（或「夜航」，见待定项）、`snow:'雪山'`；icon 路径规则不变 |
 | 见证清单 | `world-r2/LakeWinWitnesses.ts`（由 tools/pre-transition/gen_lake_witnesses.cjs 生成），`RegionFlowWitnesses.ts`；`test_retry_protection` 要求 catalog 里每一关都有 witness | 新增生成文件 `CoastWinWitnesses.ts`（C1–C9，从 tools/coast/test_coast_levels.cjs 的 3 个出货种子里取最短胜局）和 `SnowWinWitnesses.ts`（数据出来后再加）；label 用 C1..C9、L19..L24。海岸并进 catalog 时同时更新 test_lakeside_entry 的计数（12+6 → 12+6+9）。见证清单不面向玩家，这里只规定数据契约 |
 | 存储 | — | `qfl.ui.journeySeenDone`、`qfl.ui.seenRegions` |
-| 测试建议 | — | 7 尺寸下面板不超出屏幕、行触控 ≥44；5 种状态的快照；33 分母；结局 6 印章在 320 宽下不贴边；搜索「占位」为 0 |
+| 测试建议 | — | 7 尺寸下面板不超出屏幕、行触控 ≥44；5 种状态的快照；33 分母；结局 6 印章在 320 宽下不贴边；门禁词扫描结果为 0 |
 
 ## 9. 文件
 `journey_390.png`、`chapter_coast_390.png`、`ending_390.png`（全屏）· `compare_journey.png`、`compare_ending.png`（前后对比）· `annot_journey_390.png`、`annot_chapter_390.png`、`annot_ending_390.png` · `sizes_7_journey.png`、`sizes_7_chapter.png` · `states_journey.png`（5 态）、`states_chapter.png`（4 态加按下）、`seals_compare.png` · `keyframes_journey.png`、`keyframes_ending.png`、`new_regions_anim.mp4`（约 5.6 s）· `art/`（新印章、空白章、地区窗设计图）· `src/`。
