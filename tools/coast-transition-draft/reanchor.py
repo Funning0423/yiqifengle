@@ -33,7 +33,7 @@ else:
     isl = [AN['door_stand_point']] + [AN[f'exit_path_{i:02d}'] for i in range(6, 18)]
 LEN_ISL = float(np.linalg.norm(np.diff(np.array(isl), axis=0), axis=1).sum())
 WALK = 1.2; STEP_S = 1.8
-T_S1, T_S2 = float(os.environ.get('T_S1', 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 7.0 if FIT == 'r5d' else 5.0))
+T_S1, T_S2 = float(os.environ.get('T_S1', 8.6 if (FIT == 'r5d' and os.environ.get('S1V', '2') == '2') else 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 7.0 if FIT == 'r5d' else 5.0))
 if RET: T_S1 = float(os.environ.get('T_S1', 3.0)); T_S6 = float(os.environ.get('T_S6', 1.5))  # v3.2: R6 0.6 -> 1.5 s (standing yaw accel)
 T = np.cumsum([0, T_S1, T_S2, T_TER, STEP_S, T_PATH, T_S6, T_S7] if RET else [0, T_S1, T_S2, T_PATH, STEP_S, T_TER, T_S6, T_S7]); TOTAL = T[-1]
 SHOTS = ['S1 map-collapse handover', 'S2 heading settle 0.4 s', 'S3 island exit path lead', 'S4 step-down profile',
@@ -93,13 +93,14 @@ if FIT == 'r5d' and BOARD_OLD: OUT = OUT.replace('/out_v4/', '/out_v4/before_');
 if FIT == 'r5d' and not BOARD_OLD:  # v4: official coast board lens (tools/coast-board-lens/lens.py), per-aspect distance for SCREEN
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../coast-board-lens')); import lens as _bl
     _bp, _bt = _bl.pose(_bl.LENS, _bl.distance_for(SW, SH_)); BOARD_POSE = dict(pos=_bp, look=_bt, fov=float(_bl.LENS['fov']))
+S3_DR, S3_DS, S3_DF = (float(x) for x in os.environ.get('S3D', '0,0,0').split(','))  # v4.1 S3 framing fix (radius, look-side, vfov deltas)
 S6KEY = [float(x) for x in os.environ.get('S6KEY', ('0,6.0,1.9,1.8,0.6,50' if FIT in ('r2', 'r5d') else '5,6.0,1.9,1.8,0.3,50')).split(',')]
 KEYS = [  # front-LEFT side through the walk: the right side of the curved exit path has a 2 m island prop at (-4.4..-3.25, 0..2.06, 2.4..3.9)
     (T[0], 'world'),
     (T[1], -30, 3.4, 2.1, 0.9, 0.3, 44),    # S1 end: front-left 3/4 medium
     (T[2], -28, 3.4, 2.1, 0.9, 0.3, 44),     # S2 heading settle
-    (T[2] + 2.0, -24, 3.2, (2.35 if FIT in ('r2', 'r5d') else 2.1), 0.9, 0.3, 44),  # S3 leading dolly; look side +0.3 (her right) -> she sits on screen-left third
-] + ([(T[2] + 5.5, -26, 3.2, 2.35, 0.9, 0.3, 44)] if FIT in ('r2', 'r5d') else []) + [  # r2: 8.7 s walk; lens kept >=2.35 over the 0.75 m island prop at x -2.56..-1.97, z 6.4..7.6
+    (T[2] + 2.0, -24, 3.2 + S3_DR, (2.35 if FIT in ('r2', 'r5d') else 2.1), 0.9, 0.3 - S3_DS, 44 + S3_DF),  # S3 leading dolly; look side +0.3 (her right) -> she sits on screen-left third
+] + ([(T[2] + 5.5, -26, 3.2 + S3_DR, 2.35, 0.9, 0.3 - S3_DS, 44 + S3_DF)] if FIT in ('r2', 'r5d') else []) + [  # r2: 8.7 s walk; lens kept >=2.35 over the 0.75 m island prop at x -2.56..-1.97, z 6.4..7.6
     (T[3], -30, 3.3, 2.2, 0.9, 0.2, 44),
     (T[3] + 1.0, -45, 3.5, 2.3, 0.8, 0.0, 45),  # S4 front-left 3/4 over the step-down (left profile would sit on the gull rock)
     (T[4] + 0.8, -25, 4.2, 2.4, 0.9, 0.2, 46),  # S5 terrace lead
@@ -116,6 +117,12 @@ if RET:  # front-RIGHT on the coast (same side as the board lens, so R1 needs no
         (T[7], 'world')]
 START_POSE, END_POSE = (BOARD_POSE, ISLAND_LIVE) if RET else (ISLAND_LIVE, BOARD_POSE)
 def ease(u): return u * u * u * (u * (6 * u - 15) + 10)
+S1_STRAIGHT = FIT == 'r5d' and os.environ.get('S1V', '2') == '2'; S1_EASE = float(os.environ.get('S1_EASE', 0.35))
+def remap(x, a):  # CameraPose.remapProgress with easeIn = easeOut = a (C2, zero speed at both ends)
+    x = min(1, max(0, x)); s = 1 / (1 - 2 * a / 3)
+    if x < a: u = x / a; return s * a * (u + (1 - u) ** 3 / 3 - 1 / 3)
+    if x > 1 - a: u = (x - (1 - a)) / a; return min(1, s * (2 * a / 3 + (1 - 2 * a)) + s * a * (u - u ** 3 / 3))
+    return s * (2 * a / 3 + (x - a))
 def rel_pose(k, i):
     _, az, r, h, ll, ls, fov = k; hd = math.radians(HD[i]); a = hd - math.radians(az)  # right of her = -az in world yaw
     fwd = np.array([math.sin(hd), 0, math.cos(hd)]); right = np.array([-math.cos(hd), 0, math.sin(hd)])
@@ -142,6 +149,9 @@ def cam_i(i):
         pos = SM[i] + fwd * r * math.cos(az) + right * r * math.sin(az) + [0, y, 0]
         ul = ease(min(1, max(0, ((t - a[0]) / (b[0] - a[0]) - 0.5) / 0.5)))  # look stays on her, then hands to board centre
         return pos, la + (w['look'] - la) * ul, fa + (w['fov'] - fa) * u
+    if a[1] == 'world' and b[1] != 'world' and S1_STRAIGHT:  # v4.1 S1: straight line (shortest path, 48.95 m vs 50.75 m arc), C2 trapezoid remap
+        pb, lb, fb = rel_pose(b, i); w = START_POSE; x = (t - a[0]) / (b[0] - a[0]); v = remap(x, S1_EASE)
+        return w['pos'] + (pb - w['pos']) * v, w['look'] + (lb - w['look']) * v, w['fov'] + (fb - w['fov']) * v
     if a[1] == 'world' and b[1] != 'world':  # S1: descend in her cylinder (az, log r, h) from the live island lens
         hd = math.radians(HD[i]); fwd = np.array([math.sin(hd), 0, math.cos(hd)]); right = np.array([-math.cos(hd), 0, math.sin(hd)])
         pb, lb, fb = rel_pose(b, i); w = START_POSE
@@ -303,6 +313,8 @@ if __name__ == '__main__':
             fh.write('frame,t,shot,px,py,pz,lx,ly,lz,fov\n')
             for i, (p_, l_, f_) in enumerate(CAM): fh.write(f"{i},{TS[i]:.6f},{int(np.searchsorted(T, TS[i], 'right') - 1) + 1 if TS[i] < T[-1] else 7},{p_[0]:.6f},{p_[1]:.6f},{p_[2]:.6f},{l_[0]:.6f},{l_[1]:.6f},{l_[2]:.6f},{f_:.6f}\n")
         json.dump(dict(screen=SCREEN, board_pose=dict(pos=[float(x) for x in END_POSE['pos']], look=[float(x) for x in END_POSE['look']], fov=float(END_POSE['fov'])), s7_start=float(T[6]), total=float(T[-1])), open(OUT + '/end_pose.json', 'w'), indent=1)
+        for a_ in sys.argv:
+            if a_.startswith('--shot-at='): tt = float(a_.split('=')[1]); render(min(len(TS) - 1, int(round(tt * FPS))), SW, SH_, 420).save(OUT + f'/shot_{tt:.2f}.png')
         if '--end-shot' in sys.argv: render(len(TS) - 1, SW, SH_, 420).save(OUT + '/end_frame.png')
     if '--render' in sys.argv:
         mids = [(T[k] + T[k + 1]) / 2 for k in range(7)]; mids[5] = T[6] - 0.05; mids[6] = T[7] - 1 / FPS

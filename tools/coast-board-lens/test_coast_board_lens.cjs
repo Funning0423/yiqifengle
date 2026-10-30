@@ -27,7 +27,12 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number),d=CB.coast
  const q=CP.rotationFromLookAt(p,CB.coastBoardTarget());ok(Math.abs(Math.abs(q[0]*0+q[1]*0.851965+q[2]*0.523599+q[3]*0)-1)<1e-5,r.screen+' quat != D2');}
 console.log('ok   1 pose table: 7 screens, distance-only, margins >=0.08, menu clear');
 // 2
-const OUTV4=path.join(ROOT,'tools/coast-transition-draft/out_v4');
+const OUTV4=process.env.QF_COAST_OUT||path.join(ROOT,'tools/coast-transition-draft/out_v4');
+function motion(rs){let vmax=0,smax=0,wmax=0,fmax=0,at=0;const acc=[];let pw=null;const ang=x=>{const f=[x[6]-x[3],x[7]-x[4],x[8]-x[5]],l=Math.hypot(...f);return [Math.atan2(f[0],f[2])*180/Math.PI,Math.asin(f[1]/l)*180/Math.PI];};
+ for(let i=1;i<rs.length;i++){const a=rs[i-1],b=rs[i],dt=b[1]-a[1],st=Math.hypot(b[3]-a[3],b[4]-a[4],b[5]-a[5]),A=ang(a),B=ang(b),dy=((B[0]-A[0]+540)%360)-180,wv=[dy/dt,(B[1]-A[1])/dt];
+  if(st/dt>vmax){vmax=st/dt;at=b[1];}smax=Math.max(smax,st);wmax=Math.max(wmax,Math.abs(wv[0]),Math.abs(wv[1]));fmax=Math.max(fmax,Math.abs(b[9]-a[9]));if(pw)acc.push(Math.max(Math.abs(wv[0]-pw[0]),Math.abs(wv[1]-pw[1]))/dt);pw=wv;}
+ acc.sort((a,b)=>a-b);return {vmax,smax,wmax,fmax,p99:acc[Math.floor(0.99*(acc.length-1))],at};}
+const within=m=>m.vmax<=8&&m.smax<=0.5&&m.wmax<=90&&m.p99<=200&&m.fmax<=1.5;
 for(const r of T.screens){const dir=path.join(OUTV4,r.screen),[w,h]=r.screen.split('x').map(Number);
  const rows=fs.readFileSync(path.join(dir,'frames.csv'),'utf8').trim().split('\n').slice(1).map(l=>l.split(',').map(Number)),g=JSON.parse(fs.readFileSync(path.join(dir,'gates.json'),'utf8')),e=JSON.parse(fs.readFileSync(path.join(dir,'end_pose.json'),'utf8'));
  const last=rows[rows.length-1],to=CB.coastBoardPose(w,h);
@@ -41,6 +46,9 @@ for(const r of T.screens){const dir=path.join(OUTV4,r.screen),[w,h]=r.screen.spl
   if(pw)acc.push(Math.max(Math.abs(wv[0]-pw[0]),Math.abs(wv[1]-pw[1]))/dt);pw=wv;}
  acc.sort((a,b)=>a-b);const p99=acc[Math.floor(0.99*(acc.length-1))];
  ok(vmax<=L.speedMS&&smax<=L.stepMPerFrame&&wmax<=L.yawPitchDegS&&p99<=L.angAccP99DegS2&&fmax<=L.fovDegPerFrame,`${r.screen} S7 motion v ${vmax.toFixed(2)} step ${smax.toFixed(3)} w ${wmax.toFixed(1)} acc99 ${p99.toFixed(1)} fov ${fmax.toFixed(3)}`);
+ // v4.1 map-collapse threshold: the WHOLE island->coast transition (S1 map-collapse included) within the limits, total <= 45 s
+ const W=motion(rows);ok(within(W),`${r.screen} whole transition v ${W.vmax.toFixed(2)} m/s at t ${W.at.toFixed(2)} step ${W.smax.toFixed(3)} w ${W.wmax.toFixed(1)} acc99 ${W.p99.toFixed(1)} fov ${W.fmax.toFixed(3)}`);ok(e.total<=45,r.screen+' total '+e.total);
+ console.log(`ok   2 ${r.screen} whole ${e.total.toFixed(2)} s: v ${W.vmax.toFixed(2)} m/s, step ${W.smax.toFixed(3)}, yaw/pitch ${W.wmax.toFixed(1)}, acc p99 ${W.p99.toFixed(1)}, fov ${W.fmax.toFixed(3)}`);
  console.log(`ok   2 ${r.screen} S7 ${(e.total-e.s7_start).toFixed(2)} s: v ${vmax.toFixed(2)} m/s, step ${smax.toFixed(3)} m, yaw/pitch ${wmax.toFixed(1)} deg/s, acc p99 ${p99.toFixed(1)}, fov ${fmax.toFixed(3)}; ends on board pose`);}
 // 3
 const WFC=path.join(S,'world-r1/WorldFlowComponent.ts'),DIFF=path.join(ROOT,'..','team/cinematic/outbox/20261030-coast-board-lens/01-WorldFlowComponent-enter-level-board-pose.diff');

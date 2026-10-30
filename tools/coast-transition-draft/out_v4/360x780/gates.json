@@ -1,7 +1,7 @@
 {
  "yaw_standing": {
   "max_rate": 56.8,
-  "p99_acc": 88.4,
+  "p99_acc": 96.7,
   "pass": true
  },
  "yaw_walking": {
@@ -9,8 +9,8 @@
   "p99_acc": 97.3,
   "pass": true
  },
- "max_lens_step_m_per_frame": 0.99,
- "max_step_t": 0.62,
+ "max_lens_step_m_per_frame": 0.123,
+ "max_step_t": 3.7,
  "motion_s7_pushin": {
   "yaw_max": 56.8,
   "pitch_max": 29.7,
@@ -23,20 +23,18 @@
  },
  "motion_whole": {
   "yaw_max": 56.8,
-  "pitch_max": 41.4,
-  "yaw_acc_p99": 95.3,
-  "pitch_acc_p99": 145.8,
-  "speed_max": 59.38,
-  "step_max": 0.99,
+  "pitch_max": 29.7,
+  "yaw_acc_p99": 97.9,
+  "pitch_acc_p99": 20.4,
+  "speed_max": 7.4,
+  "step_max": 0.123,
   "fov_step_max": 0.031,
-  "pass": false
+  "pass": true
  },
- "motion_whole_fail_shots": [
-  "S1 map-collapse handover"
- ],
+ "motion_whole_fail_shots": [],
  "last_frame_pose_err": {
-  "pos_m": 3.8280819221860203e-07,
-  "look_m": 6.691005239796151e-07,
+  "pos_m": 3.8280815940636106e-07,
+  "look_m": 6.691005088726832e-07,
   "fov": 0.0
  },
  "hard_cuts": 0,
@@ -46,9 +44,9 @@
  "clear_standing_who": "coast:piece_star@0.00,0.11,-1.03",
  "travel_solid_min": 1.136,
  "travel_solid_who": "coast:fisher_hut@-3.10,0.03,6.70",
- "travel_solid_t": 13.43,
+ "travel_solid_t": 20.03,
  "travel_ground_min": 1.524,
- "travel_ground_t": 18.33,
+ "travel_ground_t": 24.93,
  "clear_pass": true,
  "her_ground_check": {
   "door": -0.004,
@@ -59,22 +57,22 @@
  "occlusion_worst_s": 0,
  "occlusion_who": null,
  "occlusion_pass": true,
- "far_12m_s": 4.53,
+ "far_12m_s": 9.82,
  "far_12m_segments": [
   [
    0.0,
-   1.1
+   6.38
   ],
   [
-   21.9,
-   25.32
+   28.5,
+   31.92
   ]
  ],
  "screens": [
   {
    "screen": "360x780",
    "min_margin": 0.058,
-   "at_t": 4.4,
+   "at_t": 11.0,
    "margin_pass": false,
    "face_under_menu": 0,
    "far_in_frame_pct": 100.0,
@@ -84,15 +82,15 @@
  "timeline": {
   "T": [
    0.0,
-   2.0,
-   2.4,
-   11.133,
-   12.933,
-   17.725,
-   18.325,
-   25.325
+   8.6,
+   9.0,
+   17.733,
+   19.533,
+   24.325,
+   24.925,
+   31.925
   ],
-  "total": 25.325,
+  "total": 31.925,
   "island_path_len": 10.48,
   "terrace_len": 5.75
  },
