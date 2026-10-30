@@ -60,3 +60,8 @@ On the branch without the diffs, R1 and R3 FAIL by design. The rows are source-t
 - test-c-prewalk-clouds: PASS with paint, FAIL without it (jump at frame 122).
 - RJA lake-departure + 6b78cccc compose: the lake is placed from S6 and still hidden until openLake() at the door.
 - test-b1-yard-balloon-b1ease.diff pins the exact b1-ease B1 line and the exact b1Hold latch. With b1-ease: PASS. Without it: FAIL.
+
+## cd0893ea chain
+- run-suite-clip19-cd0893ea.diff adds the clip19-regressions row (after finale-stand) with a 600 s timeout. cd0893ea lacks the clip3 gate files, so the diff also adds them as new files: test-clip19-regressions, clip19-prewalk-model, the fixture, clip3/lens-scene, clip3/sky-lake-model, region-nodes/sky-rail-model.
+- On a base without the final-cam S4>S6 rail (SkyRunLens.ts), R2 fails explicitly instead of crashing.
+- Order: final-cam 3 → lake-departure → lakeside-journey-wire → lakeside_reach → b1-yard b1ease → run-suite-cd0893ea → cloud-paint → onewriter 04–09. All apply clean on cd0893ea.
