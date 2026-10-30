@@ -1,0 +1,20 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": false,
+  "uuid": "cab3ccdf-82c2-40e8-966d-e9aaafd2c5e1",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "encode": true,
+      "quantize": false
+    },
+    "lods": {
+      "enable": false
+    }
+  }
+}
