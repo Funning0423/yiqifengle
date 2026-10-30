@@ -8,7 +8,11 @@ const ROOT=path.resolve(__dirname,'../..');
 const {transformMeta}=require('./qf-meadow-encode/transform.js');
 const MA=require('../build-guard/meta-allowlist.cjs');
 const REL='creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta';
-const real=JSON.parse(fs.readFileSync(path.join(ROOT,REL),'utf8'));
+// Input = the pre-encode meta. Once the Mac-produced (encoded) meta is committed, read it from the allowlist base.
+let real=JSON.parse(fs.readFileSync(path.join(ROOT,REL),'utf8'));
+if(real.userData.meshCompress.encode===true){const AL=JSON.parse(fs.readFileSync(path.join(ROOT,'tools/build-guard/meta-allowlist.json'),'utf8'));
+  const base=cp.execFileSync('git',['merge-base','HEAD',AL.baseRef||'ggbot/full9c-final'],{cwd:ROOT,encoding:'utf8'}).trim();
+  real=JSON.parse(cp.execFileSync('git',['show',base+':'+REL],{cwd:ROOT,encoding:'utf8',maxBuffer:1<<24}));}
 const {meta:out,changed}=transformMeta(real);
 const d=MA.diff(real,out);
 assert.ok(changed);assert.deepStrictEqual(d,[{op:'replace',path:'/userData/meshCompress/encode',from:false,to:true}]);

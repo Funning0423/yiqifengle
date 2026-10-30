@@ -1266,8 +1266,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
-    "bytes": 21245,
-    "sha256": "970a79cb2dce9f05f4f16dfca6aa959ebb880d8ef602eb89e83f96cd2d26eeae"
+    "bytes": 20619,
+    "sha256": "614f6497306786ce57c8493d9368bd8fa7fd40b6f0eef03ec86b33cfe82f0be0"
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",

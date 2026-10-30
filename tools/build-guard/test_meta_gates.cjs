@@ -14,7 +14,7 @@ const baseMeta=()=>({ver:'2.3.13',importer:'gltf',imported:true,uuid:U,files:[],
   '0e588':{importer:'texture',uuid:U+'@0e588',displayName:'meadow_ground_detail_v0_8_512',userData:{wrapModeS:'repeat'}},
   '85da7':{importer:'gltf-mesh',uuid:U+'@85da7',userData:{gltfIndex:0}},
   'f06f9':{importer:'gltf-material',uuid:U+'@f06f9',userData:{textures:[U+'@3c858']}}},
-  userData:{tangents:1,meshCompress:{enable:true,compress:true,encode:false,quantize:false}}});
+  userData:{imageMetas:[{name:'meadow_palette_256',uri:U+'@d3bf8'},{name:'meadow_ground_detail_v0_8_512',uri:U+'@0e588'},{name:'meadow_sky',uri:U+'@9d104'}],tangents:1,meshCompress:{enable:true,compress:true,encode:false,quantize:false}}});
 const w=(r,f,o)=>{fs.mkdirSync(path.dirname(path.join(r,f)),{recursive:true});fs.writeFileSync(path.join(r,f),JSON.stringify(o,null,2));};
 let n=0;
 function repo(){const r=path.join(tmp,'r'+(++n));fs.mkdirSync(r);g(r,'init','-q');w(r,MEADOW,baseMeta());
@@ -27,6 +27,15 @@ const results=[];const t=(name,fn)=>{fn();results.push(name);};
 try{
   const emptyAl=path.join(tmp,'empty.json');fs.writeFileSync(emptyAl,JSON.stringify({files:{},watchRefs:[],forbidBuildRefs:[]}));
   t('allowed: encode true + remove 0e588 -> PASS',()=>{const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;delete m.subMetas['0e588'];w(r,MEADOW,m);const x=check(r);assert.ok(pass(x),JSON.stringify(x));assert.equal(x.ok.length,2);});
+  const dropIM=(m,name)=>{m.userData.imageMetas=m.userData.imageMetas.filter(x=>x.name!==name);};
+  t('allowed: Mac shape (encode + remove 0e588 + drop its imageMetas item) -> PASS',()=>{const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;delete m.subMetas['0e588'];dropIM(m,'meadow_ground_detail_v0_8_512');w(r,MEADOW,m);const x=check(r);assert.ok(pass(x),JSON.stringify(x));assert.equal(x.ok.length,3);});
+  t('narrow: removing a different imageMetas item -> FAIL',()=>{const r=repo(),m=baseMeta();dropIM(m,'meadow_sky');w(r,MEADOW,m);assert.ok(!pass(check(r)));});
+  t('narrow: removing 0e588 item AND another item -> FAIL',()=>{const r=repo(),m=baseMeta();dropIM(m,'meadow_ground_detail_v0_8_512');dropIM(m,'meadow_sky');w(r,MEADOW,m);assert.ok(!pass(check(r)));});
+  t('narrow: 0e588 item removed but another item edited -> FAIL',()=>{const r=repo(),m=baseMeta();dropIM(m,'meadow_ground_detail_v0_8_512');m.userData.imageMetas[0].uri=U+'@00000';w(r,MEADOW,m);assert.ok(!pass(check(r)));});
+  t('narrow: same imageMetas removal in another file -> FAIL/NEEDS_REVIEW',()=>{const r=repo(),o='creator-build-project/assets/bundles/region_meadow/other.glb.meta',mk=()=>({uuid:'ffff1111-2222-3333-4444-555566667777',userData:{imageMetas:[{name:'a',uri:'x@1'},{name:'meadow_ground_detail_v0_8_512',uri:U+'@0e588'}]}});
+    w(r,o,mk());g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','o');const m=mk();m.userData.imageMetas.pop();w(r,o,m);const x=check(r);assert.ok(!pass(x));assert.ok((x.fail.length+x.review.length)>0);});
+  t('sea metas: allowAdd with importer gltf -> PASS; wrong importer -> FAIL',()=>{const r=repo(),S='creator-build-project/assets/bundles/transport_sail/';w(r,S+'far_meadow_impostor.glb.meta',{importer:'gltf',uuid:'1'});w(r,S+'sea_reef_cluster.glb.meta',{importer:'gltf',uuid:'2'});assert.ok(pass(check(r)));
+    w(r,S+'sea_reef_cluster.glb.meta',{importer:'image',uuid:'2'});assert.match(check(r).fail.join('\n'),/META_ADDED .*importer image/);w(r,S+'sea_reef_cluster.glb.meta',{importer:'gltf',uuid:'2'});w(r,S+'other.glb.meta',{importer:'gltf',uuid:'3'});assert.match(check(r).fail.join('\n'),/META_ADDED .*other\.glb/);});
   t('no change -> PASS',()=>{const r=repo();assert.ok(pass(check(r)));});
   t('empty allowlist + encode change -> FAIL',()=>{const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;w(r,MEADOW,m);const x=check(r,emptyAl);assert.ok(!pass(x));assert.match(x.fail.join('\n'),/NOT_ALLOWED .*\/userData\/meshCompress\/encode/);});
   t('extra field change (tangents) -> FAIL',()=>{const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;m.userData.tangents=0;w(r,MEADOW,m);const x=check(r);assert.ok(!pass(x));assert.match(x.fail.join('\n'),/NOT_ALLOWED .*\/userData\/tangents/);});
