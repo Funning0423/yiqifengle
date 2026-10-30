@@ -108,13 +108,15 @@ const rows=[],checks=[];
 // commit with git show, its I3/I4 replace the production nodes in a SEPARATE harness (production island data stays untouched).
 const FX=JSON.parse(fs.readFileSync(path.join(__dirname,'island-fixture.json'),'utf8')),gitShow=p=>require('child_process').execFileSync('git',['show',FX.sourceSha+':'+p],{cwd:__dirname,encoding:'utf8',maxBuffer:64<<20});
 const tsMod=src=>{const o=H.ts.transpileModule(src,{compilerOptions:{module:H.ts.ModuleKind.CommonJS,target:H.ts.ScriptTarget.ES2019}}).outputText,mod={exports:{}};new Function('exports','require','module',o)(mod.exports,require,mod);return mod.exports;};
-const NODES_FX=JSON.parse(JSON.stringify(N));for(const n of NODES_FX.island.nodes){if(n.key===FX.from)n.at=FX.I3;if(n.key===FX.to)n.at=FX.I4;}
+const SRC_NODES=tsMod(gitShow(FX.nodesFile)).REGION_NODES.island.nodes,atOf=k=>SRC_NODES.find(n=>n.key===k).at;
+const NODES_FX=JSON.parse(JSON.stringify(N));for(const n of NODES_FX.island.nodes)if(n.key===FX.from||n.key===FX.to)n.at=atOf(n.key);
+const VIA_SRC=JSON.parse(gitShow(FX.viaFile)).via;FX.via=FX.viaReplaceLast?VIA_SRC.slice(0,-1).concat(FX.viaReplaceLast):VIA_SRC;
 const HF=createHarness({overrides:{'region/RegionWalkableData':tsMod(gitShow(FX.walkableFile)),'region/RegionNodes':{...H.load('region/RegionNodes.ts'),REGION_NODES:NODES_FX}}});
 const WF=HF.load('region/NodeWalker.ts'),RWF=HF.load('region/RegionWalkable.ts');
 const FX_AVOID=JSON.parse(gitShow(FX.routeAvoidFile).match(/routeAvoid:(\[\[[^\n]*?\]\]),/)[1]);
 const FX_SRC={isWalkable:(x,z)=>RWF.isWalkable('island',x,z),routeAvoid:FX_AVOID};
 const SKY=JSON.parse(fs.readFileSync(path.join(__dirname,'skycity-avoid.json'),'utf8'));
-const routes=[{region:'island',from:FX.from,to:FX.to,route:{via:FX.via},W:WF,src:FX_SRC,tag:`island ${FX.from}→${FX.to} fixture option ${FX.option.split(' ')[0]} @ ${FX.sourceSha.slice(0,8)} (${FX.via.length} waypoints)`}];
+const routes=[{region:'island',from:FX.from,to:FX.to,route:{via:FX.via},W:WF,src:FX_SRC,tag:`island ${FX.from}→${FX.to} fixture option ${FX.option.split(' ')[0]} @ ${FX.sourceSha.slice(0,8)} (${FX.via.length} waypoints${FX.viaReplaceLast?', last replaced':''})`}];
 for(const a of ['S0','S1','S2','S3']){const keys=W.routeKeys('skycity',a,'S6').keys;routes.push({region:'skycity',from:a,to:'S6',route:{via:keys.slice(1,-1)},tag:`skycity ${keys.join('>')} (pass-through ${keys.slice(1,-1).join(',')})`});}
 for(const [a,b] of [['S3','S4'],['S4','S6'],['S1','S4']]){const keys=W.routeKeys('skycity',a,b).keys;routes.push({region:'skycity',from:a,to:b,route:{via:keys.slice(1,-1).length?keys.slice(1,-1):[b==='S4'?'S4':b].slice(0,0).concat([])},tag:`skycity ${keys.join('>')}`});}
 const bendRows=[];
