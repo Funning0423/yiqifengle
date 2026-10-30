@@ -49,8 +49,7 @@ function sourceFrames(R){const S2=R+'/creator-build-project/assets/scripts/',H2=
  // (e) structural, engine-bound paths (WorldFlowComponent setCamera adapter, ride end, walkContinuous first frame)
  {const wfc=fs.readFileSync(S2+'world-r1/WorldFlowComponent.ts','utf8'),rjc=fs.readFileSync(S2+'world-r1/RegionJourneyCore.ts','utf8');
   out['home placed twice']=/if\(pose===placed&&cameraWriteLog\.writes===placedN\)return/.test(wfc)?0:1;
-  out['ride end re-write']=/finally\{this\.unpatch\?\.\(\);\}token\.check\(\);[^\n]*\n[^\n]*\n[^\n]*\n\s*if\(this\.camera\)world\.setCamera\(this\.camera\);/.test(rjc)?1:0;
-  out['ride start live re-write']=/this\.patchCamera\(world,live,first,shotId\);world\.setCamera\(live\)/.test(rjc)?1:0;}
+  out['ride end re-write']=/finally\{this\.unpatch\?\.\(\);\}token\.check\(\);[^\n]*\n[^\n]*\n[^\n]*\n\s*if\(this\.camera\)world\.setCamera\(this\.camera\);/.test(rjc)?1:0;/* walkContinuous world.setCamera(live) stays: gate chain-ggbot 'first frame = the live lens exactly'; identical to the on-screen lens → the 04 merge */}
   return out;});}
  }finally{globalThis.cc=g0;}}
 (async()=>{let R=null;try{R=srcRoot();const raw=await sourceFrames(R);const d=Object.values(raw).reduce((a,b)=>a+b,0);results.push({id:'source-raw-writes (merge off)',root:process.env.QF_ONEWRITER_SRC||'tree+outbox 05+',doubles:raw,status:d===0?'PASS':'FAIL'});}

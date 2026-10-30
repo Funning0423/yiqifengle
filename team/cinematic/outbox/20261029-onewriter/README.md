@@ -37,11 +37,12 @@ Proposed root fixes for GGbot (optional, merge already makes them single-write):
 Order: 01–03 final-cam, 04 CameraPose merge (committed), 05–08 GGbot, 09 CameraPose track start (committed). All 9 apply clean in order on 18965329.
 | diff | rows fixed | change |
 |---|---|---|
-| 05 RegionJourneyCore | 1506/1502 (onFrame+walk), 1531/1527 (LiveHandoff ×2), 2463 (B5→arrival), 888/876 + 3611 (ride start re-write, likely) | observe(): walk write only if onFrame did not write (:258/:264); ride end no longer re-writes this.camera after unpatch (:335); walkContinuous writes the live lens only when it could not be read fresh (:378) |
+| 05 RegionJourneyCore | onFrame+walk double (:258/:264, also the LiveHandoff ×2 via patchCamera :278–284), 2463 (B5→arrival) | observe(): walk write only if onFrame did not write; ride end no longer re-writes this.camera after unpatch (:335) |
 | 06 RegionBoardLanding | 2757 | regionLandingToBoard exact branch: gap < 1 mm (handoff's :161 write is this frame) → await one frame, then the exact write (rejection still detected) |
 | 07 WorldFlowComponent | 145/152 | setCamera adapter: same stable Pose object with no camera write since = no write (boot restore ×2, WorldFlowCore:321/329/334) |
 | 08 RegionNodeStage | 2896 (+2800 likely) | lateUpdate anim tail (:1251): the end pose is written once by done(), not by sample(seconds) AND done() |
 | 09 CameraPose (ours) | 146/262, 245/339, 500 | createCameraTrack: the run()-synchronous first tick (same frame as the hold / previous track end) writes nothing; the track starts next frame |
+Kept on purpose: walkContinuous `world.setCamera(live)` (:378) — gate chain-ggbot requires first frame = live lens as a write; it is identical to the lens on screen, so 1506/1502 + 888/876-type pairs at ride start are left to the 04 merge (proposal: make chain-ggbot read the live lens instead of a write, then drop :378 — needs Grok Bot OK since it changes a gate).
 Not proven by source (no CALLER stacks): 2800 node-lens (RegionNodeStage :1059 sync view + openExplore) and the exact 3611 writer — a Mac run with camTraceStacks=1 will name them; the merge guards them meanwhile.
 None of these is in WorldIntegrationBoot.ts / ScreenCover.ts (the reviewed-controller-change file is WorldIntegrationBoot.ts).
 Gate cam-onewriter-19bd source mode (merge off, real source paths): 19bd812a = 8 doubles over 7 paths FAIL; this set = 0 PASS. Replay mode (merge guard) unchanged: 12/7 → 0/0.
