@@ -20,3 +20,6 @@
 Per mesh: template zlib + chunks each zlib9 (ramp CV/8,CV/4,CV/2 then 1024 verts); zlib JSON header.
 Inflate via cc.utils.MeshUtils.inflateMesh. 133,456 B (build bytes). DC delta 0.
 Tools: bake3.py expand3.js chunktime3.cjs gate3.js run3.cjs.
+
+### expand3 v2
+Per-attribute monomorphic passes, numeric attr kinds, no per-vertex string compares; node steady-state ~35% faster (grass.2 total 4.98→3.18 ms box). Output identical (verify maxErr unchanged).
