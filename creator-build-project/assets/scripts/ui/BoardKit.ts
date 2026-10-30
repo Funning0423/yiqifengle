@@ -88,7 +88,7 @@ export const COAST_KIT: RegionBoardKit = Object.freeze({
   hide2D: Object.freeze({ tray: true, tiles: true }),
   board: Object.freeze({ anchor: [-0.6, -0.845, 21.5] as const, yawDeg: 180, cellM: 1, topY: 0.12 /* slab top at the centre (tiles.json slab_top_y_centre_note); the projected centres use it */ }),
   camera: Object.freeze({ lookAtWorld: [-0.6, -0.845, 21.55] as const, quatWorldXYZW: [0, 0.851965, 0.523599, 0] as const, fovVerticalDeg: 50,
-    distanceByAspect: Object.freeze({ '390x844': 18.649, '414x896': 18.608, '360x780': 18.73, '375x667': 19.546, '320x568': 16.995, '390x520': 17.725, '768x1024': 15.878 }),
+    distanceByAspect: Object.freeze({ '390x844': 20.01, '414x896': 20.0, '360x780': 20.048, '375x667': 19.546, '320x568': 16.995, '390x520': 17.725, '768x1024': 15.878 }),
     placeholder: false, finalAspects: Object.freeze(['390x844', '414x896', '360x780', '375x667', '320x568', '390x520', '768x1024']) as readonly string[], cornerCutAllowance: Object.freeze([Object.freeze({ screen: '320x568', corner: 'near' as const })]) /* Grok Bot 10/30 decision 1: plain-sandstone corner, 320×568 only */, lookAtOffsetM: 0, source: '运镜bot final r2 tiles.json camera_per_aspect 2026-10-30 (ruling (i): compact HUD on portrait h<=600, look-at unchanged)' }),
   hud: Object.freeze({ select: 'compact' /* Grok Bot 10/30 short-screen option (i); only where the compact trigger holds, else normal */, variants: Object.freeze({
     normal: Object.freeze({ source: 'BoardLayout.boardLayout + boardSafeInsets (box defaults): top = plate + hint banner bottom, bottom = tools.y − tools.hit/2', screens: Object.freeze({

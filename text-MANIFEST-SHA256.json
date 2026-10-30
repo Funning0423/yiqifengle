@@ -4146,8 +4146,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardKit.ts",
-    "bytes": 15296,
-    "sha256": "32f9ae07dacd12f326eb11664244d847926368c7b28f5671834a30f91d84d08c"
+    "bytes": 15294,
+    "sha256": "126b3d2c7f0652172bbf636724a933ea1457434e3ad351209335c2fd4ebe6f45"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
@@ -4171,8 +4171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardProjection.ts",
-    "bytes": 12089,
-    "sha256": "fe5be8fc473cbeebbd379aba63ca28e38453baf1d322d7a04a59e82246fbfed2"
+    "bytes": 12604,
+    "sha256": "9aad10151d61ddb3194462b90362e6d24814cd92370b4b89e27c9f9ce5dd6ec5"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CheerText.ts",
