@@ -199,20 +199,9 @@ export function plantedBody(events:ReadonlyArray<MotionEventDef>,t:number):Body|
   let last=feet[feet.length-1];for(let i=0;i<feet.length;i++)if(feet[i].time<=t+1e-9)last=feet[i];return last.body;}
 export const wrapAngle=(a:number)=>Math.atan2(Math.sin(a),Math.cos(a));
 /** Damped, rate-limited yaw follow: rate = delta/tau, clamped to +-maxDegS. No overshoot. */
-/** Smoothing (s) of the target-rate estimate used by YawFollower's uneven-dt correction (polyline facets make the raw rate spiky). */
-export const YAW_TARGET_RATE_TAU_S=0.1;
-/** Averaging (s) of the frame time the correction refers to (a steady dt stays exactly dt: the update adds 0). */
-export const YAW_DT_MEAN_TAU_S=0.5;
-export class YawFollower {yaw=0;rate=0;private pTarget=0;private pDt=0;private wT=0;constructor(public maxDegS=WALK_YAW_MAX_DEG_S,public tau=YAW_TAU_S){}
-  reset(yaw:number){this.yaw=wrapAngle(yaw);this.rate=0;this.pDt=0;this.wT=0;}
-  /** dt-correct on uneven frames (b21b option A, approved by grokbot-2): the lag d holds the target's travel over THIS frame
-   *  (≈ target rate·dt); on a steady clock that is target rate·(mean dt), so the d/tau rate is kicked by target rate·(dt − mean dt)/tau
-   *  on every uneven frame (yaw accel p99 > 200°/s² at dt 1/45…1/90). That excess is removed before the d/tau rate (target rate smoothed
-   *  over YAW_TARGET_RATE_TAU_S, mean dt over YAW_DT_MEAN_TAU_S). On a steady dt (dt === mean, which then stays exactly dt) and on the
-   *  first step after reset the correction is skipped: bit-for-bit the old step. */
-  step(target:number,dt:number):number {const d=wrapAngle(target-this.yaw),max=this.maxDegS*Math.PI/180;let e=d;
-    if(this.pDt>0&&dt>0){this.wT+=(wrapAngle(target-this.pTarget)/dt-this.wT)*Math.min(1,dt/YAW_TARGET_RATE_TAU_S);if(dt!==this.pDt)e=d-this.wT*(dt-this.pDt);this.pDt+=(dt-this.pDt)*Math.min(1,dt/YAW_DT_MEAN_TAU_S);}else if(dt>0)this.pDt=dt;this.pTarget=target;
-    let r=this.tau>0?e/this.tau:d/dt;if(r>max)r=max;if(r<-max)r=-max;
+export class YawFollower {yaw=0;rate=0;constructor(public maxDegS=WALK_YAW_MAX_DEG_S,public tau=YAW_TAU_S){}
+  reset(yaw:number){this.yaw=wrapAngle(yaw);this.rate=0;}
+  step(target:number,dt:number):number {const d=wrapAngle(target-this.yaw),max=this.maxDegS*Math.PI/180;let r=this.tau>0?d/this.tau:d/dt;if(r>max)r=max;if(r<-max)r=-max;
     let s=r*dt;if(Math.abs(s)>Math.abs(d))s=d;this.yaw=wrapAngle(this.yaw+s);this.rate=dt>0?s/dt:0;return this.yaw;}}
 /** Fires once on an upward crossing of `threshold`; re-arms only after the strength fell to <= rearm. */
 export class UpwardTrigger {private prev=0;private armed=true;constructor(public threshold=APRON_LIFT_THRESHOLD,public rearm=APRON_REARM_BELOW){}
