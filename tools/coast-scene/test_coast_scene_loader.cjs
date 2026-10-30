@@ -57,7 +57,7 @@ async function main(){
   const show=r.log.findIndex(x=>x[0]==='add'&&x[1]==='island_scene_root'&&x[2]==='region_coast_root');
   ok(show>0&&r.log.slice(show+1).every(x=>x[0]!=='add')&&h.root.active===true&&r.world.children.length===1,'one attach under the world node at the end, then active');
   const bad=h.root.children.filter(n=>!n.name.startsWith('reuse_')&&n.mat!==islandMat);if(bad.length)console.log('bad',bad.slice(0,3).map(n=>n.name+':'+JSON.stringify(n.mat)));ok(!bad.length,'every coast mesh uses the resolveMaterial material (no builtin material created)');
-  const src=fs.readFileSync(path.join(B,'scripts/CoastSceneLoader.ts'),'utf8');ok(!/builtin-standard|builtin-unlit|new Material\(|USE_VERTEX_COLOR/.test(src),'no builtin / vertex-colour fallback material in the loader source');
+  const src=fs.readFileSync(path.join(B,'scripts/CoastSceneLoader.ts'),'utf8');ok(!/builtin-standard|builtin-unlit|USE_VERTEX_COLOR/.test(src)&&(src.match(/new Material\(/g)||[]).length===(src.match(/new Material\(\);m\.initialize\(\{effectAsset:src\.effectAsset,/g)||[]).length,'no builtin / vertex-colour fallback material in the loader source (only new Material on the island palette effect, Grok Bot 2026-10-30)');
   const c=h.root.children.find(n=>n.name===own[0].mesh);ok(near(h.root.pos,[-0.6,-0.845,21.5])&&near(h.root.eul,[0,180,0])&&c&&near(c.pos,own[0].position)&&near(c.eul,own[0].eulerDeg),'root TRS + child TRS applied');
   r.log.length=0;h.dispose();h.dispose();const dec=r.log.filter(x=>x[0]==='decRef').length;
   ok(h.root.dead&&dec===1+r.M.prefabs.length&&r.M.json.refs===0&&r.M.prefabs.every(p=>p.refs===0)&&!r.tplIsland.dead&&!islandMat.dead,'dispose: root destroyed, layout+4 glbs decRef once, island templates/materials untouched (idempotent)');}

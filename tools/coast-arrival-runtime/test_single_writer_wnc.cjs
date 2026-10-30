@@ -18,7 +18,7 @@ const CP=load(path.join(S,'world-r1/CameraPose')),CB=load(path.join(S,'region/Co
 const LENS=path.join(A,'bundles/region_coast/scripts/CoastArrivalLens');
 // 场景设计部 1062a72b loader: signature pinned from the merged source, then stubbed per that signature (no engine here).
 {const L=fs.readFileSync(path.join(A,'bundles/region_coast/scripts/CoastSceneLoader.ts'),'utf8');if(!/export async function loadCoastScene\(world:CoastWorld,opts:CoastSceneOptions\):Promise<CoastSceneHandle\|null>/.test(L)||!/resolveMaterial:/.test(L)||!/cancelled:\(\)=>boolean/.test(L)){console.log('FAIL loadCoastScene signature (1062a72b) changed');process.exit(1);}}
-let SCENE=null;globalThis.__yjSceneStub={loadCoastScene:(w,o)=>SCENE(w,o),unloadCoastScene:h=>h?.dispose()};
+let SCENE=null;globalThis.__yjSceneStub={loadCoastScene:(w,o)=>SCENE(w,o),unloadCoastScene:h=>h?.dispose(),coastIslandMaterial:(isl,n)=>({name:n,isValid:true}),loadCoastPalette:async()=>null,makeCoastPaletteMaterial:()=>({})};
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}return c;};
 // --- patched WNC (temp copy) ---
 const WNC_REL='creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts',DIFF=path.join(ROOT,'team/cinematic/outbox/20261030-coast-arrival-runtime/02-WorldNativeComposition-coast-arrival.diff');
@@ -50,14 +50,14 @@ async function scenario({w,h,clock,kit=true,registry=true,scene=true,cancelAfter
  node.worldPosition={x:island.position[0],y:island.position[1],z:island.position[2]};node.worldRotation={x:island.rotation[0],y:island.rotation[1],z:island.rotation[2],w:island.rotation[3]};camera.fov=45;
  const self={isValid:true,selection:{stageId:'r03-coast-01'},node:{isValid:true,scene:{name:'scene',children:[]}},pendingJourneySelection:null,markExplore(){}};
  ENV={fr:100,dt:clock,loadBundle:(n,cb)=>{log.loads++;log.order.push('loadBundle');delete globalThis.__qfCoast;
-   if(registry){delete mods[LENS];load(LENS);SCENE=async(wd,o)=>{log.order.push('loadCoastScene');ok(typeof o.resolveReuse==='function'&&typeof o.cancelled==='function'&&'resolveMaterial' in o,'loadCoastScene opts');if(!scene){console.error('[QF_COAST] stub: layout missing');return null;}return {root:{},placed:1,reusePlaced:0,errors:[],dispose(){log.order.push('sceneDispose');}};};}
+   if(registry){delete mods[LENS];load(LENS);SCENE=async(wd,o)=>{log.order.push('loadCoastScene');ok(typeof o.resolveReuse==='function'&&typeof o.cancelled==='function'&&typeof o.resolveMaterial==='function','loadCoastScene opts (1062a72b signature)');ok(wd===self.world.ownedModel?.scene_root_||wd?.sceneRoot===islandRoot,'loadCoastScene gets the island scene_root, not the world component');try{o.resolveMaterial({mesh:'foam',kind:'unlit',alpha:0.6,emit:false,palette:'coast_palette_256'});}catch(e){ok(false,'resolveMaterial rejects a fafaad1a key with palette: '+e);}if(!scene){console.error('[QF_COAST] stub: layout missing');return null;}return {root:{},placed:1,reusePlaced:0,errors:[],dispose(){log.order.push('sceneDispose');}};};}
    setImmediate(()=>cb(n==='region_coast'?null:Error('bundle '+n)));}};
  const director={getTotalFrames:()=>ENV.fr,getDeltaTime:()=>ENV.last??1/60};globalThis.cc={director};
  const WC=makeW(director),wf=new WC(camera);const hook=CP.cameraWriteHook,prev=hook.trace;
  hook.trace=src=>{writes.push({fr:ENV.fr,s:src,p:[node.worldPosition.x,node.worldPosition.y,node.worldPosition.z],fov:camera.fov});};
  let frames=0;const rogueP=CP.fromLookAt({position:[1,8,0],target:[0,0,10],fovVerticalDeg:48});
- const world={isValid:true,worldCamera:camera,node:{isValid:true,scene:self.node.scene},setEnterLevelEnd(f){wf.enterLevelEnd=f;log.order.push(f?'setEnd':'clearEnd');},holdEnterLevel(){},
-  scheduleOnce(fn){setImmediate(()=>{ENV.fr++;ENV.last=clock();frames++;if(frames===cancelAfter)self.selection={stageId:'other'};if(rogue)CP.applyCameraPose(camera,rogueP,'rogue.writer');fn();});},
+ const islandRoot={name:'scene_root',children:[],isValid:true},world={isValid:true,ownedModel:{name:'island',children:[islandRoot],isValid:true,getChildByName:n=>n==='scene_root'?islandRoot:null},worldCamera:camera,node:{isValid:true,scene:self.node.scene},setEnterLevelEnd(f){wf.enterLevelEnd=f;log.order.push(f?'setEnd':'clearEnd');},holdEnterLevel(){},
+  scheduleOnce(fn){setImmediate(()=>{ENV.fr++;ENV.last=clock();frames++;if(frames===cancelAfter)self.selection={stageId:'other'};if(rogue)CP.applyCameraPose(camera,rogueP,'rogue.writer');fn(ENV.last);});},
   coastArrivalAdapter:{node:{worldPosition:{x:0,y:0,z:0},setWorldPosition(){},setRotationFromEuler(){}},perform:()=>new Promise(()=>{})},
   commands(){return {snapshot:()=>({journey:{region:'island'}}),enterLevel:async()=>{log.order.push('enterLevel');const token={check(){},onCancel(){return ()=>{};}};wf.play(camera,token);let n=0;
     while(wf.jobs.size&&n<4000){ENV.fr++;wf.step(clock());n++;}for(let i=0;i<120;i++){ENV.fr++;wf.step(clock());}return {ok:true};}};}};
