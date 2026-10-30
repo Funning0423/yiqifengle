@@ -5,14 +5,24 @@ Branch `ggbot/fg-new-regions` (on fg-system-panels d680078b). Design: UI设计�
 **Approved:** fg-new-regions and coast `scene/b19-coast-port` 50f5252c (Grok Bot, 2026-10-29) — the coast seal is the
 **night** 夜航印记 `reward_seal_coast.png` (keep it; do NOT swap in `reward_seal_coast_day.png`).
 
-1. Open `creator-build-project` in Creator 3.8.8 and let it import. Creator generates the `.meta` files (none are hand-written):
-   - `assets/scripts/ui/JourneyCore.ts.meta`
-   - `assets/scripts/ui/JourneyUi.ts.meta`
-   - `assets/bundles/board_art/journey_ui.meta` (new plain folder inside the existing board_art bundle — do NOT tick Is Bundle; bundles don't nest)
-   - `assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta`
-   - `assets/bundles/board_art/popup/reward_seal_coast.png.meta` (sprite-frame, same settings as `reward_seal_lake.png.meta`)
-   - `assets/bundles/board_art/r2/region_coast.png.meta` (sprite-frame, same settings as `region_lake.png.meta`)
-   Commit the three `.meta` files.
+1. **r4 (`ggbot/fg-new-regions-r4`, base fullN ba93fcb3): the full list is 11 `.meta` files** (界面验收部 saw Creator generate 11 on d4f25246; the earlier list had 6).
+   - Already committed on this line (from fullN; do not touch): `assets/bundles/transport_sail/far_meadow_impostor.glb.meta`, `assets/bundles/transport_sail/sea_reef_cluster.glb.meta`.
+   - Creator must generate these 9 (none hand-written; the box has no Creator and the Mac evidence tgz did not contain them):
+     - `assets/scripts/ui/JourneyCore.ts.meta`
+     - `assets/scripts/ui/JourneyUi.ts.meta`
+     - `assets/scripts/ui/PopupMotion.ts.meta`
+     - `assets/scripts/ui/PublicationInfo.ts.meta`
+     - `assets/scripts/ui/UpdatePromptCore.ts.meta`
+     - `assets/bundles/board_art/journey_ui.meta` (new plain folder inside the existing board_art bundle — do NOT tick Is Bundle; bundles don't nest)
+     - `assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta`
+     - `assets/bundles/board_art/popup/reward_seal_coast.png.meta` (sprite-frame, same settings as `reward_seal_lake.png.meta`)
+     - `assets/bundles/board_art/r2/region_coast.png.meta` (sprite-frame, same settings as `region_lake.png.meta`)
+   - Exact import step: take `.build.lock`; DevTools closed. `git checkout ggbot/fg-new-regions-r4` (clean tree), then open Cocos Creator 3.8.8 →
+     Dashboard → Open → `creator-build-project`. Wait until the Assets panel import progress finishes (console line `asset-db: ready` / no import spinner),
+     then quit Creator (do not build in the same session). Run
+     `git status --porcelain -- '*.meta'` — it must show exactly these 9 `??` files and nothing modified. If any other .meta changed, stop and report.
+   - `node tools/build-guard/meta-allowlist.cjs` must PASS (each file has an exact `allowAdd` with its importer: typescript ×6, image ×2, directory ×1).
+   - Commit the 9 files exactly as Creator wrote them on a new branch from r4 (`ggbot/fg-new-regions-r4-metas`), no edits, then the guarded build.
 2. Lazy journey UI check (board_art = Mini Game Subpackage, already configured): after the WeChat build,
    `subpackages/board_art/game.js` must contain `__qfJourneyUi` and the main package `src/` must not (grep both).
    In DevTools console on island arrival expect `[QF_JOURNEY_UI] ready +Nms` before the first dock tap; opening the journey
@@ -30,7 +40,7 @@ Branch `ggbot/fg-new-regions` (on fg-system-panels d680078b). Design: UI设计�
 2. Unlock: railway after coast is fully cleared, cloud-sea after snow is fully cleared, spring after both. Regions with no data show 远方, cannot be tapped and are not counted. Coast data (50f5252c) is not merged on this branch, so coast shows 远方 and the denominator is 18.
 3. Rail/cloud/spring have no seal or window art yet, so they show a blank seal.
 4. Ending: seals in rows of 5+4 with a soft shadow and no plate. Check that the girl's head clears row 2 on 320×568 and 375×667 (tiny/compact sizes; she is smaller than before).
-5. Same .meta list as above. No new script files.
+5. Same .meta list as above (r4: 11 total, step 1).
 
 ## r2 device checks (界面验收部)
 Run these on 390×844 and on one screen under 700 pt tall (375×667 or 320×568).
@@ -51,3 +61,10 @@ On device: check the single row on 375×667. The 9 seals must be evenly spaced a
 
 ## 远方 for regions with no data
 Railway, cloud-sea and hot spring valley (no stage data) show only 「远方」 / 「· · ·」 with no seal and no blank seal. They can't be tapped and aren't counted. UI设计部 confirmed this overrides SPEC §13.1 (淡章).
+
+## r4 (界面验收部 on d4f25246 + UI设计部 P3)
+- Base: fullN `ba93fcb3` (meadow −1,138,340 B) + d4f25246 merged. Expect wechat release total under 24,641,536 B and main under 4,000,000 B (box estimate in the r4 report; the Mac number is the one that counts).
+- P2: 3×3 grid and focus card are 8 pt inside the panel's inner frame on both sides (width = inner − 2×8, cells ~5 pt narrower), centred; the panel size is unchanged. Check 320×568, 375×667, 390×844 day and night.
+- P3 (UI设计部, replaces the 'milestone 远方 keeps a faint seal' rule): 「远方」 only for regions with no data, never with a seal. Regions with data that are still locked (天空之城, 风铃湖畔, coast before main 12, …) show their name, a faint grey seal and the §13.2 condition (e.g. 主线08后 / 主线12后 / 湖畔通关后) at 11 pt on one line (ellipsis if too long, never wraps). They open the region page with 「尚未开启」.
+- Suite gate `journey-layout-r4`: 7 screens × day/night × 2 data states. Box schematics + layout json: team/ggbot/outbox/20261030-new-regions-r4/.
+- On device: DevTools Console Error count (needs Funning to re-scan the DevTools login first — INVALID_TOKEN last run).

@@ -60,6 +60,66 @@
         "importer": "typescript"
       },
       "why": "fullN 2026-10-30: Creator script meta for 运镜bot camera-owned file in 8c98bbfe (00-camera-owned-files); 8c98bbfe approved as-is by Grok Bot. Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/popup/icon_vibrate.png.meta": {
+      "allowAdd": {
+        "importer": "image"
+      },
+      "why": "new-regions r4 2026-10-30: icon_vibrate.png.meta already committed by system-panels 103e9444/99872116 (from 6c629efc, UI设计部 review 'meta untouched'); it was outside the base so the gate flagged it. Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/JourneyCore.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/JourneyUi.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/PopupMotion.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/PublicationInfo.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/UpdatePromptCore.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/journey_ui.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "new-regions r4 2026-10-30: Creator folder meta for the plain journey_ui folder inside board_art (Is Bundle stays off). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/popup/reward_seal_coast.png.meta": {
+      "allowAdd": {
+        "importer": "image"
+      },
+      "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as reward_seal_lake.png.meta). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/r2/region_coast.png.meta": {
+      "allowAdd": {
+        "importer": "image"
+      },
+      "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as region_lake.png.meta). Needs Grok Bot review per this file's rule."
     }
   },
   "watchRefs": [
