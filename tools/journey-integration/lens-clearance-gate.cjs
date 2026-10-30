@@ -25,8 +25,6 @@ function judge(p,{solid,soft,balloon,her,travel}){const r={},v=[];
  r.v=v;return r;}
 async function scene(off){const objs=await L.skyObjs(off);return {solid:L.bvh(objs.filter(o=>!SOFT.test(o.name))),soft:L.bvh(objs.filter(o=>SOFT.test(o.name)))};}
 const railIn=(live,rail,t)=>{const x=Math.max(0,Math.min(1,t/1.2)),e=x*x*x*(x*(x*6-15)+10),L=(a,b)=>[0,1,2].map(i=>a[i]+(b[i]-a[i])*e);return {position:L(live.position,rail.position),target:L(live.target,rail.target),fovVerticalDeg:(live.fovVerticalDeg??48)+(rail.fovVerticalDeg-(live.fovVerticalDeg??48))*e};};
-// tools model of an entry lens: eased 1.2 s onto the rail only when it is ON the rail start (≤0.6 m), else a cut onto the rail
-const railJoins=(F,live,h)=>{if(!live)return false;const p=F.skyFinaleRailPose(h).position;return Math.hypot(live.position[0]-p[0],live.position[1]-p[1],live.position[2]-p[2])<=0.6;};
 const r2=x=>x===Infinity?'>3':+(+x).toFixed(2);
 // ---------- T-02 approach (RegionNodeStage.playFinale: skyFinaleApproach on the lens boxes, model-local) ----------
 function t02(H,from,to,feetL,label){const F=H.load('region/SkyFinaleShot.ts'),SO=H.load('region/SkycityLensOccluders.ts');
@@ -47,24 +45,18 @@ async function runCurrent(){const {createHarness}=require('../board-ui/harness.c
    if(r.v.length){a.viol++;r.v.forEach(x=>a.tags.add(x+':'+(x==='G'?r.groundTag:r.solidTag)));if(!a.first)a.first={tau:+tau.toFixed(2),p:p.map(v=>+v.toFixed(2)),v:r.v};}}
   for(const [ph,a] of Object.entries(acc)){const row={case:'sky→lake ride',screen:leg.screen.join('x'),seg:ph,samples:a.n,violations:a.viol,enclosed:a.enclosed,solidMinM:r2(a.solidMin),balloonMinM:r2(a.balloonMin),herMinM:r2(a.herMin),groundMinM:a.groundMin===Infinity?'none':r2(a.groundMin),softMinM:r2(a.softMin),first:a.first,tags:[...a.tags].slice(0,4)};rows.push(row);if(a.viol)fails.push(row);}
   const jr={case:'sky→lake ride',screen:leg.screen.join('x'),seg:'step',maxStepM:+jump.toFixed(3),violations:jump>RULE.stepM?1:0};rows.push(jr);if(jr.violations)fails.push(jr);}
- // (2) T-02 finale (full9c runtime, RegionNodeStage.playFinale + SkyFinaleShot.skyFinaleRailPose): run 1 (S4 down the steps) = the
- //     SkyRunLens follow lens (followPose, lookUp 0 in skycity); cut; run 2 → S6 = SKY_FINALE_RAIL (baked on this mesh) easing onto the
- //     stand shot over the last 1.05 m; then the stand hold. Two starts: from S4 (whole finale) and from S6 (planSkip: last 1.2 m only).
- //     (Pre-full9c cases — skyFinaleApproach from the F4 / S4 follow pose — are kept in lens-trajectory-9ec-must-fail case 3.)
- const segs=NW.planWalk('skycity','S4','S6').segments,feetL=segs.at(-1).path.at(-1),feetW=W(feetL),SPEED=1.2;
- const lerpPath=(P,u)=>{const L=[0];for(let i=1;i<P.length;i++)L.push(L[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]));const d=u*L.at(-1);let i=1;while(i<P.length-1&&L[i]<d)i++;const v=(d-L[i-1])/((L[i]-L[i-1])||1);return P[i-1].map((x,k)=>x+(P[i][k]-x)*Math.max(0,Math.min(1,v)));};
- const plen=P=>{let l=0;for(let i=1;i<P.length;i++)l+=Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]);return l;};
- const runSamples=(P,lens,fromS=0)=>{const len=plen(P),out=[];for(let d=fromS,i=0;d<=len+1e-9;d+=SPEED/60,i++){const h=lerpPath(P,d/len);out.push({h,p:lens(h,P,i/60)});}return out;};
- const follow=(h,P)=>{const a=P[0],b=P.at(-1);return C.followPose(h,Math.atan2(b[0]-a[0],b[2]-a[2]),390,844,0);};
- const rail=h=>F.skyFinaleRailPose(h),hold=Array.from({length:60},()=>({h:feetL,p:F.skyFinaleRailPose(feetL)}));
- const last=segs.at(-1).path,lastLen=plen(last),p0=segs[0].path,live0=C.followPose(p0[0],Math.atan2(p0.at(-1)[0]-p0[0][0],p0.at(-1)[2]-p0[0][2]),390,844,8)/* the S4 follow lens 9ec5323c held */,s34=NW.planWalk('skycity','S3','S4').segments.at(-1).path,live34=C.followPose(s34.at(-1),Math.atan2(s34.at(-1)[0]-s34.at(-2)[0],s34.at(-1)[2]-s34.at(-2)[2]),390,844,0)/* the S3>S4 walk end lens (followPose, lookUp 0) */;
- console.log('T-02 rail join: S3>S4 end lens',railJoins(F,live34,p0[0]),'held S4 follow',railJoins(F,live0,p0[0]));
- for(const [lab,parts] of [['finale from S4, entered from a held S4 follow lens (9ec5323c entry: rail join test → cut onto rail 1, cut, rail 2, stand)',[runSamples(segs[0].path,(h,P,t)=>railJoins(F,live0,p0[0])?railIn(live0,rail(h),t):rail(h)),[...runSamples(last,rail),...hold]]],['finale from S4 after the S3>S4 reward walk (its end lens eased onto rail 1, cut, rail 2, stand)',[runSamples(segs[0].path,(h,P,t)=>railJoins(F,live34,p0[0])?railIn(live34,rail(h),t):rail(h)),[...runSamples(last,rail),...hold]]],['finale from S6 (planSkip last 1.2 m: rail, stand)',[[...runSamples(last,rail,Math.max(0,lastLen-1.2)),...hold]]]]){
-  let a={n:0,viol:0,enclosed:0,solidMin:9,groundMin:99,herMin:9,step:0,first:null,tags:new Set()};
-  for(const part of parts){let prev=null;part.forEach((s,i)=>{const pw=W(s.p.position);if(prev)a.step=Math.max(a.step,Math.hypot(...sub(pw,prev)));prev=pw;if(i%3)return;const hw=W(s.h);
-   const r=judge(pw,{solid:[sc.solid],soft:[sc.soft],her:[hw,add(hw,[0,1.7,0])],travel:false});a.n++;a.solidMin=Math.min(a.solidMin,r.solidM);a.groundMin=Math.min(a.groundMin,r.groundM);a.herMin=Math.min(a.herMin,r.herM??9);if(r.enclosed)a.enclosed++;
-   if(r.v.length){a.viol++;r.v.forEach(x=>a.tags.add(x+':'+(x==='G'?r.groundTag:r.solidTag)));if(!a.first)a.first={i,p:pw.map(v=>+v.toFixed(2)),v:r.v};}});}
-  const jv=a.step>RULE.stepM?1:0;const row={case:'T-02 finale',screen:'all (pose is screen-independent)',seg:lab,samples:a.n,violations:a.viol+jv,enclosed:a.enclosed,solidMinM:r2(a.solidMin),herMinM:r2(a.herMin),groundMinM:a.groundMin===Infinity?'none':r2(a.groundMin),maxStepM:+a.step.toFixed(3),first:a.first,tags:[...a.tags].slice(0,4)};rows.push(row);if(row.violations)fails.push(row);}
+ // (2) skycity rail walks (full9c runtime: RegionNodeStage.playReward/playFinale + SkyRunLens, tools/region-nodes/sky-rail-model.cjs):
+ //     every played walk on every screen: board lens → skyRailJoin (SKY_JOINS.i) → each run on its rail → exit join back to the board
+ //     (S4>S6: stand hold instead); S4>S6 also from S6 (planSkip last 1.2 m). Same judge (travel rules on the joins). No-cut: inside a
+ //     part (the only part change is the walk plan's own run skip) step ≤ RULE.stepM per frame and view turn ≤ NOCUT_DEG per frame.
+ const M=require(process.cwd()+'/tools/region-nodes/sky-rail-model.cjs'),NOCUT_DEG=4,scr=has('--screens')&&arg('--screens')==='one'?M.SCREENS.slice(0,1):M.SCREENS;
+ const dirOf=p=>{const d=sub(p.target,p.position),l=Math.hypot(...d);return d.map(v=>v/l);};
+ const cases=[];for(const w of M.WALKS)for(const sc of scr){cases.push([w,sc.join('x')+' board entry → rail → exit',M.samples(w,sc)]);if(w==='S4>S6')cases.push([w,sc.join('x')+' from S6 (planSkip last 1.2 m)',M.samples(w,sc,{fromS6:true})]);}
+ for(const [w,lab,smp] of cases){let a={n:0,viol:0,enclosed:0,solidMin:9,groundMin:99,herMin:9,step:0,turn:0,first:null,tags:new Set()},prev=null;
+  smp.forEach((s,i)=>{const pw=W(s.p.position),dv=dirOf(s.p);if(prev&&prev.part===s.part){a.step=Math.max(a.step,Math.hypot(...sub(pw,prev.pw)));a.turn=Math.max(a.turn,Math.acos(Math.min(1,dv[0]*prev.dv[0]+dv[1]*prev.dv[1]+dv[2]*prev.dv[2]))*180/Math.PI);}prev={pw,dv,part:s.part};if(i%3)return;const hw=W(s.h);
+   const r=judge(pw,{solid:[sc.solid],soft:[sc.soft],her:[hw,add(hw,[0,1.7,0])],travel:!!s.join});a.n++;a.solidMin=Math.min(a.solidMin,r.solidM);a.groundMin=Math.min(a.groundMin,r.groundM);a.herMin=Math.min(a.herMin,r.herM??9);if(r.enclosed)a.enclosed++;
+   if(r.v.length){a.viol++;r.v.forEach(x=>a.tags.add(x+':'+(x==='G'?r.groundTag:r.solidTag)));if(!a.first)a.first={i,join:s.join||null,p:pw.map(v=>+v.toFixed(2)),v:r.v};}});
+  const jv=(a.step>RULE.stepM?1:0)+(a.turn>NOCUT_DEG?1:0);const row={case:'skycity walk '+w,screen:lab.split(' ')[0],seg:lab.slice(lab.indexOf(' ')+1),samples:a.n,violations:a.viol+jv,enclosed:a.enclosed,solidMinM:r2(a.solidMin),herMinM:r2(a.herMin),groundMinM:a.groundMin===Infinity?'none':r2(a.groundMin),maxStepM:+a.step.toFixed(3),maxTurnDegPerFrame:+a.turn.toFixed(2),first:a.first,tags:[...a.tags].slice(0,4)};rows.push(row);if(row.violations)fails.push(row);}
  return {rows,fails};}
 // ---------- 9ec5323c must-fail fixtures ----------
 async function runMustFail(){const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/9ec5323c-key-try2-sky-cam.json'),'utf8')).samples,M=require('./fixtures/9ec5323c-t02-approach.json');

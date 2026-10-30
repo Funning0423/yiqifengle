@@ -1,13 +1,14 @@
 import {SKY_RAILS,SKY_JOINS} from './SkyFinaleRail';
 import {mmDecode} from './SkyResumeLens';
 import {SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
+import {planWalk} from './NodeWalker';
 type V3=[number,number,number];type Run={P:number[][];c:number[];K:number[][]};
 export type RailPose={position:V3;target:V3;fovVerticalDeg:number};
 export const SKY_RAIL_APPROACH_M=1.05;
 const C:Record<string,Run[]>={};
 const grp=(a:number[],n:number)=>{const o:number[][]=[];for(let i=0;i<a.length;i+=n)o.push(a.slice(i,i+n));return o;};
 const len=(P:number[][],y=0)=>{const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+Math.hypot(P[i][0]-P[i-1][0],(P[i][1]-P[i-1][1])*y,P[i][2]-P[i-1][2]));return c;};
-function runs(w:string):Run[]{return C[w]||(C[w]=(SKY_RAILS[w]||[]).map(r=>{const P=grp(mmDecode(r.p),3);return {P,c:len(P),K:grp(mmDecode(r.k),4)};}));}
+function runs(w:string):Run[]{const k=SKY_RAILS[w];if(!k)return [];const [a,b]=w.split('>'),S=planWalk('skycity',a,b).segments;return C[w]||(C[w]=k.map((r,i)=>{const P=S[i].path.map(p=>[p[0],p[1],p[2]]);return {P,c:len(P),K:grp(mmDecode(r),4)};}));}
 export function skyRailHas(w:string):boolean{return runs(w).length>0;}
 const ss=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t*6-15)+10);};
 const unit=(a:readonly number[],b:readonly number[])=>{const v=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],n=Math.hypot(v[0],v[1],v[2])||1;return v.map(x=>x/n);};

@@ -35,8 +35,6 @@ export function skyWalkShot(path:readonly Vec[],walkMps:number,gazeS:number,boxe
  const head=Math.atan2(d0[0],d0[1]),mid=path[Math.floor(path.length/2)],away=Math.atan2(mid[0]-city[0],mid[2]-city[2]);
  let az=((away-head)*180/Math.PI+540)%360-180;az=Math.max(-k.azMaxDeg,Math.min(k.azMaxDeg,az*k.cityLean));
  const shot=followShot(her,tl.total,boxes,{...HER_SHOT,azDeg:az,arm:k.arm,up:k.up,lookUp:k.lookUp,fov:k.fov,driftAzDeg:k.driftAzDeg,driftArm:k.driftArm,driftPeriodS:k.driftPeriodS,driftFromS:gazeS+k.driftFromS,liftSearch:(k as any).liftSearch,armSearch:(k as any).armSearch,plan:(k as any).plan,okFn:(k as any).okFn} as any);
- /* full9c: cityPull is a fraction of the ANGLE her-aim → city (as documented). It lerped the aim POINT toward the city 60–80 m away —
-  *  with the aim ≈ 5 m out that turned the view 30–50° off her (5a walk, 4–16 s: margin −1.6, she left the frame on every screen). */
  const pose=(t:number):Pose=>{const p=shot.pose(t),P=p.position,q=p.target,a=[q[0]-P[0],q[1]-P[1],q[2]-P[2]],b=[city[0]-P[0],city[1]-P[1],city[2]-P[2]],la=Math.hypot(a[0],a[1],a[2])||1,lb=Math.hypot(b[0],b[1],b[2])||1;
   const u=a.map(v=>v/la),w=b.map(v=>v/lb),cs=Math.max(-1,Math.min(1,u[0]*w[0]+u[1]*w[1]+u[2]*w[2])),th=Math.acos(cs),sn=Math.sin(th),x=k.cityPull;
   const d=th<1e-6?u:u.map((v,i)=>v*Math.sin((1-x)*th)/sn+w[i]*Math.sin(x*th)/sn);return {position:P,target:[P[0]+d[0]*la,P[1]+d[1]*la,P[2]+d[2]*la],fovVerticalDeg:p.fovVerticalDeg};};
