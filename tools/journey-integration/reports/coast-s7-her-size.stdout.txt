@@ -1,9 +1,0 @@
-ok   390x844 t<=38.867: min fraction 0.0655 @38.0667 s, min 55.3 px @38.0667 s (line 40 px); 349 samples
-ok   414x896 t<=38.867: min fraction 0.0656 @38.0667 s, min 58.7 px @38.0667 s (line 40 px); 349 samples
-ok   360x780 t<=38.867: min fraction 0.0654 @38.0667 s, min 51 px @38.0667 s (line 40 px); 349 samples
-ok   375x667 t<=38.867: min fraction 0.0672 @38.0667 s, min 44.8 px @38.0667 s (line 40 px); 349 samples
-ok   320x568 t<=38.867: min fraction 0.0767 @38.8667 s, min 43.5 px @38.8667 s (line 40 px); 349 samples
-ok   390x520 t<=38.867: min fraction 0.0742 @38.8667 s, min 38.6 px @38.8667 s (line 38.5 px); 349 samples
-ok   768x1024 t<=38.867: min fraction 0.0803 @38.8667 s, min 82.2 px @38.8667 s (line 40 px); 349 samples
-ok   self-tests (after-cutoff ignored; <0.06 / <40 px / 390x520 <38.5 px before cutoff FAIL)
-PASS coast-s7-her-size

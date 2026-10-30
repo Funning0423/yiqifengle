@@ -1,2 +1,0 @@
-ok   self-check: 1 forced fallback → counter 1, scanner 1 (run-suite would FAIL that test)
-board-kit-fallback-zero: PASS (default kit: 0 fallbacks on 7 screens)

@@ -1,8 +1,0 @@
-     390x844: far piece 51.6 pt, near 59.1 pt (ratio 0.872 = slab 0.874), shadow 26.4×22.1 pt
-     414x896: far piece 54.8 pt, near 62.8 pt (ratio 0.872 = slab 0.874), shadow 28.1×23.4 pt
-     360x780: far piece 47.6 pt, near 54.5 pt (ratio 0.873 = slab 0.874), shadow 24.4×20.4 pt
-     375x667: far piece 41.7 pt, near 47.9 pt (ratio 0.870 = slab 0.871), shadow 21.3×17.8 pt
-     320x568: far piece 40.4 pt, near 47.5 pt (ratio 0.851 = slab 0.853), shadow 20.7×17.1 pt
-     390x520: far piece 35.6 pt, near 41.5 pt (ratio 0.857 = slab 0.859), shadow 18.2×15.1 pt
-     768x1024: far piece 77.7 pt, near 92.3 pt (ratio 0.842 = slab 0.844), shadow 39.8×32.7 pt
-coast-board-pieces: PASS (in-scene sprites: perspective size, contact shadow, slab lighting; off by default; no camera writes)

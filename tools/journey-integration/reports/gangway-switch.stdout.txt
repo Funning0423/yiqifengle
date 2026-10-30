@@ -1,5 +1,0 @@
-PASS side switch = raise (0.8 s) → swing across (1.2 s, yaw 180°→0°, hinge x -0.8→0.8) → lower; no snap
-PASS per-frame step at 60 fps ≤ 3.93°/frame yaw, 0.035 m/frame
-PASS A3→A4: switch takes 2.0 s inside the sail motion (≥4 s floor), A4 only lowers; leg length unchanged
-PASS driver tweens position+euler with sineInOut; old upright apply() snap removed
-{"result":"PASS","pass":4}

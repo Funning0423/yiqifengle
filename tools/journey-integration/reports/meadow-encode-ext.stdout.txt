@@ -1,2 +1,0 @@
-diff on real meta: [{"op":"replace","path":"/userData/meshCompress/encode","from":false,"to":true}]
-PASS qf-meadow-encode transform: only /userData/meshCompress/encode; meta-allowlist PASS (encode only, and encode + 0e588 removed); 4 bad inputs refused

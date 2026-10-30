@@ -1,2 +1,0 @@
-{"c1":{"popInAt98d80188":{"f":2944,"t":123.338,"inView":true},"standInShowFrame":{"f":1343,"t":46.957,"w":"LiveHandoff"},"secondsBeforePrewalk":76.38},"c2":{"bodyRadiusM":0.25,"minWalkClearanceM":0.573,"worstWalk":"prewalk:M5","walks":13,"sightSamples":3343,"sightBlocked":0,"minSightClearanceM":0.675,"sightWorst":"prewalk:M5@2.40s"},"c3":{"base":"19bd812a","codeCompared":true,"v0":[-5.3,5.25,102.5],"yawDeg":524,"cam0":[-20.599999999999998,8.249951853928556,89.59999999999998],"envelope":{"sxz":0.55,"sy":0.12,"y":-0.366}}}
-b1-yard-balloon: PASS

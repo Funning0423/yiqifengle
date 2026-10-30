@@ -1,4 +1,0 @@
-ok   committed pins = this tree
-ok   dedf8853 with the f8 table: region_meadow, transport_sail SOURCE_CHANGED (would have failed the box suite)
-ok   table/pin mismatch FAILs
-preload-source-pins-selftest: PASS

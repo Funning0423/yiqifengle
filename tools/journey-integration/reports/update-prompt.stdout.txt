@@ -1,2 +1,0 @@
-[first-screen] update failed (silent)
-PASS update-prompt

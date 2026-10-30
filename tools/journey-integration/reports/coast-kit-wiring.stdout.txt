@@ -1,5 +1,0 @@
-ok   390x844: 49 cells on the projected slabs, far scale 0.990 < near 1.133, tray/bases hidden, 1960 taps 0 wrong
-ok   320x568: 49 cells on the projected slabs, far scale 1.441 < near 1.689, tray/bases hidden, 1960 taps 0 wrong
-ok   390x520: 49 cells on the projected slabs, far scale 1.454 < near 1.693, tray/bases hidden, 1960 taps 0 wrong
-ok   768x1024: 49 cells on the projected slabs, far scale 1.144 < near 1.356, tray/bases hidden, 1960 taps 0 wrong
-coast-kit-wiring: PASS

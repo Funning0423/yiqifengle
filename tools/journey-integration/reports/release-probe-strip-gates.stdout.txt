@@ -1,2 +1,0 @@
-PASS test_release_gates (24 checks)
-PASS extensibility

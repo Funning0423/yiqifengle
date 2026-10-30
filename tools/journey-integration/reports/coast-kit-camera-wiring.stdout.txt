@@ -1,5 +1,0 @@
-ok   kitBoardPose = CoastBoardLens.coastBoardPose on 7 screens (≤ 1 mm, FOV 50, same look-at)
-ok   WorldNativeComposition: setEnterLevelEnd only behind coastKit (self-check: unguarded call detected)
-ok   WorldFlowComponent = 571b6af6 + 13 added lines of diff 01 only; enterLevelEnd null by default (self-check: changed line detected)
-ok   no camera writes in the kit / lens modules or the ManagedMobileBoardUI kit branch
-coast-kit-camera-wiring: PASS

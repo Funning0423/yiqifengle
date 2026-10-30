@@ -1,2 +1,0 @@
-ok   55 cases agree (23 on); looser predicate differs on 22 → self-check detected
-coast-kit-flag-agree: PASS

@@ -1,1 +1,0 @@
-PASS ui-timing registry (19 entries) + U1 retime constants

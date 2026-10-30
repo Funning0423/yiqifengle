@@ -1,6 +1,0 @@
-ok   committed TransitionChain.ts passes C3
-ok   SKY_WARM_GAP_MS edit FAILs C3
-ok   edit inside QF_GEN_PRELOAD_BYTES PASSes C3
-ok   deleted base line FAILs C3
-ok   missing generated block FAILs C3
-c3-transition-chain-selftest: PASS

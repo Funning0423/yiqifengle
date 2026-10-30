@@ -1,5 +1,0 @@
-ok   runtime layout: 244 entries, piece_* 0, other piece:true 0
-ok   root .; 318 runtime files scanned; coast_pieces.glb removed (uuid none: no Creator meta yet)
-ok   coast start: 6 loads from region_coast (board/piece_conch, board/piece_star, board/piece_coral, board/piece_float, board/piece_scallop, board/piece_badge)
-ok   self-checks: models/coast_pieces load, region_coast loadDir sweep, uuid reference, missing piece asset, piece_* in the runtime layout each FAIL; comment ignored
-coast-pieces-unloaded: PASS

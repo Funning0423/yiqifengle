@@ -1,2 +1,0 @@
-REPORT m6 anchor vs graph {"anchor":[0.2,6.5,-25.6],"graphM6":[0.2,6.493,-24.8],"dXZ":0.8}
-PASS m6-single-source {"graphM6":[0.2,6.493,-24.8]}

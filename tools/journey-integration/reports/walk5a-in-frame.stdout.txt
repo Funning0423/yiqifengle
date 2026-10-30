@@ -1,1 +1,0 @@
-{"test":"walk5a-in-frame","totalS":16.14,"minMargin":0.323,"atS":11.2,"screen":"360x780","status":"PASS"}
