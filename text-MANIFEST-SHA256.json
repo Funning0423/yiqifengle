@@ -4116,8 +4116,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardKit.ts",
-    "bytes": 10353,
-    "sha256": "b8508a9bfce865bd6ec9d2c10bdfaf609acb19c9cd6bc23b9f360eea09049806"
+    "bytes": 14644,
+    "sha256": "682829d198c144c9e2c9b97a07104117cd20f35f0354d965523b11acf3730f03"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
@@ -4140,6 +4140,11 @@
     "sha256": "a04d52b4986ab9d96d0fd180afa558d592250b12b93774f724a22b69864103ab"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/BoardProjection.ts",
+    "bytes": 10917,
+    "sha256": "c19aeb8dbdb667c95b87beaa502a7f7eefbd0a3d697f18e8c780ff56e799304c"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/CheerText.ts",
     "bytes": 8427,
     "sha256": "4ff08b190ef526e16dd44fce1f6b016815b6671683b9c5524efd4b34f95d8cc7"
@@ -4160,6 +4165,11 @@
     "sha256": "74d5918288b0e533e719e25fe614ea7002436f5e81c953228d47c0d3612e44d2"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/CoastBoardPieces.ts",
+    "bytes": 2765,
+    "sha256": "f090533d4347803ee83c028df517cbcaa46ed8aee118ad58585decaf5bb6148e"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts",
     "bytes": 21948,
     "sha256": "4bab2c4f53ac2f853412ed0440f3c725699ca5926031e4a5dfa6aaac73822880"
@@ -4168,6 +4178,11 @@
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts.meta",
     "bytes": 171,
     "sha256": "f4970d12d81bca43418935f1ba0baf7a0c50118dd077ea7570933bd1e4afe3cd"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/CompactHud.ts",
+    "bytes": 5899,
+    "sha256": "f6322afcf97e3202eae9697a9241166fbe9fc8ed75be245b4a8cb1e08b6605ee"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts",
@@ -5066,8 +5081,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30810,
-    "sha256": "a8b4ca103253a4400d1b494157682564f9e4c34cd31bc9ef87b55aa7927671db"
+    "bytes": 31097,
+    "sha256": "b6fdef2c07f298783f768fc7a56704eee9ed219834bf6e149c33073651d9fa43"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

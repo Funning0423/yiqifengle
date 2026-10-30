@@ -158,6 +158,38 @@
    "holdS": 0.06,
    "skip": true,
    "reason": "ending.sealDropStep (SPEC §13.7): 60 ms offset between ending seals, not an animation length"
+  },
+  {
+   "file": "assets/scripts/ui/CompactHud.ts",
+   "symbol": "board.compactToast.holdS",
+   "match": "compactToastHoldS",
+   "class": "hold-duration",
+   "holdS": 3.7,
+   "formula": "clamp(0.45 + n/4, 2.5, 4.5) s, n = characters without punctuation; fully visible time only",
+   "rangeS": [
+    2.5,
+    4.5
+   ],
+   "enterS": 0.15,
+   "enterEase": "easeOutCubic",
+   "exitS": 0.12,
+   "exitEase": "easeInQuad",
+   "totalS": 3.97,
+   "note": "real copy 「拖动相邻两颗，三颗一样就消除」 n=13 → 3.70 s visible, 3.97 s total (150 ms in + 120 ms out extra); coast compact HUD only (SPEC 46649fd4 §8.1/8.y)"
+  },
+  {
+   "file": "assets/scripts/ui/CompactHud.ts",
+   "symbol": "board.compactToast.firstPulseS",
+   "match": "COMPACT_TOAST_FIRST_PULSE_S",
+   "class": "ui-animation",
+   "totalS": 0.12,
+   "ease": "easeOutBack",
+   "scale": [
+    1.0,
+    1.05,
+    1.0
+   ],
+   "note": "first hint of a level only, after the enter; coast compact HUD only (SPEC 46649fd4 §8.3)"
   }
  ]
 }

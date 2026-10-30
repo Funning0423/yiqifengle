@@ -103,6 +103,17 @@ function portraitChecks(w, h, safe, goals, label) {
     const longest = '这件道具已用完，可从已获得的宝箱或地区礼物领取'; u.say(longest);
     assert.equal(tr.contentSize.width, Math.min(330, g.toast.maxWidth)); assert.equal(tr.contentSize.height, 32); assert(lab.scale.x < 1 && lab.scale.x * longest.length * 15 <= tr.contentSize.width - 28 + 1e-6, 'longest hint inside the pill caps');
   });
+  // P1 coast compact HUD (Grok Bot 10/30, option (i)): ONLY under the compact variant (coast config, portrait h ≤ 600) the hint sits in
+  // the capsule row in the label's place and does not cover the goal bar. Every assertion above (default path, all screens) is unchanged.
+  await ok('compact variant only: hint in the capsule row, clear of the goal bar (320×568, 390×520)', () => {
+    const CH = H.load(S + 'ui/CompactHud.ts');
+    for (const [w, h] of [[320, 568], [390, 520]]) { const safe = BL.boardSafeInsets(w, h), c = CH.compactHudLayout(w, h, safe), cap = safe.capsule;
+      assert(CH.compactHudApplies(w, h), w + 'x' + h + ' compact');
+      assert(c.toast.top >= cap.top - 4 - 1e-9 && c.toast.bottom <= cap.bottom + 4 + 1e-9, `${w}x${h}: hint ${c.toast.top}–${c.toast.bottom} not in the capsule row ${cap.top}–${cap.bottom}`);
+      assert(c.toast.bottom + 6 <= c.goalBar.top + 1e-9, `${w}x${h}: hint covers the goal bar`); assert.equal(c.toast.x, c.label.x, 'hint at the label spot');
+      assert(c.toast.x + c.toast.maxWidth <= cap.left - 10 + 1e-9, 'hint clear of the capsule'); }
+    for (const [w, h] of PORTRAIT) if (h > 600) assert(!CH.compactHudApplies(w, h), w + 'x' + h + ' must keep the normal HUD');
+  });
   console.log('FOOTPRINT ' + JSON.stringify(table)); if (process.env.QF_HINT_FOOTPRINT) fs.writeFileSync(process.env.QF_HINT_FOOTPRINT, JSON.stringify(table, null, 1) + '\n');
   console.log(JSON.stringify({ status: 'PASS', checks: checks.length, scope: 'BoardLayout hint banner geometry + real ManagedMobileBoardUI on the board-ui harness; no rendering / device' }));
 })().catch(e => { console.error('FAIL', e && e.stack || e); process.exit(1); });

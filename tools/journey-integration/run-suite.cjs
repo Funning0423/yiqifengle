@@ -37,7 +37,7 @@ const tests=[
  ['region-ports','tools/board-ui/test_region_flow_ports.cjs'],
  ['chapter-gates','tools/board-ui/test_chapter_gates.cjs'],
  ['legacy-action-clock','tools/test_character_action_clock.cjs'],
- ['legacy-board-ui-pure','tools/board-ui/test_board_ui_pure.cjs'],['board-kit-equivalence','tools/board-ui/test_board_kit_equivalence.cjs'],['board-kit-fallback-zero','tools/board-ui/test_board_kit_fallback_zero.cjs'],['board-kit-camera','tools/board-ui/test_board_kit_camera.cjs'],
+ ['legacy-board-ui-pure','tools/board-ui/test_board_ui_pure.cjs'],['board-kit-equivalence','tools/board-ui/test_board_kit_equivalence.cjs'],['board-kit-fallback-zero','tools/board-ui/test_board_kit_fallback_zero.cjs'],['board-kit-camera','tools/board-ui/test_board_kit_camera.cjs'],['coast-tap-area','tools/board-ui/test_coast_tap_area.cjs'],['coast-kit-equivalence','tools/board-ui/test_coast_kit_equivalence.cjs'],['coast-board-pieces','tools/board-ui/test_coast_board_pieces.cjs'],['compact-hud','tools/board-ui/test_compact_hud.cjs'],
  ['legacy-startup-ready','tools/test_startup_ready_gate.cjs'],
  ['chapter-production-entry','tools/legacy-test-repair/test-chapter-production-entry.cjs'],
  ['controller-integrity-guard','tools/legacy-test-repair/test-controller-integrity.cjs'],
@@ -200,7 +200,7 @@ const tests=[
  ['basket-obstacle-runtime','tools/transition-spaces/test-basket-obstacle-runtime.cjs'],['vertex-color-black','tools/skycity/test_vertex_color_black.cjs'],['static-names','tools/static-names/check-names.cjs'],/* cand10: whole-project tsc gate on undefined names / unresolved imports */['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
 ];
 /* P0 r16: geometry-heavy checks (real GLB triangles, ~155 s alone) get 360 s; everything else keeps 180 s. */
-const SLOW_TIMEOUT_MS={'board-kit-equivalence':360000,'lakeside-lens-guard':360000,'explore-drag-rotate':360000,'lens-trajectory-clearance':600000,'clip19-regressions':600000,'sky-walk-whole':360000};
+const SLOW_TIMEOUT_MS={'board-kit-equivalence':360000,'coast-kit-equivalence':360000,'lakeside-lens-guard':360000,'explore-drag-rotate':360000,'lens-trajectory-clearance':600000,'clip19-regressions':600000,'sky-walk-whole':360000};
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
 // GGbot b17: non-gating REPORT tests (运镜bot route matrix). They run and keep their reports; a nonzero exit is status REPORT, never FAIL.

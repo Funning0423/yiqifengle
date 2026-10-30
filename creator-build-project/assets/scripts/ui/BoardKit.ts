@@ -16,7 +16,19 @@ export interface BoardKitCamera {
   readonly distanceByAspect: Readonly<Record<string, number>>;
   /** true while the per-aspect distances are not signed off (Grok Bot 10/30: being recalculated for top-info-board avoidance) */
   readonly placeholder: boolean; readonly source: string;
+  /** screens whose pose is 运镜bot-final: board-kit-camera's edge / info-board checks are FAIL there, REPORT elsewhere (data switch,
+   *  no manual test edit). 320x568 / 390x520 use keepout_r2.json i_compact_hud (16.991 / 17.721), not yet marked final by 运镜bot. */
+  readonly finalAspects: readonly string[];
+  /** look-at shift along the ground (m, + = away from the camera); parameter only, default 0 (Grok Bot 10/30 P1 note 1) */
+  readonly lookAtOffsetM?: number;
 }
+/** HUD variants (Grok Bot 10/30 P1 note 1): per variant, per screen 'WxH', the [top, bottom] y limits (pt, y down) the projected board
+ *  must stay inside: top = level plate + hint banner bottom, bottom = tool tap-area top. A variant with a trigger applies only where
+ *  it holds (compact: portrait and logical height ≤ maxHeight). `select` picks the variant (default 'normal'). */
+export interface HudVariant { readonly pending?: boolean; readonly source: string; readonly trigger?: { readonly portrait: boolean; readonly maxHeight: number }; readonly screens: Readonly<Record<string, readonly [number, number]>>; readonly ruleGuidePlateBottom?: number }
+export interface KitHud { readonly select?: string; readonly variants: Readonly<Record<string, HudVariant>> & { readonly normal: HudVariant } }
+/** Lighting of the in-scene pieces = the slabs' (sprites exported with the board_art method under the r5d scene light). */
+export interface KitLighting { readonly pieceFill: number; readonly anchorY: number; readonly shadowM: number; readonly shadowOpacity: number; readonly shadowColor: string; readonly tint: string; readonly source: string }
 /** Top info-board avoidance (Grok Bot 10/30): per screen 'WxH', the y range [top, bottom] (pt, y down) the projected board
  *  (rim + pieces) must stay out of = level plate + hint banner from BoardLayout (boardSafeInsets). Gated in P1/P3. */
 export type TopNoGo = Readonly<Record<string, readonly [number, number]>>;
@@ -24,9 +36,13 @@ function fwd(q: readonly number[]): [number, number, number] {// rotate (0,0,-1)
   const [x, y, z, w] = q; return [-(2 * (x * z + w * y)), -(2 * (y * z - w * x)), -(1 - 2 * (x * x + y * y))];
 }
 function aspectKey(w: number, h: number) { return Math.round(w) + 'x' + Math.round(h); }
-export function kitBoardPose(cam: BoardKitCamera, w: number, h: number): { position: [number, number, number]; rotationXYZW: [number, number, number, number]; fovVerticalDeg: number; distanceM: number } {
-  const d = cam.distanceByAspect[aspectKey(w, h)]; if (!(d > 0)) throw Error('board kit camera: no distance for ' + aspectKey(w, h));
-  const f = fwd(cam.quatWorldXYZW), L = cam.lookAtWorld;
+/** opts.lookAtOffsetM (P1, Grok Bot 10/30 short-screen option): shift the look-at point along the ground (the view direction projected
+ *  onto y = const, + = away from the camera). A parameter only: default 0 / cam.lookAtOffsetM; pitch, yaw and FOV never change.
+ *  opts.distanceM: solver/test override of the per-aspect distance (the shipped path always uses distanceByAspect). */
+export function kitBoardPose(cam: BoardKitCamera, w: number, h: number, opts?: { distanceM?: number; lookAtOffsetM?: number }): { position: [number, number, number]; rotationXYZW: [number, number, number, number]; fovVerticalDeg: number; distanceM: number } {
+  const d = opts && opts.distanceM !== undefined ? opts.distanceM : cam.distanceByAspect[aspectKey(w, h)]; if (!(d > 0)) throw Error('board kit camera: no distance for ' + aspectKey(w, h));
+  const f = fwd(cam.quatWorldXYZW), o = opts && opts.lookAtOffsetM !== undefined ? opts.lookAtOffsetM : cam.lookAtOffsetM || 0, g = Math.hypot(f[0], f[2]) || 1;
+  const L = [cam.lookAtWorld[0] + f[0] / g * o, cam.lookAtWorld[1], cam.lookAtWorld[2] + f[2] / g * o];
   return { position: [L[0] - f[0] * d, L[1] - f[1] * d, L[2] - f[2] * d], rotationXYZW: [...cam.quatWorldXYZW] as [number, number, number, number], fovVerticalDeg: cam.fovVerticalDeg, distanceM: d };
 }
 /** World point → screen pt (top-left, y down) for a kit pose; Cocos perspective, vertical FOV axis. null behind the camera. */
@@ -57,6 +73,8 @@ export interface RegionBoardKit {
   readonly board: null | { readonly anchor: readonly [number, number, number]; readonly yawDeg: number; readonly cellM: number; readonly topY: number };
   readonly camera: BoardKitCamera | null;
   readonly topNoGo?: TopNoGo;
+  readonly hud?: KitHud;
+  readonly lighting?: KitLighting;
 }
 export const DEFAULT_KIT: RegionBoardKit = Object.freeze({ id: 'default', pieceKeys: PIECE_KEYS as unknown as PieceKeys, pieceBundle: 'board_art', hide2D: Object.freeze({ tray: false, tiles: false }), board: null, camera: null });
 /** Coast pilot kit (Grok Bot 10/30: D1 order final, D3 tiles.json adopted, D2 camera configurable). NOT registered in P0 (the coast
@@ -68,8 +86,15 @@ export const COAST_KIT: RegionBoardKit = Object.freeze({
   hide2D: Object.freeze({ tray: true, tiles: true }),
   board: Object.freeze({ anchor: [-0.6, -0.845, 21.5] as const, yawDeg: 180, cellM: 1, topY: 0.12 /* slab top at the centre (tiles.json slab_top_y_centre_note); the projected centres use it */ }),
   camera: Object.freeze({ lookAtWorld: [-0.6, -0.845, 21.55] as const, quatWorldXYZW: [0, 0.851965, 0.523599, 0] as const, fovVerticalDeg: 50,
-    distanceByAspect: Object.freeze({ '390x844': 23.306, '414x896': 23.307, '360x780': 23.332, '375x667': 19.424, '320x568': 19.387, '390x520': 18.1335, '768x1024': 18.1335 }),
-    placeholder: true, source: 'tiles.json camera_per_aspect 2026-10-30 unsigned (运镜bot, recalculating for top info-board avoidance)' }),
+    distanceByAspect: Object.freeze({ '390x844': 23.306, '414x896': 23.307, '360x780': 23.332, '375x667': 19.424, '320x568': 16.991, '390x520': 17.721, '768x1024': 18.1335 }),
+    placeholder: true, finalAspects: Object.freeze([]) as readonly string[], lookAtOffsetM: 0, source: 'tiles.json camera_per_aspect 2026-10-30 unsigned (运镜bot, recalculating for top info-board avoidance)' }),
+  hud: Object.freeze({ select: 'compact' /* Grok Bot 10/30 short-screen option (i); only where the compact trigger holds, else normal */, variants: Object.freeze({
+    normal: Object.freeze({ source: 'BoardLayout.boardLayout + boardSafeInsets (box defaults): top = plate + hint banner bottom, bottom = tools.y − tools.hit/2', screens: Object.freeze({
+      '390x844': [200, 698] as const, '414x896': [201.7, 750] as const, '360x780': [199.1, 634] as const, '375x667': [194, 521] as const, '320x568': [194, 422] as const, '390x520': [171.7, 374] as const, '768x1024': [208.4, 878] as const }) }),
+    compact: Object.freeze({ pending: false, source: 'CompactHud.compactHudLayout limits (ui/coast-compact-hud 46649fd4 SPEC §3/§5; chosen by Grok Bot 10/30; SPEC final)', trigger: Object.freeze({ portrait: true, maxHeight: 600 }), screens: Object.freeze({
+      '320x568': [131, 474] as const, '390x520': [131, 426] as const }), ruleGuidePlateBottom: 131 }),
+  }) }),
+  lighting: Object.freeze({ pieceFill: 0.75, anchorY: 0.18, shadowM: 0.62, shadowOpacity: 0.3, shadowColor: '#3d4a3a', tint: '#ffffff', source: 'r5d bb238126: sprites exported with the board_art method under the coast scene light (same as the slabs); fill 0.75 = REPORT coast 3D' }),
   topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
 });
 const KITS = new Map<string, RegionBoardKit>();
@@ -88,10 +113,18 @@ export function kitGoalArt(kit: RegionBoardKit, key: string, base: Readonly<Reco
   return /^type[0-5]$/.test(key) ? kit.pieceKeys[Number(key.slice(4))] : (kit.goalArt && kit.goalArt[key]) || base[key] || 'board/piece_flower';
 }
 /** Screen grid the board is drawn and hit-tested on (top-left pt, y down). */
-export interface KitGrid { readonly centers: ReadonlyArray<{ x: number; y: number }>; readonly pitch: number; readonly projected: boolean }
+export interface KitGrid { readonly centers: ReadonlyArray<{ x: number; y: number }>; readonly pitch: number; readonly projected: boolean; readonly quads?: ReadonlyArray<ReadonlyArray<{ x: number; y: number }>> }
+/** Set by BoardProjection (kept out of this file to avoid an import cycle): projected grid or null when invalid. */
+let projectedHitHook: null | ((g: KitGrid, x: number, y: number) => number) = null;
+export function setProjectedHitHook(f: typeof projectedHitHook): void { projectedHitHook = f; }
+let projectGridHook: null | ((kit: RegionBoardKit, w: number, h: number) => KitGrid | null) = null;
+export function setProjectGridHook(f: typeof projectGridHook): void { projectGridHook = f; }
 /** Default kit: the 2D layout grid, exactly cellCenter(). */
 export function kitGrid(kit: RegionBoardKit, layout: BoardLayout): KitGrid {
-  if (kit.board) { kitFallback('projection-not-implemented:' + kit.id); }
+  if (kit.board) {
+    const b = kit.camera ? projectGridHook && projectGridHook(kit, layout.width, layout.height) : null;
+    if (b) return b; kitFallback((kit.camera ? 'projection-invalid:' : 'no-camera:') + kit.id);
+  }
   const centers: { x: number; y: number }[] = []; for (let i = 0; i < 49; i++) centers.push(cellCenter(layout, i));
   return { centers, pitch: layout.pitch, projected: false };
 }
@@ -103,8 +136,7 @@ export function kitCellAt(grid: KitGrid, x: number, y: number): number {
     const col = Math.round(lx / P) + 3, row = 3 - Math.round(ly / P);
     if (Math.abs(lx) >= P * 3.5 || Math.abs(ly) >= P * 3.5 || col < 0 || col > 6 || row < 0 || row > 6) return -1; return row * 7 + col;
   }
-  let best = -1, bd = Infinity; for (let i = 0; i < grid.centers.length; i++) { const d = Math.hypot(grid.centers[i].x - x, grid.centers[i].y - y); if (d < bd) { bd = d; best = i; } }
-  return best;
+  return projectedHitHook ? projectedHitHook(grid, x, y) : -1;
 }
 /** Fallback to the original 2D tray: logged and counted. The suite FAILs any test that prints the marker (fallback=0). */
 export const KIT_FALLBACK_MARKER = '[QF_BOARD_KIT] fallback';
