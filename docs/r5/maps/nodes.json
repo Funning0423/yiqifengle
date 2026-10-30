@@ -39,11 +39,11 @@
    },
    {
     "k": "I5",
-    "name": "西岬 west cape (palm) — 挑战/探索",
+    "name": "西岬 west cape (palm) — 挑战/探索 (b20: was [-4.5,0.13,-0.9])",
     "at": [
-     -4.5,
-     0.13,
-     -0.9
+     -3.1,
+     0.14,
+     0.7
     ]
    },
    {
@@ -81,19 +81,19 @@
    {
     "from": "I4",
     "to": "I5",
-    "walkM": 10.9,
-    "walkS": 9.1,
-    "climbM": 0.02
+    "walkM": 8.8,
+    "walkS": 7.3,
+    "climbM": 0.03
    },
    {
     "from": "I5",
     "to": "I6",
-    "walkM": 11.4,
-    "walkS": 10.5,
-    "climbM": -0.73
+    "walkM": 9.3,
+    "walkS": 7.7,
+    "climbM": -0.32
    }
   ],
-  "totalWalkM": 41.3,
+  "totalWalkM": 37.1,
   "reachableAreaM2": 147,
   "heightRange": [
    -0.6,
