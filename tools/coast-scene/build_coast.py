@@ -478,20 +478,26 @@ for k in range(3):   # 3 steps, rise 0.2, tread 0.4: S0 (y -12.1, z .6) -> S1 (y
     sb=bmesh.new();bmesh.ops.create_cube(sb,size=1)
     if (k,j) in CHIP:   # knock off one top corner (chipped / broken stone)
       cx,cy=random.choice([(-1,1),(1,1),(-1,-1),(1,-1)]);n=Vector((cx,cy,1.3)).normalized()
-      bmesh.ops.bisect_plane(sb,geom=sb.verts[:]+sb.edges[:]+sb.faces[:],plane_co=Vector((cx*0.5,cy*0.5,0.5))-n*0.16,plane_no=n,clear_outer=True)
+      bmesh.ops.bisect_plane(sb,geom=sb.verts[:]+sb.edges[:]+sb.faces[:],plane_co=Vector((cx*0.5,cy*0.5,0.5))-n*0.30,plane_no=n,clear_outer=True)
       bmesh.ops.holes_fill(sb,edges=[e for e in sb.edges if e.is_boundary],sides=0)
     bmesh.ops.bevel(sb,geom=[e for e in sb.edges],offset=0.035,segments=1,affect='EDGES')
     for v in sb.verts:v.co+=Vector((0.02*noise.noise(Vector((v.co.x*2+k*3,v.co.y*2+j,2))),0.015*noise.noise(Vector((v.co.y*2+j,k,4))),0.01*noise.noise(Vector((v.co.x*3+k,v.co.y*3+j,1)))))
     hh=top+0.06+0.03*random.uniform(-1,1)
     M=Matrix.Translation((x0+0.03*math.sin(k*3+j),y0+0.2-0.03,top-hh/2+0.01*random.uniform(-1,1)))@Matrix.Rotation(random.uniform(-0.08,0.08),4,'Z')@Matrix.Diagonal((w,0.48,hh,1))
     ub=random.uniform(0.42,0.62)
-    def sc_(p,f,ub=ub):
-      if f.normal.z>0.8:return trim(ub+0.1)                 # worn top, like the threshold
-      if f.normal.z>0.3:return trim(ub+0.22)                # bevel catches light
-      if f.normal.z>-0.5:return trim(ub-0.28)               # riser, darker end of the band
-      return trim(0.0)*0.7
+    zb=top-hh+0.0;RIS=hx('#8a7350')
+    def sc_(p,f,ub=ub,zb=zb,RIS=RIS):   # r4d: value separation from the sand
+      n=f.normal;ax=max(abs(n.x),abs(n.y),abs(n.z))
+      if ax<0.93 and n.z<0.75 and n.z>-0.5 and abs(n.z)>0.12:return trim(0.0)*0.62     # broken chip face (oblique cut): dark
+      if n.z>0.8:return trim(ub+0.18)                                                 # light worn top
+      if n.z>0.3:return mix(trim(1.0),hx('#FFF6E0'),0.4)                              # crisp light bevel highlight
+      if n.z>-0.5:
+        ao=max(0.0,min(1.0,(p.z-zb)/0.14))
+        return RIS*(0.62+0.38*ao)*(0.95+0.1*((k*3+j)%3)/2)                            # dark riser + baked AO at its foot
+      return trim(0.0)*0.5
     add_bm('arrival_steps',sb,sc_,M);sb.free()
 bake_ao('arrival_steps',rays=8,dist=0.3,strength=0.4)
+STEP_DRIFT=[(x,-10.86) for x in (-1.05,-0.25,0.55,1.2)]+[(sx*1.36,y) for sx in (-1,1) for y in (-11.85,-11.35)]
 bake_glb(ART+'env_cloud_01.glb','reuse_cloud')
 bake_glb(ART+'env_prop_hydrangea_bush_01.glb','reuse_bush')
 bake_glb(ART+'env_prop_flowers_01.glb','reuse_flowers');bake_glb(ART+'env_prop_grass_tuft_01.glb','reuse_grass_a');bake_glb(ART+'env_prop_grass_tuft_02.glb','reuse_grass_b')
@@ -552,6 +558,7 @@ for (r,c,x,y,z) in SL:
   put('contact',x+0.05,y-0.03,zz+0.004,0,1.22,piece=True,receive_shadow=False);put('piece_'+LAY[r][c],x,y,zz,random.uniform(-.25,.25),1.22,piece=True,cell=[r,c])
 # props / animals
 put('arrival_steps',0,0,0)
+for (dx_,dy_) in STEP_DRIFT:put('drift',dx_,dy_,ground_z(dx_,dy_)-0.005,(dx_*3.1+dy_)%6.28,0.55)   # r4d: sand drift against the step base
 FL=['reuse_grass_a','reuse_grass_b','reuse_grass_a','reuse_flowers']
 _TV=[];_TP=[]
 for _t in MESH['terrain']['tris']:_b=len(_TV);_TV+=list(_t);_TP.append((_b,_b+1,_b+2))
@@ -579,10 +586,10 @@ def blob(x,y,s):put('blob',x,y,gzt(x,y)+0.012,0,s*0.6,receive_shadow=False)
 random.seed(404)
 # A  fisher's corner (bottom-left, sits ON the board's bottom edge -> foreground overlap): lead = upturned dinghy
 def gp(n,x,y,rz=0,sc=1.0,dz=0.0,**kw):put(n,x,y,gzt(x,y)+dz,rz,sc,**kw)
-gp('dinghy',-2.85,-5.75,0.12,1.0,dz=-0.06,cast_shadow=True);blob(-2.85,-5.75,1.25)   # r4c: lengthwise toward camera, fully in frame
+gp('dinghy',-8.4,-6.6,0.75,1.0,dz=-0.06,cast_shadow=True);blob(-8.4,-6.6,1.25)   # r4d: no clean in-frame spot -> moved fully out of frame (left dunes); net poles + crab trap lead the fisher's corner   # r4c: lengthwise toward camera, fully in frame
 gp('net_poles',-4.2,-5.5,1.3,1.0,cast_shadow=True);gp('net',-4.2,-5.5,1.3,1.0,cast_shadow=True);blob(-4.45,-6.38,0.18);blob(-3.96,-4.62,0.18)
 gp('crabtrap',-1.6,-4.70,0.35,1.0,cast_shadow=True);gp('crabtrap_mesh',-1.6,-4.70,0.35,1.0);blob(-1.6,-4.70,0.45)
-gp('rope_coil',-1.95,-5.55,0,1.0);blob(-1.95,-5.55,0.3)
+gp('rope_coil',-2.35,-5.6,0,1.0);blob(-2.35,-5.6,0.3)
 for (x,y,sc,k) in [(-4.75,-3.90,0.55,4),(-5.15,-3.30,0.36,1),(-1.55,-4.00,0.3,0)]:put('rock_%d'%k,x,y,ground_z(x,y)-0.22*sc,random.random()*6.28,sc,cast_shadow=True);blob(x,y,sc*0.95)
 for (x,y) in [(-4.3,-4.50),(-2.3,-3.80),(-4.1,-3.30),(-1.3,-5.15),(-3.55,-4.95)]:flora(x,y)
 # B  tide pool (bottom-right): lead = rock pool with anemones; supports = 2 starfish, pale rocks, shells, driftwood
