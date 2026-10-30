@@ -3821,8 +3821,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js",
-    "bytes": 759,
-    "sha256": "504e3c5b16c6bddf10bbf63f3c8769cedd9207c5f3a2f63ba517714d07da6358"
+    "bytes": 1231,
+    "sha256": "d4aebe9ddab8ecb764849f6e3018e373ae87420b5df581b9e355ea2ee5afe278"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta",
@@ -3841,8 +3841,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js",
-    "bytes": 9810,
-    "sha256": "ac78747bf46156781e98d85237fe429ef6fe87f3ca821717083cfdd638579287"
+    "bytes": 10211,
+    "sha256": "b91fa530bec37db68001b117410f8c61ed6bfade3a96edb4641bb88f13dccecb"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta",
@@ -3851,8 +3851,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
-    "bytes": 12124,
-    "sha256": "730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b"
+    "bytes": 12415,
+    "sha256": "2abd5b968b8e77ce9938e34fa8b85521b3f39307e3fb9e78ece1d27830de32b9"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta",
@@ -3861,8 +3861,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
-    "bytes": 4143,
-    "sha256": "2653f7233a890100a1e7c7bb8ca5cfc5f5d3a44bc93a9de3b32796c55af9f3ea"
+    "bytes": 4484,
+    "sha256": "c17222b6188e2d3bb9a60bddf1771668e328327ecc7e38da28429ac61a593107"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js.meta",
