@@ -70,7 +70,7 @@ export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SK
  const run:Record<string,()=>Promise<unknown>>={
   'bundle:region_meadow':()=>bundle('region_meadow').then(ok=>{if(!ok)throw Error('bundle');}),
   'bundle:transport_sail':()=>bundle('transport_sail').then(ok=>{if(!ok)throw Error('bundle');}),
-  'split:env_meadow':()=>meadowSplitLoad(),
+  'split:env_meadow':()=>meadowSplitLoad(stable),
   'prefab:env_meadow':()=>loadRegionPrefab(REGIONS.meadow),
   'mount:meadow-warm-rig':async()=>{let s;while((s=stable())===false)await wait(gap);if(s==='gone')throw Error('left-island');await preloadMeadowForSail(parent);},/* 'gone': she left the island side; the sail prepare mounts */
  };

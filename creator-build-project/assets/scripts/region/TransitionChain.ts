@@ -139,6 +139,10 @@ export const SKY_LEG_MOUNT_MS=700;
  *  (JS zlib) and creates + uploads the GPU buffers synchronously, so loading the prefab paid all 23 meshes + 4 textures in one
  *  burst. Sub-assets now load a batch per frame; the batch halves after a frame over budget and doubles under half of it. */
 export const SPLIT_BUDGET_MS=4;
+/** Meadow meshes whose single decode (zlib inflate + VB upload in Mesh.onLoaded→initialize) is >4 ms on the phone model (box median ×4),
+ *  largest first. They decode only while she stands at home / on the island; the light ones go on the walk.
+ *  TODO(场景设计部 plan R: chunked grass/flower instances): once it lands, make "single mesh decode ≤4 ms" a hard gate. */
+export const MEADOW_HEAVY_MESHES=Object.freeze(['meadow_grass_instances.2_merged','meadow_grass_instances.1_merged','meadow_terrain','meadow_far_hills','meadow_flower_instances.2_merged','meadow_flower_instances.1_merged','meadow_grass_instances.0_merged','meadow_flower_instances.0_merged','meadow_grass_instances.3_merged','meadow_trees_merged','meadow_river_bank','meadow_clouds_near','meadow_grass_instances.4_merged']);
 export function splitNextBatch(k:number,workMs:number,budget=SPLIT_BUDGET_MS):number{return workMs>budget?Math.max(1,k>>1):workMs<budget/2?Math.min(8,k*2):k;}
 /** P0 wipe (Mac 19bd812a: WindWipe leg meadow prepare-slow 3.06/3.17 s, no [QF_PRELOAD] meadow line): the meadow warm ran only at the
  *  mainline-04 board, so a sail from the island without L4 in this session (returning player, preTransition) loaded + instantiated
