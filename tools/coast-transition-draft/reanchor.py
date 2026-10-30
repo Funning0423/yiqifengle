@@ -67,7 +67,7 @@ def her_root(t):
         _gy[key] = ground_y(p[0], p[2], CRAY if coast_side else IRAY, p[1])
         if _gy[key] is None: raise SystemExit(f'no ground under her at {p}')
     return np.array([p[0], _gy[key], p[2]])
-FPS = 60; TS = np.arange(0, TOTAL + 1e-9, 1 / FPS)
+FPS = int(os.environ.get('LENS_FPS', 60)); TS = np.arange(0, TOTAL + 1e-9, 1 / FPS)
 RAWP = np.array([her_root(t) for t in TS])
 K = int(0.12 * FPS); SM = np.array([RAWP[max(0, i - K):i + K + 1].mean(0) for i in range(len(TS))])  # 0.24 s root smoothing
 def heading_at(i):  # smoothed travel heading (look-ahead 0.6 m); standing at door = +Z; settles to path in S2

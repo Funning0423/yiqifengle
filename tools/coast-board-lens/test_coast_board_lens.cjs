@@ -71,6 +71,9 @@ for(const r of T.screens){const [w,h]=r.screen.split('x').map(Number);
   // S7 walk (场景设计部 P2): pause (0,0,10.25) -> stop (0,0,5.15) at 1.2 m/s inside S7, then >=2 s settled idle before the board pose; walk clearance >=1 m from solids (grass listed, not solid)
   const wk=sm.s7_walk||[];ok(wk.length===2&&wk[0]>=sh[6]&&Math.abs((wk[1]-wk[0])-5.1/1.2)<1e-3&&sh[7]-wk[1]>=1.5-1e-6&&sh[7]-wk[1]<=2.5+1e-6,`${r.screen} S7 walk ${JSON.stringify(wk)} (1.2 m/s, settled 1.5-2.5 s before ${sh[7]})`);
   // Grok Bot: the walk sits where the camera faces her (cam within 90 deg of her heading); >=50% of the 4.25 s walk inside that window
+  // GGbot ggbot/yawfollower-dt: motion limits on 60 fps, 30 fps and uneven dt [1/90,1/45] s (motion_clocks.py; turn p99 <=200 deg/s^2)
+  const mc=sm.motion_clocks||{};ok(['60fps','30fps','jitter'].every(k=>mc[k]&&mc[k].pass_),`${r.screen} motion clocks ${JSON.stringify(mc)}`);
+  if(r.screen==='390x844')console.log('ok   motion clocks '+Object.entries(mc).map(([k,v])=>`${k} yaw ${v.yaw_max} acc p99 ${v.yaw_acc_p99}/${v.pitch_acc_p99} v ${v.speed_max} step ${v.step_max}`).join(' | '));
   const fr=sm.s7_front||[];ok(fr.length===2&&fr[0]<=wk[0]&&sm.s7_walk_front_s>=0.5*(wk[1]-wk[0]),`${r.screen} S7 front window ${JSON.stringify(fr)} vs walk ${JSON.stringify(wk)}: ${sm.s7_walk_front_s} s in front`);
   if(r.screen==='390x844')console.log(`ok   S7 walk ${wk.map(x=>x.toFixed(2)).join('-')} s, settled ${(sh[7]-wk[1]).toFixed(2)} s before landing ${sh[7].toFixed(2)}; camera faces her ${fr.map(x=>x.toFixed(2)).join('-')} s, walk in front ${sm.s7_walk_front_s} s`);
   const W30=motion(rows.filter((_,i)=>i%2===0));ok(within(W30),`${r.screen} whole @30fps v ${W30.vmax.toFixed(2)} step ${W30.smax.toFixed(3)} w ${W30.wmax.toFixed(1)} acc99 ${W30.p99.toFixed(1)} fov ${W30.fmax.toFixed(3)}`);
