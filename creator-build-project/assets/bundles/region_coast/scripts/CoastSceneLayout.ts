@@ -38,3 +38,14 @@ export function coastInstances(L:CoastLayout):CoastInstance[]{
 /** World point (island scene_root frame) of a coast-local point under COAST_ROOT (yaw about +Y). */
 export function coastWorldOf(p:V3,root=COAST_ROOT):V3{const a=root.yawDeg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),k=root.scale;
   return [root.position[0]+k*(c*p[0]+s*p[2]),root.position[1]+k*p[1],root.position[2]+k*(-s*p[0]+c*p[2])];}
+/** The 13 reuse:true names (96 instances) GGbot's resolveReuse must resolve from already-loaded island resources.
+ *  src = island art the preview baked them from (build_coast.py bake_glb); note = transform the bake applied that the template must match. */
+export const COAST_REUSE_SOURCES:Readonly<Record<string,{count:number;src:string;note?:string}>>=Object.freeze({
+  reuse_grass_a:{count:25,src:'env_prop_grass_tuft_01'},reuse_grass_b:{count:19,src:'env_prop_grass_tuft_02'},reuse_flowers:{count:16,src:'env_prop_flowers_01'},
+  reuse_rock_0:{count:3,src:'env_prop_rock_01',note:'normalised: max |x|,|y| = 1 m, base at -0.1 m'},reuse_rock_1:{count:3,src:'env_prop_rock_02',note:'normalised as rock_0'},
+  reuse_rock_2:{count:1,src:'env_prop_rock_03',note:'normalised as rock_0'},
+  reuse_rock_s0:{count:5,src:'env_prop_rock_01',note:'normalised as rock_0; preview tinted 38% toward #E9D7B0 (sand) - no tint on the island palette'},
+  reuse_rock_s1:{count:7,src:'env_prop_rock_02',note:'as rock_s0'},reuse_rock_s2:{count:6,src:'env_prop_rock_03',note:'as rock_s0'},
+  reuse_bush:{count:3,src:'env_prop_hydrangea_bush_01'},reuse_palm_tall:{count:2,src:'env_prop_palm_tall_01'},reuse_palm_lean:{count:1,src:'env_prop_palm_lean_01'},
+  reuse_cloud:{count:5,src:'env_cloud_01'}});
+export const COAST_MATERIAL_KEYS=Object.freeze(Object.keys(COAST_MESH_FLAGS));

@@ -29,38 +29,48 @@ const own=I.filter(x=>!x.reuse),reuse=I.filter(x=>x.reuse);
 ok(own.every(x=>nodes.has(x.mesh)),'all '+own.length+' non-reuse instances resolve to a glb node (missing: '+[...new Set(own.filter(x=>!nodes.has(x.mesh)).map(x=>x.mesh))]+')');
 console.log('info reuse:true instances (island props, not in this bundle): '+reuse.length+' ['+[...new Set(reuse.map(x=>x.mesh))].join(',')+']');
 // ---- 2/3 engine mock
-function mockCC(log){let id=0;class Node{constructor(n){this.name=n;this.id=++id;this.children=[];this.parent=null;this.active=true;this.comps=[];log.push(['new',n]);}
+function mockCC(log){class Asset{constructor(n){this.name=n;this.refs=0;}addRef(){this.refs++;log.push(['addRef',this.name]);}decRef(){this.refs--;log.push(['decRef',this.name]);}}
+  class Node{constructor(n){this.name=n;this.children=[];this.parent=null;this.active=true;this.comps=[];log.push(['new',n]);}
   addChild(c){c.parent=this;this.children.push(c);log.push(['add',this.name,c.name,root(this).name,root(this).active]);}
-  setPosition(...a){this.pos=a;}setRotationFromEuler(...a){this.eul=a;}setScale(...a){this.scl=a;}getComponent(){return this.comps[0]||null;}destroy(){this.dead=true;}}
+  setPosition(...a){this.pos=a;}setRotationFromEuler(...a){this.eul=a;}setScale(...a){this.scl=a;}getComponent(){return this.comps[0]||null;}destroy(){this.dead=true;log.push(['destroy',this.name]);}}
   const root=n=>{while(n.parent)n=n.parent;return n;};
-  const clone=n=>{const c=new Node(n.name);c.comps=n.comps.map(()=>({setMaterial(){},shadowCastingMode:0,receiveShadow:0}));for(const k of n.children)c.addChild(clone(k));return c;};
-  const prefabs=[];for(const f of fs.readdirSync(path.join(B,'models')).filter(f=>f.endsWith('.glb'))){const b=fs.readFileSync(path.join(B,'models',f)),jl=b.readUInt32LE(12),j=JSON.parse(b.slice(20,20+jl));
-   const r={name:f,children:j.nodes.map(n=>({name:n.name,children:[],comps:[1]})),comps:[]};prefabs.push(r);}
-  const toNode=d=>{const n=Object.create(Node.prototype);Object.assign(n,{name:d.name,children:[],parent:null,active:true,comps:d.comps.map(()=>({}))});for(const c of d.children){const k=toNode(c);k.parent=n;n.children.push(k);}return n;};
-  const bundle={load(p,T,cb){log.push(['load',p]);cb(null,{json:LY});},loadDir(p,T,cb){log.push(['loadDir',p]);cb(null,prefabs.map(toNode));}};
-  return {assetManager:{loadBundle(n,cb){log.push(['loadBundle',n]);cb(null,bundle);}},AssetManager:{},Color:class{},JsonAsset:class{},Prefab:class{},MeshRenderer:class{},
-   Material:class{initialize(){log.push(['mat']);}setProperty(){}},instantiate:n=>clone(n),isValid:n=>!!n&&!n.dead,Node};}
+  const clone=n=>{const c=new Node(n.name);c.comps=n.comps.map(()=>({setMaterial(m,i){c.mat=m;},shadowCastingMode:0,receiveShadow:0}));for(const k of n.children)c.addChild(clone(k));return c;};
+  const mk=d=>{const n=Object.create(Node.prototype);Object.assign(n,{name:d.name,children:[],parent:null,active:true,comps:d.comps.map(()=>({}))});for(const c of d.children){const k=mk(c);k.parent=n;n.children.push(k);}return n;};
+  const prefabs=fs.readdirSync(path.join(B,'models')).filter(f=>f.endsWith('.glb')).map(f=>{const b=fs.readFileSync(path.join(B,'models',f)),jl=b.readUInt32LE(12),j=JSON.parse(b.slice(20,20+jl));
+   const n=mk({name:f,children:j.nodes.map(x=>({name:x.name,children:[],comps:[1]})),comps:[]});Object.assign(n,new Asset(f));n.addRef=Asset.prototype.addRef;n.decRef=Asset.prototype.decRef;return n;});
+  const json=new Asset('coast_layout');json.json=LY;
+  const bundle={load(p,T,cb){log.push(['load',p]);cb(null,json);},loadDir(p,T,cb){log.push(['loadDir',p]);cb(null,prefabs);}};
+  return {cc:{assetManager:{getBundle:()=>null,loadBundle(n,cb){log.push(['loadBundle',n]);cb(null,bundle);}},AssetManager:{},Asset,JsonAsset:class{},Prefab:class{},MeshRenderer:class{},Material:class{},
+   instantiate:n=>clone(n),isValid:n=>!!n&&!n.dead,Node},json,prefabs};}
+const islandMat={name:'M_env_palette'};
+async function run(o){const log=[];const M=mockCC(log);if(o.loadFail)M.cc.assetManager.loadBundle=(n,cb)=>cb(Error('boom'));const errs=[],warns=[];const ce=console.error,cw=console.warn;console.error=m=>errs.push(m);console.warn=m=>warns.push(m);
+  delete globalThis.__qfCoast;const L=loader({cc:M.cc,'BoardProjection':{coastBoardKitFromFlag:()=>o.kit!==false}})(path.join(B,'scripts/CoastSceneLoader'));
+  const world=new M.cc.Node('island_scene_root');const tplIsland=new M.cc.Node('island_tpl');tplIsland.comps=[{}];log.length=0;
+  const opts=o.opts?o.opts(tplIsland):{resolveReuse:n=>tplIsland,resolveMaterial:()=>islandMat,cancelled:()=>false};
+  let h;try{h=await L.loadCoastScene(o.world===undefined?world:o.world,opts);}finally{console.error=ce;console.warn=cw;}return {h,log,errs,warns,world,M,L,tplIsland};}
 async function main(){
- // flag off
- {const log=[];const cc=mockCC(log);const arrival={playCoastArrival:async()=>{log.push(['cam']);return {ok:true}}};
-  const L=loader({cc,'CoastArrivalLens':arrival,'BoardProjection':{coastBoardKitFromFlag:()=>false}})(path.join(B,'scripts/CoastSceneLoader'));
-  const parent=new cc.Node('scene');log.length=0;const r=await L.mountCoastScene({parent});
-  ok(r.root===null&&r.reason==='kit-off'&&log.length===0&&parent.children.length===0,'flag off: no bundle load, no Node, no material, nothing added (engine calls: '+log.length+')');}
- // flag on
- {const log=[];const cc=mockCC(log);const arrival={playCoastArrival:async()=>{log.push(['cam']);return {ok:true}}};
-  const L=loader({cc,'CoastArrivalLens':arrival,'BoardProjection':{coastBoardKitFromFlag:()=>true}})(path.join(B,'scripts/CoastSceneLoader'));
-  const parent=new cc.Node('scene');log.length=0;const out=await L.runCoastArrivalWithScene({},{parent});const r=out.scene;
-  ok(r.root&&r.placed===own.length&&r.skippedReuse===reuse.length&&r.missing.length===0,'flag on: placed '+r.placed+' / skipped reuse '+r.skippedReuse+' / missing '+r.missing.length);
-  const adds=log.filter(x=>x[0]==='add'&&x[3]==='region_coast_root');
-  ok(adds.length>=own.length&&adds.every(x=>x[4]===false),'every placement happens on the detached, inactive root');
-  const show=log.findIndex(x=>x[0]==='add'&&x[1]==='scene'&&x[2]==='region_coast_root'),cam=log.findIndex(x=>x[0]==='cam');
-  ok(show>0&&log.slice(show+1).every(x=>x[0]!=='add'||x[1]==='coast_glb_templates')&&r.root.active===true&&parent.children.length===1,'one attach to the scene at the end, then active (single-step show)');
-  ok(cam>show&&log.filter(x=>x[0]==='cam').length===1,'arrival camera starts only after the coast is shown');
-  const c=r.root.children.find(n=>n.name===own[0].mesh);ok(near(r.root.pos,[-0.6,-0.845,21.5])&&near(r.root.eul,[0,180,0])&&c&&near(c.pos,own[0].position)&&near(c.eul,own[0].eulerDeg),'root TRS + child TRS applied');}
- // failure path: never shown, arrival still plays
- {const log=[];const cc=mockCC(log);cc.assetManager.loadBundle=(n,cb)=>cb(Error('boom'));const arrival={playCoastArrival:async()=>{log.push(['cam']);return {ok:true}}};
-  const L=loader({cc,'CoastArrivalLens':arrival,'BoardProjection':{coastBoardKitFromFlag:()=>true}})(path.join(B,'scripts/CoastSceneLoader'));
-  const parent=new cc.Node('scene');const out=await L.runCoastArrivalWithScene({},{parent});ok(out.scene.root===null&&parent.children.length===0&&log.some(x=>x[0]==='cam'),'load failure: nothing shown, arrival still plays');}
+ {const r=await run({kit:false});ok(r.h===null&&r.log.length===0&&r.errs.length===0&&r.world.children.length===0,'flag off: no engine call, no log, nothing added (engine calls '+r.log.length+')');}
+ {const r=await run({});const h=r.h;
+  ok(typeof r.L.loadCoastScene==='function'&&globalThis.__qfCoast&&globalThis.__qfCoast.loadCoastScene===r.L.loadCoastScene&&globalThis.__qfCoast.unloadCoastScene===r.L.unloadCoastScene,'export loadCoastScene + globalThis.__qfCoast.loadCoastScene/unloadCoastScene registered');
+  ok(h&&h.placed===own.length&&h.reusePlaced===reuse.length&&r.errs.length===0,'flag on: placed '+(h&&h.placed)+' + reuse '+(h&&h.reusePlaced)+', 0 errors');
+  const adds=r.log.filter(x=>x[0]==='add'&&x[3]==='region_coast_root');ok(adds.length>=I.length&&adds.every(x=>x[4]===false),'every placement on the detached, inactive root');
+  const show=r.log.findIndex(x=>x[0]==='add'&&x[1]==='island_scene_root'&&x[2]==='region_coast_root');
+  ok(show>0&&r.log.slice(show+1).every(x=>x[0]!=='add')&&h.root.active===true&&r.world.children.length===1,'one attach under the world node at the end, then active');
+  const bad=h.root.children.filter(n=>!n.name.startsWith('reuse_')&&n.mat!==islandMat);if(bad.length)console.log('bad',bad.slice(0,3).map(n=>n.name+':'+JSON.stringify(n.mat)));ok(!bad.length,'every coast mesh uses the resolveMaterial material (no builtin material created)');
+  const src=fs.readFileSync(path.join(B,'scripts/CoastSceneLoader.ts'),'utf8');ok(!/builtin-standard|builtin-unlit|new Material\(|USE_VERTEX_COLOR/.test(src),'no builtin / vertex-colour fallback material in the loader source');
+  const c=h.root.children.find(n=>n.name===own[0].mesh);ok(near(h.root.pos,[-0.6,-0.845,21.5])&&near(h.root.eul,[0,180,0])&&c&&near(c.pos,own[0].position)&&near(c.eul,own[0].eulerDeg),'root TRS + child TRS applied');
+  r.log.length=0;h.dispose();h.dispose();const dec=r.log.filter(x=>x[0]==='decRef').length;
+  ok(h.root.dead&&dec===1+r.M.prefabs.length&&r.M.json.refs===0&&r.M.prefabs.every(p=>p.refs===0)&&!r.tplIsland.dead&&!islandMat.dead,'dispose: root destroyed, layout+4 glbs decRef once, island templates/materials untouched (idempotent)');}
+ {const r=await run({loadFail:true});ok(r.h===null&&r.world.children.length===0&&r.errs.some(e=>/^\[QF_COAST\] scene mount failed/.test(e)),'load failure: console.error [QF_COAST], nothing shown');}
+ {const r=await run({opts:t=>({resolveMaterial:()=>islandMat,cancelled:()=>false})});ok(r.h===null&&r.log.length===0&&r.errs.some(e=>/\[QF_COAST\].*missing resolveReuse/.test(e)),'missing resolveReuse: console.error [QF_COAST], nothing loaded');}
+ {const r=await run({opts:t=>({resolveReuse:()=>t,cancelled:()=>false})});ok(r.h===null&&r.errs.some(e=>/\[QF_COAST\].*missing resolveMaterial/.test(e)),'missing resolveMaterial: console.error [QF_COAST] (no builtin fallback)');}
+ {const r=await run({opts:t=>({resolveReuse:n=>n==='reuse_cloud'?null:t,resolveMaterial:()=>islandMat,cancelled:()=>false})});
+  ok(r.h&&r.errs.length===1&&/\[QF_COAST\] reuse unresolved: reuse_cloud \(5 instances/.test(r.errs[0])&&r.h.reusePlaced===reuse.length-5,'unresolved reuse name: console.error [QF_COAST] naming it + count');}
+ {const r=await run({opts:t=>({resolveReuse:()=>t,resolveMaterial:k=>k.mesh==='terrain'?null:islandMat,cancelled:()=>false})});
+  ok(r.h&&r.errs.some(e=>/\[QF_COAST\] material unavailable for terrain/.test(e))&&!r.h.root.children.some(n=>n.name==='terrain'),'material unavailable: console.error [QF_COAST], mesh not mounted with any fallback');}
+ for(const at of [1,2,3]){let k=0;const r=await run({opts:t=>({resolveReuse:()=>t,resolveMaterial:()=>islandMat,cancelled:()=>++k>=at})});
+  ok(r.h===null&&r.world.children.length===0&&r.M.json.refs===0&&r.M.prefabs.every(p=>p.refs===0)&&r.warns.some(w=>/\[QF_COAST\] scene mount cancelled/.test(w)),'cancelled at check '+at+': nothing shown, all loaded assets released');}
+ {const L=await run({});ok(Object.keys(CL.COAST_REUSE_SOURCES).sort().join()===[...new Set(reuse.map(x=>x.mesh))].sort().join()&&Object.values(CL.COAST_REUSE_SOURCES).reduce((a,b)=>a+b.count,0)===reuse.length&&reuse.length===96,'COAST_REUSE_SOURCES == the 13 reuse names / 96 instances in the layout');}
  // pins
  const PIN={'scripts/regional-r05/runtime/regional-session.js':'730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b','scripts/regional-r05/runtime/rule-guide.js':'2653f7233a890100a1e7c7bb8ca5cfc5f5d3a44bc93a9de3b32796c55af9f3ea',
   'scripts/CharacterMotion.ts':'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657','scripts/world-r2/WorldNativeComposition.ts':'663e60d6d63c5288c6f9b42678dbb8191a7eab5373671f1d204d31d267946012',
