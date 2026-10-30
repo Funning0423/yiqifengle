@@ -1,4 +1,5 @@
 'use strict';
+globalThis.__qfCoastBoardKit=true;   // coast stages only run with the coast kit flag (regional-r05/runtime/coast-kit.js)
 // 海岸支线 calibration (场景设计部 2026-10-29). Relative curve only, not human difficulty.
 //  greedy : 1-ply greedy (score = goals left) per seed 1..S with a 80-move cap -> witness length (upper bound of what a careful player needs)
 //  random / eps0.5 : win rate over N runs on seedBank[0] at the stage's moves (same policies as tools/lakeside/difficulty_curve.cjs)

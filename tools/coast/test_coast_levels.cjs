@@ -1,4 +1,5 @@
 'use strict';
+globalThis.__qfCoastBoardKit=true;   // coast stages only run with the coast kit flag (regional-r05/runtime/coast-kit.js)
 // 海岸支线: catalog registration + every shipped seed has a replayable win within the stage's moves (1-ply greedy witness).
 const assert=require('assert'),path=require('path'),R=path.resolve(__dirname,'../../creator-build-project/assets/scripts/regional-r05/runtime');
 const API=require(R+'/index.js'),Session=require(R+'/regional-session.js'),coast=require(R+'/coast-levels-data.js');
