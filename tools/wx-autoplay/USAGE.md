@@ -79,3 +79,8 @@ result.json now also fails the run (`ok:false`, `failReason: game failures: N (.
 - `uncaughtErrors`: `wx.onError` and `wx.onUnhandledRejection`
 - `hudSuppressedErrors`: `[OI_HUD] suppressed {"kind":"error"...}` log lines
 Set `"allowGameFailures": true` in the script to report them without failing. `gameFailures` is the total.
+
+## 每关实际用时（fg-leveltime）
+- 每 `levelTimeEveryMs`（默认 250，最小 100，0 关闭）读一次 `__worldIntegration.board().snapshot.active`，按 attempt 记一条。
+- 输出：console `[QF_LEVEL_TIME] {"stageId","attemptId","region","result":"won|lost|abandoned|unfinished","startMs","endMs","wallMs","frames","moves"}`；`result.json` 的 `levelTimes[]`。
+- 精度 = 轮询间隔。只在测试包里（harness 本身不进正式包，check-release.cjs 照旧）。

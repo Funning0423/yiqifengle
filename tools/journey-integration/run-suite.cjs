@@ -74,6 +74,7 @@ const tests=[
  ['scene-audio-transitions','tools/voice-bot/bgm/test_scene_audio_transitions.cjs'],
  ['scene-bgm-switch','tests/test_scene_bgm_switch.cjs'],
  ['wx-autoplay-harness','tools/wx-autoplay/test-wx-autoplay.cjs'],
+ ['wx-autoplay-level-time','tools/wx-autoplay/test-level-time.cjs'],
  ['landmark-audio','tests/test_landmark_audio.cjs'],
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['region-board-staging','tools/meadow/test_region_board_staging.cjs'],/* r5 G1: meadow / sky-city board work spread over level-loading */

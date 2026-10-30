@@ -29,7 +29,7 @@ function parseScript(text){
       ['timeoutMs','recordMs'].forEach(function(k){if(st[k]!=null&&(typeof st[k]!=='number'||st[k]<0||st[k]>600000))throw Error('step '+i+': bad '+k);});}
     if(op==='screenshot'&&++shots>MAX_SHOTS)throw Error('more than '+MAX_SHOTS+' screenshots');
     var o={op:op==='preT'?'preTransition':op};for(var k in st)if(k!=='op')o[k]=st[k];return o;});
-  return {launchQuery:s.launchQuery||null,allowConsoleErrors:s.allowConsoleErrors===true,stateEveryMs:Math.max(500,Number(s.stateEveryMs)||2000),steps:steps};
+  return {launchQuery:s.launchQuery||null,allowConsoleErrors:s.allowConsoleErrors===true,stateEveryMs:Math.max(500,Number(s.stateEveryMs)||2000),levelTimeEveryMs:s.levelTimeEveryMs===0?0:Math.max(100,Number(s.levelTimeEveryMs)||250),steps:steps};
 }
 /* design (390x844, top-left origin, y down) -> wx clientX/Y (window CSS px). Per-axis scale; identity on a 390x844 device. */
 function toClient(x,y,win){return {x:x*win.w/DESIGN_W,y:y*win.h/DESIGN_H};}
@@ -47,7 +47,19 @@ function installTouch(w){
     var ev={touches:(k==='TouchEnd'||k==='TouchCancel')?[]:[t],changedTouches:[t],timeStamp:Date.now()};var l=(L[k]||[]).slice();
     for(var i=0;i<l.length;i++){try{l[i](ev);}catch(e){console.error('[QF_AUTOPLAY] listener error',e&&e.message);}}return l.length;}};
 }
-var api={parseScript:parseScript,toClient:toClient,dragPoints:dragPoints,stateNames:stateNames,installTouch:installTouch,DESIGN_W:DESIGN_W,DESIGN_H:DESIGN_H,MAX_SHOTS:MAX_SHOTS,qfSer:qfSer};
+/* Per-level wall time (fg-leveltime). Pure: feed it board snapshots ({active:{stageId,attemptId,status}}) with a clock.
+ * One record per attempt: start = first poll that sees status 'playing'; end = first poll with 'won'/'lost', or the active
+ * attempt disappearing/changing ('abandoned'). wallMs precision = poll interval. Emits [QF_LEVEL_TIME] {json} per record. */
+function levelTimer(emit){var cur=null,done=[];
+  function close(result,t,f){var r={stageId:cur.stageId,attemptId:cur.attemptId,region:cur.region,result:result,startMs:cur.t,endMs:t,wallMs:t-cur.t,
+    frames:(f!=null&&cur.f!=null)?f-cur.f:null,moves:cur.moves};done.push(r);cur=null;if(emit)emit(r);}
+  return {records:done,open:function(){return cur;},observe:function(snap,t,f){var a=snap&&snap.active;var id=a&&(a.stageId||a.id);
+    if(cur&&(!a||id!==cur.stageId||(a.attemptId!=null&&a.attemptId!==cur.attemptId)))close('abandoned',t,f);
+    if(!a||!id)return;
+    if(!cur&&a.status==='playing'){var last=done[done.length-1];if(!(last&&last.attemptId!=null&&last.attemptId===a.attemptId&&last.stageId===id))cur={stageId:id,attemptId:a.attemptId==null?null:a.attemptId,region:a.region||null,t:t,f:f==null?null:f,moves:null};}
+    if(cur){if(typeof a.moves==='number')cur.moves=a.moves;if(a.status==='won'||a.status==='lost')close(a.status,t,f);}},
+    finish:function(t,f){if(cur)close('unfinished',t,f);return done;}};}
+var api={levelTimer:levelTimer,parseScript:parseScript,toClient:toClient,dragPoints:dragPoints,stateNames:stateNames,installTouch:installTouch,DESIGN_W:DESIGN_W,DESIGN_H:DESIGN_H,MAX_SHOTS:MAX_SHOTS,qfSer:qfSer};
 if(typeof module!=='undefined'&&module.exports&&!wx){module.exports=api;return;}
 if(!wx||g.__QF_AUTOPLAY)return;
 try{var env=wx.getAccountInfoSync&&wx.getAccountInfoSync().miniProgram.envVersion;if(env==='release'){return;}}catch(e){}
@@ -124,6 +136,8 @@ function run(){
   var res={ok:true,steps:[],startedAt:new Date().toISOString(),design:[DESIGN_W,DESIGN_H],window:win(),listeners:{}};
   for(var k in touch.listeners)res.listeners[k]=touch.listeners[k].length;
   var stTimer=setInterval(function(){writeState('periodic');},script.stateEveryMs);
+  var lvl=levelTimer(function(r){console.info('[QF_LEVEL_TIME] '+JSON.stringify(r));}),lvlTimer=script.levelTimeEveryMs?setInterval(function(){var b=null;try{var wi=g.__worldIntegration;var d=wi&&wi.board&&wi.board();b=d&&d.snapshot;}catch(e){}lvl.observe(b,Date.now(),frames());},script.levelTimeEveryMs):null;
+  function lvlEnd(){if(lvlTimer)clearInterval(lvlTimer);res.levelTimes=lvl.finish(Date.now(),frames());res.levelTimeEveryMs=script.levelTimeEveryMs;}
   var i=0;
   function next(){if(i>=script.steps.length)return Promise.resolve();var st=script.steps[i++],t0=Date.now(),W=win(),rec={i:i-1,op:st.op};
     var p;
@@ -136,13 +150,13 @@ function run(){
     else if(st.op==='screenshot')p=shot(st.name).then(function(f){rec.file=f;});
     return p.then(function(){rec.ms=Date.now()-t0;var s=writeState('after:'+st.op+(st.name?':'+st.name:''));rec.state=s&&s.state;res.steps.push(rec);console.info('[QF_AUTOPLAY] step '+JSON.stringify(rec));
       if((st.op==='waitState'&&rec.matched===false||st.op==='preTransition'&&rec.ready===false)&&st.stopOnFail!==false){res.stoppedAt=rec.i;return;}return next();});}
-  return next().then(function(){clearInterval(stTimer);res.finishedAt=new Date().toISOString();res.shots=shotN;res.consoleErrors=consoleErrors;res.consoleErrorSamples=errorSamples;
+  return next().then(function(){clearInterval(stTimer);lvlEnd();res.finishedAt=new Date().toISOString();res.shots=shotN;res.consoleErrors=consoleErrors;res.consoleErrorSamples=errorSamples;
     /* acceptance rule: DevTools Console Error count must be 0 */
     writeState('final');res.journeyFailures=gameFail.journeyFailed;res.snapshotErrors=gameFail.snapshotErrors;res.uncaughtErrors=gameFail.uncaught;res.hudSuppressedErrors=gameFail.hudSuppressed;
     var gf=gameFail.journeyFailed.length+gameFail.snapshotErrors.length+gameFail.uncaught.length+gameFail.hudSuppressed.length;res.gameFailures=gf;
     if(gf>0&&script.allowGameFailures!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'game failures: '+gf+' (journey failed '+gameFail.journeyFailed.length+', snapshot errors '+gameFail.snapshotErrors.length+', uncaught '+gameFail.uncaught.length+', hud-suppressed '+gameFail.hudSuppressed.length+')';}
     if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},
-    function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);w2('result.json',JSON.stringify(res,null,1));flush();});
+    function(e){clearInterval(stTimer);lvlEnd();res.ok=false;res.error=String(e);w2('result.json',JSON.stringify(res,null,1));flush();});
 }
 /* start once the world integration hook exists (or after 60 s regardless) */
 var t0=Date.now();(function waitBoot(){if(g.__worldIntegration||Date.now()-t0>60000){console.info('[QF_AUTOPLAY] start, out='+OUT);run();}else setTimeout(waitBoot,500);})();
