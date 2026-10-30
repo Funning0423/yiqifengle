@@ -75,14 +75,7 @@ const res={};
   const body=s=>{const i=s.indexOf('const b1Draw=()=>{');return s.slice(i,s.indexOf('director.on(Director.EVENT_BEFORE_DRAW,b1Draw)',i)).replace(/\n\s*if\(!b1Drawn\)\{gapPh\('firstDraw-wait'\);[\s\S]*?\/\* hold the real previous frame, single writer \(before-draw\) \*\//,'');};
   const H0='const b1Draw=()=>{if(dead||!b1On)return;';assert.ok(body(base).startsWith(H0),'C3: base B1 writer head moved');
   assert.equal(body(src),H0+'b1Hold=b1Hold||liveWorldPose();'+body(base).slice(H0.length),'C3: B1 writer changed beyond the hold branch + the b1-ease b1Hold latch');}
- // b20 meadow-walk-fixes: TransportLeg.ts may differ from the base ONLY in the SAIL_M1_LOCAL line (the sail arrival end = RegionNodes M1,
-// moved by Grok Bot); every other byte stays frozen, and SAIL_M1_LOCAL must equal the baked M1 so the two can't drift.
-const M1LINE=/^export const SAIL_M1_LOCAL:Vec=\[[^\]]*\];.*$/m;
-for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b===null)continue;let cur=fs.readFileSync(S+f,'utf8'),ref=b;
- if(f==='region/TransportLeg.ts'){assert.ok(M1LINE.test(cur)&&M1LINE.test(ref),'C3: SAIL_M1_LOCAL line missing');cur=cur.replace(M1LINE,'<SAIL_M1_LOCAL>');ref=ref.replace(M1LINE,'<SAIL_M1_LOCAL>');
-  const m1=RN.REGION_NODES.meadow.nodes.find(n=>n.key==='M1').at,TLm=require('fs').readFileSync(S+f,'utf8').match(M1LINE)[0].match(/\[([^\]]*)\]/)[1].split(',').map(Number);
-  assert.ok(TLm.every((v,i)=>Math.abs(v-m1[i])<1e-6),'C3: SAIL_M1_LOCAL '+TLm+' != RegionNodes M1 '+m1);}
- assert.equal(cur,ref,'C3: '+f+' changed vs '+BASE);}
+ for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b!==null)assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE);}
  /* fullN: TransitionChain.ts may change only in its generated preload section + additive lines (rule + negative self-test: c3-transition-chain*.cjs) */
  {const f='region/TransitionChain.ts',b=gitShow(f);if(b!==null)require('./c3-transition-chain.cjs').checkTransitionChain(b,fs.readFileSync(S+f,'utf8'),f,BASE);}
  const plan=planFor(M2),v0=plan.vehicle(0),c0=plan.camera(0),PIN={v0:[-5.3,5.25,102.5],c0:[-20.6,8.25,89.6]}/* m run plan0 (3 dp log) */;
