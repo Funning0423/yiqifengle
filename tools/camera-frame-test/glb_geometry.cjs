@@ -23,14 +23,10 @@ async function decode(glbPath=GLB){
   const dec=await draco.createDecoderModule({});const parent={};doc.nodes.forEach((n,i)=>(n.children||[]).forEach(c=>parent[c]=i));
   const world=i=>{let t=[0,0,0],r=[0,0,0,1],s=[1,1,1];for(let k=i;k!==undefined;k=parent[k]){const n=doc.nodes[k];if(n.matrix)throw Error('matrix nodes unsupported: '+n.name);
     const nt=n.translation||[0,0,0],nr=n.rotation||[0,0,0,1],ns=n.scale||[1,1,1];const st=qrot(nr,[t[0]*ns[0],t[1]*ns[1],t[2]*ns[2]]);t=[st[0]+nt[0],st[1]+nt[1],st[2]+nt[2]];r=qmul(nr,r);s=[s[0]*ns[0],s[1]*ns[1],s[2]*ns[2]];}return {t,r,s};};
-  // 4x4 column-major helpers for skins
-  const mul=(A,B)=>{const C=new Array(16).fill(0);for(let r=0;r<4;r++)for(let c=0;c<4;c++)for(let k=0;k<4;k++)C[c*4+r]+=A[k*4+r]*B[c*4+k];return C;};
-  const trs=n=>{if(n.matrix)return n.matrix;const [x,y,z,w]=n.rotation||[0,0,0,1],[sx,sy,sz]=n.scale||[1,1,1],t=n.translation||[0,0,0];
-    return [(1-2*(y*y+z*z))*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,2*(x*y-z*w)*sy,(1-2*(x*x+z*z))*sy,2*(y*z+x*w)*sy,0,2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*(x*x+y*y))*sz,0,t[0],t[1],t[2],1];};
-  const glob=i=>{let M=trs(doc.nodes[i]);for(let k=parent[i];k!==undefined;k=parent[k])M=mul(trs(doc.nodes[k]),M);return M;};
-  const skinMats=si=>{const sk=doc.skins[si],A=doc.accessors[sk.inverseBindMatrices],bv=doc.bufferViews[A.bufferView],o=(bv.byteOffset||0)+(A.byteOffset||0);
-    return sk.joints.map((j,k)=>mul(glob(j),Array.from({length:16},(_,e)=>bin.readFloatLE(o+(k*16+e)*4))));};
-  const xf=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2]+M[12],M[1]*v[0]+M[5]*v[1]+M[9]*v[2]+M[13],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]+M[14]];
+  // b20 skin-bounds: skin palette + weighted bind pose from the shared lib-glb functions (one corrected path for every tool)
+  const LG=require('../journey-integration/occlusion/lib-glb.cjs'),worlds=LG.nodeWorlds(doc),xf=LG.xf;
+  const skinMats=si=>{const A=doc.accessors[doc.skins[si].inverseBindMatrices],bv=doc.bufferViews[A.bufferView],o=(bv.byteOffset||0)+(A.byteOffset||0);
+    return LG.skinPalette(doc,si,worlds,k=>Array.from({length:16},(_,e)=>bin.readFloatLE(o+(k*16+e)*4)));};
   const meshes={};
   doc.nodes.forEach((node,i)=>{if(node.mesh===undefined)return;const X=world(i),tris=[],J=node.skin!==undefined?skinMats(node.skin):null;
     for(const pr of doc.meshes[node.mesh].primitives){const ext=pr.extensions?.KHR_draco_mesh_compression;if(!ext)continue;
@@ -42,8 +38,8 @@ async function decode(glbPath=GLB){
       if(J){const ja=ext.attributes.JOINTS_0!==undefined?d.GetAttributeByUniqueId(mesh,ext.attributes.JOINTS_0):null,wa=ext.attributes.WEIGHTS_0!==undefined?d.GetAttributeByUniqueId(mesh,ext.attributes.WEIGHTS_0):null;
         const jv=new dec.DracoFloat32Array(),wv=new dec.DracoFloat32Array();if(ja&&wa){d.GetAttributeFloatForAllPoints(mesh,ja,jv);d.GetAttributeFloatForAllPoints(mesh,wa,wv);}
         for(let v=0;v<nv;v++){const l=[pos.GetValue(v*3),pos.GetValue(v*3+1),pos.GetValue(v*3+2)];let w=[0,0,0];
-          if(ja&&wa){let sw=0;for(let k=0;k<4;k++){const wt=wv.GetValue(v*4+k);if(!(wt>0))continue;const q=xf(J[Math.round(jv.GetValue(v*4+k))]||J[0],l);w=[w[0]+q[0]*wt,w[1]+q[1]*wt,w[2]+q[2]*wt];sw+=wt;}
-            w=sw>0?w.map(x=>x/sw):xf(J[0],l);}else w=xf(J[0],l);
+          if(ja&&wa){const j4=[0,1,2,3].map(k=>Math.round(jv.GetValue(v*4+k))),w4=[0,1,2,3].map(k=>{const x=wv.GetValue(v*4+k);return x>0?x:0;});
+            w=w4.some(x=>x>0)?LG.skinPoint(J,l,j4,w4):xf(J[0],l);}else w=xf(J[0],l);
           P.push([+w[0].toFixed(5),+w[1].toFixed(5),+w[2].toFixed(5)]);}
         dec.destroy(jv);dec.destroy(wv);}
       else for(let v=0;v<nv;v++){const l=[pos.GetValue(v*3)*X.s[0],pos.GetValue(v*3+1)*X.s[1],pos.GetValue(v*3+2)*X.s[2]],w=qrot(X.r,l);P.push([+(w[0]+X.t[0]).toFixed(5),+(w[1]+X.t[1]).toFixed(5),+(w[2]+X.t[2]).toFixed(5)]);}
