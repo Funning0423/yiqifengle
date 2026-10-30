@@ -64,6 +64,7 @@ assert.ok(/wipeOn=!contLake&&/.test(adp),'lakeside: no WindWipe boarding in cont
 assert.equal(C.preloadTargetForStage('mainline-04'),'meadow');assert.equal(C.preloadTargetForStage('mainline-08'),'skycity');assert.equal(C.preloadTargetForStage('mainline-12'),'lakeside');
 const mb=k=>C.PRELOAD_PLAN[k].items.reduce((n,i)=>n+i.bytes,0)/1048576;out.preloadMB={meadow:+mb('meadow').toFixed(2),skycity:+mb('skycity').toFixed(2),lakeside:+mb('lakeside').toFixed(2)};
 assert.ok(mb('meadow')<C.PRELOAD_MEMORY_BUDGET_MB+.5);
+for(const k of ['meadow','skycity','lakeside'])assert.ok(mb(k)<=C.PRELOAD_MEMORY_BUDGET_MB,k+' preload '+mb(k).toFixed(2)+' MiB within the '+C.PRELOAD_MEMORY_BUDGET_MB+' MB budget (built sizes, PRELOAD_BYTES)');
 assert.ok(src('world-r2/WorldNativeComposition.ts').includes('preloadTargetForStage(selection.stageId)'));assert.ok(src('world-r1/WorldFlowComponent.ts').includes('warmTransition('));
 // 9 sky finale: registration + auto-continue reaches the continuous segment
 const comp=src('world-r2/WorldNativeComposition.ts');assert.ok(/registerSkyLakeContinuous\(this/.test(comp),'registered at start()');
