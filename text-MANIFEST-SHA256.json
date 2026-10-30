@@ -3080,6 +3080,16 @@
     "sha256": "0daba6bbf77ee132e0e36450ea1fe672f2140abdb31d1284b5227e04a5e26f8d"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/MeadowStageLens.ts",
+    "bytes": 8404,
+    "sha256": "9e299580c1fba8567ba32c5e482ef208977012dcb4421ff7ba98dba12073a021"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta",
+    "bytes": 170,
+    "sha256": "c8a2de7c0c561d187c704557fe9299b4c17f4c44627b7f37492e0c62daa45daf"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/NodeBoardPose.ts",
     "bytes": 2161,
     "sha256": "3891f9027e05fa045f7356e741ae755e1f261117fc95e0d173897263230e1524"
