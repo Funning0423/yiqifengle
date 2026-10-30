@@ -2,7 +2,8 @@
 (function(){
 const q=new URLSearchParams(location.search);const S=window.__coast={ready:false,log:[]};const L=(...a)=>{S.log.push(a.join(' '));console.log('[coast]',...a);};
 const {director,Scene,Node,Camera,DirectionalLight,MeshRenderer,Material,Vec3,Color,Quat,utils}=cc;
-const LEG=q.get('light')==='r4';const NOP=q.get('nopieces')==='1',CAM=q.get('cam')||'game';
+const LEG=q.get('light')==='r4';const PIECE_SRGB=q.get('piecelin')!=='1';   // r5c: unlit painted pieces take vertex colour as-is (no double gamma)
+const NOP=q.get('nopieces')==='1',CAM=q.get('cam')||'game';
 const mats={};
 function mat(kind,alpha){const key=kind+alpha;if(mats[key])return mats[key];const m=new Material();
   if(kind==='unlit'){m.initialize({effectName:'builtin-unlit',technique:alpha<1?1:0,defines:{USE_VERTEX_COLOR:true}});}
@@ -10,12 +11,12 @@ function mat(kind,alpha){const key=kind+alpha;if(mats[key])return mats[key];cons
        m.setProperty('mainColor',new Color(255,255,255,255));}
   return mats[key]=m;}
 const MESHES={},DATA={};
-function mkMesh(name){if(MESHES[name])return MESHES[name];const d=DATA[name];const cols=new Array(d.colors.length);for(let i=0;i<cols.length;i++)cols[i]=(i%4===3)?d.colors[i]/255:Math.pow(d.colors[i]/255,2.2);
+function mkMesh(name){if(MESHES[name])return MESHES[name];const d=DATA[name];const cols=new Array(d.colors.length);for(let i=0;i<cols.length;i++)cols[i]=(i%4===3)?d.colors[i]/255:(PIECE_SRGB&&/^piece_/.test(name)?d.colors[i]/255:Math.pow(d.colors[i]/255,2.2));
   const n=d.positions.length/3,idx=new Array(n);for(let i=0;i<n;i++)idx[i]=i;
   return MESHES[name]=utils.MeshUtils.createMesh({positions:d.positions,normals:d.normals,colors:cols,indices:idx});}
 function inst(parent,e){const d=DATA[e.mesh];if(!d){L('missing',e.mesh);return null;}const n=new Node(e.mesh);parent.addChild(n);n.setPosition(e.p[0],e.p[1],e.p[2]);
   n.setRotationFromEuler(e.tilt?e.tilt[0]:0,e.rz*180/Math.PI,e.tilt?e.tilt[1]:0);n.setScale(e.s,e.s,e.s);const r=n.addComponent(MeshRenderer);r.mesh=mkMesh(e.mesh);
-  const kind=d.unlit||d.emit||e.mesh==='reuse_cloud'?'unlit':e.piece?'piece':'std';r.setMaterial(mat(kind,d.alpha),0);
+  const kind=d.unlit||d.emit||e.mesh==='reuse_cloud'?'unlit':e.piece?'unlit':'std';r.setMaterial(mat(kind,d.alpha),0);
   r.shadowCastingMode=(e.cast_shadow||e.piece||/^rock_|^reuse_rock|ebb_bell|crab|gull|hermit|headland|beacon_post|reuse_palm|reuse_bush/.test(e.mesh))&&!d.unlit?1:0;
   r.receiveShadow=(e.receive_shadow===false||d.unlit)?0:1;n.__e=e;n.__base=n.position.clone();n.__rot=n.rotation.clone();return n;}
 // ---- water: dynamic grid, transparent so the turquoise shelf shows through; fresnel + sparkle by vertex colour ----
@@ -70,7 +71,7 @@ async function go(){
   G.shadows.enabled=true;G.shadows.type=1;G.shadows.shadowMapSize=LEG?2048:1024;
   G.ambient.skyIllum=LEG?34000:+(q.get('amb')||30000);G.ambient.skyColor=new Color(160,205,255,255);G.ambient.groundAlbedo=new Color(240,220,170,255);
   board=new Node('coast');sc.addChild(board);
-  const NOB=q.get('noboard')==='1',BRE=/^(slab_|reef_base|weed|contact|seaglass|beacon_line|anemone|tide_sheet|piece_)/;
+  const NOB=q.get('noboard')==='1',BRE=/^(slab_|board_rim|reef_base|weed|contact|seaglass|beacon_line|anemone|tide_sheet|piece_)/;
   for(const e of LY.layout){if(e.piece&&NOP)continue;if(NOB&&BRE.test(e.mesh))continue;const n=inst(board,e);if(n&&e.anim)AN.push(n);if(n&&e.cell&&e.cell[0]===5&&e.cell[1]===2)S.clearPiece=n;}
   if(q.get("nowater")!=="1")buildWater(board,LY.shore);
   if(S.clearPiece||NOP){const cellPos=S.clearPiece?S.clearPiece.position.clone():new Vec3(-1,0.1,2);const sh=inst(board,{mesh:'tide_sheet',p:[cellPos.x,cellPos.y,cellPos.z],rz:0,s:1});sh.active=false;
