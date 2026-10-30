@@ -265,6 +265,9 @@ export function releaseLakesidePrewarm(){const st=prewarm;prewarm=null;if(!st)re
 export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
 /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
 export function logLakesideFailure(step:string,stageId:string,error:unknown){try{console.error('[QF_LAKESIDE] '+JSON.stringify({event:'load-failed',stageId,step,error:String((error as any)?.message??error)}));}catch{}}
+/** P0 fin (fc3123fa, r04-lake-02 QF_BOARD_ENTRY_TIMEOUT): a cancelled lakeside build used to leave no trace of which await was
+ *  pending. Always-on, one line per cancelled build: the step it was in and how long the build had run. Never throws. */
+export function logLakesideBuildCancelled(stageId:string,step:string,totalMs:number,preload:boolean){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'build-cancelled',stageId,step,totalMs,preload}));}catch{}}
 /** r4-prep A (lead): the board is preloaded during the landing so the swap frame only turns its camera on. */
 export const LAKESIDE_PRELOAD_BATCH=24;
 type LakesideBoardLease=LevelBackgroundLease&{adopt(parent:Node,token:Cancellation):void};
@@ -317,6 +320,8 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
  const syncDir=()=>{if(drawing())applyDir();else if(saved||savedFog)restoreDir();};
  const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(pre&&isValid(parent,true))parent.destroy()/* preload holder */;if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
  off=token.onCancel(dispose);
+ /* P0 fin: a build cancelled before it returns (entry deadline / superseded entry) logs the step it was waiting in. */
+ const builtAt=Date.now();let built=false;const offTrace=buildToken.onCancel(()=>{if(!built)logLakesideBuildCancelled(String(selection?.stageId??''),step,Date.now()-builtAt,!!pre);});
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
  try{
   step='owner';token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('lakeside-background-owner-missing');
@@ -358,6 +363,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   else rig.active=true;/* r4.2 items 10/11: a direct build switches on with the (still hidden) board host, not on the swap frame */
   const showCamera=()=>{if(!camera||!isValid(camera,true))return;bgCamWant(camera,visible&&isValid(host,true)&&host.activeInHierarchy);};
   const fade=createSceneFade(()=>rig,()=>camera,'lakeside');
+  built=true;offTrace();
   return {
    setFade:a=>{if(!dead)fade(a);},
    adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();syncDir();},

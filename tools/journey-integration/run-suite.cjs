@@ -99,6 +99,7 @@ const tests=[
  ['lakeside-meshopt','tools/lakeside/test_lakeside_meshopt.cjs'],
  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
  ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
+ ['lakeside-build-cancel-trace','tools/lakeside/test_lakeside_build_cancel_trace.cjs'],
  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
