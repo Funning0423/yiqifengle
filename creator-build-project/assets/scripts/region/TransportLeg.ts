@@ -169,9 +169,10 @@ const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
 /** b16 item 4: S-a walk lens (her right, behind the jetty, aimed 6 m behind the bow at her path). */
 /** b20 palm clearance (运镜bot, cine/b20-island-palm-clearance): on the skin-correct island (a1c4c07d) env_prop_palm_tall_01's
  * trunk is 0.46 m from the old K0 {back:12,side:-4,up:4,fov:50,look:2} and the K0→K1 blend grazes it at 0.28 m (t 3.6 s).
- * 1.5 m closer (min clearance 1.157 m over S-a + blend), FOV 50→56 and aim 3 m further back along the hull so her whole
- * body keeps ≥ 0.08 of the frame from the stand on all 7 screens; same side/height (her right, behind the jetty). */
-const K0:SailOff={back:10.5,side:-4,up:4,fov:56,look:-1,orb:0};
+ * 1.5 m closer, 0.2 m further right (min clearance 1.169 m over S-a + blend), FOV 50→60 and aim 1.5 m further back along the hull so her whole
+ * body keeps ≥ 0.08 of the frame from the stand and her right edge ≤ 80 % of the width (route-framing F2) on all 7 screens;
+ * same height, still her right behind the jetty. */
+const K0:SailOff={back:10.5,side:-4.2,up:4,fov:60,look:0.5,orb:0};
 export const SAIL_K0_BLEND_S=5;
 const K2:SailOff={back:-11,side:-1,up:5.2,fov:52,look:-6,orb:0};
 /**
