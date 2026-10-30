@@ -14,4 +14,4 @@ Run these on the Mac before the coast gate items are moved into the test suite. 
 4. **Wake trail during the coast transition.**
    - Read `__QF_SAIL_WAKE` every frame across the transition (at least frames 196–248 and 1030–1060).
    - It must be `null` or have `shown: false` the whole time, because the boat is still and SailWakeCore.ts:15/:38 emits nothing at speed ≤ 0.35 m/s.
-   - Only after this is confirmed: set `conditional.mac_confirmed = true` on wake_trail in coast_aabbs.json, and add the conditional wake gate to the test suite.
+   - Only after this is confirmed: set `conditional.mac_confirmed = true` on wake_trail in tools/coast-scene/data/coast_aabbs.json (tool-only gate data, not in the region_coast bundle since r5i), and add the conditional wake gate to the test suite.
