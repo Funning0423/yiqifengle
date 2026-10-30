@@ -71,8 +71,8 @@ def new(w,h,D,show_toast=False):
     tmp=Image.new('RGBA',c.size);ww=goals_row(tmp,ImageDraw.Draw(tmp),0,0,15,22,8,15);goals_row(c,d,w/2-ww/2,113.5,15,22,8,15)
     tools(c,d,w,h-34-34,48,64);return c
 def fin(c): return c.resize((c.width//S*2,c.height//S*2),Image.LANCZOS)
-DS={(320,568):(24.719,17.768),(390,520):(23.003,14.719)}
-for (w,h),(db,da) in DS.items():
+DS={(320,568):(24.719,15.97),(390,520):(23.003,14.719)}
+for (w,h),(db,da) in [i for i in DS.items() if i[0][0]==320]:
     b,a=fin(old(w,h,db)),fin(new(w,h,da));a2=fin(new(w,h,da,True))
     pad=60;W=b.width*3+pad*4;H=b.height+150;cv=Image.new('RGB',(W,H),(250,246,238));dd=ImageDraw.Draw(cv);f=ImageFont.truetype(FB,30)
     for i,(im,lab) in enumerate([(b,'现状'),(a,'紧凑版'),(a2,'紧凑版 · 提示出现时（2 s）')]):
@@ -88,5 +88,11 @@ for (w,h),(db,da) in DS.items():
     rt=proj(w,h,da,0,.15,-3.95)[1];hl(rt,'石框顶 %.1f'%rt)
     fh=proj(w,h,da,0,.12,-2.5)[1]-proj(w,h,da,0,.12,-3.5)[1];y0=proj(w,h,da,0,.12,-3.5)[1]
     ad.rectangle([ (w/2-16)*2,y0*2,(w/2+16)*2,(y0+fh)*2],outline=(20,90,200),width=3);ad.text(((w/2+20)*2,y0*2),'远排 %.1f pt'%fh,font=fa,fill=(20,90,200))
+    if w==320:
+        for sx in (1,-1):
+            ys,yn=proj(w,h,da,-3.95,.15,1.723)[1],proj(w,h,da,-3.686,.15,3.95)[1]
+            X=0 if sx==1 else an.width-1
+            ad.line([(X,ys*2),(X,yn*2)],fill=(20,150,60),width=8)
+        ad.rectangle([4,350*2-26,330,350*2],fill=(255,255,255));ad.text((8,350*2-26),'绿：出屏切口 y345–436，两侧各 11.5 pt',font=fa,fill=(20,150,60))
     an.save(OUT+'annot_%dx%d.png'%(w,h))
 print('ok')
