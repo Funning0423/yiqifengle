@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Read-only toggle-frame gate for the coast root / sail route.
-  python3 aabb_gate.py build   <coast_meshes.json> <coast_layout.json> > coast_aabbs.json     (world AABBs, island scene_root frame)
+  python3 aabb_gate.py build   <coast_meshes.json> <coast_layout_full.json> > coast_aabbs.json     (world AABBs, island scene_root frame)
   python3 aabb_gate.py check   <aabbs.json> --pos x y z --target x y z --vfov 45 --aspect 0.462 [--near 0.1 --far 400]
                                [--fov-mode auto|vertical|fitwidth] [--screens all] [--boat-speed 0]
 check prints, for every AABB, ON (intersects the view frustum) or off; exit code 1 if anything toggled is ON.
