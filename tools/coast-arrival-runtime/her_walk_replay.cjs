@@ -11,7 +11,7 @@ const m={exports:{}};new Function('module','exports','require','__dirname','__fi
 const {makeCharacter,Token,flush}=m.exports;
 const ts=require(process.env.QF_TYPESCRIPT_MODULE),A=path.resolve(__dirname,'../../creator-build-project/assets');
 const tr=s=>ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2019,module:ts.ModuleKind.CommonJS}}).outputText;
-const mods={};function load(abs){if(mods[abs])return mods[abs].exports;const mm={exports:{}};mods[abs]=mm;const dir=path.dirname(abs);new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(mm,mm.exports,r=>r.startsWith('.')?load(path.resolve(dir,r)):require(r));return mm.exports;}
+const mods={};function load(abs){if(mods[abs])return mods[abs].exports;const mm={exports:{}};mods[abs]=mm;const dir=path.dirname(abs);new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(mm,mm.exports,r=>r==='cc'?(globalThis.__yjCcStub||{}):(r.endsWith('/CoastSceneLoader')&&globalThis.__yjSceneStub)?globalThis.__yjSceneStub:r.startsWith('.')?load(path.resolve(dir,r)):require(r));return mm.exports;}
 const CAL=load(path.join(A,'bundles/region_coast/scripts/CoastArrivalLens'));
 function lcg(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return 1/90+(1/45-1/90)*(s/4294967296);};}
 const W=CAL.coastArrivalWalks(),S7=process.env.QF_S7?{...W[W.length-1],start:+process.env.QF_S7.split(",")[0],end:+process.env.QF_S7.split(",")[1]}:W[W.length-1],T0=28.175,T1=Math.max(39.9,S7.end+0.1);

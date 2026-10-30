@@ -10,6 +10,7 @@
 import { applyCameraPose, fromLookAt, type CameraLike, type LookAtPose, type V3 } from '../../../scripts/world-r1/CameraPose';
 import { coastBoardPose } from '../../../scripts/region/CoastBoardLens';
 import { COAST_ARRIVAL_TRACK as K } from './CoastArrivalTrack';
+import { loadCoastScene } from './CoastSceneLoader';   // 场景设计部 1062a72b, same bundle
 export const COAST_ARRIVAL_SOURCE='coast.arrival';
 export const COAST_ARRIVAL_SCREENS=Object.freeze(Object.keys(K.s7));
 type Rows=number[][];
@@ -126,29 +127,33 @@ export type CoastRunOptions=Readonly<{resolveReuse?:(name:string)=>any;cancelled
  /** test seams */ camera?:CameraLike;viewport?:()=>Readonly<{width:number;height:number}>;nextFrame?:()=>Promise<number>}>;
 export type CoastRunResult=Readonly<{ok:boolean;reason:string|null;frames:number;seconds:number;scene:any}>;
 const qfErr=(why:string,e?:unknown)=>{const m='[QF_COAST] '+JSON.stringify({event:'run-coast-arrival',why,error:e===undefined?null:String(e)});console.error(m);return why;};
-/** SINGLE ENTRY (contract: ENTRY_CONTRACT.md): globalThis.__qfCoast.runCoastArrival(world,{resolveReuse,cancelled}).
- *  1 loadCoastScene(world,opts) (场景设计部, same registry) FIRST; 2 installCoastArrivalHer(world); 3 playCoastArrival; finally uninstall.
- *  Never rejects; every failure/skip = console.error [QF_COAST] + {ok:false}. Scene handle is kept on success (the board stands in it),
- *  disposed on failure/cancel. camera = world.worldCamera, frames = world.scheduleOnce + cc.director.getDeltaTime(), viewport = window. */
-/** default resolveReuse: first node named `name` under the world's scene (GGbot's createCoastReuseResolver replaces this when merged). */
+/** default resolveReuse: first node named `name` under the world's scene (GGbot's island-material/reuse resolvers replace it when passed). */
 function defaultReuse(world:any):(name:string)=>any{const find=(n:any,name:string):any=>{if(!n)return null;if(n.name===name)return n;for(const c of n.children??[]){const r=find(c,name);if(r)return r;}return null;};
  return (name:string)=>find(world?.node?.scene??null,name);}
+/** SINGLE ENTRY (contract: team/cinematic/outbox/20261030-coast-arrival-runtime/ENTRY_CONTRACT.md):
+ *  globalThis.__qfCoast.runCoastArrival(world,{resolveReuse,resolveMaterial,cancelled}).
+ *  1 loadCoastScene(world,{resolveReuse,resolveMaterial,cancelled}) (CoastSceneLoader, same bundle) FIRST:
+ *    null + cancelled -> return {ok:false,reason:'cancelled'} quietly; null + not cancelled -> console.error [QF_COAST], NO arrival.
+ *  2 installCoastArrivalHer(world); 3 playCoastArrival; finally uninstall.
+ *  Scene handle: kept at the arrival's end (the board stands in it); disposed on cancel/teardown/region change (here, or by the caller
+ *  via result.scene.dispose()). Never rejects; every failure = console.error [QF_COAST]. */
 export async function runCoastArrival(world:any,opts:CoastRunOptions):Promise<CoastRunResult>{
  const out=(ok:boolean,reason:string|null,frames=0,seconds=0,scene:any=null):CoastRunResult=>Object.freeze({ok,reason,frames,seconds,scene});let scene:any=null;
+ const drop=()=>{try{scene?.dispose?.();}catch(e){qfErr('scene-dispose',e);}scene=null;};
  try{if(!world)return out(false,qfErr('no-world'));opts=opts??{};
   const cancelled=()=>!!opts.cancelled?.()||world.node?.isValid===false,resolveReuse=opts.resolveReuse??defaultReuse(world);
   const camera=opts.camera??world.worldCamera;if(!camera?.node)return out(false,qfErr('no-world-camera'));
-  const g=globalThis as any,load=g.__qfCoast?.loadCoastScene;if(typeof load!=='function')return out(false,qfErr('no-loadCoastScene'));
-  scene=await load(world,{resolveReuse,resolveMaterial:opts.resolveMaterial,cancelled});
-  if(cancelled()){try{scene?.dispose?.();}catch{}return out(false,qfErr('cancelled-after-scene'));}
+  const g=globalThis as any;
+  scene=await loadCoastScene(world,{resolveReuse,resolveMaterial:opts.resolveMaterial as any,cancelled});
+  if(cancelled()){drop();return out(false,'cancelled');}
   if(!scene)return out(false,qfErr('scene-null'));
   const viewport=opts.viewport??(()=>({width:g.window?.innerWidth??0,height:g.window?.innerHeight??0}));
   const nextFrame=opts.nextFrame??(()=>new Promise<number>(res=>world.scheduleOnce(()=>res(g.cc?.director?.getDeltaTime?.()??1/60),0)));
   const off=installCoastArrivalHer(world);let r:{ok:boolean;frames:number;seconds:number};
   try{r=await playCoastArrival({camera,viewport,nextFrame,her:(f:HerFrame)=>world.coastArrivalHer?.(f),cancelled});}finally{off();}
-  if(!r.ok){try{scene.dispose?.();}catch{}return out(false,qfErr('cancelled',r.seconds),r.frames,r.seconds);}
+  if(!r.ok){drop();return out(false,'cancelled',r.frames,r.seconds);}
   return out(true,null,r.frames,r.seconds,scene);}
- catch(e){try{scene?.dispose?.();}catch{}return out(false,qfErr('error',e));}}
+ catch(e){drop();return out(false,qfErr('error',e));}}
 /** self-registry (merged, not replaced: CoastSceneLoader.ts registers loadCoastScene/unloadCoastScene on the same object). The main
  *  package never imports this bundle script; WNC reads globalThis.__qfCoast.runCoastArrival after assetManager.loadBundle('region_coast'). */
 {const g=globalThis as any;const o=g.__qfCoast||(g.__qfCoast={});o.runCoastArrival=runCoastArrival;o.playCoastArrival=playCoastArrival;o.installCoastArrivalHer=installCoastArrivalHer;o.COAST_ARRIVAL_TOTAL_S=COAST_ARRIVAL_TOTAL_S;}

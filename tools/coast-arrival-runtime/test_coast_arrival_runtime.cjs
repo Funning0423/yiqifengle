@@ -13,7 +13,7 @@ const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
 const ROOT=path.resolve(__dirname,'../..'),A=path.join(ROOT,'creator-build-project/assets');
 const tr=src=>ts.transpileModule(src,{compilerOptions:{target:ts.ScriptTarget.ES2019,module:ts.ModuleKind.CommonJS}}).outputText;
 const mods={};function load(abs){if(mods[abs])return mods[abs].exports;const m={exports:{}};mods[abs]=m;const dir=path.dirname(abs);
- new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
+ new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r==='cc'?(globalThis.__yjCcStub||{}):(r.endsWith('/CoastSceneLoader')&&globalThis.__yjSceneStub)?globalThis.__yjSceneStub:r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
 const CP=load(path.join(A,'scripts/world-r1/CameraPose')),CB=load(path.join(A,'scripts/region/CoastBoardLens'));
 const CAL=load(path.join(A,'bundles/region_coast/scripts/CoastArrivalLens'));
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}};

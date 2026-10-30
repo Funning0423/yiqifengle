@@ -13,9 +13,12 @@ const assert=require('node:assert/strict'),fs=require('fs'),os=require('os'),pat
 const ROOT=path.resolve(__dirname,'../..'),A=path.join(ROOT,'creator-build-project/assets'),S=path.join(A,'scripts');
 const tr=src=>ts.transpileModule(src,{compilerOptions:{target:ts.ScriptTarget.ES2019,module:ts.ModuleKind.CommonJS}}).outputText;
 const mods={};function load(abs){if(mods[abs])return mods[abs].exports;const m={exports:{}};mods[abs]=m;const dir=path.dirname(abs);
- new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
+ new Function('module','exports','require',tr(fs.readFileSync(abs+'.ts','utf8')))(m,m.exports,r=>r==='cc'?(globalThis.__yjCcStub||{}):(r.endsWith('/CoastSceneLoader')&&globalThis.__yjSceneStub)?globalThis.__yjSceneStub:r.startsWith('.')?load(path.resolve(dir,r)):require(r));return m.exports;}
 const CP=load(path.join(S,'world-r1/CameraPose')),CB=load(path.join(S,'region/CoastBoardLens'));
 const LENS=path.join(A,'bundles/region_coast/scripts/CoastArrivalLens');
+// 场景设计部 1062a72b loader: signature pinned from the merged source, then stubbed per that signature (no engine here).
+{const L=fs.readFileSync(path.join(A,'bundles/region_coast/scripts/CoastSceneLoader.ts'),'utf8');if(!/export async function loadCoastScene\(world:CoastWorld,opts:CoastSceneOptions\):Promise<CoastSceneHandle\|null>/.test(L)||!/resolveMaterial:/.test(L)||!/cancelled:\(\)=>boolean/.test(L)){console.log('FAIL loadCoastScene signature (1062a72b) changed');process.exit(1);}}
+let SCENE=null;globalThis.__yjSceneStub={loadCoastScene:(w,o)=>SCENE(w,o),unloadCoastScene:h=>h?.dispose()};
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}return c;};
 // --- patched WNC (temp copy) ---
 const WNC_REL='creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts',DIFF=path.join(ROOT,'team/cinematic/outbox/20261030-coast-arrival-runtime/02-WorldNativeComposition-coast-arrival.diff');
@@ -47,7 +50,7 @@ async function scenario({w,h,clock,kit=true,registry=true,scene=true,cancelAfter
  node.worldPosition={x:island.position[0],y:island.position[1],z:island.position[2]};node.worldRotation={x:island.rotation[0],y:island.rotation[1],z:island.rotation[2],w:island.rotation[3]};camera.fov=45;
  const self={isValid:true,selection:{stageId:'r03-coast-01'},node:{isValid:true,scene:{name:'scene',children:[]}},pendingJourneySelection:null,markExplore(){}};
  ENV={fr:100,dt:clock,loadBundle:(n,cb)=>{log.loads++;log.order.push('loadBundle');delete globalThis.__qfCoast;
-   if(registry){delete mods[LENS];load(LENS);if(scene)globalThis.__qfCoast.loadCoastScene=async(wd,o)=>{log.order.push('loadCoastScene');ok(typeof o.resolveReuse==='function'&&typeof o.cancelled==='function','loadCoastScene opts');return {root:{},placed:1,dispose(){log.order.push('sceneDispose');}};};}
+   if(registry){delete mods[LENS];load(LENS);SCENE=async(wd,o)=>{log.order.push('loadCoastScene');ok(typeof o.resolveReuse==='function'&&typeof o.cancelled==='function'&&'resolveMaterial' in o,'loadCoastScene opts');if(!scene){console.error('[QF_COAST] stub: layout missing');return null;}return {root:{},placed:1,reusePlaced:0,errors:[],dispose(){log.order.push('sceneDispose');}};};}
    setImmediate(()=>cb(n==='region_coast'?null:Error('bundle '+n)));}};
  const director={getTotalFrames:()=>ENV.fr,getDeltaTime:()=>ENV.last??1/60};globalThis.cc={director};
  const WC=makeW(director),wf=new WC(camera);const hook=CP.cameraWriteHook,prev=hook.trace;
@@ -80,13 +83,14 @@ const singleWriter=r=>r.lens>0&&r.push===0&&r.other===0&&r.maxPer<=1;
  globalThis.window={innerWidth:390,innerHeight:844};
  {const r=await scenario({w:390,h:844,clock:()=>1/60,rogue:true});ok(!singleWriter(r)&&r.other>0&&r.maxPer>=2,'NEGATIVE: two camera writers (lens + rogue every frame) passed the single-writer verdict');
   console.log(`ok   negative: 2 writers (lens ${r.lens} + rogue ${r.other}, ${r.maxPer}/frame) -> single-writer verdict FAILS as required`);}
- {const r=await scenario({w:390,h:844,clock:()=>1/60,cancelAfter:30});ok(!singleWriter(r)&&r.push>0,'NEGATIVE: lens cancelled (selection change) but push-in wrote 0');ok(r.errors.some(e=>e.includes('[QF_COAST]')&&e.includes('cancelled')),'NEGATIVE: cancel not logged [QF_COAST]');
+ {const r=await scenario({w:390,h:844,clock:()=>1/60,cancelAfter:30});ok(!singleWriter(r)&&r.push>0,'NEGATIVE: lens cancelled (selection change) but push-in wrote 0');ok(!r.errors.length,'cancel must be quiet (teardown), got '+r.errors[0]);
   ok(r.log.order.includes('sceneDispose')&&r.log.uninstalled===1,'cancel: scene disposed + her uninstalled');
-  console.log(`ok   negative: selection change at frame 30 -> lens cancelled, push-in writes ${r.push} -> verdict FAILS; [QF_COAST] cancelled; scene disposed, her uninstalled`);}
+  console.log(`ok   negative: selection change at frame 30 -> lens cancelled, push-in writes ${r.push} -> verdict FAILS; quiet; scene disposed, her uninstalled`);}
  {const r=await scenario({w:390,h:844,clock:()=>1/60,registry:false});ok(r.errors.some(e=>e.includes('[QF_COAST]')&&e.includes('not registered'))&&r.lens===0,'NEGATIVE: missing registry not logged');
   console.log('ok   negative: no __qfCoast.runCoastArrival after loadBundle -> console.error [QF_COAST] (= FAIL on the Mac)');}
- {const r=await scenario({w:390,h:844,clock:()=>1/60,scene:false});ok(r.errors.some(e=>e.includes('[QF_COAST]')&&e.includes('no-loadCoastScene'))&&r.lens===0&&r.log.installed===0,'NEGATIVE: missing loadCoastScene not logged / lens ran');
-  console.log('ok   negative: no __qfCoast.loadCoastScene -> [QF_COAST] no-loadCoastScene, no lens, no her');}
+ {const r=await scenario({w:390,h:844,clock:()=>1/60,scene:false});ok(r.errors.some(e=>e.includes('[QF_COAST]')&&e.includes('scene-null'))&&r.lens===0&&r.log.installed===0,'NEGATIVE: loadCoastScene null not logged / lens ran');
+  console.log('ok   negative: loadCoastScene -> null (not cancelled) -> [QF_COAST] scene-null, NO arrival, no her');}
+ {const r=await scenario({w:390,h:844,clock:()=>1/60});ok(!r.log.order.includes('sceneDispose'),'scene disposed at the arrival end');console.log('ok   scene kept at the arrival end (board stands in it)');}
  {const r=await scenario({w:390,h:844,clock:()=>1/60,kit:false});ok(r.log.loads===0&&r.lens===0&&r.errors.length===0&&r.log.installed===0&&JSON.stringify(r.log.order)==='["enterLevel"]','kit off: patched 156 did something: '+r.log.order);
   const rO=await scenario({w:390,h:844,clock:()=>1/60,kit:false,line:orig[155]});ok(JSON.stringify(rO.writes)===JSON.stringify(r.writes)&&JSON.stringify(rO.log.order)===JSON.stringify(r.log.order),'kit off: patched != original (writes/order)');
   console.log(`ok   kit off: patched 156 = original 156 (no load, no her, same ${r.writes.length} enter-level writes, same order)`);}
