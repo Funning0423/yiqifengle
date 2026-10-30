@@ -15,7 +15,7 @@ cn.setPosition(...cams[ci][0]);cn.lookAt(new Vec3(...cams[ci][1]));
 await new Promise(r=>setTimeout(r,4000));
 if(q.get('swap')==='3'){await new Promise(r=>setTimeout(r,3000));game.pause();director.tick(0);director.tick(0);S.phase='A';await new Promise(r=>{window.__next=r;});game.resume();}
 if(q.get('swap')==='1'||q.get('swap')==='3'){
-  const buf=await (await fetch('inst/inst_meadow.qfi2')).arrayBuffer();const Q=qfi2Open(buf);
+  const V3=typeof qfi3Open!=='undefined';const buf=await (await fetch(V3?'inst/inst_meadow.qfi3':'inst/inst_meadow.qfi2')).arrayBuffer();const Q=V3?qfi3Open(buf,u=>cc.utils.MeshUtils.inflateMesh({struct:{compressed:true},data:u}).data):qfi2Open(buf);S.format=V3?'qfi3':'qfi2';
   const rs=root.getComponentsInChildren(MeshRenderer);let dcBefore=0;
   for(let mi=0;mi<Q.hdr.meshes.length;mi++){const name=Q.hdr.meshes[mi].name;const r=rs.find(x=>x.node.name===name);if(!r){L('missing',name);continue;}
     const st=r.mesh.struct,vb0=st.vertexBundles[0];let off=0;const attrs=[];

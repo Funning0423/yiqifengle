@@ -15,3 +15,8 @@
 - `chunktime.cjs <glb> <qfi2> [手机系数]`：逐属性校验 + 每块中位耗时 × 手机系数。
 - `inst2shot.js` + `run2.cjs`：web 构建里同一页面先渲原 glb 网格（A），再换成 qfi2 展开结果（B），game.pause + dt=0 同帧截图；也记录浏览器内逐块耗时。
 - 布局目前在运行时取自原网格 struct；正式版删掉原网格后，布局要在 bake 时从 Cocos 导入结果写进 qfi2 头。
+
+## v3 (qfi3)
+Per mesh: template zlib + chunks each zlib9 (ramp CV/8,CV/4,CV/2 then 1024 verts); zlib JSON header.
+Inflate via cc.utils.MeshUtils.inflateMesh. 133,456 B (build bytes). DC delta 0.
+Tools: bake3.py expand3.js chunktime3.cjs gate3.js run3.cjs.
