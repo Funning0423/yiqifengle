@@ -1,11 +1,11 @@
 {
  "390x844": {
   "dz": 0.0,
-  "distance_m": 20.01,
+  "distance_m": 18.649,
   "pos": [
    -0.6,
-   17.0074,
-   12.5117
+   15.7932,
+   13.1265
   ],
   "look": [
    -0.6,
@@ -19,17 +19,17 @@
    0
   ],
   "fov": 50,
-  "far_short_pt": 40.2,
+  "far_short_pt": 41.4,
   "wrong_taps": 0,
   "taps": 98000,
-  "far_cell_height_pt": 35.6,
+  "far_cell_height_pt": 37.9,
   "cells_x_pt": [
-   21.9,
-   368.1
+   8.0,
+   382.0
   ],
   "cells_y_pt": [
-   289.9,
-   576.0
+   281.0,
+   588.3
   ],
   "band_pt": [
    200.0,
@@ -37,29 +37,25 @@
   ],
   "face_pt": [
    195.0,
-   642.7
+   662.7
   ],
-  "gap_left": 21.9,
-  "gap_right": 21.9,
-  "gap_top": 89.9,
-  "gap_bottom": 122.0,
-  "face_gap_tool": 55.3,
-  "face_gap_top": 442.7,
+  "gap_left": 8.0,
+  "gap_right": 8.0,
+  "gap_top": 81.0,
+  "gap_bottom": 109.7,
+  "face_gap_tool": 35.3,
+  "face_gap_top": 462.7,
   "ok": true,
   "pass": true,
-  "overhang_left_pt": -2.0,
-  "overhang_right_pt": -2.0,
-  "corners_in_frame": true,
-  "corner_min_gap_pt": 2.0,
   "band_kind": "current"
  },
  "414x896": {
   "dz": 0.0,
-  "distance_m": 20.0,
+  "distance_m": 18.608,
   "pos": [
    -0.6,
-   16.9985,
-   12.5162
+   15.7566,
+   13.145
   ],
   "look": [
    -0.6,
@@ -73,17 +69,17 @@
    0
   ],
   "fov": 50,
-  "far_short_pt": 41.3,
+  "far_short_pt": 42.6,
   "wrong_taps": 0,
   "taps": 98000,
-  "far_cell_height_pt": 37.8,
+  "far_cell_height_pt": 40.3,
   "cells_x_pt": [
-   23.1,
-   390.9
+   8.0,
+   406.0
   ],
   "cells_y_pt": [
-   307.7,
-   611.5
+   298.0,
+   625.0
   ],
   "band_pt": [
    201.7,
@@ -91,29 +87,25 @@
   ],
   "face_pt": [
    207.0,
-   682.4
+   704.2
   ],
-  "gap_left": 23.1,
-  "gap_right": 23.1,
-  "gap_top": 106.0,
-  "gap_bottom": 138.5,
-  "face_gap_tool": 67.6,
-  "face_gap_top": 480.7,
+  "gap_left": 8.0,
+  "gap_right": 8.0,
+  "gap_top": 96.3,
+  "gap_bottom": 125.0,
+  "face_gap_tool": 45.8,
+  "face_gap_top": 502.5,
   "ok": true,
   "pass": true,
-  "overhang_left_pt": -2.0,
-  "overhang_right_pt": -2.0,
-  "corners_in_frame": true,
-  "corner_min_gap_pt": 2.0,
   "band_kind": "current"
  },
  "360x780": {
   "dz": 0.0,
-  "distance_m": 20.048,
+  "distance_m": 18.73,
   "pos": [
    -0.6,
-   17.0413,
-   12.4945
+   15.8655,
+   13.0899
   ],
   "look": [
    -0.6,
@@ -127,17 +119,17 @@
    0
   ],
   "fov": 50,
-  "far_short_pt": 38.8,
+  "far_short_pt": 39.8,
   "wrong_taps": 0,
   "taps": 98000,
-  "far_cell_height_pt": 32.8,
+  "far_cell_height_pt": 34.8,
   "cells_x_pt": [
-   20.4,
-   339.6
+   8.0,
+   352.0
   ],
   "cells_y_pt": [
-   268.2,
-   532.0
+   260.2,
+   543.0
   ],
   "band_pt": [
    199.1,
@@ -145,20 +137,16 @@
   ],
   "face_pt": [
    180.0,
-   593.5
+   611.2
   ],
-  "gap_left": 20.4,
-  "gap_right": 20.4,
-  "gap_top": 69.1,
-  "gap_bottom": 102.0,
-  "face_gap_tool": 40.5,
-  "face_gap_top": 394.4,
+  "gap_left": 8.0,
+  "gap_right": 8.0,
+  "gap_top": 61.1,
+  "gap_bottom": 91.0,
+  "face_gap_tool": 22.8,
+  "face_gap_top": 412.1,
   "ok": true,
   "pass": true,
-  "overhang_left_pt": -2.0,
-  "overhang_right_pt": -2.0,
-  "corners_in_frame": true,
-  "corner_min_gap_pt": 2.0,
   "band_kind": "current"
  },
  "375x667": {
@@ -209,10 +197,6 @@
   "face_gap_top": 319.0,
   "ok": true,
   "pass": true,
-  "overhang_left_pt": -31.1,
-  "overhang_right_pt": -31.1,
-  "corners_in_frame": true,
-  "corner_min_gap_pt": 31.05,
   "band_kind": "current"
  },
  "320x568": {
@@ -263,10 +247,6 @@
   "face_gap_top": 335.0,
   "ok": true,
   "pass": true,
-  "overhang_left_pt": -4.8,
-  "overhang_right_pt": -4.9,
-  "corners_in_frame": true,
-  "corner_min_gap_pt": 4.82,
   "band_kind": "compact"
  },
  "390x520": {
@@ -317,10 +297,6 @@
   "face_gap_top": 287.0,
   "ok": true,
   "pass": true,
-  "overhang_left_pt": -59.3,
-  "overhang_right_pt": -59.4,
-  "corners_in_frame": true,
-  "corner_min_gap_pt": 59.33,
   "band_kind": "compact"
  },
  "768x1024": {
@@ -371,10 +347,6 @@
   "face_gap_top": 661.6,
   "ok": true,
   "pass": true,
-  "overhang_left_pt": -82.5,
-  "overhang_right_pt": -82.6,
-  "corners_in_frame": true,
-  "corner_min_gap_pt": 82.49,
   "band_kind": "current"
  }
 }

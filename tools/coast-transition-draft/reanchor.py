@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw
 from realmesh import load, coast_to_world, W, FIT
 RET = os.environ.get('DIR', 'out') == 'return'  # DIR=return: coast -> island return (r2 only)
 SCREEN = os.environ.get('SCREEN', '390x844'); SW, SH_ = map(int, SCREEN.split('x'))
-OUT = (os.environ.get('OUT_DIR') or os.path.dirname(os.path.abspath(__file__))) + ({'r5d': '/out_v4/' + SCREEN, 'r2': '/out_v3'}.get(FIT, '/out_v2')) + ('/return' if RET else ''); os.makedirs(OUT, exist_ok=True)
+OUT = os.path.dirname(os.path.abspath(__file__)) + ({'r5d': '/out_v4/' + SCREEN, 'r2': '/out_v3'}.get(FIT, '/out_v2')) + ('/return' if RET else ''); os.makedirs(OUT, exist_ok=True)
 parts, missing = load()
 names = []; ms = []
 for n, m in parts: ms.append(m); names += [n] * len(m.faces)
@@ -96,7 +96,7 @@ if FIT == 'r5d' and not BOARD_OLD:  # v4: official coast board lens (tools/coast
 if FIT == 'r5d' and os.environ.get('BOARD_POSE'):  # data-only candidates (item 3): 'px,py,pz,lx,ly,lz,fov'
     _v = [float(x) for x in os.environ['BOARD_POSE'].split(',')]; BOARD_POSE = dict(pos=np.array(_v[:3]), look=np.array(_v[3:6]), fov=_v[6]); OUT = OUT.replace('/out_v4/', '/out_v4/cand_'); os.makedirs(OUT, exist_ok=True)
 S3_DR, S3_DS, S3_DF = (float(x) for x in os.environ.get('S3D', '0,0,4' if FIT == 'r5d' else '0,0,0').split(','))  # v4.2 S3 framing fix (radius, look-side, vfov deltas): r5d vfov 44 -> 48 on the two S3 keys, true vertical fov
-S6KEY = [float(x) for x in os.environ.get('S6KEY', ('-130,6.6,2.8,1.2,-0.3,30' if FIT == 'r5d' else '0,6.0,1.9,1.8,0.6,50' if FIT == 'r2' else '5,6.0,1.9,1.8,0.3,50')).split(',')]  # r5d arrival lens A (Grok Bot): behind-left over her shoulder, hut above her head; old r5d '0,6.0,1.9,1.8,0.6,50' (front, 1.353 m over the r5f board)
+S6KEY = [float(x) for x in os.environ.get('S6KEY', ('0,6.0,1.9,1.8,0.6,50' if FIT in ('r2', 'r5d') else '5,6.0,1.9,1.8,0.3,50')).split(',')]
 KEYS = [  # front-LEFT side through the walk: the right side of the curved exit path has a 2 m island prop at (-4.4..-3.25, 0..2.06, 2.4..3.9)
     (T[0], 'world'),
     (T[1], -30, 3.4, 2.1, 0.9, 0.3, 44),    # S1 end: front-left 3/4 medium
@@ -144,7 +144,7 @@ def cam_i(i):
         def cyl(p):
             v = p - SM[i]; return math.atan2(v @ right, v @ fwd), math.hypot(v @ right, v @ fwd), v[1]
         (aa, ra, ya_), (ab, rb, yb) = cyl(pa), cyl(w['pos'])
-        if RET or os.environ.get('S7_SHORT', '1' if FIT == 'r5d' else '0') == '1': ab = aa + (ab - aa + math.pi) % (2 * math.pi) - math.pi  # return / arrival-lens candidates (S6 behind her): shortest way round
+        if RET: ab = aa + (ab - aa + math.pi) % (2 * math.pi) - math.pi  # return: shortest way round
         elif ab < aa: ab += 2 * math.pi  # go round her right side (increasing az)
         uo = ease(min(1, (t - a[0]) / (b[0] - a[0])))  # orbit over the whole shot; look hand-off in the second half
         az, r, y = aa + (ab - aa) * uo, ra + (rb - ra) * u, ya_ + (yb - ya_) * u
@@ -312,8 +312,8 @@ if __name__ == '__main__':
     print(json.dumps(g, default=lambda o: o.item() if hasattr(o, 'item') else str(o)))
     if FIT == 'r5d':  # per-frame trajectory for the node gate (tools/coast-board-lens/test_coast_board_lens.cjs)
         with open(OUT + '/frames.csv', 'w') as fh:
-            fh.write('frame,t,shot,px,py,pz,lx,ly,lz,fov,hx,hy,hz\n')
-            for i, (p_, l_, f_) in enumerate(CAM): fh.write(f"{i},{TS[i]:.6f},{int(np.searchsorted(T, TS[i], 'right') - 1) + 1 if TS[i] < T[-1] else 7},{p_[0]:.6f},{p_[1]:.6f},{p_[2]:.6f},{l_[0]:.6f},{l_[1]:.6f},{l_[2]:.6f},{f_:.6f},{her_root(TS[i])[0]:.6f},{her_root(TS[i])[1]:.6f},{her_root(TS[i])[2]:.6f}\n")
+            fh.write('frame,t,shot,px,py,pz,lx,ly,lz,fov\n')
+            for i, (p_, l_, f_) in enumerate(CAM): fh.write(f"{i},{TS[i]:.6f},{int(np.searchsorted(T, TS[i], 'right') - 1) + 1 if TS[i] < T[-1] else 7},{p_[0]:.6f},{p_[1]:.6f},{p_[2]:.6f},{l_[0]:.6f},{l_[1]:.6f},{l_[2]:.6f},{f_:.6f}\n")
         json.dump(dict(screen=SCREEN, board_pose=dict(pos=[float(x) for x in END_POSE['pos']], look=[float(x) for x in END_POSE['look']], fov=float(END_POSE['fov'])), s7_start=float(T[6]), total=float(T[-1])), open(OUT + '/end_pose.json', 'w'), indent=1)
         for a_ in sys.argv:
             if a_.startswith('--shot-at='): tt = float(a_.split('=')[1]); render(min(len(TS) - 1, int(round(tt * FPS))), SW, SH_, 420).save(OUT + f'/shot_{tt:.2f}.png')

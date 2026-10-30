@@ -16,7 +16,7 @@ export const COAST_BOARD_LENS=Object.freeze({quat:[0,0.851965,0.523599,0] as rea
 /** Frozen per-aspect distances (m) for the 7 test screens; other sizes solve with the same rule. */
 /** Frozen per-aspect distances (m) for the 7 test screens (r2 item 3 final, tools/coast-board-lens/final_poses.py): the shortest
  *  distance at which coastBoardKeepoutFits holds. Other portrait sizes solve with the same rule. */
-export const COAST_BOARD_DISTANCE:Readonly<Record<string,number>>=Object.freeze({'390x844':20.01,'414x896':20.0,'360x780':20.048,'375x667':19.546,'320x568':16.995,'390x520':17.725,'768x1024':15.878});
+export const COAST_BOARD_DISTANCE:Readonly<Record<string,number>>=Object.freeze({'390x844':18.649,'414x896':18.608,'360x780':18.73,'375x667':19.546,'320x568':16.995,'390x520':17.725,'768x1024':15.878});
 /** Grok Bot limits, per real dt. */
 export const COAST_MOTION_LIMITS=Object.freeze({yawPitchDegS:90,angAccP99DegS2:200,speedMS:8,stepMPerFrame:0.5,fovDegPerFrame:1.5});
 /** The generic enter-level ease (WorldFlowComponent playEnterLevel). */
@@ -70,22 +70,6 @@ export function coastBoardKeepoutFits(distance:number,w:number,h:number,gap=8):b
   for(const p of EDGE){const q=project(pose,w/h,p),x=q.x*w,y=q.y*h;if(!(q.z>0)||x<gap||x>w-gap||y<k.top+gap||y>k.tool-gap)return false;}
   const f=project(pose,w/h,FACE),fx=f.x*w,fy=f.y*h;return f.z>0&&fy>=k.top+gap&&fy<=k.tool-gap&&fx>=gap&&fx<=w-gap;
 }
-/** Rounded stone-frame corners (board_rim corner arcs, convex hull per corner, world, 1 mm): must be fully on screen; only the
- *  straight rim edges may leave it (symmetric). 320x568 keeps its accepted plain sandstone corner exception. */
-const RIM_CORNERS:readonly V3[]=[[-3.857,-0.825,17.555],[-3.844,-0.695,17.669],[-3.819,-0.695,17.898],[-3.806,-0.825,18.012],[-3.819,-0.955,17.898],[-3.844,-0.955,17.669],[-3.918,-0.695,17.682],[-3.918,-0.955,17.682],[-3.944,-0.825,17.57],[-3.99,-0.695,17.702],[-3.99,-0.955,17.702],[-4.028,-0.825,17.594],[-4.108,-0.825,17.627],[-4.059,-0.695,17.731],[-4.059,-0.955,17.731],[-4.185,-0.825,17.67],[-4.124,-0.695,17.767],[-4.185,-0.955,17.81],[-4.124,-0.955,17.767],[-4.256,-0.825,17.72],[-4.322,-0.825,17.778],[-4.24,-0.695,17.86],[-4.185,-0.695,17.81],[-4.24,-0.955,17.86],[-4.29,-0.955,17.915],[-4.38,-0.825,17.844],[-4.333,-0.695,17.976],[-4.29,-0.695,17.915],[-4.333,-0.955,17.976],[-4.43,-0.825,17.915],[-4.473,-0.825,17.992],[-4.369,-0.695,18.041],[-4.369,-0.955,18.041],[-4.506,-0.825,18.072],[-4.398,-0.695,18.11],[-4.398,-0.955,18.11],[-4.53,-0.825,18.156],[-4.418,-0.955,18.182],[-4.547,-0.825,18.268],[-4.432,-0.695,18.268],[-4.418,-0.695,18.182],[-4.202,-0.695,18.269],[-4.087,-0.825,18.269],[-4.202,-0.955,18.269],[-4.432,-0.955,18.268],[-4.545,-0.825,24.757],[-4.431,-0.695,24.744],[-4.202,-0.695,24.719],[-4.088,-0.825,24.706],[-4.202,-0.955,24.719],[-4.431,-0.955,24.744],[-4.418,-0.695,24.818],[-4.53,-0.825,24.844],[-4.398,-0.695,24.89],[-4.398,-0.955,24.89],[-4.418,-0.955,24.818],[-4.506,-0.825,24.928],[-4.369,-0.695,24.959],[-4.369,-0.955,24.959],[-4.473,-0.825,25.008],[-4.333,-0.695,25.024],[-4.333,-0.955,25.024],[-4.43,-0.825,25.085],[-4.38,-0.825,25.156],[-4.29,-0.695,25.085],[-4.29,-0.955,25.085],[-4.24,-0.955,25.14],[-4.322,-0.825,25.222],[-4.185,-0.695,25.19],[-4.24,-0.695,25.14],[-4.185,-0.955,25.19],[-4.256,-0.825,25.28],[-4.124,-0.955,25.233],[-4.185,-0.825,25.33],[-4.059,-0.695,25.269],[-4.124,-0.695,25.233],[-4.059,-0.955,25.269],[-4.108,-0.825,25.373],[-3.99,-0.695,25.298],[-3.99,-0.955,25.298],[-4.028,-0.825,25.406],[-3.944,-0.825,25.43],[-3.918,-0.695,25.318],[-3.918,-0.955,25.318],[-3.832,-0.825,25.447],[-3.832,-0.695,25.332],[-3.831,-0.695,25.102],[-3.831,-0.825,24.987],[-3.831,-0.955,25.102],[-3.832,-0.955,25.332],[3.345,-0.825,18.243],[3.231,-0.695,18.256],[3.002,-0.695,18.281],[2.888,-0.825,18.294],[3.002,-0.955,18.281],[3.231,-0.955,18.256],[3.33,-0.825,18.156],[3.218,-0.695,18.182],[3.198,-0.695,18.11],[3.218,-0.955,18.182],[3.198,-0.955,18.11],[3.306,-0.825,18.072],[3.169,-0.695,18.041],[3.273,-0.825,17.992],[3.133,-0.695,17.976],[3.169,-0.955,18.041],[3.23,-0.825,17.915],[3.09,-0.695,17.915],[3.133,-0.955,17.976],[3.18,-0.825,17.844],[3.04,-0.695,17.86],[3.09,-0.955,17.915],[3.04,-0.955,17.86],[3.122,-0.825,17.778],[3.056,-0.825,17.72],[2.985,-0.955,17.81],[2.985,-0.695,17.81],[2.924,-0.955,17.767],[2.985,-0.825,17.67],[2.924,-0.695,17.767],[2.908,-0.825,17.627],[2.828,-0.825,17.594],[2.859,-0.695,17.731],[2.79,-0.955,17.702],[2.859,-0.955,17.731],[2.744,-0.825,17.57],[2.718,-0.695,17.682],[2.79,-0.695,17.702],[2.718,-0.955,17.682],[2.632,-0.825,17.553],[2.631,-0.695,17.898],[2.631,-0.825,18.013],[2.631,-0.955,17.898],[2.632,-0.955,17.668],[2.632,-0.695,17.668],[2.657,-0.825,25.445],[2.644,-0.695,25.331],[2.619,-0.695,25.102],[2.606,-0.825,24.988],[2.619,-0.955,25.102],[2.644,-0.955,25.331],[2.718,-0.695,25.318],[2.718,-0.955,25.318],[2.744,-0.825,25.43],[2.79,-0.695,25.298],[2.79,-0.955,25.298],[2.828,-0.825,25.406],[2.908,-0.825,25.373],[2.859,-0.695,25.269],[2.859,-0.955,25.269],[2.924,-0.695,25.233],[2.985,-0.825,25.33],[2.985,-0.695,25.19],[2.985,-0.955,25.19],[2.924,-0.955,25.233],[3.056,-0.825,25.28],[3.122,-0.825,25.222],[3.04,-0.695,25.14],[3.04,-0.955,25.14],[3.09,-0.955,25.085],[3.18,-0.825,25.156],[3.133,-0.695,25.024],[3.09,-0.695,25.085],[3.133,-0.955,25.024],[3.23,-0.825,25.085],[3.273,-0.825,25.008],[3.169,-0.695,24.959],[3.169,-0.955,24.959],[3.306,-0.825,24.928],[3.198,-0.955,24.89],[3.33,-0.825,24.844],[3.218,-0.695,24.818],[3.198,-0.695,24.89],[3.218,-0.955,24.818],[3.347,-0.825,24.732],[3.232,-0.695,24.732],[3.002,-0.695,24.731],[2.887,-0.825,24.731],[3.002,-0.955,24.731],[3.232,-0.955,24.732]];
-export const COAST_CORNER_EXEMPT:readonly string[]=Object.freeze(['320x568']);
-export const COAST_CORNER_GAP_PT=2;   // safety so other projectors (GGbot board-kit-camera) also see the corners on screen
-export function coastBoardCornersInFrame(distance:number,w:number,h:number,gap=COAST_CORNER_GAP_PT):boolean{
-  const pose=coastBoardPoseAt(distance);return RIM_CORNERS.every(p=>{const q=project(pose,w/h,p),x=q.x*w,y=q.y*h;return q.z>0&&x>=gap&&x<=w-gap&&y>=gap&&y<=h-gap;});
-}
-/** Rim overhang past the left / right screen edge (pt, >0 = off-screen), from the corner hulls (= the rim's outermost x). */
-export function coastBoardCornerGap(distance:number,w:number,h:number):number{
-  const pose=coastBoardPoseAt(distance);let g=Infinity;for(const p of RIM_CORNERS){const q=project(pose,w/h,p),x=q.x*w,y=q.y*h;g=Math.min(g,x,w-x,y,h-y);}return g;
-}
-/** Board fit for portrait: keep-out rule + rounded corners in frame (except the exempt screens). */
-export function coastBoardFrameFits(distance:number,w:number,h:number):boolean{
-  return coastBoardKeepoutFits(distance,w,h)&&(COAST_CORNER_EXEMPT.indexOf(Math.round(w)+'x'+Math.round(h))>=0||coastBoardCornersInFrame(distance,w,h));
-}
 /** Tap rule (PLAN 2.3 nearest-centre): far-row short side of the valid area inside the 44 pt box, and wrong taps of 2000
  *  seeded uniform +-8 pt taps per cell. */
 export function coastBoardTap(distance:number,w:number,h:number):{farShortPt:number;wrongTaps:number;taps:number}{
@@ -97,7 +81,7 @@ export function coastBoardTap(distance:number,w:number,h:number):{farShortPt:num
 }
 export function coastBoardDistance(w:number,h:number):number{
   const k=Math.round(w)+'x'+Math.round(h);if(k in COAST_BOARD_DISTANCE)return COAST_BOARD_DISTANCE[k];
-  const fits=w<h?coastBoardFrameFits:coastBoardFits;let lo=6,hi=80;if(!fits(hi,w,h))return hi;
+  const fits=w<h?coastBoardKeepoutFits:coastBoardFits;let lo=6,hi=80;if(!fits(hi,w,h))return hi;
   for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(fits(mid,w,h))hi=mid;else lo=mid;}return Math.ceil(hi*1000)/1000;
 }
 /** The official board pose for a logical viewport (pt). */

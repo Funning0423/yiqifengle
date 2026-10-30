@@ -27,10 +27,9 @@ def solve(Pp, w, h, band):
         if ev(Pp, m, w, h, band)['ok']: b = m
         else: a = m
     return math.ceil(b * 1000) / 1000
-def full(dz, w, h, band, d_min=None):
+def full(dz, w, h, band):
     Pp = P(dz); d = solve(Pp, w, h, band)
     if d is None: return None
-    if d_min is not None: d = max(d, d_min)  # corner pull-back (distance only)
     L.LENS = Pp; t = TC.check(d, w, h); p, l = L.pose(Pp, d)
     C = TC.centres(d, w, h).reshape(7, 7, 2); far_h = float(np.mean(C[1, :, 1] - C[0, :, 1]))  # row pitch (for UI comparison)
     pr = L.project(np.array([L.coast_to_world(np.array([0, 0.12, z])) for z in (-3.5, -2.5)]), p, l, 50, w / h); cell_h = float((pr[1, 1] - pr[0, 1]) * h)
