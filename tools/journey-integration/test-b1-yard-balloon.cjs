@@ -76,13 +76,8 @@ const res={};
   const H0='const b1Draw=()=>{if(dead||!b1On)return;';assert.ok(body(base).startsWith(H0),'C3: base B1 writer head moved');
   assert.equal(body(src),H0+'b1Hold=b1Hold||liveWorldPose();'+body(base).slice(H0.length),'C3: B1 writer changed beyond the hold branch + the b1-ease b1Hold latch');}
  for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b!==null)assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE);}
- /* fullN: TransitionChain.ts also carries the generated PRELOAD_BYTES block (8ad132a2) and additive meadow-split constants (239b5113/6041e8e9).
-    Only the preload section ('// ── preload' .. PRELOAD_MEMORY_BUDGET_MB) may be rewritten; every other base line must survive unchanged, in order (additions only). */
- {const f='region/TransitionChain.ts',b=gitShow(f);if(b!==null){const src=fs.readFileSync(S+f,'utf8'),A='// ── preload',Z='export const PRELOAD_MEMORY_BUDGET_MB';
-  const cut=s=>{const i=s.indexOf(A),j=s.indexOf(Z);assert.ok(i>=0&&j>i,'C3: '+f+' preload section markers moved');return s.slice(0,i)+s.slice(j);};
-  const bl=cut(b).split('\n'),sl=cut(src).split('\n');let k=0;for(const l of sl)if(k<bl.length&&l===bl[k])k++;
-  assert.equal(k,bl.length,'C3: '+f+' changed vs '+BASE+' outside the preload section (first missing base line: '+JSON.stringify(bl[k])+')');
-  assert.ok(/QF_GEN_PRELOAD_BYTES_BEGIN[\s\S]*QF_GEN_PRELOAD_BYTES_END/.test(src),'C3: '+f+' preload section is not the generated PRELOAD_BYTES block');}}
+ /* fullN: TransitionChain.ts may change only in its generated preload section + additive lines (rule + negative self-test: c3-transition-chain*.cjs) */
+ {const f='region/TransitionChain.ts',b=gitShow(f);if(b!==null)require('./c3-transition-chain.cjs').checkTransitionChain(b,fs.readFileSync(S+f,'utf8'),f,BASE);}
  const plan=planFor(M2),v0=plan.vehicle(0),c0=plan.camera(0),PIN={v0:[-5.3,5.25,102.5],c0:[-20.6,8.25,89.6]}/* m run plan0 (3 dp log) */;
  for(let i=0;i<3;i++){assert.ok(Math.abs(v0.pos[i]-PIN.v0[i])<0.06,'C3 v0 '+v0.pos);assert.ok(Math.abs(c0.position[i]-PIN.c0[i])<6e-4,'C3 cam0 '+c0.position);}
  const o={p:{x:0,y:-3.05,z:0},s:{x:1,y:1,z:1}},e={get position(){return {...o.p,clone(){return {...o.p};}};},get scale(){return {...o.s,clone(){return {...o.s};}};},setScale(x,y,z){o.s={x,y,z};},setPosition(x,y,z){o.p={x,y,z};},getComponents(){return [{mesh:{struct:{minPosition:{y:3.05}}}}];}};
