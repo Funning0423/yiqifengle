@@ -34,10 +34,7 @@ const occ=J.island.filter(o=>!/seagull|smoke|beam|glow|glass/.test(o.name)),grou
  solids=J.island.filter(o=>!/env_island_main|seagull|smoke|beam|glow|glass|wet_sand|tide|shells|crab|turtle|cat/.test(o.name));
 const gh=p=>{let b=null;for(const o of ground){o.bb??=J.bbox(o.tris);if(p[0]<o.bb[0][0]||p[0]>o.bb[1][0]||p[2]<o.bb[0][2]||p[2]>o.bb[1][2])continue;const t=J.rayHit(p,[0,-1,0],200,o.tris);if(t!==null&&(b===null||t<b))b=t;}return b;};
 const unit=v=>{const n=Math.hypot(...v);return v.map(x=>x/n);};const ya=p=>{const d=unit(p.target.map((x,i)=>x-p.position[i]));return [Math.atan2(d[0],d[2])*180/Math.PI,Math.asin(d[1])*180/Math.PI];};
-// b21 (Grok Bot decision a): QF_I3I4_VIA=<fixture json {via}> plans the I3>I4 entry on that waypoint route (GGbot E route, test-island-stage04-lens-e.cjs);
-// once NodeWalker.WAYPOINT_ROUTES['island:I3>I4'] is wired, planWalk picks the route up by default and this gate covers it as-is.
-const VIA=process.env.QF_I3I4_VIA?JSON.parse(fs.readFileSync(path.resolve(__dirname,process.env.QF_I3I4_VIA),'utf8')).via:null,TAG=VIA?'-e':'';
-const lu=E.followLookUp('island',99),walk=(a,b)=>{const pl=NW.planWalk('island',a,b,VIA&&a==='I3'&&b==='I4'?{via:VIA}:undefined);return {pl,path:pl.segments.flatMap((s,i)=>i?s.path.slice(1):s.path)};};
+const lu=E.followLookUp('island',99),walk=(a,b)=>{const pl=NW.planWalk('island',a,b);return {pl,path:pl.segments.flatMap((s,i)=>i?s.path.slice(1):s.path)};};
 // push-in end exactly as WorldFlowComponent.enterLevelLook from the island lens (reach 40, step 2.6, fov-6)
 const ci=J.Cam.islandPoseEntry(),fw=unit(ci.target.map((x,i)=>x-ci.position[i]));
 const P0={position:process.env.PUSHIN==='T2'?[-8.447,14.736,46.405]:ci.position.map((x,i)=>x+fw[i]*2.6),target:ci.position.map((x,i)=>x+fw[i]*40),fovVerticalDeg:ci.fovVerticalDeg-6};
@@ -63,7 +60,7 @@ if(process.env.L04_KEYS){const out={wired:wiredVia||false,screens:{}};for(const 
  const hd=(p,t)=>{const a=NW.pointAlong(p,Math.max(0,t*1.2-0.3)),b=NW.pointAlong(p,t*1.2+0.3);return Math.atan2(b[0]-a[0],b[2]-a[2]);};
  out.screens[w+'x'+h]={entry:{t:3,cam:e.at(3),her:e.her(3)},standing:{t:e.W,cam:e.at(e.W),her:ql[ql.length-1]},exit:{t:d.W,cam:d.at(d.W),her:d.her(d.W),walkEnd:pl[pl.length-1]}};}
  fs.writeFileSync(process.env.L04_KEYS,JSON.stringify(out,null,1));}
-let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};const report={route:VIA?'I3>I4 via '+process.env.QF_I3I4_VIA:(NW.WAYPOINT_ROUTES?.['island:I3>I4']?'I3>I4 WAYPOINT_ROUTES':'I3>I4 baked'),wired,skinned:true,palmMove:PM,pushIn:process.env.PUSHIN||'T1',rows:{},summary:{},blockers:{}};const id0=k=>k;
+let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};const report={wired,skinned:true,palmMove:PM,pushIn:process.env.PUSHIN||'T1',rows:{},summary:{},blockers:{}};const id0=k=>k;
 for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps of [60,30]){
  const s=shot(kind,w,h),dt=1/fps,Tend=s.W+1;let prev=null,pr=null,acc=[],mx={yaw:0,pitch:0,v:0,step:0,fov:0},minG=99,minS=99,minM=9,hid=0,hidFace=0,cap=0,rows=[];
  for(let k=0;k*dt<=Tend+1e-9;k++){const t=k*dt,p=s.at(t),her=s.her(t);
@@ -97,6 +94,6 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
   if(cur)ep.push(cur);report.body90??={};report.body90[kind]={series_t_headPct_leanHeadPct_bodyPct:series,leanEpisodes:ep};
   if(kind==='entry'&&process.env.LEAN_GATE==='1')for(const e of ep){ok(e.to-e.from+0.1<=0.3+1e-9,`entry lean_01 episode ${e.from}-${e.to} s > 0.3 s`);ok(e.peak<=25,`entry lean_01 episode ${e.from} s ${e.peak}% head/face > 25%`);}
   console.log(kind,'lean_01 episodes',JSON.stringify(ep));}}
-fs.mkdirSync(path.join(__dirname,'reports'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/island-stage04-lens'+TAG+'.json'),JSON.stringify(report));
+fs.mkdirSync(path.join(__dirname,'reports'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/island-stage04-lens.json'),JSON.stringify(report));
 console.log(JSON.stringify({boardLens:wfcWired||false,wired:wiredVia==='source'?true:wiredVia||false,fail,sample:report.summary['departure 390x844 30fps'],entry:report.summary['entry 390x844 30fps']}));
-if(fail){console.log('island-stage04-lens'+TAG+': FAIL',fail);process.exit(1);}console.log('island-stage04-lens'+TAG+': PASS');
+if(fail){console.log('island-stage04-lens: FAIL',fail);process.exit(1);}console.log('island-stage04-lens: PASS');
