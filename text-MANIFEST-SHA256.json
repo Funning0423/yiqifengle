@@ -3191,8 +3191,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodeProgress.ts",
-    "bytes": 10951,
-    "sha256": "5e4a56dc3fd375cb0ebe4a92e77cbaaf0b989881a07938951d0c55cde4179c02"
+    "bytes": 12881,
+    "sha256": "394a3e3cdad8dd23c4ddc61f0b729dcd130ff1e7902e3478b90cada4ac3452d9"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodeProgress.ts.meta",
@@ -3840,6 +3840,16 @@
     "sha256": "8dfe0fb701189a6d904f93d9521747cd4aba10bc4d2372b4e8de00e3fbdd206f"
   },
   {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/coast-levels-data.js",
+    "bytes": 9212,
+    "sha256": "a3d7f87c2d1e61bd2250d3d876d3d09bce0512fac150d457ea9ab31dbe527857"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/coast-levels-data.js.meta",
+    "bytes": 170,
+    "sha256": "d4ea2fe1e66eff0a14cc74635747b20d9270c71d64fcb0b34a17907e42b26dff"
+  },
+  {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js",
     "bytes": 3458,
     "sha256": "dfefbb8f82c9fa61c22174e2cf1bd75d819b86b725726ae926ed335110b81185"
@@ -3861,8 +3871,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js",
-    "bytes": 759,
-    "sha256": "504e3c5b16c6bddf10bbf63f3c8769cedd9207c5f3a2f63ba517714d07da6358"
+    "bytes": 1231,
+    "sha256": "d4aebe9ddab8ecb764849f6e3018e373ae87420b5df581b9e355ea2ee5afe278"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta",
@@ -3881,8 +3891,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js",
-    "bytes": 9810,
-    "sha256": "ac78747bf46156781e98d85237fe429ef6fe87f3ca821717083cfdd638579287"
+    "bytes": 10637,
+    "sha256": "e532ea34c402cbbb1386301df5775bfba78ee033c6f0090b035d42ecea73c986"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta",
@@ -3891,8 +3901,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
-    "bytes": 12124,
-    "sha256": "730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b"
+    "bytes": 12415,
+    "sha256": "2abd5b968b8e77ce9938e34fa8b85521b3f39307e3fb9e78ece1d27830de32b9"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta",
@@ -3901,8 +3911,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
-    "bytes": 4143,
-    "sha256": "2653f7233a890100a1e7c7bb8ca5cfc5f5d3a44bc93a9de3b32796c55af9f3ea"
+    "bytes": 4484,
+    "sha256": "c17222b6188e2d3bb9a60bddf1771668e328327ecc7e38da28429ac61a593107"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js.meta",
