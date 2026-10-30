@@ -70,7 +70,7 @@ const NODES={
   {key:'I1',at:[-2.1,0,5.3],role:'mainline',stageId:'mainline-01'},
   {key:'I2',at:[2.5,0,8.1],role:'mainline',stageId:'mainline-02'},
   {key:'I3',at:[8.1,-0.36,6.1],role:'mainline',stageId:'mainline-03'},
-  {key:'I4',at:[4.5,0.23,-4.9],role:'mainline',stageId:'mainline-04'},
+  {key:'I4',at:[4.1,0.11,2.7],role:'mainline',stageId:'mainline-04'/* b19 island-depart-walk (方案 E): was [4.5,0.23,-4.9] (I4-I6 18.03 m, cut 4.1 m + fade + 3.6 m); now one continuous walk <= DIRECT_MAX_M */},
   {key:'I5',at:[-4.5,0.13,-0.9],role:'optional',opens:'challenge-island'},
   {key:'I6',at:[-1.5,-0.18,9.3],role:'departure'},
  ],
