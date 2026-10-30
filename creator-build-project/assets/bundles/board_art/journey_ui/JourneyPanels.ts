@@ -164,13 +164,15 @@ export function createJourneyUi(h: JourneyUiHost) {
     const ss = d.provider === 'mainline' && st.state !== 'locked' && st.state !== 'far' ? a.stats?.() : null;
     if (ss) { p.text('★ ' + ss.stars + '/12 · 挑战 ' + ss.challenges + '/4', 0, y, P(14), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterStars' }); y += P(22); }
     if (c.id === 'coast' && st.hasData && st.state !== 'locked') { p.text(coastChapterHint(st.done), 0, y, P(14), 'teal', { width: PW - P(48), name: 'CoastChapter' }); y += P(22); }
-    if (extra) { y += P(10);
-      if (id === 'sky') p.button('secondary', '前往天空城 · 3D 场景', 0, y + P(21), P(240), P(42), () => a.skycity(), { fontSize: P(15), name: 'VisitSkycity' });
+    const skyLocked = id === 'sky' && (st.state === 'locked' || st.state === 'far');   // UI设计部 r4: locked → no line at all; never dev wording
+    if (extra && !skyLocked) { y += P(10);
+      if (id === 'sky') p.button('secondary', '前往天空城', 0, y + P(21), P(240), P(42), () => a.skycity(), { fontSize: P(15), name: 'VisitSkycity' });
       if (id === 'tide') { const open = a.r4Open(); const b = p.button('secondary', open ? '旧日潮汐' : '旧日潮汐 · 未开启', 0, y + P(21), P(240), P(42), () => { if (a.r4Open()) a.legacyTide(); }, { fontSize: P(15), name: 'LegacyTide' }); b.setEnabled(open); }
       y += P(52); }
     const btn = chapterButton(st), blocked = reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : null;
     const enabled = btn.enabled && !!gate?.ok, by = PH - P(26) - P(26);
-    if (!enabled) p.text(blocked || (btn.enabled ? '暂不可进入' : d.unlock.label), 0, by - P(40), P(13), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCondition' });
+    // UI设计部 r4: a locked page has nothing above the grey button (its text already is the condition + 开启).
+    if (!enabled && (blocked || btn.enabled || st.state === 'far')) p.text(blocked || (btn.enabled ? '暂不可进入' : d.unlock.label), 0, by - P(40), P(13), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCondition' });
     if (enabled) p.button('primary', btn.text, 0, by, P(240), P(52), () => { if (a.gate()?.ok) a.enter(); }, { fontSize: P(18), name: 'Continue-' + c.id });
     else flatDisabled(p, btn.enabled ? '暂不可进入' : btn.text, 0, by, P(240), P(52), 'Continue-' + c.id);
     p.button('secondary', '返回章节', 0, PH - P(4), P(140), P(36), () => p.close(a.back), { fontSize: P(14), name: 'BackToChapters', sound: 'back' });
