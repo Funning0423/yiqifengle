@@ -52,3 +52,4 @@ On the branch without the diffs, R1 and R3 FAIL by design. The rows are source-t
 - Gate: R4-mustfail (19bd812a origin clouds, 0.00 m @t 265.50) and R4 (counted; paint(0) placement, sail frame, every start, 7 screens).
 - collision-gate: defaults to the sail frame when the trace has no B1 write.
 - Image: 4_meadow_m407-431_before-after.png
+- UPDATE: we now write the cloud paint fix ourselves: BalloonTransit-prewalk-cloud-paint.diff adds paint(0) after the clouds are attached (BalloonTransit.ts:386) and before the pre-walk (~:603). It hides/places clouds_city_sea and clouds_floor. Applied last in the ordered set, in a separate hunk from b1-ease/3b-landing. paint(0) is the B1 t=0 state, so opacity is continuous at B1 entry. Size: BalloonTransit 72432→72553 B raw (+121), 24424→24488 B gzip (+64).
