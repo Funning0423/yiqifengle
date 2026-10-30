@@ -127,5 +127,39 @@
   "reuse_bush",
   "reuse_palm_lean",
   "reuse_palm_tall"
+ ],
+ "activation_gate": {
+  "toggle_frame": 220,
+  "toggle_t": 3.667,
+  "map_lens_frames": [
+   0
+  ],
+  "coast_active_on_map_frames": [],
+  "visible_at_toggle": {
+   "coast": false,
+   "sail": false,
+   "bridge": false
+  },
+  "visible_at_toggle_minus_1": {
+   "coast": false,
+   "sail": false,
+   "bridge": false
+  },
+  "island_map_lens_sees": {
+   "coast": true,
+   "sail": true,
+   "bridge": true
+  },
+  "pass_": true
+ },
+ "toggle_windows_frames": [
+  [
+   196,
+   248
+  ],
+  [
+   338,
+   350
+  ]
  ]
 }

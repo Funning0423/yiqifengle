@@ -9,7 +9,8 @@ Not runtime code."""
 import json, math, sys, os, numpy as np, trimesh
 from PIL import Image, ImageDraw
 from realmesh import load, coast_to_world, W, FIT
-OUT = os.path.dirname(os.path.abspath(__file__)) + ('/out_v3' if FIT == 'r2' else '/out_v2'); os.makedirs(OUT, exist_ok=True)
+RET = os.environ.get('DIR', 'out') == 'return'  # DIR=return: coast -> island return (r2 only)
+OUT = os.path.dirname(os.path.abspath(__file__)) + ('/out_v3' if FIT == 'r2' else '/out_v2') + ('/return' if RET else ''); os.makedirs(OUT, exist_ok=True)
 parts, missing = load()
 names = []; ms = []
 for n, m in parts: ms.append(m); names += [n] * len(m.faces)
@@ -32,13 +33,22 @@ else:
 LEN_ISL = float(np.linalg.norm(np.diff(np.array(isl), axis=0), axis=1).sum())
 WALK = 1.2; STEP_S = 1.8
 T_S1, T_S2 = float(os.environ.get('T_S1', 2.0)), 0.4; T_PATH = LEN_ISL / WALK; T_TER = float(np.linalg.norm(ESTOP - S1)) / WALK; T_S6, T_S7 = 0.6, float(os.environ.get('T_S7', 5.0))
-T = np.cumsum([0, T_S1, T_S2, T_PATH, STEP_S, T_TER, T_S6, T_S7]); TOTAL = T[-1]
+if RET: T_S1 = float(os.environ.get('T_S1', 3.0))
+T = np.cumsum([0, T_S1, T_S2, T_TER, STEP_S, T_PATH, T_S6, T_S7] if RET else [0, T_S1, T_S2, T_PATH, STEP_S, T_TER, T_S6, T_S7]); TOTAL = T[-1]
 SHOTS = ['S1 map-collapse handover', 'S2 heading settle 0.4 s', 'S3 island exit path lead', 'S4 step-down profile',
          'S5 terrace lead', 'S6 stop + look back at lighthouse', 'S7 orbit-rise to board pose']
+if RET: SHOTS = ['R1 board-lens descent (she has turned to -Z)', 'R2 heading settle 0.4 s', 'R3 terrace lead back', 'R4 step-up',
+                 'R5 island path lead back to the door', 'R6 arrive at exit_point', 'R7 rise to live island lens']
 def polyline_at(P, s):
     P = np.array(P, float); seg = np.linalg.norm(np.diff(P, axis=0), axis=1); c = np.r_[0, np.cumsum(seg)]; s = min(max(s, 0), c[-1])
     i = min(np.searchsorted(c, s, 'right') - 1, len(seg) - 1); u = (s - c[i]) / seg[i]; return P[i] + (P[i + 1] - P[i]) * u
 def her_xz(t):
+    if RET:
+        if t < T[2]: return ESTOP.copy()
+        if t < T[3]: return ESTOP + (S1 - ESTOP) * (t - T[2]) / T_TER
+        if t < T[4]: return S1 + (S0 - S1) * (t - T[3]) / STEP_S
+        if t < T[5]: return polyline_at(isl[::-1], (t - T[4]) * WALK)
+        return isl[0].copy()
     if t < T[2]: return isl[0].copy()
     if t < T[3]: return polyline_at(isl, (t - T[2]) * WALK)
     if t < T[4]: return S0 + (S1 - S0) * (t - T[3]) / STEP_S
@@ -57,6 +67,11 @@ RAWP = np.array([her_root(t) for t in TS])
 K = int(0.12 * FPS); SM = np.array([RAWP[max(0, i - K):i + K + 1].mean(0) for i in range(len(TS))])  # 0.24 s root smoothing
 def heading_at(i):  # smoothed travel heading (look-ahead 0.6 m); standing at door = +Z; settles to path in S2
     t = TS[i]
+    if RET:  # she stands facing -Z (back toward the island) from the first frame
+        if t < T[2]: return 180.0
+        j = min(len(TS) - 1, i + int(0.5 * FPS)); a = max(0, i - int(0.5 * FPS)); d = SM[j] - SM[a]
+        if np.hypot(d[0], d[2]) < 0.05: d = SM[-1] - SM[np.searchsorted(TS, T[5] - 1.0)]
+        return math.degrees(math.atan2(d[0], d[2])) % 360
     if t < T[1]: return 0.0
     j = min(len(TS) - 1, i + int(0.5 * FPS)); a = max(0, i - int(0.5 * FPS))
     d = SM[j] - SM[a]
@@ -65,7 +80,7 @@ def heading_at(i):  # smoothed travel heading (look-ahead 0.6 m); standing at do
     h = math.degrees(math.atan2(d[0], d[2]))
     if t < T[2]: u = (t - T[1]) / T_S2; u = u * u * (3 - 2 * u); h = h * u
     return h
-HD = np.array([heading_at(i) for i in range(len(TS))]); HD = np.convolve(np.r_[[HD[0]] * 30, HD, [HD[-1]] * 30], np.ones(61) / 61, 'valid')
+HD = np.degrees(np.unwrap(np.radians([heading_at(i) for i in range(len(TS))]))); HD = np.convolve(np.r_[[HD[0]] * 30, HD, [HD[-1]] * 30], np.ones(61) / 61, 'valid')
 # ---- lens keys: t, az_deg (from her forward, + = her right), radius, height above root, look lift, look side (+ = her right), vfov ----
 ISLAND_LIVE = dict(pos=np.array([-12, 15.5, 48.0]), look=np.array([1, .5, 1.0]), fov=42.0,
                    src="RegionCameraData.ts island.variants['v24-readable'] (islandPoseSource) @7297fa5f")
@@ -83,6 +98,14 @@ KEYS = [  # front-LEFT side through the walk: the right side of the curved exit 
     (T[5], S6KEY[0], S6KEY[1] - 0.3, S6KEY[2] + 0.1, S6KEY[3], S6KEY[4], S6KEY[5]),
     (T[6], *S6KEY),                            # S6 pull-back, low, looking up: lighthouse upper-right
     (T[7], 'world')]                           # S7 single orbit-rise round her RIGHT side to the board pose
+if RET:  # front-RIGHT on the coast (same side as the board lens, so R1 needs no 180° swing), then swings to behind-right on the island
+    # path: a front lens would sit inside the lighthouse at the door, and the live island lens is behind her (+Z)
+    KEYS = [(T[0], 'world'),
+        (T[1], 30, 3.8, 2.6, 1.0, -0.2, 44), (T[2], 28, 3.6, 2.6, 1.0, -0.2, 44),
+        (T[3], 35, 3.5, 2.9, 1.0, -0.2, 44), (T[3] + 1.0, 45, 3.5, 3.0, 0.9, 0.0, 45),
+        (T[4] + 1.5, 60, 3.4, 2.7, 1.0, 0.0, 44), (T[4] + 5.0, 150, 3.2, 2.45, 1.0, 0.0, 44),
+        (T[5], 160, 3.6, 2.5, 1.0, 0.0, 44), (T[6], 170, 4.0, 2.6, 1.0, 0.0, 44), (T[7], 'world')]
+START_POSE, END_POSE = (BOARD_POSE, ISLAND_LIVE) if RET else (ISLAND_LIVE, BOARD_POSE)
 def ease(u): return u * u * u * (u * (6 * u - 15) + 10)
 def rel_pose(k, i):
     _, az, r, h, ll, ls, fov = k; hd = math.radians(HD[i]); a = hd - math.radians(az)  # right of her = -az in world yaw
@@ -99,11 +122,12 @@ def cam_i(i):
         k = (t,) + tuple(np.array(a[1:]) + (np.array(b[1:]) - np.array(a[1:])) * u); return rel_pose(k, i)
     if a[1] != 'world' and b[1] == 'world':  # orbit in her cylinder from the rel key to the board pose, then exact
         hd = math.radians(HD[i]); fwd = np.array([math.sin(hd), 0, math.cos(hd)]); right = np.array([-math.cos(hd), 0, math.sin(hd)])
-        pa, la, fa = rel_pose(a, i); w = BOARD_POSE
+        pa, la, fa = rel_pose(a, i); w = END_POSE
         def cyl(p):
             v = p - SM[i]; return math.atan2(v @ right, v @ fwd), math.hypot(v @ right, v @ fwd), v[1]
         (aa, ra, ya_), (ab, rb, yb) = cyl(pa), cyl(w['pos'])
-        if ab < aa: ab += 2 * math.pi  # go round her right side (increasing az)
+        if RET: ab = aa + (ab - aa + math.pi) % (2 * math.pi) - math.pi  # return: shortest way round
+        elif ab < aa: ab += 2 * math.pi  # go round her right side (increasing az)
         uo = ease(min(1, (t - a[0]) / (b[0] - a[0])))  # orbit over the whole shot; look hand-off in the second half
         az, r, y = aa + (ab - aa) * uo, ra + (rb - ra) * u, ya_ + (yb - ya_) * u
         pos = SM[i] + fwd * r * math.cos(az) + right * r * math.sin(az) + [0, y, 0]
@@ -111,7 +135,7 @@ def cam_i(i):
         return pos, la + (w['look'] - la) * ul, fa + (w['fov'] - fa) * u
     if a[1] == 'world' and b[1] != 'world':  # S1: descend in her cylinder (az, log r, h) from the live island lens
         hd = math.radians(HD[i]); fwd = np.array([math.sin(hd), 0, math.cos(hd)]); right = np.array([-math.cos(hd), 0, math.sin(hd)])
-        pb, lb, fb = rel_pose(b, i); w = ISLAND_LIVE
+        pb, lb, fb = rel_pose(b, i); w = START_POSE
         def cyl(p):
             v = p - SM[i]; return math.atan2(v @ right, v @ fwd), math.hypot(v @ right, v @ fwd), v[1]
         (aa, ra, ya_), (ab, rb, yb) = cyl(w['pos']), cyl(pb)
@@ -121,7 +145,7 @@ def cam_i(i):
         return pos, w['look'] + (lb - w['look']) * u, w['fov'] + (fb - w['fov']) * u
     def P(k):
         if k[1] == 'world':
-            w = ISLAND_LIVE if k[0] == 0 else BOARD_POSE; return w['pos'], w['look'], w['fov']
+            w = START_POSE if k[0] == 0 else END_POSE; return w['pos'], w['look'], w['fov']
         return rel_pose(k, i)
     pa, la, fa = P(a); pb, lb, fb = P(b); pos = pa + (pb - pa) * u
     da, db = la - pa, lb - pb; na, nb = np.linalg.norm(da), np.linalg.norm(db); da, db = da / na, db / nb  # slerp the view direction
@@ -150,8 +174,8 @@ def gates(render_only=False):
     g['yaw_standing']['pass'] = g['yaw_standing']['max_rate'] <= 90 and g['yaw_standing']['p99_acc'] <= 200
     g['yaw_walking']['pass'] = g['yaw_walking']['max_rate'] <= 120 and g['yaw_walking']['p99_acc'] <= 300
     step = np.linalg.norm(np.diff(P, axis=0), axis=1); g['max_lens_step_m_per_frame'] = round(float(step.max()), 3); g['max_step_t'] = round(float(TS[step.argmax()]), 2)
-    g['hard_cuts'] = 0; g['first_frame_eq_live'] = bool(np.allclose(P[0], ISLAND_LIVE['pos']) and np.allclose(L[0], ISLAND_LIVE['look']))
-    g['last_frame_eq_board'] = bool(np.allclose(P[-1], BOARD_POSE['pos']) and np.allclose(L[-1], BOARD_POSE['look']))
+    g['hard_cuts'] = 0; g['first_frame_eq_live'] = bool(np.allclose(P[0], START_POSE['pos']) and np.allclose(L[0], START_POSE['look']))
+    g['last_frame_eq_board'] = bool(np.allclose(P[-1], END_POSE['pos']) and np.allclose(L[-1], END_POSE['look']))  # return: last = live island lens
     # clearance (30 fps samples): solids distance + ground below
     idx = np.arange(0, len(TS), 2); cp, dist, tri = trimesh.proximity.closest_point(MESH, P[idx])
     gr = []
@@ -165,7 +189,7 @@ def gates(render_only=False):
     g['travel_ground_min'] = round(float(gr[moving].min()), 3); g['travel_ground_t'] = round(float(TS[idx][moving][gr[moving].argmin()]), 2)
     g['clear_pass'] = (g['clear_standing_min'] is None or g['clear_standing_min'] >= 1.1) and g['travel_solid_min'] >= 0.5 and g['travel_ground_min'] >= 1.5
     # her ground sanity (feet on mesh)
-    g['her_ground_check'] = {k: round(float(her_root(t)[1]), 3) for k, t in [('door', 0.0), ('S0', T[3]), ('S1', T[4]), ('Estop', T[5])]}
+    g['her_ground_check'] = {k: round(float(her_root(t)[1]), 3) for k, t in ([('Estop', 0.0), ('S1', T[3]), ('S0', T[4]), ('exit_point', T[7])] if RET else [('door', 0.0), ('S0', T[3]), ('S1', T[4]), ('Estop', T[5])])}
     # occlusion (both rays; 60 fps)
     o = []
     for i in range(len(TS)):
@@ -201,7 +225,7 @@ def gates(render_only=False):
             if m < mm: mm, mmt = m, TS[i]
             fp = project(hp + [0, FACE, 0], p, l, fov, asp)
             if fp and cap[0] - .02 <= fp[0] <= cap[2] + .02 and cap[1] - .02 <= fp[1] <= cap[3] + .02: capbad += 1
-            if T[5] + 0.15 <= TS[i] <= T[6]:
+            if not RET and T[5] + 0.15 <= TS[i] <= T[6]:
                 lh_n += 1; q = [project(x, p, l, fov, asp) for x in LH_LANTERN]
                 lh_ok += all(x is not None and 0.55 <= x[0] <= 0.95 and 0.04 <= x[1] <= 0.5 for x in q) and not (cap[0] - .03 <= q[0][0] <= cap[2] + .03 and q[0][1] <= cap[3] + .03 and q[0][1] >= cap[1] - .03)
         scr.append(dict(screen=f'{w}x{h}', min_margin=round(mm, 3), at_t=round(float(mmt), 2), margin_pass=bool(mm >= 0.08), face_under_menu=capbad,

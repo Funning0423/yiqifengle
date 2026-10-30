@@ -28,13 +28,34 @@ def windows(vs):
         if o and s is None: s = i
         if (not o or i == len(ok) - 1) and s is not None: segs.append((s, i - 1 if not o else i)); s = None
     return segs
-if __name__ == '__main__':
-    res = {}
-    vs = vis_series(R.CAM); res['a_island_to_coast'] = dict(windows_frames=windows(vs),
-        first_visible_frame={k: int(np.argmax(v)) if v.any() else None for k, v in vs.items()}, frames=len(R.CAM))
-    L = R.ISLAND_LIVE; vm = vis_series([(L['pos'], L['look'], L['fov'])])
-    res['b_island_map_lens'] = {k: bool(v[0]) for k, v in vm.items()}
-    vr = vis_series(R.CAM[::-1]); res['c_coast_to_island_reversed_path'] = dict(windows_frames=windows(vr))
-    for k in ('coast', 'sail', 'bridge'):
-        res['a_island_to_coast'][k + '_visible_frames'] = int(vs[k].sum())
+TOGGLE_FWD = 220  # Grok Bot approved 6c11b019: island->coast toggle at frame 220 (t 3.667 s)
+def is_map_lens(c):
+    L = R.ISLAND_LIVE; return bool(np.allclose(c[0], L['pos']) and np.allclose(c[1], L['look']) and abs(c[2] - L['fov']) < 1e-6)
+def activation_gate(vs, cams, toggle, ret):
+    """coast active = frames >= toggle (outbound) or < toggle (return); sail+bridge active on the complement.
+    FAIL if coast is active on any frame showing the island map lens, or if the toggle frame shows any of the three groups."""
+    n = len(cams); coast_on = np.arange(n) < toggle if ret else np.arange(n) >= toggle
+    map_frames = [i for i in range(n) if is_map_lens(cams[i])]
+    bad_map = [i for i in map_frames if coast_on[i]]
+    vis_at = {k: bool(vs[k][toggle]) for k in vs}
+    # pop-in also forbidden on the frame before/after the swap (the swap is between toggle-1 and toggle)
+    vis_prev = {k: bool(vs[k][toggle - 1]) for k in vs}
+    ok = not bad_map and not any(vis_at.values()) and not any(vis_prev.values())
+    return dict(toggle_frame=toggle, toggle_t=round(toggle / R.FPS, 3), map_lens_frames=map_frames, coast_active_on_map_frames=bad_map,
+                visible_at_toggle=vis_at, visible_at_toggle_minus_1=vis_prev, island_map_lens_sees=dict(coast=True, sail=True, bridge=True), pass_=ok)
+def main():
+    vs = vis_series(R.CAM); win = windows(vs)
+    res = dict(direction='coast_to_island' if R.RET else 'island_to_coast', windows_frames=win,
+               windows_t=[(round(a / R.FPS, 3), round(b / R.FPS, 3)) for a, b in win], frames=len(R.CAM),
+               visible_frames={k: int(v.sum()) for k, v in vs.items()})
+    L = R.ISLAND_LIVE; vm = vis_series([(L['pos'], L['look'], L['fov'])]); res['island_map_lens_sees'] = {k: bool(v[0]) for k, v in vm.items()}
+    if R.RET:
+        a, b = max(win, key=lambda w: w[1] - w[0]) if win else (None, None); tog = (a + b) // 2 if win else None
+    else: tog = TOGGLE_FWD
+    res['activation_gate'] = activation_gate(vs, R.CAM, tog, R.RET) if tog is not None else dict(pass_=False, reason='no window')
     print(json.dumps(res, default=str)); json.dump(res, open(R.OUT + '/toggle_window.json', 'w'), indent=1, default=str)
+    g = json.load(open(R.OUT + '/gates.json')); g['activation_gate'] = res['activation_gate']; g['toggle_windows_frames'] = win
+    json.dump(g, open(R.OUT + '/gates.json', 'w'), indent=1, default=str)
+    return res
+if __name__ == '__main__':
+    r = main(); sys.exit(0 if r['activation_gate']['pass_'] else 1)

@@ -24,7 +24,7 @@ Groups: coast = real r2 coast mesh convex hull + the 3 reuse_palm columns (repor
 |---|---|---|
 | (a) island→coast | frames 196–248 (t 3.27–4.13 s, shot 3 start, 0.87 s); also 338–350 (5.63–5.83 s) | shot 1 never clears (map lens sees all three), no shot change needed; toggle at frame ~220 |
 | (b) island map lens v24 (-12,15.5,48) | none | all three in view; coast must stay inactive whenever the map shows; toggle only inside (a)/(c) windows |
-| (c) coast→island | reversed path: frames 1151–1203 / 1049–1061 of the reverse (same frames as (a)) | no reverse camera exists yet; assumes it mirrors this path |
+| (c) coast→island | superseded: see v3.1 (real return path, toggle frame 1189) | |
 Options cost: none needed for (a). If round-3 bounds remove the window, adding a 0.5 s push-in on her at end of shot 1 is the fallback (untested).
 
 ## Assumption
@@ -34,3 +34,31 @@ Coast root active only in the coast area and the island→coast transition; sail
 - No mesh problems on her line; her ground: exit_point -0.004, S0 -0.245, S1 -0.843, stop -0.846 (matches report).
 - Path measures 10.48 m (report 10.45).
 - reuse_bush/palm_lean/palm_tall not in bundle mesh (gates use positions only); layout `tilt` on board slabs ignored by this loader.
+
+---
+## v3.1 additions (after Grok Bot approved 6c11b019: 23.33 s, toggle at frame 220)
+
+### Activation gate (toggle_window.py -> `activation_gate` in gates.json; test: `python3 test_gates.py`)
+FAILS if the coast root is active on any frame showing the island map lens (v24-readable), or if coast, sail route or bridge is on-screen (any of 7 screens) on the toggle frame or the frame before it. test_gates.py runs both directions plus a negative check (toggling at frame 1 must fail).
+| direction | toggle | result |
+|---|---|---|
+| island→coast | frame 220 (t 3.667 s, shot 3) | PASS: all three off-screen at 219 and 220; map-lens frame 0 has coast inactive |
+| coast→island (real return path) | frame 1189 (t 19.817 s, R7 start) | PASS: all three off-screen at 1188 and 1189; map-lens frame 1459 has coast inactive |
+
+### Clearance evidence (clearance_evidence.py, every frame at 60 fps; out_v3/clearance_evidence.json, evidence_min_solid_clearance.png)
+- The 1.36 m figure is **distance to the nearest solid**, not height above ground: frame 588, t 9.80 s, shot 3 (walk; ramp/S0 area). Object coast:gull (local (-2.40, 1.48, 11.00) = world ≈ (1.8, 0.64, 10.5) on the gull rock), nearest point (1.409, 0.905, 10.335), lens (1.414, 2.260, 10.359), lens moving 0.034 m/frame. The gull point is NOT in the 390x844 frame (it is beside/below the lens). Height below the lens at that frame is 1.86 m.
+- Minimum height above the first geometry straight below the lens, on moving frames: **1.604 m** at frame 1098, t 18.30 s (shot 6 join, over coast:piece_star on the board; lens (-0.6, 1.054, 22.35)). This is the same figure as the 1.60 m height above ground. 0 of 1390 moving frames are below 1.5 m. Nearest distance to her: 3.21 m. No fix needed.
+
+### Coast→island return (real path, not mirrored): `DIR=return python3 reanchor.py --render`, out_v3/return/
+She walks stop z 16.35 → S1 → 3 steps up → S0 → R → W → exit_path_17..06 → exit_point (reverse of the scene report's route; no return design existed, so this is a minimal one).
+| # | t (s) | dur | lens |
+|---|---|---|---|
+| R1 descent from the coast board lens | 0–3.0 | 3.0 | board pose (first frame) descends to front-right 3/4 (az 30, r 3.8, h 2.6); she faces -Z |
+| R2 settle | 3.0–3.4 | 0.4 | az 28 |
+| R3 terrace lead | 3.4–8.19 | 4.79 | front-right, h 2.9 over the gull rock |
+| R4 step-up | 8.19–9.99 | 1.8 | az 45, h 3.0 |
+| R5 island path | 9.99–18.73 | 8.73 | swings from front-right to behind-right (az 60→150); a front lens would sit inside the lighthouse at the door |
+| R6 arrive at exit_point | 18.73–19.33 | 0.6 | behind-right az 160→170 |
+| R7 rise to live island lens | 19.33–24.33 | 5.0 | ends exactly on v24-readable (last frame) |
+Total 24.33 s. Gates (7 screens): yaw standing 39.8°/s p99 182°/s² · walking 65.0°/s p99 70 · standing clearance 2.01 m · solids 1.02 m (gull, frame 349, t 5.82, not in frame) · height below on moving frames min 1.544 m (frame 352, t 5.87, over coast rock_2), 0 frames < 1.5 · face/chest blocked 0 s · margin min 0.209 portrait / 0.146 / 0.110 · menu over face 0 · >12 m 0–0.63 s and 20.83–24.32 s, in frame 100 % · first = board lens, last = island lens · no cuts.
+Return off-screen windows: frames 919–932 (15.32–15.53 s), 1044–1091 (17.40–18.18 s), 1160–1218 (19.33–20.30 s); toggle chosen 1189.

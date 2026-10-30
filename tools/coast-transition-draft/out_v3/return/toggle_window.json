@@ -1,0 +1,66 @@
+{
+ "direction": "coast_to_island",
+ "windows_frames": [
+  [
+   919,
+   932
+  ],
+  [
+   1044,
+   1091
+  ],
+  [
+   1160,
+   1218
+  ]
+ ],
+ "windows_t": [
+  [
+   15.317,
+   15.533
+  ],
+  [
+   17.4,
+   18.183
+  ],
+  [
+   19.333,
+   20.3
+  ]
+ ],
+ "frames": 1460,
+ "visible_frames": {
+  "coast": 1328,
+  "sail": 1108,
+  "bridge": 1074
+ },
+ "island_map_lens_sees": {
+  "coast": true,
+  "sail": true,
+  "bridge": true
+ },
+ "activation_gate": {
+  "toggle_frame": 1189,
+  "toggle_t": 19.817,
+  "map_lens_frames": [
+   1459
+  ],
+  "coast_active_on_map_frames": [],
+  "visible_at_toggle": {
+   "coast": false,
+   "sail": false,
+   "bridge": false
+  },
+  "visible_at_toggle_minus_1": {
+   "coast": false,
+   "sail": false,
+   "bridge": false
+  },
+  "island_map_lens_sees": {
+   "coast": true,
+   "sail": true,
+   "bridge": true
+  },
+  "pass_": true
+ }
+}

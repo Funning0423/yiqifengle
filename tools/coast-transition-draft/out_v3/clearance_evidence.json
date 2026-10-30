@@ -1,0 +1,41 @@
+{
+ "direction": "out",
+ "min_solid": {
+  "m": 1.355,
+  "frame": 588,
+  "t": 9.8,
+  "shot": "S3 island exit path lead",
+  "object": "coast:gull@-2.40,1.48,11.00",
+  "nearest_point": [
+   1.409,
+   0.905,
+   10.335
+  ],
+  "lens": [
+   1.414,
+   2.26,
+   10.359
+  ],
+  "lens_moving": true,
+  "lens_speed_m_per_frame": 0.0339,
+  "nearest_point_in_frame_390x844": false,
+  "height_below_at_that_frame": 1.86
+ },
+ "min_height_below_moving": {
+  "m": 1.604,
+  "frame": 1098,
+  "t": 18.3,
+  "shot": "S6 stop + look back at lighthouse",
+  "over": "coast:piece_star@0.00,0.09,-1.00",
+  "lens": [
+   -0.6,
+   1.054,
+   22.35
+  ]
+ },
+ "min_height_below_all_frames": 1.604,
+ "moving_frames": 1390,
+ "moving_frames_below_1_5m": 0,
+ "min_dist_to_her": 3.206,
+ "min_solid_moving": 1.355
+}
