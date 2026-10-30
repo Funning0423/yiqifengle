@@ -113,9 +113,9 @@
     "k": "M0",
     "name": "河岸登陆 river landing — 帆船到达 (b20: was [0.2,1.22,20])",
     "at": [
-     0.2,
-     1.76,
-     15.2
+     1.8,
+     1.73,
+     15.6
     ]
    },
    {
@@ -177,9 +177,9 @@
    {
     "from": "M0",
     "to": "M1",
-    "walkM": 9.4,
-    "walkS": 7.8,
-    "climbM": 0.98
+    "walkM": 9.1,
+    "walkS": 7.7,
+    "climbM": 1.04
    },
    {
     "from": "M1",
@@ -217,7 +217,7 @@
     "climbM": 0.03
    }
   ],
-  "totalWalkM": 53.3,
+  "totalWalkM": 53.0,
   "reachableAreaM2": 7096,
   "heightRange": [
    -6.4,
