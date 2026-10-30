@@ -6,7 +6,21 @@
 import { PIECE_KEYS } from './BoardArt';
 import { cellCenter, type BoardLayout } from './BoardLayout';
 export type PieceKeys = readonly [string, string, string, string, string, string];
-export interface BoardKitCamera { position: readonly [number, number, number]; target: readonly [number, number, number]; fovVerticalDeg: number }
+/** Board camera (D2, 运镜bot = the coast push-in end pose). Pitch, yaw and FOV are FIXED for every screen; only the distance along the
+ *  view line may differ per aspect ratio (distanceByAspect: 'W:H' → m along the view line; missing = refDistanceM). Never a per-screen pitch or FOV. */
+export interface BoardKitCamera { readonly target: readonly [number, number, number]; readonly yawDeg: number; readonly pitchDeg: number; readonly fovVerticalDeg: number;
+  /** reference pose = r5d: camera at refDistanceM from target along (yaw, pitch), looking at target + (0,0,lookShiftM) */
+  readonly refDistanceM: number; readonly lookShiftM: number;
+  /** distance from the look point ALONG the fixed reference view line, by 'W:H'; missing = the reference distance */
+  readonly distanceByAspect: Readonly<Record<string, number>> }
+/** Pitch, yaw, view direction and FOV are identical on every screen; only the distance along the view line changes (D2, 运镜bot). */
+export function kitCameraPose(cam: BoardKitCamera, w: number, h: number): { position: [number, number, number]; target: [number, number, number]; fovVerticalDeg: number } {
+  const R = Math.PI / 180, p = cam.pitchDeg * R, y = cam.yawDeg * R, t = cam.target, look: [number, number, number] = [t[0], t[1], t[2] + cam.lookShiftM];
+  const ref = [t[0] + Math.sin(y) * Math.cos(p) * cam.refDistanceM, t[1] + Math.sin(p) * cam.refDistanceM, t[2] + Math.cos(y) * Math.cos(p) * cam.refDistanceM];
+  const v = [ref[0] - look[0], ref[1] - look[1], ref[2] - look[2]], D0 = Math.hypot(v[0], v[1], v[2]), d = cam.distanceByAspect[w + ':' + h] ?? D0;
+  if (!(d > 0)) throw Error('board kit camera: distance must be > 0');
+  return { position: [look[0] + v[0] / D0 * d, look[1] + v[1] / D0 * d, look[2] + v[2] / D0 * d], target: look, fovVerticalDeg: cam.fovVerticalDeg };
+}
 export interface RegionBoardKit {
   readonly id: string;
   /** piece art by engine tile type 0..5 */
@@ -21,6 +35,15 @@ export interface RegionBoardKit {
   readonly camera: BoardKitCamera | null;
 }
 export const DEFAULT_KIT: RegionBoardKit = Object.freeze({ id: 'default', pieceKeys: PIECE_KEYS as unknown as PieceKeys, pieceBundle: 'board_art', hide2D: Object.freeze({ tray: false, tiles: false }), board: null, camera: null });
+/** Coast pilot kit (Grok Bot 10/30: D1 order final, D3 tiles.json adopted, D2 configurable). NOT registered in P0 (the coast region
+ *  and region_coast bundle are not in this candidate); P1 registers it. Values = r5d coastshot 'game' camera (board-local frame). */
+export const COAST_KIT: RegionBoardKit = Object.freeze({
+  id: 'coast', pieceBundle: 'region_coast',
+  pieceKeys: ['conch', 'star', 'coral', 'float', 'scallop', 'badge'].map(n => 'board/piece_' + n) as unknown as PieceKeys,
+  hide2D: Object.freeze({ tray: true, tiles: true }),
+  board: Object.freeze({ anchor: [0, 0, 0] as const, yawDeg: 0, cellM: 1, topY: 0.16 }),
+  camera: Object.freeze({ target: [0, 0, 0.25] as const, yawDeg: 0, pitchDeg: 64, fovVerticalDeg: 50, refDistanceM: 18, lookShiftM: -0.3, distanceByAspect: Object.freeze({}) }),
+});
 const KITS = new Map<string, RegionBoardKit>();
 /** Register a region kit (P1: coast). Registration only; nothing ships one in P0. */
 export function registerBoardKit(region: string, kit: RegionBoardKit): void {

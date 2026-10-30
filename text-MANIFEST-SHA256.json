@@ -4116,8 +4116,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardKit.ts",
-    "bytes": 5265,
-    "sha256": "2515c8c2a2747082d44f2cd8ae46889f3dfebcd7ba2a3a1e3450ff0f5e2fe516"
+    "bytes": 7761,
+    "sha256": "de44807d71b4c5bce07358189518e6dc0801f69085a9326a339f05576fdd28d3"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
