@@ -35,6 +35,14 @@ const checks=[];
     assert(fixed<=TOL_M,`${name}: corrected centre ${b.fixed.center.map(x=>x.toFixed(3))} is ${fixed.toFixed(3)} m from rendered ${r.center}`);
     if(/palm/.test(name))assert(old>=3,`${name}: old node-matrix path must be the ≥3 m bug (got ${old.toFixed(2)})`);
     rows.push([name,+old.toFixed(3),+fixed.toFixed(3)]);}
+  // 3) 场景设计部 trunk reference (skin.cjs, Blender within 0.11–0.28 m): trunk xz = centroid of skinned verts with y<0.7
+  const TRUNK={palm_young:[3.039,2.644],palm_lean:[4.804,7.641],palm_tall:[-3.95,0.20]},TRUNK_TOL_M=0.3,trows=[];
+  for(const [key,ref] of Object.entries(TRUNK)){const b=boxes.find(x=>x.name.includes(key));assert(b&&b.fixed.trunk&&b.old.trunk,key);
+    const d=t=>Math.hypot(t[0]-ref[0],t[2]-ref[1]),fx=d(b.fixed.trunk),ol=d(b.old.trunk);
+    assert(fx<=TRUNK_TOL_M,`${b.name}: trunk ${b.fixed.trunk.map(x=>x.toFixed(3))} is ${fx.toFixed(3)} m from skin.cjs ${ref}`);
+    assert(ol>=3,`${b.name}: old trunk must be the ≥3 m bug (got ${ol.toFixed(2)})`);trows.push([b.name,+ol.toFixed(3),+fx.toFixed(3)]);}
+  console.log('TRUNK_VS_SKINCJS [name, old m, fixed m] '+JSON.stringify(trows));
+  checks.push(`palm trunks (young/lean/tall) within ${TRUNK_TOL_M} m of 场景设计部 skin.cjs reference; old path ≥3 m off`);
   console.log('SKIN_VS_RENDERED [name, old xz error m, fixed xz error m] '+JSON.stringify(rows));
   checks.push(`island skinned meshes (${rows.length}, 4 palms): corrected xz centre within ${TOL_M} m of the live Creator worldBounds; old path 4–10 m off`);
   for(const c of checks)console.log('PASS '+c);console.log(JSON.stringify({status:'PASS',checks},null,1));
