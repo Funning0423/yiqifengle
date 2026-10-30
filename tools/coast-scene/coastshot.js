@@ -34,8 +34,8 @@ function waterAt(t,camPos){const P=wpos,C=wcol,n=P.length/3,pos=new Float32Array
     const dx=0.045*0.55*Math.cos(x*0.55+z*0.9+t*1.4)-0.03*1.1*Math.cos(-x*1.1+z*0.35+t*2.1),dz=0.045*0.9*Math.cos(x*0.55+z*0.9+t*1.4)+0.03*0.35*Math.cos(-x*1.1+z*0.35+t*2.1);
     let nx=-dx,ny=1,nz=-dz,l=Math.hypot(nx,ny,nz);nx/=l;ny/=l;nz/=l;nor[3*k]=nx;nor[3*k+1]=ny;nor[3*k+2]=nz;
     const vx=camPos.x-x,vy=camPos.y-pos[3*k+1],vz=camPos.z-z,vl=Math.hypot(vx,vy,vz);const cosv=Math.max(0,(vx*nx+vy*ny+vz*nz)/vl);const fr=Math.pow(1-cosv,4);
-    const far=Math.min(1,(-z-6)/40);const hsh=Math.abs(Math.sin(x*12.9898+z*78.233)*43758.5)%1;const sp=(hsh>0.985&&d<30)?0.55*Math.max(0,Math.sin(t*3+hsh*40)):0;
-    const d=-z-SH;const band=d<2.2?0:d<6?1:2;const BB=[[0.18,0.78,0.80],[0.05,0.58,0.78],[0.03,0.44,0.76],[0.01,0.24,0.60]];const w=band<2?0:Math.min(1,Math.max(0,(d-6)/45));const BC=band<2?BB[band]:BB[2].map((v,i)=>v*(1-w)+BB[3][i]*w);
+    const far=Math.min(1,(-z-6)/40);
+    const d=-z-SH;const hsh=Math.abs(Math.sin(x*12.9898+z*78.233)*43758.5)%1;const sp=(hsh>0.985&&d<30)?0.55*Math.max(0,Math.sin(t*3+hsh*40)):0;const band=d<2.2?0:d<6?1:2;const BB=[[0.18,0.78,0.80],[0.05,0.58,0.78],[0.03,0.44,0.76],[0.01,0.24,0.60]];const w=band<2?0:Math.min(1,Math.max(0,(d-6)/45));const BC=band<2?BB[band]:BB[2].map((v,i)=>v*(1-w)+BB[3][i]*w);
     const fl=(d>1.5&&d<7)?Math.pow(Math.max(0,Math.sin(d*0.9-t*1.3+0.6*Math.sin(x*0.25))),40)*(0.5+0.5*Math.sin(x*0.7+d)):0;
     const hz=0;const nn=0.03*Math.sin(x*0.13+d*0.21)*Math.sin(d*0.09-x*0.05);col[4*k]=Math.min(1,BC[0]+0.12*fr+sp+0.9*fl+0.10*hz+nn);col[4*k+1]=Math.min(1,BC[1]+0.1*fr+sp+0.5*fl+0.22*hz+2*nn);col[4*k+2]=Math.min(1,BC[2]+0.06*fr+sp+0.3*fl+0.18*hz+nn);col[4*k+3]=Math.min(1,(band<1?0.55:0.82+0.06*band)+0.2*fr+fl);}
   water.r.mesh.updateSubMesh(0,{positions:pos,normals:nor,colors:col,indices:new Uint16Array(water.I)});}
