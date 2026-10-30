@@ -6,20 +6,43 @@
 import { PIECE_KEYS } from './BoardArt';
 import { cellCenter, type BoardLayout } from './BoardLayout';
 export type PieceKeys = readonly [string, string, string, string, string, string];
-/** Board camera (D2, 运镜bot = the coast push-in end pose). Pitch, yaw and FOV are FIXED for every screen; only the distance along the
- *  view line may differ per aspect ratio (distanceByAspect: 'W:H' → m along the view line; missing = refDistanceM). Never a per-screen pitch or FOV. */
-export interface BoardKitCamera { readonly target: readonly [number, number, number]; readonly yawDeg: number; readonly pitchDeg: number; readonly fovVerticalDeg: number;
-  /** reference pose = r5d: camera at refDistanceM from target along (yaw, pitch), looking at target + (0,0,lookShiftM) */
-  readonly refDistanceM: number; readonly lookShiftM: number;
-  /** distance from the look point ALONG the fixed reference view line, by 'W:H'; missing = the reference distance */
-  readonly distanceByAspect: Readonly<Record<string, number>> }
-/** Pitch, yaw, view direction and FOV are identical on every screen; only the distance along the view line changes (D2, 运镜bot). */
-export function kitCameraPose(cam: BoardKitCamera, w: number, h: number): { position: [number, number, number]; target: [number, number, number]; fovVerticalDeg: number } {
-  const R = Math.PI / 180, p = cam.pitchDeg * R, y = cam.yawDeg * R, t = cam.target, look: [number, number, number] = [t[0], t[1], t[2] + cam.lookShiftM];
-  const ref = [t[0] + Math.sin(y) * Math.cos(p) * cam.refDistanceM, t[1] + Math.sin(p) * cam.refDistanceM, t[2] + Math.cos(y) * Math.cos(p) * cam.refDistanceM];
-  const v = [ref[0] - look[0], ref[1] - look[1], ref[2] - look[2]], D0 = Math.hypot(v[0], v[1], v[2]), d = cam.distanceByAspect[w + ':' + h] ?? D0;
-  if (!(d > 0)) throw Error('board kit camera: distance must be > 0');
-  return { position: [look[0] + v[0] / D0 * d, look[1] + v[1] / D0 * d, look[2] + v[2] / D0 * d], target: look, fovVerticalDeg: cam.fovVerticalDeg };
+export type V3 = readonly [number, number, number];
+/** Board camera (D2, 运镜bot cine/b20-coast-board-lens; Grok Bot 10/30). The kit NEVER writes the camera: kitBoardPose() only answers the
+ *  pose that WorldFlowComponent.setEnterLevelEnd(() => pose) makes the enter-level push-in end on; nothing writes after the reveal.
+ *  Look-at point, rotation and vertical FOV are the same on every screen; only the distance back along the view line changes,
+ *  from camera_per_aspect ('WxH' → m). */
+export interface BoardKitCamera {
+  readonly lookAtWorld: V3; readonly quatWorldXYZW: readonly [number, number, number, number]; readonly fovVerticalDeg: number;
+  readonly distanceByAspect: Readonly<Record<string, number>>;
+  /** true while the per-aspect distances are not signed off (Grok Bot 10/30: being recalculated for top-info-board avoidance) */
+  readonly placeholder: boolean; readonly source: string;
+}
+/** Top info-board avoidance (Grok Bot 10/30): per screen 'WxH', the y range [top, bottom] (pt, y down) the projected board
+ *  (rim + pieces) must stay out of = level plate + hint banner from BoardLayout (boardSafeInsets). Gated in P1/P3. */
+export type TopNoGo = Readonly<Record<string, readonly [number, number]>>;
+function fwd(q: readonly number[]): [number, number, number] {// rotate (0,0,-1) by q (x,y,z,w)
+  const [x, y, z, w] = q; return [-(2 * (x * z + w * y)), -(2 * (y * z - w * x)), -(1 - 2 * (x * x + y * y))];
+}
+function aspectKey(w: number, h: number) { return Math.round(w) + 'x' + Math.round(h); }
+export function kitBoardPose(cam: BoardKitCamera, w: number, h: number): { position: [number, number, number]; rotationXYZW: [number, number, number, number]; fovVerticalDeg: number; distanceM: number } {
+  const d = cam.distanceByAspect[aspectKey(w, h)]; if (!(d > 0)) throw Error('board kit camera: no distance for ' + aspectKey(w, h));
+  const f = fwd(cam.quatWorldXYZW), L = cam.lookAtWorld;
+  return { position: [L[0] - f[0] * d, L[1] - f[1] * d, L[2] - f[2] * d], rotationXYZW: [...cam.quatWorldXYZW] as [number, number, number, number], fovVerticalDeg: cam.fovVerticalDeg, distanceM: d };
+}
+/** World point → screen pt (top-left, y down) for a kit pose; Cocos perspective, vertical FOV axis. null behind the camera. */
+export function kitProject(pose: { position: V3; rotationXYZW: readonly number[]; fovVerticalDeg: number }, w: number, h: number, p: V3): { x: number; y: number } | null {
+  const [qx, qy, qz, qw] = pose.rotationXYZW, v = [p[0] - pose.position[0], p[1] - pose.position[1], p[2] - pose.position[2]];
+  // inverse rotate v by q
+  const ix = -qx, iy = -qy, iz = -qz, tx = 2 * (iy * v[2] - iz * v[1]), ty = 2 * (iz * v[0] - ix * v[2]), tz = 2 * (ix * v[1] - iy * v[0]);
+  const c = [v[0] + qw * tx + (iy * tz - iz * ty), v[1] + qw * ty + (iz * tx - ix * tz), v[2] + qw * tz + (ix * ty - iy * tx)];
+  if (c[2] >= -1e-6) return null; const t = Math.tan(pose.fovVerticalDeg * Math.PI / 360), a = w / h;
+  return { x: w / 2 + (c[0] / -c[2]) / (t * a) * w / 2, y: h / 2 - (c[1] / -c[2]) / t * h / 2 };
+}
+/** Tile centre (index row*7+col) in island world: coast placement world = (pos.x − x, pos.y + y, pos.z − z), x = col−3, z = row−3. */
+export function kitTileWorld(kit: RegionBoardKit, index: number): [number, number, number] {
+  const b = kit.board; if (!b) throw Error('board kit: no world board'); const x = (index % 7 - 3) * b.cellM, z = (Math.floor(index / 7) - 3) * b.cellM;
+  const R = b.yawDeg * Math.PI / 180, c = Math.cos(R), s = Math.sin(R);
+  return [b.anchor[0] + c * x + s * z, b.anchor[1] + b.topY, b.anchor[2] - s * x + c * z];
 }
 export interface RegionBoardKit {
   readonly id: string;
@@ -33,16 +56,21 @@ export interface RegionBoardKit {
   /** world-space board (null = the 2D layout grid) */
   readonly board: null | { readonly anchor: readonly [number, number, number]; readonly yawDeg: number; readonly cellM: number; readonly topY: number };
   readonly camera: BoardKitCamera | null;
+  readonly topNoGo?: TopNoGo;
 }
 export const DEFAULT_KIT: RegionBoardKit = Object.freeze({ id: 'default', pieceKeys: PIECE_KEYS as unknown as PieceKeys, pieceBundle: 'board_art', hide2D: Object.freeze({ tray: false, tiles: false }), board: null, camera: null });
-/** Coast pilot kit (Grok Bot 10/30: D1 order final, D3 tiles.json adopted, D2 configurable). NOT registered in P0 (the coast region
- *  and region_coast bundle are not in this candidate); P1 registers it. Values = r5d coastshot 'game' camera (board-local frame). */
+/** Coast pilot kit (Grok Bot 10/30: D1 order final, D3 tiles.json adopted, D2 camera configurable). NOT registered in P0 (the coast
+ *  region / region_coast bundle are not in this candidate); P1 registers it. Camera per-aspect distances are a PLACEHOLDER copy of
+ *  team/cinematic/outbox/20261030-coast-board-lens/tiles.json camera_per_aspect (being recalculated; cine/b20-coast-board-lens NOT merged). */
 export const COAST_KIT: RegionBoardKit = Object.freeze({
   id: 'coast', pieceBundle: 'region_coast',
   pieceKeys: ['conch', 'star', 'coral', 'float', 'scallop', 'badge'].map(n => 'board/piece_' + n) as unknown as PieceKeys,
   hide2D: Object.freeze({ tray: true, tiles: true }),
-  board: Object.freeze({ anchor: [0, 0, 0] as const, yawDeg: 0, cellM: 1, topY: 0.16 }),
-  camera: Object.freeze({ target: [0, 0, 0.25] as const, yawDeg: 0, pitchDeg: 64, fovVerticalDeg: 50, refDistanceM: 18, lookShiftM: -0.3, distanceByAspect: Object.freeze({}) }),
+  board: Object.freeze({ anchor: [-0.6, -0.845, 21.5] as const, yawDeg: 180, cellM: 1, topY: 0.12 /* slab top at the centre (tiles.json slab_top_y_centre_note); the projected centres use it */ }),
+  camera: Object.freeze({ lookAtWorld: [-0.6, -0.845, 21.55] as const, quatWorldXYZW: [0, 0.851965, 0.523599, 0] as const, fovVerticalDeg: 50,
+    distanceByAspect: Object.freeze({ '390x844': 23.306, '414x896': 23.307, '360x780': 23.332, '375x667': 19.424, '320x568': 19.387, '390x520': 18.1335, '768x1024': 18.1335 }),
+    placeholder: true, source: 'PLACEHOLDER tiles.json camera_per_aspect 2026-10-30 (运镜bot, recalculating for top info-board avoidance)' }),
+  topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
 });
 const KITS = new Map<string, RegionBoardKit>();
 /** Register a region kit (P1: coast). Registration only; nothing ships one in P0. */

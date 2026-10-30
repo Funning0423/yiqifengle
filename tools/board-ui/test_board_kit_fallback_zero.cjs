@@ -13,8 +13,5 @@ assert.equal(K.kitFallbackCount(),1,'forced fallback not counted');assert.equal(
 assert.equal(F.count('x\n'+F.MARKER+' a\n'+F.MARKER+' b'),2);assert.equal(F.count(''),0);
 // D1/D2 config: coast kit piece order final, not registered in P0; camera distance per aspect only (pitch/FOV fixed)
 assert.deepEqual([...K.COAST_KIT.pieceKeys],['conch','star','coral','float','scallop','badge'].map(n=>'board/piece_'+n));assert.equal(K.boardKitFor('coast'),K.DEFAULT_KIT,'coast kit must not be live in P0');
-{const c=K.COAST_KIT.camera,a=K.kitCameraPose(c,390,844),b=K.kitCameraPose({...c,distanceByAspect:{'320:568':20}},320,568);
- const dir=p=>{const d=p.target.map((x,i)=>x-p.position[i]),n=Math.hypot(...d);return d.map(x=>x/n);};assert.ok(Math.abs(a.position[1]-16.178)<0.01,'r5d game camera y');assert.ok(Math.abs(Math.hypot(...b.position.map((x,i)=>x-b.target[i]))-20)<1e-9,'distance along the view line');
- assert.ok(dir(a).every((x,i)=>Math.abs(x-dir(b)[i])<1e-12)&&a.fovVerticalDeg===b.fovVerticalDeg,'a per-aspect distance changed the angle or FOV');}
 console.log('ok   self-check: 1 forced fallback → counter 1, scanner 1 (run-suite would FAIL that test)');
 console.log('board-kit-fallback-zero: PASS (default kit: 0 fallbacks on 7 screens)');

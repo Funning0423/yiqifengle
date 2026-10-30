@@ -37,7 +37,7 @@ const tests=[
  ['region-ports','tools/board-ui/test_region_flow_ports.cjs'],
  ['chapter-gates','tools/board-ui/test_chapter_gates.cjs'],
  ['legacy-action-clock','tools/test_character_action_clock.cjs'],
- ['legacy-board-ui-pure','tools/board-ui/test_board_ui_pure.cjs'],['board-kit-equivalence','tools/board-ui/test_board_kit_equivalence.cjs'],['board-kit-fallback-zero','tools/board-ui/test_board_kit_fallback_zero.cjs'],
+ ['legacy-board-ui-pure','tools/board-ui/test_board_ui_pure.cjs'],['board-kit-equivalence','tools/board-ui/test_board_kit_equivalence.cjs'],['board-kit-fallback-zero','tools/board-ui/test_board_kit_fallback_zero.cjs'],['board-kit-camera','tools/board-ui/test_board_kit_camera.cjs'],
  ['legacy-startup-ready','tools/test_startup_ready_gate.cjs'],
  ['chapter-production-entry','tools/legacy-test-repair/test-chapter-production-entry.cjs'],
  ['controller-integrity-guard','tools/legacy-test-repair/test-controller-integrity.cjs'],

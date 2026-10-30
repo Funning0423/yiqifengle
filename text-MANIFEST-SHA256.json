@@ -4116,8 +4116,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardKit.ts",
-    "bytes": 7761,
-    "sha256": "de44807d71b4c5bce07358189518e6dc0801f69085a9326a339f05576fdd28d3"
+    "bytes": 10356,
+    "sha256": "18753a3203e31274c7a71762ce7a98f4fb047bf420247037cfc0862935839401"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
@@ -5066,8 +5066,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30746,
-    "sha256": "dc83f6ce6b3878b08e671c0b3b764a480e64a581ecb1fd4b64f60c2509f8abbd"
+    "bytes": 30810,
+    "sha256": "a8b4ca103253a4400d1b494157682564f9e4c34cd31bc9ef87b55aa7927671db"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
