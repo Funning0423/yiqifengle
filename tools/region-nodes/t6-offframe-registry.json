@@ -1,0 +1,12 @@
+{
+ "note": "运镜bot b20: the ONLY frames where she may be out of frame (herMargin < 0), at any distance. Board lens <-> walk rail joins (RegionNodeStage.skyJoin -> SkyRunLens.skyRailJoin, SKY_JOINS.i head / SKY_JOINS.o tail): the join starts/ends on the live board lens (skycityVisitPose star-court framing), she is 28-35 deg off its axis; the 0.6 s aim blend brings her in after <= 0.35 s (team/cinematic/outbox/20261030-t6-offframe/REPORT.md, approved by Grok Bot). maxS <= 0.4 per window, all 7 screens, both S4>S6 cases.",
+ "maxWindowS": 0.4,
+ "windows": [
+  {"walk": "S2>S3", "join": "o", "end": "tail", "maxS": 0.4},
+  {"walk": "S3>S4", "join": "i", "end": "head", "maxS": 0.4},
+  {"walk": "S3>S4", "join": "o", "end": "tail", "maxS": 0.4},
+  {"walk": "S4>S5", "join": "i", "end": "head", "maxS": 0.4},
+  {"walk": "S4>S5", "join": "o", "end": "tail", "maxS": 0.4},
+  {"walk": "S4>S6", "join": "i", "end": "head", "maxS": 0.4}
+ ]
+}
