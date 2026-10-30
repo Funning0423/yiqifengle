@@ -467,6 +467,17 @@
       "count": 1,
       "kind": "record",
       "reason": "historical before/after hash in an evidence/scope record, not a pin of a current file"
+    },
+    {
+      "file": "tools/preload-size/preload-source-pins.json",
+      "key": "sha256",
+      "count": 5,
+      "kind": "verified",
+      "checkedBy": "preload-source-pins",
+      "via": [
+        "tools/preload-size/preload-source-pins.cjs"
+      ],
+      "note": "--check recomputes every bundle source fingerprint from the tree; selftest preload-source-pins-selftest"
     }
   ]
 }
