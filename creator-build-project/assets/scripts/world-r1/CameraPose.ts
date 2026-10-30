@@ -273,7 +273,7 @@ export function createCameraTrack(camera: CameraLike, path: readonly LookAtPose[
   const tick = (p: number): number => {
     if (status.aborted) return -1;
     if (fallbackFov === undefined) fallbackFov = camera.fov; // legacy waypoints without fov inherit the start fov
-    status.samples++;
+    if (!status.samples++ && p < 1) return -1; // onewriter: run() ticks 0 in the frame of the previous write (hold / last track end); start next frame
     let pose: CameraPose;
     try { pose = sample(p, fallbackFov); }
     catch (e) { abort(p, 'sample: ' + String(e)); return -1; }

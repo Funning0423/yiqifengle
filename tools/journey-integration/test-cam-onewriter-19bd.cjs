@@ -19,5 +19,41 @@ for(const seg of ['finstart','m']){const rows=fs.readFileSync(path.join(__dirnam
 {const a=CP.fromLookAt({position:[0,1,0],target:[0,1,5]},48),b=CP.fromLookAt({position:[0.5,1,0],target:[0,1,5]},48);
  results.push({id:'real-conflict-not-masked',status:replay([{fr:1,pose:a},{fr:1,pose:b}],true)===1?'PASS':'FAIL'});
  results.push({id:'next-frame-writes',status:replay([{fr:1,pose:a},{fr:2,pose:a}],true)===0?'PASS':'FAIL'});}
-const status=results.every(r=>r.status==='PASS')?'PASS':'FAIL';
-console.log(JSON.stringify({test:'cam-onewriter-19bd',status,results}));process.exit(status==='PASS'?0:1);
+// ---- source mode: RAW writes per frame from the real source paths, merge DISABLED (no cc.director) — target 0 doubles at the root.
+// Default root = this tree with the outbox GGbot diffs 05+ applied in a temp copy (until GGbot merges them); QF_ONEWRITER_SRC=<root> to
+// judge another tree as is (e.g. 19bd812a → must FAIL).
+function srcRoot(){if(process.env.QF_ONEWRITER_SRC)return process.env.QF_ONEWRITER_SRC;const cp=require('node:child_process'),os=require('node:os');
+ const O=path.join(root,'team/cinematic/outbox/20261029-onewriter'),D=fs.readdirSync(O).filter(f=>/^(0[5-9]|[1-9]\d)-.*\.diff$/.test(f)).sort();
+ const t=fs.mkdtempSync(path.join(os.tmpdir(),'qf-ow-'));fs.cpSync(S,path.join(t,'creator-build-project/assets/scripts'),{recursive:true});
+ for(const d of D){const r=cp.spawnSync('git',['apply','--unsafe-paths','--directory=.','-p1',path.join(O,d)],{cwd:t,encoding:'utf8'});if(r.status){const ch=fs.readFileSync(path.join(O,d),'utf8');if(!/^\+\+\+ b\//m.test(ch))throw Error(d);/* already applied? */const rv=cp.spawnSync('git',['apply','-R','--check','-p1',path.join(O,d)],{cwd:t});if(rv.status)throw Error('diff does not apply: '+d+' '+r.stderr);}}
+ return t;}
+function sourceFrames(R){const S2=R+'/creator-build-project/assets/scripts/',H2=createHarness(),out={};const g0=globalThis.cc;delete globalThis.cc;
+ const per=()=>{const m={};return {hit:f=>m[f]=(m[f]||0)+1,doubles:()=>Object.values(m).filter(n=>n>1).length};};
+ try{
+ // (a) WorldFlowComponent.run + createCameraTrack: hold write, track A (tick 0 sync), A end tick(1) + track B tick(0) in one frame
+ {const CP2=H2.load(S2+'world-r1/CameraPose.ts'),c=per();let fr=1;const cam={fov:48,node:{setWorldPosition(){c.hit(fr);},setWorldRotation(){}}};
+  const P=(z)=>({position:[0,1,z],target:[0,1,z+5],fovVerticalDeg:48});CP2.applyCameraPose(cam,CP2.fromLookAt(P(0),48),'hold');
+  const A=CP2.createCameraTrack(cam,[P(0),P(1)],'A'),B=CP2.createCameraTrack(cam,[P(1),P(2)],'B');A.tick(0);
+  for(let k=1;k<=3;k++){fr++;A.tick(k/3);}B.tick(0)/* same frame as A's end */;for(let k=1;k<=3;k++){fr++;B.tick(k/3);}out['track hold/start/end']=c.doubles();}
+ // (b) RegionJourneyCore.observe: lease.onFrame + walk path in one frame
+ {const J=H2.load(S2+'world-r1/RegionJourneyCore.ts'),c=new J.RegionJourneyController({prepare:async()=>null,readCamera:()=>null});let w=0;
+  c.lease={onFrame:()=>({position:[0,1,0],target:[0,1,1]}),route:{path:[[0,0,0],[0,0,5]]}};c.rideHold=false;c.activePath=[[0,0,0],[0,0,5]];c.startCamera={position:[0,2,-3],target:[0,1,0]};c.startDistance=0;
+  try{c.observe({walkProgress:()=>0.5},{setCamera:()=>w++},1/60);}catch{}out['observe onFrame+walk']=w>1?1:0;}
+ // (c) regionBoardHandoff → regionLandingToBoard (WorldNativeComposition order), one frame per nextFrame
+ {const B=H2.load(S2+'region/RegionBoardLanding.ts'),c=per();let fr=1,cur={position:[0,30,-40],target:[0,30,-30],fovVerticalDeg:48};const to={position:[0,5,0],target:[0,4,10],fovVerticalDeg:48};
+  const deps={readCamera:()=>cur,viewport:()=>({width:390,height:844}),boardPose:()=>to,setCamera:p=>{c.hit(fr);cur=p;return true;},nextFrame:async()=>{fr++;return 1/60;},log:()=>{}};
+  return Promise.resolve().then(async()=>{await B.regionBoardHandoff({region:'skycity',stageId:'s',deps});await B.regionLandingToBoard({region:'skycity',stageId:'s',deps});out['board handoff→landing']=c.doubles();
+ // (d) RegionNodeStage lateUpdate anim tail (component needs the engine: the statement is evaluated from source)
+ {const src=fs.readFileSync(S2+'world-r2/RegionNodeStage.ts','utf8'),m=/\n\s*(if\(this\.anim\)\{this\.anim\.t\+=dt;[^\n]*?\}\})/.exec(src);let n=0;
+  const o={anim:{t:0,seconds:0.05,sample:()=>n++,done:()=>n++}};for(let k=0;k<5&&o.anim;k++){n=0;new Function('dt',m[1]).call(o,1/60);}out['node-lens blend end']=n>1?1:0;}
+ // (e) structural, engine-bound paths (WorldFlowComponent setCamera adapter, ride end, walkContinuous first frame)
+ {const wfc=fs.readFileSync(S2+'world-r1/WorldFlowComponent.ts','utf8'),rjc=fs.readFileSync(S2+'world-r1/RegionJourneyCore.ts','utf8');
+  out['home placed twice']=/if\(pose===placed&&cameraWriteLog\.writes===placedN\)return/.test(wfc)?0:1;
+  out['ride end re-write']=/finally\{this\.unpatch\?\.\(\);\}token\.check\(\);[^\n]*\n[^\n]*\n[^\n]*\n\s*if\(this\.camera\)world\.setCamera\(this\.camera\);/.test(rjc)?1:0;
+  out['ride start live re-write']=/this\.patchCamera\(world,live,first,shotId\);world\.setCamera\(live\)/.test(rjc)?1:0;}
+  return out;});}
+ }finally{globalThis.cc=g0;}}
+(async()=>{let R=null;try{R=srcRoot();const raw=await sourceFrames(R);const d=Object.values(raw).reduce((a,b)=>a+b,0);results.push({id:'source-raw-writes (merge off)',root:process.env.QF_ONEWRITER_SRC||'tree+outbox 05+',doubles:raw,status:d===0?'PASS':'FAIL'});}
+ catch(e){results.push({id:'source-raw-writes (merge off)',status:'FAIL',error:String(e&&e.stack||e)});}
+ finally{if(R&&!process.env.QF_ONEWRITER_SRC)fs.rmSync(R,{recursive:true,force:true});}
+ const status=results.every(r=>r.status==='PASS')?'PASS':'FAIL';console.log(JSON.stringify({test:'cam-onewriter-19bd',status,results}));process.exit(status==='PASS'?0:1);})();

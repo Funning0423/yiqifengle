@@ -1,0 +1,11 @@
+--- a/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
++++ b/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
+@@ -1243,7 +1243,7 @@
+  }
+  update(dt:number){
+   this.syncExplore(dt);
+-  if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
++  if(this.anim){this.anim.t+=dt;if(this.anim.t<this.anim.seconds)this.anim.sample(this.anim.t);else{const d=this.anim.done;this.anim=null;d()/* writes the end once */;}}
+   if(this.holdPose){this.orbit.pause();(globalThis as any).__qfCamTraceSub?.('hold');this.writePose(this.holdPose,false);}
+   if(this.hideTree){this.treeVisible(false);if(this.holdPose)this.stripFinaleOccluders(this.holdPose);}
+   this.markerClock+=dt;
