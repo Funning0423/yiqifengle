@@ -19,7 +19,7 @@ const MEADOW=/^BalloonTransit:(prewalk|B1)$/;
   * journey. Both are yaw 180, so they differ by a pure translation D. The frame is detected from the trace (first B1 write = plan c0 in that
   * frame, ≤ PLAN_TOL_M) and meadow writes are mapped into the proxy frame. A trace matching neither frame still fails --require-plan-agree. */
  const TL=R.J.H.load(R.J.S+'region/TransportLeg.ts'),SR=TL.sailMeadowRoot(),D=SR.map((v,i)=>v-R.J.mOff[i]),c00=bl.cam(0).position,b10=L.find(q=>q.w==='BalloonTransit:B1');
- const gap=(p,o)=>Math.hypot(p[0]-o[0]-c00[0],p[1]-o[1]-c00[1],p[2]-o[2]-c00[2]),frame=arg('--meadow-frame')||(b10&&gap(b10.p,D)<gap(b10.p,[0,0,0])?'sail':'bridge'),off=frame==='sail'?D:[0,0,0];
+ const gap=(p,o)=>Math.hypot(p[0]-o[0]-c00[0],p[1]-o[1]-c00[1],p[2]-o[2]-c00[2]),frame=arg('--meadow-frame')||(!b10||gap(b10.p,D)<gap(b10.p,[0,0,0])?'sail':'bridge')/* clip19: no B1 write (trace ends in the pre-walk) → the chained journey's sail frame (19bd812a m 407–431: her on ground only there) */,off=frame==='sail'?D:[0,0,0];
  for(const q of L)if(MEADOW.test(q.w))q.p=q.p.map((v,i)=>v-off[i]);
  const viol=[],unchecked={};let checked=0,aabb=0;
  for(const q of L){if(!MEADOW.test(q.w)){unchecked[q.w]=(unchecked[q.w]||0)+1;continue;}checked++;const r=C.check(bl.los,0,q.p);if(r.inBox.length)aabb++;

@@ -46,9 +46,6 @@ const f2=x=>x===Infinity||x>=9?'>3':(+x).toFixed(2);
  row({id:'R2-mustfail',what:'19bd812a T-02 node-lens (finstart #38) caught on the skycity mesh',ok:t02.bad,got:'min '+f2(t02.m)+' m @t '+(t02.t??0).toFixed(2)+' '+t02.tag+', enclosed samples '+t02.enc});
  const fl=worst([solid],dense(FX.cases.flight_finstart159.rows),RULE.solidM);
  row({id:'R3-mustfail',what:'19bd812a flight lateral move (finstart #159) caught on the skycity mesh',ok:fl.bad,got:'min '+f2(fl.m)+' m @t '+(fl.t??0).toFixed(2)+' '+fl.tag+', enclosed '+fl.enc});
- const JS=require('./journey-scene.cjs'),mo=JS.place(JS.meadowNodes.filter(n=>n.tris&&n.tris.length&&!/sky_dome|far_hills|clouds_near/.test(n.name)).map(n=>({name:n.name,tris:n.tris})),'meadow',180,1,JS.mOff),MB=L.bvh(mo);
- const md=worst([MB],dense(FX.cases.meadow_m407_431.rows),RULE.meadowM);
- row({id:'R4-mustfail',what:'19bd812a meadow walk lens (m 407–431) caught on the meadow mesh',ok:md.bad,got:'min '+f2(md.m)+' m @t '+(md.t??0).toFixed(2)+' '+md.tag+', enclosed '+md.enc});
  // ---- R2 current: S4>S6 rail on the real mesh, every screen
  const RM=require('../region-nodes/sky-rail-model.cjs'),SW=H.load('region/SkyWalkShot.ts'),W=p=>SW.skyLocalToWorld(M5,p);let rm={m:9,enc:0,n:0};
  for(const sc of RM.SCREENS)for(const o of [{},{fromS6:true}]){const smp=RM.samples('S4>S6',sc,o);smp.forEach((s,i)=>{if(i%3)return;const p=W(s.p.position),c=L.clearance([solid],p,3);rm.n++;if(c.m<rm.m){rm.m=c.m;rm.tag=c.tag;}if(L.enclosed([solid],p))rm.enc++;});}
@@ -57,7 +54,15 @@ const f2=x=>x===Infinity||x>=9?'>3':(+x).toFixed(2);
  const lakeCur=lakeAt(fromS6?s6:FX.prepareStart19bd812a);let r3={m:9,enc:0,n:0};
  for(const lg of m.legs){const SS=lg.S;for(let tau=SS.flightAt-1;tau<=SS.touchdownAt;tau+=1/20){const p=SS.cam(tau,null).position,c=L.clearance([solid,lakeCur],p,3);r3.n++;if(c.m<r3.m){r3.m=c.m;r3.tag=c.tag;r3.t=tau-SS.flightAt;}if(L.enclosed([solid,lakeCur],p))r3.enc++;}}
  row({id:'R3',what:'flight lens (lift-off → touchdown, 7 screens) vs skycity + lake meshes',ok:r3.m>=RULE.solidM&&!r3.enc&&fromS6,got:'min '+f2(r3.m)+' m '+(r3.tag||'')+', enclosed '+r3.enc+', samples '+r3.n+(fromS6?'':' (model route ≠ runtime route: lake placed from prepare root)')});
- rows.push({id:'R4',what:'meadow prewalk past the windmill: OPEN (scene note to 场景设计部 + BalloonTransit prewalk proposal), not counted',ok:null});
- console.log('R4 OPEN meadow windmill (see team/cinematic/outbox/20261029-clip19/SCENE-NOTE-meadow-windmill.md)');
+ // ---- R4: transit clouds in the meadow pre-walk. Frame = the RUNTIME meadow root TransportLeg.sailMeadowRoot() (yaw 180), not the
+ // journey-scene bridge mOff (26.6 m off in z: her ACTOR -4.3,0.85,67.5 is on ground only in the sail frame; 19bd812a lens never reached the windmill).
+ const LG=require('./route/route-legs.cjs'),JJ=require('./journey-scene.cjs'),Fl=JJ.H.load(JJ.S+'region/BalloonFlight.ts'),SR=JJ.H.load(JJ.S+'region/TransportLeg.ts').sailMeadowRoot();
+ const craw=require('./occlusion/lib-glb.cjs').load(JJ.B+'region_transit_balloon/transit_clouds_merged.glb').filter(n=>/^clouds_(city_sea|floor)$/.test(n.name)).map(n=>({tag:'cloud',name:n.name,tris:n.tris}));
+ const m6=JJ.add(JJ.rotY(180,[0.2,6.5,-25.6]),SR),origin=L.bvh(craw),placed=L.bvh(LG.rigid(craw.filter(o=>!Fl.CITY_CLOUD.includes(o.name)),'cloud',Fl.meadowFrameFromM6(m6)))/* as paint(0) places them */;
+ const cm=worst([origin],dense(FX.cases.meadow_m407_431.rows),RULE.meadowM);
+ row({id:'R4-mustfail',what:'19bd812a pre-walk lens (m 407–431) vs clouds_city_sea/clouds_floor left at the origin',ok:cm.bad,got:'min '+f2(cm.m)+' m @t '+(cm.t??0).toFixed(2)+' '+cm.tag+', enclosed '+cm.enc});
+ const PM=require('./clip19-prewalk-model.cjs');let r4={m:9,enc:0,n:0};
+ for(const sc of RM.SCREENS)for(const s of PM.run(sc,null,SR)){const c=L.clearance([placed],s.p,3);r4.n++;if(c.m<r4.m){r4.m=c.m;r4.tag=c.tag;r4.at=s.from+' t'+s.t.toFixed(2);}if(L.enclosed([placed],s.p))r4.enc++;}
+ row({id:'R4',what:'meadow pre-walk lens (every start, 7 screens, sail meadow frame) vs the clouds placed as paint(0) places them',ok:r4.m>=RULE.meadowM&&!r4.enc,got:'min '+f2(r4.m)+' m '+(r4.tag||'')+(r4.at?' @'+r4.at:'')+', enclosed '+r4.enc+', samples '+r4.n});
  if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({rule:RULE,rows},null,1));
  console.log(JSON.stringify({status:fails?'FAIL':'PASS',fails}));process.exit(fails?1:0);})().catch(e=>{console.error(e);process.exit(1);});
