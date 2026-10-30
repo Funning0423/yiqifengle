@@ -2,7 +2,7 @@
 // 运镜bot full9c: whole-walk framing / occlusion hard gate for the played skycity walks (sky-rail-model = RegionNodeStage + SkyRunLens),
 // 7 screens, entered from that screen's board lens. While she walks (rail parts) and on the stand hold: herMargin ≥ 0.08 on the screen;
 // chest (1.05 m) / face (1.45 m) sight lines (the sky_run_lens_eval / sky-walk-endshots heights) blocked by the real mesh (all but clouds, foliage included) ≤ 0.5 s in a row over the WHOLE sequence
-// (joins included while the lens is within 12 m of her chest: farther out the join is the wide board/court move, she is not the subject); lens ≤ 2.5 m/s and view ≤ 120 °/s on the
+// (board joins included while the lens is within 12 m of her chest, walk-plan skip joins at ANY distance: farther out the join is the wide board/court move, she is not the subject); lens ≤ 2.5 m/s and view ≤ 120 °/s on the
 // rails; no cut anywhere in the sequence (every frame step ≤ 0.6 m and turn ≤ 4°, walk-plan skips and planSkip included); beyond 12 m of
 // her chest she is in frame; across a skip she is back in frame (margin ≥ 0.08) within 0.5 s; (herMargin ≥ 0) on ≥ 95% of those frames (T6); --spans <file> lists every > 12 m span; S4>S6 ends on SKY_FINALE_POSE_LOCAL. Joins: no-cut / clearance in lens-trajectory-clearance.
 const M=require('./sky-rail-model.cjs'),{H,RL,F}=M,LS=H.load('region/LensSmooth.ts'),SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts');
@@ -13,8 +13,8 @@ const W=p=>SW.skyLocalToWorld(TS.TRANSITION_STAGING.skyMooring5a,p),SOFT=/foliag
  const only=process.argv.includes('--one')?M.SCREENS.slice(0,1):M.SCREENS;
  for(const w of M.WALKS)for(const sc of only)for(const [lab,o] of [['board entry → exit',{}],...(w==='S4>S6'?[['from S6 (planSkip)',{fromS6:true}]]:[])]){const smp=M.samples(w,sc,o);
   let min=1,at='',run={c:0,f:0},blk={c:0,f:0},vmax=0,ymax=0,prev=null,jk=0,cutStep=0,cutTurn=0,skipOut=0,far=0,farIn=0,span=null;
-  smp.forEach((s,i)=>{const early=s.join&&Math.hypot(s.p.position[0]-s.h[0],s.p.position[1]-s.h[1]-1.3,s.p.position[2]-s.h[2])>12;
-   if(early){far++;if(LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc])>=0)farIn++;if(!span)span={walk:w,screen:sc.join('x'),case:lab,part:s.join,startS:+(i/60).toFixed(2),frames:0};span.frames++;}else if(span){spans.push({...span,durationS:+(span.frames/60).toFixed(2)});span=null;}
+  smp.forEach((s,i)=>{const far12=s.join&&Math.hypot(s.p.position[0]-s.h[0],s.p.position[1]-s.h[1]-1.3,s.p.position[2]-s.h[2])>12,early=far12&&s.join!=='skip';
+   if(far12){const bc=blocked(s.p,s.h,1.05),bf=blocked(s.p,s.h,1.45);far++;if(LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc])>=0)farIn++;if(!span)span={walk:w,screen:sc.join('x'),case:lab,part:s.join,startS:+(i/60).toFixed(2),frames:0,chestHidFrames:0,faceHidFrames:0,outOfFrameFrames:0};span.frames++;if(bc)span.chestHidFrames++;if(bf)span.faceHidFrames++;if(LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc])<0)span.outOfFrameFrames++;}else if(span){spans.push({...span,durationS:+(span.frames/60).toFixed(2)});span=null;}
    if(prev){cutStep=Math.max(cutStep,Math.hypot(...s.p.position.map((v,k)=>v-prev.p.position[k])));const a=dir(prev.p),b=dir(s.p);cutTurn=Math.max(cutTurn,Math.acos(Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2]))*180/Math.PI);}
    if(s.join==='skip'&&LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc])<0.08)skipOut++;
    if(!s.join){const m=LS.herMargin(s.p.position,s.p.target,s.p.fovVerticalDeg,s.h,[sc]);if(m<min){min=m;at=`#${i} part ${s.part}`;}}
