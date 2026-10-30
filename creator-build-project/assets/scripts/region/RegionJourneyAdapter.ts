@@ -50,7 +50,7 @@ import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor} from './JourneyTransport';
 import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
-import {diagDumpScene,diagParams,lakeDiagAt,loadTransitPrefab} from './BalloonTransit';
+import {diagDumpScene,diagParams,lakeDiagAt,loadTransitPrefab,mountYardBalloon} from './BalloonTransit';
 import {LakesideLegHide} from './LakesideLegHide';
 import {cloudseaDaySaved} from './SkycityCloudsea';
 LakesideLegHide.ownerSaved=cloudseaDaySaved/* b17r13: env_cloud_layer shared with the night hide (01892b6e), one true original */;
@@ -107,6 +107,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     if(warmed){model.removeFromParent();model.destroy();model=warmed;rig.addChild(model);boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);}
     for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
     if(to==='meadow'){
+     mountYardBalloon(model)/* full9c: deflated balloon waits in the yard (not awaited) */;
      for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
      const grass=validateModel(model);configureMeadowVertexColors(model);
      // These local backdrops enclose the source island when both scenes coexist. Reuse the world's existing sky.

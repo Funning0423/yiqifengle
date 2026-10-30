@@ -74,6 +74,40 @@ export function diagDumpScene(t:number,leg:string='skycity'):void{
 class TransitDriver extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
 /** glTF scene prefab inside region_transit_balloon. Same loadDir fallback as the balloon-fix (bundle.load misses the sub-asset). */
 export function loadTransitPrefab(name:string):Promise<Prefab|null>{return loadBundlePrefab(name,'region_transit_balloon');}
+/** full9c B1 yard balloon (Grok Bot 2026-10-29): the deflated balloon already waits in the meadow yard during the walk, at
+ *  the exact B1 t=0 pose (balloonBeats vehicle(0), meadow-local = TRANSITION_STAGING.meadow.launch / basketYawLocalDeg; pinned by
+ *  test-b1-yard-balloon), so the ride's own vehicle placement at pre-walk start is an invisible swap instead of a pop-in in front of
+ *  the live camera (m2 f2944: yard in view). Load starts at the journey meadow mount (sail, preview, resume, meadow level), never
+ *  awaited: 0 s on island→meadow. The stand-in only turns on while the meadow is hidden or the yard is outside the live camera's
+ *  view cone (read-only check, no camera write). */
+export const YARD_BALLOON={name:'yard_balloon',pos:[3.6,6.6,-23.4] as Vec,yawDeg:344,centerUpM:5,radiusM:6};
+/** Envelope at inflate time t (= the ride's applyInflate math; drop = envelope mesh bottom in node units, from the mesh AABB). */
+export function yardEnvelope(envelope:Node,t:number):void{const f=inflateAt(t);let lo=NaN;
+ for(const r of envelope.getComponents(MeshRenderer)){const y=(r as any).mesh?.struct?.minPosition?.y;if(Number.isFinite(y))lo=Number.isFinite(lo)?Math.min(lo,y):y;}
+ const p=envelope.position.clone(),sc=envelope.scale.clone(),drop=Number.isFinite(lo)?lo*sc.y:0;
+ envelope.setScale(sc.x*f.sxz,sc.y*f.sy,sc.z*f.sxz);envelope.setPosition(p.x,p.y+drop*sc.y*(1-f.sy),p.z);}
+/** Pure view-cone test (exported for the gate): is the sphere (q, r) wholly outside the camera's view cone? */
+export function outsideView(cam:Pose|null,q:Vec,r=YARD_BALLOON.radiusM):boolean{if(!cam)return true;
+ const f=[cam.target[0]-cam.position[0],cam.target[1]-cam.position[1],cam.target[2]-cam.position[2]],d=[q[0]-cam.position[0],q[1]-cam.position[1],q[2]-cam.position[2]];
+ const lf=Math.hypot(f[0],f[1],f[2]),ld=Math.hypot(d[0],d[1],d[2]);if(!(lf>0)||!(ld>r))return false;
+ const ang=Math.acos(Math.max(-1,Math.min(1,(f[0]*d[0]+f[1]*d[1]+f[2]*d[2])/(lf*ld))))*180/Math.PI;
+ // half-diagonal of a portrait (aspect ≤ 1) frustum ≤ atan(tan(vfov/2)·√2); plus the sphere's angular radius.
+ const half=Math.atan(Math.tan((cam.fovVerticalDeg??45)*Math.PI/360)*Math.SQRT2)*180/Math.PI;return ang>half+Math.asin(r/ld)*180/Math.PI;}
+export function mountYardBalloon(meadow:Node):void{
+ if(!meadow||meadow.getChildByName(YARD_BALLOON.name))return;let node:Node|null=null,loading=false;
+ const tick=()=>{try{
+  if(!isValid(meadow,true)){director.off(Director.EVENT_BEFORE_DRAW,tick);return;}
+  if(!loading){loading=true;
+   void loadTransitPrefab('transport_balloon').then(pf=>{if(!pf||!isValid(meadow,true)||(meadow as any).__qfYardTaken||meadow.getChildByName(YARD_BALLOON.name))return;
+    const n=instantiate(pf);n.name=YARD_BALLOON.name;n.active=false;meadow.addChild(n);const [x,y,z]=YARD_BALLOON.pos;n.setPosition(x,y,z);n.setRotationFromEuler(0,YARD_BALLOON.yawDeg,0);
+    showBothSides(n);noShadow(n);const fl=find(n,'burner_flame');if(fl)fl.active=false;const env=find(n,'balloon_envelope');if(env)yardEnvelope(env,0);node=n;
+    try{console.info('[QF_YARD_BALLOON] mounted');}catch{}}).catch(()=>{});return;}
+  if(!node)return;if(!isValid(node,true)||node.active){director.off(Director.EVENT_BEFORE_DRAW,tick);return;}
+  if((node as any).__qfYardTaken||(meadow as any).__qfYardTaken){director.off(Director.EVENT_BEFORE_DRAW,tick);return;}
+  const w=node.worldPosition;if(!meadow.activeInHierarchy||outsideView(liveWorldPose(),[w.x,w.y+YARD_BALLOON.centerUpM,w.z])){node.active=true;director.off(Director.EVENT_BEFORE_DRAW,tick);try{console.info('[QF_YARD_BALLOON] shown hidden='+!meadow.activeInHierarchy);}catch{}}
+ }catch{director.off(Director.EVENT_BEFORE_DRAW,tick);}};
+ director.on(Director.EVENT_BEFORE_DRAW,tick);
+}
 /** Valid depth compare for sky passes. Literal fallback (LEQUAL=3) so an undefined enum can never reach glDepthFunc as 0. */
 export const SKY_DEPTH_FUNC:number=Number((gfx as any)?.ComparisonFunc?.LEQUAL??3);
 const skyboxed=new WeakSet<object>();
@@ -599,7 +633,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    // has been drawn with it placed (normally 0 frames).
    let b1Drawn=0,b1Bd=0,b1FirstDraw=-1;const b1BeforeDraw=()=>{b1Bd=Date.now();},b1AfterDraw=()=>{if(!b1Drawn++)b1FirstDraw=Date.now()-b1Bd;};
    if(contChain){const w0=plan.vehicle(0);vehicle.setWorldPosition(w0.pos[0],w0.pos[1],w0.pos[2]);const qq=balloonQuat(w0.yaw*180/Math.PI,w0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
-    if(flame)flame.active=false;applyInflate();director.on(Director.EVENT_BEFORE_DRAW,b1BeforeDraw);director.on(Director.EVENT_AFTER_DRAW,b1AfterDraw);}
+    if(flame)flame.active=false;applyInflate();{if(meadow)(meadow as any).__qfYardTaken=true;const yd=meadow?.getChildByName(YARD_BALLOON.name);if(yd){(yd as any).__qfYardTaken=true;yd.active=false;}}/* yard stand-in → ride vehicle, same pose, same sync block */director.on(Director.EVENT_BEFORE_DRAW,b1BeforeDraw);director.on(Director.EVENT_AFTER_DRAW,b1AfterDraw);}
    if(contChain&&girl&&isValid(girl,true)){
     // B1 (transitions-continuous): she walks from the last meadow stop to the basket door, the door opens (door_reach), she
     // steps in to stand_point and the door closes behind her. Basket at its t=0 pose; lens = the ride's first pose (handoff blend).
