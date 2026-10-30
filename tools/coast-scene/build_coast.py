@@ -55,7 +55,7 @@ def rockbm(seed,sub=2,flat=0.55,rough=0.3):
     v.co=c*d;v.co.z*=flat
     if v.co.z<-0.15*flat:v.co.z=-0.15*flat-(v.co.z+0.15*flat)*0.2   # flat-ish base to sit on ground
   return bm
-def facet_rock(seed,flat=0.6,cuts=7):
+def facet_rock(seed,flat=0.6,cuts=10):
   random.seed(seed);bm=ico(1,2)
   for v in bm.verts:
     c=v.co.copy();v.co=c*(1+0.22*noise.noise(c*1.3+Vector((seed*3.1,seed*.7,seed*1.3))))
@@ -69,11 +69,14 @@ def facet_rock(seed,flat=0.6,cuts=7):
     v.co.z*=flat
     if v.co.z<-0.1*flat:v.co.z=-0.1*flat-(v.co.z+0.1*flat)*0.25
   bmesh.ops.recalc_face_normals(bm,faces=bm.faces);return bm
-def rock_col(a,b,seed):
-  st=strata(a,b)
+def rock_col(a,b,seed,band=0.16):
   def f(p,face):
-    c=st(p,face);fc=face.calc_center_median();j=noise.noise(fc*3.7+Vector((seed,0,0)))
-    c=c*(0.88+0.2*j)
+    fc=face.calc_center_median();j=noise.noise(fc*3.7+Vector((seed,0,0)))
+    k=int(math.floor((p.z+0.06*noise.noise(p*1.3+Vector((seed,1,0))))/band))%3
+    c=[a*1.04,mix(a,b,0.45),b*0.92][k]                          # hard sedimentary bands
+    if face.normal.z>0.75:c=mix(c,a*1.1,0.55)                    # weathered tops
+    elif abs(face.normal.z)<0.35 and (abs(math.sin(fc.x*12.9+fc.y*78.2+fc.z*37.7)*4375.5)%1)>0.62:c=c*0.55   # crevices
+    c=c*(0.9+0.18*j)
     if face.normal.z<-0.2 or p.z<0.02:c=c*0.72                # wet dark foot
     return c
   return f
@@ -88,7 +91,7 @@ def strata(base,dark):
 #          barnacle/limpet crust on the rim, natural superellipse outline (corners open onto the reef bed), strata sides
 SLAB_TOP=0.16
 SHELLC=[hx('#FF9EB5'),hx('#FFD36E'),hx('#FFF4E0'),hx('#C9A7FF'),hx('#8FE3D2')]
-SLABC=[('#D9893F','#9E5622'),('#C2643A','#83381E'),('#A8968A','#6E5E55'),('#D29A52','#94602C'),('#8E6448','#4E3424'),('#7E6656','#463428')]
+SLABC=[('#6E5A48','#45372B'),('#665444','#3E3228'),('#5E544A','#38322C'),('#6A5842','#403426'),('#544438','#30261E'),('#4C443C','#2C2822')]
 def cone_at(name,r1,r2,d,seg,col,M):
   sb=bmesh.new();bmesh.ops.create_cone(sb,cap_ends=True,segments=seg,radius1=r1,radius2=r2,depth=d);add_bm(name,sb,col,M);sb.free()
 for k in range(6):
@@ -122,7 +125,7 @@ for k in range(6):
     c=c*(0.93+0.14*noise.noise(Vector((p.x*3.1,p.y*3.1,7))))
     if f.normal.z<0.6:c=mix(c,dark*0.55,0.65)                 # seam walls dark
     elif math.hypot(p.x,p.y)>outline(math.atan2(p.y,p.x))*0.9:c=mix(c,dark*0.7,0.5)   # dark worn edge
-    if r<0.3 and p.z<h-0.012:c=mix(c,hx('#D9AE7C'),0.55)      # dry hollow floor
+    if r<0.3 and p.z<h-0.012:c=mix(c,base*0.8,0.5)            # dry hollow floor (stays dark under the piece)
     if wet and r>0.36:c=mix(c,hx('#5E8F4A'),0.25*max(0,noise.noise(Vector((p.x*5,p.y*5,3)))+0.3))
     return c
   add_bm(name,bm,col);bm.free()
@@ -162,7 +165,7 @@ for i in range(7):
   bm=bmesh.new();v0=bm.verts.new((-0.018,0,0));v1=bm.verts.new((0.018,0,0));v2=bm.verts.new((0.0,0.03,hh));bm.faces.new((v0,v1,v2))
   g=random.choice([hx('#3E8E3A'),hx('#6BA83C'),hx('#8A7A2E')]);add_bm('weed',bm,lambda p,f,g=g:mix(g*0.6,g*1.2,p.z/0.14),Matrix.Translation((math.cos(a)*r,math.sin(a)*r,0))@Matrix.Rotation(random.random()*6.28,4,'Z')@Matrix.Rotation(random.uniform(-.5,.5),4,'X'));bm.free()
 # ===== 2. reef rim / foreground rocks (6 variants, sandstone strata + AO) =====
-RK=[('#EDB27C','#C98552'),('#E2A270','#B8784A'),('#F2C08C','#D0945E'),('#DA9A68','#AD7148'),('#B4BCCC','#8C95A8'),('#E8AC78','#C0824E')]
+RK=[('#B9C0C8','#7E8894'),('#DDD5C4','#A9A08C'),('#A7B0B8','#6E7884'),('#E8E0CE','#B4AA94'),('#929CA8','#5C6672'),('#D2CAB8','#9A917E')]
 for k,(a,b) in enumerate(RK):
   name='rock_%d'%k;new(name);bm=facet_rock(k*7+3,flat=0.55+0.08*(k%3))
   add_bm(name,bm,rock_col(hx(a),hx(b),k));bm.free();bake_ao(name,rays=12,dist=0.8,strength=0.5)
@@ -287,8 +290,10 @@ HL=(4.6,SHORE+5.2)
 new('headland');random.seed(4)
 BL=[(0,0,0.0,2.2,1.5),(1.6,0.8,0.0,1.7,1.2),(-1.5,0.6,0.0,1.6,1.1),(0.5,1.8,0.0,1.9,1.4),(-0.9,-1.3,-0.3,1.3,0.8),(1.4,-1.0,-0.3,1.2,0.7),(0.2,0.3,1.4,1.5,0.9)]
 for k,(x,y,z,sz,hz) in enumerate(BL):
-  bm=facet_rock(200+k,flat=1.0,cuts=8);M=Matrix.Translation((HL[0]+x,HL[1]+y,z))@Matrix.Rotation(k*1.3,4,'Z')@Matrix.Diagonal((sz,sz*0.9,hz,1))
-  add_bm('headland',bm,lambda p,f:(mix(hx('#5BBE45'),hx('#8AD65C'),0.5+0.5*noise.noise(p)) if (f.normal.z>0.72 and p.z>1.1) else rock_col(hx('#EAC79A'),hx('#C29A70'),k)(p,f)),M);bm.free()
+  bm=facet_rock(200+k,flat=1.0,cuts=11);M=Matrix.Translation((HL[0]+x,HL[1]+y,z))@Matrix.Rotation(k*1.3,4,'Z')@Matrix.Diagonal((sz,sz*0.9,hz,1))
+  add_bm('headland',bm,lambda p,f:(mix(hx('#5BBE45'),hx('#8AD65C'),0.5+0.5*noise.noise(p)) if (f.normal.z>0.72 and p.z>1.1) else rock_col(hx('#E6BE8A'),hx('#8E6644'),k,band=0.22)(p,f)),M);bm.free()
+for (x,y,z,w,dd,rz) in [(0.9,-1.6,0.55,1.1,0.45,0.3),(-1.4,-0.9,0.85,0.9,0.4,-0.5),(1.9,-0.2,1.05,0.8,0.35,0.9),(-0.4,-1.9,0.25,1.2,0.5,0.1)]:   # ledges
+  sb=facet_rock(260+int(x*10),flat=0.18,cuts=6);add_bm('headland',sb,rock_col(hx('#F0CC98'),hx('#9C7450'),7,band=0.3),Matrix.Translation((HL[0]+x,HL[1]+y,z))@Matrix.Rotation(rz,4,'Z')@Matrix.Diagonal((w,dd,0.35,1)));sb.free()
 bake_ao('headland',rays=10,dist=1.2,strength=0.55)
 HTOP=2.25
 new('beacon_post')
@@ -367,7 +372,7 @@ for (r1,r2,d,z,c) in [(0.85,0.8,0.36,0.18,PC['badge']),(0.3,0.2,0.62,0.67,'#FFFF
   add_bm('piece_badge',bm,shade(hx(c)),Matrix.Translation((0,0,S*z)));bm.free()
 for k in PC:bake_ao('piece_'+k,rays=8,dist=0.15,strength=0.5)
 # contact shadow disc (baked, shared) — pieces get real side light, slabs do NOT receive scene shadows (palm-shadow mask, R5)
-new('contact',alpha=0.55,unlit=True);bm=bmesh.new();bmesh.ops.create_circle(bm,cap_ends=True,segments=14,radius=0.36)
+new('contact',alpha=0.66,unlit=True);bm=bmesh.new();bmesh.ops.create_circle(bm,cap_ends=True,segments=14,radius=0.36)
 add_bm('contact',bm,lambda p,f:hx('#4A2E1C'));bm.free()
 # ===== 7. beacon: sea-glass pebbles (instanced 16 in the cracks), crack light line, preview anemone =====
 new('seaglass',emit=True);bm=ico(0.07,1)
@@ -459,12 +464,24 @@ bake_glb(ART+'env_prop_palm_tall_01.glb','reuse_palm_tall')
 bake_glb(ART+'env_prop_palm_lean_01.glb','reuse_palm_lean')
 new('arrival_steps')
 for k in range(3):   # 3 steps, rise 0.2, tread 0.4: S0 (y -12.1, z .6) -> S1 (y -10.9, z 0)
-  sb=bmesh.new();bmesh.ops.create_cube(sb,size=1);top=0.6-0.2*(k+1)+0.2;y0=-12.1+0.4*k
-  M=Matrix.Translation((0,y0+0.2,top/2))@Matrix.Diagonal((2.6,0.4,top,1))
-  add_bm('arrival_steps',sb,lambda p,f:(mix(SAND,SAND2,0.5) if f.normal.z>0.8 else mix(hx('#E3B37E'),hx('#C99561'),0.5)),M);sb.free()
+  top=0.6-0.2*(k+1)+0.2;y0=-12.1+0.4*k
+  for j,(x0,w) in enumerate([(-0.66,1.26),(0.66,1.26)]):        # two stone blocks per step, 8 cm joint
+    sb=bmesh.new();bmesh.ops.create_cube(sb,size=1)
+    bmesh.ops.bevel(sb,geom=[e for e in sb.edges],offset=0.035,segments=1,affect='EDGES')
+    for v in sb.verts:v.co.z+=0.03*noise.noise(Vector((v.co.x*3+k,v.co.y*3+j,1)))*(v.co.z>0.4)
+    M=Matrix.Translation((x0+0.02*math.sin(k*3+j),y0+0.2,top/2))@Matrix.Diagonal((w,0.4,top,1))
+    add_bm('arrival_steps',sb,lambda p,f,k=k:(mix(hx('#D9C2A0'),hx('#BFA27E'),0.5+0.5*noise.noise(p*4)) if f.normal.z>0.8 else (mix(hx('#9C8468'),hx('#7A6450'),0.5+0.5*math.sin(p.z*30)) if f.normal.z>-0.5 else hx('#6E5A46'))),M);sb.free()
 bake_ao('arrival_steps',rays=8,dist=0.3,strength=0.4)
 bake_glb(ART+'env_cloud_01.glb','reuse_cloud')
 bake_glb(ART+'env_prop_hydrangea_bush_01.glb','reuse_bush')
+bake_glb(ART+'env_prop_flowers_01.glb','reuse_flowers');bake_glb(ART+'env_prop_grass_tuft_01.glb','reuse_grass_a');bake_glb(ART+'env_prop_grass_tuft_02.glb','reuse_grass_b')
+for _n in ['grass_0','grass_1','grass_2','flowers']:MESH.pop(_n,None)          # replaced by the island's own flora (reuse)
+new('blob',alpha=0.32,unlit=True);_b=bmesh.new();bmesh.ops.create_circle(_b,cap_ends=True,segments=14,radius=1.0);add_bm('blob',_b,lambda p,f:hx('#3A2A1C'));_b.free()
+def base_ao(name,h=0.1,k=0.5):     # island-style ground darkening at the foot of props/pieces (as the island palette's dark base band)
+  m=MESH[name];zs=[p.z for t in m['tris'] for p in t];z0=min(zs);out=[]
+  for t,cs in zip(m['tris'],m['cols']):out.append([Vector(c[:3])*(1-k*max(0,1-(p.z-z0)/h)) for p,c in zip(t,cs)])
+  m['cols']=out
+for _n in ['piece_'+k for k in PC]+['dinghy','crabtrap','rope_coil','ebb_bell','net_poles','driftwood','hermit','crab']:base_ao(_n,h=0.12 if _n.startswith('piece') else 0.15)
 _m=MESH['reuse_cloud'];_nc=[]
 for t in _m['tris']:
   n=(t[1]-t[0]).cross(t[2]-t[0]);n=n.normalized() if n.length>1e-9 else Vector((0,0,1))
@@ -483,35 +500,14 @@ for r in range(7):
 for r in range(8):                                             # weed tufts in the seams (cell corners)
   for c in range(8):
     if random.random()<0.62:put('weed',(c-3.5)+random.uniform(-.06,.06),(3.5-r)+random.uniform(-.06,.06),0.05,random.random()*6.28,random.uniform(0.9,1.4),receive_shadow=False)
-# rim rocks lean onto the outer slab edges (hide the slab skirt) + irregular outline
-for i in range(44):
-  a=i/44*6.283+random.uniform(-.05,.05);rr=4.05+0.45*abs(noise.noise(Vector((a*2,1,1))));x=math.cos(a)*rr*1.02;y=math.sin(a)*rr
-  x=max(-4.3,min(4.3,x)) if abs(y)<3.6 else x;y=max(-4.25,min(4.3,y)) if abs(x)<3.6 else y
-  s=random.uniform(0.3,0.55)
+# rim rocks: far fewer, non-slab colours (cool grey / pale sand-white), so the shelf outline reads at a glance
+for i in range(22):
+  a=i/22*6.283+random.uniform(-.06,.06);rr=4.1+0.4*abs(noise.noise(Vector((a*2,1,1))));x=math.cos(a)*rr*1.02;y=math.sin(a)*rr
+  x=max(-4.35,min(4.35,x)) if abs(y)<3.6 else x;y=max(-4.3,min(4.35,y)) if abs(x)<3.6 else y
+  s_=random.uniform(0.28,0.5)
   if y<-3.4 and abs(x)<0.9:continue   # arrival gap (E)
-  put('rock_%d'%random.randrange(6),x,y,-0.05,random.random()*6.28,s)
-  if random.random()<0.5:put(random.choice(['barnacles','moss']),x,y,s*0.42,random.random()*6.28,1.0)
-# R4 foreground: bottom row of rocks + grass/flowers overlapping the board's lower edge
-for i,x in enumerate([-4.0,-2.9,-1.7,1.7,2.7,3.8]):
-  s=random.uniform(0.5,0.72);xx=x+random.uniform(-.2,.2);yy=-4.7+random.uniform(-.12,.12)
-  put('rock_%d'%(i%6),xx,yy,-0.2*s,random.random()*6.28,s);put('drift',xx,yy-0.1,ground_z(xx,yy)-0.01,random.random()*6.28,s*1.5)
-for i in range(12):
-  x=random.choice([-1,1])*random.uniform(1.4,4.6);put(random.choice(['grass_0','grass_1','grass_2','flowers']),x,-5.3+random.uniform(-.3,.2),ground_z(x,-5.3),random.random()*6.28,random.uniform(1.0,1.5))
-# beach dressing
-for i in range(26):
-  x=random.uniform(-12,12);y=random.uniform(-9,SHORE-0.8)
-  if abs(x)<5.2 and -5.6<y<5.0:continue
-  if abs(x)<2.0 and y<-4.0:continue
-  s=random.uniform(0.25,0.7);put('rock_%d'%random.randrange(6),x,y,ground_z(x,y)-0.22*s,random.random()*6.28,s);put('drift',x,y,ground_z(x,y)-0.01,random.random()*6.28,s*1.4)
-for i in range(30):
-  x=random.uniform(-12,12);y=random.uniform(-9,SHORE-1.2)
-  if abs(x)<5.0 and -5.0<y<4.8:continue
-  if abs(x)<1.8 and y<-4.0:continue
-  put(random.choice(['grass_0','grass_1','grass_2','flowers']),x,y,ground_z(x,y),random.random()*6.28,random.uniform(0.9,1.4))
-put('sidepool',-5.6,1.6,ground_z(-5.6,1.6)+0.008,0,0.75)
-for (x,y,rz) in [(-1.8,-6.9,0.4),(2.3,-6.4,1.9),(-5.2,-3.9,3.0),(5.0,-5.2,1.1)]:put('starfish_deco',x,y,ground_z(x,y)+0.005,rz,1.1)
-put('driftwood',3.4,-5.9,ground_z(3.4,-5.9),0.3,1.0);put('driftwood',-6.0,2.8,ground_z(-6.0,2.8),2.0,1.2)
-put('sidepool',-2.6,-6.6,ground_z(-2.6,-6.6)+0.008,0.5,0.45);put('sidepool',5.7,-1.4,ground_z(5.7,-1.4)+0.008,1,0.6)
+  if y<-3.6 and 1.2<abs(x)<5.0:continue   # front edge belongs to the two clusters
+  put('rock_%d'%random.randrange(6),x,y,-0.08,random.random()*6.28,s_)
 # beacon (current = row 2 col 4) + previews
 BR,BC=2,4;bx,by=(BC-3)*1.0,(3-BR)*1.0
 for i in range(16):
@@ -529,6 +525,9 @@ for (r,c,x,y,z) in SL:
   put('contact',x+0.05,y-0.03,zz+0.004,0,1.22,piece=True,receive_shadow=False);put('piece_'+LAY[r][c],x,y,zz,random.uniform(-.25,.25),1.22,piece=True,cell=[r,c])
 # props / animals
 put('arrival_steps',0,0,0)
+FL=['reuse_grass_a','reuse_grass_b','reuse_grass_a','reuse_flowers']
+def flora(x,y,s=1.0):put(random.choice(FL),x,y,ground_z(x,y)-0.01,random.random()*6.28,s*random.uniform(0.85,1.15),reuse=True)
+def blob(x,y,s):put('blob',x,y,ground_z(x,y)+0.006,0,s,receive_shadow=False);put('blob',x,y,ground_z(x,y)+0.007,0,s*0.6,receive_shadow=False)
 # gull rocks (her LEFT, >=2.0 m off her line): faceted stratified cluster instead of one blob
 for (x,y,sc,rz,k) in [(-2.5,-11.0,0.85,0.8,3),(-3.1,-10.5,0.6,2.1,0),(-2.2,-11.7,0.5,4.0,5)]:put('rock_%d'%k,x,y,ground_z(x,y)-0.2*sc,rz,sc)
 put('gull',-2.5,-11.0,ground_z(-2.5,-11.0)+0.52,2.6,1.0,anim='gull_perch')
@@ -539,30 +538,33 @@ for side in (-1,1):
     x=side*(5.45+0.35*math.sin(i*1.7))+random.uniform(-.3,.3);zz=ground_z(x,y)-0.25*sc
     put('rock_%d'%((i*2+(side>0))%6),x,y,zz,random.random()*6.28,sc,cast_shadow=True)
     put('grasscap',x+random.uniform(-.15,.15),y,zz+0.5*sc*0.62,random.random()*6.28,sc*0.42)
-    for g in range(4):
-      gx=x+side*random.uniform(0.4,1.6);gy=y+random.uniform(-0.9,0.9);put(random.choice(['grass_0','grass_1','grass_2','grass_2','flowers']),gx,gy,ground_z(gx,gy),random.random()*6.28,random.uniform(0.9,1.7))
-# fisher's corner (right side, sea end) and trap + rope (left, near the arrival) — all >=1.6 m off her line
-put('net_poles',4.7,4.7,ground_z(4.7,4.7),0.35,1.0,cast_shadow=True);put('net',4.7,4.7,ground_z(4.7,4.7),0.35,1.0,cast_shadow=True)
-put('dinghy',-4.9,4.6,ground_z(-4.9,4.6),1.35,1.0,cast_shadow=True)
-put('crabtrap',-2.6,-7.6,ground_z(-2.6,-7.6),0.4,1.0,cast_shadow=True);put('crabtrap_mesh',-2.6,-7.6,ground_z(-2.6,-7.6),0.4,1.0)
-put('rope_coil',-2.0,-8.3,ground_z(-2.0,-8.3),0,1.0)
-put('driftwood',2.3,-8.9,ground_z(2.3,-8.9),2.5,1.1)
-for (x,y,s_) in [(-3.6,-6.2,1.0),(3.3,-7.0,1.2),(-5.0,-1.0,0.9),(5.1,-2.6,1.0),(-1.9,-9.6,0.8),(2.6,-10.2,0.9),(4.2,-5.6,1.1),(-4.4,-8.8,1.0)]:put('shells_scatter',x,y,ground_z(x,y),random.random()*6.28,s_)
-for i in range(7):put('footprints',0.05*math.sin(i),-10.6+1.0*i,0.001,0.03*math.sin(i*2),1.0)   # worn path S1 -> E (decals on the sand, not obstacles)
-# foreground clusters below the board (R4 + density): faceted rocks with drifts, grass, shells (>=1.6 m off her line)
-for (x,y,sc) in [(-3.0,-6.0,0.45),(-4.4,-7.0,0.6),(-1.9,-7.9,0.35),(2.1,-7.4,0.4),(3.9,-6.6,0.55),(4.6,-8.2,0.7),(-3.8,-9.4,0.5),(3.0,-9.6,0.45)]:
-  put('rock_%d'%random.randrange(6),x,y,ground_z(x,y)-0.22*sc,random.random()*6.28,sc,cast_shadow=True);put('drift',x,y,ground_z(x,y)-0.01,random.random()*6.28,sc*1.4)
-  for g in range(3):
-    gx=x+random.uniform(-.6,.6);gy=y+random.uniform(-.5,.5)
-    if abs(gx)>1.6:put(random.choice(['grass_0','grass_1','grass_2','flowers']),gx,gy,ground_z(gx,gy),random.random()*6.28,random.uniform(0.8,1.8))
-# two tide pools with anemones outside the board
-for (x,y,sc) in [(-3.4,-5.9,0.55),(3.6,-6.1,0.5)]:
-  put('sidepool',x,y,ground_z(x,y)+0.008,random.random()*6,sc)
-  for a in range(3):put('anemone',x+0.25*math.cos(a*2.1),y+0.18*math.sin(a*2.1),ground_z(x,y)+0.01,0,0.9,anim='anemone',k=a)
-# dune grass + flowers clusters at mixed sizes along the arrival (>=1.6 m off the line)
-for i in range(22):
-  side=random.choice([-1,1]);x=side*random.uniform(1.7,5.0);y=random.uniform(-12.8,-5.4)
-  put(random.choice(['grass_0','grass_1','grass_2','flowers']),x,y,ground_z(x,y),random.random()*6.28,random.uniform(0.7,2.0))
+    for g in range(2):
+      gx=x+side*random.uniform(0.6,1.5);gy=y+random.uniform(-0.7,0.7);flora(gx,gy)
+# r4: props regrouped into 3 clusters with a lead piece + supports, clean sand between, island-scale flora (reuse)
+FL=['reuse_grass_a','reuse_grass_b','reuse_grass_a','reuse_flowers']
+def flora(x,y,s=1.0):put(random.choice(FL),x,y,ground_z(x,y)-0.01,random.random()*6.28,s*random.uniform(0.85,1.15),reuse=True)
+def blob(x,y,s):put('blob',x,y,ground_z(x,y)+0.006,0,s,receive_shadow=False);put('blob',x,y,ground_z(x,y)+0.007,0,s*0.6,receive_shadow=False)
+random.seed(404)
+# A  fisher's corner (bottom-left, sits ON the board's bottom edge -> foreground overlap): lead = upturned dinghy
+def gp(n,x,y,rz=0,sc=1.0,**kw):put(n,x,y,ground_z(x,y),rz,sc,**kw)
+gp('dinghy',-3.1,-4.30,1.45,1.0,cast_shadow=True);blob(-3.1,-4.30,1.25)
+gp('net_poles',-4.75,-5.10,0.5,1.0,cast_shadow=True);gp('net',-4.75,-5.10,0.5,1.0,cast_shadow=True);blob(-5.6,-5.55,0.18);blob(-3.9,-4.65,0.18)
+gp('crabtrap',-1.6,-4.70,0.35,1.0,cast_shadow=True);gp('crabtrap_mesh',-1.6,-4.70,0.35,1.0);blob(-1.6,-4.70,0.45)
+gp('rope_coil',-2.2,-5.25,0,1.0);blob(-2.2,-5.25,0.3)
+for (x,y,sc,k) in [(-4.75,-3.90,0.55,4),(-5.15,-3.30,0.36,1),(-1.55,-4.00,0.3,0)]:put('rock_%d'%k,x,y,ground_z(x,y)-0.22*sc,random.random()*6.28,sc,cast_shadow=True);blob(x,y,sc*0.95)
+for (x,y) in [(-4.3,-4.50),(-2.3,-3.80),(-4.1,-3.30),(-1.3,-5.15),(-2.9,-5.10)]:flora(x,y)
+# B  tide pool (bottom-right): lead = rock pool with anemones; supports = 2 starfish, pale rocks, shells, driftwood
+gp('sidepool',2.95,-4.40,0.4,0.72)
+for a_ in range(3):put('anemone',2.95+0.32*math.cos(a_*2.1),-4.40+0.22*math.sin(a_*2.1),ground_z(2.95,-4.40)+0.01,0,0.9,anim='anemone',k=a_)
+for (x,y,sc,k) in [(4.15,-4.00,0.62,2),(1.85,-4.10,0.4,4),(3.6,-5.15,0.3,0)]:put('rock_%d'%k,x,y,ground_z(x,y)-0.22*sc,random.random()*6.28,sc,cast_shadow=True);blob(x,y,sc*0.95)
+for (x,y,rz) in [(2.35,-4.95,0.4),(3.6,-3.75,1.9)]:put('starfish_deco',x,y,ground_z(x,y)+0.005,rz,1.0)
+gp('shells_scatter',3.05,-5.25,0.7,0.8);gp('driftwood',4.4,-5.45,0.3,1.0);blob(4.6,-5.45,0.4)
+for (x,y) in [(4.75,-4.55),(1.6,-4.85),(4.45,-3.50),(2.5,-3.70)]:flora(x,y)
+# C  gull rocks at the arrival (her LEFT): dune grass + flowers around the stratified cluster
+for (x,y) in [(-3.4,-11.6),(-2.0,-10.3),(-3.5,-10.0),(-1.75,-12.1)]:flora(x,y)
+for (x,y,sc) in [(-2.5,-11.0,0.85),(-3.1,-10.5,0.6),(-2.2,-11.7,0.5)]:blob(x,y,sc*0.9)
+put('shells_scatter',2.6,-11.2,ground_z(2.6,-11.2),0.3,0.8)
+
 put('ebb_bell',4.55,-3.15,0.0,0.3,1.0,anim='bell')
 put('hermit',-5.4,1.5,ground_z(-5.4,1.5),0.5,1.0,anim='hermit')
 put('crab',-4.9,-2.3,ground_z(-4.9,-2.3),0.7,1.0,anim='crab')
@@ -600,7 +602,7 @@ groups={'coast_board':[n for n in out if n.startswith(('slab_','reef_base','weed
  'coast_pieces':[n for n in out if n.startswith('piece_')],
  'coast_rocks':[n for n in out if n.startswith(('rock_','barnacles','moss'))],
  'coast_terrain':['terrain','arrival_steps','headland','beacon_post','beacon_lamp','drift','foam','foam_inner','sidepool'],
- 'coast_props':['grasscap','net_poles','net','dinghy','crabtrap','crabtrap_mesh','rope_coil','shells_scatter','footprints','starfish_deco','driftwood','ebb_bell','hermit','crab','gull','bottle','grass_0','grass_1','grass_2','flowers']}
+ 'coast_props':['blob','grasscap','net_poles','net','dinghy','crabtrap','crabtrap_mesh','rope_coil','shells_scatter','footprints','starfish_deco','driftwood','ebb_bell','hermit','crab','gull','bottle']}
 for g,names in groups.items():
   for o in list(bpy.data.objects):bpy.data.objects.remove(o)
   for n in names:
