@@ -1,16 +1,65 @@
 #!/usr/bin/env python3
-"""Bake bundles/region_coast/scripts/CoastArrivalTrack.ts from tools/coast-board-lens/ref_transition.json (camera, 46459044)
-and one out_v4/<screen>/frames.csv (her root hx,hy,hz; identical on all 7 screens). usage: bake_track.py <out_v4 dir>"""
+"""Bake bundles/region_coast/scripts/CoastArrivalTrack.ts (v3, compact) from tools/coast-board-lens/ref_transition.json (camera,
+46459044) and out_v4/390x844/frames.csv (her root hx,hy,hz; identical on all 7 screens). usage: bake_track.py <out_v4 dir>
+v3: S7 of the other 6 screens is stored as a difference from 390x844. every column (px,py,pz,lx,ly,lz,fov; her hx,hy,hz) is a piecewise-linear key list chosen greedily so that every 60 fps frame is
+within TOL of the 1e-4 ref value (positions/targets <=0.4 mm and <= d*tan(0.0026 deg) per component, d = look distance (S7: 0.0013 deg per layer), fov 0.004 deg (S7 0.002 per layer); other screens' S7 = base + diff, each keyed at TOL, so <=0.8 mm / 0.008 deg). Keys: frame deltas + value deltas (1e-4 ints), each list packed as a zigzag-varint string (pack()).
+Deterministic (no randomness) -> byte-reproducible. Runtime decode: CoastArrivalLens.ts dec()."""
 import json, csv, sys, os
 H = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.join(H, '../..')
+TOL = [4, 4, 4, 4, 4, 4, 40]  # 1e-4 units: 0.4 mm x6, 0.004 deg fov
 R = json.load(open(os.path.join(ROOT, 'tools/coast-board-lens/ref_transition.json')))
+def cols_of(a, n): out = []; [out.append([sum(a[c * n:c * n + i + 1]) for i in range(n)]) for c in range(len(a) // n)]; return out
+def cols_fast(a, n):
+    out = []
+    for c in range(len(a) // n):
+        v = 0; col = []
+        for i in range(n): v += a[c * n + i]; col.append(v)
+        out.append(col)
+    return out
+def keys(v, tol):
+    n = len(v); K = [0]; i = 0; tol = tol if isinstance(tol, list) else [tol] * n
+    while i < n - 1:
+        j = i + 1
+        while j + 1 < n:
+            jj = j + 1; ok = True
+            for m in range(i + 1, jj):
+                y = v[i] + (v[jj] - v[i]) * (m - i) / (jj - i)
+                if abs(y - v[m]) > tol[m]: ok = False; break
+            if not ok: break
+            j = jj
+        K.append(j); i = j
+    f = [K[0]] + [K[k] - K[k - 1] for k in range(1, len(K))]; vals = [v[k] for k in K]
+    return [f, [vals[0]] + [vals[k] - vals[k - 1] for k in range(1, len(vals))]]
+import math
+def ang_tol(c, th_deg, cap=4.0):  # per-frame tolerance (1e-4 units) so that position+target key errors move the view by <= 2*sqrt(3)*th
+    t = math.tan(math.radians(th_deg)); return [min(cap, math.dist([c[0][i], c[1][i], c[2][i]], [c[3][i], c[4][i], c[5][i]]) * t) for i in range(len(c[0]))]
+def ctol(c, th, cap=4.0, ftol=40): a = ang_tol(c, th, cap); return [a] * 6 + [ftol]  # S7 layers cap 0.28 mm so base+diff stays <=1 mm as a vector
+sh = cols_fast(R['shared'], R['n_shared'])
+BASE = '390x844'; assert len(set(R['s7_len'].values())) == 1
+b7 = cols_fast(R['s7'][BASE], R['s7_len'][BASE])  # raw base; total error <= base key error + diff key error (0.8 mm, 0.008 deg fov)
+# per-screen S7 = base screen + a keyed difference (screens differ only by the per-aspect board distance)
+TB = ctol(b7, 0.0013, 2.8, 20)
+s7 = {s: [keys(c, TB[k]) if s == BASE else keys([x - y for x, y in zip(c, b7[k])], T[k]) for T in [ctol(cols_fast(R['s7'][s], R['s7_len'][s]), 0.0013, 2.8, 20)] for k, c in enumerate(cols_fast(R['s7'][s], R['s7_len'][s]))] for s in R['s7']}
 rows = list(csv.DictReader(open(os.path.join(sys.argv[1], '390x844/frames.csv'))))
-enc = lambda v: [v[0]] + [v[i] - v[i - 1] for i in range(1, len(v))]
-her = [d for k in ('hx', 'hy', 'hz') for d in enc([round(float(r[k]) * 1e4) for r in rows])]
+her = [keys([round(float(r[k]) * 1e4) for r in rows], 4) for k in ('hx', 'hy', 'hz')]
+A64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+def pack(ints):  # zigzag varint, 5 data bits + 1 continue bit per char (A64); CoastArrivalLens.ts unpack()
+    o = []
+    for n in ints:
+        u = (n << 1) if n >= 0 else ((-n << 1) - 1)
+        while True:
+            d = u & 31; u >>= 5
+            if u: o.append(A64[d | 32])
+            else: o.append(A64[d]); break
+    return ''.join(o)
+P = lambda kv: [pack(kv[0]), pack(kv[1])]
 sm = R['summary']['390x844']
-D = dict(fps=60, scale=1e4, n_shared=R['n_shared'], shared=R['shared'], s7=R['s7'], s7_len=R['s7_len'], n_her=len(rows), her=her, shots=sm['shots'], walk=sm['s7_walk'], total=sm['total'],
+s7 = {k: [P(x) for x in v] for k, v in s7.items()}
+D = dict(v=3, base=BASE, fps=60, scale=1e4, n_shared=R['n_shared'], shared=[P(keys(c, T[k])) for T in [ctol(sh, 0.0026)] for k, c in enumerate(sh)], s7=s7, s7_len=R['s7_len'], n_her=len(rows), her=[P(x) for x in her],
+         shots=sm['shots'], walk=sm['s7_walk'], total=sm['total'],
          clips=dict(walkStart='walk_start', walk='walk_loop', stop='walk_stop_bodyL', idle='idle_breathing_loop', loopAt=round(sm['s7_walk'][0] + 1.533, 4), stopAt=round(sm['s7_walk'][0] + 2.783, 4)))
 src = ("// 运镜bot cine/b20-coast-arrival-runtime: baked island->coast arrival camera (= tools/coast-board-lens/ref_transition.json, 46459044 camera,\n"
-       "// accepted by Grok Bot) + her root path. Columns px,py,pz,lx,ly,lz,fov as 1e-4 ints, delta-encoded per column; her hx,hy,hz the same.\n"
-       "// Generated by tools/coast-arrival-runtime/bake_track.py; do not edit by hand.\nexport const COAST_ARRIVAL_TRACK=" + json.dumps(D, separators=(',', ':')) + ";\n")
+       "// accepted by Grok Bot) + her root path. v3: per column piecewise-linear keys [frame deltas, value deltas (1e-4)], every 60 fps frame\n"
+       "// within 0.4 mm / 0.004 deg fov of the ref. Generated by tools/coast-arrival-runtime/bake_track.py; do not edit by hand.\nexport const COAST_ARRIVAL_TRACK=" + json.dumps(D, separators=(',', ':')) + ";\n")
 open(os.path.join(ROOT, 'creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalTrack.ts'), 'w').write(src)
+print(len(src.encode()))
