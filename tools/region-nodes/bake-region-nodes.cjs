@@ -29,7 +29,8 @@ const REGIONS={
   extras:[{file:'creator-build-project/assets/bundles/region_island/ui-props/island_dock.glb',floor:/island_dock/,solid:/island_dock/}],
   // b20 island-walk-fixes: env_prop_palm_young_01 is SKINNED; this loader ignores skins and puts it ~3 m off (x5-7.4,z4-6.3). Its rendered
   // trunk (glTF skin / Blender / engine) stands at x2.6-3.5, z2.25-3.05 m, which the I4-I5 edge walked through. Route-only keep-out (walkability unchanged).
-  routeAvoid:[[3.05,2.65,1.05]],
+  // b20 i4nudge: young-palm keep-out widened to 1.45 m (trunk/root >= 1.09 m from every route); two grass-tuft keep-outs (props_merged tops 0.2-0.3 m) at the new I4 legs.
+  routeAvoid:[[3.04,2.64,1.45],[4.6,3.8,0.35],[3.85,4.8,0.3]],
  },
  meadow:{
   file:'creator-build-project/assets/bundles/region_meadow/env_meadow.glb',
@@ -73,7 +74,7 @@ const NODES={
   {key:'I1',at:[-2.1,0,5.3],role:'mainline',stageId:'mainline-01'},
   {key:'I2',at:[2.5,0,8.1],role:'mainline',stageId:'mainline-02'},
   {key:'I3',at:[8.1,-0.36,6.1],role:'mainline',stageId:'mainline-03'},
-  {key:'I4',at:[4.1,0.11,2.7],role:'mainline',stageId:'mainline-04'/* b19 island-depart-walk (方案 E): was [4.5,0.23,-4.9] (I4-I6 18.03 m, cut 4.1 m + fade + 3.6 m); now one continuous walk <= DIRECT_MAX_M */},
+  {key:'I4',at:[3.9,0.089,3.9],role:'mainline',stageId:'mainline-04'/* b19 island-depart-walk (方案 E): was [4.5,0.23,-4.9] (I4-I6 18.03 m, cut 4.1 m + fade + 3.6 m); b20 i4nudge: was [4.1,0.11,2.7] (stood under the skinned palm_young_01 canopy: crown/face grazed in the L04 push-in) -> 1.25 m NW, canopy clear */},
   {key:'I5',at:[-3.1,0.14,0.7],role:'optional',opens:'challenge-island'/* b20 island-walk-fixes: was [-4.5,0.13,-0.9] (I4-I5 10.94 m, I5-I6 11.44 m, both cut); now both <= DIRECT_MAX_M */},
   {key:'I6',at:[-1.5,-0.18,9.3],role:'departure'},
  ],
