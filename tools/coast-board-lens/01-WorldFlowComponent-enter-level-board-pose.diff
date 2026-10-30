@@ -1,0 +1,38 @@
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 465359c3..2b10654b 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -32,6 +32,7 @@ import { RoomShell360 } from '../render/RoomShell360';
+ import { exploreEnabled } from '../region/ExploreGate';
+ import { localNight, resolveDayNight, writeNightBlend, type DayNightMode, emitDayNightChange } from './DayNightContract';
+ import { skyFollowColor, vertexColorAverageLinear } from './SkyFollowCore';
++import { samePose, coastPushSeconds, COAST_PUSH_EASE } from '../region/CoastBoardLens';
+ /** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
+ export const CABIN_MIN_X=2.6;
+ const {ccclass,property}=_decorator;
+@@ -337,6 +338,11 @@ export class WorldFlowComponent extends Component {
+    *  and then cutting back to the board camera. Set by WorldNativeComposition after the hook lands; cleared after enterLevel. */
+   private enterLevelHold=false;
+   holdEnterLevel(on:boolean){this.enterLevelHold=on;}
++  /** 运镜bot cine/b20-coast-board-lens: while a board kit owns the board pose (coast, option B) the composition sets its pose source.
++   *  enter-level then ends EXACTLY on that pose: hold (no write) when the live lens already equals it (the coast arrival push-in
++   *  ends on it), else a 2-key push into it, lengthened by coastPushSeconds to keep the motion limits. null = generic push. */
++  private enterLevelEnd:(()=>Pose)|null=null;
++  setEnterLevelEnd(source:(()=>Pose)|null){this.enterLevelEnd=source;}
+   private enterLevelLook():Pose[]|null {
+     const camera=this.worldCamera;if(!camera||!isValid(camera.node,true))return null;
+     const n=camera.node,p=n.worldPosition,q=n.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]),fl=Math.hypot(f[0],f[1],f[2]);
+@@ -475,6 +481,13 @@ export class WorldFlowComponent extends Component {
+           console.info('[enter-level] shot', this.flow?.snapshot().mode);
+           this.noteCinematic();
+           if(this.enterLevelHold){this.enterLevelHold=false;console.info('[enter-level] hold (lakeside landing on the board pose)');return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});}
++          if(this.enterLevelEnd){let to:Pose|null=null;try{to=this.enterLevelEnd();}catch(error){console.warn('enter-level board pose failed',String(error));}
++            const n=camera.node,p=n.worldPosition,q=n.worldRotation,live={position:[p.x,p.y,p.z] as V3,rotation:[q.x,q.y,q.z,q.w],fovVerticalDeg:camera.fov};
++            if(to&&samePose(live,to)){console.info('[enter-level] hold (live lens is the board pose)');return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});}
++            const from=this.enterLevelLook()?.[0]??null;
++            if(to&&from){const seconds=coastPushSeconds(from,to,ENTER_LEVEL_SHOT_S);const track=createCameraTrack(camera,[from,to],'world.enterLevel',COAST_PUSH_EASE);
++              return this.run(seconds,token,p=>{this.noteCinematic();camTag('enter-level');track.tick(p);},true);}
++          }
+           let path:Pose[]|null=null;try{path=this.enterLevelLook();}catch(error){console.warn('enter-level shot skipped',String(error));}
+           if(!path)return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});
+           const track=createCameraTrack(camera,path,'world.enterLevel',{easeIn:0.14,easeOut:0.4});

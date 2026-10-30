@@ -121,6 +121,12 @@
         "importer": "image"
       },
       "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as region_lake.png.meta). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/region/CoastBoardLens.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "运镜bot 2026-10-30 cine/b20-coast-board-lens: new engine-free TS module (coast board lens D2); same convention as SkyFinaleRail.ts.meta — needs Grok Bot review"
     }
   },
   "watchRefs": [
