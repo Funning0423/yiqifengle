@@ -1,0 +1,14 @@
+{
+  "about": "dev-wording gate exclusions (Grok Bot 2026-10-30). Exact files or exact (file, string) pairs only; no wildcards over game code. Edits need Grok Bot's review.",
+  "excludeFiles": {
+    "creator-build-project/assets/scripts/world-r2/PreTransitionKeys.ts": "test pack only: 全流程测试部 pre-transition key table (labels are tester run names, enabled only by preTransitionEnabled())",
+    "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts": "test pack only: pre-transition runner installed for 全流程测试部; no player UI"
+  },
+  "excludeStrings": [
+    { "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts", "string": "测试包 · 独立地区流程", "why": "inside if(DEBUG) (cc DEBUG = false in release): flow-test mark" },
+    { "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts", "string": "地区流程测试", "why": "inside if(DEBUG): flow-test entry button" },
+    { "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts", "string": "退出测试", "why": "inside if(DEBUG): flow-test exit button" },
+    { "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts", "string": "独立测试进度 · 主线 ", "why": "flowTestMark text; the mark only exists when created inside if(DEBUG)" },
+    { "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts", "string": "测试包 · 地区流程入口", "why": "flowTestMark text; the mark only exists when created inside if(DEBUG)" }
+  ]
+}
