@@ -237,4 +237,24 @@ function start(alpha, antialias, useWebgl2) {
     });
 }
 
-module.exports = { start: start, end: end, setProgress: setProgress, coverTransform: coverTransform, coverVertices: coverVertices };
+/* fg-update-manager: wx.getUpdateManager. No-op outside WeChat; never throws; installs once. Only a system modal on
+ * onUpdateReady (no loading screen, nothing drawn by us); "稍后" keeps playing and the new version applies on next cold start. */
+function installUpdatePrompt(w) {
+    try {
+        if (!w || typeof w.getUpdateManager !== 'function' || G.__qfUpdate) return false;
+        var um = w.getUpdateManager(); if (!um) return false;
+        var st = G.__qfUpdate = { hasUpdate: null, ready: false, failed: false, applied: false };
+        um.onCheckForUpdate && um.onCheckForUpdate(function (r) { st.hasUpdate = !!(r && r.hasUpdate); });
+        um.onUpdateReady && um.onUpdateReady(function () {
+            st.ready = true;
+            if (typeof w.showModal !== 'function') return;
+            w.showModal({ title: '发现新版本', content: '新版本已准备好，重启即可更新。', confirmText: '重启', cancelText: '稍后',
+                success: function (r) { if (r && r.confirm) { st.applied = true; try { um.applyUpdate(); } catch (e) {} } } });
+        });
+        um.onUpdateFailed && um.onUpdateFailed(function () { st.failed = true; });
+        return true;
+    } catch (e) { return false; }
+}
+installUpdatePrompt(typeof wx !== 'undefined' ? wx : null);
+
+module.exports = { installUpdatePrompt: installUpdatePrompt, start: start, end: end, setProgress: setProgress, coverTransform: coverTransform, coverVertices: coverVertices };
