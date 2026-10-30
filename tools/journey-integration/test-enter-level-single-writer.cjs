@@ -51,3 +51,28 @@ const token={check(){},onCancel(){return ()=>{};}};
  h.camera.fov=50;h.director.fr=901;lease.setCamera({...P0});assert.equal(h.writes.filter(x=>x.fr===901).length,1,'fov-only change must write');
  console.log('ok   restore still writes when the live camera is elsewhere (pose or fov)');}
 console.log('enter-level-single-writer: PASS');
+
+// ── reveal-restore (Mac dedf8853 f646 fr831): after the push-in ends (fov 36) the level reveal sets stable='level' and restore()
+// re-wrote cameraIsland (fov 42, 2.6 m back); region.node-lens then started from that snapped pose (f647 JUMP 2.25 m, visible).
+// Runs the REAL WorldFlowCore + RegionJourneyCore: with the board up, no world.setCamera may follow the push-in end, for both
+// restore paths (plain island, and a journey checkpoint after a region trip). FAILs on b5b1094c.
+(async()=>{
+ const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness(),{WorldFlow}=H.load('world-r1/WorldFlowCore'),{RegionJourneyController}=H.load('world-r1/RegionJourneyCore');
+ const pose={position:[-12,15.5,48],target:[-11,14,44],fovVerticalDeg:42},end={position:[-11.338,14.736,45.605],target:[-10.5,13.4,41.8],fovVerticalDeg:36},zero=[0,0,0];
+ const seat={position:zero,back:[0,0,-1],yawRad:0,seatedFoot:zero,standingFoot:zero,seatedControllerRoot:zero,standingControllerRoot:zero};
+ const config={seat,toDoor:[zero,[0,0,1]],outCrossing:[[0,0,1],[0,0,2]],toIsland:[[0,0,2],[0,0,3]],toThreshold:[[0,0,3],[0,0,2]],inCrossing:[[0,0,2],[0,0,1]],toSeat:[[0,0,1],zero],cameraHome:pose,cameraToDoor:[pose,pose],cameraInside:pose,cameraOutside:pose,cameraIsland:pose,openDeg:90,speed:1};
+ async function run(viaRegion){let camera=pose;const writes=[];let pushEnded=false;
+  const actor={calibrated:true,coordinates:{units:'m',up:'+Y',forward:'+Z',rootMotion:'controller-only',standingRoot:zero,seatedRoot:zero,seatYawRad:0,clearanceRadiusM:.1},advance(){},walkProgress:()=>1,perform:async()=>{},cancelAndReset(){},setVisible(){},dispose(){}};
+  const world={setCamera:p=>{camera=p;writes.push({p,afterPush:pushEnded});},setLayers(){},setDoor(){},cancelTransient(){},assertStaticWorld(){},dispose(){},animateCamera:async()=>{},animateDoor:async()=>{},
+   playEnterLevel:async()=>{camera=end;pushEnded=true;}};
+  const journey=new RegionJourneyController({readCamera:()=>camera,prepare:async(from,to,start)=>({route:{from,to,path:[start,[start[0],start[1]+1,start[2]+4],[start[0],start[1]+1,start[2]+8]],bridgeStart:1,bridgeEnd:6,speed:1},show(){},dispose(){}})});
+  const flow=new WorldFlow({config,character:actor,journey,skycity:{enter:async()=>({show(){},hide(){},dispose(){}})},levels:{enter:async()=>({requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){},isSettledResult:()=>false,reveal(){}})},loadWorld:async()=>world});
+  assert((await flow.load()).ok);assert((await flow.leaveHome()).ok);if(viaRegion)assert((await flow.travelRegion('meadow')).ok);
+  const r=await flow.enterLevel(viaRegion?'mainline-05':'mainline-04');assert(r.ok,JSON.stringify(r));assert.equal(flow.snapshot().state,'level');
+  const after=writes.filter(w=>w.afterPush);
+  assert.equal(after.length,0,(viaRegion?'journey':'island')+' reveal wrote the world camera after the push-in end: '+after.map(w=>JSON.stringify(w.p.position)+' fov '+w.p.fovVerticalDeg).join(' | '));
+  assert.deepEqual(camera.position,end.position,'push-in end pose not kept');}
+ await run(false);console.log('ok   island level reveal: no camera write after the push-in end (WorldFlowCore:291 path)');
+ await run(true);console.log('ok   journey-checkpoint level reveal: no camera write after the push-in end (RegionJourneyCore restore path)');
+ console.log('enter-level-reveal-restore: PASS');
+})().catch(e=>{console.error(e);process.exit(1);});

@@ -288,7 +288,9 @@ export class WorldFlow {
       this.world.setLayers(visible?ISLAND:NONE);this.world.setRoomLightWeight?.(0);this.world.setExteriorKey?.(0);
       this.journey.restore(this.character!,this.world,visible);this.world.assertStaticWorld();return;
     }
-    (globalThis as any).__qfCamTag?.t('WorldFlowCore:restore')/* camTrace writer name (CamTraceLog; no-op when off); pure core: no import */;this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
+    /* reveal-restore (Mac dedf8853 f646 fr831: 2.6 m snap to cameraIsland right after the push-in ended): with the board up (stable 'level')
+     * the world camera keeps the enter-level push-in end pose; the next owner (exit / region lens) starts from that pose. */
+    if(this.stable!=='level'){(globalThis as any).__qfCamTag?.t('WorldFlowCore:restore')/* camTrace writer name (CamTraceLog; no-op when off); pure core: no import */;this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);}
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
     this.world.setRoomLightWeight?.(this.stable==='home'?1:0);
