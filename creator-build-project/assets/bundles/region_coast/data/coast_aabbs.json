@@ -1,0 +1,98 @@
+{
+ "coast_terrain": {
+  "min": [
+   -14.6,
+   -2.25,
+   4.5
+  ],
+  "max": [
+   13.4,
+   0.79,
+   37.3
+  ]
+ },
+ "region_coast_root": {
+  "min": [
+   -14.6,
+   -2.25,
+   4.5
+  ],
+  "max": [
+   13.4,
+   5.23,
+   37.3
+  ]
+ },
+ "coast_headland": {
+  "min": [
+   -8.06,
+   -1.22,
+   29.45
+  ],
+  "max": [
+   -2.31,
+   1.47,
+   35.25
+  ]
+ },
+ "coast_beacon_post": {
+  "min": [
+   -5.68,
+   1.41,
+   31.92
+  ],
+  "max": [
+   -5.12,
+   3.0,
+   32.48
+  ]
+ },
+ "coast_palms": {
+  "min": [
+   -8.59,
+   -1.84,
+   16.7
+  ],
+  "max": [
+   9.67,
+   5.23,
+   28.47
+  ]
+ },
+ "coast_clouds": {
+  "min": [
+   -119.8,
+   -0.84,
+   150.2
+  ],
+  "max": [
+   96.29,
+   16.97,
+   208.54
+  ]
+ },
+ "SailArt (sail route: sailboat, transit_sea, transit_sea_props, transit_river_mouth, transit_landing) [estimate]": {
+  "min": [
+   -6.0,
+   -1.5,
+   6.0
+  ],
+  "max": [
+   3.0,
+   7.0,
+   82.0
+  ]
+ },
+ "bridge travel segment island->meadow (RegionJourneyLayout meadowOffset +Z 24) [estimate]": {
+  "min": [
+   -2.0,
+   -0.5,
+   3.0
+  ],
+  "max": [
+   2.5,
+   2.5,
+   32.0
+  ]
+ }
+}
