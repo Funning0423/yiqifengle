@@ -36,3 +36,20 @@ for fp in sorted(glob.glob(os.path.join(sys.argv[1], 'journey_*.layout.json'))):
     gp = d['gaps']; f = ImageFont.truetype(FONT, 8 * S)
     g.text((W * S / 2, (H - 14) * S), f"{d['mode']} {d['state']} {W}x{H}  gap grid {gp['gridL']}/{gp['gridR']} pt card {gp['cardL']}/{gp['cardR']} pt  (box schematic)", font=f, fill=(255, 255, 255), anchor='mm')
     im.save(fp.replace('.layout.json', '.png'))
+# region-page schematics (chapter_<id>_<tag>.layout.json): frame, sprites as grey boxes, disabled button pill, labels
+for fp in sorted(glob.glob(os.path.join(sys.argv[1], 'chapter_*.layout.json'))):
+    d = json.load(open(fp)); W, H, night, k = d['W'], d['H'], d['mode'] == 'night', d['ptPer']
+    F = d['frame']; cx0, cy0 = (F['x0'] + F['x1']) / 2, (F['y0'] + F['y1']) / 2
+    X = lambda x: (W / 2 + (x - cx0) / k) * S; Y = lambda y: (H / 2 + (y - cy0) / k) * S
+    im = Image.new('RGB', (W * S, H * S), tint((40, 120, 140), night)); g = ImageDraw.Draw(im)
+    g.rounded_rectangle([X(F['x0']), Y(F['y0']), X(F['x1']), Y(F['y1'])], radius=28 * S, fill=tint((243, 233, 210), night), outline=tint((205, 178, 128), night), width=24 * S)
+    for n in d['nodes']:
+        if n.get('disabled'): g.rounded_rectangle([X(n['x0']), Y(n['y0']), X(n['x1']), Y(n['y1'])], radius=26 * S, fill=tint((230, 215, 184), night))
+        elif n.get('sprite') and n['n'] in ('Window', 'Seal'): g.rectangle([X(n['x0']), Y(n['y0']), X(n['x1']), Y(n['y1'])], outline=tint((150, 150, 150), night), width=2)
+    for n in d['nodes']:
+        if n.get('label'):
+            f = ImageFont.truetype(FONT, max(8, int(round(n['pt'] * S))))
+            g.text(((X(n['x0']) + X(n['x1'])) / 2, (Y(n['y0']) + Y(n['y1'])) / 2), n['label'], font=f, fill=tuple(n['rgb']), anchor='mm')
+    f = ImageFont.truetype(FONT, 8 * S)
+    g.text((W * S / 2, (H - 14) * S), f"{d['region']} region page {d['mode']} {d['state']} {W}x{H} (box schematic)", font=f, fill=(255, 255, 255), anchor='mm')
+    im.save(fp.replace('.layout.json', '.png'))

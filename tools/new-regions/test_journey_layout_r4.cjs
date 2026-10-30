@@ -17,10 +17,10 @@ const STATES={ // early: sky / lake / meadow have data but are locked (the audit
 const SIZES=[[320,568],[360,780],[375,667],[390,844],[393,852],[414,896],[430,932]];
 const box=(n,W,Hh)=>{const t=n.getComponent(cc.UITransform),p=n.worldPosition,s=n.worldScale,w=t.width*Math.abs(s.x),h=t.height*Math.abs(s.y);
   const cx=p.x+W/2,cy=Hh/2-p.y;return {x0:+(cx-w*t.anchorX).toFixed(2),x1:+(cx+w*(1-t.anchorX)).toFixed(2),y0:+(cy-h*(1-t.anchorY)).toFixed(2),y1:+(cy+h*t.anchorY).toFixed(2)};};
-(async()=>{const table=[],checks=[];let combos=0,farN=0,lockN=0;
+(async()=>{const table=[],checks=[];let combos=0,farN=0,lockN=0,btnN=0;
 for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for(const [W,Hh] of SIZES){
-  globalThis.__worldDayNight={snapshot:()=>({mode})};resetUiNightWeight();
-  const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>({journey:{records:S.records}}),gates:()=>({r5:S.r5,challenges:S.challenges,stages:S.stages}),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode})});
+  const entered=[];globalThis.__worldDayNight={snapshot:()=>({mode})};resetUiNightWeight();
+  const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>({journey:{records:S.records}}),gates:()=>({r5:S.r5,challenges:S.challenges,stages:S.stages}),enterRegion:v=>entered.push(v),enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode})});
   await H.flush();o.sync(W,Hh,true);o.open('journal');const p=o.popups.find('JourneyPanel');assert(p,'journey panel '+W+'x'+Hh);
   for(let i=0;i<60;i++)o.update?.(1/30);
   const tag=mode+'_'+sk+'_'+W+'x'+Hh,frame=p.root.find('PanelFrame');assert(frame,tag+' PanelFrame');const F=box(frame,W,Hh);
@@ -32,6 +32,8 @@ for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for
   const gb=cells.map(n=>box(n,W,Hh)),G={x0:Math.min(...gb.map(b=>b.x0)),x1:Math.max(...gb.map(b=>b.x1))},C=box(card,W,Hh);
   const q=v=>+(v/ptPer).toFixed(2); // layout pt (harness units / ptPer)
   const gap={gridL:q(G.x0-IN.x0),gridR:q(IN.x1-G.x1),cardL:q(C.x0-IN.x0),cardR:q(IN.x1-C.x1)};
+  const BR=box(p.root.find('JourneyBar'),W,Hh);gap.barL=q(BR.x0-IN.x0);gap.barR=q(IN.x1-BR.x1);
+  assert(Math.abs(BR.x0-C.x0)<0.05&&Math.abs(BR.x1-C.x1)<0.05&&Math.abs(BR.x0-G.x0)<0.05&&Math.abs(BR.x1-G.x1)<0.05,tag+' bar aligned with card and grid '+JSON.stringify([BR,C,G]));
   for(const [k,v] of Object.entries(gap))assert(v>=MIN_GAP-0.01,`${tag} ${k} gap ${v} pt < ${MIN_GAP} pt to the inner frame`);
   assert(Math.abs(gap.gridL-gap.gridR)<0.05&&Math.abs(gap.cardL-gap.cardR)<0.05,tag+' centred '+JSON.stringify(gap));
   const cellsOut=[];
@@ -48,7 +50,18 @@ for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for
       const lw=st.getComponent(cc.UITransform).width;assert(H.load('ui/PopupKit').measure(st.string,st.fontSize)<=lw+1e-6,tag+' '+r.id+' label fits its line (ellipsis)');}
     cellsOut.push({id:r.id,state:r.state,hasData:r.hasData,...box(n,W,Hh),seal:seals.length?{...box(seals[0],W,Hh),faint:!!seals[0].getComponent(cc.Sprite)?.grayscale}:null,
       labels:ls.map(l=>({n:l.node.name,s:l.string,pt:+(l.fontSize*Math.abs(l.node.worldScale.y)/ptPer).toFixed(2),...box(l.node,W,Hh),rgb:[l.color.r,l.color.g,l.color.b]}))});}
-  combos++;table.push([tag,gap.gridL,gap.gridR,gap.cardL,gap.cardR]);
+  // region page for every locked-with-data region: button text = cell label + 开启, disabled, tap enters nothing
+  let chapterDump=null;
+  for(const r of rows.filter(x=>x.state==='locked')){const jp=o.popups.find('JourneyPanel');assert(jp,tag+' journal open');const cellLabel=jp.root.find('Chapter-'+r.id).getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string;
+    H.tap(jp.root.find('Chapter-'+r.id));await H.flush();const c=o.popups.find('ChapterPanel');assert(c,tag+' '+r.id+' locked-with-data opens its region page');
+    const btn=c.root.find('Continue-'+r.id);assert(btn,tag+' '+r.id+' button');const bl=btn.getComponentsInChildren(cc.Label)[0].string;
+    assert.equal(bl,J.REGION_DEFS.find(d=>d.id===r.id).unlock.label+'开启',tag+' '+r.id+' button = §13.2 label + 开启');assert.equal(bl,cellLabel+'开启',tag+' '+r.id+' button = cell label + 开启');
+    assert(btn.__disabled===true,tag+' '+r.id+' button disabled');const before=entered.length;H.tap(btn);await H.flush();assert.equal(entered.length,before,tag+' '+r.id+' disabled button enters nothing');
+    btnN++;if(!chapterDump&&r.id==='sky'){const CF=c.root.find('PanelFrame');chapterDump={region:r.id,frame:box(CF,W,Hh),ptPerLayoutPt:+((box(CF,W,Hh).x1-box(CF,W,Hh).x0)/(c.width*Math.abs(CF.parent.worldScale.x))*c.width/c.width).toFixed(4),
+      nodes:c.root.getComponentsInChildren(cc.UITransform).map(t=>t.node).filter(n=>n!==CF&&n.activeInHierarchy!==false).map(n=>{const l=n.getComponent(cc.Label),sp=n.getComponent(cc.Sprite);return {n:n.name,...box(n,W,Hh),label:l?l.string:undefined,pt:l?+(l.fontSize*Math.abs(n.worldScale.y)/ptPer).toFixed(2):undefined,rgb:l?[l.color.r,l.color.g,l.color.b]:undefined,sprite:sp?1:undefined,disabled:n.__disabled||undefined};})};}
+    o.close();await H.flush();o.open('journal');await H.flush();}
+  if(OUT&&chapterDump)fs.writeFileSync(path.join(OUT,'chapter_sky_'+tag+'.layout.json'),JSON.stringify({tag,W,H:Hh,mode,state:sk,ptPer,...chapterDump},null,1));
+  combos++;table.push([tag,gap.gridL,gap.gridR,gap.cardL,gap.cardR,gap.barL,gap.barR]);
   if(OUT){fs.mkdirSync(OUT,{recursive:true});fs.writeFileSync(path.join(OUT,'journey_'+tag+'.layout.json'),JSON.stringify({tag,W,H:Hh,mode,state:sk,ptPerLayoutPt:+ptPer.toFixed(4),frame:F,innerFrame:IN,gaps:gap,
     card:{...C,labels:card.getComponentsInChildren(cc.Label).map(l=>({n:l.node.name,s:l.string,pt:+(l.fontSize*Math.abs(l.node.worldScale.y)/ptPer).toFixed(2),...box(l.node,W,Hh)}))},bar:p.root.find('JourneyBar')?box(p.root.find('JourneyBar'),W,Hh):null,cells:cellsOut},null,1));}
   o.dispose();}
@@ -56,7 +69,8 @@ delete globalThis.__worldDayNight;
 // ellipsis unit check: a label wider than its cell is cut with … and stays on one line
 {const m=H.load('ui/PopupKit').measure,t=B.ellipsize('一二三四五六七八九十',11,40);assert(t.endsWith('…')&&m(t,11)<=40,t);assert.equal(B.ellipsize('主线08后',11,200),'主线08后');}
 console.log('JOURNEY_GAPS '+JSON.stringify(table));
-checks.push(`grid + focus card ≥${MIN_GAP} pt to the inner frame (inset ${FRAME_IN}) and centred on ${combos} combos (7 screens × day/night × early/late)`);
+checks.push(`region page of every locked-with-data region: disabled button = cell §13.2 label + 开启, tap enters nothing (${btnN} pages)`);
+checks.push(`progress bar + grid + focus card ≥${MIN_GAP} pt to the inner frame (inset ${FRAME_IN}) aligned, centred on ${combos} combos (7 screens × day/night × early/late)`);
 checks.push(`远方 only without data, never a seal (${farN} cells); locked-with-data: faint seal + one-line 11 pt §13.2 label, no wrap, ellipsis (${lockN} cells)`);
 for(const c of checks)console.log('PASS '+c);console.log(JSON.stringify({status:'PASS',checks},null,2));
 })().catch(e=>{console.error(e);process.exit(1);});

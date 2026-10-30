@@ -42,6 +42,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     if (r.state === 'open') return { text: '前往' + s, enabled: true, flat: false };
     if (r.state === 'progress') return { text: '继续', enabled: true, flat: false };
     if (r.state === 'done') return { text: '再访' + s, enabled: true, flat: false };
+    if (r.state === 'locked') return { text: defOf(r.id).unlock.label + '开启', enabled: false, flat: true };   // UI设计部 r4: §13.2 label + 开启
     return { text: '尚未开启', enabled: false, flat: true };
   }
   /** Coast chapter hint: C1–C6 海岸漫游, C7+ 灯塔夜航. */
@@ -70,7 +71,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     const prev = journeySeenDone(), from = prev == null ? prog.done : Math.min(prev, prog.done); setJourneySeenDone(prog.done);
     p.text('旅程 ' + prog.done + ' / ' + prog.total, 0, P(78), P(15), 'brown', { name: 'JourneyTotal', width: PW - P(48) });
     // Segmented bar (drawn in code): only regions with data; 2 pt seams in the panel face colour.
-    const BW = PW - P(48), BH = P(10), bar = uiNode('JourneyBar', p.body, BW, BH), bp = p.at(0, P(96)); bar.setPosition(bp[0], bp[1], 0);
+    const BW = PW - 2 * P(JOURNEY_FRAME_IN) - 2 * P(JOURNEY_INNER_PAD), BH = P(10), bar = uiNode('JourneyBar', p.body, BW, BH), bp = p.at(0, P(96)); bar.setPosition(bp[0], bp[1], 0);
     const g = bar.addComponent(Graphics); let shown = from, t = 0;
     p.tint.shape(g, (gg, night, a) => {
       const x0 = -BW / 2, y0 = -BH / 2, seam = P(2), k = prog.done ? shown / prog.done : 0;
@@ -171,7 +172,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     const enabled = btn.enabled && !!gate?.ok, by = PH - P(26) - P(26);
     if (!enabled) p.text(blocked || (btn.enabled ? '暂不可进入' : d.unlock.label), 0, by - P(40), P(13), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCondition' });
     if (enabled) p.button('primary', btn.text, 0, by, P(240), P(52), () => { if (a.gate()?.ok) a.enter(); }, { fontSize: P(18), name: 'Continue-' + c.id });
-    else flatDisabled(p, btn.enabled ? '暂不可进入' : '尚未开启', 0, by, P(240), P(52), 'Continue-' + c.id);
+    else flatDisabled(p, btn.enabled ? '暂不可进入' : btn.text, 0, by, P(240), P(52), 'Continue-' + c.id);
     p.button('secondary', '返回章节', 0, PH - P(4), P(140), P(36), () => p.close(a.back), { fontSize: P(14), name: 'BackToChapters', sound: 'back' });
     return p;
   }

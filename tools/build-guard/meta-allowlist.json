@@ -65,7 +65,8 @@
       "allowAdd": {
         "importer": "image"
       },
-      "why": "new-regions r4 2026-10-30: icon_vibrate.png.meta already committed by system-panels 103e9444/99872116 (from 6c629efc, UI设计部 review 'meta untouched'); it was outside the base so the gate flagged it. Needs Grok Bot review per this file's rule."
+      "why": "new-regions r4 2026-10-30: icon_vibrate.png.meta already committed by system-panels 103e9444/99872116 (from 6c629efc, UI设计部 review 'meta untouched'); it was outside the base so the gate flagged it. Needs Grok Bot review per this file's rule.",
+      "source": "103e9444 (system-panels; first added the file per git log --diff-filter=A); informational only, the gate does not read it"
     },
     "creator-build-project/assets/scripts/ui/JourneyCore.ts.meta": {
       "allowAdd": {

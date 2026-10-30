@@ -17,7 +17,7 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
   assert.equal(p27.total,27);assert.equal(p27.segments.length,5);assert.equal(p27.done,12+2+3);
   const p33=J.journeyProgress({records:rec(12),regionDone:{lake:6},stages:[...SHIPPED,...COAST,...SNOW]});assert.equal(p33.total,33);assert.equal(p33.segments.length,6);
   const p55=J.journeyProgress({records:rec(12),stages:ALL});assert.equal(p55.total,55);assert.equal(p55.segments.length,9);assert(Math.abs(p55.segments[8].x1-1)<1e-9);
-  const narrow=w=>Math.min(...p55.segments.map(g=>(g.x1-g.x0)*(w-48)-2));assert(narrow(330)>=12&&narrow(272)>=12,'narrowest segment ≥ 12 pt (§13.3: 19.3 / 15.7)');
+  const narrow=w=>Math.min(...p55.segments.map(g=>(g.x1-g.x0)*(w-64)-2));assert(narrow(330)>=12&&narrow(272)>=12,'narrowest segment ≥ 12 pt (§13.3: 19.3 / 15.7)');
   assert.equal(J.journeyProgress({records:rec(0),regionDone:{coast:5},stages:[...SHIPPED,...COAST]}).done,0,'locked coast never counts');
   ok('9-segment bar: denominator = Σ stages of regions with data: 18 (this build), 27 with coast, 33 with snow, 55 with all 9; narrowest segment ≥12 pt');
 }
@@ -43,9 +43,9 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
   for(const d of J.REGION_DEFS)assert(d.short.length<=4,d.id);
   const b=(state,id='coast',done=0)=>B.chapterButton({id,state,done,total:9});
   assert.deepEqual(b('open'),{text:'前往灯塔海岸',enabled:true,flat:false});assert.equal(b('progress').text,'继续');assert.equal(b('done').text,'再访灯塔海岸');
-  assert.deepEqual(b('locked'),{text:'尚未开启',enabled:false,flat:true});assert.deepEqual(b('far'),{text:'尚未开启',enabled:false,flat:true});
+  assert.deepEqual(b('locked'),{text:'主线12后开启',enabled:false,flat:true});assert.deepEqual(b('far'),{text:'尚未开启',enabled:false,flat:true});
   assert.equal(B.coastChapterHint(5),'海岸漫游');assert.equal(B.coastChapterHint(6),'灯塔夜航');
-  ok('names: 天空之城 (subtitle 天空回声), 雪山山口, 灯塔海岸 (short ≤4 chars); single button 前往X / 继续 / 再访X / 尚未开启');
+  ok('names: 天空之城 (subtitle 天空回声), 雪山山口, 灯塔海岸 (short ≤4 chars); single button 前往X / 继续 / 再访X / <label>开启 (locked) / 尚未开启 (远方)');
 }
 { // ending seals (§13.5)
   const g={d:36,sp:44,gap:40};

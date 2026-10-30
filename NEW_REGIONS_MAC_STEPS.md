@@ -1,5 +1,7 @@
 # new-regions — Mac steps (Cocos Creator 3.8.8)
 
+**Current SHA: see the last line of the r4 section (ggbot/fg-new-regions-r4).**
+
 Branch `ggbot/fg-new-regions` (on fg-system-panels d680078b). Design: UI设计部 `ui/new-regions` e05a034e `ui-design/new-regions/SPEC.md`.
 
 **Approved:** fg-new-regions and coast `scene/b19-coast-port` 50f5252c (Grok Bot, 2026-10-29) — the coast seal is the
@@ -22,7 +24,10 @@ Branch `ggbot/fg-new-regions` (on fg-system-panels d680078b). Design: UI设计�
      then quit Creator (do not build in the same session). Run
      `git status --porcelain -- '*.meta'` — it must show exactly these 9 `??` files and nothing modified. If any other .meta changed, stop and report.
    - `node tools/build-guard/meta-allowlist.cjs` must PASS (each file has an exact `allowAdd` with its importer: typescript ×6, image ×2, directory ×1).
-   - Commit the 9 files exactly as Creator wrote them on a new branch from r4 (`ggbot/fg-new-regions-r4-metas`), no edits, then the guarded build.
+   - Commit the 9 files exactly as Creator wrote them on a new branch from r4 (`ggbot/fg-new-regions-r4-metas`), no edits; their uuids are whatever Creator produces. Never hand-write a .meta.
+   - After that commit, rerun the full suite (`QF_TYPESCRIPT_MODULE=… DRACO3D=… npx -y node@22 tools/journey-integration/run-suite.cjs`, 0 FAIL, navigation-guard BLOCKED_BROWSER expected), then the guarded build.
+   - Mac order and turns: once Funning has re-scanned the DevTools login, 全流程测试部 runs fullN first; 界面验收部's r4 retest comes after.
+     Only one DevTools window at a time. The Creator meta import must never run while DevTools is up, nor while anyone else holds the Mac — take turns via `.build.lock`.
 2. Lazy journey UI check (board_art = Mini Game Subpackage, already configured): after the WeChat build,
    `subpackages/board_art/game.js` must contain `__qfJourneyUi` and the main package `src/` must not (grep both).
    In DevTools console on island arrival expect `[QF_JOURNEY_UI] ready +Nms` before the first dock tap; opening the journey
@@ -68,3 +73,4 @@ Railway, cloud-sea and hot spring valley (no stage data) show only 「远方」 
 - P3 (UI设计部, replaces the 'milestone 远方 keeps a faint seal' rule): 「远方」 only for regions with no data, never with a seal. Regions with data that are still locked (天空之城, 风铃湖畔, coast before main 12, …) show their name, a faint grey seal and the §13.2 condition (e.g. 主线08后 / 主线12后 / 湖畔通关后) at 11 pt on one line (ellipsis if too long, never wraps). They open the region page with 「尚未开启」.
 - Suite gate `journey-layout-r4`: 7 screens × day/night × 2 data states. Box schematics + layout json: team/ggbot/outbox/20261030-new-regions-r4/.
 - On device: DevTools Console Error count (needs Funning to re-scan the DevTools login first — INVALID_TOKEN last run).
+- r4b (UI设计部): a locked region with data opens its page; the grey disabled button reads the §13.2 label + 开启 (e.g. 主线08后开启, 湖畔通关后开启 — taken from `unlock.label`); 远方 regions keep 尚未开启. The progress bar is also inner − 2×8 pt, aligned with the card and grid. Gate journey-layout-r4 checks bar gaps/alignment and every locked page's button text + disabled state.
