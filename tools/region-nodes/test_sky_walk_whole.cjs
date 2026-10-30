@@ -1,13 +1,13 @@
 'use strict';
 // 运镜bot full9c: whole-walk framing / occlusion hard gate for the played skycity walks (sky-rail-model = RegionNodeStage + SkyRunLens),
 // 7 screens, entered from that screen's board lens. While she walks (rail parts) and on the stand hold: herMargin ≥ 0.08 on the screen;
-// chest (1.05 m) / face (1.45 m) sight lines (the sky_run_lens_eval / sky-walk-endshots heights) blocked by the real mesh (lens-scene solid set) ≤ 0.5 s in a row over the WHOLE sequence
+// chest (1.05 m) / face (1.45 m) sight lines (the sky_run_lens_eval / sky-walk-endshots heights) blocked by the real mesh (all but clouds, foliage included) ≤ 0.5 s in a row over the WHOLE sequence
 // (joins included while the lens is within 12 m of her chest: farther out the join is the wide board/court move, she is not the subject); lens ≤ 2.5 m/s and view ≤ 120 °/s on the
 // rails; S4>S6 ends on SKY_FINALE_POSE_LOCAL. Joins: no-cut / clearance in lens-trajectory-clearance.
 const M=require('./sky-rail-model.cjs'),{H,RL,F}=M,LS=H.load('region/LensSmooth.ts'),SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts');
 const L=require('../journey-integration/clip3/lens-scene.cjs'),FL=require('../journey-integration/journey-framing-lib.cjs');
 const W=p=>SW.skyLocalToWorld(TS.TRANSITION_STAGING.skyMooring5a,p),SOFT=/foliage_cards|flowers|robot_gardener|cloud|cumulus/,yaw=p=>Math.atan2(p.target[0]-p.position[0],p.target[2]-p.position[2])*180/Math.PI;
-(async()=>{const objs=await L.skyObjs(),B=L.bvh(objs.filter(o=>!SOFT.test(o.name)));const rows=[];let fails=0;
+(async()=>{const objs=await L.skyObjs(),B=L.bvh(objs.filter(o=>!/cloud|cumulus/.test(o.name)))/* sight lines: every mesh but clouds (foliage hides her) */;const rows=[];let fails=0;
  const blocked=(p,h,dy)=>{const a=W(p.position),b=W([h[0],h[1]+dy,h[2]]),d=b.map((v,i)=>v-a[i]),l=Math.hypot(...d);return !!FL.cast(B,a,d.map(v=>v/l),l-0.3);};
  const only=process.argv.includes('--one')?M.SCREENS.slice(0,1):M.SCREENS;
  for(const w of M.WALKS)for(const sc of only)for(const [lab,o] of [['board entry → exit',{}],...(w==='S4>S6'?[['from S6 (planSkip)',{fromS6:true}]]:[])]){const smp=M.samples(w,sc,o);
