@@ -46,6 +46,8 @@ for(const r of T.screens){const dir=path.join(OUTV4,r.screen),[w,h]=r.screen.spl
   if(pw)acc.push(Math.max(Math.abs(wv[0]-pw[0]),Math.abs(wv[1]-pw[1]))/dt);pw=wv;}
  acc.sort((a,b)=>a-b);const p99=acc[Math.floor(0.99*(acc.length-1))];
  ok(vmax<=L.speedMS&&smax<=L.stepMPerFrame&&wmax<=L.yawPitchDegS&&p99<=L.angAccP99DegS2&&fmax<=L.fovDegPerFrame,`${r.screen} S7 motion v ${vmax.toFixed(2)} step ${smax.toFixed(3)} w ${wmax.toFixed(1)} acc99 ${p99.toFixed(1)} fov ${fmax.toFixed(3)}`);
+ // v4.2 S3 threshold: her frame margin >= 0.08 on every frame (true vertical fov), menu never over her face, face blocked <= 0.5 s
+ const sc=g.screens[0];ok(sc.min_margin>=0.08&&sc.face_under_menu===0&&g.occlusion_worst_s<=0.5,`${r.screen} her margin ${sc.min_margin} at t ${sc.at_t} / menu ${sc.face_under_menu} / blocked ${g.occlusion_worst_s} s`);
  // v4.1 map-collapse threshold: the WHOLE island->coast transition (S1 map-collapse included) within the limits, total <= 45 s
  const W=motion(rows);ok(within(W),`${r.screen} whole transition v ${W.vmax.toFixed(2)} m/s at t ${W.at.toFixed(2)} step ${W.smax.toFixed(3)} w ${W.wmax.toFixed(1)} acc99 ${W.p99.toFixed(1)} fov ${W.fmax.toFixed(3)}`);ok(e.total<=45,r.screen+' total '+e.total);
  console.log(`ok   2 ${r.screen} whole ${e.total.toFixed(2)} s: v ${W.vmax.toFixed(2)} m/s, step ${W.smax.toFixed(3)}, yaw/pitch ${W.wmax.toFixed(1)}, acc p99 ${W.p99.toFixed(1)}, fov ${W.fmax.toFixed(3)}`);

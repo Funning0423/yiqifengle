@@ -28,7 +28,7 @@
   "pitch_acc_p99": 20.4,
   "speed_max": 7.4,
   "step_max": 0.123,
-  "fov_step_max": 0.031,
+  "fov_step_max": 0.062,
   "pass": true
  },
  "motion_whole_fail_shots": [],

@@ -93,7 +93,7 @@ if FIT == 'r5d' and BOARD_OLD: OUT = OUT.replace('/out_v4/', '/out_v4/before_');
 if FIT == 'r5d' and not BOARD_OLD:  # v4: official coast board lens (tools/coast-board-lens/lens.py), per-aspect distance for SCREEN
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../coast-board-lens')); import lens as _bl
     _bp, _bt = _bl.pose(_bl.LENS, _bl.distance_for(SW, SH_)); BOARD_POSE = dict(pos=_bp, look=_bt, fov=float(_bl.LENS['fov']))
-S3_DR, S3_DS, S3_DF = (float(x) for x in os.environ.get('S3D', '0,0,0').split(','))  # v4.1 S3 framing fix (radius, look-side, vfov deltas)
+S3_DR, S3_DS, S3_DF = (float(x) for x in os.environ.get('S3D', '0,0,4' if FIT == 'r5d' else '0,0,0').split(','))  # v4.2 S3 framing fix (radius, look-side, vfov deltas): r5d vfov 44 -> 48 on the two S3 keys, true vertical fov
 S6KEY = [float(x) for x in os.environ.get('S6KEY', ('0,6.0,1.9,1.8,0.6,50' if FIT in ('r2', 'r5d') else '5,6.0,1.9,1.8,0.3,50')).split(',')]
 KEYS = [  # front-LEFT side through the walk: the right side of the curved exit path has a 2 m island prop at (-4.4..-3.25, 0..2.06, 2.4..3.9)
     (T[0], 'world'),
