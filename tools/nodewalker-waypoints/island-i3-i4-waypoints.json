@@ -1,0 +1,2 @@
+{"note":"EXAMPLE only (b21, Grok Bot): option C waypoint detour I3→I4, 3 waypoints (y = RegionWalkable floor), 12.23 m polyline (straight I3→I4 = 11.6 m). Picked by search over 16k candidates: the walked curve touches 2 blocked 0.1 m floor cells vs 6 on its own straight legs (island props; the baked I3–I4 edge itself crosses blocked cells). 场景设计部 has not chosen A (move I3 west) or C; not wired into WAYPOINT_ROUTES.",
+ "region":"island","from":"I3","to":"I4","via":[[7.5,0.21,2],[7.5,0.35,-1.5],[5.5,0.31,-3.25]]}
