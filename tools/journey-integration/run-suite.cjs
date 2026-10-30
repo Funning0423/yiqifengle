@@ -77,6 +77,7 @@ const tests=[
  ['update-prompt','tools/first-screen/test_update_prompt.cjs'],
  ['placeholder-gate','tools/build-guard/check-no-placeholder.cjs'],
  ['system-panels','tools/system-panels/test_system_panels.cjs'],
+ ['ui-timing-registry','tools/ui-timing/test_ui_timing_registry.cjs'],
  ['landmark-audio','tests/test_landmark_audio.cjs'],
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['region-board-staging','tools/meadow/test_region_board_staging.cjs'],/* r5 G1: meadow / sky-city board work spread over level-loading */

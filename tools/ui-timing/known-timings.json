@@ -1,16 +1,95 @@
 {
-  "schema": "qfl-ui-timing-registry/v1",
-  "note": "Classifications for the U1 UI-timing audit (界面验收部). Matched by file + symbol name, not line. Entries here are not flagged for manual review. Approved by UI设计部 + Grok Bot 2026-10-29.",
-  "entries": [
-    { "file": "assets/scripts/ui/RegionArrivalTitleCore.ts", "symbol": "REGION_TITLE_TIMING", "class": "ui-animation", "enterS": 0.4, "enterEase": "easeOutCubic", "holdS": 1.35, "exitS": 0.25, "exitEase": "easeInQuad", "totalS": 2.0 },
-    { "file": "assets/scripts/region/LakesideArrivalCore.ts", "symbol": "LAKESIDE_SIGN_SPEC", "class": "ui-animation", "enterS": 0.3, "enterEase": "smoothstep", "exitS": 0.2, "exitEase": "easeInQuad", "unchanged": ["revealSignS 0.3"] },
-    { "file": "assets/scripts/ui/StartupLoadingLayout.ts", "symbol": "OUTRO_FADE_S", "class": "ui-animation", "exitS": 0.45, "exitEase": "easeInOutCubic" },
-    { "file": "assets/scripts/ManagedMobileBoardUI.ts", "symbol": "toastFade", "class": "ui-animation", "enterS": 0.2, "exitS": 0.15, "exitSymbol": "TOAST_OUT_S" },
-    { "file": "assets/scripts/ManagedMobileBoardUI.ts", "symbol": "say", "class": "ui-animation", "enterS": 0.2, "exitS": 0.15, "exitSymbol": "TOAST_OUT_S" },
-    { "file": "assets/scripts/ui/BoardPanels.ts", "symbol": "SCORE_EASE_S", "class": "ui-animation", "enterS": 0.2, "enterEase": "easeOutCubic" },
-    { "file": "assets/scripts/ui/PopupMotion.ts", "symbol": "OPEN_S/CLOSE_S", "class": "ui-animation", "enterS": 0.32, "enterEase": "cubic-bezier(0.05,0.7,0.1,1)", "exitS": 0.18, "exitEase": "cubic-bezier(0.3,0,0.8,0.15)", "pressS": 0, "releaseS": 0.12, "releaseEase": "easeOutBack(1.4)" },
-    { "file": "assets/scripts/ManagedMobileBoardUI.ts", "symbol": "block-swap tween (ProjectPieceArt shake, .05+.07+.07+.05)", "class": "gameplay-animation", "totalS": 0.24, "exemptFrom": "U1" },
-    { "file": "assets/scripts/ui/BoardLayout.ts", "symbol": "TOAST_S", "class": "hold-duration", "holdS": 2, "skip": true, "reason": "hold time, not an animation" },
-    { "file": "assets/scripts/ui/BoardPanels.ts", "symbol": "CHEST_HANDOFF_MS", "class": "ambient-sequence", "totalS": 3, "exemptFrom": "U1", "reason": "ambient/narrative sequence total" }
-  ]
+ "schema": "qfl-ui-timing-registry/v1",
+ "note": "Classifications for the U1 UI-timing audit (界面验收部). Matched by file + symbol name, not line. Entries here are not flagged for manual review. Approved by UI设计部 + Grok Bot 2026-10-29.",
+ "entries": [
+  {
+   "file": "assets/scripts/ui/RegionArrivalTitleCore.ts",
+   "symbol": "REGION_TITLE_TIMING",
+   "class": "ui-animation",
+   "enterS": 0.4,
+   "enterEase": "easeOutCubic",
+   "holdS": 1.35,
+   "exitS": 0.25,
+   "exitEase": "easeInQuad",
+   "totalS": 2.0
+  },
+  {
+   "file": "assets/scripts/region/LakesideArrivalCore.ts",
+   "symbol": "LAKESIDE_SIGN_SPEC",
+   "class": "ui-animation",
+   "enterS": 0.3,
+   "enterEase": "smoothstep",
+   "exitS": 0.2,
+   "exitEase": "easeInQuad",
+   "unchanged": [
+    "revealSignS 0.3"
+   ]
+  },
+  {
+   "file": "assets/scripts/ui/StartupLoadingLayout.ts",
+   "symbol": "OUTRO_FADE_S",
+   "class": "ui-animation",
+   "exitS": 0.45,
+   "exitEase": "easeInOutCubic"
+  },
+  {
+   "file": "assets/scripts/ManagedMobileBoardUI.ts",
+   "symbol": "toastFade",
+   "class": "ui-animation",
+   "enterS": 0.2,
+   "exitS": 0.15,
+   "exitSymbol": "TOAST_OUT_S"
+  },
+  {
+   "file": "assets/scripts/ManagedMobileBoardUI.ts",
+   "symbol": "say",
+   "class": "ui-animation",
+   "enterS": 0.2,
+   "exitS": 0.15,
+   "exitSymbol": "TOAST_OUT_S"
+  },
+  {
+   "file": "assets/scripts/ui/BoardPanels.ts",
+   "symbol": "SCORE_EASE_S",
+   "class": "ui-animation",
+   "enterS": 0.2,
+   "enterEase": "easeOutCubic"
+  },
+  {
+   "file": "assets/scripts/ui/PopupMotion.ts",
+   "symbol": "OPEN_S/CLOSE_S",
+   "class": "ui-animation",
+   "enterS": 0.32,
+   "enterEase": "cubic-bezier(0.05,0.7,0.1,1)",
+   "exitS": 0.18,
+   "exitEase": "cubic-bezier(0.3,0,0.8,0.15)",
+   "pressS": 0,
+   "releaseS": 0.12,
+   "releaseEase": "easeOutBack(1.4)"
+  },
+  {
+   "file": "assets/scripts/ManagedMobileBoardUI.ts",
+   "symbol": "block-swap tween (ProjectPieceArt shake, .05+.07+.07+.05)",
+   "class": "gameplay-animation",
+   "totalS": 0.24,
+   "exemptFrom": "U1",
+   "match": "ProjectPieceArt'); if (!n) continue; const p = n.position.clone(); Tween.stopAllByTarget(n); tween(n).to(.05"
+  },
+  {
+   "file": "assets/scripts/ui/BoardLayout.ts",
+   "symbol": "TOAST_S",
+   "class": "hold-duration",
+   "holdS": 2,
+   "skip": true,
+   "reason": "hold time, not an animation"
+  },
+  {
+   "file": "assets/scripts/ui/BoardPanels.ts",
+   "symbol": "CHEST_HANDOFF_MS",
+   "class": "ambient-sequence",
+   "totalS": 3,
+   "exemptFrom": "U1",
+   "reason": "ambient/narrative sequence total"
+  }
+ ]
 }
