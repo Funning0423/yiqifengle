@@ -47,6 +47,29 @@ export function lakesideStagePhases(s4Passed:boolean,r5View:R5View|null|undefine
  }
  return out;
 }
+/** 2026-10-29 海岸支线 (data side only, not wired into derive/IslandPanels yet). Same rule as the lake: locked until S4
+ *  (mainline-12) is passed, then C1..C9 open one after another; a recorded clear or an already-open stage never re-locks.
+ *  Display counting follows the lake: the journal pill reads challenges.coast as 「挑战 x/9」 (COAST_STAGES). */
+export const COAST_STAGE_IDS:readonly string[]=['r06-coast-01','r06-coast-02','r06-coast-03','r06-coast-04','r06-coast-05','r06-coast-06','r06-coast-07','r06-coast-08','r06-coast-09'];
+export const COAST_STAGE_LABEL:Readonly<Record<string,string>>={'r06-coast-01':'C1','r06-coast-02':'C2','r06-coast-03':'C3','r06-coast-04':'C4','r06-coast-05':'C5','r06-coast-06':'C6','r06-coast-07':'C7','r06-coast-08':'C8','r06-coast-09':'C9'};
+export const COAST_STAGES=9;
+/** 夜航印记 (coast reward) = C7–C9 cleared; mirrors progress-journal COAST_NIGHT_REQUIRES. */
+export const COAST_NIGHT_REQUIRES:readonly string[]=['r06-coast-07','r06-coast-08','r06-coast-09'];
+export function coastStagePhases(s4Passed:boolean,r5View:R5View|null|undefined):Record<string,NodePhase>{
+ const out:Record<string,NodePhase>={},records=(r5View&&r5View.records)||{},open=(r5View&&r5View.openChallenges)||[];
+ const has=(id:string)=>Object.prototype.hasOwnProperty.call(records,id)&&!!records[id];
+ for(let i=0;i<COAST_STAGE_IDS.length;i++){
+  const id=COAST_STAGE_IDS[i];
+  if(has(id)){out[id]='passed';continue;}
+  if(open.indexOf(id)>=0){out[id]='playable';continue;}
+  out[id]=s4Passed&&(i===0||has(COAST_STAGE_IDS[i-1]))?'playable':'locked';
+ }
+ return out;
+}
+/** Journal display counter key for a regional stage id (lake as today, plus coast). */
+export function challengeRegionOf(stageId:string):'tide'|'meadow'|'sky'|'lake'|'coast'|null{
+ const m=/^r05-(tide|meadow|sky)-/.exec(stageId)||/^r0[45]-(lake)-/.exec(stageId)||/^r06-(coast)-/.exec(stageId);return m?m[1] as any:null;
+}
 export type NodeStates=Readonly<{
  nodes:Readonly<Record<string,NodePhase>>;
  explore:Readonly<Record<ProgressRegion,boolean>>;

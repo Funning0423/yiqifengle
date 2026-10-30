@@ -3171,8 +3171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodeProgress.ts",
-    "bytes": 10951,
-    "sha256": "5e4a56dc3fd375cb0ebe4a92e77cbaaf0b989881a07938951d0c55cde4179c02"
+    "bytes": 12881,
+    "sha256": "394a3e3cdad8dd23c4ddc61f0b729dcd130ff1e7902e3478b90cada4ac3452d9"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodeProgress.ts.meta",
@@ -3801,8 +3801,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/coast-levels-data.js",
-    "bytes": 9177,
-    "sha256": "314beb13422fd2d4ba5726b7b251610634fff3c751b534a65c4f5de201f884ff"
+    "bytes": 9212,
+    "sha256": "a3d7f87c2d1e61bd2250d3d876d3d09bce0512fac150d457ea9ab31dbe527857"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/coast-levels-data.js.meta",
@@ -3851,8 +3851,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js",
-    "bytes": 10211,
-    "sha256": "b91fa530bec37db68001b117410f8c61ed6bfade3a96edb4641bb88f13dccecb"
+    "bytes": 10637,
+    "sha256": "e532ea34c402cbbb1386301df5775bfba78ee033c6f0090b035d42ecea73c986"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta",

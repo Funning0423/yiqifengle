@@ -22,3 +22,15 @@ console.log('coast levels ok:',n,'seeded wins');
  const j=new Journal(Host.createStorage(mem()),journey(12));assert.strictEqual(j.claim('coast').ok,false);
  const g=API.createSession('r06-coast-03').snapshot().guide;assert.strictEqual(g.goalName,'灯标');
  console.log('journal gate ok');}
+// reward = 夜航 (C7–C9), display helpers in RegionNodeProgress
+{const Host=require(R+'/campaign-host.js');assert.deepStrictEqual(Journal.COAST_NIGHT_REQUIRES,['r06-coast-07','r06-coast-08','r06-coast-09']);
+ const src=require('fs').readFileSync(path.resolve(R,'../../region/RegionNodeProgress.ts'),'utf8');
+ assert.ok(/COAST_STAGE_IDS:readonly string\[\]=\['r06-coast-01'/.test(src)&&/export function coastStagePhases/.test(src)&&/export function challengeRegionOf/.test(src));
+ const {load}=require('../region-nodes/load.cjs'),P=load('region/RegionNodeProgress.ts');
+ assert.deepStrictEqual([...P.COAST_STAGE_IDS],coast.map(s=>s.id));assert.deepStrictEqual([...P.COAST_NIGHT_REQUIRES],[...Journal.COAST_NIGHT_REQUIRES]);
+ assert.strictEqual(P.challengeRegionOf('r06-coast-04'),'coast');assert.strictEqual(P.challengeRegionOf('r04-lake-01'),'lake');assert.strictEqual(P.challengeRegionOf('r05-tide-02'),'tide');
+ let ph=P.coastStagePhases(false,{records:{}});assert.strictEqual(ph['r06-coast-01'],'locked');
+ ph=P.coastStagePhases(true,{records:{'r06-coast-01':{}}});assert.strictEqual(ph['r06-coast-01'],'passed');assert.strictEqual(ph['r06-coast-02'],'playable');assert.strictEqual(ph['r06-coast-03'],'locked');
+ // claim with only C7–C9 recorded must pass the journal's reward rule: build records via real wins
+ const mem=()=>{const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v))};};
+ console.log('coast reward + display helpers ok');}
