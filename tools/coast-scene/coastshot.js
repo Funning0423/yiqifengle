@@ -1,4 +1,4 @@
-// 海岸 A 潮池礁盘 — Cocos 3.8.8 engine shot (runtime-built from coast_meshes.json / coast_layout.json). ?coastshot=1[&nopieces=1][&cam=game|close_beacon|close_edge|close_conch][&t=sec]
+// 海岸 A 潮池礁盘 — Cocos 3.8.8 engine shot (runtime-built from coast_meshes.json / coast_layout_full.json). ?coastshot=1[&nopieces=1][&cam=game|close_beacon|close_edge|close_conch][&t=sec]
 (function(){
 const q=new URLSearchParams(location.search);const S=window.__coast={ready:false,log:[]};const L=(...a)=>{S.log.push(a.join(' '));console.log('[coast]',...a);};
 const {director,Scene,Node,Camera,DirectionalLight,MeshRenderer,Material,Vec3,Color,Quat,utils}=cc;
@@ -65,7 +65,7 @@ function setT(t){S.t=t;
       const ps=u<0.4?1-u/0.4:u>0.6?Math.min(1,(u-0.6)/0.25):0;piece.active=!NOP&&ps>0.01;piece.setScale(ps,ps,ps);piece.setPosition(base.x,base.y+(u>0.6?0.5*(1-ps):0.08*u),base.z);}}
   if(water)waterAt(t,camNode.worldPosition);}
 async function go(){
-  const [M,LY]=await Promise.all([fetch('coast_meshes.json').then(r=>r.json()),fetch('coast_layout.json').then(r=>r.json())]);Object.assign(DATA,M);
+  const [M,LY]=await Promise.all([fetch('coast_meshes.json').then(r=>r.json()),fetch('coast_layout_full.json').then(r=>r.json())]);Object.assign(DATA,M);
   const sc=director.getScene();for(const c of sc.children.slice()){try{c.active=false;}catch(e){L('deact',c.name,e.message);}}
   try{director.pause&&0;}catch(e){}await new Promise((ok,no)=>cc.assetManager.loadBundle('shared_effects',(e,b)=>e?no(e):ok(b)));await new Promise(r=>setTimeout(r,300));const G=sc.globals;
   G.shadows.enabled=true;G.shadows.type=1;G.shadows.shadowMapSize=LEG?2048:1024;

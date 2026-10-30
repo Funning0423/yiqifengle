@@ -1,7 +1,7 @@
 # 海岸支线 A「潮池礁盘」全量资产 (场景设计部 2026-10-29)
 # blender -b --python build_coast.py -- <outdir>
 # Writes: <out>/coast_meshes.json (engine-shot geometry, Y-up, flat-shaded, RGBA8 colours with baked AO),
-#         <out>/coast_layout.json (instances), <out>/glb/*.glb (for the Creator bundle), <out>/stats.json
+#         <out>/coast_layout.json (runtime instances, no piece_*), <out>/coast_layout_full.json (all instances incl. piece_*, tools/preview), <out>/glb/*.glb (for the Creator bundle), <out>/stats.json
 import bpy,bmesh,math,random,sys,json,os
 from mathutils import Vector,noise,Matrix
 from mathutils.bvhtree import BVHTree
@@ -796,7 +796,11 @@ def _rnd(v,k=None):
     r=round(v,4 if k=='rz' else 3 if k in('p','placement','anchors_local','position','shore','headland') else 4)
     return 0.0 if r==0 else r
   return v
-json.dump(_rnd(dict(layout=[dict(d,p=[d['p'][0],d['p'][2],-d['p'][1]]) for d in L],shore=SHORE,headland=[HL[0],-HL[1]],placement=PLACEMENT)),open(OUT+'/coast_layout.json','w'),separators=(',',':'),ensure_ascii=False)
+_LAYF=_rnd(dict(layout=[dict(d,p=[d['p'][0],d['p'][2],-d['p'][1]]) for d in L],shore=SHORE,headland=[HL[0],-HL[1]],placement=PLACEMENT))
+# r5j (GGbot): two outputs. coast_layout_full.json = every instance incl. piece_* (web preview, sprite export, aabb/walk/geom tools; committed as
+# tools/coast-scene/data/coast_layout_full.json); coast_layout.json = runtime region_coast copy WITHOUT piece_* (the board draws 2D sprites).
+json.dump(_LAYF,open(OUT+'/coast_layout_full.json','w'),separators=(',',':'),ensure_ascii=False)
+json.dump(dict(_LAYF,layout=[d for d in _LAYF['layout'] if not d['mesh'].startswith('piece_')]),open(OUT+'/coast_layout.json','w'),separators=(',',':'),ensure_ascii=False)
 stats={n:out[n]['tris'] for n in out};stats['_new_unique']=sum(v for n,v in stats.items() if not out[n]['reuse']);stats['_reuse']=sum(v for n,v in stats.items() if n in out and out[n]['reuse'])
 json.dump(stats,open(OUT+'/stats.json','w'),indent=1);print('STATS',json.dumps(stats))
 # ---------- export: glb per group for the Creator bundle (new meshes only) ----------
