@@ -798,9 +798,9 @@ def _rnd(v,k=None):
   return v
 _LAYF=_rnd(dict(layout=[dict(d,p=[d['p'][0],d['p'][2],-d['p'][1]]) for d in L],shore=SHORE,headland=[HL[0],-HL[1]],placement=PLACEMENT))
 # r5j (GGbot): two outputs. coast_layout_full.json = every instance incl. piece_* (web preview, sprite export, aabb/walk/geom tools; committed as
-# tools/coast-scene/data/coast_layout_full.json); coast_layout.json = runtime region_coast copy WITHOUT piece_* (the board draws 2D sprites).
+# tools/coast-scene/data/coast_layout_full.json); coast_layout.json = runtime region_coast copy WITHOUT any piece:true entry (49 piece_* + 49 contact shadows; the 2D board draws its own shadows).
 json.dump(_LAYF,open(OUT+'/coast_layout_full.json','w'),separators=(',',':'),ensure_ascii=False)
-json.dump(dict(_LAYF,layout=[d for d in _LAYF['layout'] if not d['mesh'].startswith('piece_')]),open(OUT+'/coast_layout.json','w'),separators=(',',':'),ensure_ascii=False)
+json.dump(dict(_LAYF,layout=[d for d in _LAYF['layout'] if not d.get('piece') and not d['mesh'].startswith('piece_')]),open(OUT+'/coast_layout.json','w'),separators=(',',':'),ensure_ascii=False)
 stats={n:out[n]['tris'] for n in out};stats['_new_unique']=sum(v for n,v in stats.items() if not out[n]['reuse']);stats['_reuse']=sum(v for n,v in stats.items() if n in out and out[n]['reuse'])
 json.dump(stats,open(OUT+'/stats.json','w'),indent=1);print('STATS',json.dumps(stats))
 # ---------- export: glb per group for the Creator bundle (new meshes only) ----------
