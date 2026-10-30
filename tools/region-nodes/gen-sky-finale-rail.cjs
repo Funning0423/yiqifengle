@@ -7,7 +7,7 @@
 const fs=require('fs'),path=require('path'),L=require('../journey-integration/clip3/lens-scene.cjs'),FL=require('../journey-integration/journey-framing-lib.cjs');
 const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness(),SW=H.load('region/SkyWalkShot.ts'),TS=H.load('region/TransitionStaging.ts'),NW=H.load('region/NodeWalker.ts'),F=H.load('region/SkyFinaleShot.ts'),LS=H.load('region/LensSmooth.ts');
 const M5=TS.TRANSITION_STAGING.skyMooring5a,W=p=>SW.skyLocalToWorld(M5,p),SOFT=/foliage_cards|flowers|robot_gardener|cloud|cumulus/;
-const R={clr:0.75,gnd:1.3,stepM:0.45,ds:0.25,margin:0.1},WALKS=[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4','S6']];
+const KEY_TOL=0.25,R={clr:0.75,gnd:1.3,stepM:0.45,ds:0.25,margin:0.1},WALKS=[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4','S6']];
 const MM64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const enc=a=>{let o='',p=0;for(const v of a){const n=Math.round(v*100)/* cm, read back as mmDecode ×10 */,d=n-p;p=n;let z=d<0?-2*d-1:2*d;while(z>=32){o+=MM64[32+(z&31)];z=Math.floor(z/32);}o+=MM64[z];}return o;};
 (async()=>{const objs=await L.skyObjs([0,0,0]),solid=[L.bvh(objs.filter(o=>!SOFT.test(o.name)))],seeB=L.bvh(objs.filter(o=>!/cloud|cumulus/.test(o.name)))/* sight lines: foliage hides her too */;
@@ -34,7 +34,9 @@ const enc=a=>{let o='',p=0;for(const v of a){const n=Math.round(v*100)/* cm, rea
    for(let it=0;it<6;it++){const Z=Q.map((p,k)=>k===0||k===Q.length-1?p:p.map((v,i)=>(Q[k-1][i]+2*v+Q[k+1][i])/4));let good=true;
     for(let k=0;k<Z.length-1&&good;k++)for(let u=0;u<=1;u+=.25){const p=Z[k].map((v,i)=>v+(Z[k+1][i]-v)*u);if(!ok(p,her(layers[k].s+(layers[k+1].s-layers[k].s)*u))){good=false;break;}}
     if(!good)break;Q=Z;}
-   const ks=[];for(let k=0;k<Q.length;k++){if(k%2===0||k===Q.length-1){ks.push(k);continue;}const a=k-1,b=k+1,u=(layers[k].s-layers[a].s)/(layers[b].s-layers[a].s),p=Q[a].map((v,i)=>v+(Q[b][i]-v)*u);if(!ok(p,her(layers[k].s))||Math.hypot(...p.map((v,i)=>v-Q[k][i]))>0.1)ks.push(k);}
+   const fit=(a,b)=>{for(let k=a+1;k<b;k++){const u=(layers[k].s-layers[a].s)/(layers[b].s-layers[a].s),p=Q[a].map((v,i)=>v+(Q[b][i]-v)*u);if(Math.hypot(...p.map((v,i)=>v-Q[k][i]))>KEY_TOL||!ok(p,her(layers[k].s)))return false;
+     for(let m=0;m<4;m++){const s2=layers[k-1].s+(layers[k].s-layers[k-1].s)*m/4,u2=(s2-layers[a].s)/(layers[b].s-layers[a].s);if(!ok(Q[a].map((v,i)=>v+(Q[b][i]-v)*u2),her(s2)))return false;}}return true;};
+   const ks=[0];for(let a=0,b=2;b<Q.length;b++)if(!fit(a,b)){ks.push(b-1);a=b-1;}ks.push(Q.length-1);/* greedy key thinning: every dropped layer within KEY_TOL of the linear key path, and the key path itself re-checked (ok) every 1/4 layer */
    runs.push(enc(ks.flatMap(k=>[layers[k].s,...Q[k]])));}
   out[wa+'>'+wb]=runs;console.log(wa+'>'+wb,runs.map(r=>r.length));}
  const dst=path.join(__dirname,'../../creator-build-project/assets/scripts/region/SkyFinaleRail.ts'),old=fs.existsSync(dst)?fs.readFileSync(dst,'utf8'):'',jl=(old.match(/\nexport const SKY_JOINS[^\n]*/)||[''])[0];
