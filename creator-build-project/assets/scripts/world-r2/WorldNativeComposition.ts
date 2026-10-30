@@ -5,7 +5,7 @@ import {SKY_WARM_GAP_FAST_MS,continuousTransitions,preloadTargetForStage,recordF
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
-import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry } from 'cc';
+import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry, assetManager } from 'cc';
 import { DEBUG, MINIGAME } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
@@ -153,7 +153,7 @@ export class WorldNativeComposition extends Component {
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
     // Coast board kit (test mode ?qfcoastkit=1 only; 运镜bot r2): enter-level ends exactly on the coast board pose; nothing writes after.
     const coastKit=region==='coast'&&boardKitFor('coast')!==DEFAULT_KIT&&typeof window!=='undefined';
-    if(coastKit){const w=window.innerWidth,h=window.innerHeight;this.world?.setEnterLevelEnd?.(()=>coastBoardPose(w,h));}
+    if(coastKit){const w=window.innerWidth,h=window.innerHeight;this.world?.setEnterLevelEnd?.(()=>coastBoardPose(w,h));const wd:any=this.world,sid=selection.stageId,r0=wd?.commands?.().snapshot?.().journey?.region??null;try{await new Promise<void>((ok,no)=>assetManager.loadBundle('region_coast',e=>e?no(e):ok()));const run=(globalThis as any).__qfCoast?.runCoastArrival;if(typeof run!=='function')throw Error('coast entry not registered');await run(wd,{cancelled:()=>!this.isValid||!wd?.isValid||this.world!==wd||this.selection?.stageId!==sid||(wd.commands?.().snapshot?.().journey?.region??null)!==r0});}catch(e){console.error('[QF_COAST] arrival hook',String((e as any)?.message??e));}}
     if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(coastKit)this.world?.setEnterLevelEnd?.(null);if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
     // transitions-continuous: the last level of a region warms the next region + its vehicle (04 meadow+sail, 08 skycity+balloon, 12 lakeside+balloon)
     {let target:string|null=null;try{target=result.ok?preloadTargetForStage(selection.stageId):null;}catch{target=null;}if(target){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload(target);}}

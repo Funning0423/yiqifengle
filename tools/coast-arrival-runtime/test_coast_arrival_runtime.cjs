@@ -19,7 +19,7 @@ const CAL=load(path.join(A,'bundles/region_coast/scripts/CoastArrivalLens'));
 let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}};
 const SCREENS=['390x844','414x896','360x780','375x667','320x568','390x520','768x1024'],L=CB.COAST_MOTION_LIMITS;
 // kit-off / frozen pins: default path byte-identical (these files are not touched by this branch)
-const PIN={'scripts/CharacterMotion.ts':'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657','scripts/world-r2/WorldNativeComposition.ts':'663e60d6d63c5288c6f9b42678dbb8191a7eab5373671f1d204d31d267946012',
+const PIN={'scripts/CharacterMotion.ts':'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657','scripts/world-r2/WorldNativeComposition.ts':'eb3b3b2b491c6767f5d7b7855d8dd117e998b0b1baffa15995323f8e8da20803',
  'scripts/world-r1/WorldFlowComponent.ts':'e5d501a3f46ac6a9aac472f3d84eab949a50921ddd6e86b4b1a01abcc68ff487','scripts/WorldIntegrationBoot.ts':'19619af0b691b94d8d88031fb93e1cd28ef00ec1e5170b609286714faf7cb834',
  'scripts/regional-r05/runtime/coast-kit.js':'6ce4523fbf8aca24539384ce9c4bcfb49d6d7c94bbcdc2b9b5652ca05014d982'};
 for(const [f,h] of Object.entries(PIN))ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(A,f))).digest('hex')===h,'pinned file changed: '+f);

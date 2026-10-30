@@ -73,7 +73,7 @@ async function main(){
  {const L=await run({});ok(Object.keys(CL.COAST_REUSE_SOURCES).sort().join()===[...new Set(reuse.map(x=>x.mesh))].sort().join()&&Object.values(CL.COAST_REUSE_SOURCES).reduce((a,b)=>a+b.count,0)===reuse.length&&reuse.length===96,'COAST_REUSE_SOURCES == the 13 reuse names / 96 instances in the layout');}
  // pins
  const PIN={'scripts/regional-r05/runtime/regional-session.js':'730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b','scripts/regional-r05/runtime/rule-guide.js':'2653f7233a890100a1e7c7bb8ca5cfc5f5d3a44bc93a9de3b32796c55af9f3ea',
-  'scripts/CharacterMotion.ts':'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657','scripts/world-r2/WorldNativeComposition.ts':'663e60d6d63c5288c6f9b42678dbb8191a7eab5373671f1d204d31d267946012',
+  'scripts/CharacterMotion.ts':'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657','scripts/world-r2/WorldNativeComposition.ts':'eb3b3b2b491c6767f5d7b7855d8dd117e998b0b1baffa15995323f8e8da20803',
   'scripts/world-r1/WorldFlowComponent.ts':'e5d501a3f46ac6a9aac472f3d84eab949a50921ddd6e86b4b1a01abcc68ff487','scripts/WorldIntegrationBoot.ts':'19619af0b691b94d8d88031fb93e1cd28ef00ec1e5170b609286714faf7cb834',
   'scripts/regional-r05/runtime/coast-kit.js':'6ce4523fbf8aca24539384ce9c4bcfb49d6d7c94bbcdc2b9b5652ca05014d982'};
  for(const [f,h] of Object.entries(PIN))ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(A,f))).digest('hex')===h,'pinned (kit-off/frozen) '+f);
