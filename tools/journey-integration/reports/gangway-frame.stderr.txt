@@ -1,4 +1,0 @@
-Error: draco3d not found: set DRACO3D
-    at skyLocal (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:40:124)
-    at async Object.geometry (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:141:12)
-    at async /workspace/wt/fg-gate/tools/transitions-continuous/test_gangway_frame.cjs:17:20

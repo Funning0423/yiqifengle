@@ -1,6 +1,0 @@
-S2-S3 len 20.074 minClear 0.400 at [ -7, 19 ] maxTurn 45.0
-S3-S4 len 16.982 minClear 0.566 at [ 4.2, 1.4 ] maxTurn 45.0
-S4-S5 len 20.32 minClear 0.400 at [ 2.6, -7.4 ] maxTurn 90.0
-S4-S6 len 31.12 minClear 0.400 at [ 2.6, -7.4 ] maxTurn 90.0
-S4 node clear 0.800 S3>S6 48.102 (base 48.902)
-sky S2..S6 edge clearance ok (no exemptions)

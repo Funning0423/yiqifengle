@@ -1,4 +1,21 @@
-Error: draco3d not found: set DRACO3D
-    at skyLocal (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:40:124)
-    at async Object.geometry (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:141:12)
-    at async /workspace/wt/fg-gate/tools/journey-integration/test-route-occlusion.cjs:27:20
+sail island→meadow 390x844 PASS 2 clear 1.288 5 island:env_island_props_merged
+sail island→meadow 414x896 PASS 2 clear 1.288 5 island:env_island_props_merged
+sail island→meadow 360x780 PASS 2 clear 1.288 5 island:env_island_props_merged
+sail island→meadow 375x667 PASS 2 clear 1.288 5 island:env_island_props_merged
+sail island→meadow 320x568 PASS 2 clear 1.288 5 island:env_island_props_merged
+sail island→meadow 390x520 PASS 2 clear 1.288 5 island:env_island_props_merged
+sail island→meadow 768x1024 PASS 2 clear 1.288 5 island:env_island_props_merged
+balloon meadow→skycity 390x844 FAIL 1003 clear 3 0 null
+balloon meadow→skycity 414x896 FAIL 1003 clear 3 0 null
+balloon meadow→skycity 360x780 FAIL 1003 clear 3 0 null
+balloon meadow→skycity 375x667 FAIL 1003 clear 3 0 null
+balloon meadow→skycity 320x568 FAIL 1003 clear 3 0 null
+balloon meadow→skycity 390x520 FAIL 1003 clear 3 0 null
+balloon meadow→skycity 768x1024 FAIL 1003 clear 3 0 null
+balloon skycity→lakeside 390x844 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 414x896 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 360x780 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 375x667 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 320x568 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 390x520 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette
+balloon skycity→lakeside 768x1024 PASS 0 clear 1.246 4.7 skycity:env_sky_static_palette

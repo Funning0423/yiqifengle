@@ -1,5 +1,0 @@
-PASS boot wiring unchanged: per-frame lock renew + touch guard + button → continueJourney
-PASS L12 claim → board closes → skycity|arrived → tap fires (s2a: one tap after 1 s)
-PASS balloon arrival → skycity → two taps 4 s apart (s2b) → exactly one journey start (debounce kept)
-PASS meadow / lakeside explore taps also reach the handler; level/loading/transit still locked
-4 passed

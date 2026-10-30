@@ -1,4 +1,28 @@
-Error: draco3d not found: set DRACO3D
-    at skyLocal (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:40:124)
-    at async Object.geometry (/workspace/wt/fg-gate/tools/journey-integration/route/route-legs.cjs:141:12)
-    at async /workspace/wt/fg-gate/tools/journey-integration/test-route-continuity.cjs:92:20
+sail island→meadow 390x844 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":58.412,"maxAlphaDegS2":137.081,"maxAccMS2":22.998} C2 PASS C3 n/a C4 PASS
+sail island→meadow 414x896 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":58.412,"maxAlphaDegS2":137.081,"maxAccMS2":22.998} C2 PASS C3 n/a C4 PASS
+sail island→meadow 360x780 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":58.412,"maxAlphaDegS2":137.081,"maxAccMS2":22.998} C2 PASS C3 n/a C4 PASS
+sail island→meadow 375x667 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":58.412,"maxAlphaDegS2":137.081,"maxAccMS2":22.998} C2 PASS C3 n/a C4 PASS
+sail island→meadow 320x568 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":58.412,"maxAlphaDegS2":137.081,"maxAccMS2":22.998} C2 PASS C3 n/a C4 PASS
+sail island→meadow 390x520 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":58.412,"maxAlphaDegS2":137.081,"maxAccMS2":22.998} C2 PASS C3 n/a C4 PASS
+sail island→meadow 768x1024 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":58.412,"maxAlphaDegS2":137.081,"maxAccMS2":22.998} C2 PASS C3 n/a C4 PASS
+balloon meadow→skycity 390x844 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":42.705,"maxAlphaDegS2":158.038,"maxAccMS2":30.437} C2 PASS C3 PASS C4 PASS
+balloon meadow→skycity 414x896 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":42.705,"maxAlphaDegS2":158.038,"maxAccMS2":30.437} C2 PASS C3 PASS C4 PASS
+balloon meadow→skycity 360x780 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":42.705,"maxAlphaDegS2":158.038,"maxAccMS2":30.437} C2 PASS C3 PASS C4 PASS
+balloon meadow→skycity 375x667 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":42.705,"maxAlphaDegS2":158.038,"maxAccMS2":30.437} C2 PASS C3 PASS C4 PASS
+balloon meadow→skycity 320x568 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":42.705,"maxAlphaDegS2":158.038,"maxAccMS2":30.437} C2 PASS C3 PASS C4 PASS
+balloon meadow→skycity 390x520 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":42.705,"maxAlphaDegS2":158.038,"maxAccMS2":30.437} C2 PASS C3 PASS C4 PASS
+balloon meadow→skycity 768x1024 C1 FAIL {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":42.705,"maxAlphaDegS2":158.038,"maxAccMS2":30.437} C2 PASS C3 PASS C4 PASS
+balloon skycity→lakeside 390x844 C1 PASS {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":19.174,"maxAlphaDegS2":37.142,"maxAccMS2":2.736} C2 PASS C3 n/a C4 PASS
+balloon skycity→lakeside 414x896 C1 PASS {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":19.174,"maxAlphaDegS2":37.142,"maxAccMS2":2.736} C2 PASS C3 n/a C4 PASS
+balloon skycity→lakeside 360x780 C1 PASS {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":19.174,"maxAlphaDegS2":37.142,"maxAccMS2":2.736} C2 PASS C3 n/a C4 PASS
+balloon skycity→lakeside 375x667 C1 PASS {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":19.174,"maxAlphaDegS2":37.142,"maxAccMS2":2.596} C2 PASS C3 n/a C4 PASS
+balloon skycity→lakeside 320x568 C1 PASS {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":19.174,"maxAlphaDegS2":37.142,"maxAccMS2":2.596} C2 PASS C3 n/a C4 PASS
+balloon skycity→lakeside 390x520 C1 PASS {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":19.174,"maxAlphaDegS2":37.142,"maxAccMS2":2.499} C2 PASS C3 n/a C4 PASS
+balloon skycity→lakeside 768x1024 C1 PASS {"visibleJumps":0,"firstJumps":[],"maxOmegaDegS":19.174,"maxAlphaDegS2":37.142,"maxAccMS2":2.499} C2 PASS C3 n/a C4 PASS
+BG2 390x844 0 0 null
+BG2 414x896 0 0 null
+BG2 360x780 0 0 null
+BG2 375x667 0 0 null
+BG2 320x568 0 0 null
+BG2 390x520 0 0 null
+BG2 768x1024 0 0 null
