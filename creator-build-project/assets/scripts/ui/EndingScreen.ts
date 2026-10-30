@@ -1,9 +1,7 @@
-import { _decorator, BlockInputEvents, Camera, Color, Component, EffectAsset, Graphics, Layers, Material, MeshRenderer, Node, Sprite, SpriteFrame, RenderTexture, UIOpacity, UITransform, Vec3, director, tween, isValid, resources, sys, utils, view } from 'cc';
+import { _decorator, BlockInputEvents, Camera, Color, Component, EffectAsset, Graphics, Layers, Material, MeshRenderer, Node, Sprite, SpriteFrame, RenderTexture, UITransform, director, isValid, resources, sys, utils, view } from 'cc';
 import { artButton, artSprite, makeLabel, TintSet } from './PopupKit';
 import { uiNightWeight } from './NightTint';
-import { JOURNEY_MOTION, SEAL_D, endingSeals } from './JourneyCore';
-import { blankSeal } from './IslandPanels';
-import { reducedMotion } from './UiPrefs';
+import { withJourneyUi } from './JourneyUi';
 import { ENDING_ART, endingLayout, endingLayoutChecks, endingSwayDeg } from '../world-r2/EndingFlow';
 import { ENDING_CHIME, chimePartSwing, endingChimeParts, type ChimePart } from '../world-r2/EndingChimeGeometry';
 import { EndingChimeSway } from './EndingChimeSway';
@@ -47,16 +45,7 @@ export class EndingScreen {
     const t = makeLabel(n, '旅程完成', 0, Y(L.titleCy) + 2, 24, { width: 190, name: 'EndingTitle' }); t.color = new Color(0x5a, 0x3a, 0x1e, 255); (t as any).spacingX = 3;
     // new-regions SPEC §4: 6 seals Ø40 at 48 pitch on a shallow arc (Δy = 1.2·(i−2.5)²); unearned = code-drawn blank seal α0.85.
     // Drop-in 240 ms each, 80 ms stagger (reduced motion: no drop).
-    const reduced = reducedMotion(), seals: Node[] = [];
-    for (const sl of endingSeals()) { const x = sl.x, y = Y(L.sealsCy + sl.dy);
-      const holder = this.ui(n, 'Seal-' + sl.id, SEAL_D, SEAL_D); holder.setPosition(x, y, 0); holder.addComponent(UIOpacity).opacity = 0; seals.push(holder);
-      if (sl.earned) { const s = artSprite(holder, 'popup/reward_seal_' + sl.id, 0, 0, SEAL_D, SEAL_D, 'Art'); this.tint.sprite(s, 'ui'); }
-      else blankSeal({ tint: this.tint }, holder, 0, 0, SEAL_D, 0.85); }
-    seals.forEach((h, i) => { const m = JOURNEY_MOTION, op = h.getComponent(UIOpacity)!, p0 = h.position.clone();
-      if (reduced) { op.opacity = 255; return; }
-      h.setPosition(p0.x, p0.y + m.sealDropPt, 0); h.setScale(0.9, 0.9, 1);
-      tween(op).delay(i * m.sealStaggerS).to(m.sealDropS, { opacity: 255 }, { easing: 'cubicOut' }).start();
-      tween(h).delay(i * m.sealStaggerS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start(); });
+    withJourneyUi(ui => { if (this.alive && isValid(n, true)) ui.buildEndingSeals(n, this.tint, (p, nm, w, h) => this.ui(p, nm, w, h), dy => Y(L.sealsCy + dy)); }, 'ending-seals');
     artButton(n, this.tint, 'primary', '回小岛', 0, Y(L.buttonCy), L.buttonW, L.buttonH, () => { if (this.alive) a.home(); }, { fontSize: 20, name: 'EndingHome', sound: 'back' });
     this.tint.update(true);
     (globalThis as any).__qfEndingScreen = () => ({ night, ready: this.ready(), loaded: 3 - this.pending - this.failed.length, failed: this.failed.slice(), size: [w, h], layout: L, checks: endingLayoutChecks(w, h, a.safeBottom ?? 0) });

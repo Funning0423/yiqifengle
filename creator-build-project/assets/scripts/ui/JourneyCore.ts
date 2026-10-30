@@ -2,20 +2,18 @@
  *  Progress counts stages (not regions); the denominator is Σ stages of the regions that have level data, never fixed. */
 export type RegionKey = 'tide' | 'meadow' | 'sky' | 'lake' | 'coast' | 'snow';
 export type RowState = 'done' | 'progress' | 'open' | 'locked' | 'far';
-export interface RegionDef { id: RegionKey; name: string; short: string; description: string; stages: number; color: number[]; provider: 'mainline' | 'r5'; lockedHint: string }
+export interface RegionDef { id: RegionKey; name: string; description: string; stages: number; color: number[]; provider: 'mainline' | 'r5' }
 export const REGION_DEFS: ReadonlyArray<RegionDef> = [
-  { id: 'tide', name: '潮汐小径', short: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。', stages: 4, color: [0x5F, 0xA8, 0xC8], provider: 'mainline', lockedHint: '' },
-  { id: 'meadow', name: '花粉草甸', short: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。', stages: 4, color: [0x7D, 0xB5, 0x5A], provider: 'mainline', lockedHint: '主线 4 后开启' },
-  { id: 'sky', name: '天空回声', short: '天空回声', description: '连起光的回声，探索云上的远方。', stages: 4, color: [0x8E, 0x9F, 0xD6], provider: 'mainline', lockedHint: '主线 8 后开启' },
-  { id: 'lake', name: '风铃湖畔', short: '湖畔', description: '夕阳下的湖面，敲响漂在水上的风铃。', stages: 6, color: [0xE0, 0x9A, 0x5A], provider: 'r5', lockedHint: '主线 12 后开启' },
-  { id: 'coast', name: '海岸', short: '海岸', description: '沿着海滩捡贝壳，一步步走向灯塔。', stages: 9, color: [0xE2, 0xB2, 0x5A], provider: 'r5', lockedHint: '主线 12 后开启' },
-  { id: 'snow', name: '雪山隘口', short: '雪山', description: '踩着新雪，去山口听风铃。', stages: 6, color: [0x7F, 0x98, 0xCC], provider: 'r5', lockedHint: '湖畔通关后开启' },
+  { id: 'tide', name: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。', stages: 4, color: [0x5F, 0xA8, 0xC8], provider: 'mainline' },
+  { id: 'meadow', name: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。', stages: 4, color: [0x7D, 0xB5, 0x5A], provider: 'mainline' },
+  { id: 'sky', name: '天空回声', description: '连起光的回声，探索云上的远方。', stages: 4, color: [0x8E, 0x9F, 0xD6], provider: 'mainline' },
+  { id: 'lake', name: '风铃湖畔', description: '夕阳下的湖面，敲响漂在水上的风铃。', stages: 6, color: [0xE0, 0x9A, 0x5A], provider: 'r5' },
+  { id: 'coast', name: '海岸', description: '沿着海滩捡贝壳，一步步走向灯塔。', stages: 9, color: [0xE2, 0xB2, 0x5A], provider: 'r5' },
+  { id: 'snow', name: '雪山隘口', description: '踩着新雪，去山口听风铃。', stages: 6, color: [0x7F, 0x98, 0xCC], provider: 'r5' },
 ];
 /** Same journey record as the provider (progress-journal LAKE_GATE_RECORD / COAST_GATE_RECORD = 11): mainline 12 ≥1 star. */
 export const LAKE_GATE_RECORD = 11, COAST_GATE_RECORD = 11;
 export const JOURNEY_SEEN_DONE_KEY = 'qfl.ui.journeySeenDone', SEEN_REGIONS_KEY = 'qfl.ui.seenRegions';
-/** SPEC §6 motion (registered in tools/ui-timing/known-timings.json). Panel enter/exit come from PopupKit (320/180 ms). */
-export const JOURNEY_MOTION = { rowS: 0.2, rowStaggerS: 0.03, rowRisePt: 4, barGrowS: 0.6, sealDropS: 0.24, sealStaggerS: 0.08, sealDropPt: 10 } as const;
 export interface StageRef { id: string; region: string }
 export interface JourneyInput {
   records?: ReadonlyArray<{ bestStars?: number } | null | undefined> | null;   // mainline journey records[0..11]
@@ -74,38 +72,10 @@ export function focusRegion(inp: JourneyInput, rows = journeyRows(inp)): RegionK
   const live = rows.find(r => r.state === 'progress' || r.state === 'open'); if (live) return live.id;
   const done = rows.filter(r => r.state === 'done'); return (done.length ? done[done.length - 1] : rows[0]).id;
 }
-/** Row right-hand text (SPEC §2.1). */
-export function rowStatusText(r: RegionRow): string {
-  const d = REGION_DEFS.find(x => x.id === r.id)!;
-  if (r.state === 'done') return r.done + '/' + r.total;
-  if (r.state === 'progress') return r.done + '/' + r.total + ' ›';
-  if (r.state === 'open') return '可前往 ›';
-  if (r.state === 'locked') return d.lockedHint;
-  return '继续旅行后揭晓';
-}
-export function rowName(r: RegionRow): string { return r.state === 'far' ? '远方' : REGION_DEFS.find(x => x.id === r.id)!.name; }
-/** Chapter page: the ONE button (SPEC §3): 前往X / 继续 / 再访X / 尚未开启 (flat disabled). */
-export function chapterButton(r: RegionRow): { text: string; enabled: boolean; flat: boolean } {
-  const s = REGION_DEFS.find(x => x.id === r.id)!.short;
-  if (r.state === 'open') return { text: '前往' + s, enabled: true, flat: false };
-  if (r.state === 'progress') return { text: '继续', enabled: true, flat: false };
-  if (r.state === 'done') return { text: '再访' + s, enabled: true, flat: false };
-  return { text: '尚未开启', enabled: false, flat: true };
-}
-/** Coast chapter hint: C1–C6 海岸漫游, C7+ 灯塔夜航. */
-export function coastChapterHint(done: number): string { return done >= 6 ? '灯塔夜航' : '海岸漫游'; }
 /** Ending seals (SPEC §4): n slots Ø40, pitch 48, ends droop Δy = 1.2·(i−c)². x/y in pt relative to the row centre. */
 export function sealArc(n: number): Array<{ x: number; dy: number }> { const c = (n - 1) / 2, out = []; for (let i = 0; i < n; i++) out.push({ x: (i - c) * 48, dy: 1.2 * (i - c) * (i - c) }); return out; }
 export const SEAL_D = 40;
 export function sealArcWidth(n: number): number { return n > 0 ? (n - 1) * 48 + SEAL_D : 0; }
-/** Bar growth from the last seen value, only when it changed (reduced → jump). Returns the shown done at time t. */
-export function barShown(from: number, to: number, t: number, reduced: boolean): number {
-  if (reduced || from === to) return to; const k = Math.max(0, Math.min(1, t / JOURNEY_MOTION.barGrowS)); const e = 1 - Math.pow(1 - k, 3); return from + (to - from) * e;
-}
-export function rowAppear(i: number, t: number, reduced: boolean): { alpha: number; dy: number } {
-  const k = Math.max(0, Math.min(1, (t - i * JOURNEY_MOTION.rowStaggerS) / JOURNEY_MOTION.rowS)), e = 1 - Math.pow(1 - k, 3);
-  return { alpha: e, dy: reduced ? 0 : JOURNEY_MOTION.rowRisePt * (1 - e) };
-}
 /** Ending seals earned (SPEC §4): the 4 shipped regions are always shown earned on the ending (unchanged behaviour);
  *  coast / snow only when the r5 journal claimed them (claimedRegions, noted by WorldNativeComposition.islandGates()). */
 let claimedNoted: string[] = [];

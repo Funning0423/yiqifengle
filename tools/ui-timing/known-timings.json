@@ -117,7 +117,7 @@
    "reason": "switch knob/track slide: small control 100–200 ms (registered under pressS so check_ui_motion applies the 100–200 ms feedback rule)"
   },
   {
-   "file": "assets/scripts/ui/JourneyCore.ts",
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
    "symbol": "rowS",
    "class": "popup-enter-subtrack",
    "category": "popup enter sub-track",
@@ -128,7 +128,7 @@
    "reason": "journey-book row appear (new-regions SPEC §6): 200 ms per row, 4 rows stagger 30 ms → last row ends at 0.32 s = OPEN_S"
   },
   {
-   "file": "assets/scripts/ui/JourneyCore.ts",
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
    "symbol": "rowStaggerS",
    "class": "hold-duration",
    "holdS": 0.03,
@@ -136,7 +136,7 @@
    "reason": "stagger offset between journey rows, not an animation length"
   },
   {
-   "file": "assets/scripts/ui/JourneyCore.ts",
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
    "symbol": "barGrowS",
    "class": "ambient-sequence",
    "totalS": 0.6,
@@ -144,7 +144,7 @@
    "reason": "journey progress bar growth (SPEC §6, emphasized decelerate), only when the total changed since last open (qfl.ui.journeySeenDone); within the ≤600 ms whole-screen rule"
   },
   {
-   "file": "assets/scripts/ui/JourneyCore.ts",
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
    "symbol": "sealDropS",
    "class": "ambient-sequence",
    "totalS": 0.24,
@@ -152,7 +152,7 @@
    "reason": "ending seals drop-in 240 ms per seal, 80 ms stagger over 6 seals (whole sequence 0.24 + 5×0.08 = 0.64 s): ending narrative sequence"
   },
   {
-   "file": "assets/scripts/ui/JourneyCore.ts",
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
    "symbol": "sealStaggerS",
    "class": "hold-duration",
    "holdS": 0.08,
