@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-30T01:09:04.662Z",
-  "sourceRoot": "/workspace/wt/fg-system-panels",
+  "timeUTC": "2026-10-30T02:18:30.027Z",
+  "sourceRoot": "/workspace/wt/fg-new-regions",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
     {

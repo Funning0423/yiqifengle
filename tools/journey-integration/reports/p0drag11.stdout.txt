@@ -138,8 +138,8 @@
     }
    },
    "perf": {
-    "avgMs": 0.138,
-    "p99Ms": 1.3
+    "avgMs": 0.131,
+    "p99Ms": 1.5
    }
   },
   "skd_ro": {
@@ -178,8 +178,8 @@
     "minViewPitchDeg": -12
    },
    "perf": {
-    "avgMs": 0.151,
-    "p99Ms": 1.33
+    "avgMs": 0.114,
+    "p99Ms": 0.95
    }
   },
   "skn_po": {
@@ -218,8 +218,8 @@
     "minViewPitchDeg": -27.3
    },
    "perf": {
-    "avgMs": 0.11,
-    "p99Ms": 0.84
+    "avgMs": 0.122,
+    "p99Ms": 0.99
    }
   },
   "skn_ro": {
@@ -258,8 +258,8 @@
     "minViewPitchDeg": -12
    },
    "perf": {
-    "avgMs": 0.116,
-    "p99Ms": 0.86
+    "avgMs": 0.147,
+    "p99Ms": 2.08
    }
   },
   "ok": true

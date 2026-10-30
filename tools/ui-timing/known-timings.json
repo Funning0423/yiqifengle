@@ -147,9 +147,9 @@
    "file": "assets/scripts/ui/JourneyCore.ts",
    "symbol": "sealDropS",
    "class": "ambient-sequence",
-   "totalS": 0.64,
+   "totalS": 0.24,
    "exemptFrom": "U1",
-   "reason": "ending seals drop-in 240 ms each, 80 ms stagger over 6 seals (0.24 + 5×0.08 = 0.64 s): ending narrative sequence"
+   "reason": "ending seals drop-in 240 ms per seal, 80 ms stagger over 6 seals (whole sequence 0.24 + 5×0.08 = 0.64 s): ending narrative sequence"
   },
   {
    "file": "assets/scripts/ui/JourneyCore.ts",
