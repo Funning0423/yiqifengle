@@ -46,11 +46,6 @@ function holds(req: string, inp: JourneyInput): boolean {
   const m = /^main:(\d+)$/.exec(req); if (m) return star(inp.records?.[Number(m[1]) - 1]);
   const d = def(req); return !!d && hasData(d.id, inp.stages) && regionUnlocked(d.id, inp) && regionDone(d.id, inp) >= d.stages;
 }
-/** A requirement is "within reach" (two-level display): its own region is open ('main:N' → the mainline region holding N). */
-function reached(req: string, inp: JourneyInput): boolean {
-  const m = /^main:(\d+)$/.exec(req); if (m) return regionUnlocked(REGION_DEFS[Math.floor((Number(m[1]) - 1) / 4)].id, inp);
-  const d = def(req); return !!d && hasData(d.id, inp.stages) && regionUnlocked(d.id, inp);
-}
 export function regionUnlocked(id: RegionKey, inp: JourneyInput): boolean {
   const d = def(id); return !!d && !!d.unlock && d.unlock.requires.every(r => holds(r, inp));
 }
@@ -59,7 +54,7 @@ export function regionRow(id: RegionKey, inp: JourneyInput): RegionRow {
   const d = def(id)!, data = hasData(id, inp.stages) && !!d.unlock, done = regionDone(id, inp);
   let state: RowState;
   if (!data) state = 'far';                                     // §13.2: no stage data / no unlock → 远方, not tappable, not counted
-  else if (!regionUnlocked(id, inp)) state = d.unlock.requires.some(r => reached(r, inp)) ? 'locked' : 'far';
+  else if (!regionUnlocked(id, inp)) state = 'locked';          // P3 (UI设计部 r4): data but locked → faint seal + condition label, never 远方
   else state = done >= d.stages ? 'done' : done > 0 ? 'progress' : 'open';
   const isNew = state === 'open' && !(inp.seen || []).includes(id);
   return { id, done, total: d.stages, state, hasData: data, isNew, tappable: state !== 'far' };

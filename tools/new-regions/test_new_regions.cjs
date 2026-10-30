@@ -25,18 +25,18 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
   const row=(n,d,id,st=ALL,seen)=>J.regionRow(id,{records:rec(n),regionDone:d,stages:st,seen});
   for(const d of J.REGION_DEFS){assert(Array.isArray(d.unlock.requires));assert(d.unlock.label.length<=5,d.id);}
   assert.deepEqual(J.REGION_DEFS.find(d=>d.id==='spring').unlock.requires,['rail','cloud']);
-  assert.equal(row(6,{},'sky').state,'locked');for(const id of ['lake','coast','snow','rail','cloud','spring'])assert.equal(row(6,{},id).state,'far',id);
+  assert.equal(row(6,{},'sky').state,'locked');for(const id of ['lake','coast','snow','rail','cloud','spring'])assert.equal(row(6,{},id).state,'locked',id+' (P3 r4: data + locked → locked, never 远方)');
   assert.equal(row(8,{},'coast').state,'locked','after mainline 8: coast known-locked');assert.equal(row(12,{},'coast').state,'open');assert(row(12,{},'coast').isNew);assert(!row(12,{},'coast',ALL,['coast']).isNew);
-  assert.equal(row(12,{},'lake').state,'open');assert.equal(row(12,{},'snow').state,'locked');assert.equal(row(12,{},'rail').state,'locked','coast open → rail known-locked');assert.equal(row(12,{},'cloud').state,'far','snow not open → cloud far');
+  assert.equal(row(12,{},'lake').state,'open');assert.equal(row(12,{},'snow').state,'locked');assert.equal(row(12,{},'rail').state,'locked','coast open → rail known-locked');assert.equal(row(12,{},'cloud').state,'locked','snow not open → cloud still locked (has data)');
   assert.equal(row(12,{coast:8},'rail').state,'locked');assert.equal(row(12,{coast:9},'rail').state,'open','rail after coast fully cleared');
   assert.equal(row(12,{lake:6},'cloud').state,'locked');assert.equal(row(12,{lake:6,snow:6},'cloud').state,'open','cloud after snow fully cleared');
   assert.equal(row(12,{coast:9},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:7},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:8},'spring').state,'open','spring after rail and cloud');
   const S=[...SHIPPED,...COAST];for(const id of ['snow','rail','cloud','spring']){const r=row(12,{lake:6,coast:9},id,S);assert.equal(r.state,'far','no data → 远方 '+id);assert(!r.tappable);}
   assert.equal(row(12,{},'coast',SHIPPED).state,'far','coast without data: 远方');
-  assert.equal(B.rowStatusText(row(12,{},'snow')),'湖畔通关后');assert.equal(B.rowStatusText(row(12,{},'rail')),'海岸通关后');assert.equal(B.rowName(row(6,{},'coast')),'远方');assert.equal(B.rowStatusText(row(6,{},'coast')),'· · ·');
+  assert.equal(B.rowStatusText(row(12,{},'snow')),'湖畔通关后');assert.equal(B.rowStatusText(row(12,{},'rail')),'海岸通关后');assert.equal(B.rowName(row(6,{},'coast',SHIPPED)),'远方');assert.equal(B.rowStatusText(row(6,{},'coast',SHIPPED)),'· · ·');assert.equal(B.rowName(row(6,{},'coast')),'灯塔海岸');assert.equal(B.rowStatusText(row(6,{},'coast')),'主线12后');
   assert.equal(B.rowStatusText(row(12,{coast:9},'coast')),'9/9 ✓');assert.equal(B.rowStatusText(row(12,{coast:3},'coast')),'3/9');assert.equal(B.rowStatusText(row(12,{},'coast')),'可前往');
   assert.equal(J.focusRegion({records:rec(12),regionDone:{lake:2},stages:S}),'lake');assert.equal(J.focusRegion({records:rec(12),regionDone:{lake:2},stages:S,lastPlayed:'coast'}),'coast');
-  ok('unlock = requires + label: coast/lake 主线12后, snow 湖畔通关后, rail after coast, cloud after snow, spring after rail+cloud; two-level locked/远方; no data → 远方 untappable; focus rule');
+  ok('unlock = requires + label: coast/lake 主线12后, snow 湖畔通关后, rail after coast, cloud after snow, spring after rail+cloud; locked whenever data exists (P3 r4), 远方 only without data; no data → 远方 untappable; focus rule');
 }
 { // names (§13.4) + chapter buttons
   const n=id=>J.REGION_DEFS.find(d=>d.id===id);assert.equal(n('sky').name,'天空之城');assert.equal(n('sky').subtitle,'天空回声');assert.equal(n('snow').short,'雪山山口');assert.equal(n('coast').short,'灯塔海岸');
@@ -106,7 +106,7 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
     const texts=p.root.getComponentsInChildren(cc.Label).map(l=>l.string);assert(texts.includes('旅程 14 / 27'),texts);assert(texts.includes('章节 · 天空回声')||!texts.includes('天空回声'),'sky subtitle only as 章节 · 天空回声');
     const sc=Math.max(0.3,Math.min(w/750,h/1300,0.62)),f=Math.min(1,(h-16)/(h<700?458:514));assert(Math.abs(p.height*sc-(h<700?458:514)*f)<1e-6,'panel 514 / 458');
     for(const d of J.REGION_DEFS)assert(p.root.find('Chapter-'+d.id),d.id);
-    const cell=p.root.find('Chapter-coast').getComponent(cc.UITransform),iw=Math.min(330,w-40)-48;assert(Math.abs(cell.width*sc-(iw+48-64*f)/3)<0.01,'cell width (iw−16)/3 '+[cell.width*sc,iw,f]);if(h>=500)assert(cell.height*sc>=44-1e-6&&cell.width*sc>=44-1e-6,'cell touch ≥ 44 pt');
+    const cell=p.root.find('Chapter-coast').getComponent(cc.UITransform),pw=Math.min(330,Math.max(240,w-40));assert(Math.abs(cell.width*sc-(pw-80*f)/3)<0.01,'cell width (inner−2·8−16)/3 (r4 P2) '+[cell.width*sc,pw,f]);if(h>=500)assert(cell.height*sc>=44-1e-6&&cell.width*sc>=44-1e-6,'cell touch ≥ 44 pt');
     for(const id of ['rail','cloud','spring']){const n=p.root.find('Chapter-'+id),ls=n.getComponentsInChildren(cc.Label).map(l=>l.string);
       assert(!n.getComponentsInChildren(cc.UITransform).some(t=>/Seal/.test(t.node.name)),'no-data '+id+': no seal / blank seal');
       assert.deepEqual(ls,['远方','· · ·'],'no-data '+id+' shows 远方');H.tap(n);await H.flush();assert(!o.popups.find('ChapterPanel'),'no-data '+id+' not tappable');}

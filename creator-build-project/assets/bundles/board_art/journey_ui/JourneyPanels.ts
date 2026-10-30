@@ -28,7 +28,13 @@ export function createJourneyUi(h: JourneyUiHost) {
     if (r.state === 'locked') return defOf(r.id).unlock.label;
     return '· · ·';
   }
-  /** Grid name: short name (远方 when far). Focus card / region page use the full name. */
+  /** P3 (UI设计部 r4): 远方 only for regions with no data, never with a seal; a known region that is still locked shows its
+   *  name + faint seal + the §13.2 condition label (11 pt, one line, ellipsis, no wrap). Grid name: short name. */
+  const STATUS_PT = 11;
+  /** One-line fit: cut the label and append … when it is wider than `w` (never wraps). */
+  function ellipsize(text: string, size: number, w: number): string {
+    if (measure(text, size) <= w) return text; let t = text; while (t.length > 1 && measure(t + '…', size) > w) t = t.slice(0, -1); return t + '…';
+  }
   function rowName(r: RegionRow): string { return r.state === 'far' ? '远方' : defOf(r.id).short; }
   /** Chapter page: the ONE button (SPEC §3): 前往X / 继续 / 再访X / 尚未开启 (flat disabled). */
   function chapterButton(r: RegionRow): { text: string; enabled: boolean; flat: boolean } {
@@ -48,7 +54,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     const k = Math.max(0, Math.min(1, (t - i * JOURNEY_MOTION.gridStepS) / JOURNEY_MOTION.gridS)), e = 1 - Math.pow(1 - k, 3);
     return { alpha: e, dy: reduced ? 0 : JOURNEY_MOTION.gridRisePt * (1 - e) };
   }
-  const WIN_W = 208, WIN_H = 136;
+  const WIN_W = 208, WIN_H = 136, JOURNEY_FRAME_IN = 24, JOURNEY_INNER_PAD = 8;
   /** Landscape / very short viewports: shrink the pt layout uniformly so the fixed-height panel keeps 8 pt margins. */
   function fitPt(v: { width: number; height: number }, hPt: number) { return Math.min(1, Math.max(0.3, (v.height - 16) / hPt)); }
   const hex = (c: number[], night: number) => tintRgb('ui', night, c);
@@ -75,7 +81,9 @@ export function createJourneyUi(h: JourneyUiHost) {
         if (i > 0) { gg.fillColor = rgba(hex([0xF8, 0xED, 0xD3], night), a); gg.rect(sx - seam / 2, y0 - P(1.5), seam, BH + P(1.5)); gg.fill(); } }
     });
     // Focus card: whole card taps into the region page.
-    const fr = rows.find(r => r.id === focusId)!, fd = REGION_DEFS.find(d => d.id === focusId)!, CW = PW - P(48), CH = P(cardH), cy = P(116) + CH / 2;
+    // r4 P2 (界面验收部): grid + focus card keep 8 pt to the 9-slice inner frame (inset 24 pt) on both sides; panel size unchanged.
+    const IW = PW - 2 * P(JOURNEY_FRAME_IN) - 2 * P(JOURNEY_INNER_PAD);
+    const fr = rows.find(r => r.id === focusId)!, fd = REGION_DEFS.find(d => d.id === focusId)!, CW = IW, CH = P(cardH), cy = P(116) + CH / 2;
     const card = uiNode('Focus-' + focusId, p.body, CW, CH), cp = p.at(0, cy); card.setPosition(cp[0], cp[1], 0);
     const face = uiNode('Face', card, CW, CH);
     p.tint.shape(face.addComponent(Graphics), (gg, night, a) => { gg.fillColor = rgba(hex([0xD9, 0xBF, 0x8C], night), a); gg.roundRect(-CW / 2, -CH / 2 - P(3), CW, CH, P(16)); gg.fill(); gg.fillColor = rgba(hex([0xFF, 0xF6, 0xE2], night), a); gg.roundRect(-CW / 2, -CH / 2, CW, CH, P(16)); gg.fill(); });
@@ -90,7 +98,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     if (fr.isNew) redDot(p, face, tx + Math.min(tw, measure(fd.name, P(18))) + P(6), P(30), P(7));
     pressable(card, face, () => { markRegionSeen(focusId); openChapter(focusId); });
     // 3×3 seal grid (SPEC §13.1): all 9 regions; whole cell taps (≥44 pt); focus region = 2 pt teal ring; far = not tappable.
-    const IW = PW - P(48), GW = (IW - P(16)) / 3, GH = P(cellH), gy0 = P(116) + CH + P(12), nodes: Node[] = [];
+    const GW = (IW - P(16)) / 3, GH = P(cellH), gy0 = P(116) + CH + P(12), nodes: Node[] = [];
     rows.forEach((r, i) => {
       const col = i % 3, row = Math.floor(i / 3), cx = -IW / 2 + GW / 2 + col * (GW + P(8)), cyc = gy0 + row * (GH + P(8)) + GH / 2;
       const n = uiNode('Chapter-' + r.id, p.body, GW, GH), q = p.at(cx, cyc); n.setPosition(q[0], q[1], 0);
@@ -99,10 +107,10 @@ export function createJourneyUi(h: JourneyUiHost) {
       p.tint.shape(bg, (gg, night, a) => { gg.fillColor = rgba(hex(down ? [0xEF, 0xE2, 0xC4] : far ? [0xF3, 0xE9, 0xD2] : [0xFB, 0xF3, 0xE0], night), a); gg.roundRect(-GW / 2, -GH / 2, GW, GH, P(12)); gg.fill();
         if (focus) { gg.strokeColor = rgba(hex([0x37, 0x7F, 0x6C], night), a); gg.lineWidth = P(2); gg.roundRect(-GW / 2 + P(1), -GH / 2 + P(1), GW - P(2), GH - P(2), P(11)); gg.stroke(); } });
       const top = GH / 2, sy = top - P(short ? 3 : 4) - P(sealD) / 2;
-      if (far) { /* §13.2: no data → 远方 with no seal at all (UI设计部 r2); milestone-far keeps the faint seal (§13.1 淡章) */ if (r.hasData) blankSeal(p, c, 0, sy, P(sealD), 0.8); } else { const sp = artSprite(c, 'popup/reward_seal_' + r.id, 0, sy, P(sealD), P(sealD), 'Seal'); p.tint.sprite(sp, 'ui', [255, 255, 255], locked ? 166 : 255); sp.grayscale = locked; }
+      if (far) { /* P3 r4: 远方 = no data → never a seal */ } else { const sp = artSprite(c, 'popup/reward_seal_' + r.id, 0, sy, P(sealD), P(sealD), 'Seal'); p.tint.sprite(sp, 'ui', [255, 255, 255], locked ? 166 : 255); sp.grayscale = locked; }
       const nm = rowName(r), ny = top - P(short ? 38 : 46), sty = top - P(short ? 53 : 63);
       p.tint.label(makeLabel(c, nm, 0, ny, P(12.5), { width: GW - P(4), name: 'Name' }), far || locked ? 'brown2' : 'brown');
-      p.tint.label(makeLabel(c, rowStatusText(r), 0, sty, P(11), { width: GW - P(4), bold: r.state === 'progress' || r.state === 'open', name: 'Status' }), r.state === 'progress' || r.state === 'open' ? 'teal' : 'brown2');
+      p.tint.label(makeLabel(c, ellipsize(rowStatusText(r), P(STATUS_PT), GW - P(4)), 0, sty, P(STATUS_PT), { width: GW - P(4), lines: 1, bold: r.state === 'progress' || r.state === 'open', name: 'Status' }), r.state === 'progress' || r.state === 'open' ? 'teal' : 'brown2');
       if (r.isNew) redDot(p, c, GW / 2 - P(9), top - P(9), P(7));
       if (r.tappable) pressable(n, c, () => { markRegionSeen(r.id); openChapter(r.id); }, { onPress: d => { down = d; p.tint.repaint(bg); } });
       nodes.push(c);
@@ -191,7 +199,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION };
+  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };
