@@ -196,3 +196,9 @@ UI设计部，2026-10-30。基于 fc3123fa（只读，未改代码）。坐标�
 
 ### 8.x 夜间步数青色（UI设计部拍板）
 夜间步数青色直接用 [0,22,26]（约 5.0:1），不用 TEXT_NIGHT.teal [6,30,34]（4.61，余量太小）。night_*.png 示意图仍是 4.61 版，以本条为准。
+
+### 8.y 复验 P3 处理（UI设计部拍板）
+- T 只算完全可见的时长，不含淡入淡出：holdS = clamp(0.45 + n/4, 2.5, 4.5)，总时长 = 0.15 + holdS + 0.12（13 字共 3.97 s）。
+- 夜间步数和目标数靠沙漏图标和分隔线区分：沙漏图标和分隔线夜间不透明度 100%（日间不变），分隔线左右各留 6pt。不加底块。
+- board.compactToast.holdS、board.compactToast.firstPulseS 必须在代码落地时登记进 tools/ui-timing/known-timings.json。
+- night_*.png 只是示意，色值以 8.x 为准，不重出图。
