@@ -520,26 +520,6 @@
       ],
       "subMetas": {}
     },
-    "0e588": {
-      "importer": "gltf-embeded-image",
-      "uuid": "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588",
-      "displayName": "",
-      "id": "0e588",
-      "name": "meadow_ground_detail_v0_8_512.image",
-      "userData": {
-        "gltfIndex": 3,
-        "fixAlphaTransparencyArtifacts": true,
-        "hasAlpha": false,
-        "type": "texture"
-      },
-      "ver": "1.0.3",
-      "imported": true,
-      "files": [
-        ".jpg",
-        ".json"
-      ],
-      "subMetas": {}
-    },
     "3effa": {
       "importer": "texture",
       "uuid": "bb978abb-d907-5dba-be5a-14cc64f5e596@3effa",
@@ -783,10 +763,6 @@
       {
         "name": "meadow_sky_4096x1024",
         "uri": "bb978abb-d907-5dba-be5a-14cc64f5e596@9d104"
-      },
-      {
-        "name": "meadow_ground_detail_v0_8_512",
-        "uri": "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588"
       }
     ],
     "lods": {
@@ -856,7 +832,7 @@
     "meshCompress": {
       "enable": true,
       "compress": true,
-      "encode": false,
+      "encode": true,
       "quantize": false
     }
   }

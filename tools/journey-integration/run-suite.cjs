@@ -4,6 +4,7 @@
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),crypto=require('node:crypto');
 const ROOT=path.resolve(__dirname,'../..'),out=path.join(__dirname,'reports');fs.mkdirSync(out,{recursive:true});
 const tests=[
+ ['meta-allowlist','tools/build-guard/meta-allowlist.cjs'],['manifest-files-exist','tools/build-guard/manifest-files-exist.cjs'],['meta-gates-selftest','tools/build-guard/test_meta_gates.cjs'],['sha-pin-coverage','tools/build-guard/sha-pin-coverage.cjs'],['sha-pin-coverage-selftest','tools/build-guard/test_sha_pin_coverage.cjs'],['meadow-encode-ext','tools/creator-ext/test_meadow_encode_ext.cjs'],/* run first: per-field .meta allowlist vs merge-base with ggbot/full9c-final, manifest entries exist */
  ['skycity-continue-tap','tools/journey-integration/test-skycity-continue-tap.cjs'],
  ['b1-start-budget','tools/transitions-continuous/test_b1_start_budget.cjs'],
  ['entry-pause-panel','tools/board-ui/test_entry_pause_panel.cjs'],

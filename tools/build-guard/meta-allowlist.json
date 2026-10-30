@@ -1,0 +1,62 @@
+{
+  "about": "Per-field allowlist for .meta changes vs the base commit. Every change not listed here fails. Edits to this file need Grok Bot's review (2026-10-29: meadow B+D+E only; character and island stay without Encode).",
+  "baseRef": "ggbot/full9c-final",
+  "files": {
+    "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta": {
+      "uuid": "bb978abb-d907-5dba-be5a-14cc64f5e596",
+      "allow": [
+        {
+          "op": "replace",
+          "path": "/userData/meshCompress/encode",
+          "from": false,
+          "to": true
+        },
+        {
+          "op": "remove",
+          "path": "/subMetas/0e588"
+        },
+        {
+          "op": "removeArrayItem",
+          "path": "/userData/imageMetas",
+          "item": {
+            "name": "meadow_ground_detail_v0_8_512",
+            "uri": "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588"
+          },
+          "why": "Grok Bot 2026-10-29: Creator drops the imageMetas entry together with subMetas/0e588"
+        }
+      ],
+      "mustEqualIfChanged": [
+        {
+          "path": "/userData/meshCompress",
+          "value": {
+            "enable": true,
+            "compress": true,
+            "encode": true,
+            "quantize": false
+          }
+        }
+      ]
+    },
+    "creator-build-project/assets/bundles/transport_sail/far_meadow_impostor.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
+    },
+    "creator-build-project/assets/bundles/transport_sail/sea_reef_cluster.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
+    }
+  },
+  "watchRefs": [
+    {
+      "ref": "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588",
+      "why": "meadow_ground_detail_v0_8_512, unused texture removed by plan D; any other .meta change that touches it needs Grok Bot's review"
+    }
+  ],
+  "forbidBuildRefs": [
+    "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588"
+  ]
+}

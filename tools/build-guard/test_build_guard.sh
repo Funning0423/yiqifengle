@@ -5,8 +5,9 @@ HERE=$(cd "$(dirname "$0")" && pwd); SCR=${QF_SCRATCH_ROOT:-$HOME/wt}; mkdir -p 
 export QF_STAGE_ROOT=$T/stage PRELOAD_GATE=0 NODE=${NODE:-node}   # cases 1-10: build mechanics only; preload gate in cases 11-12
 fail(){ echo "SELFTEST FAIL: $*"; exit 1; }
 mkrepo(){ R=$T/repo$1; mkdir -p "$R/creator-build-project/assets/scripts" "$R/tools/build-guard"
-  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$R/tools/build-guard/"
+  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$HERE/meta-allowlist.cjs" "$HERE/meta-allowlist.json" "$HERE/manifest-files-exist.cjs" "$HERE/lib-gates.cjs" "$R/tools/build-guard/"
   printf 'export const a=1;/*QF_PROBE_BEGIN*/(globalThis as any).__QF_PROBE_HER=1;log("[QF_HER_FRAME] x");/*QF_PROBE_END*/\n' > "$R/creator-build-project/assets/scripts/probe.ts"
+  printf '[]\n' > "$R/assets-MANIFEST-SHA256.json"; printf '[]' > "$R/text-MANIFEST-SHA256.json"
   printf 'build/\nlibrary/\ntemp/\ntools/build-guard/logs/\n' > "$R/.gitignore"
   for i in 1 2 3; do printf '{"ver":"1.0.0","importer":"typescript","uuid":"u%s"}\n' $i > "$R/creator-build-project/assets/scripts/a$i.ts.meta"; done
   (cd "$R" && git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -qm init) ; echo "$R"; }
@@ -23,7 +24,7 @@ else head -c 2300000 /dev/zero > "$P/build/$out/game.bin"; echo "Error: 当前�
   for f in "$P"/assets/scripts/*.meta; do echo '{"ver":"0.0.1","importer":"*"}' > "$f"; done; echo '{}' > "$P/assets/scripts/new.ts.meta"; exit 36; fi
 F
 chmod +x "$T/fake-creator"
-run(){ R=$1; shift; PLAN=$T/plan$2; printf '%s\n' $3 > "$PLAN"; rm -f "$PLAN.n"; export PLAN
+run(){ R=$1; shift; export META_ALLOWLIST_BASE=${META_BASE_OVERRIDE:-HEAD}; PLAN=$T/plan$2; printf '%s\n' $3 > "$PLAN"; rm -f "$PLAN.n"; export PLAN
   (cd "$R" && CREATOR=$T/fake-creator SKIP_CREATOR_CHECK=1 MAX_TRIES=3 bash tools/build-guard/build-wechat-guarded.sh $1) > "$T/out$2" 2>&1; echo $?; }
 # 1) bad, bad, good -> pass on try 3, total printed, metas intact, caches gone
 R=$(mkrepo 1); c=$(run "$R" wechat 1 "bad bad good"); cat "$T/out1"
@@ -68,4 +69,10 @@ R=$(mkpre 11); c=$(STRIP_PROBES=0 PRELOAD_GATE=1 FAKE_BUNDLES=1 run "$R" wechat 
 grep -q "PASS preload-bytes gate 5 bundles" "$T/out11" || fail "case11 gate"; ls "$R"/tools/build-guard/logs/preload-bytes.wechat-release.*.md >/dev/null || fail "case11 table"
 R=$(mkpre 12); c=$(STRIP_PROBES=0 PRELOAD_GATE=1 FAKE_BUNDLES=1.03 run "$R" wechat 12 "good"); [ "$c" = 2 ] || fail "case12 exit $c"
 grep -q "FAIL DRIFT region_skycity" "$T/out12" && grep -q "PRELOAD_BYTES differ" "$T/out12" || fail "case12 msg"
-echo "SELFTEST PASS (12 cases + provenance)"
+# 13) committed .meta change not in the allowlist (vs base = first commit) -> refuse before building
+R=$(mkrepo 13); (cd "$R" && printf '{"ver":"1.0.0","importer":"typescript","uuid":"u1","x":1}\n' > creator-build-project/assets/scripts/a1.ts.meta && git -c user.email=t@t -c user.name=t commit -qam meta)
+c=$(META_BASE_OVERRIDE=HEAD~1 run "$R" wechat 13 "good"); [ "$c" = 2 ] || fail "case13 exit $c"; grep -q "NOT_ALLOWED .*a1.ts.meta add /x" "$T/out13" || fail "case13 msg"; grep -q "meta-allowlist gate failed" "$T/out13" || fail "case13 die"
+# 14) manifest lists a missing file -> refuse before building
+R=$(mkrepo 14); (cd "$R" && printf '[\n  {"path": "creator-build-project/assets/gone.glb"}\n]\n' > assets-MANIFEST-SHA256.json && git -c user.email=t@t -c user.name=t commit -qam man)
+c=$(run "$R" wechat 14 "good"); [ "$c" = 2 ] || fail "case14 exit $c"; grep -q "MISSING_FILE .*gone.glb" "$T/out14" || fail "case14 msg"
+echo "SELFTEST PASS (14 cases + provenance)"

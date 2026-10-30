@@ -1,0 +1,93 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "c4865b92-fe80-4cd5-94e7-6d4983c4e2ee",
+  "files": [],
+  "subMetas": {
+    "68030": {
+      "importer": "gltf-scene",
+      "uuid": "c4865b92-fe80-4cd5-94e7-6d4983c4e2ee@68030",
+      "displayName": "",
+      "id": "68030",
+      "name": "sea_reef_cluster.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "021cc": {
+      "importer": "gltf-mesh",
+      "uuid": "c4865b92-fe80-4cd5-94e7-6d4983c4e2ee@021cc",
+      "displayName": "",
+      "id": "021cc",
+      "name": "sea_reef_cluster.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 294
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0a731": {
+      "importer": "gltf-material",
+      "uuid": "c4865b92-fe80-4cd5-94e7-6d4983c4e2ee@0a731",
+      "displayName": "",
+      "id": "0a731",
+      "name": "M_sea_reef_vc.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "c4865b92-fe80-4cd5-94e7-6d4983c4e2ee@021cc"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "c4865b92-fe80-4cd5-94e7-6d4983c4e2ee@0a731"
+      ],
+      "scenes": [
+        "c4865b92-fe80-4cd5-94e7-6d4983c4e2ee@68030"
+      ]
+    }
+  }
+}

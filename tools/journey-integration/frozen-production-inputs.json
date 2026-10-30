@@ -859,11 +859,11 @@
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
-      "sha256": "27a1559946a5da74dcaeeb5cd043066393b5ca7ddfb4c4ddbbb7a88b1f279bd9"
+      "sha256": "4b3b86b70b08a27c0a243d4130361c2e88b0772a1789d7657d273b7d2d89b1b6"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta",
-      "sha256": "970a79cb2dce9f05f4f16dfca6aa959ebb880d8ef602eb89e83f96cd2d26eeae"
+      "sha256": "614f6497306786ce57c8493d9368bd8fa7fd40b6f0eef03ec86b33cfe82f0be0"
     },
     {
       "path": "creator-build-project/assets/bundles/region_meadow/meadow-grass-wind.effect",
@@ -1282,5 +1282,13 @@
       "sha256": "4df5ece9598437d1d2f5212ad7382a4dfe7831baf5bacfbea56cf5a4bf8798e3"
     }
   ],
-  "characterControllerSectionSHA256": "171b4e16d91ae0a95bdcad27ae084796ca109e6e329141f2d975692e4abb6342"
+  "characterControllerSectionSHA256": "171b4e16d91ae0a95bdcad27ae084796ca109e6e329141f2d975692e4abb6342",
+  "embeddedPins": [
+    {
+      "source": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
+      "key": "derivedGLBSHA256",
+      "target": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
+      "why": "Grok Bot 2026-10-29: completes b84b5409 re-pin; the shipped meadow scene data must name the shipped glb"
+    }
+  ]
 }
