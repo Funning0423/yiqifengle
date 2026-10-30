@@ -75,7 +75,12 @@ const res={};
   const body=s=>{const i=s.indexOf('const b1Draw=()=>{');return s.slice(i,s.indexOf('director.on(Director.EVENT_BEFORE_DRAW,b1Draw)',i)).replace(/\n\s*if\(!b1Drawn\)\{gapPh\('firstDraw-wait'\);[\s\S]*?\/\* hold the real previous frame, single writer \(before-draw\) \*\//,'');};
   const H0='const b1Draw=()=>{if(dead||!b1On)return;';assert.ok(body(base).startsWith(H0),'C3: base B1 writer head moved');
   assert.equal(body(src),H0+'b1Hold=b1Hold||liveWorldPose();'+body(base).slice(H0.length),'C3: B1 writer changed beyond the hold branch + the b1-ease b1Hold latch');}
- for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b!==null)assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE);}
+ /* TransportLeg.ts: byte-identical to BASE except exactly one line, SAIL_M1_LOCAL, pinned to its exact new content (option a, approved by grokbot-2 2026-10-30):
+  * the meadow M1 move 505ceb63 ([2.6,2.2,11.6] -> [2.6,2.764,6.8]) then 93ac386e (-> [2.2,2.803,6.8], = baked RegionNodes M1 on the path). Exact string, not a pattern. */
+ const SAIL_M1_OLD='export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];',SAIL_M1_NEW='export const SAIL_M1_LOCAL:Vec=[2.2,2.803,6.8];/* b20 meadow-walk-fixes: = baked RegionNodes M1 on the path (was [2.6,2.2,11.6], then [2.6,2.764,6.8]) */';
+ for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){let b=gitShow(f);if(b===null)continue;
+  if(f==='region/TransportLeg.ts'){const L=b.split('\n'),i=L.indexOf(SAIL_M1_OLD);assert.ok(i>=0&&L.indexOf(SAIL_M1_OLD,i+1)<0,'C3: base SAIL_M1_LOCAL line not found once');L[i]=SAIL_M1_NEW;b=L.join('\n');}
+  assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE+(f==='region/TransportLeg.ts'?' (only the pinned SAIL_M1_LOCAL line may differ)':''));}
  /* fullN: TransitionChain.ts may change only in its generated preload section + additive lines (rule + negative self-test: c3-transition-chain*.cjs) */
  {const f='region/TransitionChain.ts',b=gitShow(f);if(b!==null)require('./c3-transition-chain.cjs').checkTransitionChain(b,fs.readFileSync(S+f,'utf8'),f,BASE);}
  const plan=planFor(M2),v0=plan.vehicle(0),c0=plan.camera(0),PIN={v0:[-5.3,5.25,102.5],c0:[-20.6,8.25,89.6]}/* m run plan0 (3 dp log) */;
