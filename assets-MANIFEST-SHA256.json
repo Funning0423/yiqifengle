@@ -515,6 +515,61 @@
     "sha256": "308a3218749e655609def03591fe9f3251ce3198f9f8f58400fcc720a74ad949"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_coast/board/piece_badge.png",
+    "bytes": 21463,
+    "sha256": "015c7f5c1b3afbc7a98c57fc7df5fe82c6f0617e3431cf28b95c24ffece7b335"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/board/piece_conch.png",
+    "bytes": 26610,
+    "sha256": "9975ef878ba467d1040ef5d18aa26e38f0ab0b4b48ad11af7d66ff0290bca375"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/board/piece_coral.png",
+    "bytes": 23150,
+    "sha256": "948f75c415da568d9498aa2a93cbb5f081e017ce64cfbbf8634f3005d8a7cb8f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/board/piece_float.png",
+    "bytes": 21221,
+    "sha256": "bfe572e997bb398a947a9262740f25fca58e35aadc999adb942f1304169f0316"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/board/piece_scallop.png",
+    "bytes": 13778,
+    "sha256": "59f9d66da5c36abb557d69c98e004d54924a81adc1e2bcf2728939c66bfb694e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/board/piece_star.png",
+    "bytes": 18996,
+    "sha256": "ff83125715ef275165886bc9f38f5fae2cd2c9cbeba0b863a1c98447b615daad"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_board.glb",
+    "bytes": 268984,
+    "sha256": "a4884d79c63a8a11174f36bff5c7a37f177141df220d52de0e4328a5daa149b3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_pieces.glb",
+    "bytes": 121588,
+    "sha256": "a142272a89e4e2ed524e9378c9fe7e8ff6906958f6e82067c726ad597cc68403"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_props.glb",
+    "bytes": 204500,
+    "sha256": "f0894dfa92e7b15451c2b811e14e94c83af7296b1e79ec157f0427d452aa437c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_rocks.glb",
+    "bytes": 137624,
+    "sha256": "02a466f6122e53eff78e57d6e5109fc526ae6fab41ba7c89c30d62b107a69eeb"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_terrain.glb",
+    "bytes": 619360,
+    "sha256": "b136baf0ba7d7f4d50b532843beab379cbe801c6783bfb1c14cdbdd1ffc2ea7b"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3",
     "bytes": 140660,
     "sha256": "ca6c9fa509a0a5b019838fdaca2a2049d11310b7c9d506ef1b4f05deccea4269"

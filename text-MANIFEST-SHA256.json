@@ -610,6 +610,66 @@
     "sha256": "f150abedc13d80e8a42656b6e80034ee39ab46a4d89c6460149ba9bffef5c2af"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_coast.meta",
+    "bytes": 406,
+    "sha256": "a0f9d7ddf7601482b6772b67524e433dc5b8e79ed931a156d08820d44b77ef98"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/data.meta",
+    "bytes": 168,
+    "sha256": "2995fc8d8541bc7a7eee966e5cb3687157774a95a012a5d5dac327f42e853b79"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/data/coast_aabbs.json",
+    "bytes": 2084,
+    "sha256": "acef0a305b7e4b84f339b2c92cc500bc04194027e63752fa16d3f7ee1667e793"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/data/coast_aabbs.json.meta",
+    "bytes": 164,
+    "sha256": "1043c06e5abddaee40fc4dd61e6a23a63c3f0d788f14a1215aa7156601de0576"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/data/coast_layout.json",
+    "bytes": 39625,
+    "sha256": "f0df07aa71c73502d51555715c2731e9250e231e27342c0ed4b67f442984f603"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/data/coast_layout.json.meta",
+    "bytes": 164,
+    "sha256": "b19b064096a62253fcd31347b6085edfb678ca9b32b573e6258d02eb52cd6c21"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models.meta",
+    "bytes": 168,
+    "sha256": "e9cc1f0d46a45e652229ede5b11b11736369a4de50738db8ed30559c516495fc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_board.glb.meta",
+    "bytes": 350,
+    "sha256": "deded94383b6392db42375a4a52c11aed964c4d4e2bfd12aa8b6f7c3644f700a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_pieces.glb.meta",
+    "bytes": 350,
+    "sha256": "df21e083939793ebecabf8c8837e5ceecea075794b25e222d5d7468ebc1e8b48"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_props.glb.meta",
+    "bytes": 350,
+    "sha256": "137855a9d0da7b0f3f1961ff2ba67635a4a85e7be703cee0b918805f818fa7ba"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_rocks.glb.meta",
+    "bytes": 350,
+    "sha256": "a14c72dc23ce057c4bd3a74c1bfc5340629d42da5438fb43d0d2fb0669dec788"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_terrain.glb.meta",
+    "bytes": 350,
+    "sha256": "24519b9258e426a0e7372f97b6cba22872caa2668348201988bc31ba4a919b5d"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island.meta",
     "bytes": 408,
     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
@@ -1991,8 +2051,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 102262,
-    "sha256": "8b4427946221867781fd9612c66944e5d687efbff76aaa5728edb688d5b475ae"
+    "bytes": 104976,
+    "sha256": "a6b0ada70455de060b3c732b92e8f3ac95b52ac48091d7652be443cec03b142c"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -5091,8 +5151,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 31097,
-    "sha256": "b6fdef2c07f298783f768fc7a56704eee9ed219834bf6e149c33073651d9fa43"
+    "bytes": 31237,
+    "sha256": "4f1b0493279e6dd5408eaef8331b3fe26efda7b562294332103c44682b62cfa3"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

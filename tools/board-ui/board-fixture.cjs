@@ -16,7 +16,7 @@ function createBoard(options = {}) {
   const provider = options.provider || 'mainline-v33', region = options.region || 0;
   H.setViewport(options.width || 390, options.height || 844);
   const { managedTools } = H.load('world-r2/ManagedTools');
-  const { ManagedMobileBoardUI } = H.load('ManagedMobileBoardUI');
+  const { ManagedMobileBoardUI } = options.uiModule ? H.load(options.uiModule) : H.load('ManagedMobileBoardUI');
   const s = options.snapshot || snapshot(provider, region), u = new ManagedMobileBoardUI(), owner = new H.cc.Node('owner');
   u.node = owner; owner.components.push(u); H.cc._scene.addChild(owner);
   const log = { commands: [], tools: [], submits: [], restarts: 0, hints: 0, hidden: 0 };
