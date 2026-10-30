@@ -79,6 +79,7 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
     const o3=new O3(H3.cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>({journey:{records:rec(12)}}),gates:()=>({r5:[],challenges:{},stages:SHIPPED}),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode:'day'})});
     o3.sync(390,844,true);H3.tap(o3.buttons[1]);assert(!o3.popups.find('JourneyPanel'),'tap before the subpackage ran: nothing drawn yet (no loader)');await H3.flush();assert(o3.popups.find('JourneyPanel'),'opens right after the bundle runs');o3.dispose(); }
   ok('first open: board_art (panel art + journey UI) is warmed at overlay construction; tap after it → synchronous open; tap before → opens on load, no loading UI');
+  const farProof=[];
   // panel fit on 7 sizes, rows ≥ 44 pt
   const {IslandJourneyOverlay}=H.load('world-r2/IslandJourneyOverlay'),cc=H.cc;
   for(const [w,h] of [[320,568],[360,640],[375,667],[390,844],[414,896],[430,932],[568,320]]){
@@ -88,8 +89,13 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
     const sc=Math.max(0.3,Math.min(w/750,h/1300,0.62)),f=Math.min(1,(h-16)/(h<700?458:514));assert(Math.abs(p.height*sc-(h<700?458:514)*f)<1e-6,'panel 514 / 458');
     for(const d of J.REGION_DEFS)assert(p.root.find('Chapter-'+d.id),d.id);
     const cell=p.root.find('Chapter-coast').getComponent(cc.UITransform),iw=Math.min(330,w-40)-48;assert(Math.abs(cell.width*sc-(iw+48-64*f)/3)<0.01,'cell width (iw−16)/3 '+[cell.width*sc,iw,f]);if(h>=500)assert(cell.height*sc>=44-1e-6&&cell.width*sc>=44-1e-6,'cell touch ≥ 44 pt');
+    for(const id of ['rail','cloud','spring']){const n=p.root.find('Chapter-'+id),ls=n.getComponentsInChildren(cc.Label).map(l=>l.string);
+      assert(!n.getComponentsInChildren(cc.UITransform).some(t=>/Seal/.test(t.node.name)),'no-data '+id+': no seal / blank seal');
+      assert.deepEqual(ls,['远方','· · ·'],'no-data '+id+' shows 远方');H.tap(n);await H.flush();assert(!o.popups.find('ChapterPanel'),'no-data '+id+' not tappable');}
+    farProof.push([w,h].join('x'));
     o.close();o.open('coast');const c=o.popups.find('ChapterPanel');assert(c);assert(c.root.getComponentsInChildren(cc.Label).some(l=>l.string==='前往灯塔海岸'));o.dispose();
   }
+  ok('no-data rail/cloud/spring render 远方 + · · ·, no seal node, tap opens nothing, not in 旅程 14 / 27 on '+farProof.join(','));
   ok('journey book 514/458, 旅程 14 / 27 with coast data, 3×3 grid of 9 cells ≥44 pt on 7 sizes; coast page 前往灯塔海岸');
   console.log(JSON.stringify({status:'PASS',checks},null,2));
 })().catch(e=>{console.error(e);process.exit(1);});

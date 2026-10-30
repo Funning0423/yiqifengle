@@ -99,7 +99,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       p.tint.shape(bg, (gg, night, a) => { gg.fillColor = rgba(hex(down ? [0xEF, 0xE2, 0xC4] : far ? [0xF3, 0xE9, 0xD2] : [0xFB, 0xF3, 0xE0], night), a); gg.roundRect(-GW / 2, -GH / 2, GW, GH, P(12)); gg.fill();
         if (focus) { gg.strokeColor = rgba(hex([0x37, 0x7F, 0x6C], night), a); gg.lineWidth = P(2); gg.roundRect(-GW / 2 + P(1), -GH / 2 + P(1), GW - P(2), GH - P(2), P(11)); gg.stroke(); } });
       const top = GH / 2, sy = top - P(short ? 3 : 4) - P(sealD) / 2;
-      if (far) blankSeal(p, c, 0, sy, P(sealD), 0.8); else { const sp = artSprite(c, 'popup/reward_seal_' + r.id, 0, sy, P(sealD), P(sealD), 'Seal'); p.tint.sprite(sp, 'ui', [255, 255, 255], locked ? 166 : 255); sp.grayscale = locked; }
+      if (far) { /* §13.2: no data → 远方 with no seal at all (UI设计部 r2); milestone-far keeps the faint seal (§13.1 淡章) */ if (r.hasData) blankSeal(p, c, 0, sy, P(sealD), 0.8); } else { const sp = artSprite(c, 'popup/reward_seal_' + r.id, 0, sy, P(sealD), P(sealD), 'Seal'); p.tint.sprite(sp, 'ui', [255, 255, 255], locked ? 166 : 255); sp.grayscale = locked; }
       const nm = rowName(r), ny = top - P(short ? 38 : 46), sty = top - P(short ? 53 : 63);
       p.tint.label(makeLabel(c, nm, 0, ny, P(12.5), { width: GW - P(4), name: 'Name' }), far || locked ? 'brown2' : 'brown');
       p.tint.label(makeLabel(c, rowStatusText(r), 0, sty, P(11), { width: GW - P(4), bold: r.state === 'progress' || r.state === 'open', name: 'Status' }), r.state === 'progress' || r.state === 'open' ? 'teal' : 'brown2');

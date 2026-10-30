@@ -31,3 +31,12 @@ Branch `ggbot/fg-new-regions` (on fg-system-panels d680078b). Design: UI设计�
 3. Rail/cloud/spring have no seal or window art yet, so they show a blank seal.
 4. Ending: seals in rows of 5+4 with a soft shadow and no plate. Check that the girl's head clears row 2 on 320×568 and 375×667 (tiny/compact sizes; she is smaller than before).
 5. Same .meta list as above. No new script files.
+
+## r2 device checks (界面验收部)
+Run these on 390×844 and on one screen under 700 pt tall (375×667 or 320×568).
+1. Ending, 5th seal: the 5th seal in the top row sits over the orange house roof. Its outline must be clearly visible against the roof. If it isn't, deepen the soft shadow in `buildEndingSeals` (bundle JourneyPanels.ts: 4 circles of (44,28,14) at α0.42/4, 2.5 pt down).
+2. Journey book: the 11 pt status line ("4/4 ✓", "3/6", "· · ·") must be readable. If it isn't, change the cell height from 76 to 80 (SPEC §13.1 fallback).
+3. 远方 (regions with no data: 铁路 / 云海 / 温泉): the cell shows only 「远方」 and 「· · ·」, with no seal or blank seal. Tapping it does nothing, and it is not counted in 旅程 n / N.
+4. Ending girl size at 390×844: see the r2 report. 135 pt does not fit there without the girl's head running into seal row 2 (the size is still capped by the space).
+5. Popup regression pass: open and close every popup once (journey book, every region page, settings/system panels, update, rest, result, ending). Check there is no overlap, clipping or broken motion, in both day and night.
+Box preview screenshots: team/ggbot/outbox/20261029-new-regions-r2/. They come from a harness-to-canvas renderer, so the 9-slice panel backgrounds, 3D chime and night tint are not drawn exactly.
