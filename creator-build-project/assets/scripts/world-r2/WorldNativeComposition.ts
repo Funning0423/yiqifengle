@@ -46,6 +46,8 @@ import { ExploreInput } from './ExploreInput';
 import '../region/ExploreGate';
 import { withRegionBoardGuest } from '../region/LakesideBoardGuest';
 import { noteClaimedRegions } from '../ui/JourneyCore';
+import { boardKitFor, DEFAULT_KIT } from '../ui/BoardKit';
+import { coastBoardPose } from '../region/CoastBoardLens';
 // r4-prep B: meadow guest wrap stays here. Sky-city state hiding lives in SkycityBoardLive so the board import stays the r4.2 factory.
 const meadowBoardWithGuest=(context:any)=>withRegionBoardGuest('meadow','MeadowLiveScene',1<<20,createMeadowBoardBackground)(context),skycityBoardWithGuest=(context:any)=>withRegionBoardGuest('skycity','SkycityLiveBackground',1<<20,createSkycityBoardBackground)(context);
 const {ccclass,property}=_decorator;
@@ -149,7 +151,10 @@ export class WorldNativeComposition extends Component {
     // when the hook put the world camera ON that pose and that board background will render. Otherwise today's path, unchanged.
     else if(region==='meadow'||region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&(region==='meadow'?requiresMeadowScene(selection):requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
-    if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
+    // Coast board kit (test mode ?qfcoastkit=1 only; 运镜bot r2): enter-level ends exactly on the coast board pose; nothing writes after.
+    const coastKit=region==='coast'&&boardKitFor('coast')!==DEFAULT_KIT&&typeof window!=='undefined';
+    if(coastKit){const w=window.innerWidth,h=window.innerHeight;this.world?.setEnterLevelEnd?.(()=>coastBoardPose(w,h));}
+    if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);if(coastKit)this.world?.setEnterLevelEnd?.(null);}if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
     // transitions-continuous: the last level of a region warms the next region + its vehicle (04 meadow+sail, 08 skycity+balloon, 12 lakeside+balloon)
     {let target:string|null=null;try{target=result.ok?preloadTargetForStage(selection.stageId):null;}catch{target=null;}if(target){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload(target);}}
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
