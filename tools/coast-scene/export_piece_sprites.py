@@ -1,6 +1,21 @@
 # r5d: export the coast board pieces as 2D board sprites the same way the island set is shipped
 # (192x192 RGBA, transparent, 55deg board camera, matte baked paint = emission of the vertex colours).
-# usage: blender -b --python export_piece_sprites.py -- <coast_pieces.glb> <outdir>
+# usage (1, render):  blender -b --python export_piece_sprites.py -- <coast_pieces.glb> <rawdir>
+# usage (2, sprites): python3 export_piece_sprites.py post <rawdir> <outdir> [--size 192|128]
+#   crops each raw render to its alpha bbox, scales the longest side to the island median (140 px at 192, i.e. 0.729 of the canvas),
+#   centres it at the island sprite centre (y 98.5 at 192, scaled), adds a soft warm contact shadow; filenames piece_<kind>.png (bb238126 names).
+import sys
+if len(sys.argv)>1 and sys.argv[1]=='post':
+  import os,glob;from PIL import Image,ImageFilter,ImageDraw;import numpy as np
+  raw,out=sys.argv[2],sys.argv[3];N=int(sys.argv[sys.argv.index('--size')+1]) if '--size' in sys.argv else 192;os.makedirs(out,exist_ok=True)
+  LONG=140/192*N;CY=98.5/192*N
+  for f in sorted(glob.glob(os.path.join(raw,'piece_*_raw.png'))):
+    im=Image.open(f).convert('RGBA');a=np.asarray(im);ys,xs=np.nonzero(a[...,3]>128);im=im.crop((xs.min(),ys.min(),xs.max()+1,ys.max()+1))
+    w,h=im.size;k=LONG/max(w,h);im=im.resize((max(1,round(w*k)),max(1,round(h*k))),Image.LANCZOS);w,h=im.size
+    c=Image.new('RGBA',(N,N),(0,0,0,0));sh=Image.new('RGBA',(N,N),(0,0,0,0));d=ImageDraw.Draw(sh);bx=(N-w)//2;by=int(CY-h/2)
+    d.ellipse((N/2-w*0.42,by+h-h*0.16,N/2+w*0.42,by+h+h*0.06),fill=(122,102,82,95));sh=sh.filter(ImageFilter.GaussianBlur(5*N/192))
+    c=Image.alpha_composite(c,sh);c.alpha_composite(im,(bx,by));n=os.path.basename(f).replace('_raw','');c.save(os.path.join(out,n));print(n,N,(w,h))
+  sys.exit(0)
 import bpy,sys,math,os
 argv=sys.argv[sys.argv.index('--')+1:];GLB,OUT=argv;os.makedirs(OUT,exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)

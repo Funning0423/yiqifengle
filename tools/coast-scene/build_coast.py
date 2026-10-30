@@ -349,7 +349,7 @@ for nm,off,wid,z in [('foam',0.0,0.34,-0.012),('foam_inner',0.55,0.18,-0.03)]:
     bm=bmesh.new();a=bm.verts.new((x,ya,z));b=bm.verts.new((x2,yc,z));c=bm.verts.new((x2,yd,z));d=bm.verts.new((x,yb,z));bm.faces.new((a,b,c,d))
     add_bm(nm,bm,lambda p,f:Vector((1,1,1)));bm.free()
 # ===== 6. pieces (6 types, thick, single meshes, ≤200 tris each) =====
-PC={'conch':'#B46E2E','star':'#E0801E','coral':'#E5483E','float':'#4A7DC4','scallop':'#3E9C8C','badge':'#4E9E38'}   # r5d: one step deeper vs the darker sage slab (floor 1.19)
+PC={'conch':'#A8642A','star':'#D9731A','coral':'#E0403A','float':'#4374BC','scallop':'#348A7C','badge':'#468F30'}   # r5e: a further step deeper (median toward 2.0)   # r5d: one step deeper vs the darker sage slab (floor 1.19)
 _PC_R5C=None   # r5c: conch, starfish, coral knob, blue mussel, teal scallop, kelp leaf   # r5b: island-calibrated (acorn/strawberry/blueberry/leaf/shell value+saturation)   # r5: pastel natural (scallop = island teal band)
 LDIR=Vector((-0.45,0.35,0.82)).normalized()   # r5c: island sprite key light (top-left), baked; pieces render unlit (matte, no specular)
 def paint(c,n,hi=1.12,lo=0.62):   # r5d: clear light/dark sides (was 1.1/0.8)
@@ -372,7 +372,7 @@ for i in range(NR):
 bm.faces.new(list(reversed(rings[0])))
 bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 M=Matrix.Translation((0,0,S*0.42))@Matrix.Rotation(math.radians(70),4,'X')@Matrix.Translation((0,0,-S*0.55))
-add_bm('piece_conch',bm,lambda p,f:(mix(hx(PC['conch']),hx('#FFE7D2'),0.7) if math.sin(math.atan2(p.y,p.x)+p.z*30)>0.55 else hx(PC['conch']))*0+paint(hx(PC['conch']) if math.sin(math.atan2(p.y,p.x)+p.z*30)<=0.55 else mix(hx(PC['conch']),hx('#F2D2A8'),0.6),f.normal),M);bm.free()
+add_bm('piece_conch',bm,lambda p,f:(mix(hx(PC['conch']),hx('#FFE7D2'),0.7) if math.sin(math.atan2(p.y,p.x)+p.z*30)>0.55 else hx(PC['conch']))*0+paint(hx(PC['conch']) if math.sin(math.atan2(p.y,p.x)+p.z*30)<=0.35 else mix(hx(PC['conch']),hx('#F6DDB8'),0.75),f.normal),M);bm.free()
 # star
 new('piece_star');bm=bmesh.new();vs=[]
 for i in range(10):
@@ -385,26 +385,42 @@ for i in range(NSTAR):
   j=(i+1)%NSTAR;bm.faces.new((vs[i],vs[j],top[j],top[i]));bm.faces.new((top[i],top[j],c))
 bm.faces.new(list(reversed(vs)));bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
 add_bm('piece_star',bm,pshade(hx(PC['star'])));bm.free()
+for i in range(5):   # r5e: raised dots along each arm (island-sprite detail)
+  a=math.pi/2+i*2*math.pi/5
+  for rr in (0.28,0.55):
+    sb=ico(S*0.085,1)
+    for v in sb.verts:v.co.z*=0.6
+    add_bm('piece_star',sb,lambda p,f:paint(hx('#F7C070'),f.normal),Matrix.Translation((math.cos(a)*rr*S,math.sin(a)*rr*S,S*(0.46-0.16*rr/0.77)-0.004)));sb.free()
 # coral: trunk + 3 branches merged, dark base
 new('piece_coral')   # r5c: rounded knob coral, matte (replaces trunk+rim)
 for (x,y,z,r) in [(0,0,0.45,0.46),(0.38,0.12,0.36,0.34),(-0.36,0.16,0.38,0.34),(0.05,-0.38,0.34,0.34),(0.1,0.3,0.74,0.3),(-0.15,-0.1,0.82,0.28)]:
-  bm=ico(S*r,2);add_bm('piece_coral',bm,lambda p,f:paint(hx(PC['coral']),f.normal),Matrix.Translation((x*S,y*S,z*S)));bm.free()
+  bm=ico(S*r,2);add_bm('piece_coral',bm,lambda p,f:paint(mix(hx(PC['coral']),hx('#FFC2A8'),0.8) if noise.noise(p*22)>0.25 else hx(PC['coral']),f.normal),Matrix.Translation((x*S,y*S,z*S)));bm.free()
 # r5c: blue mussel (replaces the glossy glass float): elongated rounded shell, matte
 new('piece_float');bm=bmesh.new();bmesh.ops.create_uvsphere(bm,u_segments=12,v_segments=8,radius=1)
 for v in bm.verts:
   x,y,z=v.co;t=(y+1)/2;w=0.46+0.36*math.sin(math.pi*min(1,t*1.15))**0.7
   v.co=Vector((x*S*w*1.1,y*S*0.82,max(z,-0.25)*S*0.42))
-add_bm('piece_float',bm,lambda p,f:paint(mix(hx(PC['float']),hx('#2E4F86'),0.35) if (math.sin(p.y*34)>0.75) else hx(PC['float']),f.normal),Matrix.Translation((0,0,S*0.22))@Matrix.Rotation(0.6,4,'Z'));bm.free()
+add_bm('piece_float',bm,lambda p,f:paint(mix(hx(PC['float']),hx('#BFD6F2'),0.55) if p.y<-S*0.62 else (mix(hx(PC['float']),hx('#24427A'),0.45) if math.sin(p.y*22)>0.35 else hx(PC['float'])),f.normal),Matrix.Translation((0,0,S*0.22))@Matrix.Rotation(0.6,4,'Z'));bm.free()
 # scallop: ribbed fan, solid
-new('piece_scallop');bm=bmesh.new();N=9;hinge=bm.verts.new((0,-S*0.5,S*0.08));top=[];bot=[]
+new('piece_scallop');bm=bmesh.new();N=10;RIB={}   # r5e: upright ribbed fan (island shell aspect), leaning back 40 deg, hinge on the slab
+LEAN=math.radians(45);R_=S*1.32;T_=S*0.08
+def _lean(x,y,z):return (x,y*math.cos(LEAN)+z*math.sin(LEAN),-y*math.sin(LEAN)+z*math.cos(LEAN))
+hf=bm.verts.new(_lean(0,-T_,0.03));hb=bm.verts.new(_lean(0,T_,0.03));fr=[];bk=[]
 for i in range(N+1):
-  a=math.pi*0.12+math.pi*0.76*i/N;r=S*0.98;x,y=math.cos(a)*r,-S*0.5+math.sin(a)*r
-  top.append(bm.verts.new((x,y,S*(0.2+0.12*(i%2)))));bot.append(bm.verts.new((x,y,0.0)))
-hb=bm.verts.new((0,-S*0.5,0.0))
+  a=math.pi*0.3+math.pi*0.4*i/N;x,z=math.cos(a)*R_,0.03+math.sin(a)*R_;rib=(i%2)
+  v1=bm.verts.new(_lean(x,-T_-(S*0.05 if rib else 0),z));v2=bm.verts.new(_lean(x,T_,z));fr.append(v1);bk.append(v2)
 for i in range(N):
-  bm.faces.new((hinge,top[i],top[i+1]));bm.faces.new((hb,bot[i+1],bot[i]));bm.faces.new((top[i],bot[i],bot[i+1],top[i+1]))
-bm.faces.new((hinge,hb,bot[0],top[0]));bm.faces.new((hinge,top[N],bot[N],hb));bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
-add_bm('piece_scallop',bm,pshade(hx(PC['scallop'])),Matrix.Translation((0,0.06,-0.02))@Matrix.Rotation(-0.18,4,'X'));bm.free()   # r5d: front lip rests on the slab
+  f=bm.faces.new((hf,fr[i+1],fr[i]));RIB[f.index if False else id(f)]=0
+  bm.faces.new((hb,bk[i],bk[i+1]));bm.faces.new((fr[i],fr[i+1],bk[i+1],bk[i]))
+bm.faces.new((hf,fr[0],bk[0],hb));bm.faces.new((hf,hb,bk[N],fr[N]));bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
+def _scol(p,f):
+  # rib shading: angle around the hinge in the un-leaned fan plane
+  y=p.y*math.cos(LEAN)-p.z*math.sin(LEAN);z=p.y*math.sin(LEAN)+p.z*math.cos(LEAN);a=math.atan2(z-0.03,p.x);k=(a-math.pi*0.3)/(math.pi*0.4/N)
+  c=hx(PC['scallop'])*(1.08 if abs(k-round(k))<0.22 and round(k)%2 else 0.9)
+  if math.hypot(p.x,z-0.03)>R_*0.9:c=mix(c,hx('#BDEBDF'),0.35)
+  return paint(c,f.normal)
+add_bm('piece_scallop',bm,_scol);bm.free()
+sb=ico(1.0,1);add_bm('piece_scallop',sb,lambda p,f:paint(hx(PC['scallop'])*0.95,f.normal),Matrix.Translation((0,0.0,0.05))@Matrix.Diagonal((R_*0.3,S*0.16,0.07,1)));sb.free()   # r5e: rounded hinge (solid foot on the slab)
 # lighthouse badge: thick disc + white tower + lamp
 new('piece_badge');bm=bmesh.new();NL=9;top=[];bot=[]   # r5c: kelp leaf (replaces lantern-on-disc)
 for i in range(NL+1):
@@ -417,8 +433,17 @@ for i in range(NL):
     bm.faces.new((a[j],a[j+1],b[j+1],b[j]));bm.faces.new((c_[j],d[j],d[j+1],c_[j+1]))
   bm.faces.new((a[0],b[0],d[0],c_[0]));bm.faces.new((a[2],c_[2],d[2],b[2]))
 bmesh.ops.remove_doubles(bm,verts=bm.verts,dist=1e-5);bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
-add_bm('piece_badge',bm,lambda p,f:paint(mix(hx(PC['badge']),hx('#A9D46A'),0.55) if abs(p.x)<S*0.035 else hx(PC['badge']),f.normal),Matrix.Rotation(0.5,4,'Z'));bm.free()
-ZK={'conch':1.05,'star':1.5,'coral':1.1,'float':1.5,'scallop':1.7,'badge':1.7}   # r5d: chunky upright volume (visible sides from the board camera)
+def _leafz(x,y):
+  t=(y+S*0.85)/(S*1.7);w=max(1e-4,S*0.62*math.sin(math.pi*max(0,min(1,t)))**0.6);zc=S*(0.12+0.12*math.sin(math.pi*max(0,min(1,t))));u=min(1,abs(x)/w);return (zc+S*0.05)*(1-u)+zc*0.7*u
+for k_ in range(4):   # r5e: side veins (raised thin strips), 4 per side
+  for sg in (-1,1):
+    y0=-S*0.5+k_*S*0.32;x1=sg*S*0.36*math.sin(math.pi*(k_+1)/5.2);y1=y0+S*0.3;sb=bmesh.new();vv=[]
+    for (x,y,o) in [(0,y0,-1),(0,y0,1),(x1,y1,1),(x1,y1,-1)]:vv.append(sb.verts.new((x,y+o*S*0.018,_leafz(x,y)+0.006)))
+    sb.faces.new(vv if sg>0 else vv[::-1])
+    for t_ in sb.faces:pass
+    add_bm('piece_badge',sb,lambda p,f:paint(hx('#A9D46A'),Vector((0,0,1))),Matrix.Rotation(0.5,4,'Z'));sb.free()
+add_bm('piece_badge',bm,lambda p,f:paint(mix(hx(PC['badge']),hx('#A9D46A'),0.7) if abs(p.x)<S*0.035 else hx(PC['badge']),f.normal),Matrix.Rotation(0.5,4,'Z'));bm.free()
+ZK={'conch':1.05,'star':1.5,'coral':1.1,'float':1.5,'scallop':1.0,'badge':1.7}   # r5d: chunky upright volume (visible sides from the board camera)
 for k in PC:
   m=MESH['piece_'+k];m['tris']=[tuple(Vector((v.x,v.y,v.z*ZK[k])) for v in t) for t in m['tris']]
 for k in PC:bake_ao('piece_'+k,rays=8,dist=0.15,strength=0.22)
@@ -689,16 +714,22 @@ put('gull',3.9,4.25,0.36,-0.6,1.0,anim='gull_perch')
 put('gull',-3.0,12.0,4.5,0.9,1.0,anim='gull_fly',k=0);put('gull',2.5,14.0,5.5,1.2,0.9,anim='gull_fly',k=1)
 put('bottle',-3.5,SHORE+6.0,-0.02,0.4,1.0,anim='bottle')
 put('beacon_post',HL[0]+0.2,HL[1]+0.3,HTOP,0.6,1.0,cast_shadow=True);put('beacon_lamp',HL[0]+0.2,HL[1]+0.3,HTOP,0.6,1.0,anim='lamp')
-HUTS=[(-3.1,-6.7,0.5),(3.1,-6.7,-0.45)]   # r5d: further into the game view   # r5c accents: bottom corners of the game view; the right one also sits in the arrival view
-L[:]=[d for d in L if not (d['mesh'].startswith(('reuse_grass','reuse_flowers','blob','boulder_','reuse_rock','shells_scatter')) and any(math.hypot(d['p'][0]-hx_,d['p'][1]-hy_)<1.45 for hx_,hy_,_ in HUTS))]
+HUTS=[(1.35,-9.0,-0.55)]   # r5e: fully outside the game frame (roof peeked at 8.3)   # r5e: ONE hero hut for the arrival view, outside the game frame (game-view corners cleared)
+_HUTS_R5D=[(-3.1,-6.7,0.5),(3.1,-6.7,-0.45)]   # r5d: further into the game view   # r5c accents: bottom corners of the game view; the right one also sits in the arrival view
+L[:]=[d for d in L if not (d['mesh'].startswith(('reuse_grass','reuse_flowers','blob','boulder_','reuse_rock','shells_scatter','drift')) and any(math.hypot(d['p'][0]-hx_,d['p'][1]-hy_)<1.6 for hx_,hy_,_ in HUTS))]
+# r5e: clean arrival foreground — drop the big left rock group (+ its perched gull, flowers, shells) left of the steps
+L[:]=[d for d in L if not (d['mesh'].startswith(('reuse_rock','reuse_flowers','shells_scatter','gull','reuse_grass')) and d['p'][0]<-1.5 and -13.0<d['p'][1]<-9.4 and d.get('anim')!='gull_fly')]
 _GR=random.Random(77)
 for (x,y,sc) in [(-4.3,-6.9,1.15),(4.35,-6.7,1.1),(-2.2,-8.3,0.9),(2.2,-8.4,0.9),(-3.0,-9.9,1.0),(2.9,-10.6,0.85),(-4.6,-4.6,0.7),(4.7,-4.4,0.7)]:
-  put('grasspatch',x,y,gzt(x,y)-0.01,_GR.random()*6.28,sc,receive_shadow=True)
+  _r=_GR.random()*6.28
+  if any(math.hypot(x-hx_,y-hy_)<1.9 for hx_,hy_,_ in HUTS) or (x<-1.5 and -13<y<-9.4):continue   # r5e: no patch under the hut (sand-mound caveat) / clean arrival fg
+  put('grasspatch',x,y,gzt(x,y)-0.01,_r,sc,receive_shadow=True)
 for (hx_,hy_,hr) in HUTS:
-  gp('fisher_hut',hx_,hy_,hr,1.0,dz=-0.05,cast_shadow=True);blob(hx_,hy_,1.7)
-  for k_,(dx,dy) in enumerate([(1.2,0.6),(-1.25,0.5)]):put('reuse_bush',hx_+dx,hy_+dy,gzt(hx_+dx,hy_+dy),k_,0.75,reuse=True)
+  gp('fisher_hut',hx_,hy_,hr,1.0,dz=-0.05,cast_shadow=True);blob(hx_,hy_,1.9)   # r5e: hero scale
+  put('reuse_bush',hx_+1.0,hy_-0.75,gzt(hx_+1.0,hy_-0.75),1,0.7,reuse=True)   # r5e: one bush tucked behind-right
+  gp('beacon_post',hx_-0.2,hy_-1.0,0.6,0.85,cast_shadow=True);gp('beacon_lamp',hx_-0.2,hy_-1.0,0.6,0.85,anim='lamp')   # r5e: hero = orange-roof blue hut + beacon
 put('buoy',-1.6,SHORE+3.2,-0.08,0,1.4,anim='bell');put('buoy',2.4,SHORE+5.0,-0.08,0,1.4,anim='bell')
-put('fisher_hut',HL[0]-0.9,HL[1]-0.6,HTOP-0.45,0.4,0.75,cast_shadow=True)   # r5c accent on the headland (bg_v3)
+put('fisher_hut',HL[0]-0.9,HL[1]-0.6,HTOP-0.33,0.4,0.75,cast_shadow=True)   # r5c accent on the headland (bg_v3)
 put('reuse_palm_tall',-6.4,SHORE-1.4,ground_z(-6.4,SHORE-1.4),0.4,1.0,reuse=True,cast_shadow=True)
 put('reuse_palm_lean',6.6,SHORE-0.8,ground_z(6.6,SHORE-0.8),2.6,1.0,reuse=True,cast_shadow=True)
 put('reuse_palm_tall',-8.5,-3.5,ground_z(-8.5,-3.5),1.2,0.85,reuse=True,cast_shadow=True)
@@ -710,6 +741,12 @@ for d in L:
   if m_.startswith('rock_'):d['mesh']='reuse_rock_%d'%(int(m_[5:])%3);d['s']=round(d['s']*0.8,4);d['reuse']=True
   elif m_.startswith('boulder_'):d['mesh']='reuse_rock_s%d'%int(m_[8:]);d['s']=round(d['s']*0.8,4);d['reuse']=True
 for _n in [n for n in MESH if n.startswith(('rock_','boulder_'))]:MESH.pop(_n)
+# r5e: final clean-up of the arrival foreground (rock group + its contact blobs left of the steps, placed late)
+L[:]=[d for d in L if not (d['mesh'].startswith(('reuse_rock','blob','reuse_flowers','shells_scatter')) and d['p'][0]<-1.5 and -13.0<d['p'][1]<-9.4)]
+# r5e: tidy, intentional game-view foreground — two low island grass + flower clusters at the bottom corners (no crates/baskets)
+for sg in (-1,1):
+  for (x,y,m,sc) in [(3.3,-7.0,'reuse_grass_a',2.4),(2.45,-7.45,'reuse_grass_b',2.1),(4.1,-7.35,'reuse_grass_b',2.5),(2.9,-7.2,'reuse_flowers',1.6),(3.8,-6.8,'reuse_flowers',1.4),(3.5,-7.6,'reuse_grass_a',2.2),(4.4,-6.7,'reuse_grass_a',2.0)]:
+    put(m,sg*x,y,gzt(sg*x,y),0.7*sg,sc,reuse=True)
 SMOOTH=lambda n:n.startswith(('slab_','reuse_rock','piece_','headland','terrain','board_rim','fisher_hut'))
 # r5: pastel lift for pieces (render tone mapping saturates; island pieces read soft)
 pass   # r5b: pastel lift removed
