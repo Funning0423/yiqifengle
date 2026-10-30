@@ -13,9 +13,12 @@ const b=fs.readFileSync(path.join(A,'bundles/static_seat_preview/room/room_no_or
 const mk=i=>({name:j.nodes[i].name||'',children:(j.nodes[i].children||[]).map(mk)});
 const island={name:'room',children:j.scenes[j.scene||0].nodes.map(mk)};
 const L=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_coast/data/coast_layout.json'),'utf8')).layout.filter(e=>e.reuse);
-const errs=[],ce=console.error;console.error=m=>errs.push(String(m));const res=CAL.createCoastReuseResolver(island,SRC);
+const errs=[],ce=console.error;console.error=m=>errs.push(String(m));// coast bundle first (region_coast/models/*.glb node names, where 场景设计部's option-(b) bake lands), island only for the palm rigs
+const CN=new Map();for(const f of fs.readdirSync(path.join(A,'bundles/region_coast/models')).filter(f=>f.endsWith('.glb'))){const g=fs.readFileSync(path.join(A,'bundles/region_coast/models',f)),gj=JSON.parse(g.slice(20,20+g.readUInt32LE(12)).toString());for(const n of gj.nodes||[])if(n.name&&!CN.has(n.name))CN.set(n.name,{name:n.name,children:[],from:f});}
+const res=CAL.createCoastReuseResolver(island,SRC,n=>CN.get(n)||null);
 const miss={};let hit=0;for(const e of L){const n=res(e.mesh);if(n)hit++;else miss[e.mesh]=(miss[e.mesh]||0)+1;}console.error=ce;
-console.log(`info reuse resolved ${hit}/${L.length}; missing ${JSON.stringify(miss)}`);
+ok([...CAL.COAST_REUSE_FROM_ISLAND].sort().join()==='reuse_palm_lean,reuse_palm_tall','island-only = the 2 palm rigs');
+console.log(`info reuse resolved ${hit}/${L.length} (coast bundle first, palms from island); missing ${JSON.stringify(miss)}`);
 ok(Object.values(SRC).reduce((a,x)=>a+x.count,0)===L.length,'COAST_REUSE_SOURCES counts == layout');ok(L.length===96,'reuse entries '+L.length);ok(errs.length===Object.keys(miss).length,'every unresolved name logs console.error once');
 ok(hit===L.length,`reuse skips not allowed: ${L.length-hit} of ${L.length} have no island source`);
 // self-test: a missing source must be caught
