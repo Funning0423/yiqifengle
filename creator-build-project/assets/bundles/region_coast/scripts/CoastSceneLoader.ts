@@ -104,3 +104,10 @@ export function unloadCoastScene(h:CoastSceneHandle|null|undefined){h?.dispose()
 
 // self-registration (module evaluation = region_coast bundle loaded = kit path). Merges, never replaces, the bundle's __qfCoast object.
 {const g=globalThis as any;const o=g.__qfCoast||(g.__qfCoast={});o.loadCoastScene=loadCoastScene;o.unloadCoastScene=unloadCoastScene;}
+
+/** GGbot: island material by name from the mounted island prefab's renderers (shared, never modified). Used by the bundle default resolveMaterial. */
+export function coastIslandMaterial(island:Node|null,name:string):Material|null{if(!island||!isValid(island))return null;for(const r of island.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m&&m.name===name)return m;return null;}
+/** GGbot (COAST_MATERIAL_MODE 'coast-palette' only): the coast palette texture from this bundle (path agreed with 场景设计部), null if absent. */
+export function loadCoastPalette(path:string):Promise<Asset|null>{return new Promise(ok=>{const b=assetManager.getBundle?.(COAST_BUNDLE);if(!b)return ok(null);b.load(path,(e:any,t:any)=>ok(e||!t?null:t));});}
+/** new Material on the island M_env_palette effect (no new shader), palette texture swapped; emissive palette map dropped (island-only). */
+export function makeCoastPaletteMaterial(src:any,tex:any):Material{const m=new Material();m.initialize({effectAsset:src.effectAsset,technique:src.technique,defines:src.passes.map((p:any)=>{const d={...p.defines};delete d.USE_EMISSIVE_MAP;return d;})});m.setProperty('mainTexture',tex);return m;}

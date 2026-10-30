@@ -68,3 +68,12 @@ and call `handle.dispose()` (or `unloadCoastScene(handle)`) on scene teardown / 
   a throwing setProperty or a read-back mismatch = console.error [QF_COAST] and that mesh is NOT mounted (island colours are never shown).
 - Mac check: step 6 side-by-side must include the coast sand next to the island beach sand (same camera) - final colour judgement is the
   engine screenshot, not the Blender Cycles previews.
+## Material red line - BLOCKED for the correct look (see README)
+Island v2.2 (combined_visual_m.glb M_env_palette, sub-asset 61fa04e2-...@18b7e, loaded via assetManager.loadAny like IslandProps.ts) and
+meadow (env_meadow.glb M_meadow_palette, meadow even recompiles USE_VERTEX_COLOR:false) are palette-TEXTURE materials: colour comes
+from TEXCOORD_0 into env_palette_256. The coast glbs have POSITION/NORMAL/COLOR_0 only (no UVs), so any island/meadow material
+would sample one texel. The coast meshes must be re-baked with palette UVs (build_coast.py, vertex colour -> nearest palette texel)
+before resolveMaterial can give the real look. Until then the Mac step 5 run will show material errors or wrong colours by design.
+
+## Pending Creator metas (GGbot, Grok Bot 2026-10-30)
+Every .meta Creator must generate is listed exactly (one path per line, no wildcards) in `tools/build-guard/meta-pending-creator.txt`. After the Creator import: commit those metas and remove each line; the `meta-missing` gate fails on a stale line (meta exists), a wildcard, and on any bundles/** asset without a meta. The list must be empty when the Mac step is done.
