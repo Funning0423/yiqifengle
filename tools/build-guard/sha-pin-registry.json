@@ -33,8 +33,9 @@
       "file": "creator-build-project/assets/scripts/audio/FootstepData.ts",
       "key": "glbSHA256",
       "count": 2,
-      "kind": "unchecked",
-      "valuesSha256": "92d70ec5ccaf253a1c6d64ad6933a10259df2d661f27dd18298034314484be4d"
+      "kind": "verified",
+      "checkedBy": "exit-footsteps",
+      "note": "test_footsteps.cjs asserts FootstepData.ts equals derive_footsteps.cjs output and carries sha256 of the shipped character GLB (plants) and room GLB (ground)"
     },
     {
       "file": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js",
