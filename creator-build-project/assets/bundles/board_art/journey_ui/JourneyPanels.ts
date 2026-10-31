@@ -21,11 +21,27 @@ export function createJourneyUi(h: JourneyUiHost) {
    *  ending.sealDropStep = sealStepS 60 ms; all easeOutCubic. popup.in/out = PopupMotion OPEN_S / CLOSE_S (320/180). */
   const JOURNEY_MOTION = { gridS: 0.2, gridStepS: 0.02, gridRisePt: 4, barGrowS: 0.6, sealDropS: 0.24, sealStepS: 0.06, sealDropPt: 10 } as const;
   /** Grid cell status (SPEC §13.1): 完成 n/n ✓ · 进行中 x/n · 可前往 · 未开启 = condition label · 远方 = · · · */
+  /** UI设计部 final wording (2026-10-30 23:20): ONE line, a half-width space on each side of N. The only "clear level N" template on
+   *  any player-visible surface (button / grid cell / page count); swap the text here. FALLBACK is used only when a measured fit fails. */
+  const GATE_LOCKED_LABEL = (n: number) => `通关第 ${n} 关后开启`, GATE_LOCKED_FALLBACK = (n: number) => `第 ${n} 关后开启`, GATE_CELL_LABEL = (n: number) => `通关第 ${n} 关后`, GATE_CELL_SHORT = (n: number) => `第 ${n} 关后`;
+  /** Mainline level N (1-based) a 'main:N' unlock requirement names, else null (e.g. 'lake' → 湖畔通关后, unchanged). */
+  function mainReq(id: string): number | null { const q = defOf(id).unlock.requires; const m = q.length === 1 ? /^main:(\d+)$/.exec(q[0]) : null; return m ? Number(m[1]) : null; }
+  /** Level after which a mainline region's CHALLENGES open: region-campaign.js inspect() challengeUnlocked = prefixCleared(first + 4),
+   *  first = region.index × 4 → N = first + 4 (1-based) = all mainline stages up to and including this region (4 / 8 / 12). */
+  function challengeGateLevel(id: string): number | null {
+    let n = 0; for (const d of REGION_DEFS) { if (d.provider !== 'mainline') continue; n += d.stages; if (d.id === id) return n; } return null;
+  }
+  /** Locked condition as shown on the grid cell and the page count; the button adds 开启 (main:N → GATE template). */
+  function unlockText(id: string): string { const n = mainReq(id); return n != null ? GATE_CELL_LABEL(n) : defOf(id).unlock.label; }
+  /** Grid cell status with the r5 fit rule: a 'main:N' condition that does not fit its cell uses GATE_CELL_SHORT (measured), never '…'. */
+  function cellStatus(r: RegionRow, size: number, w: number): string {
+    const t = rowStatusText(r), n = r.state === 'locked' ? mainReq(r.id) : null; return n != null && measure(t, size) > w ? GATE_CELL_SHORT(n) : t;
+  }
   function rowStatusText(r: RegionRow): string {
     if (r.state === 'done') return r.done + '/' + r.total + ' ✓';
     if (r.state === 'progress') return r.done + '/' + r.total;
     if (r.state === 'open') return '可前往';
-    if (r.state === 'locked') return defOf(r.id).unlock.label;
+    if (r.state === 'locked') return unlockText(r.id);
     return '· · ·';
   }
   /** P3 (UI设计部 r4): 远方 only for regions with no data, never with a seal; a known region that is still locked shows its
@@ -42,8 +58,17 @@ export function createJourneyUi(h: JourneyUiHost) {
     if (r.state === 'open') return { text: '前往' + s, enabled: true, flat: false };
     if (r.state === 'progress') return { text: '继续', enabled: true, flat: false };
     if (r.state === 'done') return { text: '再访' + s, enabled: true, flat: false };
-    if (r.state === 'locked') return { text: defOf(r.id).unlock.label + '开启', enabled: false, flat: true };   // UI设计部 r4: §13.2 label + 开启
+    if (r.state === 'locked') { const n = mainReq(r.id); return { text: n != null ? GATE_LOCKED_LABEL(n) : defOf(r.id).unlock.label + '开启', enabled: false, flat: true }; }   // UI设计部 r4/r5: condition + 开启
     return { text: '尚未开启', enabled: false, flat: true };
+  }
+  /** r5 (Option A): a MAINLINE region's page button enters that region's challenges, so its state follows the real challenge gate
+   *  (islandGates().r5, CampaignHost.inspectSelection), not mainline progress. Before the gate opens: one grey line
+   *  GATE_LOCKED_LABEL(N); after: 前往X at 0/4, 继续 n/4, 再访X at 4/4 by challenge progress. Other gate reasons keep their notice. */
+  function mainlineChallengeButton(id: string, gate: any, challenges: number): { text: string; enabled: boolean; flat: boolean } | null {
+    const d = defOf(id); if (d.provider !== 'mainline') return null;
+    if (!gate || gate.reason === 'stage-locked') { const n = challengeGateLevel(id)!; return { text: GATE_LOCKED_LABEL(n), enabled: false, flat: true }; }
+    const c = Math.max(0, Math.min(4, challenges | 0));
+    return c >= 4 ? { text: '再访' + d.short, enabled: true, flat: false } : c > 0 ? { text: '继续 ' + c + '/4', enabled: true, flat: false } : { text: '前往' + d.short, enabled: true, flat: false };
   }
   /** Coast chapter hint: C1–C6 海岸漫游, C7+ 灯塔夜航. */
   function coastChapterHint(done: number): string { return done >= 6 ? '灯塔夜航' : '海岸漫游'; }
@@ -122,7 +147,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       if (far) { /* P3 r4: 远方 = no data → never a seal */ } else { const sp = artSprite(c, 'popup/reward_seal_' + r.id, 0, sy, P(sealD), P(sealD), 'Seal'); p.tint.sprite(sp, 'ui', [255, 255, 255], locked ? 166 : 255); sp.grayscale = locked; }
       const nm = rowName(r), ny = top - P(short ? 38 : 46), sty = top - P(short ? 53 : 63);
       p.tint.label(makeLabel(c, nm, 0, ny, P(12.5), { width: GW - P(4), name: 'Name' }), far || locked ? 'brown2' : 'brown');
-      p.tint.label(makeLabel(c, ellipsize(rowStatusText(r), P(STATUS_PT), GW - P(4)), 0, sty, P(STATUS_PT), { width: GW - P(4), lines: 1, bold: r.state === 'progress' || r.state === 'open', name: 'Status' }), r.state === 'progress' || r.state === 'open' ? 'teal' : 'brown2');
+      p.tint.label(makeLabel(c, ellipsize(cellStatus(r, P(STATUS_PT), GW - P(4)), P(STATUS_PT), GW - P(4)), 0, sty, P(STATUS_PT), { width: GW - P(4), lines: 1, bold: r.state === 'progress' || r.state === 'open', name: 'Status' }), r.state === 'progress' || r.state === 'open' ? 'teal' : 'brown2');
       if (r.isNew) redDot(p, c, GW / 2 - P(9), top - P(9), P(7));
       if (r.tappable) pressable(n, c, () => { markRegionSeen(r.id); openChapter(r.id); }, { onPress: d => { down = d; p.tint.repaint(bg); } });
       nodes.push(c);
@@ -169,7 +194,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     p.text(c.description, 0, y + P(10), P(15), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterDescription' }); y += P(30);
     const gate = a.gate(), reason = gate?.reason, d = REGION_DEFS.find(x => x.id === c.id)!;
     const st: RegionRow = row || { id: c.id, done: 0, total: c.stages, state: gate?.ok ? 'open' : 'locked', hasData: true, isNew: false, tappable: true };
-    const count = st.state === 'locked' || st.state === 'far' ? d.unlock.label : st.done + ' / ' + st.total + ' 关';
+    const count = st.state === 'locked' || st.state === 'far' ? unlockText(c.id) : st.done + ' / ' + st.total + ' 关';
     p.text(count, 0, y, P(14), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCount' }); y += P(22);
     // Stars stay on the region page (SPEC §8): mainline x/12 and the region's challenge marks x/4.
     const ss = d.provider === 'mainline' && st.state !== 'locked' && st.state !== 'far' ? a.stats?.() : null;
@@ -180,20 +205,23 @@ export function createJourneyUi(h: JourneyUiHost) {
       if (id === 'sky') p.button('secondary', '前往天空城', 0, y + P(21), P(240), P(42), () => a.skycity(), { fontSize: P(15), name: 'VisitSkycity' });
       if (id === 'tide') { const open = a.r4Open(); const b = p.button('secondary', open ? '旧日潮汐' : '旧日潮汐 · 未开启', 0, y + P(21), P(240), P(42), () => { if (a.r4Open()) a.legacyTide(); }, { fontSize: P(15), name: 'LegacyTide' }); b.setEnabled(open); }
       y += P(52); }
-    const btn = chapterButton(st), blocked = reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : null;
+    const live = st.state !== 'locked' && st.state !== 'far', mc = live ? mainlineChallengeButton(c.id, gate, a.stats?.()?.challenges ?? 0) : null;
+    const btn = mc || chapterButton(st), blocked = reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : null;
     const enabled = btn.enabled && !!gate?.ok, by = PH - P(26) - P(26);
     // UI设计部 r4: a locked page has nothing above the grey button (its text already is the condition + 开启).
-    if (!enabled && (blocked || btn.enabled || st.state === 'far')) p.text(blocked || (btn.enabled ? '暂不可进入' : d.unlock.label), 0, by - P(40), P(13), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCondition' });
+    if (!enabled && (blocked || btn.enabled || st.state === 'far')) p.text(blocked || (btn.enabled ? '暂不可进入' : unlockText(c.id)), 0, by - P(40), P(13), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCondition' });
     if (enabled) p.button('primary', btn.text, 0, by, P(240), P(52), () => { if (a.gate()?.ok) a.enter(); }, { fontSize: P(18), name: 'Continue-' + c.id });
-    else flatDisabled(p, btn.enabled ? '暂不可进入' : btn.text, 0, by, P(240), P(52), 'Continue-' + c.id);
+    else flatDisabled(p, btn.enabled ? '暂不可进入' : btn.text, 0, by, P(240), P(52), 'Continue-' + c.id, mc && !mc.enabled ? GATE_LOCKED_FALLBACK(challengeGateLevel(c.id)!) : undefined);
     p.button('secondary', '返回章节', 0, PH - P(4), P(140), P(36), () => p.close(a.back), { fontSize: P(14), name: 'BackToChapters', sound: 'back' });
     return p;
   }
   /** SPEC §3: no 3D button when not open; flat #E6D7B8 pill with #7A5A3A text, not tappable. */
-  function flatDisabled(p: PopupPanel, text: string, x: number, y: number, w: number, h: number, name: string) {
+  function flatDisabled(p: PopupPanel, text: string, x: number, y: number, w: number, h: number, name: string, fallback?: string) {
     const n = uiNode(name, p.body, w, h), q = p.at(x, y); n.setPosition(q[0], q[1], 0);
     p.tint.shape(n.addComponent(Graphics), (g, night, a) => { g.fillColor = rgba(hex([0xE6, 0xD7, 0xB8], night), a); g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.fill(); });
-    p.tint.label(makeLabel(n, text, 0, 0, h * 0.34, { width: w - 16, name: 'Label' }), 'brown2');
+    // r5 fit (UI设计部): never truncate — drop the font 1 step, then (measured failure only) the short fallback text.
+    const lw = w - 16; let fs = h * 0.34, t = text; if (measure(t, fs) > lw) fs = h * 0.34 * 16 / 17; if (measure(t, fs) > lw && fallback) t = fallback;
+    p.tint.label(makeLabel(n, t, 0, 0, fs, { width: lw, name: 'Label' }), 'brown2');
     (n as any).__disabled = true; return n;
   }
   /** Ending seals (SPEC §13.5): 9 holders in two rows 5+4, no backing plate; each seal carries a small soft shadow
@@ -213,7 +241,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand };
+  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_SHORT, challengeGateLevel, mainlineChallengeButton, unlockText };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };
