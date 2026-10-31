@@ -4136,8 +4136,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
-    "bytes": 13873,
-    "sha256": "c7aa1d1127fa23c85b1a7f26f9172fc16b32a4ffe0bd650610c8b61038bae97f"
+    "bytes": 14584,
+    "sha256": "76d62d55da59fada0230719410648dc4c65d66becaeaa989c2575d1456797ff9"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts.meta",
@@ -4706,8 +4706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
-    "bytes": 14778,
-    "sha256": "91be3400083abc3669834401f2cb74cb97def4d2c71eb94d59a9d71fa56512aa"
+    "bytes": 15799,
+    "sha256": "98d9716ca030b49cce513de25a557ff695b59e1ebb2651348c257ee4053b4d55"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
@@ -4876,8 +4876,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts",
-    "bytes": 15483,
-    "sha256": "8490c40605e9c65db33fc99cdb2839a5a259e57ce8f7239ade39d474d19a369b"
+    "bytes": 16021,
+    "sha256": "41a023cb4e98b4a22f410e95cb8e00876159dc0b28381bec27781d5f52e1e40c"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts.meta",
