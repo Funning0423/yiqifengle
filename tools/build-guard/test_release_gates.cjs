@@ -31,3 +31,11 @@ console.log(`PASS test_release_gates (${n} checks)`);
 {const rg=require('./release-gates.cjs');const before=rg.FORBID.length;rg.FORBID.push(['LK_ACTIVE_CAM',/\[QF_LK_CAM\]/]);
  assert.ok(rg.probeFree([{name:'x',text:'log("[QF_LK_CAM] a")'}]).hits.length===1,'extended symbol enforced');rg.FORBID.length=before;
  assert.ok(stripText('a/*QF_PROBE_BEGIN*/log("[QF_LK_CAM]")/*QF_PROBE_END*/').out==='a','generic marker strip');console.log('PASS extensibility');}
+// r5 formal release: QF_TRIAL regions are kept by the default (trial) strip and removed only by --formal; --formal-free catches residue
+{const {stripAll}=require('./strip-probes.cjs'),rg=require('./release-gates.cjs');
+ const src='a/*QF_TRIAL_BEGIN*/G.__qfPreTransition=1;/*QF_PROBE_BEGIN*/p()/*QF_PROBE_END*//*QF_TRIAL_END*/b';
+ const tr=stripAll(src,'t',false).out,fo=stripAll(src,'t',true).out;
+ assert.ok(tr.includes('__qfPreTransition')&&!tr.includes('p()'),'trial strip keeps the trial entry, drops the probe');assert.equal(fo,'ab','formal strip drops both');
+ assert.ok(rg.formalFree([{name:'t',text:tr}]).hits.length>0,'trial output FAILS --formal-free');assert.equal(rg.formalFree([{name:'f',text:fo}]).hits.length,0,'formal output passes');
+ assert.equal(rg.probeFree([{name:'t',text:tr.replace(/\/\*QF_TRIAL_(BEGIN|END)\*\//g,'')}]).hits.length,0,'trial output still passes the normal probe-free gate');
+ assert.throws(()=>stripAll('/*QF_TRIAL_BEGIN*/x','u',true),'unbalanced trial marker throws');console.log('PASS formal-release strip self-tests');}

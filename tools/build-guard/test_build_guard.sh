@@ -51,6 +51,17 @@ grep -q "RELEASE (probes stripped)" "$T/out5" && grep -q "PASS release-probe-fre
 grep -q "PASS strip-probes prove changedFiles=1 regions=1" "$T/out5" || fail "case5 proof"; S5=$(cd "$R" && git rev-parse --short=7 HEAD)
 grep -q "QF_PROBE_BEGIN" "$R/tools/build-guard/logs/strip-probes.$S5.diff" || fail "case5 diff file"; grep -q "__QF_PROBE_HER" "$R/creator-build-project/assets/scripts/probe.ts" || fail "case5 repo source changed"
 ! grep -q "QF_PROBE" "$R/creator-build-project/build/wechat-release/game.js" || fail "case5 release has probe"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case5 dirty"
+# 5b) r5 FORMAL_RELEASE=1: trial entry (QF_TRIAL region, qfPre) stripped + --formal-free gate; default build keeps it (trial upload)
+mkf(){ R=$(mkrepo "$1"); printf 'export const t=1;/*QF_TRIAL_BEGIN*/(globalThis as any).__qfPreTransition=1;/*QF_TRIAL_END*/\n' > "$R/creator-build-project/assets/scripts/trial.ts"
+  (cd "$R" && git add -A && git -c user.email=t@t -c user.name=t commit -qm trial); echo "$R"; }
+R=$(mkf 51); c=$(run "$R" wechat 51 "good"); [ "$c" = 0 ] || { cat "$T/out51"; fail "case5b default exit $c"; }
+grep -q "__qfPreTransition" "$R/creator-build-project/build/wechat-release/game.js" || fail "case5b default (trial upload) lost the trial entry"
+! grep -q "release-formal-free" "$T/out51" || fail "case5b default ran the formal gate"
+"$NODE" "$HERE/release-gates.cjs" --formal-free "$R/creator-build-project/build/wechat-release" >/dev/null && fail "case5b negative: trial output passed --formal-free"
+R=$(mkf 52); c=$(FORMAL_RELEASE=1 run "$R" wechat 52 "good"); [ "$c" = 0 ] || { cat "$T/out52"; fail "case5b formal exit $c"; }
+grep -q "FORMAL RELEASE (probes + trial entry stripped)" "$T/out52" && grep -q "PASS release-formal-free" "$T/out52" || fail "case5b formal gates"
+! grep -q -e "qfPre" -e "QF_TRIAL" "$R/creator-build-project/build/wechat-release/game.js" || fail "case5b formal release has the trial entry"
+c=$(FORMAL_RELEASE=1 STRIP_PROBES=0 run "$(mkf 53)" wechat 53 "good"); [ "$c" != 0 ] || fail "case5b FORMAL_RELEASE without strip must refuse"
 # 6) STRIP_PROBES=0 -> test build keeps probes, loudly labelled; web always keeps probes
 R=$(mkrepo 6); c=$(STRIP_PROBES=0 run "$R" wechat 6 "good"); [ "$c" = 0 ] || fail "case6 exit $c"; grep -q "PROBES KEPT" "$T/out6" || fail "case6 label"
 grep -q "__QF_PROBE_HER" "$R/creator-build-project/build/wechat-release/game.js" || fail "case6 probes missing in test build"

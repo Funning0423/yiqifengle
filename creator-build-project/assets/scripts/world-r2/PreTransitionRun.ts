@@ -1,19 +1,16 @@
+import { Node } from 'cc';
+import { qaSkipAllowed } from './QaSkip';
+/*QF_TRIAL_BEGIN*/
 /** Test-only `__qfPreTransition(key)` runtime (see PreTransitionKeys). Registered by the boot ONLY behind preTransitionEnabled()
  *  (same host gate as __qfTeleport; WeChat release never). Setup goes through the real commands and an isolated test profile;
  *  the transition itself is never started here — the tester (or autoplay) touches the returned trigger. */
 import {armSkycityWarmOnSailRide} from '../region/TransitionPreload';
 import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
 import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
-import { director, game, Node, UITransform, Canvas, Vec3 } from 'cc';
-import { qaSkipAllowed } from './QaSkip';
-/*QF_PROBE_BEGIN*/import { seedSkyChallengeWins } from './RegionFlowTest';/*QF_PROBE_END*/
+import { director, game, UITransform, Canvas, Vec3 } from 'cc';
+/*QF_PROBE_BEGIN*/import { seedSkyChallengeWins, finishPausedMainlineWin } from './RegionFlowTest';/*QF_PROBE_END*/
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
-export type PreDeps={
- composition:any;board:()=>any;control:(id:string)=>Node|undefined;call:(fn:()=>any)=>Promise<any>;idle:()=>boolean;
- islandJourney:()=>any;glassSign:()=>any;roomExplore:()=>any;frame:()=>{width:number;height:number};signRect:()=>{x:number;y:number;width:number;height:number}|null;
- leave:()=>void;enterMainline:()=>void;returnHome:()=>void;
-};
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
 async function waitFor(pred:()=>any,ms:number,step=100):Promise<boolean>{const t=Date.now();while(Date.now()-t<ms){try{if(pred())return true;}catch{}await sleep(step);}return false;}
 function find(root:any,name:string):Node|null{if(!root)return null;for(const c of root.children||[]){if(c.name===name&&c.activeInHierarchy)return c;const h=find(c,name);if(h)return h;}return null;}
@@ -73,7 +70,8 @@ export class PreTransitionRunner{
    let prof:any=null;
    if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);if(!prof.ok)return prof;}
    if(spec.place==='island'){
-    /*QF_PROBE_BEGIN*/if(spec.skyChallenges!=null){try{seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true});}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','Continue-sky']),5000))return {ok:false,reason:'chapter-panel-not-open'};}/*QF_PROBE_END*/
+    /*QF_PROBE_BEGIN*/if(spec.justWon){try{finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true});}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
+    if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true});}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','Continue-sky']),5000))return {ok:false,reason:'chapter-panel-not-open'};}/*QF_PROBE_END*/
     if(spec.key==='skycity-visit'){const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','VisitSkycity']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
     return {ok:true};
    }
@@ -134,11 +132,20 @@ export class PreTransitionRunner{
   return {ok:false,reason:'tap-the-node',node:t.kind==='node'?t.path.join('/'):(t as any).id};
  }
 }
-/** Boot wiring: registers the globals only when the gate is open; auto-runs ?qfPre=<key>. Returns whether it registered. */
+/*QF_TRIAL_END*/
+export type PreDeps={
+ composition:any;board:()=>any;control:(id:string)=>Node|undefined;call:(fn:()=>any)=>Promise<any>;idle:()=>boolean;
+ islandJourney:()=>any;glassSign:()=>any;roomExplore:()=>any;frame:()=>{width:number;height:number};signRect:()=>{x:number;y:number;width:number;height:number}|null;
+ leave:()=>void;enterMainline:()=>void;returnHome:()=>void;
+};
+/*QF_TRIAL_BEGIN*//** Boot wiring: registers the globals only when the gate is open; auto-runs ?qfPre=<key>. Returns whether it registered. *//*QF_TRIAL_END*/
+/** Boot hook (WorldIntegrationBoot): returns whether a test entry was registered. */
 export function installPreTransition(deps:PreDeps):boolean{
- if(!qaSkipAllowed())return false;/* WeChat release: never registered. develop/trial/web: registered but inert until a query gate or 'enable' */
- const runner=new PreTransitionRunner(deps),G=globalThis as any;
+ if(!qaSkipAllowed())return false;/* WeChat release envVersion: never registered. develop/trial/web: registered but inert until a query gate or 'enable' */
+ let registered=false;
+ /*QF_TRIAL_BEGIN*/{const runner=new PreTransitionRunner(deps),G=globalThis as any;
  G.__qfPreTransition=(key:string,opts?:any)=>runner.run(key,opts);
  const auto=preTransitionKey();if(auto)setTimeout(()=>{void runner.run(auto).then(r=>{try{console.info('[QF_PRE] auto '+JSON.stringify(r));}catch{}});},1500);
- return true;
+ registered=true;}/*QF_TRIAL_END*/
+ return registered;/* FORMAL release (FORMAL_RELEASE=1 strips the trial region): always false, nothing registered */
 }
