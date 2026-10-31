@@ -30,7 +30,7 @@ function parseScript(text){
     if(op==='continueJourney'){var fx=st.fallbackX==null?288:st.fallbackX,fy=st.fallbackY==null?578:st.fallbackY;if(typeof fx!=='number'||typeof fy!=='number'||fx<0||fx>DESIGN_W||fy<0||fy>DESIGN_H)throw Error('step '+i+': bad fallback');if(st.timeoutMs!=null&&(typeof st.timeoutMs!=='number'||st.timeoutMs<1000||st.timeoutMs>60000))throw Error('step '+i+': bad timeoutMs');}
     if(op==='screenshot'&&++shots>MAX_SHOTS)throw Error('more than '+MAX_SHOTS+' screenshots');
     var o={op:op==='preT'?'preTransition':op};for(var k in st)if(k!=='op')o[k]=st[k];return o;});
-  return {launchQuery:s.launchQuery||null,allowConsoleErrors:s.allowConsoleErrors===true,stateEveryMs:Math.max(500,Number(s.stateEveryMs)||2000),steps:steps};
+  return {launchQuery:s.launchQuery||null,allowConsoleErrors:s.allowConsoleErrors===true,requireProbe:s.requireProbe===true/* r2 NOPROBE */,stateEveryMs:Math.max(500,Number(s.stateEveryMs)||2000),steps:steps};
 }
 /* design (390x844, top-left origin, y down) -> wx clientX/Y (window CSS px). Per-axis scale; identity on a 390x844 device. */
 function toClient(x,y,win){return {x:x*win.w/DESIGN_W,y:y*win.h/DESIGN_H};}
@@ -75,7 +75,12 @@ var created={},sizes={},CONCAT_MAX=262144;
  * exists: written atomically ONCE, queued after the final result.json (done / error / abandon), so a runner that waits for
  * result.done can never stop on a running snapshot. Body: {exit, ok, at}. */
 var doneWritten=false;function writeDone(r){if(doneWritten)return;doneWritten=true;try{w2('result.done',JSON.stringify({exit:r.exit,ok:!!r.ok,at:new Date().toISOString()}),true);}catch(e){}}
-function finishResult(res,kind){res.exit=kind;res.writeStats=JSON.parse(JSON.stringify(wStats));try{res.camTraceStats=JSON.parse(JSON.stringify(g.__qfCamTraceStats||null));}catch(e){}
+function finishResult(res,kind){res.exit=kind;
+  /* r2 (B360 481c599c NOPROBE): the game's camTrace startup status (globalThis.__qfCamStart, test builds) is copied into every result. A run
+   * that WANTS the probe (launchQuery has camTrace=1, or script.requireProbe===true) without an enabled camTrace AND an installed GPU probe
+   * is NOPROBE = INCOMPLETE: ok=false, probeVerdict='NOPROBE' — never a PASS. */
+  try{var cs=g.__qfCamStart||null;res.camStart=cs?JSON.parse(JSON.stringify(cs)):null;var wantP=!!(script&&(script.requireProbe===true||(script.launchQuery&&/camTrace=1/.test(script.launchQuery))));
+   if(wantP){var okP=!!(cs&&cs.enabled&&(cs.gpu==='module'||cs.gpu==='deferred'));res.probeVerdict=okP?'OK':'NOPROBE';if(!okP){res.ok=false;res.incomplete=true;res.failReason=(res.failReason?res.failReason+'; ':'')+'NOPROBE = INCOMPLETE (camStart='+(cs?('enabled='+cs.enabled+' src='+cs.src+' gpu='+cs.gpu):'none: no [QF_CAM] startup line')+')';}}}catch(e){}res.writeStats=JSON.parse(JSON.stringify(wStats));try{res.camTraceStats=JSON.parse(JSON.stringify(g.__qfCamTraceStats||null));}catch(e){}
   try{var ss=g.__qfSyncStats&&g.__qfSyncStats();res.syncStats=ss?JSON.parse(JSON.stringify(ss)):null;}catch(e){res.syncStats={error:String(e)};}
   if(res.syncStats&&res.syncStats.steadyCalls>0&&!(script&&script.allowSteadySync===true)){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'[QF_SYNC] '+res.syncStats.steadyCalls+' sync host/storage call(s) in steady frames (first: '+JSON.stringify((res.syncStats.steadySamples||[])[0]||null)+')';}
   if(wStats.lostBytes>0){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'harness log lost '+wStats.lostBytes+' bytes';}
