@@ -27,6 +27,19 @@ CAP = {v: np.radians(50.0) for v in VARS}
 CAP['arm.L'] = CAP['arm.R'] = np.radians(25.0)
 for _p in ROLLS:
     CAP['roll.' + _p] = np.radians(30.0)
+# b21 front-hem fix (运镜bot, Grok Bot option A, 2026-10-31): the front panel no longer kicks up as one rigid plate.
+#  - FRONT_CAP: per-bone pitch cap of the front panel (deg); the old 50 deg cap let skirt.front.low reach 50 deg in door_reach.
+#  - FRONT_TIGHT: the front curves use the plain smoothed solve (no envelope() floor); envelope() kept the whole walk cycle at
+#    the peak clearance (skirt.front 8-15 deg + skirt.front.low 21-26 deg even with the legs together).
+#  - drape_front(): after the clearance solve, skirt.front.low is lowered back toward vertical (gravity) frame by frame as long
+#    as collide() stays clear, i.e. the smallest outward angle that clears the knee instead of the largest.
+# The shipped GLB was re-baked from the authored clips with the same rules plus the split lower front panel
+# (tools/skirt-hem/rebake_front.cjs; skirt.front.low.mid carries her left lower half).
+FRONT_CAP = {'skirt.front': 24.0, 'skirt.front.low': 36.0}
+for _v, _c in FRONT_CAP.items():
+    CAP[_v] = np.radians(_c)
+FRONT_TIGHT = {'skirt.front', 'skirt.front.low'}
+DRAPE_MIN = np.radians(-24.0)
 PARENT_VAR = {LOWS[p]: p for p in PANELS}
 
 
@@ -323,7 +336,11 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
                 need[v][i] = x.get(v, 0.0)
         cur = {}
         for v in VARS:
-            c = envelope(need[v], sigma, periodic)
+            if v in FRONT_TIGHT:
+                import author_lib as AL
+                c = AL.gauss(need[v], max(1.0, sigma * 0.5), periodic)     # no high floor (verification pass below re-checks)
+            else:
+                c = envelope(need[v], sigma, periodic)
             if end_lock is not None and not periodic:
                 a, b = end_lock
                 w = np.ones(n)
@@ -372,6 +389,8 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
                             dv = xn.get(v, 0.0) - xc[v]
                             if abs(dv) > 1e-9:
                                 need[v][jj] = np.clip(cur[v][jj] + dv * 1.1, -CAP[v], CAP[v])
+        if not bad:
+            cur = drape_front(solver, compose, cur, n, arms)
         rep.append(dict(outer=it, bad=len(bad), hits=tot, bad_frames=bad[:40]))
         log('  skirt solver', it, len(bad), tot, bad[:20])
         score = (len(bad), sum(tot.values()))
@@ -387,3 +406,21 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
     curves_deg = {v: np.degrees(cur[v]).round(2).tolist() for v in VARS if np.abs(cur[v]).max() > 1e-6}
     return Qo, dict(iterations=rep, curves_deg=curves_deg,
                     max_deg={v: round(float(np.degrees(np.abs(cur[v]).max())), 2) for v in VARS})
+
+
+def drape_front(solver, compose, cur, n, arms, step=np.radians(1.0)):
+    """b21: lower skirt.front.low toward vertical (down to DRAPE_MIN) per frame while the pose stays collision-free."""
+    low = cur['skirt.front.low'].copy()
+    for i in range(n):
+        while low[i] - step >= DRAPE_MIN:
+            trial = dict(cur)
+            trial['skirt.front.low'] = low.copy()
+            trial['skirt.front.low'][i] = low[i] - step
+            q, t = compose(i, trial)
+            push, armp, hits = solver.collide(q, t, arms=arms)
+            if hits['leg_dress'] or hits['leg_apron'] or hits['leg_near']:
+                break
+            low[i] -= step
+    out = dict(cur)
+    out['skirt.front.low'] = low
+    return out

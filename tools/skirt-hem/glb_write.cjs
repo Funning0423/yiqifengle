@@ -3,7 +3,7 @@
  *  Everything else (meshes, morph targets, skin, images, materials, extras) is carried over byte for byte. */
 const H=require('./hem_lib.cjs');
 /** edits: [{anim:name, node:index, path:'rotation', times:Float32Array, values:Float32Array}] (one sampler per edit, LINEAR). */
-function rewrite(buf,edits){const {json,bin}=H.parseGlb(buf);const j=JSON.parse(JSON.stringify(json));
+function rewrite(buf,edits,attrs){const {json,bin}=H.parseGlb(buf);const j=JSON.parse(JSON.stringify(json));
   const extra=[];// new raw blobs appended as new buffer views
   const addAcc=(arr,type,minmax)=>{const bv=j.bufferViews.length+extra.length;extra.push(Buffer.from(arr.buffer,arr.byteOffset,arr.byteLength));
     const a={bufferView:bv,componentType:5126,count:arr.length/({SCALAR:1,VEC4:4,VEC3:3}[type]),type};if(minmax){a.min=[Math.min(...arr)];a.max=[Math.max(...arr)];}j.accessors.push(a);return j.accessors.length-1;};
@@ -11,6 +11,8 @@ function rewrite(buf,edits){const {json,bin}=H.parseGlb(buf);const j=JSON.parse(
   for(const e of edits){const an=j.animations.find(a=>a.name===e.anim);if(!an)throw Error('no anim '+e.anim);const ch=an.channels.find(c=>c.target.node===e.node&&c.target.path===e.path);if(!ch)throw Error('no channel '+e.anim+' '+e.node+' '+e.path);
     const tk=e.anim+'|'+e.times.length+'|'+e.times[e.times.length-1];let ti=timeCache.get(tk);if(ti===undefined){ti=addAcc(Float32Array.from(e.times),'SCALAR',true);timeCache.set(tk,ti);}
     const oi=addAcc(Float32Array.from(e.values),'VEC4');const s={input:ti,output:oi,interpolation:'LINEAR'};an.samplers.push(s);ch.sampler=an.samplers.length-1;}
+  for(const a of attrs||[]){const m=j.meshes.find(x=>x.name===a.mesh);const p=m.primitives[0];const old=j.accessors[p.attributes[a.attr]];const bv=j.bufferViews.length+extra.length;
+    extra.push(Buffer.from(a.data.buffer,a.data.byteOffset,a.data.byteLength));const n={...old,bufferView:bv,byteOffset:0};delete n.sparse;j.accessors.push(n);p.attributes[a.attr]=j.accessors.length-1;}
   // drop unreferenced samplers
   for(const an of j.animations){const used=[...new Set(an.channels.map(c=>c.sampler))].sort((a,b)=>a-b),map=new Map(used.map((s,k)=>[s,k]));an.samplers=used.map(s=>an.samplers[s]);an.channels.forEach(c=>c.sampler=map.get(c.sampler));}
   // referenced accessors

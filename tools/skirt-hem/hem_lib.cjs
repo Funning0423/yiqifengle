@@ -119,6 +119,25 @@ function penetration(R,S,weights,W){W=W||world(R);const B=R.meshes.LOD0_G2_BODY;
     for(let q=0;q<S.legs.length;q++){const o=[L[q*3],L[q*3+1],L[q*3+2]],sg=seg[S.legBone[q]],e=closestOnSeg(o,sg[0],sg[1]);const h=segHit(grid,o,e);
       if(h>0){c++;count++;if(h>maxDepth){maxDepth=h;worst={vertex:S.legs[q],bone:S.legBone[q],mesh:key,tri:grid.lastTri,cloth:clothBone(R,mesh,grid.F,grid.lastTri)};}}}by[key]=c;}
   return {count,maxDepth,worst,by};}
+/** Option-B helper (b21): split the lower front panel into two halves.  Every dress/apron vertex weighted to skirt.front.low moves
+ *  a share f(x) of that weight to its child skirt.front.low.mid (identity in every authored clip), f = 0 on her right half (x < -band),
+ *  1 on her left half (x > band), smoothstep across the centre seam.  Bind pose is unchanged (LBS at bind = identity), so the rest look
+ *  is byte-identical in shape; the re-bake can then pitch each half over its own knee.  Vertices without a free influence slot drop
+ *  their smallest influence (renormalised).  Mutates R.meshes; returns per-mesh {J,W} arrays for the GLB writer. */
+function splitFront(R,band=0.03){const lo=R.joints.indexOf(R.byName['skirt.front.low']),lm=R.joints.indexOf(R.byName['skirt.front.low.mid']);const out={};
+  for(const k of ['LOD0_G2_DRESS','LOD0_G2_APRON']){const m=R.meshes[k];let moved=0;
+    for(let i=0;i<m.nv;i++){let sl=-1,sm=-1;for(let j=0;j<4;j++){if(m.J[i*4+j]===lo&&m.W[i*4+j]>0)sl=j;if(m.J[i*4+j]===lm&&m.W[i*4+j]>0)sm=j;}if(sl<0)continue;
+      const x=m.P[i*3],u=Math.max(0,Math.min(1,(x+band)/(2*band))),f=u*u*(3-2*u);if(f<=0)continue;const w=m.W[i*4+sl]*f;
+      if(sm<0){for(let j=0;j<4;j++)if(!(m.W[i*4+j]>0)){sm=j;break;}if(sm<0){let jm=-1;for(let j=0;j<4;j++)if(j!==sl&&(jm<0||m.W[i*4+j]<m.W[i*4+jm]))jm=j;const drop=m.W[i*4+jm];m.W[i*4+jm]=0;sm=jm;
+        let t=0;for(let j=0;j<4;j++)t+=m.W[i*4+j];for(let j=0;j<4;j++)m.W[i*4+j]*=(t+drop)/t;}m.J[i*4+sm]=lm;m.W[i*4+sm]=0;}
+      const w2=m.W[i*4+sl]*f;m.W[i*4+sl]-=w2;m.W[i*4+sm]+=w2;moved++;}
+    out[k]={J:Uint8Array.from(m.J),W:Float32Array.from(m.W),moved};}return out;}
+/** Replace rotation channels of clips: spec {clip: {nodeName: {times, values}}} (negative-test fixtures). */
+function overrideChannels(R,spec){for(const clip in spec)for(const name in spec[clip]){const c=R.clips[clip].channels.find(x=>x.path==='rotation'&&R.nodes[x.node].name===name);if(!c)throw Error('no channel '+clip+' '+name);
+    c.inp=Float64Array.from(spec[clip][name].times);c.out=Float64Array.from(spec[clip][name].values);c.n=4;c.step=false;}}
+/** Pin joints of a clip to their rest rotation (the "no skirt solve" negative pose). */
+function restChannels(R,clip,names){const C=R.clips[clip];for(const name of names){const i=R.byName[name],c=C.channels.find(x=>x.path==='rotation'&&x.node===i);const q=R.rest[i].q;
+    if(c){c.inp=Float64Array.from([0,C.duration]);c.out=Float64Array.from([...q,...q]);c.n=4;}}}
 function loadMeta(file=META){return JSON.parse(fs.readFileSync(file,'utf8'));}
 /** Morph weights of a single clip played alone (CharacterMotion.morphWeights semantics for plan={base}); used by the Blender-parity path. */
 function clipMorph(meta,clip,t){const c=meta.clips[clip]&&meta.clips[clip].morph&&meta.clips[clip].morph.curves;const o={};if(!c)return o;
@@ -127,4 +146,4 @@ function clipMorph(meta,clip,t){const c=meta.clips[clip]&&meta.clips[clip].morph
 function lcg(seed=12345){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return 1/90+(s/4294967296)*(1/45-1/90);};}
 /** Frame times of a clip for a dt mode: 60, 30 or 'uneven'. Always includes the clip end. */
 function times(dur,mode,seed){const out=[];if(mode==='uneven'){const r=lcg(seed);let t=0;while(t<dur){out.push(t);t+=r();}}else{const n=Math.round(dur*mode);for(let k=0;k<=n;k++)out.push(Math.min(k/mode,dur));}if(out[out.length-1]<dur)out.push(dur);return out;}
-module.exports={GLB,META,ROOT,parseGlb,load,sampleChannel,applyClip,resetRest,world,skinMesh,sets,hemMetrics,penetration,thighFromVertical,loadMeta,clipMorph,times,lcg,jpos,qmul};
+module.exports={overrideChannels,restChannels,splitFront,_triGrid:triGrid,_segHit:segHit,_closestOnSeg:closestOnSeg,_limbSegs:limbSegs,GLB,META,ROOT,parseGlb,load,sampleChannel,applyClip,resetRest,world,skinMesh,sets,hemMetrics,penetration,thighFromVertical,loadMeta,clipMorph,times,lcg,jpos,qmul};
