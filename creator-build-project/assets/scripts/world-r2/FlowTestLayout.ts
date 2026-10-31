@@ -1,3 +1,4 @@
+import {cachedHostInfo} from '../ui/BoardLayout';
 /** Debug entry geometry in current logical frame units; reserves the whole capsule band. */
 export function flowTestLayout(width:number,height:number,host?:{windowWidth?:number;windowHeight?:number;safeArea?:any;capsule?:any}) {
  const finite=(v:any)=>typeof v==='number'&&Number.isFinite(v);
@@ -17,7 +18,7 @@ export function flowTestLayout(width:number,height:number,host?:{windowWidth?:nu
  const exit=rect(x+(twoColumns ? .5*(cellWidth+12):0),rowStart+(twoColumns?1:3)*54+23,cellWidth,46);
  return {supported:cellWidth>=112&&safeHeight>=(twoColumns?206:314),top,mark,entry,stages,exit};
 }
+/** P0 freeze: WorldIntegrationBoot calls this every frame (DEBUG builds); the host info comes from the shared resize-invalidated cache. */
 export function readFlowTestHost():any {
- const wx=(globalThis as any).wx;let host:any={};try{host=wx?.getWindowInfo?.()||wx?.getSystemInfoSync?.()||{};}catch{}
- try{return {...host,capsule:wx?.getMenuButtonBoundingClientRect?.()};}catch{return host;}
+ const h=cachedHostInfo();return {...(h.info||{}),capsule:h.capsule};
 }
