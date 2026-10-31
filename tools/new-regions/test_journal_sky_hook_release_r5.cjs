@@ -3,7 +3,7 @@
 // (no key from ?qfPre or launch query, no __qfPreTransition global, run() refuses) and the source keeps every gate on the path.
 // Negative self-test: the same checks FAIL on (a) an ungated stub of the key/runner API and (b) source copies with a gate removed.
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{createHarness}=require('../board-ui/harness.cjs');
-const KEYS=['journal-sky-open','journal-sky-progress'],SRC=path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2');
+const KEYS=['journal-sky-open','journal-sky-progress','journal-sky-cleared'],SRC=path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2');
 const release=(q)=>({wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}}),getLaunchOptionsSync:()=>({query:q||{}})}});
 async function inert(K,RUN){const errs=[];
   for(const k of KEYS){
@@ -20,9 +20,11 @@ function sourceGates(keys,run){const errs=[];
   if(!/export function preTransitionEnabled\([^\n]*\{\n if\(!qaSkipAllowed\(host\)\)return false;/.test(keys))errs.push('preTransitionEnabled lost its release gate');
   if(!/export function installPreTransition\(deps:PreDeps\):boolean\{\n if\(!qaSkipAllowed\(\)\)return false;/.test(run))errs.push('installer lost its release gate');
   if(!/async run\(key:string[^\n]*\n  if\(key==='enable'\)\{if\(!qaSkipAllowed\(\)\)return[^\n]*\n  if\(!preTransitionEnabled\(\)\)return/.test(run))errs.push('run() lost its gate');
-  const i=run.indexOf("spec.key==='journal-sky-open'"),s=run.indexOf('private async setup'),e=run.indexOf('private scale');
-  if(i<s||i>e)errs.push('journal-sky setup outside the gated runner setup');
-  if(/journal-sky/.test(run.slice(0,s))||/journal-sky/.test(run.slice(e)))errs.push('journal-sky referenced outside setup');
+  const i=run.indexOf('if(spec.skyChallenges!=null){try{seedSkyChallengeWins('),s=run.indexOf('private async setup'),e=run.indexOf('private scale');
+  if(i<s||i>e)errs.push('journal-sky seeding outside the gated runner setup');
+  const outside=(run.slice(0,s)+run.slice(e)).split('\n').filter(l=>!/^import /.test(l)).join('\n');
+  if(/skyChallenges|seedSkyChallengeWins\(/.test(outside))errs.push('journal-sky seeding referenced outside setup');
+  if(!/seedSkyChallengeWins\(\(this\.d\.composition as any\)\.testProfile,/.test(run))errs.push('seeding not on the isolated test profile');
   return errs;}
 (async()=>{const H=createHarness({debug:false}),K=H.load('world-r2/PreTransitionKeys'),RUN=H.load('world-r2/PreTransitionRun');
   for(const k of KEYS)assert(K.preSpec(k),k+' exists');
@@ -36,7 +38,7 @@ function sourceGates(keys,run){const errs=[];
   // negative self-test (b): each gate removed from the real source must be caught
   const muts=[[keysSrc.replace('||!qaSkipAllowed(host))return null;','))return null;'),runSrc],[keysSrc.replace(/(export function preTransitionEnabled\([^\n]*\{\n) if\(!qaSkipAllowed\(host\)\)return false;/,'$1'),runSrc],
     [keysSrc,runSrc.replace('):boolean{\n if(!qaSkipAllowed())return false;','):boolean{\n')],[keysSrc,runSrc.replace("\n  if(!preTransitionEnabled())return","\n  if(false)return")],
-    [keysSrc,runSrc.replace('export function installPreTransition','const _j="journal-sky-open";\nexport function installPreTransition')]];
+    [keysSrc,runSrc.replace('export function installPreTransition','const _j=(s:any)=>s.skyChallenges;\nexport function installPreTransition')]];
   muts.forEach(([k,r],i)=>{assert.notEqual(k+r,keysSrc+runSrc,'mutation '+i+' applied');assert(sourceGates(k,r).length>0,'self-test (b) mutation '+i+' not caught');});
   console.log('PASS journal-sky debug keys inert in WeChat release ('+KEYS.join(', ')+'): no ?qfPre / launch-query key, no global, run() refused; source gates intact');
   console.log('PASS negative self-test: ungated stub caught ('+n1.length+' findings), '+muts.length+'/'+muts.length+' gate-removal mutations caught');
