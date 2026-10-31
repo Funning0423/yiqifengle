@@ -220,9 +220,19 @@
     "sha256": "3e7fa9fd9242d939e2772fc06c3c2cbd2d2a141cceb41dd403aa6ecb03c722f8"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/journey_ui.meta",
+    "bytes": 169,
+    "sha256": "65ee8edad450b16107bc65803e0657a7937b6bc53fb023230c3347f2b1db1958"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
     "bytes": 21584,
     "sha256": "a2969c1266114d0ba1dc644fc8514d6f439996e9c423211f033d346bc9e3b890"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta",
+    "bytes": 171,
+    "sha256": "590ee6118e92541daa2a86882bcc152caf229306320e0f25efc1cf19bfcda8fa"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/licenses.meta",
@@ -358,6 +368,11 @@
     "path": "creator-build-project/assets/bundles/board_art/popup/reddot.png.meta",
     "bytes": 990,
     "sha256": "5ea9c33b559464b36c8bd78bdda55c6eedbde5060d40b6aa879d61484877af43"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_coast.png.meta",
+    "bytes": 987,
+    "sha256": "94bd2894876ccd0b615793ef9852e4a1e90912fdbede75630809f7d38e420563"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_lake.png.meta",
@@ -518,6 +533,11 @@
     "path": "creator-build-project/assets/bundles/board_art/r2/icon_lock.png.meta",
     "bytes": 993,
     "sha256": "96757bc27ed520f9c81605c8e332bb84d3d2f261542c2bf78a87867aff11b0e8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_coast.png.meta",
+    "bytes": 982,
+    "sha256": "924e8710cf1fe4cff30010c17fe303d20af68e1792953fb8a960ba839311610a"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_lake.png.meta",
@@ -2671,8 +2691,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 16667,
-    "sha256": "29c1952e94ae3f6770c1e8abda25d80c0cb4d7e96493eed59c1aba3eec539a10"
+    "bytes": 23289,
+    "sha256": "d53837b0014a326c817c4de5a063764ce7ca560a7f80b0d6c57232dbc1fc0e72"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -2691,8 +2711,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/DebugQuery.ts",
-    "bytes": 1492,
-    "sha256": "93c5339369ac65ffe254a6c544a5dcad5fe542131c958f52d4f56f20ee8b6154"
+    "bytes": 2014,
+    "sha256": "c5a4b094effdab3d7bf80becaf62566da2659517a1cc4f3fc74ee7e6e6fcd960"
   },
   {
     "path": "creator-build-project/assets/scripts/region/DebugQuery.ts.meta",
@@ -4136,8 +4156,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
-    "bytes": 13873,
-    "sha256": "c7aa1d1127fa23c85b1a7f26f9172fc16b32a4ffe0bd650610c8b61038bae97f"
+    "bytes": 15172,
+    "sha256": "4465865ab402453abcff0481e0d01eb13c639529cfff7dd8a179c7299fbf4926"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts.meta",
@@ -4260,6 +4280,11 @@
     "sha256": "de73c9aa83229c13308033ea4bf009abb6cbc63283c4f4716117e312197192b8"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts.meta",
+    "bytes": 171,
+    "sha256": "77b71792600278d3f00f782a33ba0ff550290226494ad5f8c3ae9dc30da1530f"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/JourneyNavigationSkin.ts",
     "bytes": 2186,
     "sha256": "050ab501333d26208689678d71b1d3f634cd0fefa45c23e9fe73df366c1857c4"
@@ -4273,6 +4298,11 @@
     "path": "creator-build-project/assets/scripts/ui/JourneyUi.ts",
     "bytes": 3547,
     "sha256": "95ed9a2eb2ec1508f4940c3ac61e9fead479dd0e16e1afbe376f12b06b772766"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/JourneyUi.ts.meta",
+    "bytes": 171,
+    "sha256": "341f66b9aac8ef89e84bba48b150974fb6e4398701e3ae5f2099e0f146315e74"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/LakesideArrivalUI.ts",
@@ -4320,9 +4350,19 @@
     "sha256": "fd72ea9c533ce8e58f0d3a9e7c12919d805547a2f7a4c79092e3e550e0239ffa"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/PopupMotion.ts.meta",
+    "bytes": 171,
+    "sha256": "bd17f9331d1ae6b22c620f27e7b0bb1ea8884e446a4fd09545730bfe57444cbe"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/PublicationInfo.ts",
     "bytes": 939,
     "sha256": "9141b78833ace11e93282b5fa31ebddc6023ea99d283e46fadbc70a2208c2494"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/PublicationInfo.ts.meta",
+    "bytes": 171,
+    "sha256": "cf31f5e20691cd7ed4556ffc2caad88f1abd17bff0fb6048db890cf13b5becd0"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/RegionArrivalTitle.ts",
@@ -4378,6 +4418,11 @@
     "path": "creator-build-project/assets/scripts/ui/UpdatePromptCore.ts",
     "bytes": 1631,
     "sha256": "e4d98b6424e8917da7855b730897819345b4355ca0f83235934d467b30c45d60"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/UpdatePromptCore.ts.meta",
+    "bytes": 171,
+    "sha256": "f05e411a89524b8e703ca716857a60387e7adf233f7c3e42aa1dbb46bd480080"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WarmButtonGeometry.ts",
@@ -4631,8 +4676,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts",
-    "bytes": 2043,
-    "sha256": "37c1293193ecdb0584961d54ab7ca315c295288b8b18e4f521df2381017d8ed4"
+    "bytes": 2092,
+    "sha256": "a32b228eb65cd9c2171cfb032d251a0b075fb69c79118dfe53280a7bcefd00c7"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts.meta",
@@ -4901,8 +4946,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 114808,
-    "sha256": "e3d18760c0748ee7c2e22cefb43314a5e1158e08f6398926f1f158b680c75bad"
+    "bytes": 117348,
+    "sha256": "298ea38b60b8be85c6087049cf4f1951876428528f2c7ccc24941a9821a4de75"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -5081,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 31263,
-    "sha256": "eff462b18eb15922841e35db5c9919d1ef725ccd792565e760d08d2837aeacd7"
+    "bytes": 31961,
+    "sha256": "1836338d2b59834e75ba3ce44a1ea4bf2092e1159997adc5570849685d7b3929"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
