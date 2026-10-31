@@ -14,7 +14,7 @@ const ROOT=path.resolve(__dirname,'../..');
 const OUT_TS=path.join(ROOT,'creator-build-project/assets/scripts/region/RegionNodes.ts');
 const OUT_JSON=path.join(ROOT,'tools/region-nodes/region-nodes.json');
 const FIX=path.join(ROOT,'tools/region-nodes/fixtures');
-const STEP=.36,HEAD=1.7,LOW=.3;
+const STEP=.36,HEAD=1.7,LOW=.3,FOOT_R=.1;
 // b19 basket obstacles (state-toggled at runtime, never baked): edge paths keep r+clearM+ROUTE_MARGIN away from every disc
 const ROUTE_MARGIN=.25;
 const BASKET_DISCS=()=>JSON.parse(fs.readFileSync(path.join(__dirname,'../transitions-continuous/transition-anchors.json'),'utf8')).basketObstacles||[];
@@ -179,7 +179,10 @@ function buildGrid(spec,stamp){
  // b20 terrain-follow: exact floor height (highest floor-mesh triangle at or below yMax, any slope) for path densification
  const floorAt=ftri?((x,z,yMax)=>{let best=null;for(const [A,B,C] of ftri.get(Math.floor(x/FB)+','+Math.floor(z/FB))||[]){const d=(B[2]-C[2])*(A[0]-C[0])+(C[0]-B[0])*(A[2]-C[2]);if(Math.abs(d)<1e-12)continue;
   const l1=((B[2]-C[2])*(x-C[0])+(C[0]-B[0])*(z-C[2]))/d,l2=((C[2]-A[2])*(x-C[0])+(A[0]-C[0])*(z-C[2]))/d,l3=1-l1-l2;if(l1<-1e-9||l2<-1e-9||l3<-1e-9)continue;const y=l1*A[1]+l2*B[1]+l3*C[1];if(y<=yMax&&(best===null||y>best))best=y;}return best;}):null;
- return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids,route,tall,floorAt};
+ // b20 dock-fix: ground under her = highest floor point within a FOOT_R (0.1 m) disc under her foot (centre + rings at r/2, r, 8 directions),
+ // so board seams narrower than her foot read as the boards; gaps wider than the disc (> 0.2 m) still read as holes.
+ const floorDisc=floorAt?((x,z,yMax,r=FOOT_R)=>{let best=floorAt(x,z,yMax);for(const rr of [r/2,r])for(let k=0;k<8;k++){const y=floorAt(x+rr*Math.cos(k*Math.PI/4),z+rr*Math.sin(k*Math.PI/4),yMax);if(y!==null&&(best===null||y>best))best=y;}return best;}):null;
+ return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids,route,tall,floorAt,floorDisc};
 }
 function nearest(M,p,ytol=1.5){
  const ci=M.cell(p[0],p[2]);if(ci<0)return null;let best=null;
@@ -246,7 +249,7 @@ function emit(baked){
  const body={};
  for(const id of Object.keys(REGIONS)){
   const spec=REGIONS[id],g=baked[id].grid,by={};
-  const nodes=NODES[id].map(n=>{const hit=nearest(g,n.at,2.5);if(!hit)throw Error('node-off-grid '+n.key);const p=pathOf(g,hit.k);const at=p[p.length-1].slice();if(spec.densifyM&&g.floorAt){const y=g.floorAt(at[0],at[2],at[1]+.4);if(y!==null&&Math.abs(y-at[1])<=.2)at[1]=round3(y);}/* b20 terrain-follow: she stands on the floor mesh, not on the 0.2 m cell's highest sample */by[n.key]={...n,at};return {...n,at};});
+  const nodes=NODES[id].map(n=>{const hit=nearest(g,n.at,2.5);if(!hit)throw Error('node-off-grid '+n.key);const p=pathOf(g,hit.k);const at=p[p.length-1].slice();if(spec.densifyM&&g.floorAt){const y=g.floorDisc(at[0],at[2],at[1]+.4);if(y!==null&&Math.abs(y-at[1])<=.2)at[1]=round3(y);}/* b20 terrain-follow: she stands on the floor mesh, not on the 0.2 m cell's highest sample */by[n.key]={...n,at};return {...n,at};});
   const edges=[];
   for(const [a,b] of EDGES[id]){
    const A=by[a].at,B=by[b].at,ka=nearest(g,A,0.6),kb=nearest(g,B,0.6);
@@ -270,7 +273,7 @@ function emit(baked){
     simp=cand;/* lengthM stays the grid-route length like every other edge */}
    // b20 terrain-follow: the walker interpolates path-point y linearly, so on slopes a long chord floats over the terrain. Insert a point every
    // densifyM along each segment with y = floor height there (and re-read the vertices), so she follows the ground to <= 3 cm.
-   if(spec.densifyM&&g.floorAt){const fy=(x,z,yr)=>{const y=g.floorAt(x,z,yr+.4);return y===null||Math.abs(y-yr)>.2?round3(yr):round3(y);}/* > 0.2 m off the chord = a hole in the floor mesh (dock gap): keep the chord, the terrain-follow gate reports it */;const out=[[simp[0][0],fy(simp[0][0],simp[0][2],simp[0][1]),simp[0][2]]];
+   if(spec.densifyM&&g.floorAt){const fy=(x,z,yr)=>{const y=g.floorDisc(x,z,yr+.4);return y===null||Math.abs(y-yr)>.2?round3(yr):round3(y);}/* > 0.2 m off the chord = a hole in the floor mesh (dock gap): keep the chord, the terrain-follow gate reports it */;const out=[[simp[0][0],fy(simp[0][0],simp[0][2],simp[0][1]),simp[0][2]]];
     for(let i=1;i<simp.length;i++){const P=simp[i-1],Q=simp[i],n=Math.max(1,Math.ceil(Math.hypot(Q[0]-P[0],Q[2]-P[2])/spec.densifyM));
      for(let t=1;t<=n;t++){const x=round3(P[0]+(Q[0]-P[0])*t/n),z=round3(P[2]+(Q[2]-P[2])*t/n);out.push([x,fy(x,z,P[1]+(Q[1]-P[1])*t/n),z]);}}out[0]=A.slice();out[out.length-1]=B.slice()/* ends stay exactly on the nodes */;simp=out;}
    edges.push({a,b,path:simp,lengthM:round3(len)});
@@ -285,7 +288,7 @@ const CLEAR_EDGES={skycity:[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4
 // S4-S6: after the new gap at (2.6,-7) rejoin the pre-b19 x=3 lane with straight clear segments and keep the pre-b19 arrival
 // (3,-25)→S6 (the T-02 finale shot F1/F4 is tuned to that arrival heading; the grid route arrived at -135° and failed F1/F4).
 /* b20 option E: I3-I4 waypoints (x,z; y = walkable floor) round the north end of the lean_01 canopy; same list as tools/region-nodes/fixtures/island-i3-i4-waypoints-E.json for NodeWalker waypoint walks */
-const EDGE_VIA={island:{'I4-I6':[[0.5,7.3],[-0.9,7.7]]/* b20: >=1 m from beach_palm_tall trunk */,'I3-I4':[[4.9,9.3],[3.7,9.3],[3.3,8.5],[2.8,7.5],[3.0,6.3],[2.7,4.9]]/* b20 walkable-terrain: last via was (3.75,5.4), over the baked-as-floor flower clump at (3.79,4.84); now (2.7,4.9), west of the 0.48 m tuft at (3.26,4.81). The east detour (4.3,5.3),(4.5,4.5) has no solidKeepM gap past the tufts / flowers at (4.49,4.88) and (4.70,3.79) */}},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
+const EDGE_VIA={island:{'I4-I6':[[0.5,7.3],[-0.9,7.7],[-1.4,7.95]]/* b20: >=1 m from beach_palm_tall trunk; b20 dock-fix: (-1.4,7.95) = foot of the ramp centre line */,'I5-I6':[[-1.4,7.95]]/* b20 dock-fix: climb the ramp on its centre line (was diagonal along the west edge) */,'I3-I4':[[4.9,9.3],[3.7,9.3],[3.3,8.5],[2.8,7.5],[3.0,6.3],[2.7,4.9]]/* b20 walkable-terrain: last via was (3.75,5.4), over the baked-as-floor flower clump at (3.79,4.84); now (2.7,4.9), west of the 0.48 m tuft at (3.26,4.81). The east detour (4.3,5.3),(4.5,4.5) has no solidKeepM gap past the tufts / flowers at (4.49,4.88) and (4.70,3.79) */}},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
 function clearBuffer(M,A,B,id){// unwalkable = the RUNTIME walk grid (RegionWalkableData via RegionWalkable.walkFloorY), which is what she and the tests walk on
  const RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts');
  const blockedXZ=(x,z)=>RW.walkFloorY(id,x,z)===null,buf=new Set(),pad=6;
