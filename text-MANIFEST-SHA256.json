@@ -2691,8 +2691,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 23289,
-    "sha256": "d53837b0014a326c817c4de5a063764ce7ca560a7f80b0d6c57232dbc1fc0e72"
+    "bytes": 28481,
+    "sha256": "6b973e789b6843c6f2e781c3c998cbb7968e87b8088ba7c5c534146fb6425dbc"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -4866,8 +4866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PersistentMainlinePort.ts",
-    "bytes": 867,
-    "sha256": "083d8f9f442dc81db55136e510b88233d3934f0ddce1d4aebc94b0abd4278313"
+    "bytes": 2164,
+    "sha256": "e292f4fd6410bcca633e9831c9de2e8b22daf5bf4ae21bc34676eb4b11e38e9a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PersistentMainlinePort.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30878,
-    "sha256": "bd4f96a03c494f60f706d95a027d55df4043d9b37b34bf3884cdda4283517060"
+    "bytes": 31161,
+    "sha256": "f6fb8cde5e9e12256bd309f12716d927c1a16f7a4270952d1337ebc4fe9d2c34"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
