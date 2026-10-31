@@ -271,7 +271,7 @@ export class RegionNodeStage extends Component{
   const wk=spec.from+'>'+spec.to,rail=spec.region==='skycity'?this.skyRailOf(wk):null;
   if(rail)await this.skyJoin(wk,board,rail,false);else{const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
   await this.blend(BLEND_S.boardToFollow,board,()=>held);}
-  this.lens='FollowWalk';this.followHeading.seed(this.yaw());setExploreEnabled(true);
+  this.lens='FollowWalk';this.followHeading?.seed(this.yaw());setExploreEnabled(true);
   this.handOrbitBack(spec.region);
   this.skyRail=rail;
   try{await runRewardWalk(character,fromStage,toStage,undefined,this.place(spec.region));}
@@ -304,11 +304,11 @@ export class RegionNodeStage extends Component{
   this.lens='BoardToFollow';
   const rail=this.skyRailOf('S4>S6');
   if(rail)await this.skyJoin('S4>S6',board,rail,false);else await this.blend(BLEND_S.boardToFollow,board,()=>followPose(this.girl(),this.yaw(),w,h,8));
-  this.lens='FollowWalk';this.followHeading.seed(this.yaw());setExploreEnabled(true);
+  this.lens='FollowWalk';this.followHeading?.seed(this.yaw());setExploreEnabled(true);
   this.handOrbitBack('skycity');
   this.skyRail=rail;
   try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);this.skyRail=null;}
-  this.lens='FollowWalk';this.followHeading.seed(this.yaw());
+  this.lens='FollowWalk';this.followHeading?.seed(this.yaw());
   this.writePose(this.skyFinalePose(),false);this.finaleApproachS=0;
   this.recordFinaleEnd();
   this.openExplore('skycity');
@@ -883,7 +883,7 @@ export class RegionNodeStage extends Component{
   if(this.orbit.shouldWrite()||(this.groundWalking&&this.orbit.seeded)||(this.entry&&this.orbit.seeded))this.writeOrbit(dt);
   else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
   else if(this.lens==='FollowWalk'&&this.exploring&&this.region==='skycity'&&this.skyRail)this.writePose(this.skyRail(dt),false);
-  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.region==='island'?this.followHeading.step(this.yaw(),dt):this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
+  else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.region==='island'&&this.followHeading?this.followHeading.step(this.yaw(),dt):this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
  }
  private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
   const {w,h}=this.viewport(),g=this.girl();
@@ -1141,7 +1141,7 @@ export class RegionNodeStage extends Component{
   const from=this.girl();
   const dest=this.toWorld(this.region,[at])[0];
   const path=[from,dest] as [Vec,Vec];
-  this.lens='FollowWalk';this.followHeading.seed(this.yaw());
+  this.lens='FollowWalk';this.followHeading?.seed(this.yaw());
   await performBounded(this.character,{kind:'walk',path,duration:Math.max(0.4,Math.hypot(dest[0]-from[0],dest[2]-from[2])/1.2)},dest,0,undefined,()=>token===this.walkToken);
   if(token!==this.walkToken)return;
   this.lens='MapExplore';
