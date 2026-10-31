@@ -46,8 +46,8 @@ function run(glb,mode,{penetration=true,scenarios=Object.keys(SCENARIOS),onFrame
       while(true){const dt=dtf();const res=clock.tick(dt,st.walk?SPEED*dt:null,st.wind||0);t+=dt;T+=dt;if(res.ended===st.play)ended=true;
         const plan=clock.plan();rig.apply(plan);sync();const mw=motion.morphWeights(cfg,plan,clock.windDrive());
         const m=H.hemMetrics(R,S,mw);const seated=(SEATED.test(plan.base.clip)||(plan.out&&SEATED.test(plan.out.clip)))&&m.thighDeg>30;
-        const row={scenario:name,mode,T,clip:plan.base.clip,time:plan.base.time,out:plan.out?plan.out.clip:null,fade:plan.out?plan.out.weight:0,flutter:plan.layers.length?plan.layers[0].weight:0,seatedSkip:seated,thighDeg:m.thighDeg,dress:m.dress,apron:m.apron};
-        if(penetration){const p=H.penetration(R,S,mw,m.W);row.pen={count:p.count,maxDepth:p.maxDepth,worst:p.worst};}
+        const row={scenario:name,mode,T,clip:plan.base.clip,time:plan.base.time,out:plan.out?plan.out.clip:null,outTime:plan.out?plan.out.time:null,fade:plan.out?plan.out.weight:0,flutter:plan.layers.length?plan.layers[0].weight:0,seatedSkip:seated,thighDeg:m.thighDeg,dress:m.dress,apron:m.apron};
+        if(penetration){const p=H.penetration(R,S,mw,m.W);row.pen={count:p.count,maxDepth:p.maxDepth,worst:p.worst,panels:p.panels};}
         rows.push(row);if(onFrame)onFrame(row,R,mw);
         if(st.until==='end'?ended:t>=st.until)break;if(t>30)throw Error('scenario '+name+' step '+st.play+' did not end');}}}
   return rows;}

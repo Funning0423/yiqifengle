@@ -125,12 +125,12 @@ function axisHits(R,S,weights,W,legP,meshes){W=W||world(R);const L=legP||skinMes
 /** Leg penetration of the current pose: {count, maxDepth, worst, by:{dress,apron,axis}} (limb-segment test + pass-through test
  *  when the thigh is within 30 deg of vertical). */
 function penetration(R,S,weights,W){W=W||world(R);const B=R.meshes.LOD0_G2_BODY;const L=skinMesh(R,W,B,weights,S.legs),seg=limbSegs(R,S,W);
-  let count=0,maxDepth=0,worst=null;const by={};
+  let count=0,maxDepth=0,worst=null;const by={},panels={};const addP=(k,h)=>{const e=panels[k]||(panels[k]={n:0,max:0});e.n++;if(h>e.max)e.max=h;};
   for(const [key,mesh] of [['dress',R.meshes.LOD0_G2_DRESS],['apron',R.meshes.LOD0_G2_APRON]]){const P=skinMesh(R,W,mesh,weights),grid=triGrid(P,mesh.F);let c=0;
     for(let q=0;q<S.legs.length;q++){const o=[L[q*3],L[q*3+1],L[q*3+2]],sg=seg[S.legBone[q]],e=closestOnSeg(o,sg[0],sg[1]);const h=segHit(grid,o,e);
-      if(h>0){c++;count++;if(h>maxDepth){maxDepth=h;worst={vertex:S.legs[q],bone:S.legBone[q],mesh:key,tri:grid.lastTri,cloth:clothBone(R,mesh,grid.F,grid.lastTri)};}}}by[key]=c;}
-  if(thighFromVertical(R,W)<=30){const a=axisHits(R,S,weights,W,L);if(a.n){count+=a.n;by.axis=a.n;if(a.maxDepth>maxDepth){maxDepth=a.maxDepth;worst=a.worst;}}}
-  return {count,maxDepth,worst,by};}
+      if(h>0){c++;count++;const cl=clothBone(R,mesh,grid.F,grid.lastTri);addP(key+':'+cl,h);if(h>maxDepth){maxDepth=h;worst={vertex:S.legs[q],bone:S.legBone[q],mesh:key,tri:grid.lastTri,cloth:cl};}}}by[key]=c;}
+  if(thighFromVertical(R,W)<=30){const a=axisHits(R,S,weights,W,L);if(a.n){count+=a.n;by.axis=a.n;for(const k in a.by)for(let i=0;i<a.by[k];i++)addP('axis:'+k,0);if(a.maxDepth>(panels['axis:'+a.worst.mesh]||{max:0}).max)panels['axis:'+a.worst.mesh].max=a.maxDepth;if(a.maxDepth>maxDepth){maxDepth=a.maxDepth;worst=a.worst;}}}
+  return {count,maxDepth,worst,by,panels};}
 /** Option-B helper (b21): split the lower front panel into two halves.  Every dress/apron vertex weighted to skirt.front.low moves
  *  a share f(x) of that weight to its child skirt.front.low.mid (identity in every authored clip), f = 0 on her right half (x < -band),
  *  1 on her left half (x > band), smoothstep across the centre seam.  Bind pose is unchanged (LBS at bind = identity), so the rest look
