@@ -102,15 +102,18 @@ function snapshot(light){
   try{var CAM=cc&&ccClass(cc,'Camera'),SKIN=cc&&ccClass(cc,'SkinnedMeshRenderer');if(cc&&!SKIN)s.characterErr='cc.SkinnedMeshRenderer unavailable';
     if(cc&&cc.director&&cc.director.getScene()){var cams=!CAM?[]:cc.director.getScene().getComponentsInChildren(CAM).filter(function(c){return c.enabled&&c.node.activeInHierarchy&&c.node.layer!==cc.Layers.Enum.UI_2D;});
     var c=cams.sort(function(a,b){return a.priority-b.priority;})[0];if(c){var e=c.node.worldRotation.getEulerAngles(new cc.Vec3());s.camera={pos:v3(c.node.worldPosition),euler:v3(e),fov:c.fov};}
-    var sk=!SKIN?[]:cc.director.getScene().getComponentsInChildren(SKIN).filter(function(r){return r.enabled&&r.node.activeInHierarchy;});
-    if(sk.length){var n=sk[0].node;while(n.parent&&n.parent.getComponentsInChildren(SKIN).length===n.getComponentsInChildren(SKIN).length&&n.parent.parent)n=n.parent;s.character={node:n.name,pos:v3(n.worldPosition)};}}}catch(e){s.ccErr=String(e);}
+    /* full9c: her = the game's explicit reference (CamTraceLog __QF_PROBE_HER, camTrace mode). The old "first enabled skinned mesh,
+       climb while the parent has the same skinned count" guess hit the cat's bones or the floating platform (39/173 on her). */
+    var her=typeof g.__QF_PROBE_HER==='function'?g.__QF_PROBE_HER():null;
+    if(her){s.character={node:her.name,pos:v3(her.worldPosition),ref:'explicit',skinned:SKIN?her.getComponentsInChildren(SKIN).length:-1};}else s.characterErr=s.characterErr||'no explicit her ref (run with camTrace=1)';}}catch(e){s.ccErr=String(e);}
   /* on-water: the game has no global "character on water" flag; this is the last ground tap kind (water/walk/none) only. */
   s.onWater=tap?tap.kind==='water':null;s.onWaterSource='lastGroundTap.kind';
   var f=frames(),now=Date.now();if(f!=null){if(now>fpsT){fps=+((f-fpsF)*1000/(now-fpsT)).toFixed(1);}fpsF=f;fpsT=now;}s.fps=fps;
   try{var pm=(g.performance&&g.performance.memory)||null;s.memory=pm?{usedJSHeapMB:+(pm.usedJSHeapSize/1048576).toFixed(1),totalJSHeapMB:+(pm.totalJSHeapSize/1048576).toFixed(1)}:null;}catch(e){s.memory=null;}
   s.memoryWarnings=memWarn;return s;
 }
-function writeState(tag){if(stateBytes>STATE_CAP)return;var s=snapshot();s.tag=tag;var line=JSON.stringify(s,function(k,v){return typeof v==='function'?undefined:v;})+'\n';stateBytes+=line.length;w2('state.jsonl',line);scanState(s);return s;}
+function pnow(){try{return +g.performance.now().toFixed(1);}catch(e){return Date.now();}}
+function writeState(tag){if(stateBytes>STATE_CAP)return;var s=snapshot();s.tag=tag;s.pn=pnow();var line=JSON.stringify(s,function(k,v){return typeof v==='function'?undefined:v;})+'\n';stateBytes+=line.length;w2('state.jsonl',line);scanState(s);return s;}
 /* r2 (chainJ P0 freeze: shot→take→canvas.toTempFilePathSync inside cc.director EVENT_AFTER_DRAW = sync appservice IPC that hung
  * the DevTools runtime 8 s after skycity arrival). Now fully async: the after-draw callback only REQUESTS the capture with
  * canvas.toTempFilePath (non-blocking, success/fail callbacks), the copy into out/shots is fs.copyFile (async), and the temp file
@@ -253,7 +256,7 @@ function run(){
     else if(st.op==='burst')p=burst(st);
     else if(st.op==='dumpTap')p=Promise.resolve(qfDump(st.name||'tap'));
     else if(st.op==='autoPlay')p=autoPlay(st,rec);
-    else if(st.op==='screenshot')p=shot(st.name).then(function(f){rec.file=f;});
+    else if(st.op==='screenshot'){rec.pn=pnow();p=shot(st.name).then(function(f){rec.file=f;rec.pnDone=pnow();});}
     return p.then(function(){rec.ms=Date.now()-t0;var s=writeState('after:'+st.op+(st.name?':'+st.name:''));rec.state=s&&s.state;res.steps.push(rec);console.info('[QF_AUTOPLAY] step '+JSON.stringify(rec));
       if((st.op==='waitState'&&rec.matched===false||st.op==='preTransition'&&rec.ready===false)&&st.stopOnFail!==false){res.stoppedAt=rec.i;return;}
       if(st.op==='continueJourney'&&rec.ok===false){res.stoppedAt=rec.i;res.continueFailed=true;return;}if(st.op==='untilLake'&&rec.ok===false){res.stoppedAt=rec.i;return;}if(st.op==='untilLake'&&st.stopAfter){res.starterDone=true;res.stoppedAt=rec.i;return;}if(st.op==='continueJourney'&&st.stopAfter){res.starterDone=true;res.stoppedAt=rec.i;return;}return next();});}
