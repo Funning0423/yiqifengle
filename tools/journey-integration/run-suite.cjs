@@ -17,6 +17,7 @@ const tests=[
  ['meadow-walk-colliders','tools/meadow-walk/test_meadow_walk_colliders.cjs'],/* M6 moved to (0.2,6.49,-24.8) by 场景设计部: 1.003 m */
  ['meadow-walk-sweep','tools/meadow-walk/test_meadow_walk_sweep.cjs'],
  ['one-ccclass-per-file','tools/journey-integration/test-one-ccclass-per-file.cjs'],
+ ['assets-meta-coverage','tools/journey-integration/test-assets-meta-coverage.cjs'],
  ['production-integrity','tools/journey-integration/test-production-integrity.cjs'],['frozen-inputs-pins','tools/journey-integration/test-frozen-inputs-pins.cjs'],
  ['journey-types','tools/journey-integration/test-journey-types.cjs'],
  ['independent-mainline','tools/journey-integration/test-mainline-boundaries.cjs'],
