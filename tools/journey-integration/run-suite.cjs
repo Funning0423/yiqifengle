@@ -110,6 +110,7 @@ const tests=[
  ['host-sync-hot-transitive','tools/host-sync/test_no_storage_hot_transitive.cjs'],
  ['mainline-storage-cache','tools/storage-cache/test_mainline_storage_cache.cjs'],
  ['sync-probe','tools/sync-probe/test_sync_probe.cjs'],
+ ['w2-append-only','tools/wx-autoplay/test-w2-append.cjs'],
  ['manifests-fresh','tools/manifests/test_manifests_fresh.cjs'],
  ['cam-trace-log-rate','tools/cam-trace/test_cam_trace_log_rate.cjs'],
  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],

@@ -10,7 +10,7 @@ const fs=require('fs'),path=require('path');
 const src=process.argv[2],out=process.argv[3]||src;if(!src){console.error('usage: port-async-io.cjs <fork.js> [out.js]');process.exit(2);}
 const repo=fs.readFileSync(path.join(__dirname,'qf-autoplay.js'),'utf8');let f=fs.readFileSync(src,'utf8');
 const cut=(s,a,b,incl)=>{const i=s.indexOf(a);const j=s.indexOf(b,i);if(i<0||j<0)throw Error('repo marker missing: '+a);return s.slice(i,incl?j+b.length:j);};
-const NEW_W2=cut(repo,'/* r2 (chainJ P0): every write','catch(e){put();}}',true);
+const NEW_W2=cut(repo,'/* r2 (chainJ P0): every write','catch(e){retry(e);}}',true);/* r3: append-only w2 + finishResult (chainL) */
 const NEW_WIN=cut(repo,'/* window size: read ONCE','function win(){return winC;}',true);
 const NEW_SHOT=cut(repo,'/* r2 (chainJ P0 freeze',"/* {op:'preTransition'");
 const OLD_W2="function w2(file,s,capRef){try{fs.appendFileSync(OUT+'/'+file,s,'utf8');}catch(e){try{fs.writeFileSync(OUT+'/'+file,s,'utf8');}catch(x){}}}";
@@ -25,5 +25,6 @@ f=f.replace('res.shots=shotN;',"res.shots=shotN;res.shotsRequested=shotStats.req
 {const A="w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},",B="w2('result.json',JSON.stringify(res,null,1));flush();});";
  if(once(f,A)===1)f=f.replace(A,"console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();w2('result.json',JSON.stringify(res,null,1));},");else console.warn('port-async-io: result/flush order not changed (fork differs); result.json may land before the last log chunk');
  if(once(f,B)===1)f=f.replace(B,"flush();w2('result.json',JSON.stringify(res,null,1));});");}
+f=f.split("w2('result.json',JSON.stringify(res,null,1));").join("w2('result.json',JSON.stringify(res,null,1),true);");/* r3: result.json is a whole-document write */
 if(/\.toTempFilePathSync\(|copyFileSync\(|appendFileSync\(/.test(f.replace(/\/\*[\s\S]*?\*\//g,'')))fail('sync call still present after port (fork has its own sync I/O: port by hand)');
 if(out===src)fs.writeFileSync(src+'.pre-r2',fs.readFileSync(src));fs.writeFileSync(out,f);console.log('port-async-io: ok -> '+out);
