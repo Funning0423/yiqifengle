@@ -9,7 +9,7 @@
  *  JUMP = position step > CAM_LOG_CAP.m (TRANSITION_CAM per-frame lens cap ·1.05) or view step > CAM_LOG_CAP.deg in one write. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
 import {debugSearch} from './DebugQuery';
-/*QF_PROBE_BEGIN*/import {Director,MeshRenderer,Vec3,director,screen,sys,view} from 'cc';/*QF_PROBE_END*/
+/*QF_PROBE_BEGIN*/import {Director,Game,Input,MeshRenderer,Vec3,director,game,input,screen,sys,view} from 'cc';/*QF_PROBE_END*/
 /** full9b P0 (Mac A/B: camTrace ON froze the renderer, OFF completed): bounded trace. ≤ linesPerS write lines per wall second
  *  (over budget: counted, the next line carries DROPPED=<n>); ≤ maxStacks CALLER stacks per session; re-entry never writes. */
 export const CAM_LOG_BUDGET=Object.freeze({linesPerS:60,maxStacks:200});
@@ -182,13 +182,48 @@ export function installStorageProbe(store:any,out:(s:string)=>void=(s)=>camLog.o
   let caller='';try{caller=String(new Error().stack||'').split('\n').slice(2,4).map(x=>x.trim().replace(/^at /,'')).join(' < ');}catch{}
   try{out('[QF_STORAGE] key='+key+' bytes='+utf8Bytes(v)+' ms='+ms.toFixed(3)+' caller='+caller);}catch{}}};
  try{store.setItem=timed;store.__qfStorageProbe=orig;}catch{return false;}return store.setItem===timed;}
-export function storageProbeWanted(q:string,on:boolean):boolean{return on||/(?:^|[?&])storageTrace=1(?:&|$)/.test(q||'');}
+export function storageProbeWanted(q:string,on:boolean):boolean{return on||/(?:^|[?&])(?:storageTrace|syncTrace)=1(?:&|$)/.test(q||'');}
+/** [QF_SYNC] runtime gate (QA/diag only, stripped from release; P0 chainL). Wraps sys.localStorage getItem/setItem/removeItem/clear,
+ *  every wx.*Sync and the sync view-info calls (getWindowInfo, getMenuButtonBoundingClientRect, getDeviceInfo, getAppBaseInfo,
+ *  getSystemSetting, sys.getSafeAreaRect) and counts calls per engine frame (EVENT_AFTER_DRAW closes a frame). Nested calls (the
+ *  adapter's localStorage.getItem → wx.getStorageSync) count once. A call is ALLOWED only for a named reason:
+ *    boot (first SYNC_BOOT_FRAMES frames), tap (≤ 3 frames after a touch start), hide-show (≤ 30 frames after EVENT_HIDE/SHOW),
+ *    transition (world journey has a target / is not arrived, or a WindWipe runs), qa (globalThis.__qfSyncAllow = '<reason>').
+ *  Anything else is a STEADY call = gate FAIL. Lines: `[QF_SYNC] STEADY …` (first 20, with caller), and a summary every 600 frames +
+ *  on hide: `[QF_SYNC] frames= calls= steadyCalls= maxPerFrame= maxSteadyPerFrame= allow={…} byApi={…} verdict=PASS|FAIL`.
+ *  globalThis.__qfSyncStats() feeds the harness result.json (steadyCalls > 0 fails the run). */
+export const SYNC_BOOT_FRAMES=300,SYNC_VIEW=['getWindowInfo','getMenuButtonBoundingClientRect','getDeviceInfo','getAppBaseInfo','getSystemSetting'];
+export const syncProbe={frame:0,cur:0,curSteady:0,calls:0,steadyCalls:0,maxPerFrame:0,maxSteadyPerFrame:0,byApi:{} as Record<string,number>,allow:{} as Record<string,number>,
+ steadySamples:[] as any[],lastTap:-1e9,lastHideShow:-1e9,depth:0,installed:false,trFrame:-1,tr:false,out:(s:string)=>camLog.out(s)};
+function syncTransition(g:any):boolean{const P=syncProbe;if(P.trFrame===P.frame)return P.tr;P.trFrame=P.frame;let t=false;
+ try{const w=g.__qfWindWipe;if(w&&w.mode)t=true;const s=g.__worldIntegration?.snapshot?.(),j=s?.journey||s?.world?.journey;if(j&&(j.target||(j.phase&&j.phase!=='arrived'&&j.phase!=='idle')))t=true;}catch{}
+ P.tr=t;return t;}
+export function syncReason(g:any):string|null{const P=syncProbe,f=P.frame;if(f<SYNC_BOOT_FRAMES)return 'boot';if(f-P.lastTap<=3)return 'tap';if(f-P.lastHideShow<=30)return 'hide-show';
+ if(syncTransition(g))return 'transition';const q=g.__qfSyncAllow;return typeof q==='string'&&q?'qa:'+q:null;}
+export function syncStats(){const P=syncProbe;return {frames:P.frame,calls:P.calls,steadyCalls:P.steadyCalls,maxPerFrame:P.maxPerFrame,maxSteadyPerFrame:P.maxSteadyPerFrame,allow:{...P.allow},byApi:{...P.byApi},steadySamples:P.steadySamples.slice(0,20),verdict:P.steadyCalls?'FAIL':'PASS'};}
+function syncSummary(){const s=syncStats();syncProbe.out('[QF_SYNC] frames='+s.frames+' calls='+s.calls+' steadyCalls='+s.steadyCalls+' maxPerFrame='+s.maxPerFrame+' maxSteadyPerFrame='+s.maxSteadyPerFrame+' allow='+JSON.stringify(s.allow)+' byApi='+JSON.stringify(s.byApi)+' verdict='+s.verdict);}
+export function syncFrameEnd():void{const P=syncProbe;if(P.cur>P.maxPerFrame)P.maxPerFrame=P.cur;if(P.curSteady>P.maxSteadyPerFrame)P.maxSteadyPerFrame=P.curSteady;P.cur=0;P.curSteady=0;P.frame++;if(P.frame%600===0)syncSummary();}
+function syncNote(g:any,api:string,key:string):void{const P=syncProbe;P.calls++;P.cur++;P.byApi[api]=(P.byApi[api]||0)+1;const r=syncReason(g);
+ if(r){P.allow[r]=(P.allow[r]||0)+1;return;}P.steadyCalls++;P.curSteady++;
+ if(P.steadySamples.length<20){let caller='';try{caller=String(new Error().stack||'').split('\n').slice(3,9).map(x=>x.trim().replace(/^at /,'')).join(' < ');}catch{}
+  const smp={frame:P.frame,api,key,caller};P.steadySamples.push(smp);P.out('[QF_SYNC] STEADY frame='+smp.frame+' api='+api+(key?' key='+key:'')+' caller='+caller);}}
+function syncWrap(obj:any,name:string,label:string,g:any,keyed:boolean):void{const orig=obj&&obj[name];if(typeof orig!=='function'||orig.__qfSync)return;
+ const w=function(this:any,...a:any[]){const P=syncProbe;if(P.depth===0)syncNote(g,label,keyed?String(a[0]):'');P.depth++;try{return orig.apply(this===w?obj:this,a);}finally{P.depth--;}};
+ (w as any).__qfSync=orig;try{obj[name]=w;}catch{}}
+export function installSyncProbe(g:any,store:any,wxObj:any,sysObj:any,hooks?:{onFrameEnd?:(f:()=>void)=>void;onTap?:(f:()=>void)=>void;onHideShow?:(f:()=>void)=>void}):boolean{
+ const P=syncProbe;if(P.installed)return false;P.installed=true;
+ if(store)for(const m of ['getItem','setItem','removeItem','clear'])syncWrap(store,m,'localStorage.'+m,g,m!=='clear');
+ if(wxObj){for(const k of Object.keys(wxObj).concat(Object.getOwnPropertyNames(Object.getPrototypeOf(wxObj)||{})))if(/Sync$/.test(k)||SYNC_VIEW.includes(k))syncWrap(wxObj,k,'wx.'+k,g,/Storage/.test(k));}
+ if(sysObj)syncWrap(sysObj,'getSafeAreaRect','sys.getSafeAreaRect',g,false);
+ const h=hooks||{onFrameEnd:(f)=>director.on(Director.EVENT_AFTER_DRAW,f),onTap:(f)=>input.on(Input.EventType.TOUCH_START,f),onHideShow:(f)=>{game.on(Game.EVENT_HIDE,f);game.on(Game.EVENT_SHOW,f);}};
+ try{h.onFrameEnd?.(syncFrameEnd);}catch{}try{h.onTap?.(()=>{P.lastTap=P.frame;});}catch{}try{h.onHideShow?.(()=>{P.lastHideShow=P.frame;syncSummary();});}catch{}
+ try{g.__qfSyncStats=syncStats;}catch{}return true;}
 /*QF_PROBE_END*/export function camLogStart(query?:string,g:any=globalThis):boolean{
  if(started)return camLog.on;started=true;
  let q=query;if(q===undefined)q=debugSearch(g)/* full8: + wx launch/enter query + __qfQuery */;
  camLog.on=camLogEnabled(q,g);camLog.stacks=camLog.on&&camStacksEnabled(q,g);
  if(camLog.on){camLog.t0=typeof performance!=='undefined'?performance.now():Date.now();cameraWriteHook.log=camLogWrite;try{(g||globalThis).__qfCamTag={t:camTag,d:camTagDefault};}catch{}}
- /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on))try{installStorageProbe((sys as any).localStorage);}catch{}/*QF_PROBE_END*/
+ /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on)){try{installStorageProbe((sys as any).localStorage);}catch{}try{installSyncProbe(g||globalThis,(sys as any).localStorage,(g||globalThis as any).wx,sys);}catch{}}/*QF_PROBE_END*/
  return camLog.on;
 }
 /** test-only */
