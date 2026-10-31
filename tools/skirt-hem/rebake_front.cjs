@@ -108,4 +108,4 @@ if(args.includes('--assemble')){const res=arg('--curves').split(',').flatMap(f=>
   const rep={in:IN,bytes:{in:R.buf.length,out:out.length},split:Object.fromEntries(Object.entries(SPLIT).map(([k,v])=>[k,v.moved])),targets:TGT,margin:MARGIN,fps:FPS,
     clips:res.map(r=>({clip:r.clip,unsolved:r.unsolved,fixes:r.fixes,left:r.left,pfix:r.pfix,otherLeft:r.otherLeft,seconds:r.seconds,touched:Object.keys(r.qs),P:r.P,blend:r.blend,extra:r.extra}))};
   if(arg('--report'))fs.writeFileSync(arg('--report'),JSON.stringify(rep));console.log('wrote',arg('--out'),R.buf.length,'->',out.length);}
-module.exports={solveClip,R,S,M,ovOf,pose,hits,vals,FRONT,REST_P};
+module.exports={solveClip,R,S,M,ovOf,pose,hits,vals,FRONT,ALL,REST_P,H};
