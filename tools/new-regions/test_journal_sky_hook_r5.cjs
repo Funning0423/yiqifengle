@@ -58,19 +58,26 @@ for(const [W,Hh] of [[390,844],[320,568]])for(const [tag,cp,sky,region,want,en] 
 {const {o}=await page(4,0,'sky',390,844);o.close();await H.flush();o.open('journal');await H.flush();const j=o.popups.find('JourneyPanel');
  const st=j.root.find('Chapter-sky').getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string;assert(st==='8 关后开启'||st==='8关后开启','sky locked cell = region unlock N=8 in the UI设计部 format: '+st);out.push('sky cell (locked)=「'+st+'」');o.dispose();}
 // 4. every journal-sky hook key, state built from its OWN spec the way PreTransitionRun.setup does (profile → just-won → seed)
-const HOOKS={'journal-sky-gated':['通关第 12 关后开启',false,'12 关后开启'],'journal-sky-just-unlocked':['前往天空之城',true,'可前往'],'journal-sky-open':['前往天空之城',true,'可前往'],'journal-sky-progress':['继续 1/4',true,'1/4'],'journal-sky-cleared':['再访天空之城',true,'4/4 ✓']};
+const HOOKS={'journal-sky-gated':['通关第 12 关后开启',false,'12 关后开启'],'journal-sky-just-unlocked':['前往天空之城',true,'可前往'],'journal-sky-open':['前往天空之城',true,'可前往'],'journal-sky-progress':['继续 1/4',true,'1/4'],'journal-sky-cleared':['再访天空之城',true,'4/4 ✓'],'journal-sky-focus':['继续 1/4',true,'1/4']};const UP=H.load('ui/UiPrefs');
 const snapOf=()=>c.testProfile.mainline.createController().snapshot();let diffNote='';const journeys={};
 for(const [k,[want,en,cellWant]] of Object.entries(HOOKS))for(const [W,Hh] of [[390,844],[320,568]]){const sp=K.preSpec(k);assert(sp,k);
   const prof=c.preTransitionProfile(sp.checkpoint,sp.finish);assert.equal(prof.ok,true,k+' profile');
   if(sp.justWon){const pre=snapOf();assert.equal(pre.journey.completed,11,k+': before the win only 11 registered');RF.finishPausedMainlineWin(c.testProfile,prof.lastAction,{allowQa:true});}
   if(sp.skyChallenges)RF.seedSkyChallengeWins(c.testProfile,sp.skyChallenges,{allowQa:true});
+  UP.setLastRegion(sp.focusSky?'sky':'');/* as PreTransitionRun.setup: only journal-sky-focus writes lastRegion = sky */
   const sn=snapOf(),insp=RC.inspect(sn.journey);journeys[k]=sn;
   assert.equal(insp.regions[2].challengeUnlocked,k!=='journal-sky-gated',k+' real sky challenge gate');assert.equal(insp.regions[2].unlocked,true,k+' sky region unlocked');
   const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>c.islandOverview(),gates:()=>c.islandGates(),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode:'day'})});
   await H.flush();o.sync(W,Hh,true);o.open('sky');await H.flush();const p=o.popups.find('ChapterPanel'),btn=p.root.find('Continue-sky'),L=btn.getComponentsInChildren(cc.Label)[0];
   assert.equal(L.string,want,`${k} @${W}: button`);assert.equal(btn.__disabled===true,!en,k+' tappable');if(!en)assert(!p.root.find('ChapterCondition'),k+' nothing above');
   o.close();await H.flush();o.open('journal');await H.flush();const j=o.popups.find('JourneyPanel'),cell=j.root.find('Chapter-sky').getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string,fc=j.root.find('Focus-sky'),go=fc?fc.getComponentsInChildren(cc.Label).find(l=>l.node.name==='Go').string:null;
-  assert.equal(cell,cellWant,`${k} @${W}: cell`);if(!en&&go!=null)assert(!/继续 ›|前往 ›|再访 ›/.test(go),k+' focus '+go);
+  assert.equal(cell,cellWant,`${k} @${W}: cell`);
+  // r5 P3: which region the focus card shows, and that the hook's expect says so (focusRegion: last played, else first progress/open)
+  {const fk=j.root.children.concat(j.root.getComponentsInChildren(cc.UITransform).map(t=>t.node)).find(n=>/^Focus-/.test(n.name)),fid=fk.name.slice(6),fgo=fk.getComponentsInChildren(cc.Label).find(l=>l.node.name==='Go').string;
+   if(sp.focusSky){assert.equal(fid,'sky',k+' focus card on 天空之城');assert.equal(fgo,'继续 ›',k+' sky focus go');assert(/天空之城/.test(sp.expect)&&/继续 ›/.test(sp.expect),k+' expect names the sky focus card');assert.deepEqual(sp.taps[0].path,['JourneyPanel','Focus-sky'],k+' tap = sky focus card');}
+   else if(k==='journal-sky-gated'){assert.equal(fid,'sky',k+' focus sky (lake still locked)');}
+   else{assert.equal(fid,'lake',k+' after mainline 12 the focus card is 风铃湖畔');assert.equal(fgo,'前往 ›',k+' lake focus go');assert(/焦点卡在「风铃湖畔」/.test(sp.expect)&&!/焦点卡「前往 ›」/.test(sp.expect),k+' expect describes the lake focus card, not a sky one');}
+   out.push(`hook ${k} @${W}: focus card ${fid} 「${fgo}」`);}if(!en&&go!=null)assert(!/继续 ›|前往 ›|再访 ›/.test(go),k+' focus '+go);
   out.push(`hook ${k} @${W}: cleared ${sn.journey.completed} · sky gate ${insp.regions[2].challengeUnlocked?'open':'closed'} · button 「${L.string}」${en?'':' grey'} · cell 「${cell}」${go!=null?' · focus 「'+go+'」':''}`);o.dispose();}
 {const a=journeys['journal-sky-just-unlocked'],b=journeys['journal-sky-open'];const strip=x=>JSON.stringify(x.journey.records.map(r=>[r.bestStars>0]));
  assert.equal(strip(a),strip(b),'just-unlocked and open: same cleared set (1–12)');diffNote=`just-unlocked vs open: same 12 cleared; just-unlocked state=${a.state} (12th win committed on the island from a paused attempt) vs open state=${b.state}`;out.push(diffNote);}

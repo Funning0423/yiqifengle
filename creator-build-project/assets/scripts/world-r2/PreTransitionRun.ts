@@ -7,12 +7,16 @@ import { qaSkipAllowed } from './QaSkip';
 import {armSkycityWarmOnSailRide} from '../region/TransitionPreload';
 import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
 import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
-import { director, game, UITransform, Canvas, Vec3 } from 'cc';
+import { director, Director, game, UITransform, Canvas, Vec3 } from 'cc';
 /*QF_PROBE_BEGIN*/import { seedSkyChallengeWins, finishPausedMainlineWin } from './RegionFlowTest';/*QF_PROBE_END*/
+import { warmJourneyUi } from '../ui/JourneyUi';
+import { setLastRegion } from '../ui/UiPrefs';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
 async function waitFor(pred:()=>any,ms:number,step=100):Promise<boolean>{const t=Date.now();while(Date.now()-t<ms){try{if(pred())return true;}catch{}await sleep(step);}return false;}
+const PANEL_FRAMES=120;/* rendered frames the host gets to enable the overlay / build the panel once its bundle is in */
+async function waitFrames(pred:()=>any,frames:number):Promise<boolean>{const f0=director.getTotalFrames();for(;;){try{if(pred())return true;}catch{}if(director.getTotalFrames()-f0>=frames)return false;await new Promise<void>(r=>director.once(Director.EVENT_AFTER_DRAW,()=>r()));}}
 function find(root:any,name:string):Node|null{if(!root)return null;for(const c of root.children||[]){if(c.name===name&&c.activeInHierarchy)return c;const h=find(c,name);if(h)return h;}return null;}
 function findPath(path:string[]):Node|null{let n:any=director.getScene();for(const p of path){n=find(n,p);if(!n)return null;}return n;}
 function nodePoint(n:Node,frame:{width:number;height:number}){
@@ -43,6 +47,19 @@ export class PreTransitionRunner{
   if(place==='island'&&this.st().state!=='island'){const r=await this.step(()=>this.wc().leaveHome(),'island','leave-home');if(!r.ok)return r;}
   return {ok:true};
  }
+ /** Open a journal page the way the player's tap does, waiting on the REAL signals instead of a wall-clock guess:
+  *  (1) the journey_ui bundle has loaded (warmJourneyUi promise), (2) the host has enabled the overlay for an island frame
+  *  (IslandJourneyOverlay.ready(); open() is a silent no-op before that — the old hook called it right after leave-home and
+  *  then polled 5 s for a panel that was never requested), (3) the overlay reports the page on screen (shownPage(), set in
+  *  the callback that builds the panel). Bounded by rendered frames, not ms, so a slow renderer only makes it slower. */
+ private async openPanel(page:string,path:string[]):Promise<R>{
+  const j=this.d.islandJourney();if(!j)return {ok:false,reason:'no-journal-overlay'};
+  if(!await warmJourneyUi())return {ok:false,reason:'journey-ui-load-failed'};
+  if(!await waitFrames(()=>j.ready()&&!j.isOpen(),PANEL_FRAMES))return {ok:false,reason:'journal-overlay-not-ready (state '+this.st().state+')'};
+  if(!j.openPage(page))return {ok:false,reason:'journal-open-refused'};
+  if(!await waitFrames(()=>j.shownPage()===page&&findPath(path),PANEL_FRAMES))return {ok:false,reason:'chapter-panel-not-open (shown '+j.shownPage()+')'};
+  return {ok:true};
+ }
  private boardSnap(){const b:any=this.d.board();return b?.snapshot||null;}
  private async toResult(spec:PreSpec,last:any,seed:number):Promise<R>{
   const r=await this.step(()=>this.d.composition.enterMainlineStage(spec.stage,seed),'level','enter '+spec.stage,240000);if(!r.ok)return r;
@@ -71,8 +88,8 @@ export class PreTransitionRunner{
    if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);if(!prof.ok)return prof;}
    if(spec.place==='island'){
     /*QF_PROBE_BEGIN*/if(spec.justWon){try{finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true});}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
-    if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true});}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','Continue-sky']),5000))return {ok:false,reason:'chapter-panel-not-open'};}/*QF_PROBE_END*/
-    if(spec.key==='skycity-visit'){const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','VisitSkycity']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
+    if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true});}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
+    if(spec.key==='skycity-visit')return await this.openPanel('sky',['ChapterPanel','VisitSkycity']);
     return {ok:true};
    }
    if(spec.place==='result')return await this.toResult(spec,prof?.lastAction,prof?.seed);
