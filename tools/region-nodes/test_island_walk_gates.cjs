@@ -39,8 +39,6 @@ const along=(p,step,f)=>{for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],n=Mat
  const EDGE_R=[0.05,0.10,0.15],edgeMin=(p,fl=g.floorDisc)=>{let m={d:99};along(p,0.05,q=>{for(const r of EDGE_R){if(r>=m.d)break;for(let k=0;k<16;k++){const x=q[0]+r*Math.cos(k*Math.PI/8),z=q[2]+r*Math.sin(k*Math.PI/8),t=fl(x,z,q[1]+0.6);
   if(t===null||t<q[1]-0.1){m={d:r,at:[q[0],q[2]].map(v=>+v.toFixed(2)),drop:t===null?null:+(q[1]-t).toFixed(3)};break;}}}});return m;};
  const fails=[];
- // props moved off the walked path by tools/region-nodes/move-island-prop.cjs (runtime GLB edited; recorded here for the self-test)
- const PROP_MOVES=[{pl:61,asset:'grass_tuft_01',dx:0.06,dy:-0.0029,dz:0}];
  // prop classes (vegetation / solid) from the committed list; the GLB is re-split and every sub-object must be in the list
  const CP=require('./classify-island-props.cjs'),PROPS=CP.propsMesh(),CLS=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/island-props-classes.json'),'utf8')).components;
  const idx=new Map(CLS.map(c=>[c.cx+','+c.cz+','+c.tris,c]));const solidPts=[];let unk=0;
@@ -74,11 +72,10 @@ const along=(p,step,f)=>{for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],n=Mat
  const J=require('../journey-integration/journey-scene.cjs');const trunks=[];for(const o of J.island)if(/palm/.test(o.name))for(let k=0;k<o.tris.length;k+=3)if(o.tris[k+1]<0.7)trunks.push([o.tris[k],o.tris[k+2],o.name]);
  const trunkMin=p=>EX.minDist(PALM_I,p,1.5,()=>[null,0.7]);/* exact: palm triangles clipped below 0.7 m */
  // negative self-test first: the gate must catch the old paths
- // negative self-test (exact triangles): grass_tuft_01 placement 61 back at its pre-b20 position (move-island-prop.cjs moved it +0.06 m x):
- // its ~2 cm blade tip (#1983) above 0.3 m is 0.140 m from the I4-I6 path - the 5 cm-sampled vertex gate reported 0.175 and missed it.
- {const MV=PROP_MOVES.find(m=>m.pl===61),back=triItems.filter(t=>t.cls==='vegetation').map(t=>{if(t.pl!==MV.pl)return t;const v=t.v.slice();for(let q=0;q<9;q+=3){v[q]-=MV.dx;v[q+1]-=MV.dy;v[q+2]-=MV.dz;}const cy=Math.min(v[1],v[4],v[7]);return {...t,v,floor:g.floorAt((v[0]+v[3]+v[6])/3,(v[2]+v[5]+v[8])/3,Math.max(v[1],v[4],v[7]))??cy};});
-  const I=EX.index(back),e=N.edges.find(e=>e.a==='I4'&&e.b==='I6'),v=EX.minDist(I,e.path,0.65,it=>[it.floor+0.3,it.floor+1.7]);
-  assert.ok(v.d<keep&&/#1983$/.test(v.who),'self-test: old grass_tuft_01 #1983 spike on I4-I6 not caught ('+v.d.toFixed(3)+' '+v.who+')');console.log('self-test old grass_tuft_01 placement 61 (#1983 spike) on I4-I6 FAIL as expected',v.d.toFixed(3),'m at',v.at);}
+ // negative self-test (exact triangles): the I4-I6 path at 6a692409 (fixture island-edges-6a692409-I4I6.json), before the via nudge:
+ // grass_tuft_01#1983's ~2 cm blade tip above 0.3 m is 0.140 m from it - the 5 cm-sampled vertex gate reported 0.175 and missed it.
+ {const e=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/island-edges-6a692409-I4I6.json'),'utf8')).edges[0],I=EX.index(triItems.filter(t=>t.cls==='vegetation')),v=EX.minDist(I,e.path,0.65,it=>[it.floor+0.3,it.floor+1.7]);
+  assert.ok(v.d<keep&&/#1983$/.test(v.who),'self-test: old grass_tuft_01 #1983 spike on I4-I6 not caught ('+v.d.toFixed(3)+' '+v.who+')');console.log('self-test 6a692409 I4-I6 vs grass_tuft_01 #1983 spike FAIL as expected',v.d.toFixed(3),'m at',v.at);}
  for(const e of OLD){const v=vegMin(e.path);assert.ok(v.d<keep,'self-test: vegetation gate did not catch 9d2bdc6f '+e.a+'-'+e.b+' ('+v.d.toFixed(3)+' m)');console.log('self-test 9d2bdc6f',e.a+'-'+e.b,'vegetation FAIL as expected',v.d.toFixed(3),'m at',v.at);}
  for(const e of N.edges){const k=e.a+'-'+e.b,v=vegMin(e.path),y=yOver(e.path),t=trunkMin(e.path),ed=edgeMin(e.path),so=solidMin(e.path),fr=frondMin(e.path);
   console.log(k,'veg',v.d.toFixed(3),v.who||'',v.at||'','| y-floor max',y.d.toFixed(3),y.at||'','| trunk',t.d.toFixed(3),t.who||'','| drop-off edge',ed.d<99?ed.d:'>0.15',ed.at||'','| solids',GRADES.map(G=>G+' '+(so[G].d<99?so[G].d.toFixed(3)+'@'+so[G].at+' '+so[G].who:'>'+(KEEP[G]+0.5))).join(' '),'| frond',fr.d<99?fr.d.toFixed(3):'>1',fr.who||'',fr.at||'');

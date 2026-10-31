@@ -49525,275 +49525,275 @@
   {
    "id": 1980,
    "pl": 61,
-   "cx": 4.665,
+   "cx": 4.605,
    "cz": 4.955,
    "bb": [
     [
-     4.585,
-     -0.02,
+     4.525,
+     -0.017,
      4.928
     ],
     [
-     4.744,
-     0.326,
+     4.684,
+     0.329,
      4.983
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.181,
+   "placementD": 0.121,
    "cls": "vegetation",
-   "heightM": 0.322,
+   "heightM": 0.325,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1981,
    "pl": 61,
-   "cx": 4.525,
+   "cx": 4.465,
    "cz": 5.024,
    "bb": [
     [
-     4.495,
-     -0.02,
+     4.435,
+     -0.017,
      4.979
     ],
     [
-     4.555,
-     0.285,
+     4.495,
+     0.288,
      5.069
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.091,
+   "placementD": 0.084,
    "cls": "vegetation",
-   "heightM": 0.281,
+   "heightM": 0.284,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1982,
    "pl": 61,
-   "cx": 4.456,
+   "cx": 4.396,
    "cz": 4.951,
    "bb": [
     [
-     4.409,
-     -0.02,
+     4.349,
+     -0.017,
      4.927
     ],
     [
-     4.502,
-     0.238,
+     4.442,
+     0.241,
      4.976
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.03,
+   "placementD": 0.089,
    "cls": "vegetation",
-   "heightM": 0.234,
+   "heightM": 0.237,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1983,
    "pl": 61,
-   "cx": 4.512,
+   "cx": 4.452,
    "cz": 4.823,
    "bb": [
     [
-     4.462,
-     -0.02,
+     4.402,
+     -0.017,
      4.729
     ],
     [
-     4.561,
-     0.349,
+     4.501,
+     0.352,
      4.917
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.123,
+   "placementD": 0.124,
    "cls": "vegetation",
-   "heightM": 0.345,
+   "heightM": 0.348,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1984,
    "pl": 61,
-   "cx": 4.425,
+   "cx": 4.365,
    "cz": 5.041,
    "bb": [
     [
-     4.36,
-     -0.02,
+     4.3,
+     -0.017,
      4.983
     ],
     [
-     4.49,
-     0.225,
+     4.43,
+     0.228,
      5.1
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.115,
+   "placementD": 0.155,
    "cls": "vegetation",
-   "heightM": 0.221,
+   "heightM": 0.224,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1985,
    "pl": 61,
-   "cx": 4.544,
+   "cx": 4.484,
    "cz": 4.996,
    "bb": [
     [
-     4.518,
-     -0.02,
+     4.458,
+     -0.017,
      4.931
     ],
     [
-     4.57,
-     0.335,
+     4.51,
+     0.338,
      5.062
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.08,
+   "placementD": 0.054,
    "cls": "vegetation",
-   "heightM": 0.331,
+   "heightM": 0.334,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1986,
    "pl": 61,
-   "cx": 4.48,
+   "cx": 4.42,
    "cz": 4.898,
    "bb": [
     [
-     4.43,
-     -0.02,
+     4.37,
+     -0.017,
      4.854
     ],
     [
-     4.531,
-     0.322,
+     4.471,
+     0.324,
      4.942
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.045,
+   "placementD": 0.078,
    "cls": "vegetation",
-   "heightM": 0.318,
+   "heightM": 0.32,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1987,
    "pl": 61,
-   "cx": 4.548,
+   "cx": 4.488,
    "cz": 4.903,
    "bb": [
     [
-     4.514,
-     -0.02,
+     4.454,
+     -0.017,
      4.854
     ],
     [
-     4.581,
-     0.211,
+     4.521,
+     0.214,
      4.951
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.075,
+   "placementD": 0.04,
    "cls": "vegetation",
-   "heightM": 0.207,
+   "heightM": 0.21,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1988,
    "pl": 61,
-   "cx": 4.472,
+   "cx": 4.412,
    "cz": 4.949,
    "bb": [
     [
-     4.417,
-     -0.02,
+     4.357,
+     -0.017,
      4.92
     ],
     [
-     4.527,
-     0.259,
+     4.467,
+     0.262,
      4.979
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.014,
+   "placementD": 0.073,
    "cls": "vegetation",
-   "heightM": 0.255,
+   "heightM": 0.258,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1989,
    "pl": 61,
-   "cx": 4.46,
+   "cx": 4.4,
    "cz": 4.959,
    "bb": [
     [
-     4.375,
-     -0.02,
+     4.315,
+     -0.017,
      4.918
     ],
     [
-     4.546,
-     0.259,
+     4.486,
+     0.262,
      5
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.029,
+   "placementD": 0.086,
    "cls": "vegetation",
-   "heightM": 0.255,
+   "heightM": 0.258,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },
   {
    "id": 1990,
    "pl": 61,
-   "cx": 4.543,
+   "cx": 4.483,
    "cz": 4.763,
    "bb": [
     [
-     4.51,
-     -0.02,
+     4.45,
+     -0.017,
      4.655
     ],
     [
-     4.576,
-     0.32,
+     4.516,
+     0.323,
      4.871
     ]
    ],
    "tris": 3,
    "asset": "grass_tuft_01",
-   "placementD": 0.189,
+   "placementD": 0.18,
    "cls": "vegetation",
-   "heightM": 0.316,
+   "heightM": 0.319,
    "keepM": null,
    "by": "shape: <=6-tri blade/petal card"
   },

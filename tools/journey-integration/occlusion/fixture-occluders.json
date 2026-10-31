@@ -4,7 +4,7 @@
   {
    "id": "island",
    "glb": "static_seat_preview/room/room_no_original_chair.glb",
-   "sha256": "4497be09f6a36bc4ae457a3a2a5885989dfec441b3e8aac3f51040a863c06caa",
+   "sha256": "f62e2832d326d3ec025161b5bcb55c56ab72560e10ee954d2a7fceffa39c8d29",
    "box": [
     [
      -20,
@@ -375,5 +375,5 @@
   }
  ],
  "bytes": 3629844,
- "binSha256": "5738a3136c5b7068f312d9c272bfc94de2e5b57391966b5ba37a5b8158b476ce"
+ "binSha256": "5569f51869dc566dba0aed28fe607279e1dd496cc610efbd0ee31cac531789b5"
 }
