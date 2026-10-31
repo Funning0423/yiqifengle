@@ -3241,8 +3241,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts",
-    "bytes": 6511,
-    "sha256": "887982d0a23c161f7a9105dc7858982c69ca6be938d4cd70ff53573d6e0d8e22"
+    "bytes": 14723,
+    "sha256": "9e0ea813d02e0ce42e43f1535c6ac2efa9daa6860728d91325064ba026a9f146"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionNodes.ts.meta",
@@ -3271,8 +3271,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
-    "bytes": 183117,
-    "sha256": "f85b9ac0d2b2e24576ab23d6b5c4d552cc316d35b259bc6bdaaba6610a888fcb"
+    "bytes": 181977,
+    "sha256": "f188c0989d56d08eb7f4e5b47ccfa2ba373e10e890f62d0b523ed3d340bb1d71"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionWalkableData.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 32244,
-    "sha256": "fda9e5976c2681440d7d6668155e54efc2cd1ded655e099f9c6ca412e469e176"
+    "bytes": 32316,
+    "sha256": "9b0069934e648371a4c6d5f5b969ce96822fddc78f2a2598ce02534e9206c5b6"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
