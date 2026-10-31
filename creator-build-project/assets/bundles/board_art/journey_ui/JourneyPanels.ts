@@ -123,6 +123,17 @@ export function createJourneyUi(h: JourneyUiHost) {
     const x0 = -PW / 2 + PAPER_INNER_SRC.left / PAPER_INNER_SRC.artPx + P(JOURNEY_INNER_PAD + JOURNEY_PAPER_AA), x1 = PW / 2 - PAPER_INNER_SRC.right / PAPER_INNER_SRC.artPx - P(JOURNEY_INNER_PAD + JOURNEY_PAPER_AA);
     return { x0, x1, w: x1 - x0, cx: (x0 + x1) / 2 };
   }
+  /** r5 P3 (界面验收部 device 320×568): the region page's title plaque (52.5 design px above the panel top) must clear the safe area
+   *  AND the capsule (+8 pt), and the panel bottom the home bar (+8 pt). Safe insets come from the host's cached info (PopupViewport
+   *  .safeInsets, computed on resize — never per frame). Move the panel down first; shrink uniformly only when it cannot fit. */
+  const CHAPTER_CLEAR = 8, TITLE_OVERHANG_PX = 52.5;
+  function chapterFit(v: { width: number; height: number; safeInsets?: any }, hPt: number): { f: number; dy: number; top: number; bottom: number } {
+    const s = popupScale(v.width, v.height), si = v.safeInsets, num = (x: any) => (typeof x === 'number' && isFinite(x) ? Math.max(0, x) : 0);
+    const top = si ? Math.max(num(si.top), num(si.capsule?.bottom)) + CHAPTER_CLEAR : 8, bottom = si ? num(si.bottom) + CHAPTER_CLEAR : 8, plaque = TITLE_OVERHANG_PX * s;
+    const f = Math.max(0.3, Math.min(fitPt(v, hPt), (v.height - top - bottom - plaque) / hPt)), ph = hPt * f;
+    const top0 = v.height / 2 - ph / 2 - plaque, dyPt = Math.max(0, Math.min(top - top0, v.height - bottom - (v.height / 2 + ph / 2)));
+    return { f, dy: dyPt / s, top, bottom };
+  }
   /** Landscape / very short viewports: shrink the pt layout uniformly so the fixed-height panel keeps 8 pt margins. */
   function fitPt(v: { width: number; height: number }, hPt: number) { return Math.min(1, Math.max(0.3, (v.height - 16) / hPt)); }
   const hex = (c: number[], night: number) => tintRgb('ui', night, c);
@@ -221,16 +232,16 @@ export function createJourneyUi(h: JourneyUiHost) {
    *  前往X / 继续 / 再访X / 尚未开启 (flat disabled). Provider gate reasons still block (shown above the button). tide/sky extras stay. */
   function openChapter(stack: PopupStack, id: string, a: ChapterActions): PopupPanel {
     const c = CHAPTERS.find(x => x.id === id) || CHAPTERS[0], extra = id === 'tide' || id === 'sky';
-    const v = stack.view(), K = 1 / popupScale(v.width, v.height), hPt = 430 + (extra ? 52 : 0) + 56, f = fitPt(v, hPt), P = (x: number) => x * K * f;
+    const v = stack.view(), K = 1 / popupScale(v.width, v.height), hPt = 430 + (extra ? 52 : 0) + 56, fit = chapterFit(v, hPt), f = fit.f, P = (x: number) => x * K * f;
     const PW = P(Math.min(330, Math.max(240, v.width - 40)) / f), PH = P(hPt);
-    const p = stack.open({ name: 'ChapterPanel', width: PW, height: PH, title: c.name, titleArt: c.id === 'tide' || c.id === 'meadow' || c.id === 'lake' ? 'r2/chapter_' + c.id : null, closable: true });
+    const p = stack.open({ name: 'ChapterPanel', width: PW, height: PH, dy: fit.dy, title: c.name, titleArt: c.id === 'tide' || c.id === 'meadow' || c.id === 'lake' ? 'r2/chapter_' + c.id : null, closable: true });
     const ww = PW - P(64), wh = ww * WIN_H / WIN_W; let y = P(56);
     const win = p.sprite('r2/region_' + c.id, 0, y + wh / 2, ww, wh); const row = a.row?.() || null; if (row && row.state === 'far') win.grayscale = true;
     const sealKey = 'popup/reward_seal_' + c.id; if (row?.state !== 'far') p.sprite(sealKey, -ww / 2 + P(22), y + P(22), P(40), P(40));
     y += wh + P(14);
     // r5 P3 (界面验收部 journal-3277421c §已有问题): text and the button stay inside the paper inner edge + 8.5 pt (paperBand, the
     // same rule as the journey book) at every width; a description that does not fit wraps to 2 lines (never …, never a smaller font).
-    const band = paperBand(PW, P), TW = Math.min(PW - P(48), band.w), descLines = measure(c.description, P(15)) > TW ? 2 : 1;
+    const band = paperBand(PW, x => x * K)/* inset in SCREEN pt even when the page is shrunk (f<1) */, TW = Math.min(PW - P(48), band.w), BTW = Math.min(P(240), band.w)/* one rule for every page button: min(240, paper inner − 2·8.5) */, descLines = measure(c.description, P(15)) > TW ? 2 : 1;
     p.text(c.description, band.cx, y + P(10) + (descLines - 1) * P(10.5), P(15), 'brown2', { bold: false, width: TW, lines: descLines, name: 'ChapterDescription' }); y += P(30) + (descLines - 1) * P(21);
     const gate = a.gate(), reason = gate?.reason, d = REGION_DEFS.find(x => x.id === c.id)!;
     const st: RegionRow = row || { id: c.id, done: 0, total: c.stages, state: gate?.ok ? 'open' : 'locked', hasData: true, isNew: false, tappable: true };
@@ -245,12 +256,12 @@ export function createJourneyUi(h: JourneyUiHost) {
     if (c.id === 'coast' && st.hasData && st.state !== 'locked') { p.text(coastChapterHint(st.done), 0, y, P(14), 'teal', { width: TW, name: 'CoastChapter' }); y += P(22); }
     const skyLocked = id === 'sky' && (st.state === 'locked' || st.state === 'far');   // UI设计部 r4: locked → no line at all; never dev wording
     if (extra && !skyLocked) { y += P(10);
-      if (id === 'sky') p.button('secondary', '前往天空城', 0, y + P(21), P(240), P(42), () => a.skycity(), { fontSize: P(15), name: 'VisitSkycity' });
-      if (id === 'tide') { const open = a.r4Open(); const b = p.button('secondary', open ? '旧日潮汐' : '旧日潮汐 · 未开启', 0, y + P(21), P(240), P(42), () => { if (a.r4Open()) a.legacyTide(); }, { fontSize: P(15), name: 'LegacyTide' }); b.setEnabled(open); }
+      if (id === 'sky') p.button('secondary', '前往天空城', band.cx, y + P(21), BTW, P(42), () => a.skycity(), { fontSize: P(15), name: 'VisitSkycity' });
+      if (id === 'tide') { const open = a.r4Open(); const b = p.button('secondary', open ? '旧日潮汐' : '旧日潮汐 · 未开启', band.cx, y + P(21), BTW, P(42), () => { if (a.r4Open()) a.legacyTide(); }, { fontSize: P(15), name: 'LegacyTide' }); b.setEnabled(open); }
       y += P(52); }
     const view = regionView(st, gate, a.stats?.()?.challenges ?? 0), mc = view.state === 'gated' ? view : null;
     const btn = { text: view.text, enabled: view.enabled, flat: view.flat }, blocked = reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : null;
-    const enabled = btn.enabled && !!gate?.ok, by = PH - P(26) - P(26), BTW = Math.min(P(240), band.w);
+    const enabled = btn.enabled && !!gate?.ok, by = PH - P(26) - P(26);
     // UI设计部 r4: a locked page has nothing above the grey button (its text already is the condition + 开启).
     if (!enabled && (blocked || btn.enabled || st.state === 'far')) p.text(blocked || (btn.enabled ? '暂不可进入' : unlockText(c.id)), 0, by - P(40), P(13), 'brown2', { bold: false, width: TW, name: 'ChapterCondition' });
     if (enabled) p.button('primary', btn.text, band.cx, by, BTW, P(52), () => { if (a.gate()?.ok) a.enter(); }, { fontSize: P(18), name: 'Continue-' + c.id });
@@ -284,7 +295,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, LOCKED_PAGE_COUNT_LINE, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
+  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, LOCKED_PAGE_COUNT_LINE, chapterFit, CHAPTER_CLEAR, TITLE_OVERHANG_PX, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };
