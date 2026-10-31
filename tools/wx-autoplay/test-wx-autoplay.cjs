@@ -17,15 +17,24 @@ assert.deepEqual(api.toClient(390,844,{w:375,h:812}),{x:375,y:812});
  assert(api.qfSer({message:'m',stack:'S1'}).includes('S1'));assert.equal(api.qfSer({a:1}),'{"a":1}');assert.equal(api.qfSer('x'),'x');}
 const pts=api.dragPoints({x1:0,y1:0,x2:100,y2:0,ms:160},16);assert.equal(pts.length,10);assert.deepEqual(pts.at(-1),[100,0]);
 // runtime in a fake mini-game
-function runFake(script,env='develop',withCc){
-  const files=new Map(),events=[],raw=[];const U='wxfile://usr';
-  const fsm={readFileSync:p=>{if(files.has(p))return files.get(p);throw Error('ENOENT '+p);},writeFileSync:(p,s)=>files.set(p,s),appendFileSync:(p,s)=>files.set(p,(files.get(p)||'')+s),
-    mkdirSync(){},rmdirSync:p=>{for(const k of [...files.keys()])if(k.startsWith(p))files.delete(k);},copyFileSync:(a,b)=>files.set(b,'JPG'),unlinkSync(){}};
-  const real={};const wx={env:{USER_DATA_PATH:U},getFileSystemManager:()=>fsm,getAccountInfoSync:()=>({miniProgram:{envVersion:env}}),getSystemInfoSync:()=>({windowWidth:390,windowHeight:844,pixelRatio:3}),onMemoryWarning(){}};
+function runFake(script,env='develop',withCc,opt){
+  const files=new Map(),events=[],raw=[],hostN={sys:0,cap:0,capSync:0},cap=opt&&opt.cap;const U='wxfile://usr';
+  const fsm={readFileSync:p=>{if(files.has(p))return files.get(p);throw Error('ENOENT '+p);},
+    mkdirSync(){},rmdirSync:p=>{for(const k of [...files.keys()])if(k.startsWith(p))files.delete(k);},
+    /* r2: gameplay-time writes must be async; the Sync variants throw so any regression shows up as missing output */
+    appendFile:o=>setTimeout(()=>{if(!files.has(o.filePath))return o.fail&&o.fail({errMsg:'appendFile:fail no such file'});files.set(o.filePath,files.get(o.filePath)+o.data);o.success&&o.success();},0),
+    writeFile:o=>setTimeout(()=>{files.set(o.filePath,o.data);o.success&&o.success();},0),
+    copyFile:o=>setTimeout(()=>{files.set(o.destPath,'JPG');o.success&&o.success();},1),unlink:o=>setTimeout(()=>o.success&&o.success(),0),
+    copyFileSync(){throw Error('copyFileSync used during gameplay');},unlinkSync(){throw Error('unlinkSync used during gameplay');}};
+  fsm.appendFileSync=fsm.writeFileSync=()=>{throw Error('sync write used during gameplay');};
+  const real={};const wx={env:{USER_DATA_PATH:U},getFileSystemManager:()=>fsm,getAccountInfoSync:()=>({miniProgram:{envVersion:env}}),getSystemInfoSync:()=>(hostN.sys++,{windowWidth:390,windowHeight:844,pixelRatio:3}),onMemoryWarning(){}};
   for(const k of ['TouchStart','TouchMove','TouchEnd','TouchCancel']){real[k]=[];wx['on'+k]=f=>real[k].push(f);wx['off'+k]=f=>{};}
   files.set('qf-autoplay/script.json',JSON.stringify(script));files.set(U+'/qf-autoplay/out/stale.jpg','old');
   const g={wx,console:{log(){},info(){},warn(){},error(){}},setTimeout,setInterval,clearInterval,Promise,Date,JSON,Math,Number,String,Array,Object,Error,isFinite,
-    canvas:{width:1170,height:2532,toTempFilePathSync:o=>{assert.equal(o.fileType,'jpg');assert.equal(o.quality,0.6);assert(o.destWidth<=195);return 'tmp://x';}}};
+    clearTimeout,
+    canvas:{width:1170,height:2532,toTempFilePathSync:o=>{hostN.capSync++;throw Error('toTempFilePathSync must not be used');},
+      toTempFilePath:o=>{hostN.cap++;assert.equal(o.fileType,'jpg');assert.equal(o.quality,0.6);assert(o.destWidth<=195);assert.equal(typeof o.success,'function');assert.equal(typeof o.fail,'function');
+        if(cap==='never')return;/* host never calls back */setTimeout(()=>cap==='fail'?o.fail({errMsg:'toTempFilePath:fail'}):o.success({tempFilePath:'tmp://x'}),cap==='slow'?200:2);}}};
   g.GameGlobal=g;g.globalThis=g;vm.createContext(g);vm.runInContext(fs.readFileSync(H,'utf8'),g);
   // engine + a full-screen swallowing node registered after the harness, like the Cocos adapter / IslandLighthouseTouch
   let state='home';g.__worldIntegration={snapshot:()=>({state})};
@@ -34,7 +43,7 @@ function runFake(script,env='develop',withCc){
   g.wx.onTouchStart(e=>{events.push(['S',e.changedTouches[0].clientX,e.changedTouches[0].clientY]);if(e.touches[0].clientY>300)state='island';});
   g.wx.onTouchMove(e=>events.push(['M',e.changedTouches[0].clientX]));g.wx.onTouchEnd(e=>{events.push(['E',e.touches.length]);});
   g.wx.onTouchStart(e=>raw.push('raw'));
-  return {g,files,events,raw,real,U};
+  return {g,files,events,raw,real,U,hostN};
 }
 (async()=>{
   const r=runFake({steps:[{op:'waitState',name:'home',timeoutMs:3000},{op:'tap',x:195,y:560},{op:'waitState',name:'island',timeoutMs:3000},{op:'drag',x1:10,y1:400,x2:100,y2:400,ms:100},{op:'screenshot',name:'a'},{op:'waitState',name:'never',timeoutMs:300,stopOnFail:false},{op:'wait',ms:10}]});
@@ -48,6 +57,8 @@ function runFake(script,env='develop',withCc){
   assert.equal(r.real.TouchStart.length,2,'real wx registrations forwarded');
   assert(!r.files.has(r.U+'/qf-autoplay/out/stale.jpg'),'previous run output cleared');
   assert(r.files.has(r.U+'/qf-autoplay/out/shots/01-a.jpg'));
+  assert.equal(r.hostN.capSync,0,'no toTempFilePathSync');assert.equal(r.hostN.cap,1,'one async capture');assert.equal(r.hostN.sys,1,'window size read once at boot (cached), not per step/tap');
+  assert.equal(res.shots,1);assert.equal(res.shotsSkipped,0);assert.equal(res.screenshotApi,'toTempFilePath-async');
   const st=r.files.get(r.U+'/qf-autoplay/out/state.jsonl').trim().split('\n').map(JSON.parse);assert(st.some(s=>s.state==='island'));assert('fps' in st[0]&&'memory' in st[0]&&'onWater' in st[0]);
   assert(r.files.get(r.U+'/qf-autoplay/out/console.log').includes('[QF_AUTOPLAY]'));
   // Error 3804 regression: WeChat cc namespace lacks SkinnedMeshRenderer; harness must never pass undefined to getComponent*
@@ -66,6 +77,20 @@ function runFake(script,env='develop',withCc){
    for(let i=0;i<40&&!f.files.has(f.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
    const fr=JSON.parse(f.files.get(f.U+'/qf-autoplay/out/result.json'));assert.equal(fr.consoleErrors,0);assert.equal(fr.ok,false);
    assert.equal(fr.journeyFailures.length,1);assert.match(fr.journeyFailures[0],/meadow>skycity: TypeError/);assert.equal(fr.snapshotErrors.length,1);assert.equal(fr.hudSuppressedErrors.length,1);assert.match(fr.failReason,/game failures: 3/);}
+  // r2 async screenshots: overlap is skipped (one in flight), a capture that never calls back times out, fail is counted, after-draw only requests
+  {const o=runFake({steps:[{op:'wait',ms:5}]},'develop',false,{cap:'slow'});
+   const director={cb:[],once(ev,f){this.cb.push(f);}};o.g.cc={director,Director:{EVENT_AFTER_DRAW:'after-draw'}};
+   const a=o.g.__QF_AUTOPLAY&&o.g.__QF_AUTOPLAY;assert(a,'harness active');
+   const shot=o.g.__QF_AUTOPLAY_SHOT;assert.equal(typeof shot,'function','test-only shot handle');
+   const p1=shot('x'),p2=shot('y');assert.equal(director.cb.length,1,'second request skipped, not queued on after-draw');
+   assert.equal(o.hostN.cap,0,'nothing captured before the frame is drawn');const t=Date.now();director.cb.shift()();assert(Date.now()-t<50,'after-draw callback returns immediately');
+   assert.equal(o.hostN.cap,1);assert.equal(await p2,null);const f1=await p1;assert.match(f1,/shots\/01-x\.jpg$/);assert(o.files.has(f1));
+   const p3=shot('z');director.cb.shift()();assert.match(await p3,/02-z\.jpg$/,'numbering = completed shots');
+   const st=o.g.__QF_AUTOPLAY_SHOT_STATS;assert.equal(st.skipped,1);assert.equal(st.requested,2);assert.equal(o.hostN.capSync,0);}
+  {const o=runFake({steps:[{op:'wait',ms:5}]},'develop',false,{cap:'never'});const shot=o.g.__QF_AUTOPLAY_SHOT;const t=Date.now();
+   assert.equal(await shot('n'),null);assert(Date.now()-t>=4900,'abandoned only after SHOT_TIMEOUT_MS');assert.equal(o.g.__QF_AUTOPLAY_SHOT_STATS.timeouts,1);
+   assert.equal(await Promise.race([shot('n2'),new Promise(r=>setTimeout(()=>r('free'),10))]),'free','busy flag released after timeout (new request in flight)');}
+  {const o=runFake({steps:[{op:'wait',ms:5}]},'develop',false,{cap:'fail'});assert.equal(await o.g.__QF_AUTOPLAY_SHOT('f'),null);assert.equal(o.g.__QF_AUTOPLAY_SHOT_STATS.failed,1);}
   // preTransition op: enables the hook (no launch params), runs setup, then a normal synthetic touch on the returned point
   assert.equal(api.parseScript({steps:[{op:'preT',key:'home-island'}]}).steps[0].op,'preTransition','preT alias');
   assert.throws(()=>api.parseScript({steps:[{op:'preTransition',key:'Bad Key'}]}),/bad key/);
