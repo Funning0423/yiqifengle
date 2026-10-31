@@ -3,6 +3,8 @@
 // harness (as in game.js order), file outputs + caps, release gate, injector/check-release on a fake build output.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),vm=require('node:vm'),cp=require('node:child_process');
 const H=path.join(__dirname,'qf-autoplay.js'),api=require(H);
+/* r4: result.json exists from the start as a running snapshot; settle on the final document */
+const fin=r=>{try{const t=r.files.get(r.U+'/qf-autoplay/out/result.json');return !!t&&!/"exit": "running"/.test(t);}catch{return false;}};
 // parsing
 assert.throws(()=>api.parseScript('{}'),/steps/);
 assert.throws(()=>api.parseScript({steps:[{op:'fly'}]}),/unknown op/);
@@ -48,7 +50,7 @@ function runFake(script,env='develop',withCc,opt){
 (async()=>{
   const r=runFake({steps:[{op:'waitState',name:'home',timeoutMs:3000},{op:'tap',x:195,y:560},{op:'waitState',name:'island',timeoutMs:3000},{op:'drag',x1:10,y1:400,x2:100,y2:400,ms:100},{op:'screenshot',name:'a'},{op:'waitState',name:'never',timeoutMs:300,stopOnFail:false},{op:'wait',ms:10}]});
   assert(r.g.__QF_AUTOPLAY,'harness active in develop');
-  for(let i=0;i<60&&!r.files.has(r.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+  for(let i=0;i<60&&!fin(r);i++)await new Promise(s=>setTimeout(s,100));
   await new Promise(s=>setTimeout(s,1200));
   const res=JSON.parse(r.files.get(r.U+'/qf-autoplay/out/result.json'));
   assert.equal(res.ok,false,'unmatched waitState marks ok=false');assert.equal(res.steps.length,7);assert.equal(res.steps[2].matched,true);
@@ -63,18 +65,18 @@ function runFake(script,env='develop',withCc,opt){
   assert(r.files.get(r.U+'/qf-autoplay/out/console.log').includes('[QF_AUTOPLAY]'));
   // Error 3804 regression: WeChat cc namespace lacks SkinnedMeshRenderer; harness must never pass undefined to getComponent*
   const c=runFake({steps:[{op:'waitState',name:'home',timeoutMs:1000},{op:'wait',ms:50}]},'develop',true);
-  for(let i=0;i<40&&!c.files.has(c.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+  for(let i=0;i<40&&!fin(c);i++)await new Promise(s=>setTimeout(s,100));
   const cres=JSON.parse(c.files.get(c.U+'/qf-autoplay/out/result.json'));
   assert.equal(c.g.__nil.length,0,'no getComponent*(undefined) call (Error 3804)');assert.equal(cres.consoleErrors,0);assert.equal(cres.ok,true);
   const cst=c.files.get(c.U+'/qf-autoplay/out/state.jsonl').trim().split('\n').map(JSON.parse);assert(cst.every(s=>s.characterErr==='cc.SkinnedMeshRenderer unavailable'&&!s.ccErr));
   // a game-side console error fails the run (acceptance: DevTools Console Error count = 0)
   const e=runFake({steps:[{op:'wait',ms:50}]});e.g.console.error('Error 3804 from game');
-  for(let i=0;i<40&&!e.files.has(e.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+  for(let i=0;i<40&&!fin(e);i++)await new Promise(s=>setTimeout(s,100));
   const eres=JSON.parse(e.files.get(e.U+'/qf-autoplay/out/result.json'));assert.equal(eres.ok,false);assert.equal(eres.consoleErrors,1);assert.match(eres.failReason,/console errors: 1/);
   // journey phase=failed / snapshot error / HUD-suppressed error fail the run even with 0 console errors (38699944 windSource P0)
   {const f=runFake({steps:[{op:'wait',ms:50}]});const err="TypeError: Cannot set properties of undefined (setting 'windSource')";
    f.g.__worldIntegration={snapshot:()=>({state:'meadow',error:err,journey:{phase:'failed',region:'meadow',target:'skycity',error:err}})};f.g.console.info('[OI_HUD] suppressed {"kind":"error","text":"x"}');
-   for(let i=0;i<40&&!f.files.has(f.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+   for(let i=0;i<40&&!fin(f);i++)await new Promise(s=>setTimeout(s,100));
    const fr=JSON.parse(f.files.get(f.U+'/qf-autoplay/out/result.json'));assert.equal(fr.consoleErrors,0);assert.equal(fr.ok,false);
    assert.equal(fr.journeyFailures.length,1);assert.match(fr.journeyFailures[0],/meadow>skycity: TypeError/);assert.equal(fr.snapshotErrors.length,1);assert.equal(fr.hudSuppressedErrors.length,1);assert.match(fr.failReason,/game failures: 3/);}
   // r2 async screenshots: overlap is skipped (one in flight), a capture that never calls back times out, fail is counted, after-draw only requests
@@ -96,7 +98,7 @@ function runFake(script,env='develop',withCc,opt){
   assert.throws(()=>api.parseScript({steps:[{op:'preTransition',key:'Bad Key'}]}),/bad key/);
   const pt=runFake({steps:[{op:'preTransition',key:'island-board',tap:true,recordMs:20,timeoutMs:5000},{op:'preT',key:'nope',timeoutMs:2000,stopOnFail:false}]});
   const calls=[];pt.g.__qfPreTransition=async k=>{calls.push([k,pt.g.__qfHooksEnable]);if(k==='enable')return {ok:true};if(k==='island-board')return {ok:true,state:'island',tap:{kind:'control',point:{x:175,y:458}},frame:{width:390,height:844}};return {ok:false,reason:'unknown-key'};};
-  for(let i=0;i<60&&!pt.files.has(pt.U+'/qf-autoplay/out/result.json');i++)await new Promise(s=>setTimeout(s,100));
+  for(let i=0;i<60&&!fin(pt);i++)await new Promise(s=>setTimeout(s,100));
   const pres=JSON.parse(pt.files.get(pt.U+'/qf-autoplay/out/result.json'));
   assert.deepEqual(calls[0],['enable',true],'enable first (flag set)');assert.equal(calls[1][0],'island-board');
   assert.equal(pres.steps[0].ready,true);assert.deepEqual(pres.steps[0].tapped,{x:175,y:458});assert.ok(pt.events.some(e=>e[0]==='S'&&e[1]===175&&e[2]===458),'touch at returned point');
