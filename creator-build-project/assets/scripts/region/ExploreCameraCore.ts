@@ -2,6 +2,22 @@ import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 import {REGION_NODES,type RegionId} from './RegionNodes';
 
 export const FOLLOW_DISTANCE_M=7.4;
+/** b21 运镜bot (island I3>I4 on 场景设计部 dc69e994): the island walk-follow lens no longer hangs rigidly off her heading. Her yaw on the
+ *  rerouted I3>I4 turns ~210 deg in 6 s; on a 7 m arm that swung the lens at 20 m/s / 200 deg/s. The lens heading chases hers with a
+ *  rate (20 deg/s) and acceleration (60 deg/s^2) limit and brakes into the target (45/120 still passed the lens through the lean_01 canopy at 6.0 s). */
+export const FOLLOW_HEADING={maxDegS:20,accDegS2:60} as const;
+export class FollowHeading{
+ yaw=NaN;rate=0;
+ seed(yawRad:number){this.yaw=yawRad;this.rate=0;}
+ clear(){this.yaw=NaN;this.rate=0;}
+ step(targetRad:number,dt:number,o=FOLLOW_HEADING):number{
+  if(!Number.isFinite(this.yaw)||!(dt>0)){if(!Number.isFinite(this.yaw))this.seed(targetRad);return this.yaw;}
+  let e=targetRad-this.yaw;while(e>Math.PI)e-=2*Math.PI;while(e<-Math.PI)e+=2*Math.PI;
+  const R=o.maxDegS*Math.PI/180,A=o.accDegS2*Math.PI/180,want=Math.sign(e)*Math.min(R,Math.sqrt(2*A*Math.abs(e))),dv=Math.max(-A*dt,Math.min(A*dt,want-this.rate));
+  this.rate+=dv;const d=this.rate*dt;
+  if(Math.sign(d)===Math.sign(e)&&Math.abs(d)>=Math.abs(e)&&Math.abs(this.rate)<=A*dt*2){this.yaw+=e;this.rate=0;}else this.yaw+=d;return this.yaw;}
+}
+
 export const FOLLOW={backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,fovDeg:48};
 export const MAP_PITCH_DEG=52;
 export const BODY_M=1.7253;
