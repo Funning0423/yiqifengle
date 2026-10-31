@@ -9,8 +9,8 @@
  *    B2 = B1 + skirt.front.low.mid pitch   (deg; + pitch = hem forward/up)
  *  Objective (evolution strategy, seeded from the previous key): penetration depth of every leg/knee/shoe vertex through the
  *  front cloth with a 6 mm margin (limb-segment test) and pass-through hits (hem_lib.axisHits), the gate targets with headroom
- *  (lift <= 2.8 cm, apron <= 2.8, >= 4.7 cm below the knee, single vertex <= 4.8 cm, flare <= 26.5 cm), forward flare, a pull
- *  toward rest and toward the previous key.  A key is accepted only with zero hits; then every quarter key is re-verified
+ *  (lift <= 2.8 cm, apron <= 2.8, >= 4.7 cm below the knee, single vertex <= 4.8 cm, flare <= 26.5 cm), flare kept inside
+ *  18-24.5 cm (rest 22.6: never pressed onto the legs, never board-like), a pull toward rest and toward the previous key.  A key is accepted only with zero hits; then every quarter key is re-verified
  *  (margin 0, all limits) and failing neighbours are re-solved with a wider margin.  Pass 2 (v1): pre-existing back/side panel
  *  pokes get the smallest outward pitch/roll of that panel.
  *  stand_up (seated): keys with the thigh within 34 deg of vertical are solved, 34-42 deg blend from the authored seated drape;
@@ -20,7 +20,7 @@
 const fs=require('fs'),H=require('./hem_lib.cjs'),GW=require('./glb_write.cjs');
 const args=process.argv.slice(2),arg=(n,d)=>args.includes(n)?args[args.indexOf(n)+1]:d;
 const IN=arg('--in');if(!IN)throw Error('--in <773c061e base glb> is required');
-const FPS=30,MARGIN=0.006,TGT={lift:0.028,apron:0.028,bk:0.047,vert:0.048,flare:0.265};
+const FPS=30,MARGIN=0.006,FLARE_BAND=[0.18,0.245],TGT={lift:0.028,apron:0.028,bk:0.047,vert:0.048,flare:0.265};
 const R=H.load(IN);const SPLIT=H.splitFront(R);const S=H.sets(R),M=H.loadMeta();
 const id=n=>R.byName[n];const iF=id('skirt.front'),iFm=id('skirt.front.mid'),iL=id('skirt.front.low'),iM=id('skirt.front.low.mid');
 const NX=[-1,0,0],NZ=[0,0,1],aa=(ax,deg)=>{const h=deg*Math.PI/360,s=Math.sin(h);return [ax[0]*s,ax[1]*s,ax[2]*s,Math.cos(h)];};const rq=i=>R.rest[i].q;
@@ -48,7 +48,7 @@ function pose(clip,t,ov){H.applyClip(R,clip,t);for(const k in ov)R.nodes[k].q=ov
 const vals=m=>({lift:m.dress.lift,apron:m.apron.lift,bk:m.dress.belowKnee,flare:Math.max(m.dress.flare,m.apron.flare),vert:Math.max(m.dress.maxVertLift,m.apron.maxVertLift)});
 const over=v=>Math.max(0,v.lift-TGT.lift)+Math.max(0,v.apron-TGT.apron)+Math.max(0,TGT.bk-v.bk)+Math.max(0,v.vert-TGT.vert)+Math.max(0,v.flare-TGT.flare);
 function score(clip,t,p,mw,margin,prev){const W=pose(clip,t,ovOf(p));const h=hits(FRONT,W,mw,margin,true);const v=vals(H.hemMetrics(R,S,mw));
-  let c=300*h.d+100*over(v)+v.flare+0.0002*K.reduce((s,k)=>s+Math.abs(p[k]),0);if(prev)c+=0.0015*K.reduce((s,k)=>s+Math.abs(p[k]-prev[k]),0);return {c,n:h.n,v};}
+  let c=300*h.d+100*over(v)+3*Math.max(0,v.flare-FLARE_BAND[1])+3*Math.max(0,FLARE_BAND[0]-v.flare)+0.0008*K.reduce((s,k)=>s+Math.abs(p[k]),0);if(prev)c+=0.0015*K.reduce((s,k)=>s+Math.abs(p[k]-prev[k]),0);return {c,n:h.n,v};}
 function lcgR(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}
 /** (1+1)-ES with per-run step adaptation; returns the best zero-hit point if any (else the best point) */
 function es(clip,t,p0,mw,margin,prev,iters,rng,sig0=6){const g=()=>{let u=rng()||1e-9,v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);};
