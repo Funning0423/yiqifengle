@@ -66,6 +66,9 @@ for(const [w,h] of SCREENS){const safe=BL.boardSafeInsets(w,h),cap=safe.capsule,
 if(walkBad.length)console.log(`NOTE walk path tier clearance short: ${walkWho} — route (场景设计部), gated in island-clearance-tiers`);
 fs.mkdirSync(path.dirname(path.join(__dirname,OUT)),{recursive:true});fs.writeFileSync(path.join(__dirname,OUT),JSON.stringify(report));
 for(const [k,s] of Object.entries(report.screens)){const v=Object.values(s);const M=f=>Math.max(...v.map(f)),N=f=>Math.min(...v.map(f));
+ const per={};for(const x of v)for(const [n,sec] of Object.entries(x.blockers))per[n.replace(/^island:/,'')]=Math.max(per[n.replace(/^island:/,'')]||0,sec);report.screens[k].perOccluderMaxS=per;
+ const lh=Math.max(0,...Object.entries(per).filter(([n])=>/lighthouse/.test(n)).map(([,x])=>x));report.screens[k].lighthouseS=lh;
+ console.log(k,'per-occluder face s',JSON.stringify(per),'lighthouse',lh.toFixed(3));
  console.log(k,JSON.stringify({face:M(x=>x.faceS),margin:N(x=>x.minMargin),menu:M(x=>x.menuS),hud:M(x=>x.hudS),ground:N(x=>x.groundM),solid:N(x=>x.solidM),v:M(x=>x.speed),step:M(x=>x.step),yaw:M(x=>x.yaw),pitch:M(x=>x.pitch),acc:M(x=>x.accP99),fov:M(x=>x.fov)}));}
 console.log('walk',WALK,report.lengthM,'m',report.walkS,'s walkTiers',JSON.stringify(walkTiers));
 if(fail){console.log('island-i3i4-follow: FAIL',fail);process.exit(1);}console.log('island-i3i4-follow: PASS');
