@@ -2696,8 +2696,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 39553,
-    "sha256": "8f90a28202c506941c83b82e4b296763b9283e0ef46923b609679845ea331a82"
+    "bytes": 39747,
+    "sha256": "8587e27bdbfe34bec9830aba389429d28554536db446fd4b5cda2e47fe15e287"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
