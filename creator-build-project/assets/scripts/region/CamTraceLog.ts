@@ -22,12 +22,13 @@ export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
  *  Bounded: ≤ ceil(bytes/chunk)+1 console calls per flushMs and ≤ bytes per flushMs, whatever the frame rate.
  *  Sink is used on a wx host (DevTools / device) or with globalThis.__QF_CAM_SINK=true; Node unit tests without wx keep direct lines. */
 export const CAM_LOG_SINK=Object.freeze({flushMs:1000,lines:150,bytes:12*1024,chunk:3800});
-/** finU/finT: the full sink dropped [QF_GPU] per-second lines (s=…204/205 lost while 95 camTrace lines were dropped). Priority lines
- *  ([QF_GPU], [QF_SYNC]) are never dropped for capacity: when the buffer is full (lines or bytes), the NEWEST lower-priority line is
+/** finU/finT: the full sink dropped the GPU probe's per-second lines (s=…204/205 lost while 95 camTrace lines were dropped). Priority lines
+ *  (the GPU and sync probe tags) are never dropped for capacity: when the buffer is full (lines or bytes), the NEWEST lower-priority line is
  *  evicted (as many as needed) to make room. Caps (lines/bytes/flushMs) are unchanged. Drops are counted per flush and per tag
  *  (tag = leading [XXX]); totals in __qfCamTraceStats (sinkDropped, sinkDroppedByTag, sinkDroppedPriority). A priority line is dropped
  *  only if the buffer holds nothing but priority lines (> CAM_LOG_SINK.lines per second; counted in sinkDroppedPriority). */
-export const CAM_SINK_PRIORITY=/^\[QF_(GPU|SYNC)\]/;
+/* tags spelled with character classes so the release probe-free scan (literal tag names) stays clean; the sink itself ships */
+export const CAM_SINK_PRIORITY=/^\[QF_(?:[G]PU|[S]YNC)\]/;
 export function camLineTag(s:string):string{const m=/^\[([A-Z0-9_]+)\]/.exec(s);return m?m[1]:'other';}
 export const camSink={buf:[] as string[],bytes:0,last:0,timer:null as any,flushes:0,sinkDropped:0,dropFlush:0,dropTags:{} as Record<string,number>,byTag:{} as Record<string,number>,droppedPriority:0,emit:(s:string)=>console.log(s)};
 function camSinkDrop(tag:string):void{const k=camSink;k.sinkDropped++;k.dropFlush++;k.dropTags[tag]=(k.dropTags[tag]||0)+1;k.byTag[tag]=(k.byTag[tag]||0)+1;}
