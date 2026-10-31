@@ -152,6 +152,7 @@ const tests=[
  ['region-nodes-data','tools/region-nodes/test_region_nodes_data.cjs'],
  ['region-nodes-progress','tools/region-nodes/test_region_nodes_progress.cjs'],['lakeside-order','tools/region-nodes/test_lakeside_order.cjs'],
  ['region-nodes-walk','tools/region-nodes/test_region_nodes_walk.cjs'],
+ ['island-walk-gates','tools/region-nodes/test_island_walk_gates.cjs'],
  ['explore-camera','tools/region-nodes/test_explore_camera.cjs'],
  ['free-orbit','tools/region-nodes/test_free_orbit.cjs'],
  ['explore-drag-rotate','tools/region-nodes/test_explore_drag_rotate.cjs'],
