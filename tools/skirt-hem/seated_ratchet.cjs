@@ -1,5 +1,7 @@
 'use strict';
-/** Seated ratchet (b21, 运镜bot; Grok Bot option C, 2026-10-31).
+/** Seated helpers (b21, 运镜bot).  RETIRED as a ratchet 2026-10-31: Grok Bot approved c40de312 and set the seated items to the
+ *  strict limits; the gates no longer compare against the baseline - fixtures/seated_baseline_773c061e.json is a negative only.
+ *  History (option C):
  *  NOTE: sit_down, sit_hold, stand_up and the boat/balloon runtime segment from sit_down to the end of the 'ride' scenario
  *  (stand_up -> walk_start -> walk_loop -> walk_stop_bodyL crossfade) carry PRE-EXISTING seated skirt issues from 773c061e
  *  (thigh through the back/right panels while seated, shin behind the front panel early in sit_down, front hem flip near the end of

@@ -4,12 +4,12 @@
  *   forward flare <= 28 cm; any single hem vertex lift <= 5 cm.  Seated clips (sit_down, sit_hold, stand_up) only while the thigh
  *   is within 30 deg of vertical.  Every clip x 60 fps, 30 fps, uneven dt (LCG [1/90,1/45]) sampled directly, AND the real
  *   CharacterMotion/AnimRig runtime (crossfades + wind_flutter layer + morph weights, runtime_eval.cjs) at the same three rates.
- *   Option C (Grok Bot 2026-10-31): the strict limits apply to the 11 walking/standing clips and every runtime frame outside the
- *   boat/balloon seated segment.  sit_down / sit_hold / stand_up and the runtime 'ride' segment from sit_down on are a RATCHET against
- *   773c061e (seated_ratchet.cjs, fixtures/seated_baseline_773c061e.json): NOTE these are pre-existing seated issues from 773c061e,
- *   not introduced by this change; any item worse than its baseline FAILS.
- *   Negatives: the 773c061e front curves of walk_loop and door_reach (fixtures/front_curves_773c061e.json) must FAIL; sit_down with
- *   the front panel pitched 5 deg further up must FAIL the ratchet.
+ *   Strict seated (Grok Bot 2026-10-31, after approving the c40de312 look): the strict limits apply to EVERY clip incl. sit_down /
+ *   sit_hold / stand_up and to EVERY runtime frame incl. the boat/balloon 'ride' seated segment (sit_hold->stand_up crossfade).
+ *   No ratchet / exemption.  fixtures/seated_baseline_773c061e.json is kept only as a negative.
+ *   Negatives: the 773c061e front curves of walk_loop and door_reach (fixtures/front_curves_773c061e.json) must FAIL; the 773c061e
+ *   stand_up curves + morph state (fixtures/stand_up_773c061e.json, seat_fix_* muted) must FAIL strict; the registered 773c061e
+ *   seated values must FAIL strict; sit_down with the front panel pitched 5 deg further up must FAIL strict.
  *   --write-baseline (run on the 773c061e GLB only) registers the lift items.
  *   node tools/skirt-hem/test_skirt_front_hem_lift.cjs [--glb path] [--json out]   (QF_TYPESCRIPT_MODULE for the runtime path) */
 const fs=require('fs'),path=require('path'),H=require('./hem_lib.cjs'),RT=require('./runtime_eval.cjs'),SR=require('./seated_ratchet.cjs');
@@ -31,16 +31,21 @@ if(args.includes('--write-baseline')){const B=fs.existsSync(SR.BASE)?SR.loadBase
   for(const mode of MODES)Object.assign(B.lift,liftItems(R,S,mode,runtimeRows(GLB,mode)));fs.writeFileSync(SR.BASE,JSON.stringify(B,null,1)+'\n');console.log('baseline lift items',Object.keys(B.lift).length);process.exit(0);}
 const BASE=SR.loadBase();
 for(const mode of MODES)check('strict clips '+mode,()=>{const j=judge(clipRows(R,S,M,strictClips,mode));return {ok:j.failCount===0,...j};});
-const rtCache={};for(const mode of MODES)check('strict runtime '+mode,()=>{const rows=rtCache[mode]=runtimeRows(GLB,mode);const j=judge(rows.filter(r=>!r.ratchet));return {ok:j.failCount===0,...j};});
-for(const mode of MODES)check('seated ratchet vs 773c061e '+mode+' (pre-existing seated issues from 773c061e, not introduced by this change)',()=>{const cur=liftItems(R,S,mode,rtCache[mode]||runtimeRows(GLB,mode));const reg=[];
-  for(const [k,v] of Object.entries(cur))reg.push(...SR.compareLift(k,v,BASE.lift&&BASE.lift[k]));return {ok:reg.length===0,items:cur,regressions:reg.slice(0,12),failCount:reg.length};});
+const rtCache={};for(const mode of MODES)check('strict runtime '+mode,()=>{const rows=rtCache[mode]=runtimeRows(GLB,mode);const j=judge(rows);return {ok:j.failCount===0,...j};});
+const seatRows=(mode,rt)=>clipRows(R,S,M,seatClips,mode).concat(rt.filter(r=>r.ratchet));
+for(const mode of MODES)check('strict seated '+mode+' (sit_down/sit_hold/stand_up clips + ride-seated runtime)',()=>{const j=judge(seatRows(mode,rtCache[mode]||runtimeRows(GLB,mode)));return {ok:j.failCount===0,items:liftItems(R,S,mode,rtCache[mode]),...j};});
+const strictFail=v=>v&&v.frames>0&&(v.lift>LIM.lift||v.belowKnee<LIM.belowKnee||v.apron>LIM.apron||v.flare>LIM.flare||v.vert>LIM.vert);
+check('negative: registered 773c061e seated values (stand_up + ride-seated, every dt) must FAIL strict',()=>{const bad=[];for(const mode of MODES)for(const it of [SR.itemOf('clip','stand_up',mode),SR.itemOf('runtime','ride-seated',mode)])if(!strictFail(BASE.lift[it]))bad.push(it);return {ok:bad.length===0,passedStrict:bad};});
+check('negative: 773c061e stand_up curves + morph state must FAIL strict',()=>{const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/stand_up_773c061e.json'),'utf8'));const R2=H.load(GLB),S2=H.sets(R2);
+  const M773=JSON.parse(JSON.stringify(M));for(const c in M773.clips){const cv=M773.clips[c].morph&&M773.clips[c].morph.curves;if(cv)for(const k of Object.keys(cv))if(/^seat_fix_/.test(k))delete cv[k];}
+  H.overrideChannels(R2,fx.clips);const out={};for(const mode of MODES){const j=judge(clipRows(R2,S2,M773,['stand_up'],mode));out[mode]=j.failCount;if(!j.failCount)return {ok:false,why:'773 stand_up passed at '+mode,j};}return {ok:true,failCounts:out};});
 const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/front_curves_773c061e.json'),'utf8'));
 for(const clip of ['walk_loop','door_reach'])check('negative: 773c061e '+clip+' front curves must FAIL',()=>{const R2=H.load(GLB),S2=H.sets(R2);H.overrideChannels(R2,{[clip]:fx.clips[clip]});
   const out={};for(const mode of MODES){const j=judge(clipRows(R2,S2,M,[clip],mode));out[mode]=j.failCount;if(!j.failCount)return {ok:false,why:'old curves passed at '+mode,j};}
   const jr=judge(runtimeRows(GLB,30,R3=>{H.overrideChannels(R3,{[clip]:fx.clips[clip]});}));out.runtime30=jr.failCount;if(!jr.failCount)return {ok:false,why:'old curves passed at runtime',jr};return {ok:true,failCounts:out};});
-check('negative: sit_down front panel pitched 5 deg further up must FAIL the seated ratchet',()=>{const R2=H.load(GLB),S2=H.sets(R2);const i=R2.byName['skirt.front'];const C=R2.clips.sit_down;const c=C.channels.find(x=>x.path==='rotation'&&x.node===i);
+check('negative: sit_down front panel pitched 5 deg further up must FAIL strict',()=>{const R2=H.load(GLB),S2=H.sets(R2);const i=R2.byName['skirt.front'];const C=R2.clips.sit_down;const c=C.channels.find(x=>x.path==='rotation'&&x.node===i);
   const h=5*Math.PI/360,d=[-Math.sin(h),0,0,Math.cos(h)];if(c){for(let k=0;k<c.out.length;k+=4){const q=H.qmul(d,Array.from(c.out.slice(k,k+4)));c.out.set(q,k);}}else{const q=H.qmul(d,R2.rest[i].q);C.channels.push({node:i,path:'rotation',inp:Float64Array.from([0,C.duration]),out:Float64Array.from([...q,...q]),n:4,step:false});}
-  const out={};for(const mode of [30,60]){const it=SR.itemOf('clip','sit_down',mode);const reg=SR.compareLift(it,SR.liftAgg(clipRows(R2,S2,M,['sit_down'],mode)),BASE.lift[it]);out[mode]=reg;if(!reg.length)return {ok:false,why:'worsened pose passed at '+mode};}return {ok:true,regressions:out};});
+  const out={};for(const mode of [30,60]){const j=judge(clipRows(R2,S2,M,['sit_down'],mode));out[mode]=j.failCount;if(!j.failCount)return {ok:false,why:'worsened pose passed strict at '+mode,j};}return {ok:true,failCounts:out};});
 const failed=results.filter(r=>!r.ok);const rep={gate:'skirt-front-hem-lift',status:failed.length?'FAIL':'PASS',glb:path.relative(H.ROOT,GLB),limits:LIM,results};
 if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify(rep,null,1));
 console.log(JSON.stringify({...rep,results:results.map(r=>({name:r.name,ok:r.ok,frames:r.info&&r.info.frames,failCount:r.info&&r.info.failCount,worst:r.info&&r.info.worst,fails:r.info&&r.info.fails&&r.info.fails.slice(0,4),failCounts:r.info&&r.info.failCounts,regressions:r.info&&r.info.regressions,items:r.info&&r.info.items,error:r.error}))},null,1));

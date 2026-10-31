@@ -8,11 +8,10 @@
  *  Negatives: walk_loop with the front skirt joints pinned to rest (no clearance solve) must FAIL; the 773c061e stand_up skirt
  *  curves (thigh.R through the back panel while seated) must FAIL; walk_loop with the front panel swung 12 deg back through the
  *  forward shin must FAIL through the pass-through test.
- *  Option C (Grok Bot 2026-10-31): penetration 0 is strict for the 11 walking/standing clips and every runtime frame outside the
- *  boat/balloon seated segment.  sit_down / sit_hold / stand_up and the runtime 'ride' segment from sit_down on (incl. the
- *  walk_loop -> walk_stop_bodyL crossfade after stand_up) are a RATCHET against 773c061e: NOTE these are pre-existing seated issues
- *  from 773c061e, not introduced by this change.  Hit count and max depth per cloth panel may not exceed the registered baseline
- *  (fixtures/seated_baseline_773c061e.json).  Negative: stand_up with skirt.back pitched 4 deg further onto the thighs must FAIL it.
+ *  Strict seated (Grok Bot 2026-10-31, after approving the c40de312 look): penetration 0 is strict for EVERY clip incl. sit_down /
+ *  sit_hold / stand_up and EVERY runtime frame incl. the boat/balloon 'ride' seated segment (sit_hold->stand_up crossfade).
+ *  No ratchet / exemption.  fixtures/seated_baseline_773c061e.json is kept only as a negative (its seated hits must be > 0).
+ *  Negative: stand_up with skirt.back pitched 4 deg further onto the thighs must FAIL strict.
  *  node tools/skirt-hem/test_skirt_leg_penetration.cjs [--glb path] [--json out] [--write-baseline (773c061e GLB only)] */
 const fs=require('fs'),path=require('path'),H=require('./hem_lib.cjs'),RT=require('./runtime_eval.cjs'),SR=require('./seated_ratchet.cjs');
 const args=process.argv.slice(2),arg=(n,d)=>args.includes(n)?args[args.indexOf(n)+1]:d;const GLB=path.resolve(arg('--glb',H.GLB));const MODES=[60,30,'uneven'];const BACK_SIGN=+(process.env.SKIRT_NEG_BACK_SIGN||1);
@@ -28,9 +27,9 @@ if(args.includes('--write-baseline')){const B=fs.existsSync(SR.BASE)?SR.loadBase
   fs.writeFileSync(SR.BASE,JSON.stringify(B,null,1)+'\n');console.log('baseline pen items',Object.keys(B.pen).length);process.exit(0);}
 const BASE=SR.loadBase();
 for(const mode of MODES)check('strict clips '+mode,()=>{const j=judge(clipRows(R,S,M,strictClips,mode));return {ok:j.hits===0,...j};});
-const rtc={};for(const mode of MODES)check('strict runtime '+mode,()=>{const rows=rtc[mode]=rtRows(GLB,mode);const j=judge(rows.filter(r=>!r.ratchet));return {ok:j.hits===0,...j};});
-for(const mode of MODES)check('seated ratchet vs 773c061e '+mode+' (pre-existing seated issues from 773c061e, not introduced by this change)',()=>{const cur=penItems(R,S,mode,rtc[mode]||rtRows(GLB,mode));const reg=[];
-  for(const [k,v] of Object.entries(cur))reg.push(...SR.comparePen(k,v,BASE.pen&&BASE.pen[k]));return {ok:reg.length===0,items:cur,regressions:reg.slice(0,12),failCount:reg.length};});
+const rtc={};for(const mode of MODES)check('strict runtime '+mode,()=>{const rows=rtc[mode]=rtRows(GLB,mode);const j=judge(rows);return {ok:j.hits===0,...j};});
+for(const mode of MODES)check('strict seated '+mode+' (sit_down/sit_hold/stand_up clips + ride-seated runtime)',()=>{const rt=rtc[mode]||rtRows(GLB,mode);const j=judge(clipRows(R,S,M,seatClips,mode).concat(rt.filter(r=>r.ratchet)));return {ok:j.hits===0,items:penItems(R,S,mode,rt),...j};});
+check('negative: registered 773c061e seated penetration (sit_down, stand_up, ride-seated, every dt) must FAIL strict',()=>{const bad=[];for(const mode of MODES)for(const it of [SR.itemOf('clip','sit_down',mode),SR.itemOf('clip','stand_up',mode),SR.itemOf('runtime','ride-seated',mode)])if(!(BASE.pen[it]&&BASE.pen[it].hits>0))bad.push(it);return {ok:bad.length===0,passedStrict:bad};});
 check('negative: walk_loop with the front skirt pinned to rest must FAIL',()=>{const R2=H.load(GLB),S2=H.sets(R2);H.restChannels(R2,'walk_loop',['skirt.front','skirt.front.low','skirt.front.low.mid']);const j=judge(clipRows(R2,S2,M,['walk_loop'],30));return {ok:j.hits>0,...j};});
 check('negative: 773c061e stand_up skirt curves + morph state (thigh.R through skirt.back while seated) must FAIL',()=>{const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/stand_up_773c061e.json'),'utf8'));const R2=H.load(GLB),S2=H.sets(R2);
   /* seated fix (b21 option A): the 773c061e state = its curves WITHOUT the seat_fix_* corrective shapes (they did not exist there) */
@@ -40,8 +39,8 @@ check('negative: walk_loop front panel swung back through the forward shin (pass
   const C=R2.clips.walk_loop,c=C.channels.find(x=>x.path==='rotation'&&x.node===i);c.inp=Float64Array.from([0,C.duration]);c.out=Float64Array.from([...b,...b]);c.n=4;c.step=false;
   H.restChannels(R2,'walk_loop',['skirt.front.low','skirt.front.low.mid','skirt.front.mid']);let axis=0;const rows=[];for(const t of H.times(C.duration,30)){H.applyClip(R2,'walk_loop',t);const p=H.penetration(R2,S2,H.clipMorph(M,'walk_loop',t));axis+=p.by.axis||0;rows.push({at:'walk_loop@'+t.toFixed(4),clip:'walk_loop',pen:p});}
   const j=judge(rows);return {ok:j.hits>0&&axis>0,axisHits:axis,...j};});
-check('negative: stand_up with skirt.back pitched 4 deg further onto the thighs must FAIL the seated ratchet',()=>{const R2=H.load(GLB),S2=H.sets(R2);const i=R2.byName['skirt.back'];const c=R2.clips.stand_up.channels.find(x=>x.path==='rotation'&&x.node===i);
+check('negative: stand_up with skirt.back pitched 4 deg further onto the thighs must FAIL strict',()=>{const R2=H.load(GLB),S2=H.sets(R2);const i=R2.byName['skirt.back'];const c=R2.clips.stand_up.channels.find(x=>x.path==='rotation'&&x.node===i);
   const h=BACK_SIGN*4*Math.PI/360,d=[-Math.sin(h),0,0,Math.cos(h)];for(let k=0;k<c.out.length;k+=4)c.out.set(H.qmul(d,Array.from(c.out.slice(k,k+4))),k);
-  const it=SR.itemOf('clip','stand_up',30);const reg=SR.comparePen(it,SR.penAgg(clipRows(R2,S2,M,['stand_up'],30)),BASE.pen[it]);return {ok:reg.length>0,regressions:reg.slice(0,6)};});
+  const j=judge(clipRows(R2,S2,M,['stand_up'],30));return {ok:j.hits>0,...j};});
 const failed=results.filter(r=>!r.ok);const rep={gate:'skirt-leg-penetration',status:failed.length?'FAIL':'PASS',glb:path.relative(H.ROOT,GLB),results};
 if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify(rep,null,1));console.log(JSON.stringify({...rep,results:results.map(r=>({name:r.name,ok:r.ok,...(r.info||{}),error:r.error}))},null,1));process.exitCode=failed.length?1:0;
