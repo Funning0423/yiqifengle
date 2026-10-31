@@ -12,9 +12,11 @@ const fs=require('fs'),path=require('path');const J=require('./journey-scene.cjs
 const E=H.load(S+'region/ExploreCameraCore.ts'),NW=H.load(S+'region/NodeWalker.ts'),OC=H.load(S+'region/LensOcclusion.ts'),IX=H.load(S+'region/IslandLensOccluders.ts'),
  LS=H.load(S+'region/LensSmooth.ts'),F=H.load(S+'region/SkyFinaleShot.ts'),BL=H.load(S+'ui/BoardLayout.ts');
 const boxes=IX.ISLAND_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4],r[5]]}));
-const occ=J.island.filter(o=>!/seagull|smoke|beam|glow|glass/.test(o.name)),ground=J.island.filter(o=>/env_island_main/.test(o.name)),
- solids=J.island.filter(o=>!/env_island_main|seagull|smoke|beam|glow|glass|wet_sand|tide|shells|crab|turtle|cat/.test(o.name));
-for(const o of solids)o.bb??=J.bbox(o.tris);const tall=solids.filter(o=>o.bb[1][1]-o.bb[0][1]>=0.3);
+const occ=J.island.filter(o=>!/seagull|smoke|beam|glow|glass/.test(o.name)),ground=J.island.filter(o=>/env_island_main/.test(o.name));
+let solids=J.island.filter(o=>!/env_island_main|seagull|smoke|beam|glow|glass|wet_sand|tide|shells|crab|turtle|cat/.test(o.name));
+/* b21 tiers: env_island_props_merged is NOT one solid; its sub-objects come from island-clearance-tiers (vegetation only > 0.3 m part) */
+const TI=require('./island-clearance-tiers.cjs');solids=solids.filter(o=>!/env_island_props_merged/.test(o.name)).concat(TI.cameraSolids().filter(o=>/#/.test(o.name)));
+for(const o of solids)o.bb??=J.bbox(o.tris);
 const gh=p=>{let b=null;for(const o of ground){o.bb??=J.bbox(o.tris);if(p[0]<o.bb[0][0]||p[0]>o.bb[1][0]||p[2]<o.bb[0][2]||p[2]>o.bb[1][2])continue;const t=J.rayHit(p,[0,-1,0],200,o.tris);if(t!==null&&(b===null||t<b))b=t;}return b;};
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]].filter(([w,h])=>!process.env.SCREENS||process.env.SCREENS.split(',').includes(w+'x'+h));
 const FHO=process.env.FH_OVERRIDE?JSON.parse(process.env.FH_OVERRIDE):undefined;
@@ -29,8 +31,9 @@ const wrap=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return
 const dts=mode=>{const out=[];let t=0,x=12345;while(t<=0.6+T+0.5){const dt=mode===60?1/60:mode===30?1/30:(x=(Math.imul(1664525,x)+1013904223)>>>0,1/90+(1/45-1/90)*(x/4294967296));out.push(dt);t+=dt;}return out;};
 const ang=p=>{const f=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.target[2]-p.position[2]],l=Math.hypot(...f);return [Math.atan2(f[0],f[2])*180/Math.PI,Math.asin(f[1]/l)*180/Math.PI];};
 // walk-path clearance (route property, scene owner)
-let walkMin=9,walkWho=null;for(let d=0;d<=L;d+=0.05){const q=NW.pointAlong(P,d);for(const y of [0.15,0.6,1.2]){const [c,w]=J.clearance([q[0],q[1]+y,q[2]],tall,3);if(c<walkMin){walkMin=c;walkWho=w&&(w.name||w);}}}
-const report={wired,followHeading:useFH,walk:WALK,lengthM:+L.toFixed(3),walkS:+T.toFixed(3),override:ov,walkClearM:+walkMin.toFixed(3),walkClearWho:walkWho,screens:{}};let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
+const walkTiers={};for(const k in TI.KEEP)walkTiers[k]={m:9,who:null};for(let d=0;d<=L;d+=0.05){const c=TI.walkClear(NW.pointAlong(P,d));for(const k in c)if(c[k][0]<walkTiers[k].m)walkTiers[k]={m:+c[k][0].toFixed(3),who:c[k][1]};}
+const walkBad=Object.entries(walkTiers).filter(([k,v])=>v.m<TI.KEEP[k]),walkMin=Math.min(...Object.values(walkTiers).map(v=>v.m)),walkWho=walkBad.map(([k,v])=>k+':'+v.who).join(',')||null;
+const report={wired,followHeading:useFH,walk:WALK,lengthM:+L.toFixed(3),walkS:+T.toFixed(3),override:ov,walkTiers,walkClearWho:walkWho,screens:{}};let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
 const keyT=[5.4,6.1,7.4];
 for(const [w,h] of SCREENS){const safe=BL.boardSafeInsets(w,h),cap=safe.capsule,hudTop=cap?cap.bottom+8:safe.top+44,hudBot=h-(safe.bottom+80);const sc={};report.screens[w+'x'+h]=sc;
  for(const mode of (process.env.MODES?process.env.MODES.split(',').map(x=>x==='lcg'?x:+x):[60,30,'lcg']))for(const hm of ['path','rate']){const id=`${w}x${h} ${mode} ${hm}`;const g=new OC.LensGuard(),her0=NW.pointAlong(P,0);let yawS=hd(0);const fh=useFH?new E.FollowHeading():null;if(fh)fh.seed(yawS);let herYaw=yawS;
@@ -60,9 +63,9 @@ for(const [w,h] of SCREENS){const safe=BL.boardSafeInsets(w,h),cap=safe.capsule,
   ok(hud===0,`${id} body under HUD ${hud.toFixed(2)} s`);ok(minG>=LIM.ground,`${id} ground ${minG.toFixed(2)}`);ok(minS>=LIM.solid,`${id} solid ${minS.toFixed(2)}`);
   ok(mx.v<=LIM.v,`${id} speed ${mx.v.toFixed(2)}`);ok(mx.step<=LIM.step,`${id} step ${mx.step.toFixed(3)}`);ok(mx.yaw<=LIM.yaw&&mx.pitch<=LIM.pitch,`${id} yaw/pitch ${mx.yaw.toFixed(1)}/${mx.pitch.toFixed(1)}`);
   ok(p99<=LIM.acc,`${id} accel p99 ${p99.toFixed(0)}`);ok(mx.fov<=LIM.fov,`${id} fov ${mx.fov.toFixed(2)}`);ok(writers===1,`${id} writers ${writers}`);}}
-if(!(walkMin>=LIM.walk))console.log(`NOTE walk path clearance ${walkMin.toFixed(3)} m < 1 m (${walkWho}) — route (场景设计部), not a camera gate`);
+if(walkBad.length)console.log(`NOTE walk path tier clearance short: ${walkWho} — route (场景设计部), gated in island-clearance-tiers`);
 fs.mkdirSync(path.dirname(path.join(__dirname,OUT)),{recursive:true});fs.writeFileSync(path.join(__dirname,OUT),JSON.stringify(report));
 for(const [k,s] of Object.entries(report.screens)){const v=Object.values(s);const M=f=>Math.max(...v.map(f)),N=f=>Math.min(...v.map(f));
  console.log(k,JSON.stringify({face:M(x=>x.faceS),margin:N(x=>x.minMargin),menu:M(x=>x.menuS),hud:M(x=>x.hudS),ground:N(x=>x.groundM),solid:N(x=>x.solidM),v:M(x=>x.speed),step:M(x=>x.step),yaw:M(x=>x.yaw),pitch:M(x=>x.pitch),acc:M(x=>x.accP99),fov:M(x=>x.fov)}));}
-console.log('walk',WALK,report.lengthM,'m',report.walkS,'s walkClear',report.walkClearM,walkWho);
+console.log('walk',WALK,report.lengthM,'m',report.walkS,'s walkTiers',JSON.stringify(walkTiers));
 if(fail){console.log('island-i3i4-follow: FAIL',fail);process.exit(1);}console.log('island-i3i4-follow: PASS');
