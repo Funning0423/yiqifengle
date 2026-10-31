@@ -126,4 +126,5 @@ esac
 # system-panels SPEC §1.4: authoritative artifact scan (build/wechatgame/**, literal + \u-escaped); any hit fails the build.
 if [ -f "$HERE/check-no-placeholder.cjs" ] && command -v node >/dev/null 2>&1; then node "$HERE/check-no-placeholder.cjs" --root "$HERE/../.." || die "placeholder word found in source/build output"; fi
 if [ "$KEEP_CACHE" != 1 ]; then clean_cache; echo "caches removed (library/temp); set KEEP_CACHE=1 to keep"; fi
+[ "$FORMAL_RELEASE" = 1 ] || [ "$TARGET" = web ] || echo "NOTE: not a production build (FORMAL_RELEASE=0, trial entry kept) - production uploads use tools/build-guard/build-production-upload.sh (FORMAL_RELEASE=1)"
 echo "BUILD GUARD PASSED: $SUMMARY  (output under creator-build-project/build/)  HEAD=$GUARD_SHORT tree=$GUARD_TREE"
