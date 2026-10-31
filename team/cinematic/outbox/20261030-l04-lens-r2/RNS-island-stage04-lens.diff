@@ -20,7 +20,7 @@
 +  const ent=isl&&!spec.departure&&spec.to==='I4'?islandEntryPan(board,isl):null;
 +  if(rail)await this.skyJoin(wk,board,rail,false);else if(dep)await this.blendPath(dep.preS,t=>dep.at(t));else if(!ent){const held=this.occludeHeld(followPose(this.girl(),this.yaw(),w,h,followLookUp(spec.region,99)));
    await this.blend(BLEND_S.boardToFollow,board,()=>held);}
-   this.lens='FollowWalk';setExploreEnabled(true);
+   this.lens='FollowWalk';this.followHeading?.seed(this.yaw());setExploreEnabled(true);
    this.handOrbitBack(spec.region);
 -  this.skyRail=rail;
 +  this.skyRail=rail||(dep?stageLensClock(dep,dep.preS):ent?stageLensClock(ent):null);
@@ -33,6 +33,6 @@
    else if(this.lens==='MapExplore'&&this.exploring&&this.orbit.seeded&&this.lakesideOccluders())this.writeOrbit(dt);
 -  else if(this.lens==='FollowWalk'&&this.exploring&&this.region==='skycity'&&this.skyRail)this.writePose(this.skyRail(dt),false);
 +  else if(this.lens==='FollowWalk'&&this.exploring&&(this.region==='skycity'||this.region==='island')&&this.skyRail)this.writePose(this.skyRail(dt),false);
-   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
+   else if(this.lens==='FollowWalk'&&this.exploring){const {w,h}=this.viewport();(globalThis as any).__qfCamTraceSub?.('follow');this.writePose(this.occlude(followPose(this.girl(),this.region==='island'&&this.followHeading?this.followHeading.step(this.yaw(),dt):this.yaw(),w,h,followLookUp(this.region==='lakeside'?'island':this.region,99)),dt),false);}
   }
   private aimOrbit(gesture:'drag'|'pinch'|'release',x:number,y:number){
