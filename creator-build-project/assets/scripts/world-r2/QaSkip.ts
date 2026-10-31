@@ -8,8 +8,26 @@ export const QA_SKIP_TARGETS:readonly QaSkipTarget[]=['island-finale','meadow-fi
 export const QA_SKIP_CHECKPOINT:Record<QaSkipTarget,{completed:number;finish:boolean}>={
  'island-finale':{completed:4,finish:false},'meadow-finale':{completed:8,finish:false},'skycity-finale':{completed:12,finish:false},lakeside:{completed:12,finish:true},
 };
+/** P0 finR (Mac dc48cb42 [QF_SYNC] STEADY f1836: preTransitionEnabled → qaSkipAllowed → wx.getAccountInfoSync): the mini-program
+ *  envVersion and the launch/enter query are fixed for the process, so each is read from the host ONCE per wx object (first call =
+ *  boot) and served from memory afterwards. Every env/query gate (QaSkip, PreTransitionKeys, DebugQuery, JourneyTransport,
+ *  DevPreviewMark) goes through these two functions; no gameplay call reaches a sync host API. A throwing read is cached as ''/null. */
+const envCache=new WeakMap<object,string|null>(),wxQueryCache=new WeakMap<object,Record<string,string>>();
+export function wxEnvVersion(wx:any):string|null{
+ if(!wx||(typeof wx!=='object'&&typeof wx!=='function'))return null;const hit=envCache.get(wx);if(hit!==undefined)return hit;
+ let env:string|null=null;try{const v=wx.getAccountInfoSync?.()?.miniProgram?.envVersion;env=typeof v==='string'?v:null;}catch{env=null;}
+ envCache.set(wx,env);return env;
+}
+export function wxQaEnv(wx:any):boolean{const env=wxEnvVersion(wx);return env==='develop'||env==='trial';}
+function wxLaunchQuery(wx:any):Record<string,string>{
+ if(!wx||typeof wx!=='object')return {};const hit=wxQueryCache.get(wx);if(hit)return hit;const out:Record<string,string>={};
+ const addObj=(q:any)=>{if(!q||typeof q!=='object')return;for(const k of Object.keys(q))out[k]=String(q[k]);};
+ try{addObj(wx.getEnterOptionsSync?.()?.query);}catch{}
+ try{addObj(wx.getLaunchOptionsSync?.()?.query);}catch{}
+ wxQueryCache.set(wx,out);return out;
+}
 export function qaSkipAllowed(host:any=globalThis):boolean{
- try{const wx=host?.wx;if(!wx)return true;const env=wx.getAccountInfoSync?.()?.miniProgram?.envVersion;return env==='develop'||env==='trial';}catch{return false;}
+ try{const wx=host?.wx;if(!wx)return true;return wxQaEnv(wx);}catch{return false;}
 }
 /** Test query from ALL sources: location.search (web; in WeChat DevTools the worker has a read-only non-empty one like
  *  '?contextName=game&id=2'), then wx.getEnterOptionsSync().query, then wx.getLaunchOptionsSync().query (DevTools 编译模式
@@ -19,8 +37,7 @@ export function qaQuery(host:any=globalThis):string{
  const addSearch=(s:any)=>{if(typeof s!=='string'||!s)return;for(const part of s.replace(/^\?/,'').split('&')){if(!part)continue;const i=part.indexOf('=');out.set(i<0?part:part.slice(0,i),i<0?'':part.slice(i+1));}};
  const addObj=(q:any)=>{if(!q||typeof q!=='object')return;for(const k of Object.keys(q))out.set(k,String(q[k]));};
  try{addSearch(host?.location?.search);}catch{}
- try{addObj(host?.wx?.getEnterOptionsSync?.()?.query);}catch{}
- try{addObj(host?.wx?.getLaunchOptionsSync?.()?.query);}catch{}
+ try{addObj(wxLaunchQuery(host?.wx));}catch{}/* enter then launch, read once per wx object */
  if(!out.size)return '';const parts:string[]=[];out.forEach((v,k)=>{parts.push(k+'='+v);});return '?'+parts.join('&');
 }
 /** Harness enable without launch params (DevTools `cli open` ignores 编译模式 启动参数): the autoplay tool sets
