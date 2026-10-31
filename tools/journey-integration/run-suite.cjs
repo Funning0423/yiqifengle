@@ -101,6 +101,7 @@ const tests=[
  ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
  ['lakeside-build-cancel-trace','tools/lakeside/test_lakeside_build_cancel_trace.cjs'],
  ['lakeside-next-board-preload','tools/lakeside/test_lakeside_next_board_preload.cjs'],
+ ['region-release','tools/region-release/test_region_release.cjs'],
  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],

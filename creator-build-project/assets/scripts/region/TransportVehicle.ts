@@ -1,11 +1,12 @@
 import {Color, EffectAsset, Material, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, gfx, instantiate} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {seatFromBench} from './TransportLeg';
+import {holdRegionAsset} from './RegionRelease';
 function find(node:Node,name:string):Node|null{if(node.name===name)return node;for(const c of node.children){const h=find(c,name);if(h)return h;}return null;}
 export function loadTransportPrefab(name:string):Promise<Prefab>{
  return new Promise((ok,fail)=>assetManager.loadBundle('transport_sail',(e,b)=>{
   if(e||!b){fail(e||Error('transport_sail'));return;}
-  b.load(name+'/'+name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else ok(p as Prefab);});
+  b.load(name+'/'+name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else{holdRegionAsset('sail',p);ok(p as Prefab);}});
  }));
 }
 export async function mountSailboat(parent:Node):Promise<{root:Node;seat:Node|null;sail:Node|null}>{

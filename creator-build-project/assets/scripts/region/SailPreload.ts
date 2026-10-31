@@ -1,7 +1,8 @@
-import {Director,Mesh,Node,Texture2D,assetManager,director} from 'cc';
+import {Director,Mesh,Node,Texture2D,assetManager,director,isValid} from 'cc';
 import {MEADOW_HEAVY_MESHES,splitNextBatch} from './TransitionChain';
 import {REGIONS,loadRegionPrefab,mountRegion} from './RegionLoader';
 import {awaitVehicle} from './TransportWait';
+import {holdRegionAsset,regionReleaseHooks} from './RegionRelease';
 /** Meadow art warmed while mainline-04 is on screen. The rig stays inactive (0 DC) until the sail adopts it.
  * A slow or failed load retries on the sail. */
 let warm:Node|null=null;
@@ -45,7 +46,7 @@ export function meadowSplitLoad(still?:()=>boolean|'gone'):Promise<void>{
    const heavy=rank(infos[i])>=0;let st:boolean|'gone'=true;
    if(heavy)while(!splitForced&&still&&(st=still())===false)await frame();   // heavy decode only while standing still
    const batch=heavy?[infos[i]]:infos.slice(i,i+k).filter(x=>rank(x)<0);i+=batch.length;let work=0;
-   await Promise.all(batch.map(inf=>new Promise<void>(r=>{try{b.load(inf.path,inf.ctor,()=>{r();});}catch{r();}})));
+   await Promise.all(batch.map(inf=>new Promise<void>(r=>{try{b.load(inf.path,inf.ctor,(e:any,a:any)=>{if(!e)holdRegionAsset('meadow',a);r();});}catch{r();}})));
    await frame();work=Math.max(0,last-prev-17);   // length of the frame that ran onLoaded→initialize, minus a 60 fps frame
    /*QF_PROBE_BEGIN*/const sail=heavy&&(splitForced||st==='gone');if(sail){pr.inSail.push(nm(batch[0]));try{console.info('[QF_MEADOW_SPLIT] inSail mesh='+nm(batch[0])+' ms='+work);}catch{}}
    pr.frames++;if(work>pr.maxFrameWorkMs)pr.maxFrameWorkMs=work;if(batch.length===1&&work>pr.maxItemMs){pr.maxItemMs=work;pr.maxItem=batch[0].path;}if(batch.length===1&&work>4)pr.over.push(batch[0].path+':'+work);/*QF_PROBE_END*/
@@ -56,3 +57,9 @@ export function meadowSplitLoad(still?:()=>boolean|'gone'):Promise<void>{
  })().catch(()=>{});
  return split;
 }
+/* P0 fin: the meadow is released at the lake (RegionRelease). An unadopted warm rig is ours and unused there: destroy it first
+ * (the release waits a drawn frame and re-checks that nothing live uses the assets); afterwards a later sail loads cold again. */
+regionReleaseHooks.meadow={
+ before:()=>{const n=warm;if(n&&isValid(n,true)&&!n.activeInHierarchy){const rig=n.parent;warm=null;warming=null;(rig&&rig.name==='SailWarm-meadow'?rig:n).destroy();}},
+ after:()=>{split=null;splitForced=false;warming=null;},
+};

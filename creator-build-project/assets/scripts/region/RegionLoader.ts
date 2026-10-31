@@ -1,5 +1,6 @@
 import {assetManager,AssetManager,Prefab,Node,instantiate,isValid,MeshRenderer,Material} from 'cc';
 import {setMooringRopes} from './SkyMooringRopes';
+import {holdRegionAsset} from './RegionRelease';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkycityPennantWind} from './SkycityPennantWind';
 import {SkycityRobotInteract} from './SkycityRobotInteract';
@@ -46,6 +47,7 @@ async function loadPrefab(def:RegionDef,progress?:(fraction:number)=>void):Promi
 /** Prepare the sibling asset before publishing the sky-city prefab as ready. */
 export async function loadRegionPrefab(def:RegionDef,progress?:(fraction:number)=>void):Promise<Prefab>{
   const prefab=await loadPrefab(def,progress);
+  if(def.bundle==='region_meadow')holdRegionAsset('meadow',prefab);/* P0 fin: released by refcount once she has left (RegionRelease) */
   if(def.bundle==='region_skycity'&&!isValid(cloudseaPrefabs.get(prefab),true)){
     const soft=await loadPrefab({bundle:def.bundle,prefabName:'env_sky_cloudsea_soft'});
     cloudseaPrefabs.set(prefab,soft);

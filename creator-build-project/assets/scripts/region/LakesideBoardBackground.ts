@@ -3,6 +3,7 @@ import {createSceneFade} from './BoardBackgroundFade';
 import {Animation,AssetManager,ImageAsset,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Texture2D,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
 import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppendPiece,lakesideStaticMergeFromEnv,type LakesideAttr} from './LakesideStaticMerge';
 import {waitRegionAsset} from './RegionAssetDeadline';
+import {releaseLeftRegions} from './RegionRelease';
 import {DEBUG} from 'cc/env';
 import {applyCameraPose} from '../world-r1/CameraPose';
 import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
@@ -281,7 +282,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
  let saved:{light:DirectionalLight;rot:Quat;color:Color;illum:number;vis:number;sky:Color;ground:Color;skyIllum:number;mode:LakesideDayNight}|null=null,waterMat:Material|null=null;
  const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
- const applyDir=()=>{kickNextLakesideBoard()/* P0 fin: the board draws → preload the next lake board (idempotent) */;if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
+ const applyDir=()=>{kickNextLakesideBoard()/* P0 fin: the board draws → preload the next lake board (idempotent) */;void releaseLeftRegions()/* P0 fin: meadow + sail by refcount once she is at the lake (RegionRelease) */;if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
   const mode=lakesideDayNightMode();if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum,mode};
   setLakesideBoardHolding(true);/* r2: the board owns the lakeside lighting while it shows (journey listener stands down) */
   const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=lakesideSunForward(LAKESIDE_BOARD_YAW_DEG)/* r4 journey fix 2: the one sun-direction source (journey: same, turned with its lake) */,w=l.node.worldPosition,c=lakesideCocosLightColor(M.sunColorLinear),sk=lakesideCocosLightColor(M.ambientSkyColorLinear),gr=lakesideCocosLightColor(M.ambientGroundColorLinear)/* r2 VB: the one linear->Cocos-byte conversion (bytes/255 are read as linear) */;

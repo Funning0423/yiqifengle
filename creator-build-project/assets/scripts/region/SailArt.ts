@@ -2,6 +2,7 @@ import {Camera, Color, Director, Mat4, Material, Mesh, MeshRenderer, Node, Point
 import {SEA_HANDOFF_REAL,SEA_HANDOFF_STANDIN} from './SeaHandoffBounds';
 import {SEA_LOWLAND,SEA_PREWARM_FRAMES,SEA_STANDIN,SEA_STANDIN_PREFAB,SEA_REEF_PREFAB,boxInFrustum,SEA_ALWAYS_DRAWN,SEA_BOUNDS_NOTE,aboveWaterTiles,seaRevealEnabled,createSeaReveal,lowlandY,seaReefSlots,type Box as SeaBox} from './SeaReveal';
 import {onRealModel} from './TransitionProps';
+import {holdRegionAsset} from './RegionRelease';
 import {continuousTransitions} from './TransitionChain';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {traceCloudLayer} from './CloudTrace';
@@ -20,7 +21,7 @@ function walk(node:Node,fn:(n:Node)=>void){fn(node);for(const c of node.children
 function loadPrefab(name:string):Promise<Prefab>{
  return new Promise((ok,fail)=>assetManager.loadBundle('transport_sail',(e,b)=>{
   if(e||!b){fail(e||Error('transport_sail'));return;}
-  b.load(name+'/'+name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else ok(p as Prefab);});
+  b.load(name+'/'+name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else{holdRegionAsset('sail',p);ok(p as Prefab);}});
  }));
 }
 function nearestPalette(tex:Texture2D|null){
