@@ -2696,8 +2696,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 16667,
-    "sha256": "29c1952e94ae3f6770c1e8abda25d80c0cb4d7e96493eed59c1aba3eec539a10"
+    "bytes": 23289,
+    "sha256": "d53837b0014a326c817c4de5a063764ce7ca560a7f80b0d6c57232dbc1fc0e72"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -2726,8 +2726,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/DebugQuery.ts",
-    "bytes": 1492,
-    "sha256": "93c5339369ac65ffe254a6c544a5dcad5fe542131c958f52d4f56f20ee8b6154"
+    "bytes": 2014,
+    "sha256": "c5a4b094effdab3d7bf80becaf62566da2659517a1cc4f3fc74ee7e6e6fcd960"
   },
   {
     "path": "creator-build-project/assets/scripts/region/DebugQuery.ts.meta",
@@ -4166,8 +4166,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
-    "bytes": 13873,
-    "sha256": "c7aa1d1127fa23c85b1a7f26f9172fc16b32a4ffe0bd650610c8b61038bae97f"
+    "bytes": 15172,
+    "sha256": "4465865ab402453abcff0481e0d01eb13c639529cfff7dd8a179c7299fbf4926"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts.meta",
@@ -4676,8 +4676,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts",
-    "bytes": 2043,
-    "sha256": "37c1293193ecdb0584961d54ab7ca315c295288b8b18e4f521df2381017d8ed4"
+    "bytes": 2092,
+    "sha256": "a32b228eb65cd9c2171cfb032d251a0b075fb69c79118dfe53280a7bcefd00c7"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 32493,
-    "sha256": "02ad8453b37d931fbae869dde0adab3a238d37d44abf59d2a3284a44105fd901"
+    "bytes": 33080,
+    "sha256": "970f40677e335397103ad0530c462197479a40a0b76fe6688b1ddb7801ae9c98"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

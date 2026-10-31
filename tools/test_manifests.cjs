@@ -12,7 +12,7 @@
  *         node tools/test_manifests.cjs --write    # refresh: rehash all entries, add missing covered files, drop deleted */
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),cp=require('child_process'),assert=require('assert');
 process.exitCode=1;
-const root=path.resolve(__dirname,'..'),WRITE=process.argv.includes('--write');
+const ri=process.argv.indexOf('--root'),root=ri>0?path.resolve(process.argv[ri+1]):path.resolve(__dirname,'..'),WRITE=process.argv.includes('--write');
 const BIN=new Set(['.glb','.gltf.bin','.bin','.png','.jpg','.jpeg','.webp','.gif','.mp3','.wav','.ogg','.m4a','.aac','.ttf','.otf','.astc','.pkm','.ktx','.zip']);
 const COVERED='creator-build-project/';
 const M={assets:{file:'assets-MANIFEST-SHA256.json',nl:'\n'},text:{file:'text-MANIFEST-SHA256.json',nl:''}};
