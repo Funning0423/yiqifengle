@@ -14,7 +14,7 @@ import {debugSearch} from './DebugQuery';
  *  (over budget: counted, the next line carries DROPPED=<n>); ≤ maxStacks CALLER stacks per session; re-entry never writes. */
 export const CAM_LOG_BUDGET=Object.freeze({linesPerS:60,maxStacks:200});
 export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
-export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,stacks:false,busy:false,reentry:0,dropped:0,stackN:0,win:-1,winN:0,out:(s:string)=>console.log(s)};
+export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,cam:0,stacks:false,busy:false,reentry:0,dropped:0,stackN:0,win:-1,winN:0,out:(s:string)=>console.log(s)};
 export function camLogEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTrace=1(?:&|$)/.test(query||'')||camFlagOn(g&&g.__QF_CAM_TRACE);}
 /** Global switch accepts exactly true / 1 / '1' (also 'true'); '0', 'false', '' and others stay off. */
 /** full9b: CALLER stacks (new Error().stack on the 2nd+ write of a frame) only with camTrace on AND `?camTraceStacks=1` or
@@ -31,17 +31,24 @@ export function camLogWrite(camera:any,pose:{position:readonly number[];rotation
  /* full9b: re-entrancy guard — a write that arrives while a trace line is being built/printed (console hook, getter, stack
   * formatter) is counted, never traced (no recursion, no feedback loop) */
  if(camLog.busy){camLog.reentry++;publishStats();return;}
- camLog.busy=true;try{camLogWriteInner(camera,pose,source);}finally{camLog.busy=false;}
+ camLog.busy=true;const cs=camState(camera);camSwap(cs,true);try{camLogWriteInner(camera,pose,source);}finally{camSwap(cs,false);camLog.busy=false;}
 }
+/** P1 (c88320c1 FINDINGS §2A): frame + pose tracking is PER CAMERA. The board camera (MeadowBoardBackground) and the world camera
+ *  (enter-level) writing in the same frame are two streams, not MULTI=2 and not a 39–61 m JUMP; two writers on ONE camera still are. */
+type CamState={has:boolean;last:string;lp:number[];ly:number;lpi:number;fr:number;fw:number;id:number};
+let camStates=new WeakMap<object,CamState>(),camIds=0;const noCam={};
+function camState(camera:any):CamState{const k=camera&&typeof camera==='object'?camera:noCam;let c=camStates.get(k);if(!c){c={has:false,last:'',lp:[0,0,0],ly:0,lpi:0,fr:-1,fw:0,id:++camIds};camStates.set(k,c);}return c;}
+function camSwap(c:CamState,load:boolean):void{const L:any=camLog;if(load){L.has=c.has;L.last=c.last;L.lp[0]=c.lp[0];L.lp[1]=c.lp[1];L.lp[2]=c.lp[2];L.ly=c.ly;L.lpi=c.lpi;L.fr=c.fr;L.fw=c.fw;L.cam=c.id;}
+ else{c.has=L.has;c.last=L.last;c.lp[0]=L.lp[0];c.lp[1]=L.lp[1];c.lp[2]=L.lp[2];c.ly=L.ly;c.lpi=L.lpi;c.fr=L.fr;c.fw=L.fw;}}
 function publishStats():void{try{(globalThis as any).__qfCamTraceStats={reentry:camLog.reentry,dropped:camLog.dropped,stacks:camLog.stackN,lines:camLog.n};}catch{}}
 function camLogWriteInner(camera:any,pose:{position:readonly number[];rotation:readonly number[];fovVerticalDeg:number},source:string):void{
- void camera;
+ void camera;/* per-camera state is swapped in by camLogWrite (camSwap) */
  const [x,y,z]=pose.position,[qx,qy,qz,qw]=pose.rotation;
  const fx=-2*(qx*qz+qw*qy),fy=-2*(qy*qz-qw*qx),fz=-(1-2*(qx*qx+qy*qy));// forward = q·(0,0,-1)
  const yaw=Math.atan2(fx,-fz)*180/Math.PI,pitch=Math.asin(Math.max(-1,Math.min(1,fy)))*180/Math.PI;
  const w=camLog.tag||source;camLog.tag='';camLog.n++;
  const t=((typeof performance!=='undefined'?performance.now():Date.now())-camLog.t0)/1000;
- let s='[QF_CAM_TRACE] f='+camLog.n+' t='+f3(t)+' pos='+f3(x)+','+f3(y)+','+f3(z)+' yaw='+f3(yaw)+' pitch='+f3(pitch)+' fov='+f3(pose.fovVerticalDeg)+' w='+w;
+ let s='[QF_CAM_TRACE] f='+camLog.n+' t='+f3(t)+' pos='+f3(x)+','+f3(y)+','+f3(z)+' yaw='+f3(yaw)+' pitch='+f3(pitch)+' fov='+f3(pose.fovVerticalDeg)+' w='+w+(camLog.cam>1?' cam='+camLog.cam:'');
  if(camLog.has){
   if(w!==camLog.last)s+=' CHANGE<-'+camLog.last;
   const dm=Math.hypot(x-camLog.lp[0],y-camLog.lp[1],z-camLog.lp[2]);let dy=Math.abs(yaw-camLog.ly);if(dy>180)dy=360-dy;const dd=Math.max(dy,Math.abs(pitch-camLog.lpi));
@@ -148,7 +155,7 @@ export function camLogStart(query?:string,g:any=globalThis):boolean{
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;/*QF_PROBE_BEGIN*/probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;/*QF_PROBE_END*/camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{camStates=new WeakMap();camIds=0;stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;/*QF_PROBE_BEGIN*/probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;/*QF_PROBE_END*/camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 /*QF_PROBE_BEGIN*//** P2 lakeside gate probe (TEST ONLY, same camLog.on gate as the probes above): [QF_P2_SCENE] at trace frame 2400 and every 10th
  *  frame of the balloon ascent: active camera, clear colour, fog, active domes and the LK_* renderers the camera can see. */
