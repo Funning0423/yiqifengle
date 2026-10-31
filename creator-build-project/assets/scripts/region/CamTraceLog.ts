@@ -22,14 +22,24 @@ export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
  *  Bounded: ≤ ceil(bytes/chunk)+1 console calls per flushMs and ≤ bytes per flushMs, whatever the frame rate.
  *  Sink is used on a wx host (DevTools / device) or with globalThis.__QF_CAM_SINK=true; Node unit tests without wx keep direct lines. */
 export const CAM_LOG_SINK=Object.freeze({flushMs:1000,lines:150,bytes:12*1024,chunk:3800});
-export const camSink={buf:[] as string[],bytes:0,last:0,timer:null as any,flushes:0,sinkDropped:0,dropFlush:0,emit:(s:string)=>console.log(s)};
+/** finU/finT: the full sink dropped [QF_GPU] per-second lines (s=…204/205 lost while 95 camTrace lines were dropped). Priority lines
+ *  ([QF_GPU], [QF_SYNC]) are never dropped for capacity: when the buffer is full (lines or bytes), the NEWEST lower-priority line is
+ *  evicted (as many as needed) to make room. Caps (lines/bytes/flushMs) are unchanged. Drops are counted per flush and per tag
+ *  (tag = leading [XXX]); totals in __qfCamTraceStats (sinkDropped, sinkDroppedByTag, sinkDroppedPriority). A priority line is dropped
+ *  only if the buffer holds nothing but priority lines (> CAM_LOG_SINK.lines per second; counted in sinkDroppedPriority). */
+export const CAM_SINK_PRIORITY=/^\[QF_(GPU|SYNC)\]/;
+export function camLineTag(s:string):string{const m=/^\[([A-Z0-9_]+)\]/.exec(s);return m?m[1]:'other';}
+export const camSink={buf:[] as string[],bytes:0,last:0,timer:null as any,flushes:0,sinkDropped:0,dropFlush:0,dropTags:{} as Record<string,number>,byTag:{} as Record<string,number>,droppedPriority:0,emit:(s:string)=>console.log(s)};
+function camSinkDrop(tag:string):void{const k=camSink;k.sinkDropped++;k.dropFlush++;k.dropTags[tag]=(k.dropTags[tag]||0)+1;k.byTag[tag]=(k.byTag[tag]||0)+1;}
 export function camSinkFlush():void{const k=camSink;if(k.timer!==null){try{clearTimeout(k.timer);}catch{}k.timer=null;}k.last=Date.now();
- if(!k.buf.length&&!k.dropFlush)return;const body=k.buf.join('\n');const n=k.buf.length,b=k.bytes,d=k.dropFlush;k.buf=[];k.bytes=0;k.dropFlush=0;k.flushes++;
- const tail='[QF_CAM_LOG] flush='+k.flushes+' lines='+n+' bytes='+b+(d?' DROPPED='+d+' totalDropped='+k.sinkDropped:'');
+ if(!k.buf.length&&!k.dropFlush)return;const body=k.buf.join('\n');const n=k.buf.length,b=k.bytes,d=k.dropFlush,dt=k.dropTags;k.buf=[];k.bytes=0;k.dropFlush=0;k.dropTags={};k.flushes++;
+ const tail='[QF_CAM_LOG] flush='+k.flushes+' lines='+n+' bytes='+b+(d?' DROPPED='+d+' totalDropped='+k.sinkDropped+' dropTags='+JSON.stringify(dt):'');
  let chunk='';for(const l of body?body.split('\n'):[]){if(chunk&&chunk.length+1+l.length>CAM_LOG_SINK.chunk){k.emit(chunk);chunk='';}chunk=chunk?chunk+'\n'+l:l;}
- k.emit(chunk?chunk+'\n'+tail:tail);}
+ k.emit(chunk?chunk+'\n'+tail:tail);publishStats();}
 export function camSinkPush(s:string):void{const k=camSink;
- if(k.buf.length>=CAM_LOG_SINK.lines||k.bytes+s.length>CAM_LOG_SINK.bytes){k.sinkDropped++;k.dropFlush++;}else{k.buf.push(s);k.bytes+=s.length+1;}
+ const full=()=>k.buf.length>=CAM_LOG_SINK.lines||k.bytes+s.length>CAM_LOG_SINK.bytes;
+ if(full()&&CAM_SINK_PRIORITY.test(s)){for(let i=k.buf.length-1;i>=0&&full();i--){const x=k.buf[i];if(CAM_SINK_PRIORITY.test(x))continue;k.buf.splice(i,1);k.bytes-=x.length+1;camSinkDrop(camLineTag(x));}}
+ if(full()){if(CAM_SINK_PRIORITY.test(s))k.droppedPriority++;camSinkDrop(camLineTag(s));}else{k.buf.push(s);k.bytes+=s.length+1;}
  if(Date.now()-k.last>=CAM_LOG_SINK.flushMs)camSinkFlush();
  else if(k.timer===null){try{k.timer=setTimeout(camSinkFlush,CAM_LOG_SINK.flushMs);}catch{k.timer=null;}}}
 export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,cam:0,stacks:false,busy:false,reentry:0,dropped:0,stackN:0,win:-1,winN:0,out:(s:string)=>{if(camSinkOn())camSinkPush(s);else console.log(s);}};
@@ -59,7 +69,7 @@ let camStates=new WeakMap<object,CamState>(),camIds=0;const noCam={};
 function camState(camera:any):CamState{const k=camera&&typeof camera==='object'?camera:noCam;let c=camStates.get(k);if(!c){c={has:false,last:'',lp:[0,0,0],ly:0,lpi:0,fr:-1,fw:0,id:++camIds};camStates.set(k,c);}return c;}
 function camSwap(c:CamState,load:boolean):void{const L:any=camLog;if(load){L.has=c.has;L.last=c.last;L.lp[0]=c.lp[0];L.lp[1]=c.lp[1];L.lp[2]=c.lp[2];L.ly=c.ly;L.lpi=c.lpi;L.fr=c.fr;L.fw=c.fw;L.cam=c.id;}
  else{c.has=L.has;c.last=L.last;c.lp[0]=L.lp[0];c.lp[1]=L.lp[1];c.lp[2]=L.lp[2];c.ly=L.ly;c.lpi=L.lpi;c.fr=L.fr;c.fw=L.fw;}}
-function publishStats():void{try{(globalThis as any).__qfCamTraceStats={reentry:camLog.reentry,dropped:camLog.dropped,stacks:camLog.stackN,lines:camLog.n,sinkDropped:camSink.sinkDropped,sinkFlushes:camSink.flushes};}catch{}}
+function publishStats():void{try{(globalThis as any).__qfCamTraceStats={reentry:camLog.reentry,dropped:camLog.dropped,stacks:camLog.stackN,lines:camLog.n,sinkDropped:camSink.sinkDropped,sinkDroppedByTag:{...camSink.byTag},sinkDroppedPriority:camSink.droppedPriority,sinkFlushes:camSink.flushes};}catch{}}
 function camLogWriteInner(camera:any,pose:{position:readonly number[];rotation:readonly number[];fovVerticalDeg:number},source:string):void{
  void camera;/* per-camera state is swapped in by camLogWrite (camSwap) */
 /*QF_PROBE_BEGIN*/ gpuProbe.lens=source;/*QF_PROBE_END*/
@@ -278,7 +288,7 @@ export function installGpuProbe(dev:any,am:any,onFrameEnd?:(f:()=>void)=>void):b
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{camSink.buf=[];camSink.bytes=0;camSink.dropFlush=0;camSink.sinkDropped=0;camSink.flushes=0;camSink.last=0;if(camSink.timer!==null){try{clearTimeout(camSink.timer);}catch{}camSink.timer=null;}camStates=new WeakMap();camIds=0;stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;/*QF_PROBE_BEGIN*/probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;probe.herFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;/*QF_PROBE_END*/camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{camSink.buf=[];camSink.bytes=0;camSink.dropFlush=0;camSink.sinkDropped=0;camSink.dropTags={};camSink.byTag={};camSink.droppedPriority=0;camSink.flushes=0;camSink.last=0;if(camSink.timer!==null){try{clearTimeout(camSink.timer);}catch{}camSink.timer=null;}camStates=new WeakMap();camIds=0;stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;/*QF_PROBE_BEGIN*/probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;probe.herFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;/*QF_PROBE_END*/camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 /*QF_PROBE_BEGIN*//** P2 lakeside gate probe (TEST ONLY, same camLog.on gate as the probes above): [QF_P2_SCENE] at trace frame 2400 and every 10th
  *  frame of the balloon ascent: active camera, clear colour, fog, active domes and the LK_* renderers the camera can see. */
