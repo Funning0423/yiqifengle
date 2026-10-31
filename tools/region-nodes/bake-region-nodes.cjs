@@ -28,7 +28,7 @@ const REGIONS={
   floor:/env_island_main|env_beach_wet_sand|env_beach_tide_pools|env_lighthouse_ext/,
   solid:/env_island_main|env_island_props_merged|env_lighthouse_ext|env_lighthouse_door|env_prop_palm|env_beach_tide/,
   start:[-2.1,0,5.3],sea:-0.6,explore:[-15,-16,19,18],
-  solidKeepM:.15,solidKeep:/env_island_props_merged/,
+  densifyM:.1,solidKeepM:.15,solidKeep:/env_island_props_merged/,
   // b19 dock models: the resident pier (region_island/ui-props/island_dock.glb, island coordinates) is floor + solid
   extras:[{file:'creator-build-project/assets/bundles/region_island/ui-props/island_dock.glb',floor:/island_dock/,solid:/island_dock/}],
   // b20 island-walk-fixes: env_prop_palm_young_01 is SKINNED; this loader ignores skins and puts it ~3 m off (x5-7.4,z4-6.3). Its rendered
@@ -116,7 +116,10 @@ function buildGrid(spec,stamp){
  const floors=Array.from({length:W*H},()=>[]),solids=Array.from({length:W*H},()=>[]);
  const solidXZ=spec.solidKeepM?Array.from({length:W*H},()=>[]):null;
  const cell=(x,z)=>{const gx=Math.floor((x-x0)/c),gz=Math.floor((z-z0)/c);if(gx<0||gz<0||gx>=W||gz>=H)return -1;return gz*W+gx;};
+ const ftri=spec.densifyM?new Map():null,FB=.5;
  const addTri=(isF,isS,A,B,C,isK=false)=>{
+  if(ftri&&isF){const nx0=(B[1]-A[1])*(C[2]-A[2])-(B[2]-A[2])*(C[1]-A[1]),ny0=(B[2]-A[2])*(C[0]-A[0])-(B[0]-A[0])*(C[2]-A[2]),nz0=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]);
+   if(Math.abs(ny0)>1e-9)for(let i=Math.floor(Math.min(A[0],B[0],C[0])/FB);i<=Math.floor(Math.max(A[0],B[0],C[0])/FB);i++)for(let j=Math.floor(Math.min(A[2],B[2],C[2])/FB);j<=Math.floor(Math.max(A[2],B[2],C[2])/FB);j++){const k=i+','+j;if(!ftri.has(k))ftri.set(k,[]);ftri.get(k).push([A,B,C]);}}
   const e1=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],e2=[C[0]-A[0],C[1]-A[1],C[2]-A[2]];
   const nx=e1[1]*e2[2]-e1[2]*e2[1],ny=e1[2]*e2[0]-e1[0]*e2[2],nz=e1[0]*e2[1]-e1[1]*e2[0],nl=Math.hypot(nx,ny,nz)||1,up=Math.abs(ny)/nl;
   const L=Math.max(Math.hypot(e1[0],e1[1],e1[2]),Math.hypot(e2[0],e2[1],e2[2]),Math.hypot(C[0]-B[0],C[1]-B[1],C[2]-B[2]));
@@ -144,20 +147,20 @@ function buildGrid(spec,stamp){
  if(spec.routeDiscs)for(const o of BASKET_DISCS().filter(o=>o.region===spec.routeDiscs))layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-o.at[0],z-o.at[1])<=o.r+o.clearM+ROUTE_MARGIN)route.add(ci);});
  // b19 s2s3-edge (场景设计部): route-only keep-outs (walkability unchanged) — node edges keep ≥0.4 m from these unwalkable blobs
  // b20 walkable-terrain: route keep-out round every solid sample that stands LOW..HEAD over the top floor of its cell (bushes, flowers,
- // grass tufts > 0.3 m, rocks: the spec.solidKeep meshes): node edges keep >= solidKeepM + 3 cm (cell centres) and simplified segments keep >= solidKeepM (5 cm samples)
+ // grass tufts > 0.3 m, rocks: the spec.solidKeep meshes): node edges keep >= solidKeepM + 5 cm (cell centres) and simplified segments keep >= solidKeepM (5 cm samples)
  // from it. Walkability unchanged (props are not floor any more, so the tall ones already block their own cells).
  let tall=null;
  if(solidXZ){tall=new Map();const B=.5,kb=(x,z)=>Math.floor(x/B)+','+Math.floor(z/B);
-  // footprint = every sample standing > 2 cm over the cell's top floor; 8-connected footprint cells form one plant/prop; a prop is tall when
-  // any of its samples is LOW..HEAD over the floor. Keep-out is solidKeepM round the WHOLE footprint of tall props (leaves at knee height included).
+  // footprint = the part of each plant/prop that stands LOW..HEAD (> 0.3 m) over the cell's top floor; flat-lying blade tips lower than
+  // LOW may be crossed. Keep-out is solidKeepM round that footprint.
   const top=ci=>Math.max(...layers[ci]),prot=new Map();
-  solidXZ.forEach((a,ci)=>{if(!a.length||!layers[ci].length)return;const f=top(ci);const pts=[];let hi=false;for(let k=0;k<a.length;k+=3){const y=a[k+1];if(y>f+.02&&y<f+HEAD){pts.push(a[k],a[k+2]);if(y>f+LOW)hi=true;}}if(pts.length)prot.set(ci,{pts,hi});});
+  solidXZ.forEach((a,ci)=>{if(!a.length||!layers[ci].length)return;const f=top(ci);const pts=[];let hi=false;for(let k=0;k<a.length;k+=3){const y=a[k+1];if(y>f+LOW&&y<f+HEAD){pts.push(a[k],a[k+2]);hi=true;}}if(pts.length)prot.set(ci,{pts,hi});});
   const seen=new Set();for(const ci0 of prot.keys()){if(seen.has(ci0))continue;const blob=[ci0];seen.add(ci0);for(let q=0;q<blob.length;q++){const ci=blob[q],gx=ci%W,gz=(ci/W)|0;
     for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const n=nz*W+nx;if(prot.has(n)&&!seen.has(n)){seen.add(n);blob.push(n);}}}
    if(!blob.some(ci=>prot.get(ci).hi))continue;
    for(const ci of blob){const a=prot.get(ci).pts;for(let k=0;k<a.length;k+=2){const kk=kb(a[k],a[k+1]);if(!tall.has(kk))tall.set(kk,[]);tall.get(kk).push(a[k],a[k+1]);}}}
   const R=spec.solidKeepM,near=(x,z,r)=>{for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const a=tall.get((Math.floor(x/B)+i)+','+(Math.floor(z/B)+j));if(a)for(let k=0;k<a.length;k+=2)if(Math.hypot(a[k]-x,a[k+1]-z)<r)return true;}return false;};
-  tall.near=near;layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(near(x,z,R+.03))route.add(ci);});}
+  tall.near=near;layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(near(x,z,R+.05))route.add(ci);});}
  if(spec.routeAvoid)for(const [ax,az,ar] of spec.routeAvoid)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-ax,z-az)<=ar)route.add(ci);});
  if(spec.walls)for(const [ax,az,bx,bz,hw] of spec.walls)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
   const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));if(Math.hypot(x-ax-dx*t,z-az-dz*t)<=hw)ls.forEach((y,li)=>{ok[ci][li]=false;});});
@@ -173,7 +176,10 @@ function buildGrid(spec,stamp){
   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx;const lim=STEP*Math.hypot(dx,dz)*(c/.4);
    layers[nc].forEach((y2,l2)=>{if(!ok[nc][l2]||Math.abs(y2-y)>lim)return;const k=key(nc,l2);if(seen.has(k))return;seen.set(k,1);parent.set(k,key(ci,li));dist.set(k,d0+Math.hypot(dx,dz)*c);q.push([nc,l2]);});}}
  // b17 skycity-walk-r4: the solid surface samples per cell (0.2 m on every triangle) feed the tap-ray voxel field (RegionWalkableData.obs)
- return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids,route,tall};
+ // b20 terrain-follow: exact floor height (highest floor-mesh triangle at or below yMax, any slope) for path densification
+ const floorAt=ftri?((x,z,yMax)=>{let best=null;for(const [A,B,C] of ftri.get(Math.floor(x/FB)+','+Math.floor(z/FB))||[]){const d=(B[2]-C[2])*(A[0]-C[0])+(C[0]-B[0])*(A[2]-C[2]);if(Math.abs(d)<1e-12)continue;
+  const l1=((B[2]-C[2])*(x-C[0])+(C[0]-B[0])*(z-C[2]))/d,l2=((C[2]-A[2])*(x-C[0])+(A[0]-C[0])*(z-C[2]))/d,l3=1-l1-l2;if(l1<-1e-9||l2<-1e-9||l3<-1e-9)continue;const y=l1*A[1]+l2*B[1]+l3*C[1];if(y<=yMax&&(best===null||y>best))best=y;}return best;}):null;
+ return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids,route,tall,floorAt};
 }
 function nearest(M,p,ytol=1.5){
  const ci=M.cell(p[0],p[2]);if(ci<0)return null;let best=null;
@@ -240,7 +246,7 @@ function emit(baked){
  const body={};
  for(const id of Object.keys(REGIONS)){
   const spec=REGIONS[id],g=baked[id].grid,by={};
-  const nodes=NODES[id].map(n=>{const hit=nearest(g,n.at,2.5);if(!hit)throw Error('node-off-grid '+n.key);const p=pathOf(g,hit.k);const at=p[p.length-1];by[n.key]={...n,at};return {...n,at};});
+  const nodes=NODES[id].map(n=>{const hit=nearest(g,n.at,2.5);if(!hit)throw Error('node-off-grid '+n.key);const p=pathOf(g,hit.k);const at=p[p.length-1].slice();if(spec.densifyM&&g.floorAt){const y=g.floorAt(at[0],at[2],at[1]+.4);if(y!==null&&Math.abs(y-at[1])<=.2)at[1]=round3(y);}/* b20 terrain-follow: she stands on the floor mesh, not on the 0.2 m cell's highest sample */by[n.key]={...n,at};return {...n,at};});
   const edges=[];
   for(const [a,b] of EDGES[id]){
    const A=by[a].at,B=by[b].at,ka=nearest(g,A,0.6),kb=nearest(g,B,0.6);
@@ -262,6 +268,11 @@ function emit(baked){
     const mid=tail.via.map(([x,z])=>{const y=RW.walkFloorY(id,x,z);if(y===null)throw Error('tail-via-null '+x+','+z);return [x,round3(y),z];});
     const cand=[...simp.slice(0,k+1),...mid,E];for(let q=k;q<cand.length-1;q++)if(!ok(cand[q],cand[q+1]))throw Error('tail-unclear '+a+b+' '+cand[q]+'->'+cand[q+1]);
     simp=cand;/* lengthM stays the grid-route length like every other edge */}
+   // b20 terrain-follow: the walker interpolates path-point y linearly, so on slopes a long chord floats over the terrain. Insert a point every
+   // densifyM along each segment with y = floor height there (and re-read the vertices), so she follows the ground to <= 3 cm.
+   if(spec.densifyM&&g.floorAt){const fy=(x,z,yr)=>{const y=g.floorAt(x,z,yr+.4);return y===null||Math.abs(y-yr)>.2?round3(yr):round3(y);}/* > 0.2 m off the chord = a hole in the floor mesh (dock gap): keep the chord, the terrain-follow gate reports it */;const out=[[simp[0][0],fy(simp[0][0],simp[0][2],simp[0][1]),simp[0][2]]];
+    for(let i=1;i<simp.length;i++){const P=simp[i-1],Q=simp[i],n=Math.max(1,Math.ceil(Math.hypot(Q[0]-P[0],Q[2]-P[2])/spec.densifyM));
+     for(let t=1;t<=n;t++){const x=round3(P[0]+(Q[0]-P[0])*t/n),z=round3(P[2]+(Q[2]-P[2])*t/n);out.push([x,fy(x,z,P[1]+(Q[1]-P[1])*t/n),z]);}}out[0]=A.slice();out[out.length-1]=B.slice()/* ends stay exactly on the nodes */;simp=out;}
    edges.push({a,b,path:simp,lengthM:round3(len)});
   }
   for(const n of nodes){const out=edges.find(e=>e.a===n.key)||edges.find(e=>e.b===n.key);if(!out){n.faceDeg=0;continue;}

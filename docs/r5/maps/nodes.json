@@ -15,7 +15,7 @@
     "name": "潮池 tide pools — mainline-02",
     "at": [
      2.5,
-     -0.01,
+     -0.014,
      8.1
     ]
    },
@@ -24,7 +24,7 @@
     "name": "北滩 north beach (crab) — mainline-03",
     "at": [
       6.1,
-      -0.452,
+      -0.506,
       9.1
     ]
    },
@@ -33,7 +33,7 @@
     "name": "灯塔东南草坡 lighthouse SE lawn — mainline-04 (b19 方案 E: was 灯塔脚 [4.5,0.23,-4.9]; b20 i4nudge: was [4.1,0.11,2.7], out from under palm_young_01 canopy)",
     "at": [
      3.9,
-     0.09,
+     0.089,
      3.9
     ]
    },
@@ -42,7 +42,7 @@
     "name": "西岬 west cape (palm) — 挑战/探索 (b20: was [-4.5,0.13,-0.9])",
     "at": [
      -2.7,
-     0.151,
+     0.149,
      0.7
     ]
    },
@@ -81,15 +81,15 @@
    {
     "from": "I4",
     "to": "I5",
-    "walkM": 11.34,
-    "walkS": 9.45,
+    "walkM": 9.546,
+    "walkS": 7.96,
     "climbM": 0.05
    },
    {
     "from": "I5",
     "to": "I6",
-    "walkM": 9.594,
-    "walkS": 8,
+    "walkM": 9.263,
+    "walkS": 7.72,
     "climbM": -0.32
    }
   ],
