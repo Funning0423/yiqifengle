@@ -57,6 +57,7 @@ export function seedLakeCheckpoint(profile:any,stageId:string,mode:'win'|'lose',
  const s=P.snapshot();if(s.active?.status!=='playing'||s.active.stageId!==stageId)throw Error('lake-not-one-move-short');
  return {stageId,seed,lastAction:last,cleared:LAKE_WIN_WITNESSES.filter(w=>API.getStage(w.stageId).ordinal<target.ordinal).map(w=>w.stageId)};
 }
+/*QF_PROBE_BEGIN*/
 /** r5 journal hooks (journal-sky-progress / journal-sky-cleared): 天空之城 challenge wins, first verified replay of each stage
  *  (tools/persistence-fixtures/verified-replays.json, re-checked by tools/new-regions/test_journal_sky_live_r5.cjs). */
 export const SKY_CHALLENGE_WITNESSES:readonly {stageId:string;seed:number;actions:readonly any[]}[]=[{"stageId":"r05-sky-01","seed":1,"actions":[["swap",24,31],["swap",31,32]]},{"stageId":"r05-sky-02","seed":2,"actions":[["swap",23,24],["swap",31,32],["swap",15,16],["swap",30,31],["swap",22,23],["swap",40,47],["swap",24,25]]},{"stageId":"r05-sky-03","seed":1,"actions":[["swap",3,10],["swap",10,11],["swap",4,5],["swap",18,25],["swap",17,18],["swap",10,17],["swap",1,8],["swap",29,30],["swap",22,29],["swap",38,45],["swap",9,16],["swap",2,9],["swap",10,11],["swap",25,32],["swap",16,23]]},{"stageId":"r05-sky-04","seed":1,"actions":[["swap",4,11],["swap",15,16],["swap",36,37],["swap",39,46],["swap",23,24],["swap",22,23],["swap",14,15],["activate",47],["swap",2,3],["swap",37,44],["swap",39,40],["swap",32,33],["swap",46,47]]}];
@@ -72,3 +73,4 @@ export function seedSkyChallengeWins(profile:any,count:number,opts?:{allowQa?:bo
   const s=P.snapshot();if(s.state!=='result.saved'||!s.result?.completionRecorded)throw Error('sky-unregistered-replay '+w.stageId);}
  return {won:SKY_CHALLENGE_WITNESSES.slice(0,count).map(w=>w.stageId)};
 }
+/*QF_PROBE_END*/

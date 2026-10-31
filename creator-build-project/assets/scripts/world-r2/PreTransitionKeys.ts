@@ -4,9 +4,9 @@
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
 import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled } from './QaSkip';
-export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared';
+export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'/*QF_PROBE_END*/;
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
-export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';skyChallenges?:number;
+export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;/*QF_PROBE_END*/
  trigger:string;taps:PreTap[];expect:string};
 const N=(...path:string[]):PreTap=>({kind:'node',path});
 export const PRE_SPECS:readonly PreSpec[]=[
@@ -32,11 +32,13 @@ export const PRE_SPECS:readonly PreSpec[]=[
  {key:'lake-18-home',label:'湖畔收尾：L18 结算 → 离开棋盘',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-06',lakeMode:'win',trigger:'结算面板「回小岛」（先自动领取地区印记）',taps:[N('ResultPanel','Home')],expect:'领取湖畔地区印记→棋盘退出→湖畔自由探索（state level→lakeside）'},
  {key:'lake-fail',label:'湖畔失败面板：L13 输 → 再试一次',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-01',lakeMode:'lose',trigger:'失败面板「再试一次」（摆位后先看副标题 failHint）',taps:[N('ResultPanel','Replay')],expect:'失败面板副标题显示本关提示（≤14 字单行）；点「再试一次」→L13 重新开局'},
  {key:'ending',label:'结局：最后一关湖畔结算 → 结局（TR9）',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-06',lakeMode:'win',trigger:'结算面板「继续」（ResultPanel/Next，endingAvailable 时文字为 继续）',taps:[N('ResultPanel','Next')],expect:'WindWipe（3D 风铃）盖屏→结局画面淡入（__qfEnding.shown=true）→点结局「回小岛」再走 WindWipe 回小岛'},
+/*QF_PROBE_BEGIN*//* r5 journal hooks: stripped from release builds (strip-probes.cjs; release-probe-symbols.json lists journal-sky) */
  /* r5 (界面验收部 new-regions r4 §2 item 3; Option A): the 天空之城 page button follows the REAL challenge gate. Mainline 1–12
   * registered (gate open) + 0 / 1 / 4 天空之城 challenges won through the real provider; island, region page open. Test profile only. */
  {key:'journal-sky-open',label:'旅程册：天空之城挑战 0/4（已开启）',checkpoint:12,finish:true,place:'island',skyChallenges:0,trigger:'已打开的「天空之城」章节面板：主按钮「前往天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「前往天空之城」'},
  {key:'journal-sky-progress',label:'旅程册：天空之城挑战 1/4（进行中）',checkpoint:12,finish:true,place:'island',skyChallenges:1,trigger:'已打开的「天空之城」章节面板：主按钮「继续 1/4」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「继续 1/4」'},
  {key:'journal-sky-cleared',label:'旅程册：天空之城挑战 4/4（已通关）',checkpoint:12,finish:true,place:'island',skyChallenges:4,trigger:'已打开的「天空之城」章节面板：主按钮「再访天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「再访天空之城」'},
+/*QF_PROBE_END*/
 ];
 export const PRE_KEYS:readonly PreKey[]=PRE_SPECS.map(s=>s.key);
 export function preSpec(key:string):PreSpec|null{return PRE_SPECS.find(s=>s.key===key)||null;}
