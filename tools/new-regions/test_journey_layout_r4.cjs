@@ -62,7 +62,7 @@ for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for
     const btn=c.root.find('Continue-'+r.id);assert(btn,tag+' '+r.id+' button');const bl=btn.getComponentsInChildren(cc.Label)[0].string;
     assert.equal(bl,B.chapterButton(r).text,tag+' '+r.id+' button = r5 condition + 开启');assert.equal(bl,B.unlockText(r.id)+'开启',tag+' '+r.id+' button = full cell condition + 开启');assert(!/主线/.test(bl),tag+' no 主线');void cellLabel;
     assert(btn.__disabled===true,tag+' '+r.id+' button disabled');const before=entered.length;H.tap(btn);await H.flush();assert.equal(entered.length,before,tag+' '+r.id+' disabled button enters nothing');
-    { const BB=box(btn,W,Hh),CNT=c.root.find('ChapterCount');const top=CNT?box(CNT,W,Hh).y1:-1e9;
+    { const BB=box(btn,W,Hh),CNT=c.root.find('ChapterCount')||c.root.find('ChapterDescription')/* r5 P3: locked pages drop ChapterCount; the content then ends at the description */;assert(CNT,tag+' '+r.id+' page content');const top=box(CNT,W,Hh).y1;
       assert(!c.root.find('VisitSkycity')&&!c.root.find('ChapterCondition'),tag+' '+r.id+' locked page: no extra line / condition text above the button');
       const above=c.root.getComponentsInChildren(cc.Label).filter(l=>!btn.getComponentsInChildren(cc.Label).includes(l)).map(l=>({s:l.string,b:box(l.node,W,Hh)})).filter(x=>x.b.y0>=top-0.01&&x.b.y1<=BB.y0+0.01);
       assert.deepEqual(above.map(x=>x.s),[],tag+' '+r.id+' locked page: no text node between the content and the grey button'); }
