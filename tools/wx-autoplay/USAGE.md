@@ -79,3 +79,10 @@ result.json now also fails the run (`ok:false`, `failReason: game failures: N (.
 - `uncaughtErrors`: `wx.onError` and `wx.onUnhandledRejection`
 - `hudSuppressedErrors`: `[OI_HUD] suppressed {"kind":"error"...}` log lines
 Set `"allowGameFailures": true` in the script to report them without failing. `gameFailures` is the total.
+
+## r2 (chainJ P0 freeze): async screenshots and writes
+- `screenshot` / burst shots use `canvas.toTempFilePath` (async, success/fail) requested from `EVENT_AFTER_DRAW`; copy is `fs.copyFile`, temp removal `fs.unlink` (both async). No `*Sync` host call runs after boot.
+- At most one capture in flight. An overlapping request resolves `null` immediately and is counted in `result.json` `shotsSkipped`; a capture whose callbacks never return is abandoned after 5 s (`shotTimeouts`). Other new fields: `shotsRequested`, `shotsFailed`, `shotMaxMs`, `screenshotApi:"toTempFilePath-async"`.
+- File names unchanged: `out/shots/NN-<name>.jpg` (NN = completed shots), `out/console.log`, `out/state.jsonl`, `out/result.json`. All writes go through one FIFO async queue; `result.json` is written last.
+- Window size is read once at boot and refreshed on `wx.onWindowResize`.
+- Patched forks (e.g. `~/qfap-run/pt/qf-autoplay.js`): `node tools/wx-autoplay/port-async-io.cjs <fork.js>` then `node tools/host-sync/test_no_sync_hot_callbacks.cjs --harness <fork.js>` must print PASS.

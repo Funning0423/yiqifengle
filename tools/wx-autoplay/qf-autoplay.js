@@ -58,7 +58,14 @@ if(!text)return; /* no script -> harness idle, game unchanged */
 try{script=parseScript(text);}catch(e){err=e.message;}
 try{fs.rmdirSync(OUT,true);}catch(e){}try{fs.mkdirSync(OUT+'/shots',true);}catch(e){}
 var logBuf=[],logBytes=0,stateBytes=0;
-function w2(file,s,capRef){try{fs.appendFileSync(OUT+'/'+file,s,'utf8');}catch(e){try{fs.writeFileSync(OUT+'/'+file,s,'utf8');}catch(x){}}}
+/* r2 (chainJ P0): every write during gameplay is ASYNC and serialized (one in flight, FIFO). The old appendFileSync from
+ * setInterval(flush)/writeState was a synchronous appservice IPC every 1-2 s, same class as the toTempFilePathSync freeze. */
+var wq=[],wBusy=false;
+function w2(file,s){wq.push([OUT+'/'+file,s]);pump();}
+function pump(){if(wBusy||!wq.length)return;wBusy=true;var it=wq.shift(),p=it[0],s=it[1];
+  var done=function(){wBusy=false;pump();};
+  var put=function(){try{fs.writeFile({filePath:p,data:s,encoding:'utf8',success:done,fail:done});}catch(x){done();}};
+  try{fs.appendFile({filePath:p,data:s,encoding:'utf8',success:done,fail:put});}catch(e){put();}}
 function flush(){if(!logBuf.length)return;var s=logBuf.join('');logBuf=[];if(logBytes>LOG_CAP)return;logBytes+=s.length;w2('console.log',s+(logBytes>LOG_CAP?'[QF_AUTOPLAY] log cap reached\n':''));}
 var consoleErrors=0,errorSamples=[];
 function qfSer(v){if(typeof v==='string')return v;if(v&&typeof v==='object'&&(v instanceof Error||(typeof v.message==='string'&&('stack' in v||'name' in v)))){return (v.name||'Error')+': '+v.message+(v.stack?'\n'+v.stack:'');}try{var j=JSON.stringify(v);if(j==='{}'&&v&&typeof v==='object'){var t=String(v);if(t!=='[object Object]')return t;}return j;}catch(e){return String(v);}}
@@ -69,12 +76,15 @@ var gameFail={journeyFailed:[],snapshotErrors:[],uncaught:[],hudSuppressed:[]};f
 try{wx.onError&&wx.onError(function(r){var m=r&&typeof r==='object'?((r.message||'')+(r.stack?'\n'+r.stack:'')):qfSer(r);console.error('[QF_AUTOPLAY] wx.onError '+m);noteFail('uncaught',m||qfSer(r));});}catch(e){}
 try{wx.onUnhandledRejection&&wx.onUnhandledRejection(function(r){var x=r&&r.reason;var m='unhandledrejection: '+qfSer(x);console.error('[QF_AUTOPLAY] '+m);noteFail('uncaught',m);});}catch(e){}
 function scanState(s){if(!s)return;try{var w=s.world||{},j=w.journey||{};if(s.journeyPhase==='failed'||j.phase==='failed')noteFail('journeyFailed',(j.region||'?')+'>'+(j.target||'?')+': '+(j.error||w.error||'failed'));if(w.error)noteFail('snapshotErrors',w.error);if(s.error)noteFail('snapshotErrors',s.error);if(s.snapErr)noteFail('snapshotErrors','snapshot threw: '+s.snapErr);}catch(e){}}
-var touch=installTouch(wx);g.__QF_AUTOPLAY={touch:touch,api:api};
+var touch=installTouch(wx);g.__QF_AUTOPLAY={touch:touch,api:api};g.__QF_AUTOPLAY_SHOT=function(n){return shot(n);};Object.defineProperty(g,'__QF_AUTOPLAY_SHOT_STATS',{get:function(){return shotStats;},configurable:true});
 if(err){console.error('[QF_AUTOPLAY] script rejected: '+err);w2('result.json',JSON.stringify({ok:false,error:err}));flush();return;}
 if(script.launchQuery){try{if(!g.location||!g.location.search)g.location={search:script.launchQuery,href:'game.js'+script.launchQuery};}catch(e){console.warn('[QF_AUTOPLAY] launchQuery not applied');}}
 var memWarn=0;try{wx.onMemoryWarning(function(r){memWarn++;console.warn('[QF_AUTOPLAY] memory warning',r&&r.level);});}catch(e){}
 var fpsT=Date.now(),fpsF=0,fps=null;function frames(){var cc=g.cc;try{return cc&&cc.director?cc.director.getTotalFrames():null;}catch(e){return null;}}
-function win(){try{var i=wx.getSystemInfoSync();return {w:i.windowWidth,h:i.windowHeight,dpr:i.pixelRatio};}catch(e){return {w:DESIGN_W,h:DESIGN_H,dpr:1};}}
+/* window size: read ONCE (boot, before run()) and refreshed only by wx.onWindowResize; never a sync host call per step/tap. */
+var winC=null;function readWin(){try{var i=wx.getWindowInfo?wx.getWindowInfo():wx.getSystemInfoSync();winC={w:i.windowWidth,h:i.windowHeight,dpr:i.pixelRatio};}catch(e){winC={w:DESIGN_W,h:DESIGN_H,dpr:1};}}
+readWin();try{wx.onWindowResize&&wx.onWindowResize(function(r){var s=r&&(r.size||r);if(s&&s.windowWidth)winC={w:s.windowWidth,h:s.windowHeight,dpr:winC?winC.dpr:1};});}catch(e){}
+function win(){return winC;}
 /* Resolve an engine class without ever passing undefined to getComponent*: in the WeChat build some classes (e.g.
  * SkinnedMeshRenderer) are not on the global cc namespace, and getComponentsInChildren(undefined) logs Cocos
  * Error 3804 "getComponent: Type must be non-nil" on every call (b17r16 DevTools run: 170-228 errors). */
@@ -103,11 +113,26 @@ function snapshot(light){
 }
 function pnow(){try{return +g.performance.now().toFixed(1);}catch(e){return Date.now();}}
 function writeState(tag){if(stateBytes>STATE_CAP)return;var s=snapshot();s.tag=tag;s.pn=pnow();var line=JSON.stringify(s,function(k,v){return typeof v==='function'?undefined:v;})+'\n';stateBytes+=line.length;w2('state.jsonl',line);scanState(s);return s;}
-var shotN=0;
-function shot(name){return new Promise(function(res){var cv=g.canvas,cc=g.cc;if(!cv||!cv.toTempFilePathSync||shotN>=MAX_SHOTS){res(null);return;}
-  var take=function(){try{var h=Math.round(SHOT_W*cv.height/cv.width);var tmp=cv.toTempFilePathSync({destWidth:SHOT_W,destHeight:h,fileType:'jpg',quality:SHOT_Q});
-    var dst=OUT+'/shots/'+String(++shotN).padStart(2,'0')+'-'+name+'.jpg';fs.copyFileSync(tmp,dst);try{fs.unlinkSync(tmp);}catch(e){}res(dst);}catch(e){console.warn('[QF_AUTOPLAY] screenshot failed',e&&e.message);res(null);}};
-  try{if(cc&&cc.director&&cc.Director)cc.director.once(cc.Director.EVENT_AFTER_DRAW,take);else take();}catch(e){take();}});}
+/* r2 (chainJ P0 freeze: shot→take→canvas.toTempFilePathSync inside cc.director EVENT_AFTER_DRAW = sync appservice IPC that hung
+ * the DevTools runtime 8 s after skycity arrival). Now fully async: the after-draw callback only REQUESTS the capture with
+ * canvas.toTempFilePath (non-blocking, success/fail callbacks), the copy into out/shots is fs.copyFile (async), and the temp file
+ * is removed with fs.unlink (async). At most ONE capture in flight; an overlapping request is skipped (resolves null, counted in
+ * result.json shotsSkipped). A capture whose callbacks never come back is abandoned after SHOT_TIMEOUT_MS (shotTimeouts) so the
+ * script never hangs on it. File names unchanged: out/shots/NN-<name>.jpg, NN = completed-shot counter (padStart 2). */
+var shotN=0,shotBusy=false,shotStats={requested:0,skipped:0,failed:0,timeouts:0,maxMs:0},SHOT_TIMEOUT_MS=5000;
+function shotFail(where,e){shotStats.failed++;console.warn('[QF_AUTOPLAY] screenshot failed',where,e&&(e.errMsg||e.message));}
+function shot(name){return new Promise(function(res){var cv=g.canvas,cc=g.cc;if(!cv||typeof cv.toTempFilePath!=='function'||shotN>=MAX_SHOTS){res(null);return;}
+  if(shotBusy){shotStats.skipped++;res(null);return;}
+  shotBusy=true;shotStats.requested++;var t0=Date.now(),over=false;
+  var end=function(f){if(over)return;over=true;clearTimeout(to);shotBusy=false;var ms=Date.now()-t0;if(ms>shotStats.maxMs)shotStats.maxMs=ms;res(f);};
+  var to=setTimeout(function(){if(over)return;shotStats.timeouts++;console.warn('[QF_AUTOPLAY] screenshot timeout '+SHOT_TIMEOUT_MS+'ms '+name);end(null);},SHOT_TIMEOUT_MS);
+  var request=function(){if(over)return;try{var h=Math.round(SHOT_W*cv.height/cv.width);
+    cv.toTempFilePath({destWidth:SHOT_W,destHeight:h,fileType:'jpg',quality:SHOT_Q,
+      success:function(r){if(over)return;var tmp=r&&r.tempFilePath;var dst=OUT+'/shots/'+String(shotN+1).padStart(2,'0')+'-'+name+'.jpg';
+        try{fs.copyFile({srcPath:tmp,destPath:dst,success:function(){if(over)return;shotN++;try{fs.unlink({filePath:tmp,fail:function(){}});}catch(e){}end(dst);},fail:function(e){shotFail('copy',e);end(null);}});}catch(e){shotFail('copy',e);end(null);}},
+      fail:function(e){shotFail('capture',e);end(null);}});}catch(e){shotFail('capture',e);end(null);}};
+  /* after-draw: only enqueue the async request for the frame just drawn; nothing in this callback waits on the host. */
+  try{if(cc&&cc.director&&cc.Director)cc.director.once(cc.Director.EVENT_AFTER_DRAW,request);else request();}catch(e){request();}});}
 /* {op:'preTransition',key,timeoutMs?=90000,tap?:true,recordMs?}: enables the test hook (no launch params needed; DevTools
  * cli open ignores 启动参数), waits for __qfPreTransition, runs the key's SETUP only. tap:true then touches r.tap.point with a
  * normal synthetic touch (the transition under test plays through the real input path); recordMs waits afterwards. */
@@ -139,13 +164,13 @@ function run(){
     else if(st.op==='screenshot'){rec.pn=pnow();p=shot(st.name).then(function(f){rec.file=f;rec.pnDone=pnow();});}
     return p.then(function(){rec.ms=Date.now()-t0;var s=writeState('after:'+st.op+(st.name?':'+st.name:''));rec.state=s&&s.state;res.steps.push(rec);console.info('[QF_AUTOPLAY] step '+JSON.stringify(rec));
       if((st.op==='waitState'&&rec.matched===false||st.op==='preTransition'&&rec.ready===false)&&st.stopOnFail!==false){res.stoppedAt=rec.i;return;}return next();});}
-  return next().then(function(){clearInterval(stTimer);res.finishedAt=new Date().toISOString();res.shots=shotN;res.consoleErrors=consoleErrors;res.consoleErrorSamples=errorSamples;
+  return next().then(function(){clearInterval(stTimer);res.finishedAt=new Date().toISOString();res.shots=shotN;res.shotsRequested=shotStats.requested;res.shotsSkipped=shotStats.skipped;res.shotsFailed=shotStats.failed;res.shotTimeouts=shotStats.timeouts;res.shotMaxMs=shotStats.maxMs;res.screenshotApi='toTempFilePath-async';res.consoleErrors=consoleErrors;res.consoleErrorSamples=errorSamples;
     /* acceptance rule: DevTools Console Error count must be 0 */
     writeState('final');res.journeyFailures=gameFail.journeyFailed;res.snapshotErrors=gameFail.snapshotErrors;res.uncaughtErrors=gameFail.uncaught;res.hudSuppressedErrors=gameFail.hudSuppressed;
     var gf=gameFail.journeyFailed.length+gameFail.snapshotErrors.length+gameFail.uncaught.length+gameFail.hudSuppressed.length;res.gameFailures=gf;
     if(gf>0&&script.allowGameFailures!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'game failures: '+gf+' (journey failed '+gameFail.journeyFailed.length+', snapshot errors '+gameFail.snapshotErrors.length+', uncaught '+gameFail.uncaught.length+', hud-suppressed '+gameFail.hudSuppressed.length+')';}
-    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},
-    function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);w2('result.json',JSON.stringify(res,null,1));flush();});
+    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();/* FIFO write queue: result.json lands LAST, after the final log chunk */w2('result.json',JSON.stringify(res,null,1));},
+    function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);flush();w2('result.json',JSON.stringify(res,null,1));});
 }
 /* start once the world integration hook exists (or after 60 s regardless) */
 var t0=Date.now();(function waitBoot(){if(g.__worldIntegration||Date.now()-t0>60000){console.info('[QF_AUTOPLAY] start, out='+OUT);run();}else setTimeout(waitBoot,500);})();
