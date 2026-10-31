@@ -41,6 +41,7 @@ const tests=[
  ['legacy-startup-ready','tools/test_startup_ready_gate.cjs'],
  ['chapter-production-entry','tools/legacy-test-repair/test-chapter-production-entry.cjs'],
  ['controller-integrity-guard','tools/legacy-test-repair/test-controller-integrity.cjs'],
+ ['skirt-front-hem-lift','tools/skirt-hem/test_skirt_front_hem_lift.cjs'],['skirt-leg-penetration','tools/skirt-hem/test_skirt_leg_penetration.cjs'],/* b21 运镜bot: front hem fix, Grok Bot 2026-10-31 */
  ['character-real-glb-endpoints','tools/legacy-test-repair/test-character-endpoints-real-glb.cjs'],
  ['input-ownership','tools/board-ui/test_input_ownership.cjs'],
  ['board-runtime','tools/board-ui/test_board_runtime.cjs'],
@@ -215,7 +216,7 @@ const tests=[
  ['basket-obstacle-runtime','tools/transition-spaces/test-basket-obstacle-runtime.cjs'],['vertex-color-black','tools/skycity/test_vertex_color_black.cjs'],['static-names','tools/static-names/check-names.cjs'],/* cand10: whole-project tsc gate on undefined names / unresolved imports */['dock-runtime','tools/dock-models/test_dock_runtime.cjs'],/* cand7: b19 dock models runtime wiring (gangway extras, placeholders, ropes, basket obstacles) */
 ];
 /* P0 r16: geometry-heavy checks (real GLB triangles, ~155 s alone) get 360 s; everything else keeps 180 s. */
-const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000,'lens-trajectory-clearance':600000,'clip19-regressions':600000,'sky-walk-whole':360000};
+const SLOW_TIMEOUT_MS={'lakeside-lens-guard':360000,'explore-drag-rotate':360000,'lens-trajectory-clearance':600000,'clip19-regressions':600000,'sky-walk-whole':360000,'skirt-front-hem-lift':600000,'skirt-leg-penetration':600000};
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
 // GGbot b17: non-gating REPORT tests (运镜bot route matrix). They run and keep their reports; a nonzero exit is status REPORT, never FAIL.
