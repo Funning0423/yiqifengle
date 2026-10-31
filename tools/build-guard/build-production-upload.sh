@@ -9,9 +9,10 @@ set -u
 HERE=$(cd "$(dirname "$0")" && pwd); REPO=${REPO_ROOT:-$(cd "$HERE/../.." && pwd)}; NODE=${NODE:-node}
 refuse(){ echo "PRODUCTION UPLOAD REFUSED: $*"; exit 2; }
 [ "${FORMAL_RELEASE:-}" = 1 ] || refuse "FORMAL_RELEASE=1 is required for a production upload (got '${FORMAL_RELEASE:-unset}'); trial uploads use build-wechat-guarded.sh"
+[ "${QF_PREVIEW:-0}" = 0 ] || refuse "QF_PREVIEW=1 is the device-preview test flavour, never a production upload (got '$QF_PREVIEW')"
 [ "${STRIP_PROBES:-1}" = 1 ] || refuse "STRIP_PROBES must be 1 for a production upload (got '$STRIP_PROBES')"
 [ "${1:-wechat}" = wechat ] || refuse "production upload target is wechat only (got '$1')"
-FORMAL_RELEASE=1 STRIP_PROBES=1 bash "$HERE/build-wechat-guarded.sh" wechat || refuse "build guard failed"
+QF_PREVIEW=0 FORMAL_RELEASE=1 STRIP_PROBES=1 bash "$HERE/build-wechat-guarded.sh" wechat || refuse "build guard failed"
 OUT="$REPO/creator-build-project/build/wechat-release"
 [ -d "$OUT" ] || refuse "no output at $OUT"
 "$NODE" "$HERE/release-gates.cjs" --probe-free "$OUT" || refuse "probe code in production output"

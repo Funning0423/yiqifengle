@@ -64,7 +64,7 @@ export function preSearch(search?:string|null,host:any=globalThis):string{
 }
 /** `?qfPre=<key>` (valid key only). Never in WeChat release. */
 export function preTransitionKey(search?:string|null,host:any=globalThis):PreKey|null{
- const q=preSearch(search,host);const m=/(?:^|[?&])qfPre=([a-z-]+)(?:&|$)/.exec(q);
+ const q=preSearch(search,host);/*QF_PROBE_BEGIN*/if(QF_DEVICE_PREVIEW&&!/(?:^|[?&])qfPre=/.test(q))return qaSkipAllowed(host)?QF_DEVICE_PREVIEW_PRE:null;/* device-preview flavour: no launch query on a phone */ /*QF_PROBE_END*/const m=/(?:^|[?&])qfPre=([a-z-]+)(?:&|$)/.exec(q);
  if(!m||!(PRE_KEYS as readonly string[]).includes(m[1])||!qaSkipAllowed(host))return null;return m[1] as PreKey;
 }
 /*QF_TRIAL_END*/
@@ -79,3 +79,10 @@ export function preTransitionEnabled(search?:string|null,host:any=globalThis):bo
 /** UI point helper (pure): a node centre in canvas-local px (y up, origin at canvas centre) -> top-left CSS px. */
 export function canvasLocalToScreen(lx:number,ly:number,w:number,h:number){return {x:Math.round(w/2+lx),y:Math.round(h/2-ly)};}
 /*QF_TRIAL_END*/
+/*QF_PROBE_BEGIN*//** journal r6 device-preview flavour (Funning's phone check). false in the repo and in every test build; only
+ *  `QF_PREVIEW=1 STRIP_PROBES=0 bash tools/build-guard/build-wechat-guarded.sh wechat` flips the flag below in a staged copy
+ *  (tools/build-guard/preview-flavor.cjs). Then: qfPre defaults to journal-sky-gated when the launch has no ?qfPre, and the
+ *  journey book shows a small day/night button (IslandJourneyOverlay). Whole region is a probe: stripped from every release
+ *  (trial + FORMAL_RELEASE=1) build; release-gates --probe-free lists QF_DEVICE_PREVIEW / qfPreviewDayNight / QF_PREVIEW_FLAG. */
+export const QF_DEVICE_PREVIEW:boolean=/*QF_PREVIEW_FLAG*/false;
+export const QF_DEVICE_PREVIEW_PRE:PreKey='journal-sky-gated';/*QF_PROBE_END*/

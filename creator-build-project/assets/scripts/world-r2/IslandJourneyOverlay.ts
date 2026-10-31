@@ -10,6 +10,7 @@ import { regionRow } from '../ui/JourneyCore';
 import { setLastRegion } from '../ui/UiPrefs';
 import { warmButton } from '../WarmButton';
 import { boardSafeInsets } from '../ui/BoardLayout';
+/*QF_PROBE_BEGIN*/import { uiNode, artSprite, pressable } from '../ui/PopupKit';import { QF_DEVICE_PREVIEW } from './PreTransitionKeys';import { tintRgb } from '../ui/NightTint';/*QF_PROBE_END*/
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
 import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
 import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type PropButtonSlot } from './IslandPropsLayout';
@@ -88,6 +89,17 @@ export class IslandJourneyOverlay {
  }
  close(){this.deferred=false;this.page=null;this.shown=null;this.serial++;this.popups?.clear();if(isValid(this.dock,true))this.dock.active=true;}
  private open(page:Page){if(this.dead||!this.enabled)return;this.page=page;this.serial++;this.dock.active=false;this.root.setSiblingIndex(this.root.parent!.children.length-1);this.paint();}
+ /*QF_PROBE_BEGIN*//** journal r6 device-preview flavour only (QF_DEVICE_PREVIEW): a small sun/moon button on the journey book's
+  *  bottom-left frame corner (mirrors the × on the top-right corner, same art kit: panel-face disc + popup/icon_sun|moon), so the
+  *  journal can be checked in day and night on a phone. Toggles the world day/night without closing the book. Stripped from
+  *  every release build (probe region). */
+ private previewDayNight(p:any){if(!p?.body)return;
+  const night=()=>this.safeRead(this.options.dayNight)?.mode==='night',n=uiNode('qfPreviewDayNight',p.body,96,96);n.setPosition(-p.width/2+32,-p.height/2+24,0);
+  const face=uiNode('Face',n,80,80),g=face.addComponent(Graphics);
+  p.tint.shape(g,(gg:Graphics,nw:number,a:number)=>{for(const [rgb,dy] of [[[0xD9,0xBF,0x8C],-3],[[0xFF,0xF6,0xE2],0]] as [number[],number][]){const c=tintRgb('ui',nw,rgb);gg.fillColor=new Color(c[0],c[1],c[2],Math.round(255*a));gg.circle(0,dy,38);gg.fill();}});/* focus-card face colours */
+  let icon:any=null;const paint=()=>{if(icon&&isValid(icon.node))icon.node.destroy();icon=artSprite(face,night()?'popup/icon_sun':'popup/icon_moon',0,0,52,52,'Icon');p.tint.sprite(icon,'ui');};paint();
+  pressable(n,face,()=>{if(!this.enabled||this.dead)return;this.options.invoke(()=>{this.options.toggleDayNight();paint();});},{sound:'button'});}
+ /*QF_PROBE_END*/
  private dispatch(fn:()=>any){if(!this.enabled||this.dead||!this.page)return;this.close();this.options.invoke(fn);}
  private safeRead(fn:()=>any){try{return fn();}catch{return null;}}
  private gate(region:string){const gates=this.safeRead(this.options.gates);return gates?.r5?.find((x:any)=>x.region===region);}
@@ -99,7 +111,7 @@ export class IslandJourneyOverlay {
   else if(page==='update'){const upd=(globalThis as any).__qfUpdate;openUpdate(this.popups,()=>{try{upd?.apply?.();}catch(e){console.warn('[UPDATE] apply',String(e));}},()=>this.updateGate.later()).options.onClose=done;}
   else if(page==='rest'){const night=this.safeRead(this.options.dayNight)?.mode==='night';openRest(this.popups,night,()=>{if(live())this.dispatch(this.options.toggleDayNight);}).options.onClose=done;}
   else if(page==='journal'){const status=this.safeRead(this.options.mainlineStatus),gates=this.safeRead(this.options.gates);
-   this.deferred=withJourneyUi(ui=>{this.deferred=false;if(!live())return;ui.openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5,gates?{stages:gates.stages}:null).options.onClose=done;this.shown='journal';},'journal')==='deferred';}
+   this.deferred=withJourneyUi(ui=>{this.deferred=false;if(!live())return;const jp=ui.openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5,gates?{stages:gates.stages}:null);jp.options.onClose=done;/*QF_PROBE_BEGIN*/if(QF_DEVICE_PREVIEW)this.previewDayNight(jp);/*QF_PROBE_END*/this.shown='journal';},'journal')==='deferred';}
   else this.chapter(page);
  }
  private chapter(region:string){
