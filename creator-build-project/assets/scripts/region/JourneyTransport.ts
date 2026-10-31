@@ -1,4 +1,5 @@
 import type {JourneyRegion as CoreJourneyRegion} from '../world-r1/RegionJourneyCore';
+import { wxEnvVersion, wxQaEnv } from '../world-r2/QaSkip';
 /** Journey vehicles. island→meadow is sail, meadow→skycity is balloon, skycity→lakeside is balloon.
  * The rainbow bridge is removed (b16): any other pair has no journey and throws `journey-transport-unsupported`.
  * QA overrides other than the leg's own vehicle are ignored with a warn. A slow sail preload stays on the sail. */
@@ -18,13 +19,13 @@ export function sailPreloadFellBack():boolean{return false;}
 /** QA builds only: web (no wx) or a WeChat develop/trial env. Release minigames ignore the query. */
 export function transportQaEnabled(host:any=(globalThis as any).wx):boolean{
  if(!host)return true;
- try{const env=host.getAccountInfoSync?.()?.miniProgram?.envVersion;return env==='develop'||env==='trial';}catch{return false;}
+ try{return wxQaEnv(host);}catch{return false;}/* env read once per wx (QaSkip) */
 }
 /** Balloon callers pass a host (`globalThis` or `{wx,__QF_TRANSPORT,location}`). No wx means QA is on. */
 export function qaTransportEnabled(host:any=globalThis):boolean{
  try{
   const wx=host?.wx;if(!wx)return true;
-  const env=wx.getAccountInfoSync?.()?.miniProgram?.envVersion;
+  const env=wxEnvVersion(wx);/* read once per wx (QaSkip) */
   if(env==='develop'||env==='trial')return true;
   return false;
  }catch{return false;}

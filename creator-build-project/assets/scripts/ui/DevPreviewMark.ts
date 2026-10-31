@@ -1,6 +1,7 @@
 import { Node, UITransform, Label, Color, Layers, isValid } from 'cc';
 import { DEBUG } from 'cc/env';
 import { boardSafeInsets } from './BoardLayout';
+import { wxQaEnv } from '../world-r2/QaSkip';
 /** Funning (Mac, 09a1b8e): the journey cutscene carries no button and no caption strip. Test builds only show one tiny,
  *  semi-transparent line in the bottom-right corner; release builds show nothing. It is a bare Label: no Button, no
  *  BlockInputEvents, no touch listener, so every tap passes through to the picture (and tapping never pauses). */
@@ -15,7 +16,7 @@ export const DEV_PREVIEW_MARK = Object.freeze({ font: 10, line: 14, width: 140, 
 export function devPreviewBuild(debug: boolean = DEBUG, host: any = (globalThis as any).wx): boolean {
   if (debug) return true;
   if (!host) return true;
-  try { const env = host.getAccountInfoSync?.()?.miniProgram?.envVersion; return env === 'develop' || env === 'trial'; } catch { return false; }
+  try { return wxQaEnv(host); } catch { return false; } /* env read once per wx (QaSkip) */
 }
 /** Centre of the line in canvas coords (origin centre, y up): right-aligned, inset from the safe-area bottom/right edges.
  *  The WeChat capsule is top-right, so the line never meets it; the rect is returned for tests. */
