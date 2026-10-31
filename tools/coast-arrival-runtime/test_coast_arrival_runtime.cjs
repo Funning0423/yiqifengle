@@ -24,6 +24,7 @@ const PIN={'scripts/CharacterMotion.ts':'3ef288ff12a8f8512e07a3ea2f94819e984cc70
  'scripts/regional-r05/runtime/coast-kit.js':'6ce4523fbf8aca24539384ce9c4bcfb49d6d7c94bbcdc2b9b5652ca05014d982'};
 for(const [f,h] of Object.entries(PIN))ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(A,f))).digest('hex')===h,'pinned file changed: '+f);
 const REF=JSON.parse(fs.readFileSync(path.join(ROOT,'tools/coast-board-lens/ref_transition.json'),'utf8'));
+const FD=JSON.parse(fs.readFileSync(path.join(__dirname,'s7_follow_delta.json'),'utf8'));if(!(FD.i0>=REF.n_shared)){console.log('FAIL follow delta touches the shared part');process.exit(1);}
 const dec=(a,n)=>{const out=Array.from({length:n},()=>[]);for(let c=0;c<7;c++){let v=0;for(let i=0;i<n;i++){v+=a[c*n+i];out[i].push(v);}}return out;};
 const HS=JSON.parse(fs.readFileSync(path.join(__dirname,'s7_her_size_runtime.json'),'utf8'));  // re-measured on the DECODED runtime track (her_size_runtime.py)
 function lcg(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return 1/90+(1/45-1/90)*(s/4294967296);};}
@@ -45,7 +46,7 @@ const DEV=[];
  console.log(`ok   total ${total.toFixed(3)} s, walk ${ws.toFixed(3)}-${we.toFixed(3)} s (1.2 m/s), settle lead ${(total-we).toFixed(3)} s`);
  for(const s of SCREENS){const [w,h]=s.split('x').map(Number),to=CB.coastBoardPose(w,h);
   // runtime vs ref (60 fps keys)
-  const ref=dec(REF.shared,REF.n_shared).concat(dec(REF.s7[s],REF.s7_len[s]).slice(1));let dpos=0,dang=0,dfov=0;
+  const ref=dec(REF.shared,REF.n_shared).concat(dec(REF.s7[s],REF.s7_len[s]).slice(1));for(let i=0;i<FD.dz.length;i++){const r=ref[FD.i0+i];if(r){r[2]+=FD.dz[i];r[5]+=FD.dz[i];}}/* option A follow: ref translated along z (s7_follow_delta.json) */let dpos=0,dang=0,dfov=0;
   const fwd=(p,q)=>{const f=[q[0]-p[0],q[1]-p[1],q[2]-p[2]],l=Math.hypot(...f);return f.map(v=>v/l);};
   for(let i=0;i<ref.length-1;i++){const p=poseAt(w,h,i/60),r=ref[i].map(v=>v/1e4);dpos=Math.max(dpos,Math.hypot(p.position[0]-r[0],p.position[1]-r[1],p.position[2]-r[2]));
    const a=fwd(p.position,p.target),b=fwd(r.slice(0,3),r.slice(3,6));dang=Math.max(dang,Math.acos(Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2]))*180/Math.PI);dfov=Math.max(dfov,Math.abs(p.fovVerticalDeg-r[6]));}

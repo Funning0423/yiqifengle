@@ -49,7 +49,7 @@ def zmask(T, p, l, fov, w, h):  # min-depth buffer of triangles at pt resolution
         a = ((by - cy) * (X - cx) + (cx - bx) * (Y - cy)) / d; b = ((cy - ay) * (X - cx) + (ax - cx) * (Y - cy)) / d; c = 1 - a - b
         m = (a >= 0) & (b >= 0) & (c >= 0); zz = a * z[k][0] + b * z[k][1] + c * z[k][2]; sub = zb[y0:y1 + 1, x0:x1 + 1]; np.minimum(sub, np.where(m, zz, np.inf), out=sub)
     return zb
-WIN = (30.675, 35.575)
+WIN = tuple(float(x) for x in os.environ['QF_WIN'].split(',')) if os.environ.get('QF_WIN') else (30.675, 35.575)
 def check(RP):
     res = {}
     for run in RP:
