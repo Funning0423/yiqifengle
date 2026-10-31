@@ -9,6 +9,7 @@ import { warmJourneyUi, withJourneyUi } from '../ui/JourneyUi';
 import { regionRow } from '../ui/JourneyCore';
 import { setLastRegion } from '../ui/UiPrefs';
 import { warmButton } from '../WarmButton';
+import { boardSafeInsets } from '../ui/BoardLayout';
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
 import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
 import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type PropButtonSlot } from './IslandPropsLayout';
@@ -22,7 +23,7 @@ export { CHAPTERS };
  * Every dialog is a lite popup (ui/PopupKit); providers retain every gate and write. */
 export class IslandJourneyOverlay {
  private root:Node;private dock:Node;private layer:Node;private popups:PopupStack;private toolArt:ManagedToolArt;private lastMs=0;
- private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private deferred=false;private serial=0;private shown:Page|null=null;
+ private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private deferred=false;private serial=0;private shown:Page|null=null;private safe:any=null;private safeKey='';
  private updateGate=new UpdatePromptGate();private propMode=false;private tags:Node[]=[];private tagSlots:PropButtonSlot[]=[];private tagNight=-1;
  constructor(parent:Node,private options:Options){
   this.root=this.box('IslandJourneyOverlay',parent,0,0,1,1);this.root.active=false;
@@ -34,7 +35,7 @@ export class IslandJourneyOverlay {
    surface.bind(()=>{const b=blocked();emitPropTap(target,'confirm',b);if(b)return false;this.open(role as Page);});this.buttons.push(n);
   }
   this.layer=this.box('IslandPopups',this.root,0,0,1,1);
-  this.popups=new PopupStack(this.layer,()=>({width:this.width||1,height:this.height||1}));
+  this.popups=new PopupStack(this.layer,()=>({width:this.width||1,height:this.height||1,safeInsets:this.safe||undefined}));/* r5 P3: region pages clear the safe area + capsule (insets cached per size, see sync) */
   this.toolArt=this.root.addComponent(ManagedToolArt);this.toolArt.initialize(()=>{});void BoardArt.shared().load('popup');void warmJourneyUi();void BoardArt.shared().load('r2');void BoardArt.shared().load('r3');
  }
  sync(width:number,height:number,enabled:boolean){
@@ -45,7 +46,7 @@ export class IslandJourneyOverlay {
   const upd=(globalThis as any).__qfUpdate;if(this.updateGate.tick(dt,upd,{islandHome:true,popupOpen:!!this.page||this.popups.any(),board:false,transition:false}))this.open('update');
   // T9n: tags follow the props' night weight (repaint only on a visible step; ends exact)
   if(this.propMode&&this.tags.length){const nw=propNightWeight();if(Math.abs(nw-this.tagNight)>=.02||nw!==this.tagNight&&(nw===0||nw===1)){this.tagNight=nw;if(!resized)this.paintTags();}}
-  this.width=width;this.height=height;if(!resized)return;this.root.getComponent(UITransform)!.setContentSize(width,height);const portrait=width<height,bottom=portrait?34:20,gap=Math.min(100,(width-48)/3);
+  this.width=width;this.height=height;if(!resized)return;{const k=width+'x'+height;if(k!==this.safeKey){this.safeKey=k;try{this.safe=boardSafeInsets(width,height);}catch{this.safe=null;}}}/* once per size, never per frame */this.root.getComponent(UITransform)!.setContentSize(width,height);const portrait=width<height,bottom=portrait?34:20,gap=Math.min(100,(width-48)/3);
   if(this.propMode)this.layoutProps();else this.buttons.forEach((n,i)=>n.setPosition(portrait||width<568?(i-1)*gap:width/2-56+(i-2)*84,-height/2+bottom+38,0));
   this.layer.getComponent(UITransform)!.setContentSize(width,height);this.popups.layout();
  }
