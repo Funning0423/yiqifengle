@@ -3741,8 +3741,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts",
-    "bytes": 7696,
-    "sha256": "cf7838d2b4698b3e9456da46d0cd4efdd9deb72582cb3153395946963c304742"
+    "bytes": 7769,
+    "sha256": "a226254e4d6908d1cc39da383659e5de47e08605aca7e04ca6d4ced726a73748"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionPreload.ts.meta",
