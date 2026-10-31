@@ -77,8 +77,8 @@ export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SK
  meadowStaged=(async()=>{let all=true;
   for(const st of MEADOW_LEG_STAGES){
    /*QF_PROBE_BEGIN*/let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}const t0=Date.now();/*QF_PROBE_END*/
-   let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
-   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok}));}catch{}/*QF_PROBE_END*/
+   let ok=true,why='';try{await run[st.id]();}catch(e){ok=false;why=String((e as any)?.message||e);}all=all&&ok;void why;
+   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok,...(ok?{}:{reason:why})}));}catch{}/*QF_PROBE_END*/
    await wait(gap);}
   if(!all)meadowStaged=null;return all;})();
  return meadowStaged;

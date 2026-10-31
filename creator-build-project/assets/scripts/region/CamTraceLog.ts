@@ -9,7 +9,7 @@
  *  JUMP = position step > CAM_LOG_CAP.m (TRANSITION_CAM per-frame lens cap ·1.05) or view step > CAM_LOG_CAP.deg in one write. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
 import {debugSearch} from './DebugQuery';
-/*QF_PROBE_BEGIN*/import {Director,Game,Input,MeshRenderer,Vec3,director,game,input,screen,sys,view} from 'cc';/*QF_PROBE_END*/
+/*QF_PROBE_BEGIN*/import {Director,Game,Input,MeshRenderer,Vec3,assetManager,director,game,input,screen,sys,view} from 'cc';/*QF_PROBE_END*/
 /** full9b P0 (Mac A/B: camTrace ON froze the renderer, OFF completed): bounded trace. ≤ linesPerS write lines per wall second
  *  (over budget: counted, the next line carries DROPPED=<n>); ≤ maxStacks CALLER stacks per session; re-entry never writes. */
 export const CAM_LOG_BUDGET=Object.freeze({linesPerS:60,maxStacks:200});
@@ -62,6 +62,7 @@ function camSwap(c:CamState,load:boolean):void{const L:any=camLog;if(load){L.has
 function publishStats():void{try{(globalThis as any).__qfCamTraceStats={reentry:camLog.reentry,dropped:camLog.dropped,stacks:camLog.stackN,lines:camLog.n,sinkDropped:camSink.sinkDropped,sinkFlushes:camSink.flushes};}catch{}}
 function camLogWriteInner(camera:any,pose:{position:readonly number[];rotation:readonly number[];fovVerticalDeg:number},source:string):void{
  void camera;/* per-camera state is swapped in by camLogWrite (camSwap) */
+/*QF_PROBE_BEGIN*/ gpuProbe.lens=source;/*QF_PROBE_END*/
  const [x,y,z]=pose.position,[qx,qy,qz,qw]=pose.rotation;
  const fx=-2*(qx*qz+qw*qy),fy=-2*(qy*qz-qw*qx),fz=-(1-2*(qx*qx+qy*qy));// forward = q·(0,0,-1)
  const yaw=Math.atan2(fx,-fz)*180/Math.PI,pitch=Math.asin(Math.max(-1,Math.min(1,fy)))*180/Math.PI;
@@ -218,12 +219,49 @@ export function installSyncProbe(g:any,store:any,wxObj:any,sysObj:any,hooks?:{on
  const h=hooks||{onFrameEnd:(f)=>director.on(Director.EVENT_AFTER_DRAW,f),onTap:(f)=>input.on(Input.EventType.TOUCH_START,f),onHideShow:(f)=>{game.on(Game.EVENT_HIDE,f);game.on(Game.EVENT_SHOW,f);}};
  try{h.onFrameEnd?.(syncFrameEnd);}catch{}try{h.onTap?.(()=>{P.lastTap=P.frame;});}catch{}try{h.onHideShow?.(()=>{P.lastHideShow=P.frame;syncSummary();});}catch{}
  try{g.__qfSyncStats=syncStats;}catch{}return true;}
+/** [QF_GPU] render-stall probe (QA/diag only, stripped from release; P0 finR: SkyWalkShot froze with an idle JS stack). No host
+ *  sync call anywhere: reads engine counters (gfx device numDrawCalls/numTris/numInstances, memoryStatus) and performance.now().
+ *  - Per wall second: `[QF_GPU] s= fr= dc=max/avg tri=max inst=max texMB= bufMB= raf=max/p95/avg ms long= uploads=n/MB shaders=n regions={…} w=<lens>`
+ *    (rAF interval = time between EVENT_AFTER_DRAW; long = intervals > 100 ms).
+ *  - Each GPU texture creation ≥ 256 KB or upload ≥ 256 KB: `[QF_GPU] TEX op= w×h fmt= MB ms=` (≤ 60 lines, then counted only).
+ *  - Each shader program creation: `[QF_GPU] SHADER n= name= ms=` (≤ 60 lines) — a compile storm shows as many in one second.
+ *  - Every 5 s: resident assets per loaded bundle (`regions=` field, count of loaded assets whose uuid the bundle owns).
+ *  - The last per-second line before a freeze is the evidence: rising tex/uploads → upload hypothesis; shader burst → compile storm;
+ *    dc/tri spike → draw loop; raf long with flat counters → rAF throttling / compositor; texMB with 2+ regions → GPU memory.
+ *  All lines go through the buffered camTrace sink (camLog.out). */
+export const GPU_PROBE=Object.freeze({texMinBytes:256*1024,maxDetail:60,regionsEveryS:5});
+export const gpuProbe={installed:false,sec:-1,fr:0,dcMax:0,dcSum:0,triMax:0,instMax:0,n:0,last:-1,rafMax:0,rafs:[] as number[],long:0,uploads:0,upBytes:0,shaders:0,detail:0,
+ regions:'' as string,regionsAt:-1e9,lens:'',out:(s:string)=>camLog.out(s)};
+const pn=()=>typeof performance!=='undefined'?performance.now():Date.now();
+function texBytes(info:any):number{try{const w=info?.width|0,h=info?.height|0,d=Math.max(1,info?.depth|0),l=Math.max(1,info?.layerCount|0);return w*h*d*l*4;}catch{return 0;}}
+function gpuDetail(s:string){const G=gpuProbe;if(G.detail<GPU_PROBE.maxDetail){G.detail++;G.out(s);}}
+export function gpuWrapDevice(dev:any):boolean{if(!dev||dev.__qfGpu)return false;const G=gpuProbe;
+ const wrap=(name:string,f:(a:any[],ms:number,r:any)=>void)=>{const o=dev[name];if(typeof o!=='function')return;dev[name]=function(this:any,...a:any[]){const t=pn();const r=o.apply(this,a);try{f(a,pn()-t,r);}catch{}return r;};};
+ wrap('createTexture',(a,ms)=>{const b=texBytes(a[0]);if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op=create '+(a[0]?.width|0)+'x'+(a[0]?.height|0)+' fmt='+(a[0]?.format)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' w='+G.lens);}});
+ const up=(op:string)=>(a:any[],ms:number)=>{const tex=a[1];const regs=a[2]||[];let b=0;for(const r of regs)b+=Math.max(1,r?.texExtent?.width|0)*Math.max(1,r?.texExtent?.height|0)*4;if(!b)b=texBytes(tex?.info||tex);
+  if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op='+op+' '+(tex?.width|0)+'x'+(tex?.height|0)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' w='+G.lens);}};
+ wrap('copyBuffersToTexture',up('upload'));wrap('copyTexImagesToTexture',up('image'));
+ wrap('createShader',(a,ms)=>{G.shaders++;gpuDetail('[QF_GPU] SHADER n='+G.shaders+' name='+String(a[0]?.name||'?')+' ms='+ms.toFixed(1)+' w='+G.lens);});
+ dev.__qfGpu=true;return true;}
+export function gpuRegions(am:any):string{const out:Record<string,number>={};try{const ids:string[]=[];am.assets.forEach((_a:any,uuid:string)=>{ids.push(uuid);});
+ am.bundles.forEach((b:any,name:string)=>{if(name==='internal'||name==='main'||name==='resources')return;let n=0;for(const id of ids)if(b.getAssetInfo?.(id))n++;if(n)out[name]=n;});out.total=ids.length;}catch{}return JSON.stringify(out);}
+export function gpuFrame(dev:any,am:any,now:number=pn()):void{const G=gpuProbe;G.fr++;
+ if(G.last>=0){const d=now-G.last;if(d>G.rafMax)G.rafMax=d;if(d>100)G.long++;if(G.rafs.length<240)G.rafs.push(d);}G.last=now;
+ const dc=dev?.numDrawCalls|0,tri=dev?.numTris|0,inst=dev?.numInstances|0;G.n++;G.dcSum+=dc;if(dc>G.dcMax)G.dcMax=dc;if(tri>G.triMax)G.triMax=tri;if(inst>G.instMax)G.instMax=inst;
+ const sec=Math.floor(now/1000);if(G.sec<0){G.sec=sec;return;}if(sec===G.sec)return;
+ if(now-G.regionsAt>=GPU_PROBE.regionsEveryS*1000&&am){G.regions=gpuRegions(am);G.regionsAt=now;}
+ const r=G.rafs.slice().sort((x,y)=>x-y),p95=r.length?r[Math.min(r.length-1,Math.floor(r.length*0.95))]:0,avg=r.length?r.reduce((x,y)=>x+y,0)/r.length:0,ms=dev?.memoryStatus||{};
+ G.out('[QF_GPU] s='+sec+' fr='+G.fr+' dc='+G.dcMax+'/'+(G.n?(G.dcSum/G.n).toFixed(0):0)+' tri='+G.triMax+' inst='+G.instMax+' texMB='+((ms.textureSize|0)/1048576).toFixed(1)+' bufMB='+((ms.bufferSize|0)/1048576).toFixed(1)
+  +' raf='+G.rafMax.toFixed(0)+'/'+p95.toFixed(0)+'/'+avg.toFixed(1)+' long='+G.long+' uploads='+G.uploads+'/'+(G.upBytes/1048576).toFixed(1)+' shaders='+G.shaders+' regions='+G.regions+' w='+G.lens);
+ G.sec=sec;G.dcMax=0;G.dcSum=0;G.n=0;G.triMax=0;G.instMax=0;G.rafMax=0;G.rafs.length=0;G.long=0;G.uploads=0;G.upBytes=0;G.shaders=0;}
+export function installGpuProbe(dev:any,am:any,onFrameEnd?:(f:()=>void)=>void):boolean{const G=gpuProbe;if(G.installed||!dev)return false;G.installed=true;gpuWrapDevice(dev);
+ const h=onFrameEnd||((f:()=>void)=>director.on(Director.EVENT_AFTER_DRAW,f));try{h(()=>gpuFrame(dev,am));}catch{}return true;}
 /*QF_PROBE_END*/export function camLogStart(query?:string,g:any=globalThis):boolean{
  if(started)return camLog.on;started=true;
  let q=query;if(q===undefined)q=debugSearch(g)/* full8: + wx launch/enter query + __qfQuery */;
  camLog.on=camLogEnabled(q,g);camLog.stacks=camLog.on&&camStacksEnabled(q,g);
  if(camLog.on){camLog.t0=typeof performance!=='undefined'?performance.now():Date.now();cameraWriteHook.log=camLogWrite;try{(g||globalThis).__qfCamTag={t:camTag,d:camTagDefault};}catch{}}
- /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on)){try{installStorageProbe((sys as any).localStorage);}catch{}try{installSyncProbe(g||globalThis,(sys as any).localStorage,(g||globalThis as any).wx,sys);}catch{}}/*QF_PROBE_END*/
+ /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on)){try{installStorageProbe((sys as any).localStorage);}catch{}try{installSyncProbe(g||globalThis,(sys as any).localStorage,(g||globalThis as any).wx,sys);}catch{}}if(camLog.on)try{installGpuProbe((director as any).root?.device,assetManager);}catch{}/*QF_PROBE_END*/
  return camLog.on;
 }
 /** test-only */
