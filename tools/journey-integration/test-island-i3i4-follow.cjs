@@ -20,7 +20,7 @@ const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,
 const FHO=process.env.FH_OVERRIDE?JSON.parse(process.env.FH_OVERRIDE):undefined;
 const LIM={face:0.5,margin:0.08,ground:1.5,solid:0.5,walk:1.0,v:8,step:0.5,yaw:90,pitch:90,acc:200,fov:1.5};
 const WALK=process.env.WALK||'I3>I4',OUT=process.env.OUT||'reports/island-i3i4-follow.json';
-const RNS=fs.readFileSync(S+'world-r2/RegionNodeStage.ts','utf8'),wired=!!E.FollowHeading&&/this\.region==='island'\?this\.followHeading\.step\(this\.yaw\(\),dt\)/.test(RNS)&&/this\.lens='FollowWalk';this\.followHeading\.seed\(this\.yaw\(\)\)/.test(RNS);
+const RNS=fs.readFileSync(S+'world-r2/RegionNodeStage.ts','utf8'),wired=!!E.FollowHeading&&/this\.region==='island'\?\(this\.followHeading\?\?=new FollowHeading\(\)\)\.step\(this\.yaw\(\),dt\)/.test(RNS)&&/this\.lens='FollowWalk';\(this\.followHeading\?\?=new FollowHeading\(\)\)\.seed\(this\.yaw\(\)\)/.test(RNS);
 const useFH=wired&&process.env.FOLLOW_HEADING!=='raw';
 const ov=process.env.LENS_OVERRIDE?JSON.parse(process.env.LENS_OVERRIDE):null;if(ov)Object.assign(E.FOLLOW,ov);
 const [A,B]=WALK.split('>'),pl=NW.planWalk('island',A,B),P=pl.segments.flatMap((s,i)=>i?s.path.slice(1):s.path),L=NW.pathLength(P),V=NW.WALK_SPEED_MPS,T=L/V;
