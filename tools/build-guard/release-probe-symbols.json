@@ -15,7 +15,8 @@
     "seedSkyChallengeWins",
     "SKY_CHALLENGE_WITNESSES",
     "skyChallenges",
-    "finishPausedMainlineWin"
+    "finishPausedMainlineWin",
+    "focusSky"
   ],
   "_formalDoc": "FORMAL release only (FORMAL_RELEASE=1, release-gates.cjs --formal-free): code wrapped in /*QF_TRIAL_BEGIN*/…/*QF_TRIAL_END*/ (the shared __qfPreTransition / ?qfPre= test entry and every comment naming it) ships in trial/develop uploads and is stripped from a formal release. qfPre covers __qfPreTransition, qfPre= and the journal-sky hook docs; QF_TRIAL = leftover markers. ([QF_PRE] is NOT listed: frozen WorldIntegrationBoot.ts and WorldNativeComposition.ts log it on test-only paths; changing them needs Grok Bot's diff approval.)",
   "formalLiteral": [

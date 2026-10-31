@@ -3,7 +3,7 @@
 // (no key from ?qfPre or launch query, no __qfPreTransition global, run() refuses) and the source keeps every gate on the path.
 // Negative self-test: the same checks FAIL on (a) an ungated stub of the key/runner API and (b) source copies with a gate removed.
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{createHarness}=require('../board-ui/harness.cjs');
-const KEYS=['journal-sky-open','journal-sky-progress','journal-sky-cleared','journal-sky-gated','journal-sky-just-unlocked'],SRC=path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2');
+const KEYS=['journal-sky-open','journal-sky-progress','journal-sky-cleared','journal-sky-gated','journal-sky-just-unlocked','journal-sky-focus'],SRC=path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2');
 const release=(q)=>({wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}}),getLaunchOptionsSync:()=>({query:q||{}})}});
 async function inert(K,RUN){const errs=[];
   for(const k of KEYS){
