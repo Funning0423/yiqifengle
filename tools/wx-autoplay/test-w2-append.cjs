@@ -19,9 +19,7 @@ function run(src,failPct,opt={}){
   g.GameGlobal=g;g.globalThis=g;vm.createContext(g);vm.runInContext(src,g);g.__worldIntegration={snapshot:()=>({state:'home'})};
   return {g,files,U,wx,get appendFails(){return appendFails;}};}
 const wait=ms=>new Promise(s=>setTimeout(s,ms));
-/* r4: result.json now exists from the start as a running snapshot; settle on the final document (exit done/error) */
-const fin=r=>{try{const t=r.files.get(r.U+'/qf-autoplay/out/result.json');return t&&!/"exit": "running"/.test(t);}catch{return false;}};
-async function settle(r){for(let i=0;i<400&&!fin(r);i++)await wait(50);await wait(3000);}
+async function settle(r){for(let i=0;i<200&&!r.files.has(r.U+'/qf-autoplay/out/result.json');i++)await wait(50);await wait(3000);}
 function check(r){const log=r.files.get(r.U+'/qf-autoplay/out/console.log')||'';const steps=[...log.matchAll(/\[QF_AUTOPLAY\] step (\{.*\})/g)].map(m=>JSON.parse(m[1]).i);
   assert.deepEqual(steps,Array.from({length:30},(_,i)=>i),'every step line present once, in order (got '+steps.length+')');
   const st=(r.files.get(r.U+'/qf-autoplay/out/state.jsonl')||'').trim().split('\n').filter(Boolean);assert.ok(st.length>=30,'state.jsonl lines '+st.length);
