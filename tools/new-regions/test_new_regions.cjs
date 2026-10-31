@@ -33,17 +33,17 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
   assert.equal(row(12,{coast:9},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:7},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:8},'spring').state,'open','spring after rail and cloud');
   const S=[...SHIPPED,...COAST];for(const id of ['snow','rail','cloud','spring']){const r=row(12,{lake:6,coast:9},id,S);assert.equal(r.state,'far','no data → 远方 '+id);assert(!r.tappable);}
   assert.equal(row(12,{},'coast',SHIPPED).state,'far','coast without data: 远方');
-  assert.equal(B.rowStatusText(row(12,{},'snow')),'湖畔通关后');assert.equal(B.rowStatusText(row(12,{},'rail')),'海岸通关后');assert.equal(B.rowName(row(6,{},'coast',SHIPPED)),'远方');assert.equal(B.rowStatusText(row(6,{},'coast',SHIPPED)),'· · ·');assert.equal(B.rowName(row(6,{},'coast')),'灯塔海岸');assert.equal(B.rowStatusText(row(6,{},'coast')),'主线12后');
+  assert.equal(B.rowStatusText(row(12,{},'snow')),'湖畔通关后');assert.equal(B.rowStatusText(row(12,{},'rail')),'海岸通关后');assert.equal(B.rowName(row(6,{},'coast',SHIPPED)),'远方');assert.equal(B.rowStatusText(row(6,{},'coast',SHIPPED)),'· · ·');assert.equal(B.rowName(row(6,{},'coast')),'灯塔海岸');assert.equal(B.rowStatusText(row(6,{},'coast')),'通关第 12 关后');/* r5: main:N → UI设计部 template, no 主线 */
   assert.equal(B.rowStatusText(row(12,{coast:9},'coast')),'9/9 ✓');assert.equal(B.rowStatusText(row(12,{coast:3},'coast')),'3/9');assert.equal(B.rowStatusText(row(12,{},'coast')),'可前往');
   assert.equal(J.focusRegion({records:rec(12),regionDone:{lake:2},stages:S}),'lake');assert.equal(J.focusRegion({records:rec(12),regionDone:{lake:2},stages:S,lastPlayed:'coast'}),'coast');
-  ok('unlock = requires + label: coast/lake 主线12后, snow 湖畔通关后, rail after coast, cloud after snow, spring after rail+cloud; locked whenever data exists (P3 r4), 远方 only without data; no data → 远方 untappable; focus rule');
+  ok('unlock = requires + label: coast/lake 通关第 12 关后 (r5 template), snow 湖畔通关后, rail after coast, cloud after snow, spring after rail+cloud; locked whenever data exists (P3 r4), 远方 only without data; no data → 远方 untappable; focus rule');
 }
 { // names (§13.4) + chapter buttons
   const n=id=>J.REGION_DEFS.find(d=>d.id===id);assert.equal(n('sky').name,'天空之城');assert.equal(n('sky').subtitle,'天空回声');assert.equal(n('snow').short,'雪山山口');assert.equal(n('coast').short,'灯塔海岸');
   for(const d of J.REGION_DEFS)assert(d.short.length<=4,d.id);
   const b=(state,id='coast',done=0)=>B.chapterButton({id,state,done,total:9});
   assert.deepEqual(b('open'),{text:'前往灯塔海岸',enabled:true,flat:false});assert.equal(b('progress').text,'继续');assert.equal(b('done').text,'再访灯塔海岸');
-  assert.deepEqual(b('locked'),{text:'主线12后开启',enabled:false,flat:true});assert.deepEqual(b('far'),{text:'尚未开启',enabled:false,flat:true});
+  assert.deepEqual(b('locked'),{text:'通关第 12 关后开启',enabled:false,flat:true});assert.deepEqual(b('far'),{text:'尚未开启',enabled:false,flat:true});
   assert.equal(B.coastChapterHint(5),'海岸漫游');assert.equal(B.coastChapterHint(6),'灯塔夜航');
   ok('names: 天空之城 (subtitle 天空回声), 雪山山口, 灯塔海岸 (short ≤4 chars); single button 前往X / 继续 / 再访X / <label>开启 (locked) / 尚未开启 (远方)');
 }

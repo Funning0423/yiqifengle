@@ -48,7 +48,8 @@ for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for
     else assert(!names.includes('远方'),tag+' '+r.id+' has data → never 远方');
     if(r.state==='locked'){lockN++;assert(r.hasData);assert(seals.length>=1,tag+' '+r.id+' locked with data has a seal');
       const sp=seals[0].getComponent(cc.Sprite);assert(sp&&sp.grayscale&&sp.color.a<255,tag+' '+r.id+' seal is faint (grey, alpha<255)');
-      const lab=J.REGION_DEFS.find(d=>d.id===r.id).unlock.label;assert(st.string===lab||(st.string.endsWith('…')&&lab.startsWith(st.string.slice(0,-1))),tag+' '+r.id+' label '+st.string);
+      const lab=B.unlockText(r.id),nreq=/^main:(\d+)$/.exec(J.REGION_DEFS.find(d=>d.id===r.id).unlock.requires.join(','));assert(!/主线/.test(st.string),tag+' '+r.id+' no 主线');
+      if(nreq)assert(st.string===lab||st.string===B.GATE_CELL_SHORT(+nreq[1]),tag+' '+r.id+' r5 label (full or measured short, never …) '+st.string);else assert(st.string===lab||(st.string.endsWith('…')&&lab.startsWith(st.string.slice(0,-1))),tag+' '+r.id+' label '+st.string);
       const fpt=st.fontSize*Math.abs(st.node.worldScale.y)/ptPer;assert(Math.abs(fpt-11)<0.01,tag+' '+r.id+' label 11 pt, got '+fpt);
       assert(!st.enableWrapText&&st.overflow===cc.Label.Overflow.NONE,tag+' '+r.id+' one line, no wrap');
       const lw=st.getComponent(cc.UITransform).width;assert(H.load('ui/PopupKit').measure(st.string,st.fontSize)<=lw+1e-6,tag+' '+r.id+' label fits its line (ellipsis)');}
@@ -59,7 +60,7 @@ for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for
   for(const r of rows.filter(x=>x.state==='locked')){const jp=o.popups.find('JourneyPanel');assert(jp,tag+' journal open');const cellLabel=jp.root.find('Chapter-'+r.id).getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string;
     H.tap(jp.root.find('Chapter-'+r.id));await H.flush();const c=o.popups.find('ChapterPanel');assert(c,tag+' '+r.id+' locked-with-data opens its region page');
     const btn=c.root.find('Continue-'+r.id);assert(btn,tag+' '+r.id+' button');const bl=btn.getComponentsInChildren(cc.Label)[0].string;
-    assert.equal(bl,J.REGION_DEFS.find(d=>d.id===r.id).unlock.label+'开启',tag+' '+r.id+' button = §13.2 label + 开启');assert.equal(bl,cellLabel+'开启',tag+' '+r.id+' button = cell label + 开启');
+    assert.equal(bl,B.chapterButton(r).text,tag+' '+r.id+' button = r5 condition + 开启');assert.equal(bl,B.unlockText(r.id)+'开启',tag+' '+r.id+' button = full cell condition + 开启');assert(!/主线/.test(bl),tag+' no 主线');void cellLabel;
     assert(btn.__disabled===true,tag+' '+r.id+' button disabled');const before=entered.length;H.tap(btn);await H.flush();assert.equal(entered.length,before,tag+' '+r.id+' disabled button enters nothing');
     { const BB=box(btn,W,Hh),CNT=c.root.find('ChapterCount');const top=CNT?box(CNT,W,Hh).y1:-1e9;
       assert(!c.root.find('VisitSkycity')&&!c.root.find('ChapterCondition'),tag+' '+r.id+' locked page: no extra line / condition text above the button');
