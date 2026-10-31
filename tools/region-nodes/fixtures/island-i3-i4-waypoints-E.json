@@ -1,17 +1,17 @@
 {
- "note": "b20 option E (\u573a\u666f\u8bbe\u8ba1\u90e8, Grok Bot chose E 2026-10-30): I3 (6.1,-0.452,9.1) -> I4 (3.9,0.09,3.9), one continuous waypoint walk round the north end of the lean_01 canopy. y = RegionWalkable floor. Curve per ggbot/nodewalker-waypoints@b1b42327 planChained: 7.776 m / 6.48 s (polyline 8.409 m, 1 leg). Baked graph edge I3-I4 uses the same via (8.794 m, single walk today).",
+ "note": "b20 option E (场景设计部, Grok Bot chose E 2026-10-30): I3 (6.1,-0.452,9.1) -> I4 (3.9,0.09,3.9), one continuous waypoint walk round the north end of the lean_01 canopy. y = RegionWalkable floor. Curve per ggbot/nodewalker-waypoints@b1b42327 planChained: 7.776 m / 6.48 s (polyline 8.409 m, 1 leg). Baked graph edge I3-I4 uses the same via (8.794 m, single walk today). | b20 walkable-terrain: last via (3.75,5.4) -> (2.7,4.9) (west of the 0.48 m grass tuft at (3.26,4.81); the east detour (4.3,5.3),(4.5,4.5) has no 0.15 m gap past the tufts/flowers at (4.49,4.88),(4.70,3.79)); y re-read from the terrain-only walkable bake. | b20 graded keep-out (2026-10-31): last via (2.7,4.9) -> (4.3,5.4),(4.55,4.6) (east of the low rock_01 at (2.2,4.6), whose whole footprint + 0.15 m is now no-go); I4 moved (3.9,3.9) -> (3.9,4.1). The 'check' block below is from the e826fd33 measurement and is NOT re-measured. | b20 I4-approach (option 2, 2026-10-31): I4 (3.9,4.1) -> (4.1,4.1) (0.2 m E); tail (4.3,5.4),(4.55,4.6) -> (4.4,5.4); y = floorDisc of the walkable bake. NodeWalker curve: 0 routeAvoid samples, heading accel p99 185.8 (60fps) / 196.9 (30fps).",
  "region": "island",
  "from": "I3",
  "to": "I4",
  "via": [
   [
    4.9,
-   -0.42,
+   -0.4,
    9.3
   ],
   [
    3.7,
-   -0.43,
+   -0.42,
    9.3
   ],
   [
@@ -30,8 +30,8 @@
    6.3
   ],
   [
-   3.75,
-   0.05,
+   4.4,
+   0.01,
    5.4
   ]
  ],

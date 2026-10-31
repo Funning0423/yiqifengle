@@ -14,7 +14,7 @@ const ROOT=path.resolve(__dirname,'../..');
 const OUT_TS=path.join(ROOT,'creator-build-project/assets/scripts/region/RegionNodes.ts');
 const OUT_JSON=path.join(ROOT,'tools/region-nodes/region-nodes.json');
 const FIX=path.join(ROOT,'tools/region-nodes/fixtures');
-const STEP=.36,HEAD=1.7,LOW=.3;
+const STEP=.36,HEAD=1.7,LOW=.3,FOOT_R=.1;
 // b19 basket obstacles (state-toggled at runtime, never baked): edge paths keep r+clearM+ROUTE_MARGIN away from every disc
 const ROUTE_MARGIN=.25;
 const BASKET_DISCS=()=>JSON.parse(fs.readFileSync(path.join(__dirname,'../transitions-continuous/transition-anchors.json'),'utf8')).basketObstacles||[];
@@ -22,9 +22,13 @@ const REGIONS={
  island:{
   file:'creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb',
   draco:true,box:[-12,-14,16,18],c:.2,
-  floor:/env_island_main|env_beach_|env_lighthouse_ext|env_island_props_merged/,
+  // b20 walkable-terrain: floor is TERRAIN ONLY. env_island_props_merged (flowers / bushes / grass tufts / rocks merged into one mesh) and
+  // env_beach_shells_starfish are props, not ground: their tops were baked as floor (bush at x3.6-3.9 z4.6-5.2 at 0.23-0.26 m over 0.06-0.10 m
+  // terrain; (4.5,4.07) at 0.30 m). They stay SOLID, so anything taller than LOW (0.3 m) over the terrain blocks its cells.
+  floor:/env_island_main|env_beach_wet_sand|env_beach_tide_pools|env_lighthouse_ext/,
   solid:/env_island_main|env_island_props_merged|env_lighthouse_ext|env_lighthouse_door|env_prop_palm|env_beach_tide/,
   start:[-2.1,0,5.3],sea:-0.6,explore:[-15,-16,19,18],
+  densifyM:.1,solidKeepM:.15,solidPropKeepM:1,solidKeep:/env_island_props_merged/,
   // b19 dock models: the resident pier (region_island/ui-props/island_dock.glb, island coordinates) is floor + solid
   extras:[{file:'creator-build-project/assets/bundles/region_island/ui-props/island_dock.glb',floor:/island_dock/,solid:/island_dock/}],
   // b20 island-walk-fixes: env_prop_palm_young_01 is SKINNED; this loader ignores skins and puts it ~3 m off (x5-7.4,z4-6.3). Its rendered
@@ -74,8 +78,8 @@ const NODES={
   {key:'I1',at:[-2.1,0,5.3],role:'mainline',stageId:'mainline-01'},
   {key:'I2',at:[2.5,0,8.1],role:'mainline',stageId:'mainline-02'},
   {key:'I3',at:[6.1,-0.452,9.1],role:'mainline',stageId:'mainline-03'/* b20 option E (Grok Bot): was [8.1,-0.36,6.1] (stand 67% hidden by beach_palm_short, I3-I4 lean_01 push-in 89%); trees unchanged */},
-  {key:'I4',at:[3.9,0.089,3.9],role:'mainline',stageId:'mainline-04'/* b19 island-depart-walk (方案 E): was [4.5,0.23,-4.9] (I4-I6 18.03 m, cut 4.1 m + fade + 3.6 m); b20 i4nudge: was [4.1,0.11,2.7] (stood under the skinned palm_young_01 canopy: crown/face grazed in the L04 push-in) -> 1.25 m NW, canopy clear */},
-  {key:'I5',at:[-2.7,0.151,0.7],role:'optional',opens:'challenge-island'/* b20 island-walk-fixes: was [-4.5,0.13,-0.9] (I4-I5 10.94 m, I5-I6 11.44 m, both cut); now both <= DIRECT_MAX_M */},
+  {key:'I4',at:[4.1,0.1,4.1],role:'mainline',stageId:'mainline-04'/* b19 island-depart-walk (方案 E): was [4.5,0.23,-4.9] (I4-I6 18.03 m, cut 4.1 m + fade + 3.6 m); b20 i4nudge: was [4.1,0.11,2.7] (stood under the skinned palm_young_01 canopy: crown/face grazed in the L04 push-in) -> 1.25 m NW, canopy clear; b20 I4-approach (option 2): was [3.9,0.089,4.0] (snapped 3.9,4.1) -> 0.2 m E, room for the NodeWalker I3→I4 waypoint curve east of routeAvoid [3.85,4.8,0.3] (30fps heading accel p99 206 -> 197) */},
+  {key:'I5',at:[-2.5,0.133,1.3],role:'optional',opens:'challenge-island'/* b20 island-walk-fixes: was [-4.5,0.13,-0.9] (I4-I5 10.94 m, I5-I6 11.44 m, both cut); now both <= DIRECT_MAX_M */},
   {key:'I6',at:[-1.5,-0.18,9.3],role:'departure'},
  ],
  meadow:[
@@ -110,14 +114,18 @@ function sha256(file){return crypto.createHash('sha256').update(fs.readFileSync(
 function buildGrid(spec,stamp){
  const [x0,z0,x1,z1]=spec.box,c=spec.c,W=Math.ceil((x1-x0)/c),H=Math.ceil((z1-z0)/c);
  const floors=Array.from({length:W*H},()=>[]),solids=Array.from({length:W*H},()=>[]);
+ const solidXZ=spec.solidKeepM?Array.from({length:W*H},()=>[]):null;
  const cell=(x,z)=>{const gx=Math.floor((x-x0)/c),gz=Math.floor((z-z0)/c);if(gx<0||gz<0||gx>=W||gz>=H)return -1;return gz*W+gx;};
- const addTri=(isF,isS,A,B,C)=>{
+ const ftri=spec.densifyM?new Map():null,FB=.5;
+ const addTri=(isF,isS,A,B,C,isK=false)=>{
+  if(ftri&&isF){const nx0=(B[1]-A[1])*(C[2]-A[2])-(B[2]-A[2])*(C[1]-A[1]),ny0=(B[2]-A[2])*(C[0]-A[0])-(B[0]-A[0])*(C[2]-A[2]),nz0=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]);
+   if(Math.abs(ny0)>1e-9)for(let i=Math.floor(Math.min(A[0],B[0],C[0])/FB);i<=Math.floor(Math.max(A[0],B[0],C[0])/FB);i++)for(let j=Math.floor(Math.min(A[2],B[2],C[2])/FB);j<=Math.floor(Math.max(A[2],B[2],C[2])/FB);j++){const k=i+','+j;if(!ftri.has(k))ftri.set(k,[]);ftri.get(k).push([A,B,C]);}}
   const e1=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],e2=[C[0]-A[0],C[1]-A[1],C[2]-A[2]];
   const nx=e1[1]*e2[2]-e1[2]*e2[1],ny=e1[2]*e2[0]-e1[0]*e2[2],nz=e1[0]*e2[1]-e1[1]*e2[0],nl=Math.hypot(nx,ny,nz)||1,up=Math.abs(ny)/nl;
   const L=Math.max(Math.hypot(e1[0],e1[1],e1[2]),Math.hypot(e2[0],e2[1],e2[2]),Math.hypot(C[0]-B[0],C[1]-B[1],C[2]-B[2]));
   const N=Math.max(1,Math.ceil(L/(c*.5)));
   for(let i=0;i<=N;i++)for(let j=0;j<=N-i;j++){const u=i/N,v=j/N,x=A[0]+e1[0]*u+e2[0]*v,y=A[1]+e1[1]*u+e2[1]*v,z=A[2]+e1[2]*u+e2[2]*v,ci=cell(x,z);if(ci<0)continue;
-   if(isF&&up>.72)floors[ci].push(y);if(isS)solids[ci].push(y);}
+   if(isF&&up>.72)floors[ci].push(y);if(isS){solids[ci].push(y);if(solidXZ&&isK)solidXZ[ci].push(x,y,z);}}
  };
  stamp(addTri);
  const layers=floors.map(a=>{a.sort((p,q)=>p-q);const o=[];for(const y of a){if(o.length&&y-o[o.length-1].hi<.15)o[o.length-1].hi=y;else o.push({lo:y,hi:y});}return o.map(l=>l.hi);});
@@ -138,6 +146,33 @@ function buildGrid(spec,stamp){
  const route=new Set();
  if(spec.routeDiscs)for(const o of BASKET_DISCS().filter(o=>o.region===spec.routeDiscs))layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-o.at[0],z-o.at[1])<=o.r+o.clearM+ROUTE_MARGIN)route.add(ci);});
  // b19 s2s3-edge (场景设计部): route-only keep-outs (walkability unchanged) — node edges keep ≥0.4 m from these unwalkable blobs
+ // b20 walkable-terrain: route keep-out round every solid sample that stands LOW..HEAD over the top floor of its cell (bushes, flowers,
+ // grass tufts > 0.3 m, rocks: the spec.solidKeep meshes): node edges keep >= solidKeepM + 5 cm (cell centres) and simplified segments keep >= solidKeepM (5 cm samples)
+ // from it. Walkability unchanged (props are not floor any more, so the tall ones already block their own cells).
+ let tall=null;
+ if(solidXZ){tall=new Map();const B=.5,kb=(x,z)=>Math.floor(x/B)+','+Math.floor(z/B);
+  // footprint = the part of each plant/prop that stands LOW..HEAD (> 0.3 m) over the cell's top floor; flat-lying blade tips lower than
+  // LOW may be crossed. Keep-out is solidKeepM round that footprint.
+  const top=ci=>Math.max(...layers[ci]),prot=new Map();
+  solidXZ.forEach((a,ci)=>{if(!a.length||!layers[ci].length)return;const f=top(ci);const pts=[];let hi=false;for(let k=0;k<a.length;k+=3){const y=a[k+1];if(y>f+LOW&&y<f+HEAD){pts.push(a[k],a[k+2]);hi=true;}}if(pts.length)prot.set(ci,{pts,hi});});
+  const seen=new Set();for(const ci0 of prot.keys()){if(seen.has(ci0))continue;const blob=[ci0];seen.add(ci0);for(let q=0;q<blob.length;q++){const ci=blob[q],gx=ci%W,gz=(ci/W)|0;
+    for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const n=nz*W+nx;if(prot.has(n)&&!seen.has(n)){seen.add(n);blob.push(n);}}}
+   if(!blob.some(ci=>prot.get(ci).hi))continue;
+   for(const ci of blob){const a=prot.get(ci).pts;for(let k=0;k<a.length;k+=2){const kk=kb(a[k],a[k+1]);if(!tall.has(kk))tall.set(kk,[]);tall.get(kk).push(a[k],a[k+1]);}}}
+  const R=spec.solidKeepM,near=(x,z,r)=>{for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const a=tall.get((Math.floor(x/B)+i)+','+(Math.floor(z/B)+j));if(a)for(let k=0;k<a.length;k+=2)if(Math.hypot(a[k]-x,a[k+1]-z)<r)return true;}return false;};
+  tall.near=near;layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(near(x,z,R+.05))route.add(ci);});}
+  // b20 prop classes: env_island_props_merged sub-objects classed 'solid' (rocks, planters, fence, bench; fixtures/island-props-classes.json)
+  // keep their graded keepM (height <= 0.7 m: 0.5 m, taller: 1 m; spec.solidPropKeepM switches it on) from her centre for every vertex / edge midpoint in her body range (floor + 0.05 .. floor + 1.8 m).
+  if(tall&&spec.solidPropKeepM){const CP=require('./classify-island-props.cjs'),CLS=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/island-props-classes.json'),'utf8')).components;
+   const idx=new Map(CLS.map(o=>[o.cx+','+o.cz+','+o.tris,o]));const SB=new Map(),B1=1;let unk=0;
+   for(const o of CP.components(CP.propsMesh())){const e=idx.get(o.cx+','+o.cz+','+o.tris);if(!e){unk++;continue;}if(e.cls!=='solid')continue;const v=o.v;
+    const KP=e.keepM,FP=e.footprint?1:0,add=(x,y,z)=>{const kk=Math.floor(x/B1)+','+Math.floor(z/B1);if(!SB.has(kk))SB.set(kk,[]);SB.get(kk).push(x,y,z,KP,FP);};
+    for(let k=0;k<v.length;k+=9){for(let j=0;j<9;j+=3)add(v[k+j],v[k+j+1],v[k+j+2]);for(const [a,b] of [[0,3],[3,6],[6,0]])add((v[k+a]+v[k+b])/2,(v[k+a+1]+v[k+b+1])/2,(v[k+a+2]+v[k+b+2])/2);}}
+   if(unk)throw Error(unk+' props sub-objects not in fixtures/island-props-classes.json (re-run classify-island-props.cjs)');
+   // palm fronds (b20): palm geometry in her body range keeps 0.45 m here (cell centres add 0.05 = 0.5 m; the gate checks 0.5 m on the 5 cm polyline)
+   for(const o of require('../journey-integration/journey-scene.cjs').island)if(/palm/.test(o.name)){const v=o.tris;for(let k=0;k<v.length;k+=9){const add=(x,y,z)=>{const kk=Math.floor(x/B1)+','+Math.floor(z/B1);if(!SB.has(kk))SB.set(kk,[]);SB.get(kk).push(x,y,z,0.45,0);};for(let j=0;j<9;j+=3)add(v[k+j],v[k+j+1],v[k+j+2]);for(const [a,b] of [[0,3],[3,6],[6,0]])add((v[k+a]+v[k+b])/2,(v[k+a+1]+v[k+b+1])/2,(v[k+a+2]+v[k+b+2])/2);}}
+   const SR=spec.solidPropKeepM,nearSolid=(x,y,z,r)=>{for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const a=SB.get((Math.floor(x/B1)+i)+','+(Math.floor(z/B1)+j));if(a)for(let k=0;k<a.length;k+=5){const h=a[k+1]-y;if((a[k+4]||(h>0.05&&h<1.8))&&Math.hypot(a[k]-x,a[k+2]-z)<a[k+3]+r)return true;}}return false;};
+   tall.nearSolid=nearSolid;layers.forEach((ls,ci)=>{if(!ls.length)return;const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(nearSolid(x,Math.max(...ls),z,.05))route.add(ci);});}
  if(spec.routeAvoid)for(const [ax,az,ar] of spec.routeAvoid)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;if(Math.hypot(x-ax,z-az)<=ar)route.add(ci);});
  if(spec.walls)for(const [ax,az,bx,bz,hw] of spec.walls)layers.forEach((ls,ci)=>{const x=x0+(ci%W+.5)*c,z=z0+(((ci/W)|0)+.5)*c;
   const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));if(Math.hypot(x-ax-dx*t,z-az-dz*t)<=hw)ls.forEach((y,li)=>{ok[ci][li]=false;});});
@@ -153,7 +188,13 @@ function buildGrid(spec,stamp){
   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=gx+dx,nz=gz+dz;if(nx<0||nz<0||nx>=W||nz>=H)continue;const nc=nz*W+nx;const lim=STEP*Math.hypot(dx,dz)*(c/.4);
    layers[nc].forEach((y2,l2)=>{if(!ok[nc][l2]||Math.abs(y2-y)>lim)return;const k=key(nc,l2);if(seen.has(k))return;seen.set(k,1);parent.set(k,key(ci,li));dist.set(k,d0+Math.hypot(dx,dz)*c);q.push([nc,l2]);});}}
  // b17 skycity-walk-r4: the solid surface samples per cell (0.2 m on every triangle) feed the tap-ray voxel field (RegionWalkableData.obs)
- return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids,route};
+ // b20 terrain-follow: exact floor height (highest floor-mesh triangle at or below yMax, any slope) for path densification
+ const floorAt=ftri?((x,z,yMax)=>{let best=null;for(const [A,B,C] of ftri.get(Math.floor(x/FB)+','+Math.floor(z/FB))||[]){const d=(B[2]-C[2])*(A[0]-C[0])+(C[0]-B[0])*(A[2]-C[2]);if(Math.abs(d)<1e-12)continue;
+  const l1=((B[2]-C[2])*(x-C[0])+(C[0]-B[0])*(z-C[2]))/d,l2=((C[2]-A[2])*(x-C[0])+(A[0]-C[0])*(z-C[2]))/d,l3=1-l1-l2;if(l1<-1e-9||l2<-1e-9||l3<-1e-9)continue;const y=l1*A[1]+l2*B[1]+l3*C[1];if(y<=yMax&&(best===null||y>best))best=y;}return best;}):null;
+ // b20 dock-fix: ground under her = highest floor point within a FOOT_R (0.1 m) disc under her foot (centre + rings at r/2, r, 8 directions),
+ // so board seams narrower than her foot read as the boards; gaps wider than the disc (> 0.2 m) still read as holes.
+ const floorDisc=floorAt?((x,z,yMax,r=FOOT_R)=>{let best=floorAt(x,z,yMax);for(const rr of [r/2,r])for(let k=0;k<8;k++){const y=floorAt(x+rr*Math.cos(k*Math.PI/4),z+rr*Math.sin(k*Math.PI/4),yMax);if(y!==null&&(best===null||y>best))best=y;}return best;}):null;
+ return {W,H,c,x0,z0,layers,ok,dist,parent,key,cell,solids,route,tall,floorAt,floorDisc};
 }
 function nearest(M,p,ytol=1.5){
  const ci=M.cell(p[0],p[2]);if(ci<0)return null;let best=null;
@@ -192,7 +233,7 @@ async function decodeDraco(file,spec){
   const binOff=20+jl+8,bin=raw.subarray(binOff,binOff+raw.readUInt32LE(20+jl));
   // b20 skin-bounds: vertices go through lib-glb vertexMapper (skinned → joint world · inverseBind, as Creator renders them)
   const worlds=nodeWorlds(doc),ibm=si=>{const A=doc.accessors[doc.skins[si].inverseBindMatrices],v=doc.bufferViews[A.bufferView],o=(v.byteOffset||0)+(A.byteOffset||0);return k=>Array.from({length:16},(_,e)=>bin.readFloatLE(o+(k*16+e)*4));};
-  doc.nodes.forEach((node,i)=>{if(node.mesh===undefined)return;const name=node.name||'';const isF=floorRx.test(name),isS=solidRx.test(name);if(!isF&&!isS)return;const map=vertexMapper(doc,i,worlds,node.skin!==undefined?ibm(node.skin):null);
+  doc.nodes.forEach((node,i)=>{if(node.mesh===undefined)return;const name=node.name||'';const isF=floorRx.test(name),isS=solidRx.test(name),isK=!!(spec.solidKeep&&spec.solidKeep.test(name)&&gfile===file);if(!isF&&!isS)return;const map=vertexMapper(doc,i,worlds,node.skin!==undefined?ibm(node.skin):null);
    for(const pr of doc.meshes[node.mesh].primitives){const ext=pr.extensions&&pr.extensions.KHR_draco_mesh_compression;if(!ext)continue;
     const bv=doc.bufferViews[ext.bufferView],data=bin.subarray(bv.byteOffset||0,(bv.byteOffset||0)+bv.byteLength);
     const d=new decMod.Decoder(),buf=new decMod.DecoderBuffer();buf.Init(new Int8Array(data.buffer,data.byteOffset,data.byteLength),data.byteLength);
@@ -203,7 +244,7 @@ async function decodeDraco(file,spec){
     const JJ=node.skin!==undefined?rd(ext.attributes.JOINTS_0):null,WW=node.skin!==undefined?rd(ext.attributes.WEIGHTS_0):null;
     for(let v=0;v<nv;v++)P[v]=map([pos.GetValue(v*3),pos.GetValue(v*3+1),pos.GetValue(v*3+2)],JJ&&JJ.subarray(v*4,v*4+4),WW&&WW.subarray(v*4,v*4+4));
     const face=new decMod.DracoInt32Array();
-    for(let f=0;f<nf;f++){d.GetFaceFromMesh(mesh,f,face);addTri(isF,isS,P[face.GetValue(0)],P[face.GetValue(1)],P[face.GetValue(2)]);}
+    for(let f=0;f<nf;f++){d.GetFaceFromMesh(mesh,f,face);addTri(isF,isS,P[face.GetValue(0)],P[face.GetValue(1)],P[face.GetValue(2)],isK);}
     [pos,face,mesh,buf,d].forEach(o=>decMod.destroy(o));}});};
  const grid=buildGrid(spec,(addTri)=>{stampGlb(file,spec.floor,spec.solid,addTri);for(const e of spec.extras||[])stampGlb(e.file,e.floor,e.solid,addTri);});
  return {grid,sha:sha256(path.join(ROOT,file)),decoder:'draco3d@1.5.7'};
@@ -220,7 +261,7 @@ function emit(baked){
  const body={};
  for(const id of Object.keys(REGIONS)){
   const spec=REGIONS[id],g=baked[id].grid,by={};
-  const nodes=NODES[id].map(n=>{const hit=nearest(g,n.at,2.5);if(!hit)throw Error('node-off-grid '+n.key);const p=pathOf(g,hit.k);const at=p[p.length-1];by[n.key]={...n,at};return {...n,at};});
+  const nodes=NODES[id].map(n=>{const hit=nearest(g,n.at,2.5);if(!hit)throw Error('node-off-grid '+n.key);const p=pathOf(g,hit.k);const at=p[p.length-1].slice();if(spec.densifyM&&g.floorAt){const y=g.floorDisc(at[0],at[2],at[1]+.4);if(y!==null&&Math.abs(y-at[1])<=.2)at[1]=round3(y);}/* b20 terrain-follow: she stands on the floor mesh, not on the 0.2 m cell's highest sample */by[n.key]={...n,at};return {...n,at};});
   const edges=[];
   for(const [a,b] of EDGES[id]){
    const A=by[a].at,B=by[b].at,ka=nearest(g,A,0.6),kb=nearest(g,B,0.6);
@@ -230,16 +271,30 @@ function emit(baked){
    const clearEdge=(CLEAR_EDGES[id]||[]).some(([p,q])=>(p===a&&q===b)||(p===b&&q===a));
    const leg=(P,Q)=>(clearEdge&&bfs(g,P,Q,clearBuffer(g,P,Q,id)))||bfs(g,P,Q);
    // b19 s4-clearance: optional pinned waypoints (EDGE_VIA) so a re-routed edge keeps its old arrival heading into the node
+   // b20: a via marked 'direct' leaves on a straight leg (no 0.2 m grid) when the exact keep-out checks pass every 5 cm (veg footprint, graded solids,
+   // fronds, routeAvoid); for gaps narrower than a grid cell (young palm frond tips vs the tuft at (3.26,4.81)). Throws if the straight leg is not clear.
+   const directLeg=(P,Q)=>{const fy=(x,z)=>g.floorDisc?g.floorDisc(x,z,2):0;const n=Math.max(1,Math.ceil(Math.hypot(Q[0]-P[0],Q[2]-P[2])/0.05)),out=[];
+    for(let t=0;t<=n;t++){const x=P[0]+(Q[0]-P[0])*t/n,z=P[2]+(Q[2]-P[2])*t/n,y=fy(x,z);if(y===null)throw Error('direct-leg off floor '+a+b+' '+x+','+z);
+     if(g.tall&&g.tall.near(x,z,spec.solidKeepM))throw Error('direct-leg vegetation '+a+b+' '+x.toFixed(2)+','+z.toFixed(2));if(g.tall&&g.tall.nearSolid&&g.tall.nearSolid(x,y,z,.05))throw Error('direct-leg solid/frond '+a+b+' '+x.toFixed(2)+','+z.toFixed(2));
+     for(const [cx,cz,cr] of spec.routeAvoid||[])if(Math.hypot(x-cx,z-cz)<cr)throw Error('direct-leg routeAvoid '+a+b);if(t===0||t===n)out.push([x,y,z]);}
+    return {path:out,len:Math.hypot(Q[0]-P[0],Q[2]-P[2])};};
    const via=(EDGE_VIA[id]||{})[a+'-'+b];let path;
-   if(!via)path=leg(A,B);else{const pts=[A,...via.map(v=>[v[0],0,v[1]]),B];path={path:[],len:0};for(let i=0;i<pts.length-1;i++){const q=leg(pts[i],pts[i+1]);if(!q){path=null;break;}path.path.push(...(i?q.path.slice(1):q.path));path.len+=q.len;}}
+   if(!via)path=leg(A,B);else{const pts=[A,...via.map(v=>[v[0],0,v[1]]),B];path={path:[],len:0};for(let i=0;i<pts.length-1;i++){const dv=i>0&&via[i-1][2]==='direct'||i<via.length&&via[i][2]==='direct-in';const q=dv?directLeg(pts[i],pts[i+1]):leg(pts[i],pts[i+1]);if(!q){path=null;break;}path.path.push(...(i?q.path.slice(1):q.path));path.len+=q.len;}}
    if(!path)throw Error('no-path '+a+' '+b);
-   let simp=simplify(path.path,.15,clearEdge?segClear(id,CLEAR_M):null),len=path.len;
+   const keep=g.tall?((a,b)=>{const n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[2]-a[2])/0.05));for(let t=0;t<=n;t++){const x=a[0]+(b[0]-a[0])*t/n,z=a[2]+(b[2]-a[2])*t/n;if(g.tall.near(x,z,spec.solidKeepM))return false;if(g.tall.nearSolid&&g.tall.nearSolid(x,a[1]+(b[1]-a[1])*t/n,z,.05))return false;for(const [cx,cz,cr] of spec.routeAvoid||[])if(Math.hypot(x-cx,z-cz)<cr)return false;}return true;}):null/* simplified segments also stay out of routeAvoid discs (not only cell centres) */;
+   const segOk=clearEdge?segClear(id,CLEAR_M):keep;
+   let simp=simplify(path.path,.15,segOk),len=path.len;
    const tail=(EDGE_TAIL[id]||{})[a+'-'+b];
    if(tail){const ok=segClear(id,CLEAR_M),RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts'),E=simp[simp.length-1];
     const k=simp.findIndex(p=>Math.hypot(p[0]-tail.from[0],p[2]-tail.from[1])<1e-6);if(k<0)throw Error('tail-from '+a+b);
     const mid=tail.via.map(([x,z])=>{const y=RW.walkFloorY(id,x,z);if(y===null)throw Error('tail-via-null '+x+','+z);return [x,round3(y),z];});
     const cand=[...simp.slice(0,k+1),...mid,E];for(let q=k;q<cand.length-1;q++)if(!ok(cand[q],cand[q+1]))throw Error('tail-unclear '+a+b+' '+cand[q]+'->'+cand[q+1]);
     simp=cand;/* lengthM stays the grid-route length like every other edge */}
+   // b20 terrain-follow: the walker interpolates path-point y linearly, so on slopes a long chord floats over the terrain. Insert a point every
+   // densifyM along each segment with y = floor height there (and re-read the vertices), so she follows the ground to <= 3 cm.
+   if(spec.densifyM&&g.floorAt){const fy=(x,z,yr)=>{const y=g.floorDisc(x,z,yr+.4);return y===null||Math.abs(y-yr)>.2?round3(yr):round3(y);}/* > 0.2 m off the chord = a hole in the floor mesh (dock gap): keep the chord, the terrain-follow gate reports it */;const out=[[simp[0][0],fy(simp[0][0],simp[0][2],simp[0][1]),simp[0][2]]];
+    for(let i=1;i<simp.length;i++){const P=simp[i-1],Q=simp[i],n=Math.max(1,Math.ceil(Math.hypot(Q[0]-P[0],Q[2]-P[2])/spec.densifyM));
+     for(let t=1;t<=n;t++){const x=round3(P[0]+(Q[0]-P[0])*t/n),z=round3(P[2]+(Q[2]-P[2])*t/n);out.push([x,fy(x,z,P[1]+(Q[1]-P[1])*t/n),z]);}}out[0]=A.slice();out[out.length-1]=B.slice()/* ends stay exactly on the nodes */;simp=out;len=0;for(let i=1;i<simp.length;i++)len+=Math.hypot(simp[i][0]-simp[i-1][0],simp[i][1]-simp[i-1][1],simp[i][2]-simp[i-1][2]);/* b20 dock-fix: densified edges report the walked polyline length (what NodeWalker times at 1.2 m/s and compares with DIRECT_MAX_M), not the coarse grid-route length (I4-I6 grid 9.774 > DIRECT_MAX_M 9.6 cut the walk in two on b20-walk-merge) */}
    edges.push({a,b,path:simp,lengthM:round3(len)});
   }
   for(const n of nodes){const out=edges.find(e=>e.a===n.key)||edges.find(e=>e.b===n.key);if(!out){n.faceDeg=0;continue;}
@@ -252,7 +307,7 @@ const CLEAR_EDGES={skycity:[['S1','S2'],['S2','S3'],['S3','S4'],['S4','S5'],['S4
 // S4-S6: after the new gap at (2.6,-7) rejoin the pre-b19 x=3 lane with straight clear segments and keep the pre-b19 arrival
 // (3,-25)→S6 (the T-02 finale shot F1/F4 is tuned to that arrival heading; the grid route arrived at -135° and failed F1/F4).
 /* b20 option E: I3-I4 waypoints (x,z; y = walkable floor) round the north end of the lean_01 canopy; same list as tools/region-nodes/fixtures/island-i3-i4-waypoints-E.json for NodeWalker waypoint walks */
-const EDGE_VIA={island:{'I4-I6':[[0.5,7.3],[-0.9,7.7]]/* b20: >=1 m from beach_palm_tall trunk */,'I3-I4':[[4.9,9.3],[3.7,9.3],[3.3,8.5],[2.8,7.5],[3.0,6.3],[3.75,5.4]]}},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
+const EDGE_VIA={island:{'I4-I5':[[3.4,4.2],[2.8,4.2,'direct-in'],[2.45,4.13,'direct-in'],[1.85,4.13,'direct-in'],[0.5,3.9],[-1.7,4.1],[-2.85,2.9,'direct-in'],[-2.15,1.55,'direct-in']]/* b20 graded rules: straight legs through the gap between the young palm's frond tips (>= 0.5 m), the tuft at (3.26,4.81) (+0.15 m) and the low rock_01 footprint (+0.15 m), narrower than a 0.2 m grid cell; b20 I4-approach: (0.5,3.9),(-1.7,4.1) + straight legs (-2.85,2.9),(-2.15,1.55) past the fence keep I4-I5 at 9.465 m after I4 moved 0.2 m E */,'I4-I6':[[0.5,7.3],[-0.9,7.7],[-1.4,7.95]]/* b20: >=1 m from beach_palm_tall trunk; b20 dock-fix: (-1.4,7.95) = foot of the ramp centre line */,'I5-I6':[[-1.4,7.95]]/* b20 dock-fix: climb the ramp on its centre line (was diagonal along the west edge) */,'I3-I4':[[4.9,9.3],[3.7,9.3],[3.3,8.5],[2.8,7.5],[3.0,6.3],[4.4,5.4]]/* b20 walkable-terrain: last via was (3.75,5.4), over the baked-as-floor flower clump at (3.79,4.84); now (2.7,4.9), west of the 0.48 m tuft at (3.26,4.81). The east detour (4.3,5.3),(4.5,4.5) has no solidKeepM gap past the tufts / flowers at (4.49,4.88) and (4.70,3.79); b20 I4-approach: tail (4.3,5.4),(4.55,4.6) -> (4.4,5.4) with I4 at (4.1,4.1): GGbot's waypoint curve clears routeAvoid [3.85,4.8,0.3], 30fps heading accel p99 196.9 */}},EDGE_TAIL={skycity:{'S4-S6':{from:[2.6,-7],via:[[2.6,-9.0],[3,-18.2],[3,-25]]}}};
 function clearBuffer(M,A,B,id){// unwalkable = the RUNTIME walk grid (RegionWalkableData via RegionWalkable.walkFloorY), which is what she and the tests walk on
  const RW=require('../board-ui/harness.cjs').createHarness().load('region/RegionWalkable.ts');
  const blockedXZ=(x,z)=>RW.walkFloorY(id,x,z)===null,buf=new Set(),pad=6;
@@ -353,4 +408,4 @@ async function main(){
  console.log('wrote',OUT_TS,text.length,'bytes');
 }
 if(require.main===module)main().catch(e=>{console.error(e);process.exit(1);});
-module.exports={REGIONS,NODES,buildGrid,decodeDraco,decodePlain};
+module.exports={REGIONS,NODES,buildGrid,decodeDraco,decodePlain,bfs};

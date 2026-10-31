@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+'use strict';
+/**
+ * b20 island prop classes (场景设计部). env_island_props_merged is ONE mesh / ONE material (M_env_palette), so it is split into its connected
+ * sub-objects (vertices shared at 1 mm) and every sub-object is labelled with the nearest v2.1 art placement (asset id). Class by asset:
+ *   vegetation = grass_tuft_*, flowers_*, bush_*, hydrangea_bush_*  -> walk rule: parts > 0.3 m over the floor, footprint + 0.15 m
+ *   solid      = rock_*, planter_*, fence_*, bench_*, anything else -> walk rule: >= 1 m from her centre
+ * Graded keep-out (b20 decision): low-rock (rock, object < 0.3 m) = WHOLE body footprint + 0.15 m (never step on a rock);
+ *   fence 0.4 m; planter / bench 0.5 m; rock 0.3-0.7 m 0.5 m; > 0.7 m 1 m. Height definition: objectHeightM = top of the object's highest solid piece over its placement's ground y; <= 0.7 m (fences, planters, low rocks, benches)
+ *   keepM 0.5, > 0.7 m keepM 1 (trunks stay 1 m in the gate).
+ * Shape overrides (placements overlap): sub-objects of <= 6 triangles are blade / petal cards = vegetation; 320-triangle = rock_03 = solid.
+ * Writes tools/region-nodes/fixtures/island-props-classes.json (read by test_island_walk_gates.cjs, which re-splits the GLB and fails when
+ * a sub-object is not in the list). Usage: node tools/region-nodes/classify-island-props.cjs [placements.json]
+ */
+const fs=require('node:fs'),path=require('node:path');
+const PL_DEFAULT='/workspace/wechat-game/art/x/GROKBOT-ART-001-ISLAND-EXTERIOR-v2.1.0/GROKBOT-ART-001-ISLAND-EXTERIOR-v2.1.0/scene/placements.json';
+const VEG=/grass_tuft|flowers|(^|_)bush|hydrangea_bush/,SOLID_FIRST=/planter|rock|fence|bench/;
+function components(tris){const id=new Map(),par=[];const find=a=>{while(par[a]!==a)a=par[a]=par[par[a]];return a;};
+ const vi=(x,y,z)=>{const k=Math.round(x*1000)+','+Math.round(y*1000)+','+Math.round(z*1000);let v=id.get(k);if(v===undefined){v=par.length;id.set(k,v);par.push(v);}return v;};
+ const tv=[];for(let k=0;k<tris.length;k+=9){const a=vi(tris[k],tris[k+1],tris[k+2]),b=vi(tris[k+3],tris[k+4],tris[k+5]),c=vi(tris[k+6],tris[k+7],tris[k+8]);par[find(b)]=find(a);par[find(c)]=find(a);tv.push(a);}
+ const C=new Map();tv.forEach((a,t)=>{const r=find(a);if(!C.has(r))C.set(r,[]);C.get(r).push(t);});
+ return [...C.values()].map(ts=>{let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;const v=[];for(const t of ts)for(let j=0;j<9;j+=3){const x=tris[t*9+j],y=tris[t*9+j+1],z=tris[t*9+j+2];v.push(x,y,z);x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);z0=Math.min(z0,z);z1=Math.max(z1,z);}
+  return {cx:+((x0+x1)/2).toFixed(3),cz:+((z0+z1)/2).toFixed(3),bb:[[x0,y0,z0].map(n=>+n.toFixed(3)),[x1,y1,z1].map(n=>+n.toFixed(3))],tris:ts.length,v};});}
+function propsMesh(){const J=require('../journey-integration/journey-scene.cjs');const o=J.island.find(o=>/env_island_props_merged/.test(o.name));if(!o)throw Error('env_island_props_merged not found');return o.tris;}
+const classOf=a=>SOLID_FIRST.test(a)?'solid':VEG.test(a)?'vegetation':'solid';
+module.exports={components,propsMesh,classOf};
+if(require.main===module){
+ const PL=JSON.parse(fs.readFileSync(process.argv[2]||PL_DEFAULT,'utf8'));const pls=(PL.placements||PL).filter(p=>/^env_prop_/.test(p.asset_id)&&!/palm|tree_/.test(p.asset_id));
+ const comps=components(propsMesh());const out=comps.map((c,i)=>{let b=null,bd=1e9;for(const p of pls){const d=Math.hypot(p.position_game_m[0]-c.cx,p.position_game_m[2]-c.cz);if(d<bd){bd=d;b=p;}}
+  const asset=b.asset_id.replace('env_prop_','');const ball=/planter_hydrangea/.test(asset)&&(c.tris===80||c.bb[0][1]-b.position_game_m[1]>0.5);const cls=c.tris<=6||ball?'vegetation':c.tris===320?'solid':classOf(asset);const y0=b.position_game_m[1],h=+(c.bb[1][1]-y0).toFixed(3);
+  return {id:i,pl:pls.indexOf(b),cx:c.cx,cz:c.cz,bb:c.bb,tris:c.tris,asset,placementD:+bd.toFixed(3),cls,heightM:h,keepM:cls==='solid'?(h<=0.7?0.5:1):null,by:c.tris<=6?'shape: <=6-tri blade/petal card':ball?'hydrangea flower ball / leaves in a planter (80-tri ball or piece starting > 0.5 m over the planter ground)':c.tris===320?'shape: 320-tri rock_03':'nearest placement'};});
+ // grade per OBJECT (placement): height = highest solid piece of that placement over its ground y
+ const top=new Map();for(const o of out)if(o.cls==='solid')top.set(o.pl,Math.max(top.get(o.pl)??-9,o.heightM));for(const o of out)if(o.cls==='solid'){const h=o.objectHeightM=top.get(o.pl);const rock=/rock/.test(o.asset);
+  if(rock&&h<0.3){o.grade='low-rock';o.keepM=0.15;o.footprint=true;}else if(/fence/.test(o.asset)){o.grade='fence';o.keepM=0.4;}else if(/planter|bench/.test(o.asset)){o.grade='planter-bench';o.keepM=0.5;}else if(h<=0.7){o.grade='rock-0.5';o.keepM=0.5;}else{o.grade='solid-1m';o.keepM=1;}}
+ const doc={note:'env_island_props_merged sub-objects (connected components, 1 mm weld) labelled by the nearest v2.1 placement; cls vegetation = >0.3 m parts keep 0.15 m, solid = >=1 m. Generated by classify-island-props.cjs; do not hand edit.',
+  counts:out.reduce((m,o)=>{const k=o.cls==='solid'?o.grade:o.cls;m[k]=(m[k]||0)+1;return m;},{}),byAsset:out.reduce((m,o)=>(m[o.asset]=(m[o.asset]||0)+1,m),{}),components:out};
+ fs.writeFileSync(path.join(__dirname,'fixtures/island-props-classes.json'),JSON.stringify(doc,null,1));console.log(JSON.stringify({counts:doc.counts,byAsset:doc.byAsset,maxPlacementD:Math.max(...out.map(o=>o.placementD))}));}
