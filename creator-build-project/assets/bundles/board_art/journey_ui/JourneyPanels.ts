@@ -228,12 +228,33 @@ export function createJourneyUi(h: JourneyUiHost) {
     });
     return n;
   }
+  /** r5 P2-1 (界面验收部 e06c8240): line breaking for journal text. Cocos' Label char-wraps CJK wherever the width runs out (it only keeps
+   *  。 off a line start, which is how 「…漂在水上的风 / 铃。」 happened). We break ourselves and hand the Label explicit lines that each fit:
+   *  1 line if it fits; else prefer a break after punctuation (，、；：) with both lines fitting (most balanced); else a greedy break moved
+   *  back so no known word is split and the last line has ≥ JOURNAL_MIN_LAST chars. Widths use the same measure() as every fit rule. */
+  const JOURNAL_MIN_LAST = 3, JOURNAL_BREAK_AFTER = '，、；：,;:', JOURNAL_NO_START = '。，、；：！？」』）》,.;:!?)';
+  const JOURNAL_WORDS = Array.from(new Set([...REGION_DEFS.flatMap(d => [d.name, d.short]), '风铃', '贝壳', '灯塔', '草浪', '海浪', '湖面', '夕阳', '风车', '草甸', '回声', '远方', '新雪', '山口', '海滩', '天空城', '旅程册'])).filter(Boolean);
+  function splitsWord(a: string, b: string) { for (const w of JOURNAL_WORDS) for (let k = 1; k < w.length; k++) if (a.endsWith(w.slice(0, k)) && b.startsWith(w.slice(k))) return true; return false; }
+  function journalLines(text: string, w: number, size: number): string[] {
+    if (!text || measure(text, size) <= w) return [text];
+    const ch = Array.from(text), fits = (t: string) => measure(t, size) <= w; let best: string[] | null = null, bestW = Infinity;
+    for (let i = 1; i < ch.length - 1; i++) if (JOURNAL_BREAK_AFTER.includes(ch[i - 1])) {
+      const a = ch.slice(0, i).join(''), b = ch.slice(i).join(''); if (fits(a) && fits(b) && Array.from(b).length >= JOURNAL_MIN_LAST) { const m = Math.max(measure(a, size), measure(b, size)); if (m < bestW) { bestW = m; best = [a, b]; } } }
+    if (best) return best;
+    let i = 1; while (i < ch.length && fits(ch.slice(0, i + 1).join(''))) i++;
+    const ok = (k: number) => { const a = ch.slice(0, k).join(''), b = ch.slice(k).join(''); return k > 0 && ch.length - k >= JOURNAL_MIN_LAST && !JOURNAL_NO_START.includes(ch[k]) && !splitsWord(a, b); };
+    for (let k = Math.min(i, ch.length - 1); k > 0; k--) if (ok(k)) return [ch.slice(0, k).join(''), ch.slice(k).join('')];
+    return [ch.slice(0, i).join(''), ch.slice(i).join('')];
+  }
   /** Region page (SPEC §3): 330×430 pt, region window, description, count / state line, ONE 240×52 button:
    *  前往X / 继续 / 再访X / 尚未开启 (flat disabled). Provider gate reasons still block (shown above the button). tide/sky extras stay. */
   function openChapter(stack: PopupStack, id: string, a: ChapterActions): PopupPanel {
     const c = CHAPTERS.find(x => x.id === id) || CHAPTERS[0], extra = id === 'tide' || id === 'sky';
     const v = stack.view(), K = 1 / popupScale(v.width, v.height), hPt = 430 + (extra ? 52 : 0) + 56, fit = chapterFit(v, hPt), f = fit.f, P = (x: number) => x * K * f;
     const PW = P(Math.min(330, Math.max(240, v.width - 40)) / f), PH = P(hPt);
+    // r5 P2-2 (界面验收部 e06c8240, 320×568): the shrunk + moved-down region page let the journey book's own title plaque and × show
+    // above it (two plaques, two ×). The book underneath is hidden while the page is open and shown again when the page closes.
+    const under = stack.find('JourneyPanel'), underWas = under ? under.body.active : false; if (under) under.body.active = false;
     const p = stack.open({ name: 'ChapterPanel', width: PW, height: PH, dy: fit.dy, title: c.name, titleArt: c.id === 'tide' || c.id === 'meadow' || c.id === 'lake' ? 'r2/chapter_' + c.id : null, closable: true });
     const ww = PW - P(64), wh = ww * WIN_H / WIN_W; let y = P(56);
     const win = p.sprite('r2/region_' + c.id, 0, y + wh / 2, ww, wh); const row = a.row?.() || null; if (row && row.state === 'far') win.grayscale = true;
@@ -241,8 +262,8 @@ export function createJourneyUi(h: JourneyUiHost) {
     y += wh + P(14);
     // r5 P3 (界面验收部 journal-3277421c §已有问题): text and the button stay inside the paper inner edge + 8.5 pt (paperBand, the
     // same rule as the journey book) at every width; a description that does not fit wraps to 2 lines (never …, never a smaller font).
-    const band = paperBand(PW, x => x * K)/* inset in SCREEN pt even when the page is shrunk (f<1) */, TW = Math.min(PW - P(48), band.w), BTW = Math.min(P(240), band.w)/* one rule for every page button: min(240, paper inner − 2·8.5) */, descLines = measure(c.description, P(15)) > TW ? 2 : 1;
-    p.text(c.description, band.cx, y + P(10) + (descLines - 1) * P(10.5), P(15), 'brown2', { bold: false, width: TW, lines: descLines, name: 'ChapterDescription' }); y += P(30) + (descLines - 1) * P(21);
+    const band = paperBand(PW, x => x * K)/* inset in SCREEN pt even when the page is shrunk (f<1) */, TW = Math.min(PW - P(48), band.w), BTW = Math.min(P(240), band.w)/* one rule for every page button: min(240, paper inner − 2·8.5) */, descRows = journalLines(c.description, TW, P(15)), descLines = descRows.length;
+    p.text(descRows.join('\n'), band.cx, y + P(10) + (descLines - 1) * P(10.5), P(15), 'brown2', { bold: false, width: TW, lines: descLines, name: 'ChapterDescription' }); y += P(30) + (descLines - 1) * P(21);
     const gate = a.gate(), reason = gate?.reason, d = REGION_DEFS.find(x => x.id === c.id)!;
     const st: RegionRow = row || { id: c.id, done: 0, total: c.stages, state: gate?.ok ? 'open' : 'locked', hasData: true, isNew: false, tappable: true };
     const count = st.state === 'locked' || st.state === 'far' ? unlockText(c.id) : st.done + ' / ' + st.total + ' 关';
@@ -266,6 +287,8 @@ export function createJourneyUi(h: JourneyUiHost) {
     if (!enabled && (blocked || btn.enabled || st.state === 'far')) p.text(blocked || (btn.enabled ? '暂不可进入' : unlockText(c.id)), 0, by - P(40), P(13), 'brown2', { bold: false, width: TW, name: 'ChapterCondition' });
     if (enabled) p.button('primary', btn.text, band.cx, by, BTW, P(52), () => { if (a.gate()?.ok) a.enter(); }, { fontSize: P(18), name: 'Continue-' + c.id });
     else flatDisabled(p, btn.enabled ? '暂不可进入' : btn.text, band.cx, by, BTW, P(52), 'Continue-' + c.id, mc ? GATE_LOCKED_FALLBACK(mc.n!) : view.state === 'locked' && view.n != null ? GATE_LOCKED_FALLBACK(view.n) : undefined);
+    if (under) { const close0 = p.close.bind(p), destroy0 = p.destroy.bind(p), restore = () => { if (under.alive) under.body.active = underWas || under.body.active; };
+      p.close = (d?: () => void) => { restore(); close0(d); }; p.destroy = () => { restore(); destroy0(); }; }
     p.button('secondary', '返回章节', 0, PH - P(4), P(140), P(36), () => p.close(a.back), { fontSize: P(14), name: 'BackToChapters', sound: 'back' });
     return p;
   }
@@ -295,7 +318,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, LOCKED_PAGE_COUNT_LINE, chapterFit, CHAPTER_CLEAR, TITLE_OVERHANG_PX, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
+  return { version: JOURNEY_UI_VERSION, journalLines, splitsWord, JOURNAL_MIN_LAST, JOURNAL_WORDS, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, LOCKED_PAGE_COUNT_LINE, chapterFit, CHAPTER_CLEAR, TITLE_OVERHANG_PX, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };
