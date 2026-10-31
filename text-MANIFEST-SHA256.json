@@ -2696,8 +2696,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 33862,
-    "sha256": "da9118c10c9e803f362b13439c52319fddf279014aed796a463ffdb0f1744da9"
+    "bytes": 35979,
+    "sha256": "dc14ca8c5719e73d48577dea5e96515938825648164640b54498a48860bb0c94"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -4051,8 +4051,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
-    "bytes": 37206,
-    "sha256": "6b4e8c4278661d70334eae95492ee34231e3d6fe7d1b7b98f37c2988f58429e1"
+    "bytes": 41810,
+    "sha256": "2f685524d9b16876ccf3f05444fd5ef498631089e887f6969efdb4b547a64cce"
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 34373,
-    "sha256": "2707cad00fbbc8b8c34b9c1cde2d09cd56e7ee3c0ce785f94198ebcfb690ca7d"
+    "bytes": 34443,
+    "sha256": "f314b7b4c8287516810b063c3c1c56bcf8699944e45201180807a005c78f95ed"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
