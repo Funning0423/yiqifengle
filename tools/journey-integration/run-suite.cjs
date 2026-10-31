@@ -101,6 +101,7 @@ const tests=[
  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
  ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
  ['host-sync-per-frame','tools/host-sync/test_no_sync_host_per_frame.cjs'],
+ ['host-sync-hot-callbacks','tools/host-sync/test_no_sync_hot_callbacks.cjs'],
  ['cam-trace-per-camera','tools/cam-trace/test_cam_trace_per_camera.cjs'],
  ['cam-trace-default-off','tools/cam-trace/test_cam_trace_default_off.cjs'],
  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
