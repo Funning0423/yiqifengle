@@ -39,28 +39,30 @@ and call `handle.dispose()` (or `unloadCoastScene(handle)`) on scene teardown / 
     reuse_grass_a 25 (env_prop_grass_tuft_01), reuse_grass_b 19 (env_prop_grass_tuft_02), reuse_flowers 16 (env_prop_flowers_01),
     reuse_rock_0 3 / reuse_rock_1 3 / reuse_rock_2 1 (env_prop_rock_01/02/03, normalised: max |x|,|y| 1 m, base -0.1 m),
     reuse_rock_s0 5 / s1 7 / s2 6 (same rocks, preview tinted 38% to #E9D7B0), reuse_bush 3 (env_prop_hydrangea_bush_01),
-    reuse_palm_tall 2 / reuse_palm_lean 1 (env_prop_palm_tall_01 / _lean_01), reuse_cloud 5 (env_cloud_01).
+    reuse_palm_tall 2 / reuse_palm_lean 1 (env_prop_palm_tall_01 / _lean_01). r6: reuse_cloud removed; only the 2 palm names reach
+    resolveReuse (from:'island'); the other 10 names (88 instances) come from models/coast_reuse.glb (see 'Reuse bake' below).
   - `resolveMaterial({mesh, kind:'std'|'unlit', alpha, emit}) => Material|null` - caller-owned island/meadow material; null = console.error,
     that mesh is not mounted (no fallback).
   - `cancelled() => boolean` - checked after every async step; true = release loaded assets, show nothing (console.warn, not an error).
-- dispose: destroys all instantiated nodes; decRefs the layout + 4 glb prefabs loaded here; never releases island templates/materials.
+- dispose: destroys all instantiated nodes; decRefs the layout + 5 glb prefabs + coast_palette_256 + coast_palette_sand_256 loaded here; never releases island templates/materials.
 
 ## Materials (coast_palette, Grok Bot option B, 2026-10-30)
-- models/*.glb carry TEXCOORD_0 (texel centres, exact in fp16, kept by meshCompress quantize) into `textures/coast_palette.png` and no COLOR_0
+- models/*.glb carry TEXCOORD_0 (texel centres, exact in fp16, kept by meshCompress quantize) into `textures/coast_palette_256.png` and no COLOR_0
   (tools/coast-scene/coast_palette.py + palette_uv.py, run by build_coast.py).
-- coast_palette.png = the island's env_palette_256 layout (256x256, 16 bands x 16 px); bands 0/11/12 rewritten as 4-px coast swatches;
+- coast_palette_256.png = the island's env_palette_256 layout (256x256, 16 bands x 16 px); bands 0/11/12 rewritten as 4-px coast swatches;
   band 13 (emissive) and every other band byte-identical to the island, so the island M_env_palette's emissive map still lines up.
   The island env_palette_256.png is not touched (pinned in test_coast_scene_loader.cjs).
-- Creator: let it import textures/coast_palette.png (Creator writes coast_palette.png.meta + the texture sub-asset; do NOT hand-write).
+- Creator: let it import textures/coast_palette_256.png AND textures/coast_palette_sand_256.png (Creator writes the .meta files + the texture sub-asset; do NOT hand-write).
   In the Inspector set the texture like the island palette sampler: Min/Mag filter **linear**, Mip filter **linear** (mipmaps on),
-  Wrap S/T **clamp-to-edge**, no premultiply alpha, no fixAlphaTransparencyArtifacts; not in an auto-atlas. Apply. (RGB PNG, 2,951 B:
-  2,193 distinct colours, so lossless 8-bit indexed is impossible; WeChat build copies the PNG as is.)
+  Wrap S/T **clamp-to-edge**, no premultiply alpha, no fixAlphaTransparencyArtifacts; not in an auto-atlas. Apply (same for both). (RGB PNG, 2,969 B / 3,156 B; coast_palette_256 was
+  2,193+ distinct colours, so lossless 8-bit indexed is impossible; WeChat build copies the PNG as is.)
 - No new material asset: the loader clones the island's shared **M_env_palette** at runtime (`new Material(); m.copy(island)` = same effect,
   technique, defines, pipeline states and properties incl. roughness 0.9 / specular 0.4 / emissive map) and sets only `mainTexture` =
   coast_palette. One clone per island material, destroyed by dispose(); the island material is never modified.
 - resolveMaterial(key): `key.palette === true` -> return the island's M_env_palette (combined_visual_m.glb sub-asset
   61fa04e2-644b-5997-bfd1-812b61d3586b@18b7e, `assetManager.loadAny({uuid})` like IslandProps.ts). `key.palette === false` (foam,
-  foam_inner, contact, footprints, blob, net, crabtrap_mesh, tide_sheet, sidepool, beacon_line: translucent / unlit) -> GGbot's choice of
+  foam_inner, tide_sheet, sidepool, beacon_line, beacon_lamp: translucent / unlit / emissive; r6: net, crabtrap_mesh, seaglass, anemone are
+  opaque palette meshes now, contact/blob/footprints removed) -> GGbot's choice of
   island material (e.g. M_env_sea_foam), used as returned.
 - **Confirm on the Mac** the base-colour texture property name of the island M_env_palette's effect (assumed `mainTexture`,
   `COAST_MAIN_TEXTURE` in CoastSceneLoader.ts): in Creator select combined_visual_m.glb > M_env_palette and check the property, or in the
@@ -68,12 +70,21 @@ and call `handle.dispose()` (or `unloadCoastScene(handle)`) on scene teardown / 
   a throwing setProperty or a read-back mismatch = console.error [QF_COAST] and that mesh is NOT mounted (island colours are never shown).
 - Mac check: step 6 side-by-side must include the coast sand next to the island beach sand (same camera) - final colour judgement is the
   engine screenshot, not the Blender Cycles previews.
-## Material red line - BLOCKED for the correct look (see README)
-Island v2.2 (combined_visual_m.glb M_env_palette, sub-asset 61fa04e2-...@18b7e, loaded via assetManager.loadAny like IslandProps.ts) and
-meadow (env_meadow.glb M_meadow_palette, meadow even recompiles USE_VERTEX_COLOR:false) are palette-TEXTURE materials: colour comes
-from TEXCOORD_0 into env_palette_256. The coast glbs have POSITION/NORMAL/COLOR_0 only (no UVs), so any island/meadow material
-would sample one texel. The coast meshes must be re-baked with palette UVs (build_coast.py, vertex colour -> nearest palette texel)
-before resolveMaterial can give the real look. Until then the Mac step 5 run will show material errors or wrong colours by design.
+## Material red line - RESOLVED (option B coast_palette, fafaad1a); kept as history: the coast glbs now carry palette UVs.
+
+## Reuse bake (r6; rebuild: QF_ISLAND_ART_GLB_DIR=<art assets/glb> QF_REUSE_WORK=<scratch> blender -b --python tools/coast-scene/bake_reuse_decimate.py,
+## then QF_COAST_PALETTE_IN=<fafaad1a coast_palette.png> python3 tools/coast-scene/coast_palette_reuse_slots.py, then python3 tools/coast-scene/bake_reuse.py;
+## copy <scratch>/coast_reuse.glb + coast_palette_256.png into region_coast)
+## Reuse bake (r6, 场景设计部 2026-10-30, product/2026-10-30/coast-reuse-bake/README.md)
+- models/coast_reuse.glb: island art env_prop_grass_tuft_01/02, flowers_01, rock_01/02/03, hydrangea_bush_01 (node names == island names,
+  unique in region_coast/models). No material in the glb (like the other coast glbs): Creator meshCompress as the other models.
+- The loader gives them the coast_palette clone of the island M_env_palette; reuse_rock_s* use a second clone with mainTexture =
+  coast_palette_sand_256 (same effect, no new shader, same mesh as reuse_rock_*). norm (scale, offsetY) is DATA in CoastSceneLayout.
+- Mac check: in the ?qfcoastkit=1 run there must be NO `[QF_COAST] reuse unresolved` and NO `coast_palette swap failed`; reusePlaced = 91.
+- **Acceptance (FAIL otherwise):** in the Mac engine screenshots the white foam ring around the arrival steps (foam / foam_inner) must
+  render with the island's translucent foam material chosen by GGbot in MATERIAL_MAP (M_env_sea_foam), soft and see-through onto the
+  sand - NOT an opaque white slab. An opaque white ring = FAIL (check resolveMaterial returned M_env_sea_foam, not the palette clone).
+- Mac check: the arrival must show the island env_cloud_layer above the coast (reuse_cloud was removed on that evidence).
 
 ## Pending Creator metas (GGbot, Grok Bot 2026-10-30)
 Every .meta Creator must generate is listed exactly (one path per line, no wildcards) in `tools/build-guard/meta-pending-creator.txt`. After the Creator import: commit those metas and remove each line; the `meta-missing` gate fails on a stale line (meta exists), a wildcard, and on any bundles/** asset without a meta. The list must be empty when the Mac step is done.

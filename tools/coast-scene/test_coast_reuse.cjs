@@ -1,5 +1,5 @@
 'use strict';
-// coast-reuse gate (GGbot): every reuse:true entry of bundles/region_coast/data/coast_layout.json must resolve to a node of the
+// coast-reuse gate (GGbot; r6 split by 场景设计部): every island-sourced reuse:true entry of bundles/region_coast/data/coast_layout.json must resolve to a node of the
 // island prefab that is in the scene during the arrival (static_seat_preview/room/room_no_original_chair.glb). NO skips allowed
 // (Grok Bot 2026-10-30): any unresolved entry fails. The node tree is read from the real glb (node names), not a hand list.
 const fs=require('fs'),path=require('path'),ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
@@ -12,11 +12,16 @@ let fails=0;const ok=(c,m)=>{if(!c){fails++;console.log('FAIL '+m);}};
 const b=fs.readFileSync(path.join(A,'bundles/static_seat_preview/room/room_no_original_chair.glb')),j=JSON.parse(b.slice(20,20+b.readUInt32LE(12)).toString());
 const mk=i=>({name:j.nodes[i].name||'',children:(j.nodes[i].children||[]).map(mk)});
 const island={name:'room',children:j.scenes[j.scene||0].nodes.map(mk)};
-const L=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_coast/data/coast_layout.json'),'utf8')).layout.filter(e=>e.reuse);
+const L0=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_coast/data/coast_layout.json'),'utf8')).layout.filter(e=>e.reuse);
+// r6 (场景设计部 coast-reuse-bake): from:'island' -> island prefab (GGbot resolver); from:'region_coast' -> node src in models/coast_reuse.glb (loader)
+const L=L0.filter(e=>SRC[e.mesh]&&SRC[e.mesh].from==='island'),LB=L0.filter(e=>SRC[e.mesh]&&SRC[e.mesh].from==='region_coast');
+{const rb=fs.readFileSync(path.join(A,'bundles/region_coast/models/coast_reuse.glb')),rj=JSON.parse(rb.slice(20,20+rb.readUInt32LE(12)).toString()),have=new Set(rj.nodes.filter(n=>n.mesh!==undefined).map(n=>n.name));
+ let other=0;for(const f of fs.readdirSync(path.join(A,'bundles/region_coast/models')).filter(f=>f.endsWith('.glb')&&f!=='coast_reuse.glb')){const b2=fs.readFileSync(path.join(A,'bundles/region_coast/models',f)),j2=JSON.parse(b2.slice(20,20+b2.readUInt32LE(12)).toString());for(const n of j2.nodes)if(have.has(n.name))other++;}
+ const mb=LB.filter(e=>!have.has(SRC[e.mesh].src));console.log(`info baked reuse resolved ${LB.length-mb.length}/${LB.length} in models/coast_reuse.glb`);ok(mb.length===0,'baked reuse: every region_coast source node exists in coast_reuse.glb (missing '+mb.map(e=>e.mesh)+')');ok(other===0,'baked reuse node names unique across region_coast/models');}
 const errs=[],ce=console.error;console.error=m=>errs.push(String(m));const res=CAL.createCoastReuseResolver(island,SRC);
 const miss={};let hit=0;for(const e of L){const n=res(e.mesh);if(n)hit++;else miss[e.mesh]=(miss[e.mesh]||0)+1;}console.error=ce;
 console.log(`info reuse resolved ${hit}/${L.length}; missing ${JSON.stringify(miss)}`);
-ok(Object.values(SRC).reduce((a,x)=>a+x.count,0)===L.length,'COAST_REUSE_SOURCES counts == layout');ok(L.length===96,'reuse entries '+L.length);ok(errs.length===Object.keys(miss).length,'every unresolved name logs console.error once');
+ok(Object.values(SRC).reduce((a,x)=>a+x.count,0)===L0.length,'COAST_REUSE_SOURCES counts == layout');ok(L0.length===91&&L.length+LB.length===91,'reuse entries '+L0.length);ok(errs.length===Object.keys(miss).length,'every unresolved name logs console.error once');
 ok(hit===L.length,`reuse skips not allowed: ${L.length-hit} of ${L.length} have no island source`);
 // self-test: a missing source must be caught
 {const r=CAL.createCoastReuseResolver({name:'x',children:[]},SRC);const e2=[];console.error=m=>e2.push(m);const n=r('reuse_palm_tall');console.error=ce;ok(n===null&&e2.length===1,'selftest missing node');}
