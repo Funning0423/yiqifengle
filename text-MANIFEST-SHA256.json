@@ -2691,8 +2691,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 39875,
-    "sha256": "76fc551f03dee0452620bcdb17c7fd43a3a3bc185d4d699f1f4032b27ff9c8c9"
+    "bytes": 43449,
+    "sha256": "4bc011e761ee7dee7b3c745314e884b55e9c7660cb57296837685d67f7158604"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 31700,
-    "sha256": "e47362a4095f60d6eaf55f513d07a989b2fd8a87739cd38c8f269efa9182c85e"
+    "bytes": 31888,
+    "sha256": "57afca60b123490455f3f0d236d43686eb956cec3b569e9b8d340ee69f887df3"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
