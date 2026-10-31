@@ -11,6 +11,8 @@ import type { RegionKey, RegionRow } from '../../../scripts/ui/JourneyCore';
 import type { ChapterActions } from '../../../scripts/ui/IslandPanels';
 import type { JourneyUiHost } from '../../../scripts/ui/JourneyUi';
 export const JOURNEY_UI_VERSION = 1;
+/** Last journal grid fit-ladder result (any instance; read by tools/new-regions/test_journal_cell_fit_r5.cjs). */
+let lastCellFit: { step: number; widestPt: number; availPt: number } | null = null;
 export function createJourneyUi(h: JourneyUiHost) {
   const { Color, Graphics, UIOpacity, Vec3, isValid, tween } = h.cc;
   const { artSprite, makeLabel, measure, popupScale, pressable, uiNode, tintRgb, journeySeenDone, lastRegion, markRegionSeen, reducedMotion, seenRegions, setJourneySeenDone,
@@ -23,7 +25,11 @@ export function createJourneyUi(h: JourneyUiHost) {
   /** Grid cell status (SPEC §13.1): 完成 n/n ✓ · 进行中 x/n · 可前往 · 未开启 = condition label · 远方 = · · · */
   /** UI设计部 final wording (2026-10-30 23:20): ONE line, a half-width space on each side of N. The only "clear level N" template on
    *  any player-visible surface (button / grid cell / page count); swap the text here. FALLBACK is used only when a measured fit fails. */
-  const GATE_LOCKED_LABEL = (n: number) => `通关第 ${n} 关后开启`, GATE_LOCKED_FALLBACK = (n: number) => `第 ${n} 关后开启`, GATE_CELL_LABEL = (n: number) => `通关第 ${n} 关后`, GATE_CELL_SHORT = (n: number) => `第 ${n} 关后`;
+  const GATE_LOCKED_LABEL = (n: number) => `通关第 ${n} 关后开启`, GATE_LOCKED_FALLBACK = (n: number) => `第 ${n} 关后开启`, GATE_CELL_LABEL = (n: number) => `通关第 ${n} 关后`;
+  /** UI设计部 r5 final (2026-10-31): journal GRID CELL text for a 'main:N' condition (challenge gate not open, or region locked by
+   *  main:N), ONE text at every width. Swap the wording here only. {N} = level; tight = fit-ladder step (a): no half-width space. */
+  const GATE_CELL_TEMPLATE = '{N} 关后开启';
+  const gateCellText = (n: number, tight = false) => { const t = GATE_CELL_TEMPLATE.replace('{N}', String(n)); return tight ? t.replace(/\s*(\d+)\s*/, '$1') : t; };
   /** Mainline level N (1-based) a 'main:N' unlock requirement names, else null (e.g. 'lake' → 湖畔通关后, unchanged). */
   function mainReq(id: string): number | null { const q = defOf(id).unlock.requires; const m = q.length === 1 ? /^main:(\d+)$/.exec(q[0]) : null; return m ? Number(m[1]) : null; }
   /** Level after which a mainline region's CHALLENGES open: region-campaign.js inspect() challengeUnlocked = prefixCleared(first + 4),
@@ -33,12 +39,12 @@ export function createJourneyUi(h: JourneyUiHost) {
   }
   /** Locked condition as shown on the grid cell and the page count; the button adds 开启 (main:N → GATE template). */
   function unlockText(id: string): string { const n = mainReq(id); return n != null ? GATE_CELL_LABEL(n) : defOf(id).unlock.label; }
-  /** Grid cell status with the r5 fit rule: a 'main:N' condition that does not fit its cell uses GATE_CELL_SHORT (measured), never '…'. */
+  /** Grid cell status: a 'main:N' condition reads gateCellText(N) (UI设计部 r5 final, one text at every width; fit ladder in openJourney). */
   function rowStatusText(r: RegionRow): string {
     if (r.state === 'done') return r.done + '/' + r.total + ' ✓';
     if (r.state === 'progress') return r.done + '/' + r.total;
     if (r.state === 'open') return '可前往';
-    if (r.state === 'locked') return unlockText(r.id);
+    if (r.state === 'locked') { const n = mainReq(r.id); return n != null ? gateCellText(n) : defOf(r.id).unlock.label; }
     return '· · ·';
   }
   /** P3 (UI设计部 r4): 远方 only for regions with no data, never with a seal; a known region that is still locked shows its
@@ -72,7 +78,7 @@ export function createJourneyUi(h: JourneyUiHost) {
   function regionView(r: RegionRow, gate: any, challenges: number): RegionView {
     const d = defOf(r.id);
     if (d.provider === 'mainline' && r.state !== 'locked' && r.state !== 'far') {
-      if (!gate || gate.reason === 'stage-locked') { const n = challengeGateLevel(r.id)!; return { state: 'gated', text: GATE_LOCKED_LABEL(n), enabled: false, flat: true, cell: GATE_CELL_LABEL(n), go: GATE_CELL_LABEL(n), n }; }
+      if (!gate || gate.reason === 'stage-locked') { const n = challengeGateLevel(r.id)!; return { state: 'gated', text: GATE_LOCKED_LABEL(n), enabled: false, flat: true, cell: gateCellText(n), go: GATE_LOCKED_LABEL(n), n }; }
       const c = Math.max(0, Math.min(4, challenges | 0));
       if (c >= 4) return { state: 'done', text: '再访' + d.short, enabled: true, flat: false, cell: '4/4 ✓', go: '再访 ›', n: null };
       if (c > 0) return { state: 'progress', text: '继续 ' + c + '/4', enabled: true, flat: false, cell: c + '/4', go: '继续 ›', n: null };
@@ -81,8 +87,18 @@ export function createJourneyUi(h: JourneyUiHost) {
     const b = chapterButton(r);
     return { state: r.state, ...b, cell: rowStatusText(r), go: b.enabled ? (r.state === 'done' ? '再访 ›' : r.state === 'open' ? '前往 ›' : '继续 ›') : '尚未开启', n: r.state === 'locked' ? mainReq(r.id) : null };
   }
-  /** Fit a one-line 'main:N' / gate text: full template, else (measured) the short 第 N 关后 form; never '…'. */
-  function fitGate(t: string, n: number | null, size: number, w: number): string { return n != null && measure(t, size) > w ? GATE_CELL_SHORT(n) : t; }
+  /** UI设计部 r5 fit ladder for the 'main:N' grid cells, decided for ALL such cells together from a MEASURED fit failure:
+   *  0 = template as is; 1 = (a) no half-width space; 2 = (b) + row padding 2 pt narrower each side; 3 = (c) still too wide:
+   *  stay one line (no wrap, no …) and report via lastCellFit. pad = current status-row padding (each side). */
+  function cellFitStep(ns: number[], size: number, w: number, pad: number, pt: (x: number) => number): { step: number; tight: boolean; width: number; widest: number } {
+    const widest = (tight: boolean) => Math.max(0, ...ns.map(n => measure(gateCellText(n, tight), size)));
+    if (widest(false) <= w) return { step: 0, tight: false, width: w, widest: widest(false) };
+    if (widest(true) <= w) return { step: 1, tight: true, width: w, widest: widest(true) };
+    const w2 = w + 2 * Math.min(pad, pt(2));
+    return { step: widest(true) <= w2 ? 2 : 3, tight: true, width: w2, widest: widest(true) };
+  }
+  /** Focus card 'go' line: the full 通关第 N 关后开启; if it does not fit, the cell text (same as the grid). Never …. */
+  function fitFocusGo(t: string, n: number | null, size: number, w: number): string { return n != null && measure(t, size) > w ? gateCellText(n) : t; }
   /** Coast chapter hint: C1–C6 海岸漫游, C7+ 灯塔夜航. */
   function coastChapterHint(done: number): string { return done >= 6 ? '灯塔夜航' : '海岸漫游'; }
   /** Bar growth from the last seen value, only when it changed (reduced → jump). Returns the shown done at time t. */
@@ -146,11 +162,13 @@ export function createJourneyUi(h: JourneyUiHost) {
     p.tint.label(makeLabel(face, fd.name, tx, P(fd.subtitle ? 28 : 22), P(fd.name.length > 4 ? 17 : 18), { align: 'left', width: tw, name: 'Name' }), 'brown');
     if (fd.subtitle) p.tint.label(makeLabel(face, '章节 · ' + fd.subtitle, tx, P(10), P(12), { align: 'left', width: tw, bold: false, name: 'Subtitle' }), 'brown2');
     p.tint.label(makeLabel(face, fr.done + ' / ' + fr.total + ' 关', tx, fd.subtitle ? -P(8) : 0, P(14), { align: 'left', width: tw, bold: false, name: 'Count' }), 'brown2');
-    { const fv = viewOf(fr); p.tint.label(makeLabel(face, fitGate(fv.go, fv.n, P(14), tw), tx, -P(22), P(14), { align: 'left', width: tw, name: 'Go' }), fv.enabled ? 'teal' : 'brown2'); }
+    { const fv = viewOf(fr); p.tint.label(makeLabel(face, fitFocusGo(fv.go, fv.state === 'gated' ? fv.n : null, P(14), tw), tx, -P(22), P(14), { align: 'left', width: tw, name: 'Go' }), fv.enabled ? 'teal' : 'brown2'); }
     if (fr.isNew) redDot(p, face, tx + Math.min(tw, measure(fd.name, P(18))) + P(6), P(30), P(7));
     pressable(card, face, () => { markRegionSeen(focusId); openChapter(focusId); });
     // 3×3 seal grid (SPEC §13.1): all 9 regions; whole cell taps (≥44 pt); focus region = 2 pt teal ring; far = not tappable.
     const GW = (IW - P(16)) / 3, GH = P(cellH), gy0 = P(116) + CH + P(12), nodes: Node[] = [];
+    const gateNs = rows.map(r => viewOf(r)).filter(v => v.n != null && (v.state === 'gated' || v.state === 'locked')).map(v => v.n!);
+    const fit = cellFitStep(gateNs, P(STATUS_PT), GW - P(4), P(2), P); lastCellFit = { step: fit.step, widestPt: fit.widest / P(1), availPt: fit.width / P(1) };
     rows.forEach((r, i) => {
       const col = i % 3, row = Math.floor(i / 3), cx = band.cx - IW / 2 + GW / 2 + col * (GW + P(8)), cyc = gy0 + row * (GH + P(8)) + GH / 2;
       const n = uiNode('Chapter-' + r.id, p.body, GW, GH), q = p.at(cx, cyc); n.setPosition(q[0], q[1], 0);
@@ -163,7 +181,8 @@ export function createJourneyUi(h: JourneyUiHost) {
       const nm = rowName(r), ny = top - P(short ? 38 : 46), sty = top - P(short ? 53 : 63);
       p.tint.label(makeLabel(c, nm, 0, ny, P(12.5), { width: GW - P(4), name: 'Name' }), far || locked ? 'brown2' : 'brown');
       const rv = viewOf(r), hot = rv.state === 'progress' || rv.state === 'open';
-      p.tint.label(makeLabel(c, ellipsize(fitGate(rv.cell, rv.n, P(STATUS_PT), GW - P(4)), P(STATUS_PT), GW - P(4)), 0, sty, P(STATUS_PT), { width: GW - P(4), lines: 1, bold: hot, name: 'Status' }), hot ? 'teal' : 'brown2');
+      const gc = rv.n != null && (rv.state === 'gated' || rv.state === 'locked'), cw = gc ? fit.width : GW - P(4);
+      p.tint.label(makeLabel(c, gc ? gateCellText(rv.n!, fit.tight) : ellipsize(rv.cell, P(STATUS_PT), cw), 0, sty, P(STATUS_PT), { width: cw, lines: 1, bold: hot, name: 'Status' }), hot ? 'teal' : 'brown2');
       if (r.isNew && rv.state !== 'gated') redDot(p, c, GW / 2 - P(9), top - P(9), P(7));
       if (r.tappable) pressable(n, c, () => { markRegionSeen(r.id); openChapter(r.id); }, { onPress: d => { down = d; p.tint.repaint(bg); } });
       nodes.push(c);
@@ -257,7 +276,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_SHORT, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
+  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };
