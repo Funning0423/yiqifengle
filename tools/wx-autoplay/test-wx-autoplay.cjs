@@ -7,7 +7,7 @@ const H=path.join(__dirname,'qf-autoplay.js'),api=require(H);
 assert.throws(()=>api.parseScript('{}'),/steps/);
 assert.throws(()=>api.parseScript({steps:[{op:'fly'}]}),/unknown op/);
 assert.throws(()=>api.parseScript({steps:[{op:'tap',x:500,y:1}]}),/outside/);
-assert.throws(()=>api.parseScript({steps:Array.from({length:21},(_, i)=>({op:'screenshot',name:'s'+i}))}),/20 screenshots/);
+assert.equal(api.MAX_SHOTS,1500,'Mac pt cap (burst+untilLake+autoPlay ~308 shots per fin run)');assert.throws(()=>api.parseScript({steps:Array.from({length:1501},(_, i)=>({op:'screenshot',name:'s'+i}))}),/(1500 screenshots|too many steps)/);
 assert.throws(()=>api.parseScript({launchQuery:'?a=<x>',steps:[]}),/launchQuery/);
 for(const f of fs.readdirSync(path.join(__dirname,'examples')))api.parseScript(fs.readFileSync(path.join(__dirname,'examples',f),'utf8'));
 assert.deepEqual(api.toClient(195,422,{w:390,h:844}),{x:195,y:422});
