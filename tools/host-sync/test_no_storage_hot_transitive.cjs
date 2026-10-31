@@ -70,7 +70,7 @@ const SINK_OK={
  'world-r2/R5PersistenceProbe.ts#createIsolatedTestPort#getItem':'QA persistence probe API, harness-called',
  'mainline-r1/adapter/mainline-port.js#save#setItem':'mainline save (write path: commit / chest / claim), not per frame',
  'r4-cloud-compat/adapter/cocos-port.js#save#setItem':'R4 save (write path)',
- 'world-r1/WorldFlowComponent.ts#reportRuntime#setItem':"diagnostic write guarded by event!=='tick' (door-shut / hide / show); timed by [QF_STORAGE]",
+ 'world-r1/WorldFlowComponent.ts#reportRuntime#setItem':"NON-WX BRANCH ONLY (approved diff 05, 2026-10-31): on wx the diagnostic goes through async wx.setStorage; the sole sys.localStorage.setItem is the else-branch for hosts without wx (web/node). Pinned by test_report_runtime_async (0 sync calls on wx; exactly one setItem, inside the else of the wx.setStorage check)",
  'region/RegionValidation.ts#capture#setItem':'skycity diagnostic capture on board arm (one-shot)',
  'audio/GameAudio.ts#setSfxMuted#setItem':'settings toggle (tap)','audio/GameAudio.ts#setMusicVolume#setItem':'settings change (tap)',
  'ui/EndingScreen.ts#markJourneyComplete#setItem':'ending (one-shot)',
