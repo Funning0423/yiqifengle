@@ -266,7 +266,10 @@ export class WorldFlowComponent extends Component {
     this.lastDiagnosticAt=Date.now();
     // Periodic telemetry must not keep resetting the IDE's storage persistence debounce.
     // State transitions remain inspectable; tick details remain in console.
-    try {if(event!=='tick')sys.localStorage.setItem('dot-runtime-diagnostics-20261010:world-flow',JSON.stringify(data));}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}
+    // P0 finR: never a sync host write from a world state change; WeChat writes the diagnostic asynchronously.
+    try {if(event!=='tick'){const key='dot-runtime-diagnostics-20261010:world-flow',json=JSON.stringify(data),wx=(globalThis as any).wx;
+      if(wx&&typeof wx.setStorage==='function')wx.setStorage({key,data:json,fail:(e:any)=>console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(e?.errMsg||e))});
+      else sys.localStorage.setItem(key,json);}}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}
     // build05 DevTools check: the full snapshot (~11.7 KB) flooded the release console. Debug builds, or an explicit
     // opt-in (globalThis.__worldFlowLog = true, e.g. for a recording session), only. snapshot() itself is untouched.
     if(worldFlowConsoleEnabled(DEBUG,(globalThis as any).__worldFlowLog))console.info('[OI_WORLD_FLOW]',JSON.stringify(data));
