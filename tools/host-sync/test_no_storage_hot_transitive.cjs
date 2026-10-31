@@ -80,9 +80,10 @@ const SINK_OK={
  'world-r2/PersistentR5Port.ts#setItem#setItem':'R5 write path','world-r2/RegionFlowTest.ts#setItem#setItem':'QA flow-test write path','world-r2/WorldNativeComposition.ts#setItem#setItem':'R4 write path (frozen WNC:234)',
  /* reached via aliased getItem/setItem from guarded callers: LakesideArrivalUI.update reads seenT03 once per ride start (lastRide edge);
     ManagedMobileBoardUI.maybeShowRegionTitle reads/writes qfl.ui.seenRegionTitle once per stage change (titleStage edge) */
- 'world-r2/QaSkip.ts#qaSkipAllowed#getAccountInfoSync':'QA gate; hot callers go through cachedWxQuery / memoized flags',
- 'world-r2/QaSkip.ts#qaQuery#getEnterOptionsSync':'QA query; boot / tap','world-r2/QaSkip.ts#qaQuery#getLaunchOptionsSync':'QA query; boot / tap',
- 'region/JourneyTransport.ts#transportQaEnabled#getAccountInfoSync':'QA entry gate (boot / tap)','region/JourneyTransport.ts#qaTransportEnabled#getAccountInfoSync':'QA entry gate (boot / tap)',
+ /* finR: the ONLY env/query host reads left; memoized per wx object (WeakMap, first call = boot), every later call is a Map hit.
+    Proven by tools/storage-cache/test_host_env_once.cjs (1000 gate calls → 1 host call each) and [QF_SYNC] on device. */
+ 'world-r2/QaSkip.ts#wxEnvVersion#getAccountInfoSync':'envVersion read once per wx object (WeakMap memo), boot',
+ 'world-r2/QaSkip.ts#wxLaunchQuery#getEnterOptionsSync':'launch/enter query read once per wx object (WeakMap memo), boot','world-r2/QaSkip.ts#wxLaunchQuery#getLaunchOptionsSync':'launch/enter query read once per wx object (WeakMap memo), boot',
 };
 function index(files){const F=new Map(),G=new Map();for(const P of files){for(const d of P.fns){if(!F.has(d.name))F.set(d.name,[]);F.get(d.name).push({...d,P});}for(const d of P.getters){if(!G.has(d.name))G.set(d.name,[]);G.get(d.name).push({...d,P});}}return {F,G};}
 function scan(files,cut=CUT,sinkOk=SINK_OK){const {F,G}=index(files);const v=new Map();
