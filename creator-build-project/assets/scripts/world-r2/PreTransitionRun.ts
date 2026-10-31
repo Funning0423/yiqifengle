@@ -85,7 +85,14 @@ export class PreTransitionRunner{
    if(!['island','result','skycity-visit'].includes(spec.place))(this.d.composition as any).warmMeadowIfIsland?.('pre',true)/* P0 wipe */;
    let r=await this.toPlace('island');if(!r.ok)return r;
    let prof:any=null;
-   if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);if(!prof.ok)return prof;}
+   if(spec.checkpoint!==null){
+    /* [QF_SYNC] qa allow (P0 finR): the test-only profile replays 1..12 witness stages into a FRESH isolated namespace through the real
+     * controllers in ONE synchronous call (by design: the profile must exist before the next frame places her). Since finR each key is
+     * read once (write-through cache, test_region_flow_checkpoint_reads: ≤ distinct keys + writes), but its writes are sync by nature.
+     * This QA hook never runs in release (preTransitionEnabled = false) and the reason is scoped to this one call (finally restores). */
+    const g:any=globalThis,prev=g.__qfSyncAllow;g.__qfSyncAllow='pre-transition-profile';
+    try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;}
+    if(!prof.ok)return prof;}
    if(spec.place==='island'){
     /*QF_PROBE_BEGIN*/if(spec.justWon){try{finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true});}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
     if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true});}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
