@@ -106,7 +106,7 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
     const texts=p.root.getComponentsInChildren(cc.Label).map(l=>l.string);assert(texts.includes('旅程 14 / 27'),texts);assert(texts.includes('章节 · 天空回声')||!texts.includes('天空回声'),'sky subtitle only as 章节 · 天空回声');
     const sc=Math.max(0.3,Math.min(w/750,h/1300,0.62)),f=Math.min(1,(h-16)/(h<700?458:514));assert(Math.abs(p.height*sc-(h<700?458:514)*f)<1e-6,'panel 514 / 458');
     for(const d of J.REGION_DEFS)assert(p.root.find('Chapter-'+d.id),d.id);
-    const cell=p.root.find('Chapter-coast').getComponent(cc.UITransform),pw=Math.min(330,Math.max(240,w-40));assert(Math.abs(cell.width*sc-(pw-80*f)/3)<0.01,'cell width (inner−2·8−16)/3 (r4 P2) '+[cell.width*sc,pw,f]);if(h>=500)assert(cell.height*sc>=44-1e-6&&cell.width*sc>=44-1e-6,'cell touch ≥ 44 pt');
+    const cell=p.root.find('Chapter-coast').getComponent(cc.UITransform),pw=Math.min(330,Math.max(240,w-40));assert(Math.abs(cell.width*sc-(pw-(202+173)/3*sc-(2*8.5+16)*f)/3)<0.01,'cell width (paper inner − 2·8.5 − 16)/3 (r5 P2: paper edge 202/173 src px) '+[cell.width*sc,pw,f]);if(h>=500)assert(cell.height*sc>=44-1e-6&&cell.width*sc>=44-1e-6,'cell touch ≥ 44 pt');
     for(const id of ['rail','cloud','spring']){const n=p.root.find('Chapter-'+id),ls=n.getComponentsInChildren(cc.Label).map(l=>l.string);
       assert(!n.getComponentsInChildren(cc.UITransform).some(t=>/Seal/.test(t.node.name)),'no-data '+id+': no seal / blank seal');
       assert.deepEqual(ls,['远方','· · ·'],'no-data '+id+' shows 远方');H.tap(n);await H.flush();assert(!o.popups.find('ChapterPanel'),'no-data '+id+' not tappable');}
