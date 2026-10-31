@@ -9,12 +9,31 @@
  *  JUMP = position step > CAM_LOG_CAP.m (TRANSITION_CAM per-frame lens cap ·1.05) or view step > CAM_LOG_CAP.deg in one write. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
 import {debugSearch} from './DebugQuery';
-/*QF_PROBE_BEGIN*/import {Director,MeshRenderer,Vec3,director,sys} from 'cc';/*QF_PROBE_END*/
+/*QF_PROBE_BEGIN*/import {Director,Game,Input,MeshRenderer,Vec3,director,game,input,screen,sys,view} from 'cc';/*QF_PROBE_END*/
 /** full9b P0 (Mac A/B: camTrace ON froze the renderer, OFF completed): bounded trace. ≤ linesPerS write lines per wall second
  *  (over budget: counted, the next line carries DROPPED=<n>); ≤ maxStacks CALLER stacks per session; re-entry never writes. */
 export const CAM_LOG_BUDGET=Object.freeze({linesPerS:60,maxStacks:200});
 export const CAM_LOG_CAP=Object.freeze({m:5/60*1.05,deg:3});
-export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,stacks:false,busy:false,reentry:0,dropped:0,stackN:0,win:-1,winN:0,out:(s:string)=>console.log(s)};
+/** r2 P0 (chainJ 23267b2d camTrace ON froze, OFF passed with the same sync screenshots): camTrace printed ~81 console lines/s
+ *  (her-frame probe line every frame + one trace line per camera write, 11.3 KB/s, 1.9 lines/frame); in the DevTools appservice every console.* is
+ *  forwarded to the DevTools console over IPC. Lines now go to an in-memory sink flushed as ONE console.log per CAM_LOG_SINK.flushMs,
+ *  with a hard per-flush cap (lines + bytes); over the cap lines are dropped and counted (sinkDropped, in the flush summary and
+ *  __qfCamTraceStats). A flush is emitted in chunks of ≤ CAM_LOG_SINK.chunk chars (the autoplay console capture keeps 4000 per call).
+ *  Bounded: ≤ ceil(bytes/chunk)+1 console calls per flushMs and ≤ bytes per flushMs, whatever the frame rate.
+ *  Sink is used on a wx host (DevTools / device) or with globalThis.__QF_CAM_SINK=true; Node unit tests without wx keep direct lines. */
+export const CAM_LOG_SINK=Object.freeze({flushMs:1000,lines:150,bytes:12*1024,chunk:3800});
+export const camSink={buf:[] as string[],bytes:0,last:0,timer:null as any,flushes:0,sinkDropped:0,dropFlush:0,emit:(s:string)=>console.log(s)};
+export function camSinkFlush():void{const k=camSink;if(k.timer!==null){try{clearTimeout(k.timer);}catch{}k.timer=null;}k.last=Date.now();
+ if(!k.buf.length&&!k.dropFlush)return;const body=k.buf.join('\n');const n=k.buf.length,b=k.bytes,d=k.dropFlush;k.buf=[];k.bytes=0;k.dropFlush=0;k.flushes++;
+ const tail='[QF_CAM_LOG] flush='+k.flushes+' lines='+n+' bytes='+b+(d?' DROPPED='+d+' totalDropped='+k.sinkDropped:'');
+ let chunk='';for(const l of body?body.split('\n'):[]){if(chunk&&chunk.length+1+l.length>CAM_LOG_SINK.chunk){k.emit(chunk);chunk='';}chunk=chunk?chunk+'\n'+l:l;}
+ k.emit(chunk?chunk+'\n'+tail:tail);}
+export function camSinkPush(s:string):void{const k=camSink;
+ if(k.buf.length>=CAM_LOG_SINK.lines||k.bytes+s.length>CAM_LOG_SINK.bytes){k.sinkDropped++;k.dropFlush++;}else{k.buf.push(s);k.bytes+=s.length+1;}
+ if(Date.now()-k.last>=CAM_LOG_SINK.flushMs)camSinkFlush();
+ else if(k.timer===null){try{k.timer=setTimeout(camSinkFlush,CAM_LOG_SINK.flushMs);}catch{k.timer=null;}}}
+export const camLog={on:false,tag:'',n:0,t0:0,last:'',lp:[0,0,0] as number[],ly:0,lpi:0,has:false,fr:-1,fw:0,cam:0,stacks:false,busy:false,reentry:0,dropped:0,stackN:0,win:-1,winN:0,out:(s:string)=>{if(camSinkOn())camSinkPush(s);else console.log(s);}};
+export function camSinkOn():boolean{try{const g:any=globalThis;return g.__QF_CAM_SINK===true||(g.__QF_CAM_SINK!==false&&!!g.wx);}catch{return false;}}
 export function camLogEnabled(query:string,g:any):boolean{return /(?:^|[?&])camTrace=1(?:&|$)/.test(query||'')||camFlagOn(g&&g.__QF_CAM_TRACE);}
 /** Global switch accepts exactly true / 1 / '1' (also 'true'); '0', 'false', '' and others stay off. */
 /** full9b: CALLER stacks (new Error().stack on the 2nd+ write of a frame) only with camTrace on AND `?camTraceStacks=1` or
@@ -31,17 +50,24 @@ export function camLogWrite(camera:any,pose:{position:readonly number[];rotation
  /* full9b: re-entrancy guard — a write that arrives while a trace line is being built/printed (console hook, getter, stack
   * formatter) is counted, never traced (no recursion, no feedback loop) */
  if(camLog.busy){camLog.reentry++;publishStats();return;}
- camLog.busy=true;try{camLogWriteInner(camera,pose,source);}finally{camLog.busy=false;}
+ camLog.busy=true;const cs=camState(camera);camSwap(cs,true);try{camLogWriteInner(camera,pose,source);}finally{camSwap(cs,false);camLog.busy=false;}
 }
-function publishStats():void{try{(globalThis as any).__qfCamTraceStats={reentry:camLog.reentry,dropped:camLog.dropped,stacks:camLog.stackN,lines:camLog.n};}catch{}}
+/** P1 (c88320c1 FINDINGS §2A): frame + pose tracking is PER CAMERA. The board camera (MeadowBoardBackground) and the world camera
+ *  (enter-level) writing in the same frame are two streams, not MULTI=2 and not a 39–61 m JUMP; two writers on ONE camera still are. */
+type CamState={has:boolean;last:string;lp:number[];ly:number;lpi:number;fr:number;fw:number;id:number};
+let camStates=new WeakMap<object,CamState>(),camIds=0;const noCam={};
+function camState(camera:any):CamState{const k=camera&&typeof camera==='object'?camera:noCam;let c=camStates.get(k);if(!c){c={has:false,last:'',lp:[0,0,0],ly:0,lpi:0,fr:-1,fw:0,id:++camIds};camStates.set(k,c);}return c;}
+function camSwap(c:CamState,load:boolean):void{const L:any=camLog;if(load){L.has=c.has;L.last=c.last;L.lp[0]=c.lp[0];L.lp[1]=c.lp[1];L.lp[2]=c.lp[2];L.ly=c.ly;L.lpi=c.lpi;L.fr=c.fr;L.fw=c.fw;L.cam=c.id;}
+ else{c.has=L.has;c.last=L.last;c.lp[0]=L.lp[0];c.lp[1]=L.lp[1];c.lp[2]=L.lp[2];c.ly=L.ly;c.lpi=L.lpi;c.fr=L.fr;c.fw=L.fw;}}
+function publishStats():void{try{(globalThis as any).__qfCamTraceStats={reentry:camLog.reentry,dropped:camLog.dropped,stacks:camLog.stackN,lines:camLog.n,sinkDropped:camSink.sinkDropped,sinkFlushes:camSink.flushes};}catch{}}
 function camLogWriteInner(camera:any,pose:{position:readonly number[];rotation:readonly number[];fovVerticalDeg:number},source:string):void{
- void camera;
+ void camera;/* per-camera state is swapped in by camLogWrite (camSwap) */
  const [x,y,z]=pose.position,[qx,qy,qz,qw]=pose.rotation;
  const fx=-2*(qx*qz+qw*qy),fy=-2*(qy*qz-qw*qx),fz=-(1-2*(qx*qx+qy*qy));// forward = q·(0,0,-1)
  const yaw=Math.atan2(fx,-fz)*180/Math.PI,pitch=Math.asin(Math.max(-1,Math.min(1,fy)))*180/Math.PI;
  const w=camLog.tag||source;camLog.tag='';camLog.n++;
  const t=((typeof performance!=='undefined'?performance.now():Date.now())-camLog.t0)/1000;
- let s='[QF_CAM_TRACE] f='+camLog.n+' t='+f3(t)+' pos='+f3(x)+','+f3(y)+','+f3(z)+' yaw='+f3(yaw)+' pitch='+f3(pitch)+' fov='+f3(pose.fovVerticalDeg)+' w='+w;
+ let s='[QF_CAM_TRACE] f='+camLog.n+' t='+f3(t)+' pos='+f3(x)+','+f3(y)+','+f3(z)+' yaw='+f3(yaw)+' pitch='+f3(pitch)+' fov='+f3(pose.fovVerticalDeg)+' w='+w+(camLog.cam>1?' cam='+camLog.cam:'');
  if(camLog.has){
   if(w!==camLog.last)s+=' CHANGE<-'+camLog.last;
   const dm=Math.hypot(x-camLog.lp[0],y-camLog.lp[1],z-camLog.lp[2]);let dy=Math.abs(yaw-camLog.ly);if(dy>180)dy=360-dy;const dd=Math.max(dy,Math.abs(pitch-camLog.lpi));
@@ -80,7 +106,9 @@ export function camLogFrame(camera:any):void{
  *  - [QF_HER_FRAME] per frame: her screen bbox (px, origin bottom-left), occluded fraction (15 rays camera→her AABB grid vs other
  *    renderers' AABBs; conservative), safe-area rect. Every probe line carries pn=performance.now() ms. */
 const pnow=()=>typeof performance!=='undefined'?performance.now():Date.now();
-export const probe={actor:null as any,cut:null as null|{n:number;from:string;to:string;t0:number},cuts:0,hooked:false,occ:[] as number[][],occFr:-1e9};
+/** r2: QF_HER_FRAME (bbox + 15-ray occlusion + getComponentsInChildren on her) every HER_FRAME_EVERY frames (~10 Hz), not every frame. */
+export const HER_FRAME_EVERY=6;
+export const probe={actor:null as any,cut:null as null|{n:number;from:string;to:string;t0:number},cuts:0,hooked:false,occ:[] as number[][],occFr:-1e9,herFr:-1e9};
 export function camProbeCharacter(adapter:any):void{if(!camLog.on)return;probe.actor=adapter||null;try{(globalThis as any).__QF_PROBE_HER=probeHer;}catch{}}
 export function probeHer():any{const n=probe.actor&&probe.actor.node;return n&&n.isValid!==false?n:null;}
 function probeAfterDraw():void{const c=probe.cut;if(!c)return;probe.cut=null;const t=pnow();
@@ -94,9 +122,17 @@ const inBox=(p:number[],c:number[],h:number[])=>Math.abs(p[0]-c[0])<=h[0]&&Math.
 /** fraction of samples whose camera ray is blocked by an occluder box (boxes containing the camera or the sample are skipped). */
 export function occludedFraction(cam:number[],samples:number[][],boxes:number[][]):number{if(!samples.length)return 0;let n=0;
  for(const p of samples){for(const b of boxes){const c=[b[0],b[1],b[2]],h=[b[3],b[4],b[5]];if(inBox(cam,c,h)||inBox(p,c,h))continue;if(segHitsBox(cam,p,c,h)){n++;break;}}}return n/samples.length;}
+/** P0 freeze (Mac 7e0f2c72 clean, CDP: lateUpdate → camLogFrame → getSafeAreaRect → WAGameSubContext → appservice sync): the safe area
+ *  is a sync host call; read once and again only after a view resize / orientation change. */
+let probeSa:any=undefined,probeSaHooked=false;
+function probeSafeArea():any{
+ if(!probeSaHooked){probeSaHooked=true;const drop=()=>{probeSa=undefined;};try{view.on('canvas-resize',drop);}catch{}try{(screen as any).on?.('window-resize',drop);(screen as any).on?.('orientation-change',drop);}catch{}}
+ if(probeSa===undefined){try{probeSa=(sys as any).getSafeAreaRect?.()??null;}catch{probeSa=null;}}
+ return probeSa;}
 function probeHerFrame(camera:any,fr:number):void{
  if(!camLog.on)return;
  if(!probe.hooked){probe.hooked=true;try{director.on(Director.EVENT_AFTER_DRAW,probeAfterDraw);}catch{}}
+ if(fr-probe.herFr<HER_FRAME_EVERY&&fr>=probe.herFr)return;probe.herFr=fr;
  const her=probeHer();if(!her||!camera||typeof camera.worldToScreen!=='function')return;
  try{let lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];
   for(const r of her.getComponentsInChildren(MeshRenderer)){const b:any=(r as any).model?.worldBounds;if(!b||!r.enabledInHierarchy)continue;
@@ -108,7 +144,7 @@ function probeHerFrame(camera:any,fr:number):void{
   const c=[(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2],hx=(hi[0]-lo[0])/2,hy=(hi[1]-lo[1])/2,hz=(hi[2]-lo[2])/2,smp:number[][]=[];
   for(const u of [-.6,0,.6])for(const v of [-.8,-.4,0,.4,.8])smp.push([c[0]+u*hx,c[1]+v*hy,c[2]+u*hz]);
   const cp=camera.node.worldPosition,occ=occludedFraction([cp.x,cp.y,cp.z],smp,probe.occ);
-  let sa:any=null;try{sa=(sys as any).getSafeAreaRect?.();}catch{}
+  const sa=probeSafeArea();
   camLog.out('[QF_HER_FRAME] fr='+fr+' bbox='+[x0,y0,x1,y1].map(f3).join(',')+' occ='+f3(occ)+' n='+smp.length+' safe='+(sa?[sa.x,sa.y,sa.width,sa.height].map(f3).join(','):'-')+' pn='+f3(pnow()));
  }catch{/* probe only */}
 }
@@ -133,15 +169,65 @@ export function camActorPose(step:string,her:{x:number,y:number,z:number}|null,b
  camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR step='+step+' her='+v(her)+' boat='+v(boat)+(planBoat?' planBoat='+planBoat.map(f3).join(','):'')+d/*QF_PROBE_BEGIN*/+' pn='+f3(pnow())/*QF_PROBE_END*/);}
 let started=false;
 /** Read the switch once. Returns whether tracing is on. */
-export function camLogStart(query?:string,g:any=globalThis):boolean{
+/*QF_PROBE_BEGIN*//** Storage timing probe (QA/diag only; stripped from release). Grok Bot 2026-10-31: measure the sync storage writes
+ *  at transitions (WorldFlowComponent:266 ~12 KB at door-shut/hide/show, RegionArrivalTitleCore, LakesideArrivalCore, EndingScreen,
+ *  level-result saves) on device without touching reviewed files: every sys.localStorage.setItem (→ wx.setStorageSync in the
+ *  mini-game adapter) is timed and logged through the buffered camTrace sink (camLog.out; one line per write, writes are rare):
+ *  [QF_STORAGE] key=<key> bytes=<utf8 bytes> ms=<setItem duration> caller=<2 stack frames>. Only setItem is timed (the stack is read after). */
+function utf8Bytes(v:string):number{let n=0;for(let i=0;i<v.length;i++){const c=v.charCodeAt(i);if(c<0x80)n++;else if(c<0x800)n+=2;else if(c>=0xd800&&c<0xdc00){n+=4;i++;}else n+=3;}return n;}
+export function installStorageProbe(store:any,out:(s:string)=>void=(s)=>camLog.out(s)):boolean{
+ if(!store||typeof store.setItem!=='function'||store.__qfStorageProbe)return false;
+ const orig=store.setItem,now=()=>typeof performance!=='undefined'?performance.now():Date.now();
+ const timed=function(this:any,key:string,value:any){const v=String(value),t0=now();try{return orig.call(this===timed?store:this,key,value);}finally{const ms=now()-t0;
+  let caller='';try{caller=String(new Error().stack||'').split('\n').slice(2,4).map(x=>x.trim().replace(/^at /,'')).join(' < ');}catch{}
+  try{out('[QF_STORAGE] key='+key+' bytes='+utf8Bytes(v)+' ms='+ms.toFixed(3)+' caller='+caller);}catch{}}};
+ try{store.setItem=timed;store.__qfStorageProbe=orig;}catch{return false;}return store.setItem===timed;}
+export function storageProbeWanted(q:string,on:boolean):boolean{return on||/(?:^|[?&])(?:storageTrace|syncTrace)=1(?:&|$)/.test(q||'');}
+/** [QF_SYNC] runtime gate (QA/diag only, stripped from release; P0 chainL). Wraps sys.localStorage getItem/setItem/removeItem/clear,
+ *  every wx.*Sync and the sync view-info calls (getWindowInfo, getMenuButtonBoundingClientRect, getDeviceInfo, getAppBaseInfo,
+ *  getSystemSetting, sys.getSafeAreaRect) and counts calls per engine frame (EVENT_AFTER_DRAW closes a frame). Nested calls (the
+ *  adapter's localStorage.getItem → wx.getStorageSync) count once. A call is ALLOWED only for a named reason:
+ *    boot (first SYNC_BOOT_FRAMES frames), tap (≤ 3 frames after a touch start), hide-show (≤ 30 frames after EVENT_HIDE/SHOW),
+ *    transition (world journey has a target / is not arrived, or a WindWipe runs), qa (globalThis.__qfSyncAllow = '<reason>').
+ *  Anything else is a STEADY call = gate FAIL. Lines: `[QF_SYNC] STEADY …` (first 20, with caller), and a summary every 600 frames +
+ *  on hide: `[QF_SYNC] frames= calls= steadyCalls= maxPerFrame= maxSteadyPerFrame= allow={…} byApi={…} verdict=PASS|FAIL`.
+ *  globalThis.__qfSyncStats() feeds the harness result.json (steadyCalls > 0 fails the run). */
+export const SYNC_BOOT_FRAMES=300,SYNC_VIEW=['getWindowInfo','getMenuButtonBoundingClientRect','getDeviceInfo','getAppBaseInfo','getSystemSetting'];
+export const syncProbe={frame:0,cur:0,curSteady:0,calls:0,steadyCalls:0,maxPerFrame:0,maxSteadyPerFrame:0,byApi:{} as Record<string,number>,allow:{} as Record<string,number>,
+ steadySamples:[] as any[],lastTap:-1e9,lastHideShow:-1e9,depth:0,installed:false,trFrame:-1,tr:false,out:(s:string)=>camLog.out(s)};
+function syncTransition(g:any):boolean{const P=syncProbe;if(P.trFrame===P.frame)return P.tr;P.trFrame=P.frame;let t=false;
+ try{const w=g.__qfWindWipe;if(w&&w.mode)t=true;const s=g.__worldIntegration?.snapshot?.(),j=s?.journey||s?.world?.journey;if(j&&(j.target||(j.phase&&j.phase!=='arrived'&&j.phase!=='idle')))t=true;}catch{}
+ P.tr=t;return t;}
+export function syncReason(g:any):string|null{const P=syncProbe,f=P.frame;if(f<SYNC_BOOT_FRAMES)return 'boot';if(f-P.lastTap<=3)return 'tap';if(f-P.lastHideShow<=30)return 'hide-show';
+ if(syncTransition(g))return 'transition';const q=g.__qfSyncAllow;return typeof q==='string'&&q?'qa:'+q:null;}
+export function syncStats(){const P=syncProbe;return {frames:P.frame,calls:P.calls,steadyCalls:P.steadyCalls,maxPerFrame:P.maxPerFrame,maxSteadyPerFrame:P.maxSteadyPerFrame,allow:{...P.allow},byApi:{...P.byApi},steadySamples:P.steadySamples.slice(0,20),verdict:P.steadyCalls?'FAIL':'PASS'};}
+function syncSummary(){const s=syncStats();syncProbe.out('[QF_SYNC] frames='+s.frames+' calls='+s.calls+' steadyCalls='+s.steadyCalls+' maxPerFrame='+s.maxPerFrame+' maxSteadyPerFrame='+s.maxSteadyPerFrame+' allow='+JSON.stringify(s.allow)+' byApi='+JSON.stringify(s.byApi)+' verdict='+s.verdict);}
+export function syncFrameEnd():void{const P=syncProbe;if(P.cur>P.maxPerFrame)P.maxPerFrame=P.cur;if(P.curSteady>P.maxSteadyPerFrame)P.maxSteadyPerFrame=P.curSteady;P.cur=0;P.curSteady=0;P.frame++;if(P.frame%600===0)syncSummary();}
+function syncNote(g:any,api:string,key:string):void{const P=syncProbe;P.calls++;P.cur++;P.byApi[api]=(P.byApi[api]||0)+1;const r=syncReason(g);
+ if(r){P.allow[r]=(P.allow[r]||0)+1;return;}P.steadyCalls++;P.curSteady++;
+ if(P.steadySamples.length<20){let caller='';try{caller=String(new Error().stack||'').split('\n').slice(3,9).map(x=>x.trim().replace(/^at /,'')).join(' < ');}catch{}
+  const smp={frame:P.frame,api,key,caller};P.steadySamples.push(smp);P.out('[QF_SYNC] STEADY frame='+smp.frame+' api='+api+(key?' key='+key:'')+' caller='+caller);}}
+function syncWrap(obj:any,name:string,label:string,g:any,keyed:boolean):void{const orig=obj&&obj[name];if(typeof orig!=='function'||orig.__qfSync)return;
+ const w=function(this:any,...a:any[]){const P=syncProbe;if(P.depth===0)syncNote(g,label,keyed?String(a[0]):'');P.depth++;try{return orig.apply(this===w?obj:this,a);}finally{P.depth--;}};
+ (w as any).__qfSync=orig;try{obj[name]=w;}catch{}}
+export function installSyncProbe(g:any,store:any,wxObj:any,sysObj:any,hooks?:{onFrameEnd?:(f:()=>void)=>void;onTap?:(f:()=>void)=>void;onHideShow?:(f:()=>void)=>void}):boolean{
+ const P=syncProbe;if(P.installed)return false;P.installed=true;
+ if(store)for(const m of ['getItem','setItem','removeItem','clear'])syncWrap(store,m,'localStorage.'+m,g,m!=='clear');
+ if(wxObj){for(const k of Object.keys(wxObj).concat(Object.getOwnPropertyNames(Object.getPrototypeOf(wxObj)||{})))if(/Sync$/.test(k)||SYNC_VIEW.includes(k))syncWrap(wxObj,k,'wx.'+k,g,/Storage/.test(k));}
+ if(sysObj)syncWrap(sysObj,'getSafeAreaRect','sys.getSafeAreaRect',g,false);
+ const h=hooks||{onFrameEnd:(f)=>director.on(Director.EVENT_AFTER_DRAW,f),onTap:(f)=>input.on(Input.EventType.TOUCH_START,f),onHideShow:(f)=>{game.on(Game.EVENT_HIDE,f);game.on(Game.EVENT_SHOW,f);}};
+ try{h.onFrameEnd?.(syncFrameEnd);}catch{}try{h.onTap?.(()=>{P.lastTap=P.frame;});}catch{}try{h.onHideShow?.(()=>{P.lastHideShow=P.frame;syncSummary();});}catch{}
+ try{g.__qfSyncStats=syncStats;}catch{}return true;}
+/*QF_PROBE_END*/export function camLogStart(query?:string,g:any=globalThis):boolean{
  if(started)return camLog.on;started=true;
  let q=query;if(q===undefined)q=debugSearch(g)/* full8: + wx launch/enter query + __qfQuery */;
  camLog.on=camLogEnabled(q,g);camLog.stacks=camLog.on&&camStacksEnabled(q,g);
  if(camLog.on){camLog.t0=typeof performance!=='undefined'?performance.now():Date.now();cameraWriteHook.log=camLogWrite;try{(g||globalThis).__qfCamTag={t:camTag,d:camTagDefault};}catch{}}
+ /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on)){try{installStorageProbe((sys as any).localStorage);}catch{}try{installSyncProbe(g||globalThis,(sys as any).localStorage,(g||globalThis as any).wx,sys);}catch{}}/*QF_PROBE_END*/
  return camLog.on;
 }
 /** test-only */
-export function camLogReset():void{stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;/*QF_PROBE_BEGIN*/probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;/*QF_PROBE_END*/camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
+export function camLogReset():void{camSink.buf=[];camSink.bytes=0;camSink.dropFlush=0;camSink.sinkDropped=0;camSink.flushes=0;camSink.last=0;if(camSink.timer!==null){try{clearTimeout(camSink.timer);}catch{}camSink.timer=null;}camStates=new WeakMap();camIds=0;stall.key='';stall.since=-1;stall.said=-1;st.fr=0;st.bad='';try{delete (globalThis as any).__qfCamTag;}catch{}started=false;/*QF_PROBE_BEGIN*/probe.actor=null;probe.cut=null;probe.cuts=0;probe.occ=[];probe.occFr=-1e9;probe.herFr=-1e9;try{if(probe.hooked)director.off(Director.EVENT_AFTER_DRAW,probeAfterDraw);delete (globalThis as any).__QF_PROBE_HER;}catch{}probe.hooked=false;/*QF_PROBE_END*/camLog.on=false;camLog.tag='';camLog.n=0;camLog.has=false;camLog.fr=-1;camLog.fw=0;camLog.stacks=false;camLog.busy=false;camLog.reentry=0;camLog.dropped=0;camLog.stackN=0;camLog.win=-1;camLog.winN=0;camLog.last='';cameraWriteHook.log=null;}
 /** Read the switch once, at module load (game init). */
 /*QF_PROBE_BEGIN*//** P2 lakeside gate probe (TEST ONLY, same camLog.on gate as the probes above): [QF_P2_SCENE] at trace frame 2400 and every 10th
  *  frame of the balloon ascent: active camera, clear colour, fog, active domes and the LK_* renderers the camera can see. */

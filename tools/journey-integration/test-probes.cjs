@@ -43,7 +43,7 @@ function findFile(n){const st=[S];while(st.length){const d=st.pop();for(const e 
  for(const g of gaps)assert.ok(Number.isFinite(g.firstDrawMs)&&g.firstDrawMs>=0&&Number.isFinite(g.pn));
  // her frame: occluder (cat box straddles the ray) → occ>0; bbox and safe area present
  const occBox=new cc.Node('wall');scene.addChild(occBox);mkR(occBox,[0,0.8,2.5,1,1,.1]);out.length=0;for(let k=0;k<31;k++)T.camLogFrame(cam);
- const hf=out.filter(l=>l.startsWith('[QF_HER_FRAME]'));assert.equal(hf.length,31,'one her-frame line per frame');const m=/bbox=([-\d.,]+) occ=([\d.]+) n=15 safe=0,34,390,776 pn=[\d.]+$/.exec(hf[hf.length-1]);
+ const hf=out.filter(l=>l.startsWith('[QF_HER_FRAME]'));assert.equal(T.HER_FRAME_EVERY,6);assert.ok(hf.length>=Math.floor(31/T.HER_FRAME_EVERY)&&hf.length<=Math.ceil(31/T.HER_FRAME_EVERY),hf.length+': '+'r2: one her-frame line per HER_FRAME_EVERY frames (31 frames → 6), not per frame');const m=/bbox=([-\d.,]+) occ=([\d.]+) n=15 safe=0,34,390,776 pn=[\d.]+$/.exec(hf[hf.length-1]);
  assert.ok(m,'her-frame format: '+hf[hf.length-1]);assert.ok(+m[2]>0,'occluder not seen');
  for(const l of out.concat(gaps.map(()=>'')).filter(Boolean))assert.match(l,/pn=[\d.]+/,'probe line without pn: '+l);
  assert.equal(T.occludedFraction([0,0,0],[[0,0,10]],[[0,0,5,1,1,1]]),1);assert.equal(T.occludedFraction([0,0,0],[[0,0,10]],[[5,0,5,1,1,1]]),0);
