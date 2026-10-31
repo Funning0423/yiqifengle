@@ -62,15 +62,23 @@ export function seedLakeCheckpoint(profile:any,stageId:string,mode:'win'|'lose',
  *  (tools/persistence-fixtures/verified-replays.json, re-checked by tools/new-regions/test_journal_sky_live_r5.cjs). */
 export const SKY_CHALLENGE_WITNESSES:readonly {stageId:string;seed:number;actions:readonly any[]}[]=[{"stageId":"r05-sky-01","seed":1,"actions":[["swap",24,31],["swap",31,32]]},{"stageId":"r05-sky-02","seed":2,"actions":[["swap",23,24],["swap",31,32],["swap",15,16],["swap",30,31],["swap",22,23],["swap",40,47],["swap",24,25]]},{"stageId":"r05-sky-03","seed":1,"actions":[["swap",3,10],["swap",10,11],["swap",4,5],["swap",18,25],["swap",17,18],["swap",10,17],["swap",1,8],["swap",29,30],["swap",22,29],["swap",38,45],["swap",9,16],["swap",2,9],["swap",10,11],["swap",25,32],["swap",16,23]]},{"stageId":"r05-sky-04","seed":1,"actions":[["swap",4,11],["swap",15,16],["swap",36,37],["swap",39,46],["swap",23,24],["swap",22,23],["swap",14,15],["activate",47],["swap",2,3],["swap",37,44],["swap",39,40],["swap",32,33],["swap",46,47]]}];
 /** Test build only: win the first `count` 天空之城 challenges through the real R5 provider on an isolated profile (needs mainline 12
- *  registered so the real gate is open). Leaves nothing active; the journal and islandGates() read the result the normal way. */
+ *  registered so the real gate is open). Leaves nothing active; the journal and islandGates() read the result the normal way.
+ *  journal r6 (cleared hook opened in 12,045 ms, 11.2 s of it here): the replay used to step every presentation frame through two
+ *  full provider snapshot() calls and hit device storage on every move (90 sync writes for 4 stages). Now the real provider replays
+ *  the same verified moves against a staging copy of the R5 keys (pause()+resume() drops presentation frames; every durable
+ *  write still goes through the provider/durable-store), and the final key values are written to the profile's storage once each
+ *  through the same save layer. Saved bytes are identical to the old loop (tools/new-regions/test_journal_hook_open_ms_r6.cjs). */
 export function seedSkyChallengeWins(profile:any,count:number,opts?:{allowQa?:boolean}){
  if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
  if(!Number.isInteger(count)||count<0||count>SKY_CHALLENGE_WITNESSES.length)throw Error('bad-count');
- const P:any=new (R5Provider as any)({platform:profile.r5.platform,journey:profile.r5.journey});
+ const real=profile.r5.platform,staged=new Map<string,string|null>();
+ const stage={load:(k:string)=>staged.has(k)?staged.get(k):real.load(k),save:(k:string,v:any)=>{staged.set(k,JSON.stringify(v));return true;}};
+ const P:any=new (R5Provider as any)({platform:stage,journey:profile.r5.journey});
  const ok=(r:any,what:string)=>{if(!r?.ok)throw Error('sky-seed-failed: '+what+' '+(r?.reason||''));};
  for(const w of SKY_CHALLENGE_WITNESSES.slice(0,count)){ok(P.startStage(w.stageId,{seed:w.seed}),'start '+w.stageId);P.resume();
-  for(const a of w.actions){const p=P.previewAction(a);ok(p,'preview');ok(P.commitAction(p.token),'commit');let v=P.snapshot().visual;while(v){ok(P.finishVisualStep(v.token),'visual');v=P.snapshot().visual;}}
+  for(const a of w.actions){const p=P.previewAction(a);ok(p,'preview');const c=P.commitAction(p.token);ok(c,'commit');if(c.saved!==true)throw Error('sky-seed-failed: unsaved '+w.stageId);P.pause();ok(P.resume(),'resume');}
   const s=P.snapshot();if(s.state!=='result.saved'||!s.result?.completionRecorded)throw Error('sky-unregistered-replay '+w.stageId);}
+ for(const [k,v] of staged){if(v==null)continue;if(real.save(k,JSON.parse(v))!==true||real.load(k)!==v)throw Error('sky-seed-failed: write '+k);}
  return {won:SKY_CHALLENGE_WITNESSES.slice(0,count).map(w=>w.stageId)};
 }
 /** r5 journal-sky-just-unlocked: the profile was made with the last mainline stage paused ONE move short (finish=false); a fresh

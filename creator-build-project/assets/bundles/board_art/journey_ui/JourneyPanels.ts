@@ -141,10 +141,12 @@ export function createJourneyUi(h: JourneyUiHost) {
   /** Journey book (SPEC §13.1): fixed panel min(330, W−40) × 514 pt (458 when H < 700): progress, focus card, 3×3 seal grid. */
   function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void, _r5Gates?: any, island?: { stages?: any; lastPlayed?: any } | null): PopupPanel {
     const v = stack.view(), sc = popupScale(v.width, v.height), K = 1 / sc, short = v.height < 700;
-    const phPt = short ? 458 : 514, cardH = short ? 92 : 112, cellH = short ? 64 : 76, sealD = short ? 28 : 32, f = fitPt(v, phPt), pwPt = Math.min(330, Math.max(240, v.width - 40)) / f;
+    const phPt = short ? 458 : 514, cardH = short ? 92 : 112, cellH = short ? 64 : 76, sealD = short ? 28 : 32, jfit = v.safeInsets ? chapterFit(v, phPt) : { f: fitPt(v, phPt), dy: 0 }, f = jfit.f, pwPt = Math.min(330, Math.max(240, v.width - 40)) / f;
     const inp = journeyInput(journey, challenges, { stages: island?.stages ?? h.defaultStages(), lastPlayed: island?.lastPlayed ?? lastRegion() });
     const P = (x: number) => x * K * f, PW = P(pwPt), PH = P(phPt);
-    const p = stack.open({ name: 'JourneyPanel', width: PW, height: PH, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
+    /* journal r6 (界面验收部 a5cf58fa S320): the journey book uses the region page's safe-area + capsule clearance too (chapterFit: move
+     *  down first, shrink only if it cannot fit). Sizes whose centred plaque already cleared keep dy = 0 and f = fitPt (unchanged). */
+    const p = stack.open({ name: 'JourneyPanel', width: PW, height: PH, dy: jfit.dy, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
     const gateOf = (id: string) => Array.isArray(_r5Gates) ? _r5Gates.find((x: any) => x && x.region === id) : undefined;
     const viewOf = (r: RegionRow) => regionView(r, gateOf(r.id), Number(challenges?.[r.id]) || 0);
     const rows = journeyRows(inp), prog = journeyProgress(inp), focusId = focusRegion(inp, rows), reduced = reducedMotion();
