@@ -90,11 +90,11 @@ export class IslandJourneyOverlay {
  close(){this.deferred=false;this.page=null;this.shown=null;this.serial++;this.popups?.clear();if(isValid(this.dock,true))this.dock.active=true;}
  private open(page:Page){if(this.dead||!this.enabled)return;this.page=page;this.serial++;this.dock.active=false;this.root.setSiblingIndex(this.root.parent!.children.length-1);this.paint();}
  /*QF_PROBE_BEGIN*//** journal r6 device-preview flavour only (QF_DEVICE_PREVIEW): a small sun/moon button on the journey book's
-  *  bottom-left frame corner (mirrors the × on the top-right corner, same art kit: panel-face disc + popup/icon_sun|moon), so the
+  *  top-left frame corner (mirrors the × on the top-right corner, same art kit: panel-face disc + popup/icon_sun|moon), so the
   *  journal can be checked in day and night on a phone. Toggles the world day/night without closing the book. Stripped from
   *  every release build (probe region). */
  private previewDayNight(p:any){if(!p?.body)return;
-  const night=()=>this.safeRead(this.options.dayNight)?.mode==='night',n=uiNode('qfPreviewDayNight',p.body,96,96);n.setPosition(-p.width/2+32,-p.height/2+24,0);
+  const night=()=>this.safeRead(this.options.dayNight)?.mode==='night',n=uiNode('qfPreviewDayNight',p.body,96,96);n.setPosition(-p.width/2+32,p.height/2-24,0);
   const face=uiNode('Face',n,80,80),g=face.addComponent(Graphics);
   p.tint.shape(g,(gg:Graphics,nw:number,a:number)=>{for(const [rgb,dy] of [[[0xD9,0xBF,0x8C],-3],[[0xFF,0xF6,0xE2],0]] as [number[],number][]){const c=tintRgb('ui',nw,rgb);gg.fillColor=new Color(c[0],c[1],c[2],Math.round(255*a));gg.circle(0,dy,38);gg.fill();}});/* focus-card face colours */
   let icon:any=null;const paint=()=>{if(icon&&isValid(icon.node))icon.node.destroy();icon=artSprite(face,night()?'popup/icon_sun':'popup/icon_moon',0,0,52,52,'Icon');p.tint.sprite(icon,'ui');};paint();

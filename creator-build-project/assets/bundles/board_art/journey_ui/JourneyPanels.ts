@@ -134,6 +134,17 @@ export function createJourneyUi(h: JourneyUiHost) {
     const top0 = v.height / 2 - ph / 2 - plaque, dyPt = Math.max(0, Math.min(top - top0, v.height - bottom - (v.height / 2 + ph / 2)));
     return { f, dy: dyPt / s, top, bottom };
   }
+  /** journal r6 (界面验收部 a5cf58fa S320: plank top 33 pt under the capsule bottom 42 pt): the journey book's title plank clears
+   *  max(safe top, capsule bottom) + 8 pt like the region page (CHAPTER_CLEAR), by MOVING the book down only. Scale stays fitPt (the
+   *  book's text is already at its 11 pt floor, journey-layout-r4), and the move is clamped to the book's own 8 pt bottom margin.
+   *  No insets, or a plank that already clears → dy = 0, identical to a5cf58fa. */
+  function journalFit(v: { width: number; height: number; safeInsets?: any }, hPt: number): { f: number; dy: number } {
+    const f = fitPt(v, hPt), si = v.safeInsets; if (!si) return { f, dy: 0 };
+    const s = popupScale(v.width, v.height), num = (x: any) => (typeof x === 'number' && isFinite(x) ? Math.max(0, x) : 0);
+    const top = Math.max(num(si.top), num(si.capsule?.bottom)) + CHAPTER_CLEAR, ph = hPt * f, top0 = v.height / 2 - ph / 2 - TITLE_OVERHANG_PX * s;
+    const dyPt = Math.max(0, Math.min(top - top0, v.height - 8 - (v.height / 2 + ph / 2)));
+    return { f, dy: dyPt / s };
+  }
   /** Landscape / very short viewports: shrink the pt layout uniformly so the fixed-height panel keeps 8 pt margins. */
   function fitPt(v: { width: number; height: number }, hPt: number) { return Math.min(1, Math.max(0.3, (v.height - 16) / hPt)); }
   const hex = (c: number[], night: number) => tintRgb('ui', night, c);
@@ -141,11 +152,10 @@ export function createJourneyUi(h: JourneyUiHost) {
   /** Journey book (SPEC §13.1): fixed panel min(330, W−40) × 514 pt (458 when H < 700): progress, focus card, 3×3 seal grid. */
   function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void, _r5Gates?: any, island?: { stages?: any; lastPlayed?: any } | null): PopupPanel {
     const v = stack.view(), sc = popupScale(v.width, v.height), K = 1 / sc, short = v.height < 700;
-    const phPt = short ? 458 : 514, cardH = short ? 92 : 112, cellH = short ? 64 : 76, sealD = short ? 28 : 32, jfit = v.safeInsets ? chapterFit(v, phPt) : { f: fitPt(v, phPt), dy: 0 }, f = jfit.f, pwPt = Math.min(330, Math.max(240, v.width - 40)) / f;
+    const phPt = short ? 458 : 514, cardH = short ? 92 : 112, cellH = short ? 64 : 76, sealD = short ? 28 : 32, jfit = journalFit(v, phPt), f = jfit.f, pwPt = Math.min(330, Math.max(240, v.width - 40)) / f;
     const inp = journeyInput(journey, challenges, { stages: island?.stages ?? h.defaultStages(), lastPlayed: island?.lastPlayed ?? lastRegion() });
     const P = (x: number) => x * K * f, PW = P(pwPt), PH = P(phPt);
-    /* journal r6 (界面验收部 a5cf58fa S320): the journey book uses the region page's safe-area + capsule clearance too (chapterFit: move
-     *  down first, shrink only if it cannot fit). Sizes whose centred plaque already cleared keep dy = 0 and f = fitPt (unchanged). */
+    /* journal r6: journalFit dy (safe-area + capsule clearance, move down only) */
     const p = stack.open({ name: 'JourneyPanel', width: PW, height: PH, dy: jfit.dy, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
     const gateOf = (id: string) => Array.isArray(_r5Gates) ? _r5Gates.find((x: any) => x && x.region === id) : undefined;
     const viewOf = (r: RegionRow) => regionView(r, gateOf(r.id), Number(challenges?.[r.id]) || 0);
@@ -320,7 +330,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, journalLines, splitsWord, JOURNAL_MIN_LAST, JOURNAL_WORDS, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, LOCKED_PAGE_COUNT_LINE, chapterFit, CHAPTER_CLEAR, TITLE_OVERHANG_PX, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
+  return { version: JOURNEY_UI_VERSION, journalLines, splitsWord, JOURNAL_MIN_LAST, JOURNAL_WORDS, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, LOCKED_PAGE_COUNT_LINE, chapterFit, CHAPTER_CLEAR, TITLE_OVERHANG_PX, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, journalFit, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };

@@ -1,11 +1,11 @@
 'use strict';
 // journal r6 P3 (界面验收部 a5cf58fa device, ui-audit/2026-10-31/journal-a5cf58fa-device annot/S320_capsule_journal_day.png): at
 // 320×568 the JourneyPanel title plank top was 33 pt, the capsule bottom 42 pt (9 pt overlap). The journey book now uses the region
-// page's chapterFit clearance (max(safe top, capsule bottom) + 8 pt, home bar + 8 pt; move down first, shrink only if needed).
+// page's clearance (max(safe top, capsule bottom) + 8 pt) via JourneyPanels.journalFit: the book only MOVES down (no shrink — its
+// text is at the 11 pt floor of journey-layout-r4), clamped to its own 8 pt bottom margin.
 //  - 320/375/390/414 with device-like wx window/safe/capsule info, day + night: plank top ≥ max(safe top, capsule bottom) + 8,
-//    panel bottom ≤ H − (home bar + 8); 320 plank top ≥ 50 pt.
-//  - sizes whose old (centred, f = fitPt) geometry already cleared: every JourneyPanel node box identical (pixel-identical);
-//    otherwise (320×568) moved down first, then shrunk uniformly only as far as the home-bar clearance needs (≤ 5 %, width kept).
+//    panel bottom ≤ H − 8; 320 plank top ≥ 50 pt; every JourneyPanel node = old box + dy (pure vertical move, same size).
+//  - sizes whose old (centred) plank already cleared: dy = 0, every node box identical (pixel-identical).
 //  - negative: the a5cf58fa geometry (no clearance) puts the 320 plank into the capsule band.
 const assert=require('node:assert/strict'),{createHarness}=require('../board-ui/harness.cjs');
 const H=createHarness(),cc=H.cc,{IslandJourneyOverlay}=H.load('world-r2/IslandJourneyOverlay'),{resetUiNightWeight}=H.load('ui/NightTint'),{boardSafeInsets}=H.load('ui/BoardLayout');
@@ -15,14 +15,14 @@ const DEV={320:{H:568,safe:{top:20,bottom:568,left:0,right:320},cap:{top:10,bott
  390:{H:844,safe:{top:47,bottom:810,left:0,right:390},cap:{top:51,bottom:83,left:297,right:384}},
  414:{H:896,safe:{top:48,bottom:862,left:0,right:414},cap:{top:52,bottom:84,left:320,right:407}}};
 const box=(n,W,Hh)=>{const t=n.getComponent(cc.UITransform),p=n.worldPosition,s=n.worldScale,w=t.width*Math.abs(s.x),h=t.height*Math.abs(s.y);const cx=p.x+W/2;return {x0:cx-w*t.anchorX,x1:cx+w*(1-t.anchorX),y0:Hh/2-p.y-h*(1-t.anchorY),y1:Hh/2-p.y+h*t.anchorY};};
-const all=(root,W,Hh)=>{const out=[];const walk=(n,path)=>{const t=n.getComponent(cc.UITransform);if(t&&n.activeInHierarchy)out.push([path,box(n,W,Hh)]);n.children.forEach((c,i)=>walk(c,path+'/'+c.name+'#'+i));};walk(root,root.name);return out;};
+const all=(root,W,Hh)=>{const out=[];const walk=(n,path)=>{const t=n.getComponent(cc.UITransform);if(t&&n.activeInHierarchy&&path.includes('/PopupPanel'))out.push([path,box(n,W,Hh)]);/* full-screen root + shade are not part of the book */n.children.forEach((c,i)=>walk(c,path+'/'+c.name+'#'+i));};walk(root,root.name);return out;};
 async function open(W,Hh,mode,clear){globalThis.__worldDayNight={snapshot:()=>({mode})};resetUiNightWeight();
   const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>({journey:{records:Array.from({length:12},(_,i)=>({bestStars:i<3?1:0}))}}),gates:()=>({r5:[],challenges:{},stages:[],r4:[{unlocked:true}]}),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode})});
   await H.flush();o.sync(W,Hh,true);if(!clear)o.safe=null;/* a5cf58fa: journey book ignored the insets */o.open('journal');await H.flush();const p=o.popups.find('JourneyPanel');assert(p);for(let i=0;i<4;i++)p.update(1);return {o,p};}
 (async()=>{const rows=[];
 for(const mode of ['day','night'])for(const W of [320,375,390,414]){const d=DEV[W],Hh=d.H;
   globalThis.wx={getWindowInfo:()=>({windowWidth:W,windowHeight:Hh,safeArea:d.safe}),getMenuButtonBoundingClientRect:()=>d.cap};
-  const si=boardSafeInsets(W,Hh),need=Math.max(si.top,si.capsule.bottom)+8,botLim=Hh-(si.bottom+8);
+  const si=boardSafeInsets(W,Hh),need=Math.max(si.top,si.capsule.bottom)+8,botLim=Hh-8;
   const A=await open(W,Hh,mode,true),Ta=box(A.p.root.find('TitlePlank'),W,Hh),Fa=box(A.p.root.find('PanelFrame'),W,Hh),la=all(A.p.root,W,Hh);A.o.dispose();
   const B=await open(W,Hh,mode,false),Tb=box(B.p.root.find('TitlePlank'),W,Hh),lb=all(B.p.root,W,Hh),Fb=box(B.p.root.find('PanelFrame'),W,Hh);B.o.dispose();
   const tag=`${mode} ${W}x${Hh}`;
@@ -30,10 +30,10 @@ for(const mode of ['day','night'])for(const W of [320,375,390,414]){const d=DEV[
   assert.equal(la.length,lb.length,tag+' same nodes');
   const dy=Ta.y0-Tb.y0;let maxd=0;
   for(let i=0;i<la.length;i++){const [pa,a]=la[i],[pb,b]=lb[i];assert.equal(pa,pb);const e=Math.max(Math.abs(a.x0-b.x0),Math.abs(a.x1-b.x1),Math.abs(a.y0-dy-b.y0),Math.abs(a.y1-dy-b.y1));maxd=Math.max(maxd,e);}
-  const fk=(Fa.y1-Fa.y0)/(Fb.y1-Fb.y0),cleared=Tb.y0>=need-0.01&&Fb.y1<=botLim+0.01;
-  if(cleared){assert(maxd<1e-6,`${tag}: old geometry already cleared but the layout changed (max ${maxd})`);assert(Math.abs(dy)<1e-9,`${tag}: must stay put (moved ${dy})`);}
-  else{assert(fk>=0.95&&fk<=1+1e-9,`${tag}: shrink ${fk} beyond 5 %`);assert(Math.abs((Fa.x1-Fa.x0)-(Fb.x1-Fb.x0))<1e-6,tag+' panel width unchanged');}
-  rows.push(`${tag}: capsule bottom ${si.capsule.bottom} (clear ≥ ${need}); plank top before ${Tb.y0.toFixed(2)} → after ${Ta.y0.toFixed(2)} (${cleared?'unchanged: '+la.length+' nodes identical':'moved down, panel height ×'+fk.toFixed(4)}); panel bottom ${Fb.y1.toFixed(2)} → ${Fa.y1.toFixed(2)} ≤ ${botLim}`);}
+  const cleared=Tb.y0>=need-0.01;
+  assert(maxd<1e-6,`${tag}: layout changed beyond a vertical move (max ${maxd})`);
+  if(cleared)assert(Math.abs(dy)<1e-9,`${tag}: old plank already cleared, must stay put (moved ${dy})`);
+  rows.push(`${tag}: capsule bottom ${si.capsule.bottom} (clear ≥ ${need}); plank top before ${Tb.y0.toFixed(2)} → after ${Ta.y0.toFixed(2)} (${cleared?'unchanged: '+la.length+' nodes identical':'moved down '+dy.toFixed(2)+' pt, no shrink, '+la.length+' nodes translated only'}); panel bottom ${Fb.y1.toFixed(2)} → ${Fa.y1.toFixed(2)} ≤ ${botLim}`);}
 // 320 explicit + negative
 {globalThis.wx={getWindowInfo:()=>({windowWidth:320,windowHeight:568,safeArea:DEV[320].safe}),getMenuButtonBoundingClientRect:()=>DEV[320].cap};
  const A=await open(320,568,'day',true),Ta=box(A.p.root.find('TitlePlank'),320,568);A.o.dispose();assert(Ta.y0>=50,'320 plank top ≥ 50 pt: '+Ta.y0);
