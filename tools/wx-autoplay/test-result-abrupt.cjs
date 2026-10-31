@@ -32,11 +32,17 @@ const wait=ms=>new Promise(s=>setTimeout(s,ms));
   const age=killedAt-Date.parse(doc.snapshotAt);assert(age<=1300,'last snapshot ≤ ~1 s old at the kill ('+age+' ms)');
   assert(doc.writeStats&&'syncStats' in doc,'snapshot carries writeStats + syncStats');
   assert.equal(r.maxInflight,1,'one result.json write in flight at a time');
+  assert(!r.files.has(r.R.replace('result.json','result.done')),'r5: no result.done on an abrupt end (runner must not stop on a running snapshot)');
   assert(!r.files.has(r.R+'.tmp')||true);
   // normal end still writes the final document (exit done) and snapshots stop
   {const n=run(src);for(let i=0;i<200;i++){await wait(50);const t=n.files.get(n.R);if(t&&JSON.parse(t).exit==='done')break;}const d=JSON.parse(n.files.get(n.R));assert.equal(d.exit,'done');await wait(1500);assert.equal(JSON.parse(n.files.get(n.R)).exit,'done','no running snapshot after done');n.kill();}
+  // r5: result.done appears only at the real end, after the final result.json (exit done)
+  {const n=run(src);const D=n.R.replace('result.json','result.done');let seenRunningWithoutDone=false;
+   for(let i=0;i<200;i++){await wait(50);const t=n.files.get(n.R);if(t&&JSON.parse(t).exit==='running'&&!n.files.has(D))seenRunningWithoutDone=true;if(n.files.has(D))break;}
+   assert(seenRunningWithoutDone,'running snapshots existed without result.done');assert(n.files.has(D),'result.done written at the end');
+   const dd=JSON.parse(n.files.get(D));assert.equal(dd.exit,'done');assert.equal(JSON.parse(n.files.get(n.R)).exit,'done','result.json is final when result.done exists');n.kill();}
   // hide still wins over snapshots
-  {const h=run(src);await wait(800);h.g.wx._hide();await wait(1500);assert.equal(JSON.parse(h.files.get(h.R)).exit,'abandon','abandon doc not overwritten by snapshots');h.kill();}
+  {const h=run(src);await wait(800);h.g.wx._hide();await wait(1500);assert.equal(JSON.parse(h.files.get(h.R)).exit,'abandon','abandon doc not overwritten by snapshots');assert.equal(JSON.parse(h.files.get(h.R.replace('result.json','result.done'))).exit,'abandon','result.done on abandon');h.kill();}
   // negative self-test: r3 harness (ab38a9da) leaves nothing on an abrupt end
   const old=cp.execFileSync('git',['show','e92581af:tools/wx-autoplay/qf-autoplay.js'],{cwd:path.join(__dirname,'../..'),encoding:'utf8'});
   const o=run(old);await wait(3200);o.kill();assert(!o.files.has(o.R),'self-test: r3 harness has no result.json after an abrupt end');

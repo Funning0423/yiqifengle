@@ -71,6 +71,10 @@ var wq=[],wBusy=false,wFail=0,wStats={appendFail:0,retries:0,concatFallback:0,lo
 var created={},sizes={},CONCAT_MAX=262144;
 /* result fields every exit carries: write stats (append-only proof), camTrace stats, and the [QF_SYNC] runtime gate (QA build):
  * any sync host / storage call in a steady-state frame fails the run. */
+/* r5 end-of-run contract: result.json is rewritten while the run is live (exit:'running'). The run is FINISHED only when result.done
+ * exists: written atomically ONCE, queued after the final result.json (done / error / abandon), so a runner that waits for
+ * result.done can never stop on a running snapshot. Body: {exit, ok, at}. */
+var doneWritten=false;function writeDone(r){if(doneWritten)return;doneWritten=true;try{w2('result.done',JSON.stringify({exit:r.exit,ok:!!r.ok,at:new Date().toISOString()}),true);}catch(e){}}
 function finishResult(res,kind){res.exit=kind;res.writeStats=JSON.parse(JSON.stringify(wStats));try{res.camTraceStats=JSON.parse(JSON.stringify(g.__qfCamTraceStats||null));}catch(e){}
   try{var ss=g.__qfSyncStats&&g.__qfSyncStats();res.syncStats=ss?JSON.parse(JSON.stringify(ss)):null;}catch(e){res.syncStats={error:String(e)};}
   if(res.syncStats&&res.syncStats.steadyCalls>0&&!(script&&script.allowSteadySync===true)){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'[QF_SYNC] '+res.syncStats.steadyCalls+' sync host/storage call(s) in steady frames (first: '+JSON.stringify((res.syncStats.steadySamples||[])[0]||null)+')';}
@@ -266,7 +270,7 @@ function run(){
   var res={ok:true,steps:[],startedAt:new Date().toISOString(),design:[DESIGN_W,DESIGN_H],window:win(),listeners:{}};
   /* r3: result.json is written on every exit: done, error, and ABANDON (app hidden / DevTools closing / g.__QF_AUTOPLAY_ABANDON()) as a
    * partial document, so a run that never reaches the end still leaves its counts. */
-  function abandon(why){if(resultDone)return;abandonedDoc=true;try{var r=JSON.parse(JSON.stringify(res));r.ok=false;r.partial=why;r.failReason=(r.failReason?r.failReason+'; ':'')+'abandoned: '+why;finishResult(r,'abandon');flush();w2('result.json',JSON.stringify(r,null,1),true);}catch(e){}}
+  function abandon(why){if(resultDone)return;abandonedDoc=true;try{var r=JSON.parse(JSON.stringify(res));r.ok=false;r.partial=why;r.failReason=(r.failReason?r.failReason+'; ':'')+'abandoned: '+why;finishResult(r,'abandon');flush();w2('result.json',JSON.stringify(r,null,1),true);writeDone(r);}catch(e){}}
   /* r4: the LAST snapshot survives an abrupt end (window closed / process killed: no hide, no end). result.json is rewritten as a
    * partial document (exit:'running') on every step and every 1 s, async, at most one write in flight (w2 coalesces), never after the
    * final done/error document. Readers: exit==='running' means the session ended without reaching done/error/abandon. */
@@ -301,8 +305,8 @@ function run(){
     writeState('final');res.journeyFailures=gameFail.journeyFailed;res.snapshotErrors=gameFail.snapshotErrors;res.uncaughtErrors=gameFail.uncaught;res.hudSuppressedErrors=gameFail.hudSuppressed;
     var gf=gameFail.journeyFailed.length+gameFail.snapshotErrors.length+gameFail.uncaught.length+gameFail.hudSuppressed.length;res.gameFailures=gf;
     if(gf>0&&script.allowGameFailures!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'game failures: '+gf+' (journey failed '+gameFail.journeyFailed.length+', snapshot errors '+gameFail.snapshotErrors.length+', uncaught '+gameFail.uncaught.length+', hud-suppressed '+gameFail.hudSuppressed.length+')';}
-    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}finishResult(res,'done');console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();w2('result.json',JSON.stringify(res,null,1),true);},
-    function(e){clearInterval(stTimer);clearInterval(snapTimer);res.ok=false;res.error=String(e);finishResult(res,'error');flush();w2('result.json',JSON.stringify(res,null,1),true);});
+    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}finishResult(res,'done');console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();w2('result.json',JSON.stringify(res,null,1),true);writeDone(res);},
+    function(e){clearInterval(stTimer);clearInterval(snapTimer);res.ok=false;res.error=String(e);finishResult(res,'error');flush();w2('result.json',JSON.stringify(res,null,1),true);writeDone(res);});
 }
 /* start once the world integration hook exists (or after 60 s regardless) */
 var t0=Date.now();(function waitBoot(){if(g.__worldIntegration||Date.now()-t0>60000){console.info('[QF_AUTOPLAY] start, out='+OUT);run();}else setTimeout(waitBoot,500);})();
