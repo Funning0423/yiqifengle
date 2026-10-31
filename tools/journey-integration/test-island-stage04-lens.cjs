@@ -33,7 +33,7 @@ const LIM={yaw:90,pitch:90,acc:200,v:8,step:0.5,fov:1.5,ground:1.5,solid:0.5,hid
 /* b21 (Grok Bot): stage-04 departure limit = measured final duration + 0.1 s, hard cap 9.0 s, pinned to the measured route. The pin carries
  * the I4>I6 route it was measured on (length + endpoints); a route change FAILs until the duration is re-measured and the pin updated, so the
  * limit always follows the measured route. Self-test (STAGE04_SELFTEST, always run below): over-limit, stale-route and cap cases must FAIL. */
-const STAGE04_PIN={route:'I4>I6',lengthM:9.047,from:[4.1,0.093,4.1],measuredS:7.94,source:'05702f02 final route (场景设计部), 运镜bot b21'};
+const STAGE04_PIN={route:'I4>I6',lengthM:8.968,from:[4.1,0.093,4.1],measuredS:7.87,source:'b27fc82d route nudge (场景设计部, waypoint 4.2,4.95), re-measured on 6edbb1af camera; was 9.047 m / 7.94 s (05702f02)'};
 function stage04Limit(pin,routeLen,routeFrom,totalS){const errs=[];const lim=Math.min(9.0,pin.measuredS+0.1);
  if(Math.abs(routeLen-pin.lengthM)>0.002||Math.hypot(...routeFrom.map((x,i)=>x-pin.from[i]))>0.002)errs.push(`stage04 pin stale: route ${pin.route} now ${routeLen.toFixed(3)} m from ${routeFrom.map(x=>x.toFixed(3))} (pin ${pin.lengthM} m) — re-measure`);
  if(!(totalS<=lim+1e-9))errs.push(`stage04 total ${totalS.toFixed(2)} s > limit ${lim.toFixed(2)} s (measured ${pin.measuredS} + 0.1, cap 9.0)`);return {lim,errs};}
@@ -56,7 +56,7 @@ if(!wfcWired&&fs.existsSync(WFC_DIFF)){const os=require('os'),cpx=require('child
 const IB=wfcWired?H.load(S+'region/IslandStageLens.ts'):null,NODE=k=>H.load(S+'region/RegionNodes.ts').REGION_NODES.island.nodes.find(n=>n.key===k).at;
 const boardFor=(key,w,h)=>IB?IB.islandBoardAim(P0,NODE(key),w,h):P0;
 {const w=walk('I4','I6').path,Lr=NW.pathLength(w);const st=[['over',stage04Limit(STAGE04_PIN,Lr,w[0],8.05).errs.length>0],['stale',stage04Limit(STAGE04_PIN,Lr+0.3,w[0],7.9).errs.length>0],
-  ['cap',stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.02).errs.length>0&&stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.0).lim===9.0],['clean',stage04Limit(STAGE04_PIN,Lr,w[0],7.94).errs.length===0]];
+  ['cap',stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.02).errs.length>0&&stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.0).lim===9.0],['clean',stage04Limit(STAGE04_PIN,Lr,w[0],STAGE04_PIN.measuredS).errs.length===0]];
  for(const [k,v] of st)if(!v){console.log('FAIL stage04 limit self-test',k);process.exitCode=1;}console.log('stage04 limit self-test',JSON.stringify(st));
  globalThis.__stage04={Lr,from:w[0]};}
 function shot(kind,w,h){ // returns {at(t)->pose, her(t), W (settle), total}
