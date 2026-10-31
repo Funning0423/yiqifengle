@@ -48,11 +48,11 @@ function parse(rel,src){const kind=/\.js$|\.cjs$/.test(rel)?ts.ScriptKind.JS:ts.
 function resolveCb(P,cb){if(!cb)return [];if(ts.isCallExpression(cb)&&calleeName(cb.expression)==='bind'&&ts.isPropertyAccessExpression(cb.expression))return resolveCb(P,cb.expression.expression);
  if(isFn(cb))return [{f:cb,P,name:'<inline>'}];const nm=calleeName(cb);if(!nm)return [];return (P.fns.get(nm)||[]).map(f=>({f,P,name:nm}));}
 /** all violations reachable from the hot roots of the given parsed files (global = name → [{f,P}] across game files for imports) */
-function scan(parsed,global){const v=[];
+function scan(parsed,global,isBad){const v=[];isBad=isBad||((nm)=>nm&&SYNC_NAME.test(nm));
  for(const P of parsed)for(const r of P.roots){const start=resolveCb(P,r.cb);const seen=new Set();const q=start.map(s=>[s,P.rel+':'+r.line+' '+r.why+(s.name!=='<inline>'?'→'+s.name:'')]);
   while(q.length){const [{f,P:FP,name},trail]=q.shift();if(seen.has(f))continue;seen.add(f);if(CACHED.has(name))continue;
    (function walk(n){if(ts.isCallExpression(n)){const nm=calleeName(n.expression);
-     if(nm&&SYNC_NAME.test(nm))v.push(trail+' → '+nm+' @'+FP.rel+':'+FP.line(n));
+     if(isBad(nm,n))v.push(trail+' → '+(nm||'?')+' @'+FP.rel+':'+FP.line(n));
      else if(nm&&!CACHED.has(nm)){/* resolve plain calls f() and this.f(); obj.f() on another object is not resolved by name (would alias e.g. a nav.start() to this file's start()) */
       const own=ts.isIdentifier(n.expression)||(ts.isPropertyAccessExpression(n.expression)&&n.expression.expression.kind===ts.SyntaxKind.ThisKeyword);
       let t=(FP.fns.get(nm)||[]).map(x=>({f:x,P:FP,name:nm}));

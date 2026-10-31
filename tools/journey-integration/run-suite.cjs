@@ -104,6 +104,7 @@ const tests=[
  ['host-sync-hot-callbacks','tools/host-sync/test_no_sync_hot_callbacks.cjs'],
  ['cam-trace-per-camera','tools/cam-trace/test_cam_trace_per_camera.cjs'],
  ['cam-trace-default-off','tools/cam-trace/test_cam_trace_default_off.cjs'],
+ ['cam-trace-log-rate','tools/cam-trace/test_cam_trace_log_rate.cjs'],
  ['lakeside-prewarm','tools/lakeside/test_lakeside_prewarm.cjs'],
  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
