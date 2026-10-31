@@ -2731,8 +2731,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts",
-    "bytes": 13180,
-    "sha256": "8f1a610cde2c2cee9a50e49579e16a722380f5da08eed657f7be57b516cc3824"
+    "bytes": 14420,
+    "sha256": "55d09d8ab1a0772ea8fb94fbba1d619fce9a70d98322255d70829ff82ab5c045"
   },
   {
     "path": "creator-build-project/assets/scripts/region/ExploreCameraCore.ts.meta",
@@ -2781,8 +2781,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/IslandStageLens.ts",
-    "bytes": 8995,
-    "sha256": "8726973618ec8959aa70740c36e975bc017a0d2c5d701af7b05a9b96167f6aee"
+    "bytes": 10755,
+    "sha256": "b17c94575ebb88c8e14d9d42369d3237bca18e502942164d0bf4b49ba7c61c4b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/IslandStageLens.ts.meta",
@@ -4946,8 +4946,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts",
-    "bytes": 117348,
-    "sha256": "298ea38b60b8be85c6087049cf4f1951876428528f2c7ccc24941a9821a4de75"
+    "bytes": 117835,
+    "sha256": "1dd68071db167b13081568c08540058efa021f6b70ba7963133a1b6afcbe0586"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 32316,
-    "sha256": "9b0069934e648371a4c6d5f5b969ce96822fddc78f2a2598ce02534e9206c5b6"
+    "bytes": 32929,
+    "sha256": "e485f184c86e3d33a0f8dbc792695ddaf51783aab31d4dec4e27564ee41dd849"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
