@@ -34,6 +34,17 @@ for(const mode of ['day','night'])for(const W of [320,375,390,414]){const d=DEV[
   assert(maxd<1e-6,`${tag}: layout changed beyond a vertical move (max ${maxd})`);
   if(cleared)assert(Math.abs(dy)<1e-9,`${tag}: old plank already cleared, must stay put (moved ${dy})`);
   rows.push(`${tag}: capsule bottom ${si.capsule.bottom} (clear ≥ ${need}); plank top before ${Tb.y0.toFixed(2)} → after ${Ta.y0.toFixed(2)} (${cleared?'unchanged: '+la.length+' nodes identical':'moved down '+dy.toFixed(2)+' pt, no shrink, '+la.length+' nodes translated only'}); panel bottom ${Fb.y1.toFixed(2)} → ${Fa.y1.toFixed(2)} ≤ ${botLim}`);}
+// r6b: the offset follows the RUNTIME capsule rect (wx.getMenuButtonBoundingClientRect via boardSafeInsets), not a constant.
+//  capsule bottom 42 and 60 at 320×568 → plank top = bottom + 8; no/invalid capsule → boardSafeInsets fallback (safe top 47 →
+//  capsule 51–83). Move only, never shrink: where the 8 pt bottom margin stops the move, the clamp is asserted and reported.
+for(const [label,cap] of [['capsule 42',{top:10,bottom:42,left:222,right:310}],['capsule 60',{top:28,bottom:60,left:222,right:310}],['fallback (no menu rect)',null],['fallback (invalid rect)',{top:10,bottom:400,left:222,right:310}]]){
+ globalThis.wx={getWindowInfo:()=>({windowWidth:320,windowHeight:568,safeArea:DEV[320].safe}),getMenuButtonBoundingClientRect:()=>cap};
+ const si=boardSafeInsets(320,568),need=Math.max(si.top,si.capsule.bottom)+8,A=await open(320,568,'day',true),T=box(A.p.root.find('TitlePlank'),320,568),F=box(A.p.root.find('PanelFrame'),320,568),la=all(A.p.root,320,568);A.o.dispose();
+ const B=await open(320,568,'day',false),Tb=box(B.p.root.find('TitlePlank'),320,568),Fb=box(B.p.root.find('PanelFrame'),320,568);B.o.dispose();
+ assert(Math.abs((F.y1-F.y0)-(Fb.y1-Fb.y0))<1e-6&&Math.abs((F.x1-F.x0)-(Fb.x1-Fb.x0))<1e-6,label+': never shrinks');assert(F.y1<=568-8+1e-6,label+': bottom margin');
+ if(cap&&cap.bottom<100)assert.equal(si.capsule.bottom,cap.bottom,label+': runtime rect used');else assert.equal(si.capsule.bottom,83,label+': fallback capsule');
+ const clamped=T.y0<need-0.01;if(clamped)assert(Math.abs(F.y1-560)<1e-6,label+': short of the clearance only when the 8 pt bottom margin stops the move');
+ rows.push(`320x568 ${label}: capsule bottom ${si.capsule.bottom} → need ${need}; plank top ${Tb.y0.toFixed(2)} → ${T.y0.toFixed(2)}; panel bottom ${Fb.y1.toFixed(2)} → ${F.y1.toFixed(2)} (limit 560)${clamped?` — CLAMPED by the bottom margin, plank ${(need-T.y0).toFixed(2)} pt short, no shrink`:''}`);}
 // 320 explicit + negative
 {globalThis.wx={getWindowInfo:()=>({windowWidth:320,windowHeight:568,safeArea:DEV[320].safe}),getMenuButtonBoundingClientRect:()=>DEV[320].cap};
  const A=await open(320,568,'day',true),Ta=box(A.p.root.find('TitlePlank'),320,568);A.o.dispose();assert(Ta.y0>=50,'320 plank top ≥ 50 pt: '+Ta.y0);

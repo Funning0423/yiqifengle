@@ -29,11 +29,13 @@ for(const [W,Hh] of [[320,568],[375,812],[390,844],[414,896]]){
   const B=await journal(W,Hh,true),b=B.p.root.find('qfPreviewDayNight');assert(b,W+': flag on → button');const lb=all(B.p.root,W,Hh);
   assert.deepEqual(lb,la,W+': rest of the journal identical with the preview button');
   const bb=box(b,W,Hh),m=Math.min(bb.x0,W-bb.x1,bb.y0,Hh-bb.y1);assert(m>=8,`${W}: button ${JSON.stringify(bb)} only ${m.toFixed(1)} pt from the screen edge`);
+  const tw=bb.x1-bb.x0,th=bb.y1-bb.y0;assert(tw>=44&&th>=44,`${W}: touch target ${tw.toFixed(1)}×${th.toFixed(1)} pt < 44`);
+  {const c=[[320,{left:222,right:310,top:10,bottom:42}],[375,{left:281,right:368,top:48,bottom:80}],[390,{left:297,right:384,top:51,bottom:83}],[414,{left:320,right:407,top:52,bottom:84}]].find(x=>x[0]===W)[1];assert(bb.x1<=c.left-8||bb.y0>=c.bottom+8,`${W}: button overlaps the capsule band`);}
   const icon=b.getChildByName('Face').getChildByName('Icon');assert(icon,'icon');
   H.tap(b);
   await H.flush();for(let i=0;i<4;i++)B.p.update(1);
   assert.equal(B.toggles(),1,W+': tap toggles day/night once');assert.equal(B.mode(),'night');assert(B.o.popups.find('JourneyPanel')&&B.p.alive!==false,W+': book stays open');
-  out.push(`${W}x${Hh}: button ${bb.x0.toFixed(1)},${bb.y0.toFixed(1)}–${bb.x1.toFixed(1)},${bb.y1.toFixed(1)} (min edge ${m.toFixed(1)} pt), tap → night, ${la.length} other nodes identical`);B.o.dispose();}
+  out.push(`${W}x${Hh}: target ${(bb.x1-bb.x0).toFixed(1)}×${(bb.y1-bb.y0).toFixed(1)} pt, button ${bb.x0.toFixed(1)},${bb.y0.toFixed(1)}–${bb.x1.toFixed(1)},${bb.y1.toFixed(1)} (min edge ${m.toFixed(1)} pt), tap → night, ${la.length} other nodes identical`);B.o.dispose();}
 K.QF_DEVICE_PREVIEW=true;
 assert.equal(K.preTransitionKey('',{}),'journal-sky-gated','flag on: qfPre default');
 assert.equal(K.preTransitionKey('?qfPre=journal-sky-cleared',{}),'journal-sky-cleared','explicit qfPre wins');
