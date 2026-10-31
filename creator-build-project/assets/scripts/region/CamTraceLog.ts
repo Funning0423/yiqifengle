@@ -9,7 +9,7 @@
  *  JUMP = position step > CAM_LOG_CAP.m (TRANSITION_CAM per-frame lens cap ·1.05) or view step > CAM_LOG_CAP.deg in one write. */
 import { cameraWriteHook } from '../world-r1/CameraPose';
 import {debugSearch} from './DebugQuery';
-/*QF_PROBE_BEGIN*/import {Director,MeshRenderer,Vec3,director,sys} from 'cc';/*QF_PROBE_END*/
+/*QF_PROBE_BEGIN*/import {Director,MeshRenderer,Vec3,director,screen,sys,view} from 'cc';/*QF_PROBE_END*/
 /** full9b P0 (Mac A/B: camTrace ON froze the renderer, OFF completed): bounded trace. ≤ linesPerS write lines per wall second
  *  (over budget: counted, the next line carries DROPPED=<n>); ≤ maxStacks CALLER stacks per session; re-entry never writes. */
 export const CAM_LOG_BUDGET=Object.freeze({linesPerS:60,maxStacks:200});
@@ -94,6 +94,13 @@ const inBox=(p:number[],c:number[],h:number[])=>Math.abs(p[0]-c[0])<=h[0]&&Math.
 /** fraction of samples whose camera ray is blocked by an occluder box (boxes containing the camera or the sample are skipped). */
 export function occludedFraction(cam:number[],samples:number[][],boxes:number[][]):number{if(!samples.length)return 0;let n=0;
  for(const p of samples){for(const b of boxes){const c=[b[0],b[1],b[2]],h=[b[3],b[4],b[5]];if(inBox(cam,c,h)||inBox(p,c,h))continue;if(segHitsBox(cam,p,c,h)){n++;break;}}}return n/samples.length;}
+/** P0 freeze (Mac 7e0f2c72 clean, CDP: lateUpdate → camLogFrame → getSafeAreaRect → WAGameSubContext → appservice sync): the safe area
+ *  is a sync host call; read once and again only after a view resize / orientation change. */
+let probeSa:any=undefined,probeSaHooked=false;
+function probeSafeArea():any{
+ if(!probeSaHooked){probeSaHooked=true;const drop=()=>{probeSa=undefined;};try{view.on('canvas-resize',drop);}catch{}try{(screen as any).on?.('window-resize',drop);(screen as any).on?.('orientation-change',drop);}catch{}}
+ if(probeSa===undefined){try{probeSa=(sys as any).getSafeAreaRect?.()??null;}catch{probeSa=null;}}
+ return probeSa;}
 function probeHerFrame(camera:any,fr:number):void{
  if(!camLog.on)return;
  if(!probe.hooked){probe.hooked=true;try{director.on(Director.EVENT_AFTER_DRAW,probeAfterDraw);}catch{}}
@@ -108,7 +115,7 @@ function probeHerFrame(camera:any,fr:number):void{
   const c=[(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2],hx=(hi[0]-lo[0])/2,hy=(hi[1]-lo[1])/2,hz=(hi[2]-lo[2])/2,smp:number[][]=[];
   for(const u of [-.6,0,.6])for(const v of [-.8,-.4,0,.4,.8])smp.push([c[0]+u*hx,c[1]+v*hy,c[2]+u*hz]);
   const cp=camera.node.worldPosition,occ=occludedFraction([cp.x,cp.y,cp.z],smp,probe.occ);
-  let sa:any=null;try{sa=(sys as any).getSafeAreaRect?.();}catch{}
+  const sa=probeSafeArea();
   camLog.out('[QF_HER_FRAME] fr='+fr+' bbox='+[x0,y0,x1,y1].map(f3).join(',')+' occ='+f3(occ)+' n='+smp.length+' safe='+(sa?[sa.x,sa.y,sa.width,sa.height].map(f3).join(','):'-')+' pn='+f3(pnow()));
  }catch{/* probe only */}
 }
