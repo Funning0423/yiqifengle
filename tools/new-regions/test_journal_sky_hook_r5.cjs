@@ -4,8 +4,8 @@
 // IslandJourneyOverlay → rendered region-page labels.
 //  - N for 「通关第 N 关后开启」 is derived: region-campaign.js inspect().challengeUnlocked first turns true after N cleared → 4 / 8 / 12,
 //    and JourneyPanels.challengeGateLevel() returns the same numbers (nothing hard-coded on either side).
-//  - sky: before-gate (mainline 9) one grey 「通关第 12 关后开启」, nothing above it; open 0/4 前往天空之城; 1/4 继续 1/4; 4/4 再访天空之城.
-//  - tide / meadow: before-gate 「通关第 4 / 8 关后开启」 and open 前往X. Locked pages: sky 「通关第 8 关后开启」, lake 「通关第 12 关后开启」.
+//  - tide / meadow / sky: every cleared count from the region's unlock to N−1 = one grey 「通关第 N 关后开启」 (nothing above), N = 前往X;
+//    sky 1/4 = 继续 1/4, 4/4 = 再访. Locked pages sky / lake from their own main:N. Journal cell + focus card agree with the button.
 //  - every grey button: no ChapterCondition / no text between the content and the button; 320×568 fits without truncation.
 //  - hooks journal-sky-open/-progress/-cleared = checkpoint 12 + 0 / 1 / 4 sky challenge wins.
 const assert=require('node:assert/strict'),path=require('node:path'),{createHarness}=require('../board-ui/harness.cjs');
@@ -28,12 +28,14 @@ const box=(n,W,Hh)=>{const t=n.getComponent(cc.UITransform),p=n.worldPosition,s=
 async function page(cp,sky,region,W,Hh){assert.equal(c.preTransitionProfile(cp,true).ok,true,'profile '+cp);if(sky)RF.seedSkyChallengeWins(c.testProfile,sky,{allowQa:true});
   const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>c.islandOverview(),gates:()=>c.islandGates(),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode:'day'})});
   await H.flush();o.sync(W,Hh,true);o.open(region);await H.flush();const p=o.popups.find('ChapterPanel');assert(p,region+' page');return {o,p};}
-const CASES=[ // [label, checkpoint, sky wins, region, button, enabled]
-  ['sky before-gate (mainline 9)',9,0,'sky','通关第 12 关后开启',false],['sky open 0/4',12,0,'sky','前往天空之城',true],['sky 1/4',12,1,'sky','继续 1/4',true],['sky cleared 4/4',12,4,'sky','再访天空之城',true],
-  ['tide before-gate (mainline 2)',2,0,'tide','通关第 4 关后开启',false],['tide open 0/4',4,0,'tide','前往潮汐小径',true],
-  ['meadow before-gate (mainline 5)',5,0,'meadow','通关第 8 关后开启',false],['meadow open 0/4',8,0,'meadow','前往花粉草甸',true],
-  ['sky locked page (mainline 4)',4,0,'sky','通关第 8 关后开启',false],['lake locked page (mainline 9)',9,0,'lake','通关第 12 关后开启',false]];
-const out=[];
+// Cases are generated from the derived gate level N and each region's own unlock (no enterable entry written by hand):
+// every mainline checkpoint from the region's unlock up to N−1 = gate still locked; N = boundary where it opens; plus sky 1/4, 4/4.
+const J=H.load('ui/JourneyCore'),def=id=>J.REGION_DEFS.find(d=>d.id===id),unlockAt=id=>{const q=def(id).unlock.requires.map(x=>/^main:(\d+)$/.exec(x)).filter(Boolean);return q.length?+q[0][1]:0;};
+const CASES=[];
+for(const id of ['tide','meadow','sky']){const N=derived[id];for(let cp=Math.max(1,unlockAt(id));cp<=N;cp++)CASES.push(cp<N?[`${id} gate locked (cleared ${cp})`,cp,0,id,`通关第 ${N} 关后开启`,false]:[`${id} gate opens (cleared ${cp})`,cp,0,id,'前往'+def(id).short,true]);}
+CASES.push(['sky 1/4',derived.sky,1,'sky','继续 1/4',true],['sky cleared 4/4',derived.sky,4,'sky','再访'+def('sky').short,true]);
+for(const id of ['sky','lake']){const n=unlockAt(id);CASES.push([`${id} locked page (cleared ${n-1})`,n-1,0,id,`通关第 ${n} 关后开启`,false]);}
+const out=[];let agreeN=0;
 for(const [W,Hh] of [[390,844],[320,568]])for(const [tag,cp,sky,region,want,en] of CASES){
   const {o,p}=await page(cp,sky,region,W,Hh),btn=p.root.find('Continue-'+region);assert(btn,tag+' button');
   const ls=btn.getComponentsInChildren(cc.Label);assert.equal(ls.length,1,tag+' one line');const L=ls[0];
@@ -43,12 +45,19 @@ for(const [W,Hh] of [[390,844],[320,568]])for(const [tag,cp,sky,region,want,en] 
     const BB=box(btn,W,Hh),above=p.root.getComponentsInChildren(cc.Label).filter(l=>!ls.includes(l)).map(l=>({s:l.string,b:box(l.node,W,Hh)})).filter(x=>x.b.y1<=BB.y0+0.01&&x.b.y0>=BB.y0-40);
     assert.deepEqual(above.map(x=>x.s),[],tag+' nothing directly above the grey button');
     const lw=L.getComponent(cc.UITransform).width;assert(!L.string.endsWith('…')&&measure(L.string,L.fontSize)<=lw+1e-6,`${tag} @${W}: fits (${measure(L.string,L.fontSize).toFixed(1)} ≤ ${lw.toFixed(1)})`);}
-  out.push(`${tag}@${W}=「${L.string}」${en?'':' grey'}`);o.dispose();}
+  // the journal row + focus card agree with the page button (same gate)
+  o.close();await H.flush();o.open('journal');await H.flush();const j=o.popups.find('JourneyPanel');
+  const cell=j.root.find('Chapter-'+region).getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string,fc=j.root.find('Focus-'+region),go=fc?fc.getComponentsInChildren(cc.Label).find(l=>l.node.name==='Go').string:null;
+  const ENTER=/^(前往 ›|继续 ›|再访 ›)$/;
+  if(!en){assert(!['可前往'].includes(cell)&&!/^\d\/\d/.test(cell)&&!cell.endsWith('…'),`${tag} @${W}: grey button but cell says 「${cell}」`);if(go!=null)assert(!ENTER.test(go),`${tag} @${W}: grey button but focus card says 「${go}」`);}
+  else{const c=want.startsWith('继续')?want.split(' ')[1]:null,expCell=c?c:want.startsWith('再访')?'4/4 ✓':'可前往',expGo=c?'继续 ›':want.startsWith('再访')?'再访 ›':'前往 ›';
+    assert.equal(cell,expCell,`${tag} @${W}: cell agrees with the button`);if(go!=null)assert.equal(go,expGo,`${tag} @${W}: focus card agrees with the button`);}
+  agreeN++;out.push(`${tag}@${W}: button 「${L.string}」${en?'':' grey'} · cell 「${cell}」${go!=null?' · focus 「'+go+'」':''}`);o.dispose();}
 // grid cell for a locked mainline-gated region
 {const {o}=await page(4,0,'sky',390,844);o.close();await H.flush();o.open('journal');await H.flush();const j=o.popups.find('JourneyPanel');
  const st=j.root.find('Chapter-sky').getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string;assert(st==='通关第 8 关后'||(st.endsWith('…')&&'通关第 8 关后'.startsWith(st.slice(0,-1))),'sky cell '+st);out.push('sky cell (locked)=「'+st+'」');o.dispose();}
 delete globalThis.location;
 console.log('PASS N derived from region-campaign challengeUnlocked: '+JSON.stringify(derived));
 for(const x of out)console.log('PASS '+x);
-console.log('PASS live gate path: '+CASES.length+' states × 390/320, grey buttons alone (no text above), no truncation, no 主线 / 暂不可进入');
+console.log('PASS live gate path: '+CASES.length+' states × 390/320 ('+agreeN+'), page button = journal cell = focus card, grey buttons alone (no text above), no truncation, no 主线 / 暂不可进入');
 })().catch(e=>{console.error(e);process.exit(1);});

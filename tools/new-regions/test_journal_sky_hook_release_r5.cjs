@@ -22,7 +22,7 @@ function sourceGates(keys,run){const errs=[];
   if(!/async run\(key:string[^\n]*\n  if\(key==='enable'\)\{if\(!qaSkipAllowed\(\)\)return[^\n]*\n  if\(!preTransitionEnabled\(\)\)return/.test(run))errs.push('run() lost its gate');
   const i=run.indexOf('if(spec.skyChallenges!=null){try{seedSkyChallengeWins('),s=run.indexOf('private async setup'),e=run.indexOf('private scale');
   if(i<s||i>e)errs.push('journal-sky seeding outside the gated runner setup');
-  const outside=(run.slice(0,s)+run.slice(e)).split('\n').filter(l=>!/^import /.test(l)).join('\n');
+  const outside=(run.slice(0,s)+run.slice(e)).split('\n').filter(l=>!/^(\/\*QF_PROBE_BEGIN\*\/)?import /.test(l)).join('\n');
   if(/skyChallenges|seedSkyChallengeWins\(/.test(outside))errs.push('journal-sky seeding referenced outside setup');
   if(!/seedSkyChallengeWins\(\(this\.d\.composition as any\)\.testProfile,/.test(run))errs.push('seeding not on the isolated test profile');
   return errs;}
