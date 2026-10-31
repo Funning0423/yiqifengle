@@ -546,13 +546,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/models/coast_board.glb",
-    "bytes": 246040,
-    "sha256": "bd12e70c94b0d3c437a256f18c1d9a908e13843d8833ce9a9875598e336b27ba"
+    "bytes": 244752,
+    "sha256": "d8ca6823c8c4c1529c3eb8200c1ba007ae7adb097e2c366bc7af529c4a7970a6"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/models/coast_props.glb",
-    "bytes": 168036,
-    "sha256": "18f502bd9194e8559a0ab3c48cc0334f9d9daf0dba123c62f305d04888ce40bd"
+    "bytes": 164064,
+    "sha256": "c447fd184c99c30f005ffb22ed3f0b9ce84f47c82d44b96e6272d7104bb341a9"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/models/coast_reuse.glb",
+    "bytes": 66592,
+    "sha256": "3912d735e35a994dec31a282e8483531cea6e0460588e7ef16db6fcd586ab837"
   },
   {
     "path": "creator-build-project/assets/bundles/region_coast/models/coast_rocks.glb",
@@ -565,9 +570,14 @@
     "sha256": "193c98784b2c7e8f1eda526b9d82c985e9a74a96eebb2572fb61fef6124f684c"
   },
   {
-    "path": "creator-build-project/assets/bundles/region_coast/textures/coast_palette.png",
-    "bytes": 2951,
-    "sha256": "8fdbb6af0899b5fde5d709fda0d3a9ac4de571756048a05e2e0c47e345cb15c3"
+    "path": "creator-build-project/assets/bundles/region_coast/textures/coast_palette_256.png",
+    "bytes": 2969,
+    "sha256": "5f53154ec4294e0ad40e9ff0a7c7dd1a9f131b1fc62ed1be1518f5c78ebabce1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_coast/textures/coast_palette_sand_256.png",
+    "bytes": 3156,
+    "sha256": "10b98602ff2d711e5994e3fe7938a679a0f50c95858285005b139710dd596295"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3",

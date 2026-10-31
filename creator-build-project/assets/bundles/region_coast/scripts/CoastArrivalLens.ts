@@ -161,6 +161,11 @@ export async function runCoastArrival(world:any,opts:CoastRunOptions):Promise<Co
   // GGbot: keep the handle reachable after the arrival (the board stands in the coast): __qfCoast.current, idempotent dispose that also clears it.
   const sc=scene,g2=globalThis as any;let gone=false;const handle={...sc,get disposed(){return gone;},dispose(){if(gone)return;gone=true;try{sc.dispose();}catch(e){qfErr('scene-dispose',e);}if(g2.__qfCoast?.current===handle)g2.__qfCoast.current=null;}};
   try{g2.__qfCoast?.current?.dispose?.();}catch{}if(g2.__qfCoast)g2.__qfCoast.current=handle;
+  { /* 03 dispose on region change (GGbot, kit-on only: this bundle is only loaded on the kit path): watch the journey region
+     4x/s on the world component; when it differs from the arrival's region or the world is gone -> dispose once, stop watching. */
+   const reg=()=>{try{return world.commands?.().snapshot?.().journey?.region??null;}catch{return null;}},r0=reg(),d0=handle.dispose;
+   const watch=()=>{if(!world.node?.isValid||reg()!==r0)handle.dispose();};
+   handle.dispose=()=>{try{world.unschedule?.(watch);}catch{}d0();};world.schedule?.(watch,0.25); }
   return out(true,null,r.frames,r.seconds,handle);}
  catch(e){drop();return out(false,qfErr('error',e));}}
 /** self-registry (merged, not replaced: CoastSceneLoader.ts registers loadCoastScene/unloadCoastScene on the same object). The main
