@@ -10,14 +10,17 @@ const boxes=IX.ISLAND_LENS_OCCLUDERS.map(r=>({min:[r[0],r[1],r[2]],max:[r[3],r[4
 const occ=J.island.filter(o=>!/seagull|smoke|beam|glow|glass/.test(o.name));
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]],LIM={face:0.5};
 const WALKS=(process.env.WALKS||'I4>I5,I5>I6').split(',');
+/* b21: model the runtime writer exactly: walks with an ISLAND_WALK_RAILS entry ride IslandStageLens.islandWalkRail from the held lens when
+ * RegionNodeStage wires it (RAIL=off = the 05702f02 follow lens, the 'before'); others = FollowWalk follow (raw path heading, as before). */
+const RNS=fs.readFileSync(S+'world-r2/RegionNodeStage.ts','utf8'),ISL=H.load(S+'region/IslandStageLens.ts'),railWired=/walkRail=islandWalkRail\(held,isl,wk\)/.test(RNS)&&/walkRail\?stageLensClock\(walkRail\)/.test(RNS);
 const report={walks:{}};let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
 for(const wk of WALKS){const [a,b]=wk.split('>'),pl=NW.planWalk('island',a,b),p=pl.segments.flatMap((s,i)=>i?s.path.slice(1):s.path),L=NW.pathLength(p),T=L/1.2;
  const hd=d=>{const q=NW.pointAlong(p,Math.max(0,d-0.3)),r=NW.pointAlong(p,Math.min(L,d+0.3));return Math.atan2(r[0]-q[0],r[2]-q[2]);};
- report.walks[wk]={lengthM:+L.toFixed(3),segments:pl.segments.length,screens:{}};
- for(const [w,h] of SCREENS){const g=new OC.LensGuard(),dt=1/30,B=0.6,her0=NW.pointAlong(p,0),held=g.solveStatic(E.followPose(her0,hd(0),w,h,0),her0,boxes);g.reset();
+ report.walks[wk]={lengthM:+L.toFixed(3),segments:pl.segments.length,rail:!!(railWired&&process.env.RAIL!=='off'&&ISL.ISLAND_WALK_RAILS?.[wk]),screens:{}};
+ for(const [w,h] of SCREENS){const g=new OC.LensGuard(),dt=1/30,B=0.6,her0=NW.pointAlong(p,0),held=g.solveStatic(E.followPose(her0,hd(0),w,h,0),her0,boxes);g.reset();const rl=railWired&&process.env.RAIL!=='off'&&ISL.ISLAND_WALK_RAILS?.[wk]?ISL.islandWalkRail(held,p,wk):null;
   let head90=0,head90Peak=0,face=0,chest=0,run=0,maxRun=0,blk={},rows=[];
   for(let k=0;k*dt<=B+T+0.5;k++){const t=k*dt,d=Math.max(0,Math.min(L,(t-B)*1.2)),her=NW.pointAlong(p,d);
-   const pose=t<B?held:g.apply(E.followPose(her,hd(d),w,h,0),her,boxes,dt,undefined,undefined,false,0,false);
+   const pose=t<B?held:rl?rl.at(t-B):g.apply(E.followPose(her,hd(d),w,h,0),her,boxes,dt,undefined,undefined,false,0,false);
    if(t<B)continue;/* the blend frames start at the board lens (reported by the stage gates) */
    {/* 场景设计部 cross-check (report only): their 90-ray body grid, head/face = points >= 1.4 m (18 rays), % blocked */
     const dv=[her[0]-pose.position[0],0,her[2]-pose.position[2]],dn=Math.hypot(dv[0],dv[2])||1,rt=[-dv[2]/dn,0,dv[0]/dn];let hb=0,hn=0;

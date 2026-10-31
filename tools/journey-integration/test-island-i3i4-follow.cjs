@@ -24,6 +24,9 @@ const LIM={face:0.5,margin:0.08,ground:1.5,solid:0.5,walk:1.0,v:8,step:0.5,yaw:9
 const WALK=process.env.WALK||'I3>I4',OUT=process.env.OUT||'reports/island-i3i4-follow.json';
 const RNS=fs.readFileSync(S+'world-r2/RegionNodeStage.ts','utf8'),wired=!!E.FollowHeading&&/this\.region==='island'&&this\.followHeading\?this\.followHeading\.step\(this\.yaw\(\),dt\)/.test(RNS)&&/this\.lens='FollowWalk';this\.followHeading\?\.seed\(this\.yaw\(\)\)/.test(RNS);
 const useFH=wired&&process.env.FOLLOW_HEADING!=='raw';
+/* b21: walks with an ISLAND_WALK_RAILS entry ride the rail from the held lens when RegionNodeStage wires it (runtime: skyRail=stageLensClock(walkRail)) */
+const ISL=H.load(S+'region/IslandStageLens.ts'),railWired=/walkRail=islandWalkRail\(held,isl,wk\)/.test(RNS)&&/walkRail\?stageLensClock\(walkRail\)/.test(RNS);
+const useRail=railWired&&!!ISL.ISLAND_WALK_RAILS?.[process.env.WALK||'I3>I4']&&process.env.RAIL!=='off';
 const ov=process.env.LENS_OVERRIDE?JSON.parse(process.env.LENS_OVERRIDE):null;if(ov)Object.assign(E.FOLLOW,ov);
 const [A,B]=WALK.split('>'),pl=NW.planWalk('island',A,B),P=pl.segments.flatMap((s,i)=>i?s.path.slice(1):s.path),L=NW.pathLength(P),V=NW.WALK_SPEED_MPS,T=L/V;
 const hd=d=>{const q=NW.pointAlong(P,Math.max(0,d-0.3)),r=NW.pointAlong(P,Math.min(L,d+0.3));return Math.atan2(r[0]-q[0],r[2]-q[2]);};
@@ -33,15 +36,15 @@ const ang=p=>{const f=[p.target[0]-p.position[0],p.target[1]-p.position[1],p.tar
 // walk-path clearance (route property, scene owner)
 const walkTiers={};for(const k in TI.KEEP)walkTiers[k]={m:9,who:null};for(let d=0;d<=L;d+=0.05){const c=TI.walkClear(NW.pointAlong(P,d));for(const k in c)if(c[k][0]<walkTiers[k].m)walkTiers[k]={m:+c[k][0].toFixed(3),who:c[k][1]};}
 const walkBad=Object.entries(walkTiers).filter(([k,v])=>v.m<TI.KEEP[k]),walkMin=Math.min(...Object.values(walkTiers).map(v=>v.m)),walkWho=walkBad.map(([k,v])=>k+':'+v.who).join(',')||null;
-const report={wired,followHeading:useFH,walk:WALK,lengthM:+L.toFixed(3),walkS:+T.toFixed(3),override:ov,walkTiers,walkClearWho:walkWho,screens:{}};let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
+const report={wired,followHeading:useFH,rail:useRail,walk:WALK,lengthM:+L.toFixed(3),walkS:+T.toFixed(3),override:ov,walkTiers,walkClearWho:walkWho,screens:{}};let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};
 const keyT=[5.4,6.1,7.4];
 for(const [w,h] of SCREENS){const safe=BL.boardSafeInsets(w,h),cap=safe.capsule,hudTop=cap?cap.bottom+8:safe.top+44,hudBot=h-(safe.bottom+80);const sc={};report.screens[w+'x'+h]=sc;
  for(const mode of (process.env.MODES?process.env.MODES.split(',').map(x=>x==='lcg'?x:+x):[60,30,'lcg']))for(const hm of ['path','rate']){const id=`${w}x${h} ${mode} ${hm}`;const g=new OC.LensGuard(),her0=NW.pointAlong(P,0);let yawS=hd(0);const fh=useFH?new E.FollowHeading():null;if(fh)fh.seed(yawS);let herYaw=yawS;
-  const held=g.solveStatic(E.followPose(her0,yawS,w,h,0),her0,boxes);g.reset();
+  const held=g.solveStatic(E.followPose(her0,yawS,w,h,0),her0,boxes);g.reset();const rl=useRail?ISL.islandWalkRail(held,P,WALK):null;
   let t=0,prev=null,pr=null,acc=[],mx={v:0,step:0,yaw:0,pitch:0,fov:0},face=0,run=0,maxRun=0,blk={},minM=9,minMt=0,menu=0,hud=0,minG=99,minS=99,writers=0,rows=[],shots={};
   for(const dt of dts(mode)){t+=dt;const d=Math.max(0,Math.min(L,(t-0.6)*V)),her=NW.pointAlong(P,d);
    const tgt=hd(d);herYaw=hm==='path'?tgt:herYaw+Math.max(-2*Math.PI*dt,Math.min(2*Math.PI*dt,wrap(tgt-herYaw)));yawS=t<0.6?herYaw:fh?fh.step(herYaw,dt,FHO?{...E.FOLLOW_HEADING,...FHO}:undefined):herYaw;
-   let pose;writers=1;if(t<0.6)pose=held;else pose=g.apply(E.followPose(her,yawS,w,h,0),her,boxes,dt,undefined,undefined,false,0,false);
+   let pose;writers=1;if(t<0.6)pose=held;else if(rl)pose=rl.at(t-0.6);else pose=g.apply(E.followPose(her,yawS,w,h,0),her,boxes,dt,undefined,undefined,false,0,false);
    if(prev){const st=Math.hypot(...pose.position.map((x,i)=>x-prev.position[i])),[y,q]=ang(pose),[y0,q0]=ang(prev),yr=((y-y0+540)%360-180)/dt,qr=(q-q0)/dt;
     mx.step=Math.max(mx.step,st);mx.v=Math.max(mx.v,st/dt);mx.yaw=Math.max(mx.yaw,Math.abs(yr));mx.pitch=Math.max(mx.pitch,Math.abs(qr));mx.fov=Math.max(mx.fov,Math.abs(pose.fovVerticalDeg-prev.fovVerticalDeg));
     if(pr)acc.push(Math.hypot(yr-pr[0],qr-pr[1])/dt);pr=[yr,qr];}
