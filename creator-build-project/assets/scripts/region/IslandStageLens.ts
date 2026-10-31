@@ -72,3 +72,19 @@ export function islandBoardAim(end:Pose,her:readonly number[],w:number,h:number)
  if(margin(at(1),her,w,h)<K.minMargin)return at(1);
  let lo=0,hi=1;for(let i=0;i<20;i++){const m=(lo+hi)/2;if(margin(at(m),her,w,h)>=K.minMargin)hi=m;else lo=m;}
  return at(hi);}
+/** 运镜bot b21 (final route 05702f02): node-walk RAILS for island reward walks the follow lens cannot shoot cleanly. I5>I6 (pier ramp
+ *  centreline): the follow lens behind her looks through the lighthouse (face 0.63-0.73 s, Mac/box island-walk-follow) and the
+ *  LensGuard climb dodging it runs through palm_tall_01's crown (0.15 m). The rail starts exactly on the live (held) lens, eases its
+ *  offset from her (cylindrical r / azimuth / height, world) to the planned one over rampS, then rides her planned walk at that offset
+ *  (camera speed = her speed); the aim eases onto her planned chest over k1. Pure; wired in RegionNodeStage; gate: island-walk-follow. */
+export const ISLAND_WALK_RAILS:Readonly<Record<string,{r:number;azDeg:number;up:number;rampS:number;k1:number}>>=Object.freeze({
+ 'I5>I6':{r:5.5,azDeg:275,up:5.5,rampS:1.6,k1:0.8}});
+export function islandWalkRail(from:Pose,walk:readonly Vec[],key:string):StageLens|null{
+ const R=ISLAND_WALK_RAILS[key];if(!R)return null;const K=ISLAND_STAGE_LENS,c=cum(walk),walkS=c[c.length-1]/K.walkMps,h0=herAt(walk,c,0),P=from.position;
+ const ox=P[0]-h0[0],oz=P[2]-h0[2],r0=Math.hypot(ox,oz),u0=P[1]-(h0[1]-K.herLookM);let a0=Math.atan2(ox,oz),a1=R.azDeg*Math.PI/180;
+ while(a1-a0>Math.PI)a1-=2*Math.PI;while(a1-a0<-Math.PI)a1+=2*Math.PI;const d0=unit(sub(from.target,from.position)),f0=from.fovVerticalDeg??48;
+ const at=(t:number):Pose=>{const h=herAt(walk,c,t),k=mj(t/R.rampS),r=r0+(R.r-r0)*k,a=a0+(a1-a0)*k,u=u0+(R.up-u0)*k;
+  const p:Vec=[h[0]+r*Math.sin(a),h[1]-K.herLookM+u,h[2]+r*Math.cos(a)] as Vec,d=slerp(d0,unit(sub(h,p)),mj(t/R.k1));
+  return {position:p,target:[p[0]+d[0]*10,p[1]+d[1]*10,p[2]+d[2]*10] as Vec,fovVerticalDeg:f0};};
+ return {seconds:walkS,preS:0,at,end:at(walkS)};
+}

@@ -30,6 +30,14 @@ const wired=!!wiredVia;
 const IL=wired?H.load(S+'region/IslandStageLens.ts'):null;
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]];
 const LIM={yaw:90,pitch:90,acc:200,v:8,step:0.5,fov:1.5,ground:1.5,solid:0.5,hidden:0.3,margin:0.08,total:8};
+/* b21 (Grok Bot): stage-04 departure limit = measured final duration + 0.1 s, hard cap 9.0 s, pinned to the measured route. The pin carries
+ * the I4>I6 route it was measured on (length + endpoints); a route change FAILs until the duration is re-measured and the pin updated, so the
+ * limit always follows the measured route. Self-test (STAGE04_SELFTEST, always run below): over-limit, stale-route and cap cases must FAIL. */
+const STAGE04_PIN={route:'I4>I6',lengthM:9.047,from:[4.1,0.093,4.1],measuredS:7.94,source:'05702f02 final route (场景设计部), 运镜bot b21'};
+function stage04Limit(pin,routeLen,routeFrom,totalS){const errs=[];const lim=Math.min(9.0,pin.measuredS+0.1);
+ if(Math.abs(routeLen-pin.lengthM)>0.002||Math.hypot(...routeFrom.map((x,i)=>x-pin.from[i]))>0.002)errs.push(`stage04 pin stale: route ${pin.route} now ${routeLen.toFixed(3)} m from ${routeFrom.map(x=>x.toFixed(3))} (pin ${pin.lengthM} m) — re-measure`);
+ if(!(totalS<=lim+1e-9))errs.push(`stage04 total ${totalS.toFixed(2)} s > limit ${lim.toFixed(2)} s (measured ${pin.measuredS} + 0.1, cap 9.0)`);return {lim,errs};}
+
 const occ=J.island.filter(o=>!/seagull|smoke|beam|glow|glass/.test(o.name)),ground=J.island.filter(o=>/env_island_main/.test(o.name)),
  solids=J.island.filter(o=>!/env_island_main|seagull|smoke|beam|glow|glass|wet_sand|tide|shells|crab|turtle|cat/.test(o.name));
 const gh=p=>{let b=null;for(const o of ground){o.bb??=J.bbox(o.tris);if(p[0]<o.bb[0][0]||p[0]>o.bb[1][0]||p[2]<o.bb[0][2]||p[2]>o.bb[1][2])continue;const t=J.rayHit(p,[0,-1,0],200,o.tris);if(t!==null&&(b===null||t<b))b=t;}return b;};
@@ -47,6 +55,10 @@ if(!wfcWired&&fs.existsSync(WFC_DIFF)){const os=require('os'),cpx=require('child
  try{fs.mkdirSync(path.join(d,path.dirname(f)),{recursive:true});fs.copyFileSync(S+'world-r1/WorldFlowComponent.ts',path.join(d,f));cpx.execFileSync('git',['apply',WFC_DIFF],{cwd:d,stdio:'pipe'});if(/islandBoardAim\(end,/.test(fs.readFileSync(path.join(d,f),'utf8')))wfcWired='outbox-diff';}catch(e){}finally{fs.rmSync(d,{recursive:true,force:true});}}
 const IB=wfcWired?H.load(S+'region/IslandStageLens.ts'):null,NODE=k=>H.load(S+'region/RegionNodes.ts').REGION_NODES.island.nodes.find(n=>n.key===k).at;
 const boardFor=(key,w,h)=>IB?IB.islandBoardAim(P0,NODE(key),w,h):P0;
+{const w=walk('I4','I6').path,Lr=NW.pathLength(w);const st=[['over',stage04Limit(STAGE04_PIN,Lr,w[0],8.05).errs.length>0],['stale',stage04Limit(STAGE04_PIN,Lr+0.3,w[0],7.9).errs.length>0],
+  ['cap',stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.02).errs.length>0&&stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.0).lim===9.0],['clean',stage04Limit(STAGE04_PIN,Lr,w[0],7.94).errs.length===0]];
+ for(const [k,v] of st)if(!v){console.log('FAIL stage04 limit self-test',k);process.exitCode=1;}console.log('stage04 limit self-test',JSON.stringify(st));
+ globalThis.__stage04={Lr,from:w[0]};}
 function shot(kind,w,h){ // returns {at(t)->pose, her(t), W (settle), total}
  const dep=kind==='departure',{pl,path:p}=dep?walk('I4','I6'):walk('I3','I4'),L=NW.pathLength(p),from=dep?boardFor('I4',w,h):boardFor('I3',w,h);
  if(IL&&pl.segments.length===1){const end=E.followPose(p[p.length-1],IL.endHeading(p),w,h,lu);
@@ -80,7 +92,7 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
   /* b20 r2 (Grok Bot): face/chest hidden <= 0.3 s on both shots (face OR chest counted); her margin >= 0.08 on EVERY frame of both
      shots, frame 0 included (frame 0 = the live stage board lens, see boardFor). No grace window. */
   ok(hid<=LIM.hidden+1e-9,`${id} face/chest hidden ${hid.toFixed(2)} s`);ok(minM>=LIM.margin,`${id} margin ${minM.toFixed(3)} (frame 0 ${report.trace[`${kind} ${w}x${h}`][0][8]})`);ok(cap===0,`${id} capsule ${cap}`);
-  if(kind==='departure'){ok(s.total<=LIM.total,`${id} reveal→boarding ${s.total.toFixed(2)} s`);if(s.end){const e=s.at(s.W);ok(Math.hypot(...e.position.map((x,i)=>x-s.end.position[i]))<1e-6,`${id} end != follow@I6`);if(fps===30){const cl=J.clearance(s.end.position,solids,6)[0],g=gh(s.end.position);(report.endPose??={})[id]={clearM:+cl.toFixed(2),pos:s.end.position.map(x=>+x.toFixed(3))};(report.endPose[id]).groundM=g===null?null:+g.toFixed(2);ok(cl>=3,`${id} follow@I6 ${cl.toFixed(2)} m from geometry (<3)`);ok(g===null||g>=1.5,`${id} follow@I6 ground ${g}`);}}}}
+  if(kind==='departure'){const sl=stage04Limit(STAGE04_PIN,globalThis.__stage04.Lr,globalThis.__stage04.from,s.total);for(const e of sl.errs)ok(false,`${id} ${e}`);(report.stage04Limit??={limitS:sl.lim,pin:STAGE04_PIN})[id]=+s.total.toFixed(2);if(s.end){const e=s.at(s.W);ok(Math.hypot(...e.position.map((x,i)=>x-s.end.position[i]))<1e-6,`${id} end != follow@I6`);if(fps===30){const cl=J.clearance(s.end.position,solids,6)[0],g=gh(s.end.position);(report.endPose??={})[id]={clearM:+cl.toFixed(2),pos:s.end.position.map(x=>+x.toFixed(3))};(report.endPose[id]).groundM=g===null?null:+g.toFixed(2);ok(cl>=3,`${id} follow@I6 ${cl.toFixed(2)} m from geometry (<3)`);ok(g===null||g>=1.5,`${id} follow@I6 ground ${g}`);}}}}
  report.summary[id]={yawDegS:+mx.yaw.toFixed(1),pitchDegS:+mx.pitch.toFixed(1),accP99:+p99.toFixed(0),ms:+mx.v.toFixed(2),stepM:+mx.step.toFixed(3),fovPerFrame:+mx.fov.toFixed(3),...(fps===30?{groundM:+minG.toFixed(2),solidM:+minS.toFixed(2),hiddenS:+hid.toFixed(2),faceHiddenS:+hidFace.toFixed(2),margin:+minM.toFixed(3),capsule:cap,totalS:+s.total.toFixed(2)}:{})};
  if(rows.length)report.rows[kind]=rows;}
 // Body-sample occlusion (场景设计部 method: 90 points, 0.05–1.75 m x ±0.2 m across the view; head/face = >= 1.4 m), every 0.1 s, skinned palms.
@@ -96,4 +108,5 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
   console.log(kind,'lean_01 episodes',JSON.stringify(ep));}}
 fs.mkdirSync(path.join(__dirname,'reports'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/island-stage04-lens.json'),JSON.stringify(report));
 console.log(JSON.stringify({boardLens:wfcWired||false,wired:wiredVia==='source'?true:wiredVia||false,fail,sample:report.summary['departure 390x844 30fps'],entry:report.summary['entry 390x844 30fps']}));
+if(process.exitCode)fail++;
 if(fail){console.log('island-stage04-lens: FAIL',fail);process.exit(1);}console.log('island-stage04-lens: PASS');
