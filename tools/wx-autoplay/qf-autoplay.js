@@ -61,12 +61,33 @@ try{fs.rmdirSync(OUT,true);}catch(e){}try{fs.mkdirSync(OUT+'/shots',true);}catch
 var logBuf=[],logBytes=0,stateBytes=0;
 /* r2 (chainJ P0): every write during gameplay is ASYNC and serialized (one in flight, FIFO). The old appendFileSync from
  * setInterval(flush)/writeState was a synchronous appservice IPC every 1-2 s, same class as the toTempFilePathSync freeze. */
-var wq=[],wBusy=false,wFail=0;
-function w2(file,s){wq.push([OUT+'/'+file,s]);pump();}
-function pump(){if(wBusy||!wq.length)return;wBusy=true;var it=wq.shift(),p=it[0],s=it[1];
-  var done=function(){wBusy=false;pump();};var bad=function(e){wFail++;try{if(wFail<=5)console.warn('[QF_AUTOPLAY] WRITEFAIL '+p+' '+(e&&(e.errMsg||e.message)));}catch(x){}done();};
-  var put=function(){try{fs.writeFile({filePath:p,data:s,encoding:'utf8',success:done,fail:bad});}catch(x){bad(x);}};
-  try{fs.appendFile({filePath:p,data:s,encoding:'utf8',success:done,fail:put});}catch(e){put();}}
+var wq=[],wBusy=false,wFail=0,wStats={appendFail:0,retries:0,concatFallback:0,lostBytes:0,writes:0};
+/* r3 (chainL: an appendFile failure fell back to writeFile, which OVERWROTE console.log / state.jsonl -> 1 line each, and result.json
+ * was never written). Append-only now: a log file is CREATED once (writeFile while it does not exist yet; OUT is emptied at boot),
+ * then only appended. A failed append is retried (same chunk stays at the queue head, order kept); after 3 failures the chunk is
+ * appended by async read+concat+write only while the file is known small (< CONCAT_MAX); otherwise it keeps retrying with backoff.
+ * Nothing is dropped silently: wStats counts failures, retries, concat fallbacks and lostBytes (only after 50 attempts).
+ * w2(file,s,true) = whole-document write (result.json): always writeFile, never appended. */
+var created={},sizes={},CONCAT_MAX=262144;
+/* result fields every exit carries: write stats (append-only proof), camTrace stats, and the [QF_SYNC] runtime gate (QA build):
+ * any sync host / storage call in a steady-state frame fails the run. */
+function finishResult(res,kind){res.exit=kind;res.writeStats=JSON.parse(JSON.stringify(wStats));try{res.camTraceStats=JSON.parse(JSON.stringify(g.__qfCamTraceStats||null));}catch(e){}
+  try{var ss=g.__qfSyncStats&&g.__qfSyncStats();res.syncStats=ss?JSON.parse(JSON.stringify(ss)):null;}catch(e){res.syncStats={error:String(e)};}
+  if(res.syncStats&&res.syncStats.steadyCalls>0&&!(script&&script.allowSteadySync===true)){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'[QF_SYNC] '+res.syncStats.steadyCalls+' sync host/storage call(s) in steady frames (first: '+JSON.stringify((res.syncStats.steadySamples||[])[0]||null)+')';}
+  if(wStats.lostBytes>0){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'harness log lost '+wStats.lostBytes+' bytes';}
+  if(kind!=='abandon')resultDone=true;}
+var resultDone=false;
+function w2(file,s,whole){wq.push({p:OUT+'/'+file,s:s,whole:!!whole,tries:0});pump();}
+function pump(){if(wBusy||!wq.length)return;wBusy=true;var it=wq[0];
+  var ok=function(){wq.shift();wStats.writes++;created[it.p]=true;sizes[it.p]=(it.whole?0:(sizes[it.p]||0))+it.s.length;wBusy=false;pump();};
+  var retry=function(e){it.tries++;wFail++;wStats.appendFail++;try{if(wFail<=5)console.warn('[QF_AUTOPLAY] WRITEFAIL '+it.p+' try '+it.tries+' '+(e&&(e.errMsg||e.message)));}catch(x){}
+    if(it.tries>=50){wq.shift();wStats.lostBytes+=it.s.length;wBusy=false;pump();return;}
+    wStats.retries++;setTimeout(function(){wBusy=false;pump();},Math.min(2000,100*it.tries));};
+  try{
+    if(it.whole||!created[it.p])fs.writeFile({filePath:it.p,data:it.s,encoding:'utf8',success:ok,fail:retry});
+    else if(it.tries>=3&&(sizes[it.p]||0)<CONCAT_MAX){wStats.concatFallback++;fs.readFile({filePath:it.p,encoding:'utf8',success:function(r){fs.writeFile({filePath:it.p,data:String(r&&r.data||'')+it.s,encoding:'utf8',success:ok,fail:retry});},fail:retry});}
+    else fs.appendFile({filePath:it.p,data:it.s,encoding:'utf8',success:ok,fail:retry});
+  }catch(e){retry(e);}}
 function flush(){if(!logBuf.length)return;var s=logBuf.join('');logBuf=[];if(logBytes>LOG_CAP)return;logBytes+=s.length;w2('console.log',s+(logBytes>LOG_CAP?'[QF_AUTOPLAY] log cap reached\n':''));}
 var consoleErrors=0,errorSamples=[];
 function qfSer(v){if(typeof v==='string')return v;if(v&&typeof v==='object'&&(v instanceof Error||(typeof v.message==='string'&&('stack' in v||'name' in v)))){return (v.name||'Error')+': '+v.message+(v.stack?'\n'+v.stack:'');}try{var j=JSON.stringify(v);if(j==='{}'&&v&&typeof v==='object'){var t=String(v);if(t!=='[object Object]')return t;}return j;}catch(e){return String(v);}}
@@ -78,7 +99,7 @@ try{wx.onError&&wx.onError(function(r){var m=r&&typeof r==='object'?((r.message|
 try{wx.onUnhandledRejection&&wx.onUnhandledRejection(function(r){var x=r&&r.reason;var m='unhandledrejection: '+qfSer(x);console.error('[QF_AUTOPLAY] '+m);noteFail('uncaught',m);});}catch(e){}
 function scanState(s){if(!s)return;try{var w=s.world||{},j=w.journey||{};if(s.journeyPhase==='failed'||j.phase==='failed')noteFail('journeyFailed',(j.region||'?')+'>'+(j.target||'?')+': '+(j.error||w.error||'failed'));if(w.error)noteFail('snapshotErrors',w.error);if(s.error)noteFail('snapshotErrors',s.error);if(s.snapErr)noteFail('snapshotErrors','snapshot threw: '+s.snapErr);}catch(e){}}
 var touch=installTouch(wx);g.__QF_AUTOPLAY={touch:touch,api:api};g.__QF_AUTOPLAY_SHOT=function(n){return shot(n);};Object.defineProperty(g,'__QF_AUTOPLAY_SHOT_STATS',{get:function(){return shotStats;},configurable:true});
-if(err){console.error('[QF_AUTOPLAY] script rejected: '+err);w2('result.json',JSON.stringify({ok:false,error:err}));flush();return;}
+if(err){console.error('[QF_AUTOPLAY] script rejected: '+err);w2('result.json',JSON.stringify({ok:false,error:err}),true);flush();return;}
 if(script.launchQuery&&/camTrace=1/.test(script.launchQuery)){g.__QF_CAM_TRACE=true;console.info('[QF_AUTOPLAY] __QF_CAM_TRACE=true');g.__qfQuery=script.launchQuery;}if(script.launchQuery){try{if(!g.location||!g.location.search)g.location={search:script.launchQuery,href:'game.js'+script.launchQuery};}catch(e){console.warn('[QF_AUTOPLAY] launchQuery not applied');}}
 var memWarn=0;try{wx.onMemoryWarning(function(r){memWarn++;console.warn('[QF_AUTOPLAY] memory warning',r&&r.level);});}catch(e){}
 var fpsT=Date.now(),fpsF=0,fps=null;function frames(){var cc=g.cc;try{return cc&&cc.director?cc.director.getTotalFrames():null;}catch(e){return null;}}
@@ -238,6 +259,10 @@ function untilLake(st,rec,res,W){var to=st.timeoutMs||420000,t0=Date.now(),idleS
       if(!rec.ok){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+f;}return shot(rec.ok?'lake-arrived':'lake-failed').then(function(fl){rec.endShot=fl;});});}
 function run(){
   var res={ok:true,steps:[],startedAt:new Date().toISOString(),design:[DESIGN_W,DESIGN_H],window:win(),listeners:{}};
+  /* r3: result.json is written on every exit: done, error, and ABANDON (app hidden / DevTools closing / g.__QF_AUTOPLAY_ABANDON()) as a
+   * partial document, so a run that never reaches the end still leaves its counts. */
+  function abandon(why){if(resultDone)return;try{var r=JSON.parse(JSON.stringify(res));r.ok=false;r.partial=why;r.failReason=(r.failReason?r.failReason+'; ':'')+'abandoned: '+why;finishResult(r,'abandon');flush();w2('result.json',JSON.stringify(r,null,1),true);}catch(e){}}
+  g.__QF_AUTOPLAY_ABANDON=function(why){abandon(why||'manual');};try{wx.onHide&&wx.onHide(function(){abandon('hide');});}catch(e){}
   for(var k in touch.listeners)res.listeners[k]=touch.listeners[k].length;
   var stTimer=setInterval(function(){writeState('periodic');},script.stateEveryMs);
   var i=0;
@@ -265,8 +290,8 @@ function run(){
     writeState('final');res.journeyFailures=gameFail.journeyFailed;res.snapshotErrors=gameFail.snapshotErrors;res.uncaughtErrors=gameFail.uncaught;res.hudSuppressedErrors=gameFail.hudSuppressed;
     var gf=gameFail.journeyFailed.length+gameFail.snapshotErrors.length+gameFail.uncaught.length+gameFail.hudSuppressed.length;res.gameFailures=gf;
     if(gf>0&&script.allowGameFailures!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'game failures: '+gf+' (journey failed '+gameFail.journeyFailed.length+', snapshot errors '+gameFail.snapshotErrors.length+', uncaught '+gameFail.uncaught.length+', hud-suppressed '+gameFail.hudSuppressed.length+')';}
-    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}try{res.camTraceStats=JSON.parse(JSON.stringify(globalThis.__qfCamTraceStats||null))}catch(_e){};console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();w2('result.json',JSON.stringify(res,null,1));},
-    function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);try{res.camTraceStats=JSON.parse(JSON.stringify(globalThis.__qfCamTraceStats||null))}catch(_e){};flush();w2('result.json',JSON.stringify(res,null,1));});
+    if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}finishResult(res,'done');console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();w2('result.json',JSON.stringify(res,null,1),true);},
+    function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);finishResult(res,'error');flush();w2('result.json',JSON.stringify(res,null,1),true);});
 }
 /* start once the world integration hook exists (or after 60 s regardless) */
 var t0=Date.now();(function waitBoot(){if(g.__worldIntegration||Date.now()-t0>60000){console.info('[QF_AUTOPLAY] start, out='+OUT);run();}else setTimeout(waitBoot,500);})();
