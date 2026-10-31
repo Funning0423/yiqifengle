@@ -17,6 +17,7 @@ creator-build-project/assets/bundles/region_coast/data/coast_layout.json
 creator-build-project/assets/bundles/region_coast/models
 creator-build-project/assets/bundles/region_coast/models/coast_board.glb
 creator-build-project/assets/bundles/region_coast/models/coast_props.glb
+creator-build-project/assets/bundles/region_coast/models/coast_reuse.glb
 creator-build-project/assets/bundles/region_coast/models/coast_rocks.glb
 creator-build-project/assets/bundles/region_coast/models/coast_terrain.glb
 creator-build-project/assets/bundles/region_coast/scripts
@@ -25,4 +26,5 @@ creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalTrack.ts
 creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLayout.ts
 creator-build-project/assets/bundles/region_coast/scripts/CoastSceneLoader.ts
 creator-build-project/assets/bundles/region_coast/textures
-creator-build-project/assets/bundles/region_coast/textures/coast_palette.png
+creator-build-project/assets/bundles/region_coast/textures/coast_palette_256.png
+creator-build-project/assets/bundles/region_coast/textures/coast_palette_sand_256.png

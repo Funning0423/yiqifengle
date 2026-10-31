@@ -10,12 +10,12 @@
  * materials come only from opts.resolveMaterial (island/meadow material set, owned by the caller). Missing required options = error, nothing shown.
  * cancelled() is checked after every async step; a cancelled mount releases what it loaded and shows nothing.
  * dispose(): destroys every instantiated node and the coast_palette material clones, and decRefs the bundle assets this loader loaded
- * (layout + glb prefabs + coast_palette texture). Island templates
+ * (layout + glb prefabs + coast_palette / coast_palette_sand textures). Island templates
  * (resolveReuse) and caller materials (resolveMaterial) are never released or destroyed here.
  */
 import { assetManager, AssetManager, Asset, instantiate, isValid, JsonAsset, Material, MeshRenderer, Node, Prefab, Texture2D } from 'cc';
 import { coastBoardKitFromFlag } from '../../../scripts/ui/BoardProjection';
-import { COAST_BUNDLE, COAST_LAYOUT_PATH, COAST_PALETTE_PATH, COAST_MODELS_DIR, COAST_REUSE_SOURCES, COAST_ROOT, coastInstances, type CoastLayout, type CoastInstance, type MatKind } from './CoastSceneLayout';
+import { COAST_BUNDLE, COAST_LAYOUT_PATH, COAST_PALETTE_PATH, COAST_PALETTE_SAND_PATH, COAST_MODELS_DIR, COAST_REUSE_SOURCES, COAST_ROOT, coastInstances, type CoastLayout, type CoastInstance, type MatKind } from './CoastSceneLayout';
 
 export const QF_COAST='[QF_COAST]';
 export type CoastMaterialKey=Readonly<{mesh:string;kind:MatKind;alpha:number;emit:boolean;
@@ -38,7 +38,7 @@ const err=(msg:string)=>{console.error(QF_COAST+' '+msg);return msg;};
 const deadline=<T>(p:Promise<T>,ms:number)=>{let t:any;return Promise.race([p,new Promise<never>((_,no)=>{t=setTimeout(()=>no(Error('coast-asset-timeout')),ms);})]).finally(()=>clearTimeout(t));};
 const loadBundle=()=>new Promise<AssetManager.Bundle>((ok,no)=>{const b=assetManager.getBundle?.(COAST_BUNDLE);if(b)return ok(b);assetManager.loadBundle(COAST_BUNDLE,(e,x)=>e||!x?no(e||Error('no bundle')):ok(x));});
 const loadJson=(b:AssetManager.Bundle)=>new Promise<JsonAsset>((ok,no)=>b.load(COAST_LAYOUT_PATH,JsonAsset,(e,a)=>e||!a?no(e||Error('no layout')):ok(a)));
-const loadTex=(b:AssetManager.Bundle)=>new Promise<Texture2D>((ok,no)=>b.load(COAST_PALETTE_PATH,Texture2D,(e,a)=>e||!a?no(e||Error('no coast_palette')):ok(a)));
+const loadTex=(b:AssetManager.Bundle,path=COAST_PALETTE_PATH)=>new Promise<Texture2D>((ok,no)=>b.load(path,Texture2D,(e,a)=>e||!a?no(e||Error('no '+path)):ok(a)));
 const loadPrefabs=(b:AssetManager.Bundle)=>new Promise<Prefab[]>((ok,no)=>b.loadDir(COAST_MODELS_DIR,Prefab,(e,l)=>e?no(e):ok(l||[])));
 function worldNode(w:CoastWorld|null|undefined):Node|null{if(!w)return null;if(w instanceof Node)return w;const o=w as any;return o.sceneRoot||o.node||o.root||null;}
 function findDeep(n:Node,name:string):Node|null{if(n.name===name&&n.getComponent(MeshRenderer))return n;for(const c of n.children){const r=findDeep(c,name);if(r)return r;}return null;}
@@ -53,8 +53,8 @@ export async function loadCoastScene(world:CoastWorld,opts:CoastSceneOptions):Pr
   const release=()=>{for(const c of clones.splice(0))if(isValid(c))c.destroy();if(lib&&isValid(lib))lib.destroy();lib=null;if(root&&isValid(root))root.destroy();root=null;for(const a of held.splice(0))a.decRef();};
   const gone=()=>{if(!opts.cancelled())return false;console.warn(QF_COAST+' scene mount cancelled (teardown/region change)');release();return true;};
   try{const b=await deadline(loadBundle(),ms);if(gone())return null;
-    const [json,prefabs,tex]=await Promise.all([deadline(loadJson(b),ms),deadline(loadPrefabs(b),ms*1.5),deadline(loadTex(b),ms)]);
-    json.addRef();held.push(json);tex.addRef();held.push(tex);for(const p of prefabs){p.addRef();held.push(p);}if(gone())return null;
+    const [json,prefabs,tex,sand]=await Promise.all([deadline(loadJson(b),ms),deadline(loadPrefabs(b),ms*1.5),deadline(loadTex(b),ms),deadline(loadTex(b,COAST_PALETTE_SAND_PATH),ms)]);
+    json.addRef();held.push(json);tex.addRef();held.push(tex);sand.addRef();held.push(sand);for(const p of prefabs){p.addRef();held.push(p);}if(gone())return null;
     const L=json.json as CoastLayout;root=new Node(COAST_ROOT.name);root.active=false;   // detached + inactive until the end
     root.setPosition(COAST_ROOT.position[0],COAST_ROOT.position[1],COAST_ROOT.position[2]);root.setRotationFromEuler(0,COAST_ROOT.yawDeg,0);root.setScale(COAST_ROOT.scale,COAST_ROOT.scale,COAST_ROOT.scale);
     lib=new Node('coast_glb_templates');for(const p of prefabs)lib.addChild(instantiate(p));
@@ -62,22 +62,27 @@ export async function loadCoastScene(world:CoastWorld,opts:CoastSceneOptions):Pr
     for(const i of coastInstances(L)){
       let t=tpl.get(i.mesh);
       if(t===undefined){
-        if(i.reuse){if(!COAST_REUSE_SOURCES[i.mesh])errors.push(err('reuse name not in COAST_REUSE_SOURCES: '+i.mesh));
-          try{t=opts.resolveReuse(i.mesh);}catch(e){t=null;}if(!t||!isValid(t)){t=null;errors.push(err('reuse unresolved: '+i.mesh+' ('+(COAST_REUSE_SOURCES[i.mesh]?.count??'?')+' instances not mounted)'));}}
+        const rs=i.reuse?COAST_REUSE_SOURCES[i.mesh]:undefined;
+        if(i.reuse&&!rs){t=null;errors.push(err('reuse name not in COAST_REUSE_SOURCES: '+i.mesh+' (not mounted)'));}
+        else if(rs&&rs.from==='region_coast'){t=findDeep(lib,rs.src);if(!t)errors.push(err('reuse unresolved: '+i.mesh+' -> '+rs.src+' missing in models/coast_reuse.glb ('+rs.count+' instances not mounted)'));}
+        else if(rs){try{t=opts.resolveReuse(i.mesh);}catch(e){t=null;}if(!t||!isValid(t)){t=null;errors.push(err('reuse unresolved: '+i.mesh+' ('+rs.count+' instances not mounted)'));}}
         else{t=findDeep(lib,i.mesh);if(!t)errors.push(err('mesh missing in models/*.glb: '+i.mesh));}
         tpl.set(i.mesh,t);}
       if(!t)continue;
-      if(i.reuse){const n=instantiate(t);n.name=i.mesh;n.active=true;setTRS(n,i);root.addChild(n);reusePlaced++;continue;}   // keeps the island's own materials
-      const mk=i.mesh+'|'+i.kind+'|'+i.alpha;let m=mats.get(mk);
-      if(m===undefined){let base:Material|null=null;try{base=opts.resolveMaterial({mesh:i.mesh,kind:i.kind,alpha:i.alpha,emit:i.kind==='unlit',palette:i.palette});}catch(e){base=null;}
+      const rs=i.reuse?COAST_REUSE_SOURCES[i.mesh]:undefined,baked=rs?.from==='region_coast';
+      if(i.reuse&&!baked){const n=instantiate(t);n.name=i.mesh;n.active=true;setTRS(n,i);root.addChild(n);reusePlaced++;continue;}   // island rig: keeps the island's own materials
+      const ptex=rs?.tint==='sand'?sand:tex,mk=i.mesh+'|'+i.kind+'|'+i.alpha;let m=mats.get(mk);
+      if(m===undefined){let base:Material|null=null;try{base=opts.resolveMaterial({mesh:i.mesh,kind:baked?'std':i.kind,alpha:baked?1:i.alpha,emit:baked?false:i.kind==='unlit',palette:baked||i.palette});}catch(e){base=null;}
         if(!base||!isValid(base)){m=null;errors.push(err('material unavailable for '+i.mesh+' (no fallback; mesh not mounted)'));}
-        else if(!i.palette)m=base;
-        else{m=paletteClone(base,tex,clones);if(!m)errors.push(err('coast_palette swap failed on '+(base.name||'?')+': property '+COAST_MAIN_TEXTURE+' missing / setProperty threw / read-back mismatch (mesh '+i.mesh+' not mounted, island colours never shown)'));}
+        else if(!i.palette&&!baked)m=base;
+        else{m=paletteClone(base,ptex,clones);if(!m)errors.push(err('coast_palette swap failed on '+(base.name||'?')+': property '+COAST_MAIN_TEXTURE+' missing / setProperty threw / read-back mismatch (mesh '+i.mesh+' not mounted, island colours never shown)'));}
         mats.set(mk,m);}
       if(!m)continue;
-      const n=instantiate(t);n.name=i.mesh;setTRS(n,i);const r=n.getComponent(MeshRenderer);
+      let n=instantiate(t),r=n.getComponent(MeshRenderer);
       if(r){r.setMaterial(m,0);r.shadowCastingMode=i.castShadow?1:0;r.receiveShadow=i.receiveShadow?1:0;}
-      root.addChild(n);placed++;}
+      if(baked){const w=new Node(i.mesh);n.setPosition(0,rs!.norm?rs!.norm.offsetY:0,0);n.setRotationFromEuler(0,0,0);const k=rs!.norm?rs!.norm.scale:1;n.setScale(k,k,k);n.active=true;w.addChild(n);n=w;}   // norm = layout DATA
+      else n.name=i.mesh;
+      setTRS(n,i);root.addChild(n);if(baked)reusePlaced++;else placed++;}
     lib.destroy();lib=null;
     if(gone())return null;
     if(!isValid(parent!)){err('scene not mounted: world node destroyed');release();return null;}
@@ -91,15 +96,15 @@ export async function loadCoastScene(world:CoastWorld,opts:CoastSceneOptions):Pr
  *  only mainTexture becomes coast_palette. The island material itself is never modified. */
 /** Property name of the base-colour texture on the island's M_env_palette effect - CONFIRM ON THE MAC (MAC_STEPS). */
 export const COAST_MAIN_TEXTURE='mainTexture';
-const cloneCache=new WeakMap<Material,Material>();
+const cloneCache=new WeakMap<Material,Map<Texture2D,Material>>();
 function paletteClone(base:Material,tex:Texture2D,owned:Material[]):Material|null{
-  const hit=owned.find(c=>cloneCache.get(base)===c);if(hit)return hit;
+  const hit=cloneCache.get(base)?.get(tex);if(hit&&owned.includes(hit))return hit;
   if(!base.passes?.length||!base.passes.some(p=>p.getHandle(COAST_MAIN_TEXTURE)))return null;
   const m=new Material();
   try{m.copy(base);m.setProperty(COAST_MAIN_TEXTURE,tex);}catch(e){m.destroy();return null;}
   let back:unknown=null;try{back=m.getProperty(COAST_MAIN_TEXTURE);}catch(e){back=null;}   // read back: the swap must have taken effect
   if(back!==tex){m.destroy();return null;}
-  cloneCache.set(base,m);owned.push(m);return m;}
+  let per=cloneCache.get(base);if(!per)cloneCache.set(base,per=new Map());per.set(tex,m);owned.push(m);return m;}
 export function unloadCoastScene(h:CoastSceneHandle|null|undefined){h?.dispose();}
 
 // self-registration (module evaluation = region_coast bundle loaded = kit path). Merges, never replaces, the bundle's __qfCoast object.
