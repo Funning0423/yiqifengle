@@ -43,7 +43,7 @@ const route={from:'skycity',to:'lakeside',path,bridgeStart:routeLength(j.approac
 const TM=j.timing,sAt=t=>Core.journeyDistanceAt(T,TM,t),DUR=TM.durationS;
 const lakeLocal=LKS.instances(),lake=lakeLocal.map(o=>{const t=new Float64Array(o.tris.length);for(let k=0;k<t.length;k+=3){const w=j.toWorld([o.tris[k],o.tris[k+1],o.tris[k+2]]);t[k]=w[0];t[k+1]=w[1];t[k+2]=w[2];}return {tag:'lakeside',name:o.name,group:o.group,tris:t};});
 const objs=[...island,...lake];
-const cam=(d,landing=j.landing)=>journeyCamera(path,d,start1,j.focus,undefined,0,landing);
+const cam=(d,landing=j.landing)=>journeyCamera(path,d,start1,j.focus,j.lens,0,landing)/* b20: the leg's own lens keys (lakesideJourney().lens) */;
 // Per-screen route landing (what RegionJourneyAdapter hands the route at runtime): the journey ends on that screen's board camera.
 const BLs=H.load(S+'ui/BoardLayout.ts'),SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520]],screenLanding=(W,Hh)=>LK.lakesideScreenLanding(j,LK.lakesideScreenFrame(W,Hh,BLs.boardSafeInsets(W,Hh))),screenLandingV4=(W,Hh)=>LK.lakesideScreenLanding(j,LK.lakesideScreenFrame(W,Hh,BLs.boardSafeInsets(W,Hh)),STOP);
 const heading=d=>Core.journeyHeading(path,d);
@@ -76,7 +76,7 @@ check('K3 lens on her right for the whole leg',()=>{const m=rows.reduce((a,r)=>r
 const finals={};
 for(const [W,Hh] of SCREENS)check(`K4 final landing frame ${W}x${Hh} (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame`,()=>{
  // b18 path v4: she stops on the v4 stop (the live balloon walk end), framed by this screen's board lens
- const a=W/Hh,c=journeyCamera(pathV4,TV4,start1,j.focus,undefined,0,screenLandingV4(W,Hh)),p=pathV4.at(-1),feet=ndc(c,[p[0],p[1]+.05,p[2]],a),head=ndc(c,[p[0],p[1]+1.65,p[2]],a),chest=ndc(c,[p[0],p[1]+.9,p[2]],a),fc=ndc(c,j.focus,a);
+ const a=W/Hh,c=journeyCamera(pathV4,TV4,start1,j.focus,j.lens,0,screenLandingV4(W,Hh)),p=pathV4.at(-1),feet=ndc(c,[p[0],p[1]+.05,p[2]],a),head=ndc(c,[p[0],p[1]+1.65,p[2]],a),chest=ndc(c,[p[0],p[1]+.9,p[2]],a),fc=ndc(c,j.focus,a);
  const x=(chest[0]+1)/2,feetUp=(feet[1]+1)/2,headDown=(1-head[1])/2,h=(head[1]-feet[1])/2;
  assert(feet[2]>0&&head[2]>0,'behind lens');assert(feetUp>=.025,'feet '+feetUp)/* b18b: B″ puts her in the bottom corner under the tool row */;assert(headDown>=.05,'head '+headDown);assert(x>=.1&&x<=.95,'her x '+x);
  {const g=BLs.boardLayout(W,Hh,BLs.boardSafeInsets(W,Hh),2),trayB=(g.tray.y+g.tray.height/2)/Hh;if(W<Hh)assert(headDown>=trayB,`head ${headDown} under the tray (tray bottom ${trayB})`);}assert(h>=.07&&h<=.26,'height '+h)/* b18b: ≥ 7% (B″: small in the corner so she clears the tool row) */;assert(Math.abs(fc[0])<=1&&Math.abs(fc[1])<=.9&&fc[2]>0,'board centre '+fc)/* b18b: B″ turns left, the hidden 3D grid centre sits near the right edge, under the opaque 2D board */;

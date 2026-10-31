@@ -75,7 +75,9 @@ const res={};
   const body=s=>{const i=s.indexOf('const b1Draw=()=>{');return s.slice(i,s.indexOf('director.on(Director.EVENT_BEFORE_DRAW,b1Draw)',i)).replace(/\n\s*if\(!b1Drawn\)\{gapPh\('firstDraw-wait'\);[\s\S]*?\/\* hold the real previous frame, single writer \(before-draw\) \*\//,'');};
   const H0='const b1Draw=()=>{if(dead||!b1On)return;';assert.ok(body(base).startsWith(H0),'C3: base B1 writer head moved');
   assert.equal(body(src),H0+'b1Hold=b1Hold||liveWorldPose();'+body(base).slice(H0.length),'C3: B1 writer changed beyond the hold branch + the b1-ease b1Hold latch');}
- for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b!==null)assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE);}
+ /* TransportLeg.ts: byte-identical to BASE except exactly the pinned SAIL_M1_LOCAL (8a63be5b) and K0 (palm clearance) lines; combined exact-line allowlist + negative self-test: c3-transport-leg*.cjs */
+ for(const f of ['region/TransportLeg.ts','region/BalloonFlight.ts','region/BalloonB1Start.ts','region/BasketCloseShot.ts']){const b=gitShow(f);if(b===null)continue;
+  if(f==='region/TransportLeg.ts')require('./c3-transport-leg.cjs').checkTransportLeg(b,fs.readFileSync(S+f,'utf8'),f,BASE);else assert.equal(fs.readFileSync(S+f,'utf8'),b,'C3: '+f+' changed vs '+BASE);}
  /* fullN: TransitionChain.ts may change only in its generated preload section + additive lines (rule + negative self-test: c3-transition-chain*.cjs) */
  {const f='region/TransitionChain.ts',b=gitShow(f);if(b!==null)require('./c3-transition-chain.cjs').checkTransitionChain(b,fs.readFileSync(S+f,'utf8'),f,BASE);}
  const plan=planFor(M2),v0=plan.vehicle(0),c0=plan.camera(0),PIN={v0:[-5.3,5.25,102.5],c0:[-20.6,8.25,89.6]}/* m run plan0 (3 dp log) */;

@@ -1,0 +1,15 @@
+{
+ "note": "Island waypoint-walk TEST FIXTURE (b21b) — test coverage only: the baked I3–I4 edge at this SHA already follows these waypoints (8.794 m < 9.6 m, one walk), so the island needs no waypoint route; NOT wired into WAYPOINT_ROUTES, production island nodes/walkable unchanged. The ONE file to swap for a new scene SHA: the test reads I3/I4 (nodesFile), via (viaFile), the walkable grid (walkableFile) and routeAvoid (routeAvoidFile) from sourceSha with git show.",
+ "option": "E (场景设计部, final)",
+ "sourceRef": "scene/b20-island-walkable-terrain",
+ "sourceSha": "b2232c1e656f9a51771fc0773c8c1a56b107794d",
+ "nodesFile": "creator-build-project/assets/scripts/region/RegionNodes.ts",
+ "viaFile": "tools/region-nodes/fixtures/island-i3-i4-waypoints-E.json",
+ "walkableFile": "creator-build-project/assets/scripts/region/RegionWalkableData.ts",
+ "routeAvoidFile": "tools/region-nodes/bake-region-nodes.cjs",
+ "region": "island",
+ "from": "I3",
+ "to": "I4",
+ "viaReplaceLast": null,
+ "viaReplaceNote": "b20 I4-approach (场景设计部, 2026-10-31): set to null — the via file at sourceSha is tested unchanged. I4 moved (3.9,4.1) -> (4.1,4.1) and the via tail is (4.4,5.4): the curve clears routeAvoid [3.85,4.8,0.3] (0 samples), heading accel p99 185.8 (60fps) / 196.9 (30fps). Earlier b21b replacement (4.3,5.3),(4.5,4.5) no longer needed."
+}

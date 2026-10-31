@@ -111,38 +111,38 @@
   "nodes": [
    {
     "k": "M0",
-    "name": "河岸登陆 river landing — 帆船到达",
+    "name": "河岸登陆 river landing — 帆船到达 (b20: was [0.2,1.22,20])",
     "at": [
-     0.2,
-     1.22,
-     20
+     1.8,
+     1.73,
+     15.6
     ]
    },
    {
     "k": "M1",
-    "name": "小路 path — mainline-05",
+    "name": "小路 path — mainline-05 (b20: was [2.6,2.2,11.6])",
     "at": [
-     2.6,
      2.2,
-     11.6
+     2.8,
+     6.8
     ]
    },
    {
     "k": "M2",
-    "name": "坡腰 hillside — mainline-06",
+    "name": "坡腰 hillside — mainline-06 (b20: was [-1.4,3.19,1.2])",
     "at": [
      -1.4,
-     3.19,
-     1.2
+     3.38,
+     -0.8
     ]
    },
    {
     "k": "M3",
-    "name": "弯道 bend — mainline-07",
+    "name": "弯道 bend — mainline-07 (b20: was [-3,4,-8.4])",
     "at": [
      -3,
-     4,
-     -8.4
+     4.14,
+     -9.6
     ]
    },
    {
@@ -177,30 +177,30 @@
    {
     "from": "M0",
     "to": "M1",
-    "walkM": 9.4,
-    "walkS": 7.8,
-    "climbM": 0.98
+    "walkM": 9.0,
+    "walkS": 7.5,
+    "climbM": 1.08
    },
    {
     "from": "M1",
     "to": "M2",
-    "walkM": 12.1,
-    "walkS": 10,
-    "climbM": 0.99
+    "walkM": 9.1,
+    "walkS": 7.6,
+    "climbM": 0.58
    },
    {
     "from": "M2",
     "to": "M3",
-    "walkM": 10.3,
-    "walkS": 8.6,
-    "climbM": 0.81
+    "walkM": 9.5,
+    "walkS": 7.9,
+    "climbM": 0.76
    },
    {
     "from": "M3",
     "to": "M4",
-    "walkM": 10.5,
-    "walkS": 8.7,
-    "climbM": 1.84
+    "walkM": 9.3,
+    "walkS": 7.9,
+    "climbM": 1.7
    },
    {
     "from": "M4",
@@ -217,7 +217,7 @@
     "climbM": 0.03
    }
   ],
-  "totalWalkM": 57.0,
+  "totalWalkM": 52.7,
   "reachableAreaM2": 7096,
   "heightRange": [
    -6.4,

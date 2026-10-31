@@ -14,10 +14,23 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {createHarness}=require('../board-ui/harness.cjs');const H=createHarness();const ts=require('../qf-env.cjs').typescript();
 // ── limits: 运镜bot, Oct 30 2026 (standing-shot cap = LensSmooth.LENS_SMOOTH.yawOursDegS 90 / yawAccDegS2 200). One block, edit here.
 const LIMITS=Object.freeze({yawDegS:90,pitchDegS:90,angAccP99DegS2:200,linMS:8,stepM:0.5/* push-in max 0.407 m */,fovStepDeg:1.5,minHeightM:1.5,writersPerFrame:1});
-// ── KNOWN_DEFECT entry. Remove it when cine/b20-meadow-nodelens-ease lands (the gate FAILs while it is stale).
-const KNOWN_DEFECT=Object.freeze({id:'L04-exit-board-to-follow-blend',owner:'cine/b20-meadow-nodelens-ease',where:'RegionNodeStage.ts:273 playReward blend(BLEND_S.boardToFollow)',mac:'dedf8853 tint1 f647–f659 (worst f649–f652)',writer:'region.node-lens.blend'});
+// ── KNOWN_DEFECT L04-exit-board-to-follow-blend REMOVED (b20 walk merge, 运镜bot l04-lens-r2 方案 E + RNS-island-stage04-lens.diff):
+// the L04 exit no longer blends 0.6 s board→follow; RegionNodeStage.playReward drives IslandStageLens.islandDepartLens (board lens →
+// tangent line + arc along her uncut I4→I6 walk → follow at I6), one writer (skyRail clock). This gate now drives that REAL lens
+// (the same functions playReward calls, nodes from REGION_NODES) on the Mac per-frame dt; every frame must be within the limits.
+const EXIT={writer:'region.node-lens.island-depart',where:'RegionNodeStage.playReward islandDepartLens (方案 E)'};
 const S=p=>path.join(H.SCRIPTS,p);
-const E=H.load(S('region/ExploreCameraCore.ts')),LS=H.load(S('region/LensSmooth.ts'));
+// Exit min height (Grok Bot 2026-10-30, real rule): camera >= 1.5 m above WHATEVER is straight below it = max(terrain, prop/foliage
+// tops, her path ground), by a vertical ray down at the camera XZ through the skin-corrected island fixture (journey-scene.cjs, the
+// same meshes the clearance gates use: env_island_main + props_merged + palms/lighthouse/animals + placed beach palms). Non-solid FX
+// (seagulls in flight, smoke, light beam/glow, glass, blind cards) are not "below".
+const JS=require('./journey-scene.cjs'),BELOW=JS.island.filter(o=>!/seagull_fly|smoke|beam|glow|glass|blind_cards/.test(o.name));
+for(const o of BELOW)o.bb??=JS.bbox(o.tris);
+function below(p){let y=-Infinity,tag='none';for(const o of BELOW){const b=o.bb;if(p[0]<b[0][0]||p[0]>b[1][0]||p[2]<b[0][2]||p[2]>b[1][2]||b[0][1]>p[1])continue;
+ const t=JS.rayHit(p,[0,-1,0],p[1]-b[0][1]+1,o.tris);if(t!==null&&p[1]-t>y){y=p[1]-t;tag=o.tag+':'+o.name;}}return {y,tag};}
+const E=H.load(S('region/ExploreCameraCore.ts')),LS=H.load(S('region/LensSmooth.ts')),IL=H.load(S('region/IslandStageLens.ts')),NW=H.load(S('region/NodeWalker.ts'));
+// wiring proof: the live playReward must call islandDepartLens on the island departure, else this gate would test dead code
+assert.match(fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),/const dep=isl&&spec\.departure\?islandDepartLens\(board,isl,followPose\(isl\[isl\.length-1\],endHeading\(isl\)/,'RegionNodeStage.playReward no longer drives islandDepartLens on the L04 exit');
 assert.equal(LS.LENS_SMOOTH.yawOursDegS,LIMITS.yawDegS,'yaw cap drifted from LensSmooth.yawOursDegS');assert.equal(LS.LENS_SMOOTH.yawAccDegS2,LIMITS.angAccP99DegS2,'accel cap drifted from LensSmooth.yawAccDegS2');
 // real RegionNodeStage.blend + update (anim stepping only)
 const src=fs.readFileSync(S('world-r2/RegionNodeStage.ts'),'utf8'),sf=ts.createSourceFile('s.ts',src,ts.ScriptTarget.ES2020,true);
@@ -49,38 +62,46 @@ async function reveal(){// real WorldFlowCore + RegionJourneyCore: frames writte
 // meadow follow target fitted to the Mac f659 settle pose (5.114,3.631,-11.896, yaw −173.4°) at 390×844; the girl stands on meadow ground
 function girlFor(w,h){const yawRad=wrap(-173.4+180)/R,o=E.followPose([0,0,0],yawRad,w,h,0),G=[5.114-o.position[0],3.631-o.position[1]-0,-11.896-o.position[2]];return {G,yawRad};}
 const {G:G0}=girlFor(390,844);const GROUND=G0[1];
-function check(frames,label){const bad=[],kd=[];let prevW=null;const acc=[],kdAcc=[];
+function check(frames,label){const bad=[],kd=[];let prevW=null;const acc=[],kdAcc=[];const KNOWN_DEFECT={writer:'\u0000none'};let minH=null;
  for(let i=1;i<frames.length;i++){const a=frames[i-1].pose,b=frames[i].pose,dt=frames[i].dt||1/60,f=frames[i],inKD=f.writers.includes(KNOWN_DEFECT.writer);
   const dm=Math.hypot(...b.position.map((x,k)=>x-a.position[k])),dy=Math.abs(wrap(yawOf(b)-yawOf(a))),dp=Math.abs(pitchOf(b)-pitchOf(a)),df=Math.abs((b.fovVerticalDeg??48)-(a.fovVerticalDeg??48));
   const w=Math.max(dy,dp)/dt;if(prevW!=null)(inKD?kdAcc:acc).push(Math.abs(w-prevW)/dt);prevW=w;
   const why=[];if(dm>LIMITS.stepM)why.push(`step ${dm.toFixed(3)} m > ${LIMITS.stepM}`);if(dm/dt>LIMITS.linMS)why.push(`${(dm/dt).toFixed(1)} m/s > ${LIMITS.linMS}`);
   if(dy/dt>LIMITS.yawDegS)why.push(`yaw ${(dy/dt).toFixed(0)}°/s > ${LIMITS.yawDegS}`);if(dp/dt>LIMITS.pitchDegS)why.push(`pitch ${(dp/dt).toFixed(0)}°/s > ${LIMITS.pitchDegS}`);
-  if(df>LIMITS.fovStepDeg)why.push(`fov ${df.toFixed(2)}° > ${LIMITS.fovStepDeg}`);if(b.position[1]-GROUND<LIMITS.minHeightM)why.push(`height ${(b.position[1]-GROUND).toFixed(2)} m < ${LIMITS.minHeightM}`);
+  if(df>LIMITS.fovStepDeg)why.push(`fov ${df.toFixed(2)}° > ${LIMITS.fovStepDeg}`);let gY=GROUND,gTag='ground';if(f.ground!=null){const u=below(b.position);gY=Math.max(u.y,f.ground);gTag=u.y>=f.ground?u.tag:'her path ground';}
+  const hgt=b.position[1]-gY;if(f.ground!=null&&(minH==null||hgt<minH.h))minH={h:hgt,tag:gTag,frame:i};
+  if(hgt<LIMITS.minHeightM)why.push(`height ${hgt.toFixed(2)} m < ${LIMITS.minHeightM} above ${gTag}`);
   if(f.writers.length>LIMITS.writersPerFrame)why.push('writers '+f.writers.join('+'));
   if(!why.length)continue;const tag=`${label} frame ${i} (${f.tag||f.writers[0]||'held'}): ${why.join(', ')}`;(inKD?kd:bad).push(tag);}
  const P=x=>{x.sort((m,n)=>m-n);return x.length?x[Math.min(x.length-1,Math.floor(x.length*0.99))]:0;},p99=P(acc),kdP99=P(kdAcc);
  if(p99>LIMITS.angAccP99DegS2)bad.push(`${label}: angular accel p99 ${p99.toFixed(0)}°/s² > ${LIMITS.angAccP99DegS2} outside the KNOWN_DEFECT window`);
  if(kdP99>LIMITS.angAccP99DegS2)kd.push(`${label}: window angular accel p99 ${kdP99.toFixed(0)}°/s² > ${LIMITS.angAccP99DegS2}`);
- return {bad,kd,p99};}
+ return {bad,kd,p99,minH};}
 process.exitCode=1;/* only the final verdict line sets 0: a hung await can never pass silently */
 (async()=>{const fails=[],kdAll=[];
  for(const [w,h] of LS.LENS_SMOOTH.screens){const {frames,board}=await reveal();
-  // after the reveal the board is up; region.node-lens takes over from the live pose (readPose) with the real blend
-  const {G:G1,yawRad}=girlFor(390,844),G=G1,to=E.followPose(G,yawRad,w,h,E.followLookUp('meadow',99));
-  const st=new Stage();let wrote=null;st.orbit={pause(){}};st.writePose=p=>{wrote=p;return p;};
-  const done=st.blend(E.BLEND_S.boardToFollow,board,()=>to);let k=0;
-  for(const dt of BLEND_DT){wrote=null;st.update(dt);k++;if(wrote)frames.push({dt,pose:wrote,writers:[KNOWN_DEFECT.writer],tag:'L04-exit blend '+k+' ≈ Mac f'+(646+k)});if(!st.anim)break;}
-  for(let i=0;i<60;i++){wrote=null;st.update(1/60);if(wrote)frames.push({dt:1/60,pose:wrote,writers:[KNOWN_DEFECT.writer],tag:'L04-exit blend end'});else frames.push({dt:1/60,pose:frames[frames.length-1].pose,writers:[]});}// 1 s after settle
+  // after the reveal the board is up; the L04 exit is the REAL island departure lens from that board pose (as playReward builds it)
+  const pl=NW.planWalk('island','I4','I6');assert.equal(pl.segments.length,1,'I4>I6 must be one uncut walk');const isl=pl.segments[0].path,L=NW.pathLength(isl);
+  const dep=IL.islandDepartLens(board,isl,E.followPose(isl[isl.length-1],IL.endHeading(isl),w,h,E.followLookUp('island',99)));
+  let t=0;const herY=tt=>NW.pointAlong(isl,Math.max(0,Math.min(L,(tt-dep.preS)*1.2)))[1];
+  for(const dt of [...BLEND_DT,...Array(Math.ceil((dep.seconds+1)*60)).fill(1/60)]){t+=dt;if(t>dep.seconds+1)break;frames.push({dt,pose:dep.at(Math.min(t,dep.seconds)),writers:[EXIT.writer],ground:herY(t),tag:'L04-exit island-depart t='+t.toFixed(3)});}
+  const done=Promise.resolve();
   await done;const r=check(frames,`${w}x${h}`);fails.push(...r.bad);kdAll.push(...r.kd);
-  console.log(`${r.bad.length?'FAIL':'ok  '} ${w}x${h}: ${frames.length} frames, ${r.bad.length} over limit outside KNOWN_DEFECT, ${r.kd.length} KNOWN_DEFECT, ang-accel p99 ${r.p99.toFixed(0)}°/s²`);
-  for(const x of r.kd)console.log('     KNOWN_DEFECT '+x);}
+  console.log(`${r.bad.length?'FAIL':'ok  '} ${w}x${h}: ${frames.length} frames (push-in + reveal + L04 exit ${EXIT.where}), ${r.bad.length} over limit, ang-accel p99 ${r.p99.toFixed(0)}°/s², exit min height ${r.minH?r.minH.h.toFixed(2)+' m above '+r.minH.tag+' (frame '+r.minH.frame+')':'n/a'}`);}
  for(const f of fails.slice(0,40))console.log('     FAIL '+f);
- {// stale-entry selftest: once the owner's fix makes the window move within limits (here: a still lens), the same check reports no
-  // KNOWN_DEFECT result, and the gate then FAILs as stale above. A blend that stays within limits must not be mis-tagged.
-  const {frames,board}=await reveal(),st=new Stage();let wrote=null;st.orbit={pause(){}};st.writePose=q=>{wrote=q;return q;};const d=st.blend(E.BLEND_S.boardToFollow,board,()=>board);
-  for(const dt of [...BLEND_DT,...Array(60).fill(1/60)]){wrote=null;st.update(dt);if(wrote)frames.push({dt,pose:wrote,writers:[KNOWN_DEFECT.writer]});if(!st.anim)break;}assert.equal(st.anim,null,'stale probe blend never ended');await d;
-  const r=check(frames,'stale-probe');assert.equal(r.kd.length+r.bad.length,0,'stale probe: '+[...r.kd,...r.bad].join(' | '));console.log('ok   stale-entry detector: a within-limit window yields 0 KNOWN_DEFECT results (gate would FAIL stale)');}
- if(!kdAll.length){console.log(`reveal-camera-motion: FAIL stale KNOWN_DEFECT ${KNOWN_DEFECT.id} (owner ${KNOWN_DEFECT.owner}): the window is within limits now; remove the entry`);process.exit(1);}
- if(fails.length){console.log(`reveal-camera-motion: FAIL ${fails.length} (+ KNOWN_DEFECT ${KNOWN_DEFECT.id}: ${kdAll.length})`);process.exit(1);}
- console.log(`reveal-camera-motion: KNOWN_DEFECT ${KNOWN_DEFECT.id} owner ${KNOWN_DEFECT.owner} (${KNOWN_DEFECT.where}; Mac ${KNOWN_DEFECT.mac}): ${kdAll.length} over-limit results, not counted; every other frame within 运镜bot's limits`);process.exitCode=0;
+ {// self-check (height): a still camera 1.0 m above the highest palm crown, and 1.2 m above a prop top, must FAIL
+  const palm=BELOW.filter(o=>/palm/.test(o.name)).map(o=>{const c=[(o.bb[0][0]+o.bb[1][0])/2,o.bb[1][1]+50,(o.bb[0][2]+o.bb[1][2])/2],u=below(c);return {o,c,u};}).filter(x=>/palm/.test(x.u.tag)).sort((a,b)=>b.u.y-a.u.y)[0];
+  assert.ok(palm,'self-check: no palm crown found');const cam=[palm.c[0],palm.u.y+1.0,palm.c[2]],pose={position:cam,target:[cam[0],cam[1]-1,cam[2]+10],fovVerticalDeg:48};
+  const r=check([{dt:0,pose,writers:[],ground:-5},{dt:1/60,pose,writers:['probe'],ground:-5}],'height-probe');
+  assert.ok(r.bad.some(x=>/height 1\.00 m < 1\.5 above .*palm/.test(x)),'self-check: camera 1.0 m above '+palm.u.tag+' crown passed: '+r.bad.join('|'));
+  const prop=BELOW.find(o=>o.name==='env_lighthouse_ext'),pc=[(prop.bb[0][0]+prop.bb[1][0])/2,prop.bb[1][1]+50,(prop.bb[0][2]+prop.bb[1][2])/2],pu=below(pc),pp={position:[pc[0],pu.y+1.2,pc[2]],target:[pc[0],pu.y,pc[2]+10],fovVerticalDeg:48};
+  const r2=check([{dt:0,pose:pp,writers:[],ground:-5},{dt:1/60,pose:pp,writers:['probe'],ground:-5}],'prop-probe');assert.ok(r2.bad.some(x=>/height 1\.20 m/.test(x)),'self-check: camera 1.2 m above prop '+pu.tag+' passed');
+  console.log('ok   self-check: camera 1.0 m above '+palm.u.tag+' crown and 1.2 m above '+pu.tag+' FAIL the height rule');}
+ {// self-check: the legacy 0.6 s board→follow blend (pre-方案 E RegionNodeStage.ts:273) on the same frames must FAIL this gate
+  const {frames,board}=await reveal(),st=new Stage();let wrote=null;st.orbit={pause(){}};st.writePose=q=>{wrote=q;return q;};
+  const pl=NW.planWalk('island','I4','I6').segments[0].path,to=E.followPose(pl[0],0,390,844,E.followLookUp('island',99));const d=st.blend(E.BLEND_S.boardToFollow,board,()=>to);
+  for(const dt of [...BLEND_DT,...Array(60).fill(1/60)]){wrote=null;st.update(dt);if(wrote)frames.push({dt,pose:wrote,writers:['legacy.blend'],ground:pl[0][1]});if(!st.anim)break;}await d;
+  const r=check(frames,'legacy-probe');assert.ok(r.bad.length>0,'self-check: the legacy L04-exit blend passed the limits');console.log('ok   self-check: legacy 0.6 s L04-exit blend FAILs ('+r.bad.length+' over limit)');}
+ if(fails.length){console.log(`reveal-camera-motion: FAIL ${fails.length}`);process.exit(1);}
+ console.log(`reveal-camera-motion: PASS every frame within 运镜bot's limits (push-in p=0 → reveal → L04 exit ${EXIT.where}), no KNOWN_DEFECT`);process.exitCode=0;
 })().catch(e=>{console.error(e);process.exit(1);});

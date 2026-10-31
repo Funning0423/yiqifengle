@@ -202,7 +202,16 @@
       "key": "binSha256",
       "count": 1,
       "kind": "verified",
-      "checkedBy": "route-occlusion",
+      "checkedBy": "board-handoff",
+      "alsoCheckedBy": [
+        "cam-trace-log",
+        "skycity-root-frame",
+        "lakeside-entry-deck",
+        "clip19-regressions",
+        "balloon-transport-flag",
+        "lakeside-lens-guard"
+      ],
+      "checkedByNote": "journey-scene.cjs:12 asserts binSha256 at load (hard fail); every suite test that loads journey-scene enforces it. sha-pin-coverage reads checkedBy as one run-suite id (string), so the primary is board-handoff (test-board-handoff.cjs:10 loads journey-scene) and the rest are listed in alsoCheckedBy (informational). route-occlusion is report-only (run-suite.cjs:206), never fails. Approved by grokbot-2.",
       "via": [
         "tools/journey-integration/journey-scene.cjs"
       ]

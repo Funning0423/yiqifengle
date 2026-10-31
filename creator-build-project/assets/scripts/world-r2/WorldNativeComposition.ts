@@ -1,8 +1,10 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
+import {setMeadowBoardStage} from '../region/MeadowStageLens';
 import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
 import {LAKESIDE_L12_HOLD_MS,armSkycityWarmOnSailRide,warmMeadowLegStaged,warmSkycityLegStaged} from '../region/TransitionPreload';
 import {SKY_WARM_GAP_FAST_MS,continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
+import {REGION_NODES} from '../region/RegionNodes';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry } from 'cc';
@@ -147,6 +149,7 @@ export class WorldNativeComposition extends Component {
     if(region==='lakeside'){const landed=await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null,deps:this.lakesideLandingDeps()});if(landed?.ok===false)return this.lakesideFallback('board',landed.reason);held=true;this.world?.holdEnterLevel?.(true);}
     // 运镜bot (region hooks): 04→05 / 08→09 end on the meadow / skycity board camera (RegionBoardLanding); hold the push-in only
     // when the hook put the world camera ON that pose and that board background will render. Otherwise today's path, unchanged.
+    if(region==='meadow')setMeadowBoardStage(selection.stageId)/* b20 meadow-board-lens: this board frames its own node */;
     else if(region==='meadow'||region==='skycity'){const deps=this.regionLandingDeps(region);if(deps&&(region==='meadow'?requiresMeadowScene(selection):requiresSkycityScene(selection))){const landed=await regionLandingToBoard({region,stageId:selection.stageId,deps});if(landed.ok){held=true;this.world?.holdEnterLevel?.(true);}}}
     // 运镜bot: the hold is one-shot and only for this enterLevel (the board camera = the landing end, no push-in, no cut back).
     if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
@@ -382,7 +385,8 @@ export class WorldNativeComposition extends Component {
     const commands=this.world.commands();
     armSailQa();
     if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
-    try{this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[4.5,0.231,-4.9],yawRad:0});}catch(error){console.error('[QF_SAIL] sailqa stand failed',error);}
+    /* b20 运镜bot: stand on the baked I4 (island toWorld = identity), not a hardcoded pre-r5 point (was [4.5,0.231,-4.9]) */
+    try{const i4=REGION_NODES.island.nodes.find(n=>n.key==='I4');if(!i4)throw new Error('no island I4');this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[i4.at[0],i4.at[1],i4.at[2]],yawRad:i4.faceDeg*Math.PI/180});}catch(error){console.error('[QF_SAIL] sailqa stand failed',error);}
     try{const q=typeof location!=='undefined'?String(location.search||''):'';if(q.includes('night=1'))await (globalThis as any).__worldDayNight?.set?.('night');else await (globalThis as any).__worldDayNight?.set?.('day');}catch{}
     if(commands.snapshot().state!=='island')return {ok:false,reason:'sailqa-not-island'};
     return commands.travelRegion('meadow');
