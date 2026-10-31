@@ -109,7 +109,7 @@ const tests=[
  ['host-sync-hot-transitive','tools/host-sync/test_no_storage_hot_transitive.cjs'],['report-runtime-async','tools/host-sync/test_report_runtime_async.cjs'],
  ['mainline-storage-cache','tools/storage-cache/test_mainline_storage_cache.cjs'],
  ['region-flow-checkpoint-reads','tools/storage-cache/test_region_flow_checkpoint_reads.cjs'],['host-env-once','tools/storage-cache/test_host_env_once.cjs'],
- ['sync-probe','tools/sync-probe/test_sync_probe.cjs'],['gpu-probe','tools/sync-probe/test_gpu_probe.cjs'],
+ ['sync-probe','tools/sync-probe/test_sync_probe.cjs'],['gpu-probe','tools/sync-probe/test_gpu_probe.cjs'],['shadow-churn-gate','tools/shadow-churn/test_shadow_churn_gate.cjs'],
  ['w2-append-only','tools/wx-autoplay/test-w2-append.cjs'],['result-abrupt','tools/wx-autoplay/test-result-abrupt.cjs'],
  ['manifests-fresh','tools/manifests/test_manifests_fresh.cjs'],
  ['cam-trace-log-rate','tools/cam-trace/test_cam_trace_log_rate.cjs'],

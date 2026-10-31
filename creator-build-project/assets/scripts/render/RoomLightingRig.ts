@@ -1,5 +1,5 @@
 import { Node, Scene, DirectionalLight, SpotLight, MeshRenderer, SkeletalAnimation,
-  Material, Mesh, Texture2D, EffectAsset, Color, Vec3, Vec4, Quat, director, renderer, utils, isValid } from 'cc';
+  Material, Mesh, Texture2D, EffectAsset, Color, Vec3, Vec4, Quat, director, Director, renderer, utils, isValid } from 'cc';
 
 /** Cocos 3.8.8 runtime lighting. Imported assets, cameras and bones stay unchanged; lamp emission uses one owned material instance.
  * One room-only directional shadow map + one unshadowed local lamp; two steam draw calls.
@@ -587,3 +587,75 @@ export class RoomLightingRig {
     this.plant = null; this.sea = null; this.clouds = null; this.sun = null;
   }
 }
+
+/* ===== p0-shadow-churn: shadow-map residency (see note below) ===== */
+
+/**
+ * p0-shadow-churn (fin e8cd7c1e finV): the 3.8.8 custom pipeline (builtin-pipeline windowResize) registers ShadowMap<win>/ShadowDepth<win>
+ * (and SpotShadowMap<n>/SpotShadowDepth<n>) as MANAGED render-graph resources. The web executor's _removeDeviceResource releases every
+ * MANAGED texture that is not in pipeline.resourceUses, and resourceUses is empty at that point every frame (headless trace: uses=[],
+ * before=[Color0,DepthStencil0,ShadowMap0,ShadowDepth0] after=[Color0,DepthStencil0]). Result: the 1024² colour + depth pair is
+ * destroyed and re-created EVERY frame while a shadow-casting main light is on (Mac: 112–116 creates/s, ~460 MB/s churn).
+ * Fix without touching the engine: mark those resources PERSISTENT (residency !== MANAGED, so the executor keeps them). The executor
+ * still re-creates a device texture when the descriptor size changes (createDeviceTex → checkTexture), so a shadow-size change is
+ * honoured; same size, same format, same passes → no visual change. Scan is O(vertices) and only when the vertex count changes.
+ */
+export const SHADOW_RESOURCE = /^(Spot)?Shadow(Map|Depth)\d+$/;
+/** cc.rendering.ResourceResidency */
+export const RESIDENCY = Object.freeze({ MANAGED: 0, PERSISTENT: 2 });
+
+/** Pure: pin every shadow resource of a resource graph to PERSISTENT. Returns how many were changed. */
+export function pinShadowResidency(rg: any): number {
+  if (!rg || typeof rg.vertexName !== 'function' || typeof rg.getTraits !== 'function') return 0;
+  const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
+  let changed = 0;
+  for (let v = 0; v < n; v++) {
+    let name = ''; try { name = String(rg.vertexName(v)); } catch { continue; }
+    if (!SHADOW_RESOURCE.test(name)) continue;
+    const t = rg.getTraits(v);
+    if (t && t.residency === RESIDENCY.MANAGED) { t.residency = RESIDENCY.PERSISTENT; changed++; }
+  }
+  return changed;
+}
+
+/** Pure: device textures of pinned resources whose descriptor size changed (e.g. RoomLightingRig 512 → 1024) are released so the
+ *  executor re-creates them at the new size exactly once — the size-change behaviour MANAGED residency used to give. */
+export function releaseResized(rg: any, deviceTextures: any): number {
+  if (!rg || !deviceTextures || typeof deviceTextures.forEach !== 'function') return 0;
+  const drop: string[] = [];
+  deviceTextures.forEach((res: any, name: string) => {
+    if (!SHADOW_RESOURCE.test(String(name))) return;
+    const tex = res?.texture; if (!tex) return;
+    let v = -1; try { v = rg.find(name); } catch { return; } if (v < 0 || v === 4294967295) return;
+    const d = rg.getDesc(v); if (d && (d.width !== tex.width || d.height !== tex.height)) drop.push(name);
+  });
+  for (const name of drop) { try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
+  return drop.length;
+}
+
+const state = { installed: false, seen: -1, pinned: 0, resized: 0 };
+export function shadowResidencyStats() { return { installed: state.installed, pinned: state.pinned, resized: state.resized }; }
+
+/** Runs right before each render-graph execute (after windowResize + compile, so descriptors are final for this frame). */
+export function shadowResidencyBeforeExecute(pipeline: any): void {
+  const rg = pipeline?.resourceGraph; if (!rg) return;
+  const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
+  if (n !== state.seen) { state.seen = n; state.pinned += pinShadowResidency(rg); }
+  if (state.pinned) state.resized += releaseResized(rg, pipeline?._executor?._context?.deviceTextures);
+}
+
+/** Wrap the pipeline's execute once (custom pipeline exists after director init; retried each frame until it does). */
+export function wrapPipeline(pipeline: any): boolean {
+  if (!pipeline || typeof pipeline.execute !== 'function' || pipeline.__qfShadowResidency) return false;
+  const orig = pipeline.execute;
+  pipeline.execute = function (this: any, ...a: any[]) { try { shadowResidencyBeforeExecute(this); } catch { } return orig.apply(this, a); };
+  pipeline.__qfShadowResidency = true; return true;
+}
+
+export function installShadowResidency(): boolean {
+  if (state.installed) return false; state.installed = true;
+  const tryWrap = () => { const p = (director as any).root?.pipeline; if (p && (p.__qfShadowResidency || wrapPipeline(p))) director.off(Director.EVENT_BEFORE_DRAW, tryWrap); };
+  try { director.on(Director.EVENT_BEFORE_DRAW, tryWrap); } catch { }
+  return true;
+}
+installShadowResidency();
