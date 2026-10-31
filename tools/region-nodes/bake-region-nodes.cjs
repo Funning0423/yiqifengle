@@ -275,7 +275,7 @@ function emit(baked){
    // densifyM along each segment with y = floor height there (and re-read the vertices), so she follows the ground to <= 3 cm.
    if(spec.densifyM&&g.floorAt){const fy=(x,z,yr)=>{const y=g.floorDisc(x,z,yr+.4);return y===null||Math.abs(y-yr)>.2?round3(yr):round3(y);}/* > 0.2 m off the chord = a hole in the floor mesh (dock gap): keep the chord, the terrain-follow gate reports it */;const out=[[simp[0][0],fy(simp[0][0],simp[0][2],simp[0][1]),simp[0][2]]];
     for(let i=1;i<simp.length;i++){const P=simp[i-1],Q=simp[i],n=Math.max(1,Math.ceil(Math.hypot(Q[0]-P[0],Q[2]-P[2])/spec.densifyM));
-     for(let t=1;t<=n;t++){const x=round3(P[0]+(Q[0]-P[0])*t/n),z=round3(P[2]+(Q[2]-P[2])*t/n);out.push([x,fy(x,z,P[1]+(Q[1]-P[1])*t/n),z]);}}out[0]=A.slice();out[out.length-1]=B.slice()/* ends stay exactly on the nodes */;simp=out;}
+     for(let t=1;t<=n;t++){const x=round3(P[0]+(Q[0]-P[0])*t/n),z=round3(P[2]+(Q[2]-P[2])*t/n);out.push([x,fy(x,z,P[1]+(Q[1]-P[1])*t/n),z]);}}out[0]=A.slice();out[out.length-1]=B.slice()/* ends stay exactly on the nodes */;simp=out;len=0;for(let i=1;i<simp.length;i++)len+=Math.hypot(simp[i][0]-simp[i-1][0],simp[i][1]-simp[i-1][1],simp[i][2]-simp[i-1][2]);/* b20 dock-fix: densified edges report the walked polyline length (what NodeWalker times at 1.2 m/s and compares with DIRECT_MAX_M), not the coarse grid-route length (I4-I6 grid 9.774 > DIRECT_MAX_M 9.6 cut the walk in two on b20-walk-merge) */}
    edges.push({a,b,path:simp,lengthM:round3(len)});
   }
   for(const n of nodes){const out=edges.find(e=>e.a===n.key)||edges.find(e=>e.b===n.key);if(!out){n.faceDeg=0;continue;}

@@ -60,36 +60,36 @@
    {
     "from": "I1",
     "to": "I2",
-    "walkM": 5.8,
-    "walkS": 4.8,
+    "walkM": 5.611,
+    "walkS": 4.68,
     "climbM": -0.01
    },
    {
     "from": "I2",
     "to": "I3",
-    "walkM": 4.014,
-    "walkS": 3.35,
+    "walkM": 3.976,
+    "walkS": 3.31,
     "climbM": -0.35
    },
    {
     "from": "I3",
     "to": "I4",
-    "walkM": 9.311,
-    "walkS": 7.76,
+    "walkM": 9.058,
+    "walkS": 7.55,
     "climbM": 0.45
    },
    {
     "from": "I4",
     "to": "I5",
-    "walkM": 9.546,
-    "walkS": 7.96,
+    "walkM": 9.149,
+    "walkS": 7.62,
     "climbM": 0.05
    },
    {
     "from": "I5",
     "to": "I6",
-    "walkM": 9.38,
-    "walkS": 7.82,
+    "walkM": 9.098,
+    "walkS": 7.58,
     "climbM": -0.32
    }
   ],
