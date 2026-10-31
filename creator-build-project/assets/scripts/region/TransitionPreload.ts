@@ -53,7 +53,7 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
   let all=true;
   for(const st of SKY_LEG_STAGES){
    const t0=Date.now();let ok=true;try{await run[st.id]();}catch{ok=false;}all=all&&ok;
-   try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'skycity',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,ok}));}catch{}
+   try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify(stageLine('skycity',st.id,Date.now()-t0,st.ms,ok)));}catch{}
    await wait();
   }
   return all;
@@ -61,6 +61,18 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
  return skyStaged;
 }
 
+/** [QF_PRELOAD_STAGE] line. finT bug: `split:env_meadow ms=31920 budgetMs=1200 frameMaxMs=1536 ok:true` — `ok` was only "the stage's
+ *  promise resolved", the budget was printed but never judged. Now:
+ *    mounted     = the stage completed (load/mount resolved; false = threw, with `reason`) — what feeds the warm's all-ok retry logic;
+ *    overBudget  = ms > budgetMs (stage wall time vs its TransitionChain budget);
+ *    frameOverBudget = frameMaxMs > budgetMs (a single frame longer than the whole stage budget while the stage was pending);
+ *    ok          = mounted && !overBudget && !frameOverBudget  (the verdict; an over-budget stage is a violation, never ok:true).
+ *  frameMaxMs is the longest gap between drawn frames of the whole game during the stage; the split's own per-frame work is
+ *  [QF_MEADOW_SPLIT] maxFrameWorkMs. Budgets are unchanged. */
+export function stageLine(target:string,stage:string,ms:number,budgetMs:number,mounted:boolean,frameMaxMs?:number,reason?:string){
+ const o:any={target,stage,ms,budgetMs,mounted,overBudget:ms>budgetMs};
+ if(frameMaxMs!==undefined){o.frameMaxMs=frameMaxMs;o.frameOverBudget=frameMaxMs>budgetMs;}
+ o.ok=mounted&&!o.overBudget&&!o.frameOverBudget;if(!mounted&&reason)o.reason=reason;return o;}
 /* P0 wipe: staged island→meadow warm (see MEADOW_LEG_STAGES). Each stage logs ms and the longest frame seen while it ran
  * (frameMaxMs) so the Mac run shows the island frame cost. Cached: repeated calls are free; a failed stage only logs. */
 let meadowStaged:Promise<boolean>|null=null;
@@ -78,7 +90,7 @@ export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SK
   for(const st of MEADOW_LEG_STAGES){
    /*QF_PROBE_BEGIN*/let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}const t0=Date.now();/*QF_PROBE_END*/
    let ok=true,why='';try{await run[st.id]();}catch(e){ok=false;why=String((e as any)?.message||e);}all=all&&ok;void why;
-   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{console.info('[QF_PRELOAD_STAGE] '+JSON.stringify({target:'meadow',stage:st.id,ms:Date.now()-t0,budgetMs:st.ms,frameMaxMs:max,ok,...(ok?{}:{reason:why})}));}catch{}/*QF_PROBE_END*/
+   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{const ms=Date.now()-t0;console.info('[QF_PRELOAD_STAGE] '+JSON.stringify(stageLine('meadow',st.id,ms,st.ms,ok,max,why)));}catch{}/*QF_PROBE_END*/
    await wait(gap);}
   if(!all)meadowStaged=null;return all;})();
  return meadowStaged;
