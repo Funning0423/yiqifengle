@@ -56,6 +56,17 @@ export function createJourneyUi(h: JourneyUiHost) {
     return { alpha: e, dy: reduced ? 0 : JOURNEY_MOTION.gridRisePt * (1 - e) };
   }
   const WIN_W = 208, WIN_H = 136, JOURNEY_FRAME_IN = 24, JOURNEY_INNER_PAD = 8;
+  /** r5 P2 (界面验收部 on fc3123fa): the paper face of popup/panel_frame_9s is NOT centred in the frame: its inner edge (end of the
+   *  bevel, lum ≥ 0.8 on all 72 stretched middle rows) sits 202 source px from the left and 173 from the right of the 624 px art
+   *  (ART_PX 3 → 67.3 / 57.7 panel units, i.e. ≈ 35 / 30 pt at 390). Content is laid out from the paper's inner edge + 8 pt
+   *  + JOURNEY_PAPER_AA (0.5 pt: the downsampled bevel blends ~half a pt into the paper on device, where 界面验收部 measures
+   *  lum > 0.62), not from the panel node. tools/new-regions/test_journey_paper_r5.cjs re-derives these numbers from the PNG. */
+  const PAPER_INNER_SRC = { left: 202, right: 173, artPx: 3 } as const, JOURNEY_PAPER_AA = 0.5;
+  /** Content band in panel units: [x0, x1] = paper inner edge + JOURNEY_INNER_PAD pt on each side. */
+  function paperBand(PW: number, P: (x: number) => number) {
+    const x0 = -PW / 2 + PAPER_INNER_SRC.left / PAPER_INNER_SRC.artPx + P(JOURNEY_INNER_PAD + JOURNEY_PAPER_AA), x1 = PW / 2 - PAPER_INNER_SRC.right / PAPER_INNER_SRC.artPx - P(JOURNEY_INNER_PAD + JOURNEY_PAPER_AA);
+    return { x0, x1, w: x1 - x0, cx: (x0 + x1) / 2 };
+  }
   /** Landscape / very short viewports: shrink the pt layout uniformly so the fixed-height panel keeps 8 pt margins. */
   function fitPt(v: { width: number; height: number }, hPt: number) { return Math.min(1, Math.max(0.3, (v.height - 16) / hPt)); }
   const hex = (c: number[], night: number) => tintRgb('ui', night, c);
@@ -71,7 +82,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     const prev = journeySeenDone(), from = prev == null ? prog.done : Math.min(prev, prog.done); setJourneySeenDone(prog.done);
     p.text('旅程 ' + prog.done + ' / ' + prog.total, 0, P(78), P(15), 'brown', { name: 'JourneyTotal', width: PW - P(48) });
     // Segmented bar (drawn in code): only regions with data; 2 pt seams in the panel face colour.
-    const BW = PW - 2 * P(JOURNEY_FRAME_IN) - 2 * P(JOURNEY_INNER_PAD), BH = P(10), bar = uiNode('JourneyBar', p.body, BW, BH), bp = p.at(0, P(96)); bar.setPosition(bp[0], bp[1], 0);
+    const band = paperBand(PW, P), BW = band.w, BH = P(10), bar = uiNode('JourneyBar', p.body, BW, BH), bp = p.at(band.cx, P(96)); bar.setPosition(bp[0], bp[1], 0);
     const g = bar.addComponent(Graphics); let shown = from, t = 0;
     p.tint.shape(g, (gg, night, a) => {
       const x0 = -BW / 2, y0 = -BH / 2, seam = P(2), k = prog.done ? shown / prog.done : 0;
@@ -82,10 +93,10 @@ export function createJourneyUi(h: JourneyUiHost) {
         if (i > 0) { gg.fillColor = rgba(hex([0xF8, 0xED, 0xD3], night), a); gg.rect(sx - seam / 2, y0 - P(1.5), seam, BH + P(1.5)); gg.fill(); } }
     });
     // Focus card: whole card taps into the region page.
-    // r4 P2 (界面验收部): grid + focus card keep 8 pt to the 9-slice inner frame (inset 24 pt) on both sides; panel size unchanged.
-    const IW = PW - 2 * P(JOURNEY_FRAME_IN) - 2 * P(JOURNEY_INNER_PAD);
+    // r5 P2 (界面验收部): bar + focus card + grid keep 8 pt to the PAPER's inner edge (asymmetric bevel); panel size unchanged.
+    const IW = band.w;
     const fr = rows.find(r => r.id === focusId)!, fd = REGION_DEFS.find(d => d.id === focusId)!, CW = IW, CH = P(cardH), cy = P(116) + CH / 2;
-    const card = uiNode('Focus-' + focusId, p.body, CW, CH), cp = p.at(0, cy); card.setPosition(cp[0], cp[1], 0);
+    const card = uiNode('Focus-' + focusId, p.body, CW, CH), cp = p.at(band.cx, cy); card.setPosition(cp[0], cp[1], 0);
     const face = uiNode('Face', card, CW, CH);
     p.tint.shape(face.addComponent(Graphics), (gg, night, a) => { gg.fillColor = rgba(hex([0xD9, 0xBF, 0x8C], night), a); gg.roundRect(-CW / 2, -CH / 2 - P(3), CW, CH, P(16)); gg.fill(); gg.fillColor = rgba(hex([0xFF, 0xF6, 0xE2], night), a); gg.roundRect(-CW / 2, -CH / 2, CW, CH, P(16)); gg.fill(); });
     const wW = P(short ? 104 : 120), wH = wW * 78 / 120, wx = -CW / 2 + P(10) + wW / 2;
@@ -101,7 +112,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     // 3×3 seal grid (SPEC §13.1): all 9 regions; whole cell taps (≥44 pt); focus region = 2 pt teal ring; far = not tappable.
     const GW = (IW - P(16)) / 3, GH = P(cellH), gy0 = P(116) + CH + P(12), nodes: Node[] = [];
     rows.forEach((r, i) => {
-      const col = i % 3, row = Math.floor(i / 3), cx = -IW / 2 + GW / 2 + col * (GW + P(8)), cyc = gy0 + row * (GH + P(8)) + GH / 2;
+      const col = i % 3, row = Math.floor(i / 3), cx = band.cx - IW / 2 + GW / 2 + col * (GW + P(8)), cyc = gy0 + row * (GH + P(8)) + GH / 2;
       const n = uiNode('Chapter-' + r.id, p.body, GW, GH), q = p.at(cx, cyc); n.setPosition(q[0], q[1], 0);
       const c = uiNode('Face', n, GW, GH), far = r.state === 'far', locked = r.state === 'locked', focus = r.id === focusId; let down = false;
       const bg = c.addComponent(Graphics);
@@ -202,7 +213,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD };
+  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };
