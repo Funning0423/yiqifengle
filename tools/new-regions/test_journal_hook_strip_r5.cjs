@@ -11,7 +11,7 @@
 // must both FAIL the formal check. Formal-stripped files still parse and keep the exports the frozen boot / WNC import.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const ROOT=path.resolve(__dirname,'../..'),A=path.join(ROOT,'creator-build-project/assets'),S=require('../build-guard/strip-probes.cjs'),G=require('../build-guard/release-gates.cjs');
-const OURS=['journal-sky','skyChallenges','seedSkyChallengeWins','SKY_CHALLENGE_WITNESSES','finishPausedMainlineWin'];
+const OURS=['journal-sky','skyChallenges','seedSkyChallengeWins','SKY_CHALLENGE_WITNESSES','finishPausedMainlineWin','focusSky'];
 for(const k of OURS)assert(G.FORBID.some(([r])=>r===k),'release-probe-symbols.json lists '+k);
 function copy(dst){const out=[];(function w(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory())w(p);else if(/\.(ts|js)$/.test(e.name)){const rel=path.relative(A,p),q=path.join(dst,'assets',rel);fs.mkdirSync(path.dirname(q),{recursive:true});fs.copyFileSync(p,q);out.push(rel);}}})(A);return out;}
 function scan(dir,rels){const files=rels.map(r=>({name:r,text:fs.readFileSync(path.join(dir,'assets',r),'utf8')}));const r=G.probeFree(files);
@@ -30,6 +30,7 @@ try{
   // stripped keys module: the release key table has no journal key
   const keysJs=ts.transpileModule(fs.readFileSync(path.join(st,'assets/scripts/world-r2/PreTransitionKeys.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
   assert(!/journal-sky/.test(keysJs),'compiled stripped key table has no journal key');
+  assert(/journal-sky-focus/.test(fs.readFileSync(path.join(raw,'assets/scripts/world-r2/PreTransitionKeys.ts'),'utf8'))&&!/journal-sky-focus|focusSky/.test(fs.readFileSync(path.join(st,'assets/scripts/world-r2/PreTransitionKeys.ts'),'utf8')+fs.readFileSync(path.join(st,'assets/scripts/world-r2/PreTransitionRun.ts'),'utf8')),'journal-sky-focus key + focusSky branch present unstripped, gone after strip');
   console.log(`PASS release strip: ${rel.length} sources staged, ${r.regions} probe regions stripped; journal hook symbols left = 0 (${OURS.join(', ')}); touched files parse`);
   console.log(`PASS negative self-test: unstripped copy has ${neg.ours.length} journal hook hits → FAIL`);
   assert(pos.qfPre.length>0,'TRIAL upload keeps the qfPre entry (trial behaviour unchanged)');

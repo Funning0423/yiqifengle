@@ -22,7 +22,7 @@ export { CHAPTERS };
  * Every dialog is a lite popup (ui/PopupKit); providers retain every gate and write. */
 export class IslandJourneyOverlay {
  private root:Node;private dock:Node;private layer:Node;private popups:PopupStack;private toolArt:ManagedToolArt;private lastMs=0;
- private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private deferred=false;private serial=0;
+ private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private deferred=false;private serial=0;private shown:Page|null=null;
  private updateGate=new UpdatePromptGate();private propMode=false;private tags:Node[]=[];private tagSlots:PropButtonSlot[]=[];private tagNight=-1;
  constructor(parent:Node,private options:Options){
   this.root=this.box('IslandJourneyOverlay',parent,0,0,1,1);this.root.active=false;
@@ -50,6 +50,13 @@ export class IslandJourneyOverlay {
   this.layer.getComponent(UITransform)!.setContentSize(width,height);this.popups.layout();
  }
  isOpen(){return !this.dead&&this.page!==null;}
+ /** True once the host has enabled the overlay for an island frame (open() is a no-op before that). */
+ ready(){return !this.dead&&this.enabled&&isValid(this.root,true);}
+ /** The page whose panel is actually on screen (set in the same callback that builds it; cleared on close). This is the real
+  *  panel-open signal for tests/hooks: it covers the deferred journey_ui bundle load and the enabled gate. */
+ shownPage(){return !this.dead&&this.page!==null&&this.popups.any()?this.shown:null;}
+ /** Public open for hooks: false when the overlay is not ready or another page is open (never queues). */
+ openPage(page:Page){if(!this.ready()||this.page)return false;this.open(page);return true;}
  /** 海岛小憩: opened by tapping the cabin (Boot / IslandHomeInteraction). */
  openRest(){if(this.dead||!this.enabled||this.page)return false;this.open('rest');return true;}
  /** T9: true while the three utilities are on screen (the 3D props follow this). */
@@ -78,7 +85,7 @@ export class IslandJourneyOverlay {
    g.fillColor=new Color(c.fill);g.roundRect(-w/2,-h/2,w,h,r);g.fill();g.strokeColor=new Color(c.edge);g.lineWidth=lw;g.roundRect(-w/2+lw/2,-h/2+lw/2,w-lw,h-lw,r-lw/2);g.stroke();
    const l=tag.getComponentInChildren(Label)!;l.color=new Color(c.text);l.fontSize=s.tag.fontSize;l.lineHeight=s.tag.fontSize+4;l.node.getComponent(UITransform)!.setContentSize(w,h);});
  }
- close(){this.deferred=false;this.page=null;this.serial++;this.popups?.clear();if(isValid(this.dock,true))this.dock.active=true;}
+ close(){this.deferred=false;this.page=null;this.shown=null;this.serial++;this.popups?.clear();if(isValid(this.dock,true))this.dock.active=true;}
  private open(page:Page){if(this.dead||!this.enabled)return;this.page=page;this.serial++;this.dock.active=false;this.root.setSiblingIndex(this.root.parent!.children.length-1);this.paint();}
  private dispatch(fn:()=>any){if(!this.enabled||this.dead||!this.page)return;this.close();this.options.invoke(fn);}
  private safeRead(fn:()=>any){try{return fn();}catch{return null;}}
@@ -91,7 +98,7 @@ export class IslandJourneyOverlay {
   else if(page==='update'){const upd=(globalThis as any).__qfUpdate;openUpdate(this.popups,()=>{try{upd?.apply?.();}catch(e){console.warn('[UPDATE] apply',String(e));}},()=>this.updateGate.later()).options.onClose=done;}
   else if(page==='rest'){const night=this.safeRead(this.options.dayNight)?.mode==='night';openRest(this.popups,night,()=>{if(live())this.dispatch(this.options.toggleDayNight);}).options.onClose=done;}
   else if(page==='journal'){const status=this.safeRead(this.options.mainlineStatus),gates=this.safeRead(this.options.gates);
-   this.deferred=withJourneyUi(ui=>{this.deferred=false;if(!live())return;ui.openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5,gates?{stages:gates.stages}:null).options.onClose=done;},'journal')==='deferred';}
+   this.deferred=withJourneyUi(ui=>{this.deferred=false;if(!live())return;ui.openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5,gates?{stages:gates.stages}:null).options.onClose=done;this.shown='journal';},'journal')==='deferred';}
   else this.chapter(page);
  }
  private chapter(region:string){
@@ -102,7 +109,7 @@ export class IslandJourneyOverlay {
    stats:()=>{const st=this.safeRead(this.options.mainlineStatus),g=this.safeRead(this.options.gates),i=CHAPTERS.findIndex(c=>c.id===region);const s=chapterSummary(st?.journey,g?.challenges,i);return {stars:s.stars,challenges:s.challenges};},
    row:()=>{const st=this.safeRead(this.options.mainlineStatus),g=this.safeRead(this.options.gates);return regionRow(region as any,journeyInput(st?.journey,g?.challenges,g?{stages:g.stages}:{stages:[{id:'r05-lake-01',region:'lake'}]}));},
    enter:()=>{if(live()){setLastRegion(region);this.dispatch(()=>this.options.enterRegion(region));}},skycity:()=>{if(live())this.dispatch(this.options.enterSkycity);},
-   legacyTide:()=>{if(live())this.dispatch(this.options.enterR4);},back:()=>{}}).options.onClose=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.dock.active=true;}};},'chapter')==='deferred';
+   legacyTide:()=>{if(live())this.dispatch(this.options.enterR4);},back:()=>{}}).options.onClose=()=>{if(serial===this.serial&&!this.popups.any()){this.page=null;this.shown=null;this.dock.active=true;}};this.shown=region as Page;},'chapter')==='deferred';
  }
  private box(name:string,parent:Node,x:number,y:number,w:number,h:number){const n=new Node(name);n.layer=Layers.Enum.UI_2D;parent.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,h);return n;}
  private text(parent:Node,value:string,x:number,y:number,size:number,w:number,color='#355f53'){const n=this.box('Text',parent,x,y,w,size+10),l=n.addComponent(Label);l.string=value;l.fontSize=size;l.lineHeight=size+4;l.color=new Color(color);l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;l.overflow=Label.Overflow.SHRINK;return l;}

@@ -5,9 +5,9 @@
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
 import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled } from './QaSkip';
-export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'/*QF_PROBE_END*/;
+export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'|'journal-sky-focus'/*QF_PROBE_END*/;
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
-export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;skyPage?:boolean;justWon?:boolean;/*QF_PROBE_END*/
+export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;skyPage?:boolean;justWon?:boolean;focusSky?:boolean;/*QF_PROBE_END*/
  trigger:string;taps:PreTap[];expect:string};
 const N=(...path:string[]):PreTap=>({kind:'node',path});
 export const PRE_SPECS:readonly PreSpec[]=[
@@ -36,15 +36,20 @@ export const PRE_SPECS:readonly PreSpec[]=[
 /*QF_PROBE_BEGIN*//* r5 journal hooks: stripped from release builds (strip-probes.cjs; release-probe-symbols.json lists journal-sky) */
  /* r5 (界面验收部 new-regions r4 §2 item 3; Option A): the 天空之城 page button follows the REAL challenge gate. Mainline 1–12
   * registered (gate open) + 0 / 1 / 4 天空之城 challenges won through the real provider; island, region page open. Test profile only. */
- {key:'journal-sky-open',label:'旅程册：天空之城挑战 0/4（已开启）',checkpoint:12,finish:true,place:'island',skyChallenges:0,trigger:'已打开的「天空之城」章节面板：主按钮「前往天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「前往天空之城」'},
- {key:'journal-sky-progress',label:'旅程册：天空之城挑战 1/4（进行中）',checkpoint:12,finish:true,place:'island',skyChallenges:1,trigger:'已打开的「天空之城」章节面板：主按钮「继续 1/4」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「继续 1/4」'},
- {key:'journal-sky-cleared',label:'旅程册：天空之城挑战 4/4（已通关）',checkpoint:12,finish:true,place:'island',skyChallenges:4,trigger:'已打开的「天空之城」章节面板：主按钮「再访天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「再访天空之城」'},
+ {key:'journal-sky-open',label:'旅程册：天空之城挑战 0/4（已开启）',checkpoint:12,finish:true,place:'island',skyChallenges:0,trigger:'已打开的「天空之城」章节面板：主按钮「前往天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「前往天空之城」；关掉面板后旅程册焦点卡在「风铃湖畔」（0/6，「前往 ›」）——第 12 关通关后湖畔开放，焦点卡选最早可前往的地区，不是天空之城；天空之城焦点卡用 journal-sky-focus 看'},
+ {key:'journal-sky-progress',label:'旅程册：天空之城挑战 1/4（进行中）',checkpoint:12,finish:true,place:'island',skyChallenges:1,trigger:'已打开的「天空之城」章节面板：主按钮「继续 1/4」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「继续 1/4」；关掉面板后旅程册焦点卡在「风铃湖畔」（0/6，「前往 ›」）——第 12 关通关后湖畔开放，焦点卡选最早可前往的地区，不是天空之城；天空之城焦点卡用 journal-sky-focus 看'},
+ {key:'journal-sky-cleared',label:'旅程册：天空之城挑战 4/4（已通关）',checkpoint:12,finish:true,place:'island',skyChallenges:4,trigger:'已打开的「天空之城」章节面板：主按钮「再访天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「再访天空之城」；关掉面板后旅程册焦点卡在「风铃湖畔」（0/6，「前往 ›」）——第 12 关通关后湖畔开放，焦点卡选最早可前往的地区，不是天空之城；天空之城焦点卡用 journal-sky-focus 看'},
  /* r5 (界面验收部 on e80740af): the GATED page (region open at 8, challenge gate closed until 12) — mainline 1–10 registered, i.e. the
   * middle of the 8–11 window that shows this page; and the JUST-UNLOCKED state — mainline 1–11 registered + level 12 paused one move
   * short, then its recorded last move is committed through the real mainline controller on the island (12th win registered right
   * there, never via a hand-written save), sky challenges 0/4. Test profile only. */
  {key:'journal-sky-gated',label:'旅程册：天空之城挑战未开启（已通关第 10 关）',checkpoint:10,finish:true,place:'island',skyPage:true,trigger:'已打开的「天空之城」章节面板：一个灰按钮「通关第 12 关后开启」，上方无小字',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；灰按钮「通关第 12 关后开启」不可点；旅程册格子「12 关后开启」、焦点卡无「继续 ›」'},
- {key:'journal-sky-just-unlocked',label:'旅程册：刚通关第 12 关（天空之城挑战 0/4，刚开启）',checkpoint:12,finish:false,place:'island',skyPage:true,justWon:true,skyChallenges:0,trigger:'已打开的「天空之城」章节面板：主按钮「前往天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，第 12 关刚由真实引擎通关；天空之城章节面板打开；主按钮「前往天空之城」，格子「可前往」，焦点卡「前往 ›」'},
+ {key:'journal-sky-just-unlocked',label:'旅程册：刚通关第 12 关（天空之城挑战 0/4，刚开启）',checkpoint:12,finish:false,place:'island',skyPage:true,justWon:true,skyChallenges:0,trigger:'已打开的「天空之城」章节面板：主按钮「前往天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，第 12 关刚由真实引擎通关；天空之城章节面板打开；主按钮「前往天空之城」，格子「可前往」；关掉面板后旅程册焦点卡在「风铃湖畔」（0/6，「前往 ›」）——第 12 关通关后湖畔开放，焦点卡选最早可前往的地区，不是天空之城；天空之城焦点卡用 journal-sky-focus 看'},
+ /* r5 P3 (界面验收部 journal-3277421c): the SKY focus card. focusRegion() (JourneyCore) picks (1) the last played region (UiPrefs
+  * lastRegion, written when the player enters a region from its page) if it is progress/open/done, else (2) the first region in
+  * progress/open in book order, else the last done one. After mainline 12 that is 风铃湖畔, so this key sets lastRegion = sky
+  * (what entering 天空之城 writes) on mainline 1–12 + 1/4 sky challenges and opens the journey book. Test profile only. */
+ {key:'journal-sky-focus',label:'旅程册：焦点卡在天空之城（挑战 1/4，上次去过天空之城）',checkpoint:12,finish:true,place:'island',skyChallenges:1,focusSky:true,trigger:'已打开的旅程册：焦点卡「天空之城」，「继续 ›」',taps:[N('JourneyPanel','Focus-sky')],expect:'停在小岛，旅程册打开；焦点卡是天空之城、显示「继续 ›」，带青色描边的格子也是天空之城（1/4）；点焦点卡进天空之城页「继续 1/4」'},
 /*QF_PROBE_END*/
 ];
 export const PRE_KEYS:readonly PreKey[]=PRE_SPECS.map(s=>s.key);
