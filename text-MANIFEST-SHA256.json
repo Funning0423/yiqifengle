@@ -226,8 +226,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
-    "bytes": 35973,
-    "sha256": "0616a448f36127b598fc08ccf2c4f7c180621572acd66663fd6e5896860050ab"
+    "bytes": 36331,
+    "sha256": "591a4d634fb3921834a5500f786785fc41fa6463c2c83665b873fc433f17fdd8"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta",
@@ -4706,8 +4706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
-    "bytes": 13025,
-    "sha256": "3dce4434e37a1b32ed1e3a7cca60bc0ffa6da969a35f5cdefc196cfb903881e0"
+    "bytes": 14681,
+    "sha256": "6775e510b09e24618c765901d875686b33579c7c5b4b4ed508796dbdc421d147"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
@@ -4866,8 +4866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionKeys.ts",
-    "bytes": 15408,
-    "sha256": "677dcfd418f7e82909a56a395077f9cdbda80a69a59c5efdb73b60aa904c04f4"
+    "bytes": 16383,
+    "sha256": "72b20ac3a5110b68c13bbc021c8ffbab3de845f49f8439708ff63b2748482ddf"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionKeys.ts.meta",
@@ -4906,8 +4906,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts",
-    "bytes": 9891,
-    "sha256": "bda10478e67a605f37207b54c21daf0e7d99dc7fea7ea755d78d21ab50d0aa08"
+    "bytes": 10899,
+    "sha256": "a9d265de0e7009647e2e3036cf0dfc5bba775076b77a73b82cab8961f6f5a94d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts.meta",
@@ -5106,8 +5106,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30792,
-    "sha256": "08a187691a3bc047f4bc16763ee33000dd774687e53f5968d98e1794cceaa6b3"
+    "bytes": 31025,
+    "sha256": "0fcb3fc8a92dedcb46bba649e94a23244bfffde1c87a67b2eef4720dd2efebc1"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
