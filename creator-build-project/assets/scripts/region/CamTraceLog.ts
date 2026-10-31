@@ -169,11 +169,26 @@ export function camActorPose(step:string,her:{x:number,y:number,z:number}|null,b
  camLog.out('[QF_CAM_TRACE] t='+f3(t)+' ACTOR step='+step+' her='+v(her)+' boat='+v(boat)+(planBoat?' planBoat='+planBoat.map(f3).join(','):'')+d/*QF_PROBE_BEGIN*/+' pn='+f3(pnow())/*QF_PROBE_END*/);}
 let started=false;
 /** Read the switch once. Returns whether tracing is on. */
-export function camLogStart(query?:string,g:any=globalThis):boolean{
+/*QF_PROBE_BEGIN*//** Storage timing probe (QA/diag only; stripped from release). Grok Bot 2026-10-31: measure the sync storage writes
+ *  at transitions (WorldFlowComponent:266 ~12 KB at door-shut/hide/show, RegionArrivalTitleCore, LakesideArrivalCore, EndingScreen,
+ *  level-result saves) on device without touching reviewed files: every sys.localStorage.setItem (→ wx.setStorageSync in the
+ *  mini-game adapter) is timed and logged through the buffered camTrace sink (camLog.out; one line per write, writes are rare):
+ *  [QF_STORAGE] key=<key> bytes=<utf8 bytes> ms=<setItem duration> caller=<2 stack frames>. Only setItem is timed (the stack is read after). */
+function utf8Bytes(v:string):number{let n=0;for(let i=0;i<v.length;i++){const c=v.charCodeAt(i);if(c<0x80)n++;else if(c<0x800)n+=2;else if(c>=0xd800&&c<0xdc00){n+=4;i++;}else n+=3;}return n;}
+export function installStorageProbe(store:any,out:(s:string)=>void=(s)=>camLog.out(s)):boolean{
+ if(!store||typeof store.setItem!=='function'||store.__qfStorageProbe)return false;
+ const orig=store.setItem,now=()=>typeof performance!=='undefined'?performance.now():Date.now();
+ const timed=function(this:any,key:string,value:any){const v=String(value),t0=now();try{return orig.call(this===timed?store:this,key,value);}finally{const ms=now()-t0;
+  let caller='';try{caller=String(new Error().stack||'').split('\n').slice(2,4).map(x=>x.trim().replace(/^at /,'')).join(' < ');}catch{}
+  try{out('[QF_STORAGE] key='+key+' bytes='+utf8Bytes(v)+' ms='+ms.toFixed(3)+' caller='+caller);}catch{}}};
+ try{store.setItem=timed;store.__qfStorageProbe=orig;}catch{return false;}return store.setItem===timed;}
+export function storageProbeWanted(q:string,on:boolean):boolean{return on||/(?:^|[?&])storageTrace=1(?:&|$)/.test(q||'');}
+/*QF_PROBE_END*/export function camLogStart(query?:string,g:any=globalThis):boolean{
  if(started)return camLog.on;started=true;
  let q=query;if(q===undefined)q=debugSearch(g)/* full8: + wx launch/enter query + __qfQuery */;
  camLog.on=camLogEnabled(q,g);camLog.stacks=camLog.on&&camStacksEnabled(q,g);
  if(camLog.on){camLog.t0=typeof performance!=='undefined'?performance.now():Date.now();cameraWriteHook.log=camLogWrite;try{(g||globalThis).__qfCamTag={t:camTag,d:camTagDefault};}catch{}}
+ /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on))try{installStorageProbe((sys as any).localStorage);}catch{}/*QF_PROBE_END*/
  return camLog.on;
 }
 /** test-only */
