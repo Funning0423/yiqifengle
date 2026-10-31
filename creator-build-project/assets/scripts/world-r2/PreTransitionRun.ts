@@ -6,6 +6,7 @@ import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
 import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
 import { director, game, Node, UITransform, Canvas, Vec3 } from 'cc';
 import { qaSkipAllowed } from './QaSkip';
+import { seedSkyChallengeWins } from './RegionFlowTest';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
 export type PreDeps={
@@ -72,7 +73,7 @@ export class PreTransitionRunner{
    let prof:any=null;
    if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);if(!prof.ok)return prof;}
    if(spec.place==='island'){
-    if(spec.key==='journal-sky-open'||spec.key==='journal-sky-progress'){const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','Continue-sky']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
+    if(spec.skyChallenges!=null){try{seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true});}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','Continue-sky']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
     if(spec.key==='skycity-visit'){const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','VisitSkycity']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
     return {ok:true};
    }
