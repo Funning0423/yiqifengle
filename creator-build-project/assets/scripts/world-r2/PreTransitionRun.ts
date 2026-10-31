@@ -11,6 +11,7 @@ import { director, Director, game, UITransform, Canvas, Vec3 } from 'cc';
 /*QF_PROBE_BEGIN*/import { seedSkyChallengeWins, finishPausedMainlineWin } from './RegionFlowTest';/*QF_PROBE_END*/
 import { warmJourneyUi } from '../ui/JourneyUi';
 import { setLastRegion } from '../ui/UiPrefs';
+/*QF_PROBE_BEGIN*/import { QF_DEVICE_PREVIEW } from './PreTransitionKeys';/*QF_PROBE_END*/
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
@@ -56,6 +57,7 @@ export class PreTransitionRunner{
   const j=this.d.islandJourney();if(!j)return {ok:false,reason:'no-journal-overlay'};
   if(!await warmJourneyUi())return {ok:false,reason:'journey-ui-load-failed'};
   if(!await waitFrames(()=>j.ready()&&!j.isOpen(),PANEL_FRAMES))return {ok:false,reason:'journal-overlay-not-ready (state '+this.st().state+')'};
+  /*QF_PROBE_BEGIN*/if(QF_DEVICE_PREVIEW&&page!=='journal'&&typeof (j as any).previewChapterViaJournal==='function'){if(!j.openPage('journal'))return {ok:false,reason:'journal-open-refused'};if(!await waitFrames(()=>j.shownPage()==='journal'&&findPath(['JourneyPanel']),PANEL_FRAMES))return {ok:false,reason:'journal-not-open'};if(!(j as any).previewChapterViaJournal(page))return {ok:false,reason:'preview-chapter-refused'};}else/*QF_PROBE_END*/
   if(!j.openPage(page))return {ok:false,reason:'journal-open-refused'};
   if(!await waitFrames(()=>j.shownPage()===page&&findPath(path),PANEL_FRAMES))return {ok:false,reason:'chapter-panel-not-open (shown '+j.shownPage()+')'};
   return {ok:true};

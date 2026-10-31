@@ -10,7 +10,7 @@ import { regionRow } from '../ui/JourneyCore';
 import { setLastRegion } from '../ui/UiPrefs';
 import { warmButton } from '../WarmButton';
 import { boardSafeInsets } from '../ui/BoardLayout';
-/*QF_PROBE_BEGIN*/import { uiNode, artSprite, pressable } from '../ui/PopupKit';import { QF_DEVICE_PREVIEW } from './PreTransitionKeys';import { tintRgb } from '../ui/NightTint';/*QF_PROBE_END*/
+/*QF_PROBE_BEGIN*/import { uiNode, artSprite, pressable } from '../ui/PopupKit';import { QF_DEVICE_PREVIEW } from './PreTransitionKeys';import { tintRgb } from '../ui/NightTint';import { markRegionSeen } from '../ui/UiPrefs';/*QF_PROBE_END*/
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
 import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
 import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type PropButtonSlot } from './IslandPropsLayout';
@@ -94,11 +94,20 @@ export class IslandJourneyOverlay {
   *  journal can be checked in day and night on a phone. Toggles the world day/night without closing the book. Stripped from
   *  every release build (probe region). */
  private previewDayNight(p:any){if(!p?.body)return;
-  const night=()=>this.safeRead(this.options.dayNight)?.mode==='night',n=uiNode('qfPreviewDayNight',p.body,112,112);/* r6b: hit area ≥ 44 pt at every size (112 px × popupScale ≥ 47 pt at 320), face unchanged */n.setPosition(-p.width/2+32,p.height/2-24,0);
-  const face=uiNode('Face',n,80,80),g=face.addComponent(Graphics);
-  p.tint.shape(g,(gg:Graphics,nw:number,a:number)=>{for(const [rgb,dy] of [[[0xD9,0xBF,0x8C],-3],[[0xFF,0xF6,0xE2],0]] as [number[],number][]){const c=tintRgb('ui',nw,rgb);gg.fillColor=new Color(c[0],c[1],c[2],Math.round(255*a));gg.circle(0,dy,38);gg.fill();}});/* focus-card face colours */
-  let icon:any=null;const paint=()=>{if(icon&&isValid(icon.node))icon.node.destroy();icon=artSprite(face,night()?'popup/icon_sun':'popup/icon_moon',0,0,52,52,'Icon');p.tint.sprite(icon,'ui');};paint();
-  pressable(n,face,()=>{if(!this.enabled||this.dead)return;this.options.invoke(()=>{this.options.toggleDayNight();paint();});},{sound:'button'});}
+  /* r6c (界面验收部 8dc998a8): looks like the × — the SAME popup/btn_close sprite (wooden ring + disc, same 80 px face, same 'ui'
+   * tint), its centre covered with the disc's own flat colour (sampled 217,222,214; flat out to r ≥ 0.65) and the sun/moon icon on
+   * top. Hit area 112 px (≥ 44 pt everywhere). Mirrors the × inset (−width/2+32, height/2−24). */
+  const night=()=>this.safeRead(this.options.dayNight)?.mode==='night',n=uiNode('qfPreviewDayNight',p.body,112,112);n.setPosition(-p.width/2+32,p.height/2-24,0);
+  const fs=artSprite(n,'popup/btn_close',0,0,80,undefined,'Face');p.tint.sprite(fs,'ui');const face=fs.node;
+  const cover=uiNode('Disc',face,52,52),g=cover.addComponent(Graphics);
+  p.tint.shape(g,(gg:Graphics,nw:number,a:number)=>{const c=tintRgb('ui',nw,[217,222,214]);gg.fillColor=new Color(c[0],c[1],c[2],Math.round(255*a));gg.circle(0,0,25);gg.fill();});
+  let icon:any=null;const paint=()=>{if(icon&&isValid(icon.node))icon.node.destroy();icon=artSprite(face,night()?'popup/icon_sun':'popup/icon_moon',0,0,36,undefined,'Icon');p.tint.sprite(icon,'ui');};paint();
+  /* r6c P2: call the toggle DIRECTLY. options.invoke is the host's WorldIntegrationBoot.invoke(), which returns early while
+   * islandJourney.isOpen() — i.e. always here, the book is open (frozen file, not edited). */
+  pressable(n,face,()=>{if(!this.enabled||this.dead)return;try{this.options.toggleDayNight();}catch(e){console.warn('[QF_PREVIEW] toggle',String(e));}paint();},{sound:'button'});}
+ /** r6c (6): preview build only — the default hook opens its chapter page the way a player reaches it: journey book first, then
+  *  the region (same as the cell tap: markRegionSeen + chapter), so the page's × / back returns to the book, not the island. */
+ previewChapterViaJournal(region:string):boolean{if(this.page!=='journal'||this.shown!=='journal')return false;markRegionSeen(region);this.chapter(region);return true;}
  /*QF_PROBE_END*/
  private dispatch(fn:()=>any){if(!this.enabled||this.dead||!this.page)return;this.close();this.options.invoke(fn);}
  private safeRead(fn:()=>any){try{return fn();}catch{return null;}}

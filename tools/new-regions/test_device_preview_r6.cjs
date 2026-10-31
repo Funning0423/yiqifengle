@@ -22,8 +22,9 @@ assert.equal(K.preTransitionKey('',{}),null,'flag off: no qfPre default');
 const box=(n,W,Hh)=>{const t=n.getComponent(cc.UITransform),p=n.worldPosition,s=n.worldScale,w=t.width*Math.abs(s.x),h=t.height*Math.abs(s.y);const cx=p.x+W/2;return {x0:cx-w*t.anchorX,x1:cx+w*(1-t.anchorX),y0:Hh/2-p.y-h*(1-t.anchorY),y1:Hh/2-p.y+h*t.anchorY};};
 const all=(root,W,Hh)=>{const r=[];const walk=(n,pa)=>{const t=n.getComponent(cc.UITransform);if(t&&n.activeInHierarchy&&n.name!=='qfPreviewDayNight')r.push([pa,JSON.stringify(box(n,W,Hh))]);for(const c of n.children)if(c.name!=='qfPreviewDayNight')walk(c,pa+'/'+c.name);};walk(root,root.name);return r;};
 async function journal(W,Hh,on){let mode='day',toggles=0;globalThis.__worldDayNight={snapshot:()=>({mode})};resetUiNightWeight();K.QF_DEVICE_PREVIEW=on;
-  const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>({journey:{records:Array.from({length:12},(_,i)=>({bestStars:i<10?1:0}))}}),gates:()=>({r5:[],challenges:{},stages:[],r4:[{unlocked:true}]}),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){toggles++;mode=mode==='day'?'night':'day';},dayNight:()=>({mode})});
+  let o=null;o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>{if(o&&o.isOpen())return;fn();}/* = WorldIntegrationBoot.invoke(): early return while islandJourney.isOpen() */,mainlineStatus:()=>({journey:{records:Array.from({length:12},(_,i)=>({bestStars:i<10?1:0}))}}),gates:()=>({r5:[],challenges:{},stages:[],r4:[{unlocked:true}]}),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){toggles++;mode=mode==='day'?'night':'day';},dayNight:()=>({mode})});
   await H.flush();o.sync(W,Hh,true);o.open('journal');await H.flush();const p=o.popups.find('JourneyPanel');for(let i=0;i<4;i++)p.update(1);return {o,p,toggles:()=>toggles,mode:()=>mode};}
+const closeFrame=n=>{const sp=n.getComponent(cc.Sprite);return sp&&sp.spriteFrame;};
 for(const [W,Hh] of [[320,568],[375,812],[390,844],[414,896]]){
   const A=await journal(W,Hh,false);assert(!A.p.root.find('qfPreviewDayNight'),W+': flag off → no button');const la=all(A.p.root,W,Hh);A.o.dispose();
   const B=await journal(W,Hh,true),b=B.p.root.find('qfPreviewDayNight');assert(b,W+': flag on → button');const lb=all(B.p.root,W,Hh);
@@ -32,10 +33,25 @@ for(const [W,Hh] of [[320,568],[375,812],[390,844],[414,896]]){
   const tw=bb.x1-bb.x0,th=bb.y1-bb.y0;assert(tw>=44&&th>=44,`${W}: touch target ${tw.toFixed(1)}×${th.toFixed(1)} pt < 44`);
   {const c=[[320,{left:222,right:310,top:10,bottom:42}],[375,{left:281,right:368,top:48,bottom:80}],[390,{left:297,right:384,top:51,bottom:83}],[414,{left:320,right:407,top:52,bottom:84}]].find(x=>x[0]===W)[1];assert(bb.x1<=c.left-8||bb.y0>=c.bottom+8,`${W}: button overlaps the capsule band`);}
   const icon=b.getChildByName('Face').getChildByName('Icon');assert(icon,'icon');
+  let faceIn=0;
+  // r6c look: same btn_close face as the × (sprite frame + size), icon on top
+  {const cf=B.p.root.find('Close').getChildByName('Face'),pf=b.getChildByName('Face');assert(cf&&pf,'faces');assert.equal(closeFrame(pf),closeFrame(cf),W+': toggle face = × face (popup/btn_close)');
+   const ct=cf.getComponent(cc.UITransform),pt=pf.getComponent(cc.UITransform);assert(ct.width===pt.width&&ct.height===pt.height,W+': same face size');
+   const fb=box(pf,W,Hh),xf=box(cf,W,Hh),li=fb.x0,ri=W-xf.x1;assert(Math.abs(li-ri)<0.05&&Math.abs(fb.y0-xf.y0)<0.05,`${W}: face insets ${li.toFixed(2)} / ${ri.toFixed(2)} not symmetric with ×`);faceIn=li;}
+  // r6c negative: the 8dc998a8 wiring (through the host invoke) is a no-op while the book is open
+  B.o.options.invoke(()=>B.o.options.toggleDayNight());assert.equal(B.toggles(),0,W+': negative — old invoke wiring must not toggle while the journal is open');
   H.tap(b);
   await H.flush();for(let i=0;i<4;i++)B.p.update(1);
-  assert.equal(B.toggles(),1,W+': tap toggles day/night once');assert.equal(B.mode(),'night');assert(B.o.popups.find('JourneyPanel')&&B.p.alive!==false,W+': book stays open');
-  out.push(`${W}x${Hh}: target ${(bb.x1-bb.x0).toFixed(1)}×${(bb.y1-bb.y0).toFixed(1)} pt, button ${bb.x0.toFixed(1)},${bb.y0.toFixed(1)}–${bb.x1.toFixed(1)},${bb.y1.toFixed(1)} (min edge ${m.toFixed(1)} pt), tap → night, ${la.length} other nodes identical`);B.o.dispose();}
+  assert(B.o.isOpen(),W+': journal open during the tap');assert.equal(B.toggles(),1,W+': tap toggles day/night once while the journal is open');assert.equal(B.mode(),'night');assert(B.o.popups.find('JourneyPanel')&&B.p.alive!==false,W+': book stays open');
+  out.push(`${W}x${Hh}: face inset ${faceIn.toFixed(1)} pt (= ×), target ${(bb.x1-bb.x0).toFixed(1)}×${(bb.y1-bb.y0).toFixed(1)} pt, button ${bb.x0.toFixed(1)},${bb.y0.toFixed(1)}–${bb.x1.toFixed(1)},${bb.y1.toFixed(1)} (min edge ${m.toFixed(1)} pt), tap → night, ${la.length} other nodes identical`);B.o.dispose();}
+// r6c (6): chapter page from the journal → × returns to the journal (real flow); preview hook path does the same
+{K.QF_DEVICE_PREVIEW=true;const J=await journal(390,844,true);const r=J.o.previewChapterViaJournal('sky');assert.equal(r,true);await H.flush();
+ const cp=J.o.popups.find('ChapterPanel');assert(cp,'preview: chapter page over the journal');for(let i=0;i<4;i++){cp.update(1);J.p.update(1);}
+ H.tap(cp.root.find('Close'));for(let i=0;i<8;i++){cp.update(1);J.p.update(1);}await H.flush();
+ assert(J.o.popups.find('JourneyPanel')&&J.p.body.active&&J.o.isOpen(),'preview: × on the chapter page returns to the journal');J.o.dispose();
+ const N=await journal(390,844,false);H.tap(N.p.root.find('Chapter-sky'));await H.flush();const np=N.o.popups.find('ChapterPanel');assert(np,'real flow: cell tap opens the chapter page');for(let i=0;i<4;i++){np.update(1);N.p.update(1);}
+ H.tap(np.root.find('Close'));for(let i=0;i<8;i++){np.update(1);N.p.update(1);}await H.flush();assert(N.o.popups.find('JourneyPanel')&&N.p.body.active,'real flow: × returns to the journal');N.o.dispose();
+ out.push('back-to-chapter: real flow (journal → cell → ×) returns to the journal; preview default now opens journal → sky the same way and × returns to the journal');}
 K.QF_DEVICE_PREVIEW=true;
 assert.equal(K.preTransitionKey('',{}),'journal-sky-gated','flag on: qfPre default');
 assert.equal(K.preTransitionKey('?qfPre=journal-sky-cleared',{}),'journal-sky-cleared','explicit qfPre wins');
