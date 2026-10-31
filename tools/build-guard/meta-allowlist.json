@@ -121,6 +121,18 @@
         "importer": "image"
       },
       "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as region_lake.png.meta). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/region/RegionReleaseCore.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "p0 region release a9523978 2026-10-30: Creator-generated typescript meta (Mac chainJ 3rd build). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/region/RegionRelease.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "p0 region release a9523978 2026-10-30: Creator-generated typescript meta (Mac chainJ 3rd build). Needs Grok Bot review per this file's rule."
     }
   },
   "watchRefs": [
