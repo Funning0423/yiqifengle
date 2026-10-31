@@ -226,8 +226,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
-    "bytes": 36331,
-    "sha256": "591a4d634fb3921834a5500f786785fc41fa6463c2c83665b873fc433f17fdd8"
+    "bytes": 37187,
+    "sha256": "a9d5966e926fad62e1c570658ced43d310868ebe5a759fb7ef6a4d8d822bbef5"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta",
@@ -4706,8 +4706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
-    "bytes": 14681,
-    "sha256": "6775e510b09e24618c765901d875686b33579c7c5b4b4ed508796dbdc421d147"
+    "bytes": 14677,
+    "sha256": "fe60b3c2d0f9b666addf4bb4877cdd015a0ba2e3945bbb8be2c38589576fc36f"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
