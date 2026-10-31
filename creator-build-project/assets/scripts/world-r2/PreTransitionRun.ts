@@ -70,7 +70,14 @@ export class PreTransitionRunner{
    if(!['island','result','skycity-visit'].includes(spec.place))(this.d.composition as any).warmMeadowIfIsland?.('pre',true)/* P0 wipe */;
    let r=await this.toPlace('island');if(!r.ok)return r;
    let prof:any=null;
-   if(spec.checkpoint!==null){prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);if(!prof.ok)return prof;}
+   if(spec.checkpoint!==null){
+    /* [QF_SYNC] qa allow (P0 finR): the test-only profile replays 1..12 witness stages into a FRESH isolated namespace through the real
+     * controllers in ONE synchronous call (by design: the profile must exist before the next frame places her). Since finR each key is
+     * read once (write-through cache, test_region_flow_checkpoint_reads: ≤ distinct keys + writes), but its writes are sync by nature.
+     * This QA hook never runs in release (preTransitionEnabled = false) and the reason is scoped to this one call (finally restores). */
+    const g:any=globalThis,prev=g.__qfSyncAllow;g.__qfSyncAllow='pre-transition-profile';
+    try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;}
+    if(!prof.ok)return prof;}
    if(spec.place==='island'){
     if(spec.key==='skycity-visit'){const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','VisitSkycity']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
     return {ok:true};

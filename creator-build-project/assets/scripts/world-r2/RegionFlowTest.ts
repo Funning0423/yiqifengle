@@ -3,6 +3,7 @@ import { DEBUG } from 'cc/env';
 import MainlinePort from '../mainline-r1/adapter/mainline-port.js';
 import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
 import { R5_KEYS } from './PersistentR5Port';
+import { writeThroughStorage } from './PersistentMainlinePort';
 import { REGION_FLOW_WITNESSES } from './RegionFlowWitnesses';
 import { LAKE_WIN_WITNESSES } from './LakeWinWitnesses';
 import RegionalAPI from '../regional-r05/runtime/index.js';
@@ -13,7 +14,12 @@ export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:bo
  if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
  if(![4,8,12].includes(completed)&&!(opts?.allowQa&&opts?.anyCheckpoint&&Number.isInteger(completed)&&completed>=1&&completed<=12))throw Error('unsupported-checkpoint');/* pre-transition: any 1..12 (QA gate only) */
  const namespace='dot-region-flow-test-'+Date.now().toString(36)+'-'+(++serial)+'-'+Math.random().toString(36).slice(2)+':';
- const storage=(lane:string)=>({getItem:(key:string)=>sys.localStorage.getItem(namespace+lane+':'+key),setItem:(key:string,value:string)=>sys.localStorage.setItem(namespace+lane+':'+key,value)});
+ /* P0 finR (Mac dc48cb42 f1836: 7183 sync localStorage.getItem in one frame): every controller step (startStage/preview/commit/
+  * finishVisualStep/snapshot) re-loaded the journey via load → localStorage.getItem → wx.getStorageSync. This fresh namespace has
+  * exactly one writer (this profile's ports), so each lane is served by the same write-through cache as PersistentMainlinePort:
+  * each key is read from storage once per profile, and every write re-reads that one key (dropped/failed writes read back as storage). */
+ const lanes=new Map<string,ReturnType<typeof writeThroughStorage>>();
+ const storage=(lane:string)=>{let c=lanes.get(lane);if(!c){c=writeThroughStorage({getItem:(key:string)=>sys.localStorage.getItem(namespace+lane+':'+key),setItem:(key:string,value:string)=>sys.localStorage.setItem(namespace+lane+':'+key,value)});lanes.set(lane,c);}return c;};
  const mainStorage=storage('mainline'),mainline=Object.assign(MainlinePort.createPort(mainStorage),{namespace:namespace+'mainline:',inspect:()=>['forest-mainline-cocos-r1-active','forest-v33-journey','forest-v3-progress','forest-v3-completed'].map(k=>[k,mainStorage.getItem(k)])});
  const controller=mainline.createController();
  const requireOK=(reply:any)=>{if(!reply?.ok)throw Error('checkpoint-save-or-replay-failed: '+(reply?.reason||'unknown'));};
