@@ -24,7 +24,7 @@ for(const mode of MODES)check('runtime '+mode,()=>{const j=judge(runtimeRows(GLB
 const fx=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/front_curves_773c061e.json'),'utf8'));
 for(const clip of ['walk_loop','door_reach'])check('negative: 773c061e '+clip+' front curves must FAIL',()=>{const R2=H.load(GLB),S2=H.sets(R2);H.overrideChannels(R2,{[clip]:fx.clips[clip]});
   const out={};for(const mode of MODES){const j=judge(clipRows(R2,S2,M,[clip],mode));out[mode]=j.failCount;if(!j.failCount)return {ok:false,why:'old curves passed at '+mode,j};}
-  const jr=judge(runtimeRows(GLB,30,R3=>H.overrideChannels(R3,{[clip]:fx.clips[clip]})));out.runtime30=jr.failCount;if(!jr.failCount)return {ok:false,why:'old curves passed at runtime',jr};return {ok:true,failCounts:out};});
+  const jr=judge(runtimeRows(GLB,30,R3=>{H.overrideChannels(R3,{[clip]:fx.clips[clip]});}));out.runtime30=jr.failCount;if(!jr.failCount)return {ok:false,why:'old curves passed at runtime',jr};return {ok:true,failCounts:out};});
 const failed=results.filter(r=>!r.ok);const rep={gate:'skirt-front-hem-lift',status:failed.length?'FAIL':'PASS',glb:path.relative(H.ROOT,GLB),limits:LIM,results};
 if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify(rep,null,1));
 console.log(JSON.stringify({...rep,results:results.map(r=>({name:r.name,ok:r.ok,frames:r.info&&r.info.frames,failCount:r.info&&r.info.failCount,worst:r.info&&r.info.worst,fails:r.info&&r.info.fails&&r.info.fails.slice(0,4),failCounts:r.info&&r.info.failCounts,error:r.error}))},null,1));

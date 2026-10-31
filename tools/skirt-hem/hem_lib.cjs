@@ -112,12 +112,24 @@ function limbSegs(R,S,W){const out={};for(const s of ['L','R']){const hip=jpos(R
     const toe=[fm[0]*c[0]+fm[4]*c[1]+fm[8]*c[2]+fm[12],fm[1]*c[0]+fm[5]*c[1]+fm[9]*c[2]+fm[13],fm[2]*c[0]+fm[6]*c[1]+fm[10]*c[2]+fm[14]];
     out['thigh.'+s]=[hip,kn];out['shin.'+s]=[kn,an];out['foot.'+s]=[an,toe];}return out;}
 function clothBone(R,mesh,F,t){if(t===undefined)return null;const acc={};for(let k=0;k<3;k++){const i=F[t+k];for(let j=0;j<4;j++){const w=mesh.W[i*4+j];if(w>0){const n=R.nodes[R.joints[mesh.J[i*4+j]]].name;acc[n]=(acc[n]||0)+w;}}}return Object.entries(acc).sort((a,b)=>b[1]-a[1])[0][0];}
-/** Leg penetration of the current pose: {count, maxDepth, worst, by:{dress,apron}}. */
+/** Pass-through test (b21 run 4): the limb-segment test above misses cloth that has passed wholly BEHIND a limb (both the leg
+ *  vertex and its centre line on the outer side of the cloth, e.g. a front panel swung back through the forward shin).  In
+ *  standing / walking poses (thigh within 30 deg of vertical) the skirt is a tube around her hips' vertical axis, so every leg
+ *  vertex above the cloth's lowest point must reach that axis (horizontal segment at its own height) without crossing cloth.
+ *  Seated poses are excluded (lap / seat cloth legitimately lies between the thighs and the axis). */
+function axisHits(R,S,weights,W,legP,meshes){W=W||world(R);const L=legP||skinMesh(R,W,R.meshes.LOD0_G2_BODY,weights,S.legs);const hp=jpos(R,W,'hips');let n=0,maxDepth=0,worst=null;const by={};
+  for(const [key,mesh,P0,F0] of meshes||[['dress',R.meshes.LOD0_G2_DRESS],['apron',R.meshes.LOD0_G2_APRON]]){const P=P0||skinMesh(R,W,mesh,weights),F=F0||mesh.F,g=triGrid(P,F);let lo=Infinity;for(let q=1;q<P.length;q+=3)if(P[q]<lo)lo=P[q];
+    for(let q=0;q<S.legs.length;q++){const o=[L[q*3],L[q*3+1],L[q*3+2]];if(o[1]<lo)continue;const e=[hp[0],o[1],hp[2]];const h=segHit(g,o,e);
+      if(h>0){n++;by[key]=(by[key]||0)+1;if(h>maxDepth){maxDepth=h;worst={vertex:S.legs[q],bone:S.legBone[q],mesh:key,test:'axis'};}}}}
+  return {n,by,maxDepth,worst};}
+/** Leg penetration of the current pose: {count, maxDepth, worst, by:{dress,apron,axis}} (limb-segment test + pass-through test
+ *  when the thigh is within 30 deg of vertical). */
 function penetration(R,S,weights,W){W=W||world(R);const B=R.meshes.LOD0_G2_BODY;const L=skinMesh(R,W,B,weights,S.legs),seg=limbSegs(R,S,W);
   let count=0,maxDepth=0,worst=null;const by={};
   for(const [key,mesh] of [['dress',R.meshes.LOD0_G2_DRESS],['apron',R.meshes.LOD0_G2_APRON]]){const P=skinMesh(R,W,mesh,weights),grid=triGrid(P,mesh.F);let c=0;
     for(let q=0;q<S.legs.length;q++){const o=[L[q*3],L[q*3+1],L[q*3+2]],sg=seg[S.legBone[q]],e=closestOnSeg(o,sg[0],sg[1]);const h=segHit(grid,o,e);
       if(h>0){c++;count++;if(h>maxDepth){maxDepth=h;worst={vertex:S.legs[q],bone:S.legBone[q],mesh:key,tri:grid.lastTri,cloth:clothBone(R,mesh,grid.F,grid.lastTri)};}}}by[key]=c;}
+  if(thighFromVertical(R,W)<=30){const a=axisHits(R,S,weights,W,L);if(a.n){count+=a.n;by.axis=a.n;if(a.maxDepth>maxDepth){maxDepth=a.maxDepth;worst=a.worst;}}}
   return {count,maxDepth,worst,by};}
 /** Option-B helper (b21): split the lower front panel into two halves.  Every dress/apron vertex weighted to skirt.front.low moves
  *  a share f(x) of that weight to its child skirt.front.low.mid (identity in every authored clip), f = 0 on her right half (x < -band),
@@ -136,8 +148,9 @@ function splitFront(R,band=0.03){const lo=R.joints.indexOf(R.byName['skirt.front
 function overrideChannels(R,spec){for(const clip in spec)for(const name in spec[clip]){const c=R.clips[clip].channels.find(x=>x.path==='rotation'&&R.nodes[x.node].name===name);if(!c)throw Error('no channel '+clip+' '+name);
     c.inp=Float64Array.from(spec[clip][name].times);c.out=Float64Array.from(spec[clip][name].values);c.n=4;c.step=false;}}
 /** Pin joints of a clip to their rest rotation (the "no skirt solve" negative pose). */
-function restChannels(R,clip,names){const C=R.clips[clip];for(const name of names){const i=R.byName[name],c=C.channels.find(x=>x.path==='rotation'&&x.node===i);const q=R.rest[i].q;
-    if(c){c.inp=Float64Array.from([0,C.duration]);c.out=Float64Array.from([...q,...q]);c.n=4;}}}
+function restChannels(R,clip,names){const C=R.clips[clip];for(const name of names){const i=R.byName[name];if(i===undefined)continue;
+    for(const c of C.channels.filter(x=>x.node===i&&(x.path==='rotation'||x.path==='scale'))){const v=c.path==='rotation'?R.rest[i].q:R.rest[i].s;c.inp=Float64Array.from([0,C.duration]);c.out=Float64Array.from([...v,...v]);c.n=v.length;c.step=false;}}}
+
 function loadMeta(file=META){return JSON.parse(fs.readFileSync(file,'utf8'));}
 /** Morph weights of a single clip played alone (CharacterMotion.morphWeights semantics for plan={base}); used by the Blender-parity path. */
 function clipMorph(meta,clip,t){const c=meta.clips[clip]&&meta.clips[clip].morph&&meta.clips[clip].morph.curves;const o={};if(!c)return o;
@@ -146,4 +159,4 @@ function clipMorph(meta,clip,t){const c=meta.clips[clip]&&meta.clips[clip].morph
 function lcg(seed=12345){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return 1/90+(s/4294967296)*(1/45-1/90);};}
 /** Frame times of a clip for a dt mode: 60, 30 or 'uneven'. Always includes the clip end. */
 function times(dur,mode,seed){const out=[];if(mode==='uneven'){const r=lcg(seed);let t=0;while(t<dur){out.push(t);t+=r();}}else{const n=Math.round(dur*mode);for(let k=0;k<=n;k++)out.push(Math.min(k/mode,dur));}if(out[out.length-1]<dur)out.push(dur);return out;}
-module.exports={overrideChannels,restChannels,splitFront,_triGrid:triGrid,_segHit:segHit,_closestOnSeg:closestOnSeg,_limbSegs:limbSegs,GLB,META,ROOT,parseGlb,load,sampleChannel,applyClip,resetRest,world,skinMesh,sets,hemMetrics,penetration,thighFromVertical,loadMeta,clipMorph,times,lcg,jpos,qmul};
+module.exports={axisHits,overrideChannels,restChannels,splitFront,_triGrid:triGrid,_segHit:segHit,_closestOnSeg:closestOnSeg,_limbSegs:limbSegs,GLB,META,ROOT,parseGlb,load,sampleChannel,applyClip,resetRest,world,skinMesh,sets,hemMetrics,penetration,thighFromVertical,loadMeta,clipMorph,times,lcg,jpos,qmul};
