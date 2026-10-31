@@ -33,7 +33,7 @@ const LIM={yaw:90,pitch:90,acc:200,v:8,step:0.5,fov:1.5,ground:1.5,solid:0.5,hid
 /* b21 (Grok Bot): stage-04 departure limit = measured final duration + 0.1 s, hard cap 9.0 s, pinned to the measured route. The pin carries
  * the I4>I6 route it was measured on (length + endpoints); a route change FAILs until the duration is re-measured and the pin updated, so the
  * limit always follows the measured route. Self-test (STAGE04_SELFTEST, always run below): over-limit, stale-route and cap cases must FAIL. */
-const STAGE04_PIN={route:'I4>I6',lengthM:9.047,from:[4.1,0.093,4.1],measuredS:7.94,source:'05702f02 final route (场景设计部), 运镜bot b21'};
+const STAGE04_PIN={route:'I4>I6',lengthM:8.968,from:[4.1,0.093,4.1],measuredS:7.87,source:'b27fc82d route (场景设计部 I4-I6 via (4.2,4.95)), re-measured 7 screens, 运镜bot b21'};
 function stage04Limit(pin,routeLen,routeFrom,totalS){const errs=[];const lim=Math.min(9.0,pin.measuredS+0.1);
  if(Math.abs(routeLen-pin.lengthM)>0.002||Math.hypot(...routeFrom.map((x,i)=>x-pin.from[i]))>0.002)errs.push(`stage04 pin stale: route ${pin.route} now ${routeLen.toFixed(3)} m from ${routeFrom.map(x=>x.toFixed(3))} (pin ${pin.lengthM} m) — re-measure`);
  if(!(totalS<=lim+1e-9))errs.push(`stage04 total ${totalS.toFixed(2)} s > limit ${lim.toFixed(2)} s (measured ${pin.measuredS} + 0.1, cap 9.0)`);return {lim,errs};}
@@ -56,7 +56,7 @@ if(!wfcWired&&fs.existsSync(WFC_DIFF)){const os=require('os'),cpx=require('child
 const IB=wfcWired?H.load(S+'region/IslandStageLens.ts'):null,NODE=k=>H.load(S+'region/RegionNodes.ts').REGION_NODES.island.nodes.find(n=>n.key===k).at;
 const boardFor=(key,w,h)=>IB?IB.islandBoardAim(P0,NODE(key),w,h):P0;
 {const w=walk('I4','I6').path,Lr=NW.pathLength(w);const st=[['over',stage04Limit(STAGE04_PIN,Lr,w[0],8.05).errs.length>0],['stale',stage04Limit(STAGE04_PIN,Lr+0.3,w[0],7.9).errs.length>0],
-  ['cap',stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.02).errs.length>0&&stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.0).lim===9.0],['clean',stage04Limit(STAGE04_PIN,Lr,w[0],7.94).errs.length===0]];
+  ['cap',stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.02).errs.length>0&&stage04Limit({...STAGE04_PIN,measuredS:8.95},Lr,w[0],9.0).lim===9.0],['clean',stage04Limit(STAGE04_PIN,Lr,w[0],STAGE04_PIN.measuredS).errs.length===0]];
  for(const [k,v] of st)if(!v){console.log('FAIL stage04 limit self-test',k);process.exitCode=1;}console.log('stage04 limit self-test',JSON.stringify(st));
  globalThis.__stage04={Lr,from:w[0]};}
 function shot(kind,w,h){ // returns {at(t)->pose, her(t), W (settle), total}
@@ -73,9 +73,9 @@ if(process.env.L04_KEYS){const out={wired:wiredVia||false,screens:{}};for(const 
  out.screens[w+'x'+h]={entry:{t:3,cam:e.at(3),her:e.her(3)},standing:{t:e.W,cam:e.at(e.W),her:ql[ql.length-1]},exit:{t:d.W,cam:d.at(d.W),her:d.her(d.W),walkEnd:pl[pl.length-1]}};}
  fs.writeFileSync(process.env.L04_KEYS,JSON.stringify(out,null,1));}
 let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m);}};const report={wired,skinned:true,palmMove:PM,pushIn:process.env.PUSHIN||'T1',rows:{},summary:{},blockers:{}};const id0=k=>k;
-for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps of [60,30]){
- const s=shot(kind,w,h),dt=1/fps,Tend=s.W+1;let prev=null,pr=null,acc=[],mx={yaw:0,pitch:0,v:0,step:0,fov:0},minG=99,minS=99,minM=9,hid=0,hidFace=0,cap=0,rows=[];
- for(let k=0;k*dt<=Tend+1e-9;k++){const t=k*dt,p=s.at(t),her=s.her(t);
+for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps of [60,30,'lcg']){/* b21: + uneven dt LCG [1/90,1/45] (motion limits) */
+ const s=shot(kind,w,h),Tend=s.W+1;let dt=fps==='lcg'?1/60:1/fps,lx=12345,tt=0;let prev=null,pr=null,acc=[],mx={yaw:0,pitch:0,v:0,step:0,fov:0},minG=99,minS=99,minM=9,hid=0,hidFace=0,cap=0,rows=[];
+ for(let k=0;tt<=Tend+1e-9;k++){if(k&&fps==='lcg'){lx=(Math.imul(1664525,lx)+1013904223)>>>0;dt=1/90+(1/45-1/90)*(lx/4294967296);}if(k)tt+=dt;const t=tt,p=s.at(t),her=s.her(t);
   if(prev){const st=Math.hypot(...p.position.map((x,i)=>x-prev.position[i])),[y,q]=ya(p),[y0,q0]=ya(prev),yr=((y-y0+540)%360-180)/dt,qr=(q-q0)/dt;
    mx.yaw=Math.max(mx.yaw,Math.abs(yr));mx.pitch=Math.max(mx.pitch,Math.abs(qr));mx.v=Math.max(mx.v,st/dt);mx.step=Math.max(mx.step,st);mx.fov=Math.max(mx.fov,Math.abs(p.fovVerticalDeg-prev.fovVerticalDeg));
    if(pr)acc.push(Math.hypot(yr-pr[0],qr-pr[1])/dt);pr=[yr,qr];if(fps===60&&w===390)rows.push({t:+t.toFixed(3),stepM:+st.toFixed(3),ms:+(st/dt).toFixed(2),yawDegS:+yr.toFixed(1),pitchDegS:+qr.toFixed(1),fov:+p.fovVerticalDeg.toFixed(2)});}
