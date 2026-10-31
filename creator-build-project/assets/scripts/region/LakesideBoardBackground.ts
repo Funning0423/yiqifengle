@@ -358,9 +358,10 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(lakesideDayClearColor())/* same helper as the day pack + journey day end */;camera.enabled=false;
   // r4-prep A: preloaded → the scene's components load/enable now, a batch of instances per frame, on the board layer with the camera
   // off (nothing draws it). The rig then stays active under the preload holder; only the camera follows "visible and the board host shown".
-  if(pre&&!pre.dormant){step='preload-activate';const kids=scenery.children.slice();for(const k of kids)k.active=false;rig.active=true;
+  if(pre?.dormant){/* P0 fin: dormant next-board preload, the rig stays inactive until wake() */}
+  else if(pre){step='preload-activate';const kids=scenery.children.slice();for(const k of kids)k.active=false;rig.active=true;
    for(let i=0;i<kids.length;i++){if(isValid(kids[i],true))kids[i].active=true;if((i+1)%LAKESIDE_PRELOAD_BATCH===0){await pre.yieldFrame();token.check();}}}
-  else if(!pre)rig.active=true;/* r4.2 items 10/11: a direct build switches on with the (still hidden) board host, not on the swap frame */
+  else rig.active=true;/* r4.2 items 10/11: a direct build switches on with the (still hidden) board host, not on the swap frame */
   const showCamera=()=>{if(!camera||!isValid(camera,true))return;bgCamWant(camera,visible&&isValid(host,true)&&host.activeInHierarchy);};
   const fade=createSceneFade(()=>rig,()=>camera,'lakeside');
   built=true;offTrace();

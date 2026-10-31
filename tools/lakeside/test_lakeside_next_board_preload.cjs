@@ -13,7 +13,7 @@ run('trigger: a drawing lake board kicks the next-board preload (idempotent, non
 run('dormant: instances a batch per frame, rig stays inactive, no layer-conflict with the showing board, camera off',()=>{
  assert.match(bg,/\{yieldFrame:nextFrame,dormant:true\}/);
  assert.match(bg,/if\(!pre\?\.dormant&&scene\.getComponentsInChildren\(Camera\)/);
- assert.match(bg,/if\(pre&&!pre\.dormant\)\{step='preload-activate';/);assert.match(bg,/else if\(!pre\)rig\.active=true;/);});
+ assert.match(bg,/if\(pre\?\.dormant\)\{\/\* P0 fin: dormant next-board preload, the rig stays inactive until wake\(\) \*\/\}\n  else if\(pre\)\{step='preload-activate';/);});
 run('claim: the next entry wakes it (batched activation) BEFORE adopting, through the existing adopt path',()=>{
  assert.match(bg,/st\.promise=built\.then\(lease=>claimed\.then\(\(\)=>lease\.wake\(\)\)\.then\(\(\)=>lease\)\)/);
  assert.match(bg,/lakesideEnteredStage=String\(\(ctx\.selection as any\)\?\.stageId\?\?''\);boardPreload\?\.wake\?\.\(\);\n const st=boardPreload;/);
