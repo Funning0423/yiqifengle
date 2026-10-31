@@ -272,12 +272,36 @@ export function gpuFrame(dev:any,am:any,now:number=pn()):void{const G=gpuProbe;G
  G.sec=sec;G.dcMax=0;G.dcSum=0;G.n=0;G.triMax=0;G.instMax=0;G.rafMax=0;G.rafs.length=0;G.long=0;G.uploads=0;G.upBytes=0;G.shaders=0;G.creates=0;G.destroys=0;G.churn.clear();}
 export function installGpuProbe(dev:any,am:any,onFrameEnd?:(f:()=>void)=>void):boolean{const G=gpuProbe;if(G.installed||!dev)return false;G.installed=true;gpuWrapDevice(dev);
  const h=onFrameEnd||((f:()=>void)=>director.on(Director.EVENT_AFTER_DRAW,f));try{h(()=>gpuFrame(dev,am));}catch{}return true;}
+/** r2 (B360 481c599c NOPROBE): camTrace / GPU probe must never be silently off in a TEST build.
+ *  1. One unconditional startup line (test builds only: stripped with the probes): `[QF_CAM] enabled=<0|1> src=<query|global|none> query=<read>`.
+ *     src=global = globalThis.__QF_CAM_TRACE (harness/CDP set before the game scripts load); query = debugSearch() (location.search +
+ *     wx enter/launch query + globalThis.__qfQuery). Note: DevTools `cli open` does NOT pass 编译模式 启动参数 to the game, so a run that
+ *     relies only on the compile condition logs enabled=0 src=none here; harness scripts must carry launchQuery (?camTrace=1).
+ *  2. GPU probe install: at module load when director.root.device exists (`[QF_GPU] probe installed at=module`), else lazily on the
+ *     first EVENT_AFTER_DRAW that has a device, exactly once (`at=deferred frame=<n>`); still none after GPU_PROBE_START.maxFrames
+ *     frames → `[QF_GPU] probe NOT installed reason=no-device frames=<n>`. */
+export const GPU_PROBE_START=Object.freeze({maxFrames:600});
+export function camStartSrc(q:string,g:any):string{if(/(?:^|[?&])camTrace=1(?:&|$)/.test(q||''))return 'query';try{if(camFlagOn(g&&g.__QF_CAM_TRACE))return 'global';}catch{}return 'none';}
+export const camStart={emit:(s:string)=>console.log(s),last:'',enabled:false,src:'none',gpu:'off' as string};
+/** harness read-back (autoplay tool result.camStart): globalThis.__qfCamStart = {line,enabled,src,gpu} (gpu: off|module|deferred|pending|not-installed:<reason>) */
+function camStartPublish():void{try{(globalThis as any).__qfCamStart={line:camStart.last,enabled:camStart.enabled,src:camStart.src,gpu:camStart.gpu};}catch{}}
+export function camStartLine(q:string,g:any,on:boolean):string{const src=camStartSrc(q,g),s='[QF_CAM] enabled='+(on?1:0)+' src='+src+' query='+(q||'-');camStart.last=s;camStart.enabled=on;camStart.src=src;camStartPublish();try{camStart.emit(s);}catch{}return s;}
+export function gpuProbeStart(getDev:()=>any,am:any,on?:(f:()=>void)=>void,off?:(f:()=>void)=>void,maxFrames:number=GPU_PROBE_START.maxFrames,hook?:(f:()=>void)=>void):string{
+ const G=gpuProbe;if(G.installed)return 'already';
+ let dev:any=null;try{dev=getDev();}catch{dev=null;}
+ if(dev){try{if(installGpuProbe(dev,am,hook)){camStart.gpu='module';camStartPublish();G.out('[QF_GPU] probe installed at=module');return 'module';}}catch(e){G.out('[QF_GPU] probe NOT installed reason=error:'+String(e).slice(0,80)+' at=module');return 'error';}}
+ const subOn=on||((f:()=>void)=>director.on(Director.EVENT_AFTER_DRAW,f)),subOff=off||((f:()=>void)=>director.off(Director.EVENT_AFTER_DRAW,f));
+ let n=0,done=false;const tick=()=>{if(done)return;n++;let d:any=null;try{d=getDev();}catch{d=null;}
+  if(d){done=true;try{subOff(tick);}catch{}try{if(installGpuProbe(d,am,hook)){camStart.gpu='deferred';camStartPublish();G.out('[QF_GPU] probe installed at=deferred frame='+n);}else G.out('[QF_GPU] probe NOT installed reason='+(G.installed?'already':'install-false')+' frames='+n);}catch(e){G.out('[QF_GPU] probe NOT installed reason=error:'+String(e).slice(0,80)+' frames='+n);}return;}
+  if(n>=maxFrames){done=true;try{subOff(tick);}catch{}camStart.gpu='not-installed:no-device';camStartPublish();G.out('[QF_GPU] probe NOT installed reason=no-device frames='+n);}};
+ camStart.gpu='pending';camStartPublish();try{subOn(tick);}catch(e){camStart.gpu='not-installed:no-frame-hook';camStartPublish();G.out('[QF_GPU] probe NOT installed reason=no-frame-hook:'+String(e).slice(0,80));return 'nohook';}
+ return 'deferred';}
 /*QF_PROBE_END*/export function camLogStart(query?:string,g:any=globalThis):boolean{
  if(started)return camLog.on;started=true;
  let q=query;if(q===undefined)q=debugSearch(g)/* full8: + wx launch/enter query + __qfQuery */;
  camLog.on=camLogEnabled(q,g);camLog.stacks=camLog.on&&camStacksEnabled(q,g);
  if(camLog.on){camLog.t0=typeof performance!=='undefined'?performance.now():Date.now();cameraWriteHook.log=camLogWrite;try{(g||globalThis).__qfCamTag={t:camTag,d:camTagDefault};}catch{}}
- /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on)){try{installStorageProbe((sys as any).localStorage);}catch{}try{installSyncProbe(g||globalThis,(sys as any).localStorage,(g||globalThis as any).wx,sys);}catch{}}if(camLog.on)try{installGpuProbe((director as any).root?.device,assetManager);}catch{}/*QF_PROBE_END*/
+ /*QF_PROBE_BEGIN*/if(storageProbeWanted(q||'',camLog.on)){try{installStorageProbe((sys as any).localStorage);}catch{}try{installSyncProbe(g||globalThis,(sys as any).localStorage,(g||globalThis as any).wx,sys);}catch{}}camStartLine(q||'',g,camLog.on);if(camLog.on)gpuProbeStart(()=>(director as any).root?.device,assetManager);/*QF_PROBE_END*/
  return camLog.on;
 }
 /** test-only */
