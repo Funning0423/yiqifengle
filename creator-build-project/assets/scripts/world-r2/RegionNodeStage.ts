@@ -146,7 +146,21 @@ export class RegionNodeStage extends Component{
   const next=clear?this.guardLens(pose,clearM):pose;
   const ok=applyCameraPose(cam,fromLookAt(next,next.fovVerticalDeg??cam.fov),'region.node-lens');
   if(!ok)this.shotNote=(this.shotNote?this.shotNote+' ':'')+'rejected';
+  else if(this.region==='meadow'&&this.lens==='Board')this.handJourneyLive()/* b21: a board pan keeps the checkpoint on screen */;
   return next;
+ }
+ /** b21 meadow-board-exit (Mac c88320c1 fr 7949/9900/12072): each meadow board frames its own node (MeadowStageLens), but the
+  *  journey checkpoint camera stayed on the sail-arrival lens, so entering a level ran RegionJourneyCore.restore() in the same
+  *  frame as this lens and cut ~11 m / FOV 43→49 back to it. Handover: whenever this lens leaves the meadow board on screen, the
+  *  journey adopts the live lens as its checkpoint (its own refreshLive, the sail-blue handoff read), so restore re-places the
+  *  exact pose on screen: WorldFlow's setCamera sees holds() and writes nothing → one writer, 0 m step; enter-level then pushes
+  *  in from the live lens. No frozen file is edited. Missing hook → one warn, never silent. */
+ private journeyWarned=false;
+ private handJourneyLive():boolean{
+  let j:any=null;try{j=(this.flow() as any)?.flow?.journey;}catch{j=null;}
+  if(j&&typeof j.refreshLive==='function'&&typeof j.hasCheckpoint==='function'){if(j.hasCheckpoint()&&!j.isInTransit?.())j.refreshLive();return true;}
+  if(!this.journeyWarned){this.journeyWarned=true;console.warn('[QF_NODE_LENS] meadow board exit: journey handover unavailable');}
+  return false;
  }
  /** Finale and free-explore lenses: AABB retreat, then a 0.6 m ray so the near plane cannot enter a mesh. */
  private guardLens(pose:Pose,clear=LENS_CLEAR_M):Pose{
@@ -249,6 +263,7 @@ export class RegionNodeStage extends Component{
   this.releaseSyncCams();
   this.lens='Board';this.exploring=false;setExploreEnabled(false);this.shotPhases=null;
   this.orbit.armBoard();
+  if(this.region==='meadow')this.handJourneyLive()/* b21: the board lens on screen is the checkpoint restore re-places */;
  }
  private async blend(seconds:number,from:Pose,to:()=>Pose){
   this.orbit.pause();
@@ -308,7 +323,7 @@ export class RegionNodeStage extends Component{
   const fold=meadowFoldPlan(board,followPose(start,yaw0,w,h,followLookUp('meadow',99)),start,walkS,w/h);
   this.lens='FollowWalk';setExploreEnabled(false);
   const walk=runMeadowReopenWalk(character,this.place('meadow'));
-  try{await this.blendPath(walkS,t=>meadowFoldPose(fold,this.girl(),t));await walk;
+  try{await this.blendPath(walkS,t=>meadowFoldPose(fold,this.girl(),t));await this.rideWalkTail(walk,()=>meadowFoldPose(fold,this.girl(),walkS));await walk;
    setMeadowReopenAtM0(false);setMeadowBoardFraming('A');setMeadowBoardStage('mainline-05');this.writePose(meadowFoldPose(fold,this.girl(),walkS));}
   finally{setExploreEnabled(false);}
   this.restoreBoard();
@@ -328,6 +343,7 @@ export class RegionNodeStage extends Component{
     const start=wp[0],fold=meadowFoldPlan(board,followPose(start,yaw0,w,h,followLookUp(spec.region,99)),start,walkS,w/h);
     this.lens='FollowWalk';setExploreEnabled(false);
     await this.blendPath(walkS,t=>meadowFoldPose(fold,this.girl(),t));
+    await this.rideWalkTail(walk,()=>meadowFoldPose(fold,this.girl(),walkS))/* b21: she may still be walking (Mac fr 7949: 0.88 m snap) */;
     await walk;setMeadowBoardStage(toStage)/* the board lease stays hidden until restoreBoard */;
     const end=this.girl();this.writePose(meadowFoldPose(fold,end,walkS))/* she stands on the node: = the next board lens */;
    }else{
@@ -384,6 +400,16 @@ export class RegionNodeStage extends Component{
  holdFinaleView(){const p=this.finalePose;if(!p||this.region!=='skycity'||!this.exploring)return false;this.writePose({position:[...p.position] as Vec,target:[...p.target] as Vec,fovVerticalDeg:p.fovVerticalDeg},false);return true;}
  private recordFinaleEnd(){const p=this.readPose(),q=this.camera?.node?.worldRotation;this.finalePose={position:[p.position[0],p.position[1],p.position[2]] as Vec,target:[p.target[0],p.target[1],p.target[2]] as Vec,fovVerticalDeg:p.fovVerticalDeg};
   this.finaleEnd={position:[p.position[0],p.position[1],p.position[2]] as Vec,rotation:q?[q.x,q.y,q.z,q.w]:[0,0,0,1],fovVerticalDeg:p.fovVerticalDeg,velocity:[0,0,0] as Vec,angularVelocityDegS:0,at:Date.now()};}
+ /** b21 meadow-board-exit (Mac c88320c1 fr 7949/9900/12072: 0.53-0.88 m single-frame snap): the fold clock ends at walkS but her
+  *  walk can resolve later; the lens used to freeze there and the end write snapped to her real stand. Keep riding her at the end
+  *  offset (one writer, ≤ her walk speed per frame) until the walk resolves, so the end write lands ~0 m away. Cap 4 s. */
+ private async rideWalkTail(walk:Promise<unknown>,at:()=>Pose){
+  let over=false;walk.then(()=>{over=true;},()=>{over=true;});await Promise.resolve();if(over)return;
+  this.orbit.pause();
+  await new Promise<void>(resolve=>{let settled=false;const done=()=>{if(settled)return;settled=true;if(this.anim===a)this.anim=null;resolve();};
+   const a={t:0,seconds:4,sample:(_t:number)=>{if(over){done();return;}this.writePose(at());},done};this.anim=a;
+   walk.then(done,done);setTimeout(done,4080);});
+ }
  private async blendPath(seconds:number,at:(t:number)=>Pose){
   this.orbit.pause();
   const step=(t:number)=>this.writePose(at(Math.min(seconds,Math.max(0,t))));
