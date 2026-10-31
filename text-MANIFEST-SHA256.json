@@ -226,8 +226,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
-    "bytes": 32912,
-    "sha256": "fd049e9e066d10b5c7c7759b3a54a9d055ef857afb3cc98a9a0f27e0bad5da2e"
+    "bytes": 35973,
+    "sha256": "0616a448f36127b598fc08ccf2c4f7c180621572acd66663fd6e5896860050ab"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta",
