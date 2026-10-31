@@ -12,6 +12,8 @@
 # Probes (full9c): wechat RELEASE is built from a staged copy with /*QF_PROBE_BEGIN*/…/*QF_PROBE_END*/ regions stripped
 #        (strip-probes.cjs), then gated: release-gates.cjs --probe-free and --size (MAX_TOTAL_BYTES=24641536 MAX_MAIN_BYTES=4000000).
 #        STRIP_PROBES=1 is the default for wechat; STRIP_PROBES=0 = TEST build with probes (built in place, size/probe gates skipped).
+#        FORMAL_RELEASE=1 (r5, Grok Bot option 2) = FORMAL release for 提交审核/正式版: also strips /*QF_TRIAL_BEGIN*/…/*QF_TRIAL_END*/
+#        (the shared __qfPreTransition / ?qfPre= entry) and adds release-gates.cjs --formal-free. Default (0) = trial upload, unchanged.
 #        web is always a test build (probes kept). Stage dir: QF_STAGE_ROOT (default $HOME/wt/qf-stage, must be outside the repo).
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -23,9 +25,11 @@ TARGET=${1:-wechat}
 # Preload sizes (fg-preload-sizes): every good build is measured against the committed PRELOAD_BYTES block in TransitionChain.ts
 # (tools/preload-size/preload-bytes.cjs --check, tolerance PRELOAD_TOL=0.02 = 2 %). Drift fails the build and prints the --write command.
 PRELOAD_GATE=${PRELOAD_GATE:-1}; PRELOAD_TOL=${PRELOAD_TOL:-0.02}
-NODE=${NODE:-node}; STRIP_PROBES=${STRIP_PROBES:-1}; QF_STAGE_ROOT=${QF_STAGE_ROOT:-$HOME/wt/qf-stage}
+NODE=${NODE:-node}; STRIP_PROBES=${STRIP_PROBES:-1}; FORMAL_RELEASE=${FORMAL_RELEASE:-0}; QF_STAGE_ROOT=${QF_STAGE_ROOT:-$HOME/wt/qf-stage}
 MAX_TOTAL_BYTES=${MAX_TOTAL_BYTES:-24641536}; MAX_MAIN_BYTES=${MAX_MAIN_BYTES:-4000000}
 die(){ echo; echo "################################################################"; echo "BUILD GUARD FAILED: $*"; echo "################################################################"; exit 2; }
+if [ "$FORMAL_RELEASE" = 1 ] && [ "$STRIP_PROBES" != 1 ]; then echo "BUILD GUARD FAILED: FORMAL_RELEASE=1 needs STRIP_PROBES=1"; exit 2; fi
+FORMAL_ARG=""; [ "$FORMAL_RELEASE" = 1 ] && FORMAL_ARG="--formal"
 [ -n "${CREATOR:-}" ] || die "set CREATOR to the CocosCreator binary (…/CocosCreator.app/Contents/MacOS/CocosCreator)"
 [ -x "$CREATOR" ] || die "CREATOR is not executable: $CREATOR"
 [ -d "$P/assets" ] || die "no creator-build-project/assets under $REPO"
@@ -56,8 +60,8 @@ fi
 stage_release(){
   SP_ROOT="$QF_STAGE_ROOT/$GUARD_SHORT"; rm -rf "$SP_ROOT"; mkdir -p "$SP_ROOT" || die "mkdir $SP_ROOT"
   git ls-files -z creator-build-project | tar --null -T - -cf - | tar -x -C "$SP_ROOT" || die "staging copy failed"
-  "$NODE" "$HERE/strip-probes.cjs" --stage "$SP_ROOT/creator-build-project" || die "strip-probes failed (unbalanced markers?)"
-  "$NODE" "$HERE/strip-probes.cjs" --prove "$P" "$SP_ROOT/creator-build-project" --diff "$LOG_DIR/strip-probes.$GUARD_SHORT.diff" || die "strip proof failed"
+  "$NODE" "$HERE/strip-probes.cjs" --stage "$SP_ROOT/creator-build-project" $FORMAL_ARG || die "strip-probes failed (unbalanced markers?)"
+  "$NODE" "$HERE/strip-probes.cjs" --prove "$P" "$SP_ROOT/creator-build-project" --diff "$LOG_DIR/strip-probes.$GUARD_SHORT.diff" $FORMAL_ARG || die "strip proof failed"
   echo "   staged+stripped: $SP_ROOT/creator-build-project  diff=$LOG_DIR/strip-probes.$GUARD_SHORT.diff"
 }
 # metas the importer rewrote/created in the stage (the stage has no git): compare with the repo
@@ -70,7 +74,7 @@ gate
 outname(){ sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$1" | head -1; }
 build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
   cfg=$1; strip=${2:-0}; out=$(outname "$cfg"); [ -n "$out" ] || die "no outputName in $cfg"
-  BP=$P; if [ "$strip" = 1 ]; then stage_release; BP="$SP_ROOT/creator-build-project"; echo "== [$out] RELEASE (probes stripped)"; else echo "== [$out] TEST build: PROBES KEPT (not a release)"; fi
+  BP=$P; if [ "$strip" = 1 ]; then stage_release; BP="$SP_ROOT/creator-build-project"; if [ "$FORMAL_RELEASE" = 1 ]; then echo "== [$out] FORMAL RELEASE (probes + trial entry stripped)"; else echo "== [$out] RELEASE (probes stripped) = trial upload, qfPre trial entry kept"; fi; else echo "== [$out] TEST build: PROBES KEPT (not a release)"; fi
   dest="$BP/build/$out"; try=1
   while [ $try -le "$MAX_TRIES" ]; do
     # Log name carries the short SHA; the old name <out>.tryN.log stays as a symlink to it for existing readers.
@@ -97,6 +101,7 @@ build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
       fi
       if [ "$strip" = 1 ]; then
         "$NODE" "$HERE/release-gates.cjs" --probe-free "$dest" || die "[$out] RELEASE GATE: probe code in release output"
+        if [ "$FORMAL_RELEASE" = 1 ]; then "$NODE" "$HERE/release-gates.cjs" --formal-free "$dest" || die "[$out] FORMAL RELEASE GATE: trial entry (qfPre) in formal release output"; fi
         "$NODE" "$HERE/release-gates.cjs" --size "$dest" --max-total "$MAX_TOTAL_BYTES" --max-main "$MAX_MAIN_BYTES" || die "[$out] RELEASE GATE: size"
         mkdir -p "$P/build"; rm -rf "$P/build/$out"; cp -R "$dest" "$P/build/$out" || die "copy release to $P/build/$out"
         rm -rf "$BP/library" "$BP/temp"; echo "   release copied to creator-build-project/build/$out (stage kept: $SP_ROOT)"

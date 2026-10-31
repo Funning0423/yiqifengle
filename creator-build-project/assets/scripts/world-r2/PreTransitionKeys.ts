@@ -1,12 +1,13 @@
+/*QF_TRIAL_BEGIN*/
 /** Test-only pre-transition entry (`__qfPreTransition(key)` / `?qfPre=<key>`) for 全流程测试部. Engine-independent (no 'cc'),
  *  unit-tested in Node. It only SETS UP real game state (isolated test profile + real world moves) and stops just before a
  *  scene transition; the tester then fires the transition with a normal touch on the named trigger, so the whole transition
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
 import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled } from './QaSkip';
-export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'/*QF_PROBE_END*/;
+export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'/*QF_PROBE_END*/;
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
-export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;/*QF_PROBE_END*/
+export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;skyPage?:boolean;justWon?:boolean;/*QF_PROBE_END*/
  trigger:string;taps:PreTap[];expect:string};
 const N=(...path:string[]):PreTap=>({kind:'node',path});
 export const PRE_SPECS:readonly PreSpec[]=[
@@ -38,6 +39,12 @@ export const PRE_SPECS:readonly PreSpec[]=[
  {key:'journal-sky-open',label:'旅程册：天空之城挑战 0/4（已开启）',checkpoint:12,finish:true,place:'island',skyChallenges:0,trigger:'已打开的「天空之城」章节面板：主按钮「前往天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「前往天空之城」'},
  {key:'journal-sky-progress',label:'旅程册：天空之城挑战 1/4（进行中）',checkpoint:12,finish:true,place:'island',skyChallenges:1,trigger:'已打开的「天空之城」章节面板：主按钮「继续 1/4」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「继续 1/4」'},
  {key:'journal-sky-cleared',label:'旅程册：天空之城挑战 4/4（已通关）',checkpoint:12,finish:true,place:'island',skyChallenges:4,trigger:'已打开的「天空之城」章节面板：主按钮「再访天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；主按钮「再访天空之城」'},
+ /* r5 (界面验收部 on e80740af): the GATED page (region open at 8, challenge gate closed until 12) — mainline 1–10 registered, i.e. the
+  * middle of the 8–11 window that shows this page; and the JUST-UNLOCKED state — mainline 1–11 registered + level 12 paused one move
+  * short, then its recorded last move is committed through the real mainline controller on the island (12th win registered right
+  * there, never via a hand-written save), sky challenges 0/4. Test profile only. */
+ {key:'journal-sky-gated',label:'旅程册：天空之城挑战未开启（已通关第 10 关）',checkpoint:10,finish:true,place:'island',skyPage:true,trigger:'已打开的「天空之城」章节面板：一个灰按钮「通关第 12 关后开启」，上方无小字',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，天空之城章节面板打开；灰按钮「通关第 12 关后开启」不可点；旅程册格子「12 关后开启」、焦点卡无「继续 ›」'},
+ {key:'journal-sky-just-unlocked',label:'旅程册：刚通关第 12 关（天空之城挑战 0/4，刚开启）',checkpoint:12,finish:false,place:'island',skyPage:true,justWon:true,skyChallenges:0,trigger:'已打开的「天空之城」章节面板：主按钮「前往天空之城」',taps:[N('ChapterPanel','Continue-sky')],expect:'停在小岛，第 12 关刚由真实引擎通关；天空之城章节面板打开；主按钮「前往天空之城」，格子「可前往」，焦点卡「前往 ›」'},
 /*QF_PROBE_END*/
 ];
 export const PRE_KEYS:readonly PreKey[]=PRE_SPECS.map(s=>s.key);
@@ -55,10 +62,15 @@ export function preTransitionKey(search?:string|null,host:any=globalThis):PreKey
  const q=preSearch(search,host);const m=/(?:^|[?&])qfPre=([a-z-]+)(?:&|$)/.exec(q);
  if(!m||!(PRE_KEYS as readonly string[]).includes(m[1])||!qaSkipAllowed(host))return null;return m[1] as PreKey;
 }
-/** Hook registration gate: same as __qfTeleport (?qfSkip / ?qfHooks=1) plus a valid ?qfPre. Release: always false. */
+/*QF_TRIAL_END*/
+/*QF_TRIAL_BEGIN*//** Hook registration gate: same as __qfTeleport (?qfSkip / ?qfHooks=1) plus a valid ?qfPre. Release: always false. *//*QF_TRIAL_END*/
 export function preTransitionEnabled(search?:string|null,host:any=globalThis):boolean{
- if(!qaSkipAllowed(host))return false;if(search==null&&qaHarnessEnabled(host))return true;const q=preSearch(search,host);
- return qaSkipTarget(q,host)!==null||/(?:^|[?&])qfHooks=1(?:&|$)/.test(q)||preTransitionKey(q,host)!==null;/* = qaHooksEnabled (p0drag9), inlined so this also cherry-picks onto builds without it */
+ let on=false;
+ /*QF_TRIAL_BEGIN*/if(qaSkipAllowed(host)){if(search==null&&qaHarnessEnabled(host))on=true;else{const q=preSearch(search,host);
+ on=qaSkipTarget(q,host)!==null||/(?:^|[?&])qfHooks=1(?:&|$)/.test(q)||preTransitionKey(q,host)!==null;}}/* = qaHooksEnabled (p0drag9), inlined so this also cherry-picks onto builds without it *//*QF_TRIAL_END*/
+ return on;/* FORMAL release: the trial region is stripped → always false */
 }
+/*QF_TRIAL_BEGIN*/
 /** UI point helper (pure): a node centre in canvas-local px (y up, origin at canvas centre) -> top-left CSS px. */
 export function canvasLocalToScreen(lx:number,ly:number,w:number,h:number){return {x:Math.round(w/2+lx),y:Math.round(h/2-ly)};}
+/*QF_TRIAL_END*/

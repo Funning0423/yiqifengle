@@ -32,11 +32,11 @@ export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:bo
  const r5={platform:r5Platform,journey:mainline.journey,namespace:namespace+'r5:',inspect:()=>R5_KEYS.map(key=>[key,r5Platform.load(key)])};
  return {namespace,mainline,r4,r5,stageId:stage.stageId,seed:stage.seed,lastAction:stage.actions[stage.actions.length-1],completed};
 }
-/** Test build only (__qfPreTransition lake-* keys). On a finish=true checkpoint-12 profile, clear every lakeside stage before
+/*QF_TRIAL_BEGIN*//** Test build only (__qfPreTransition lake-* keys). On a finish=true checkpoint-12 profile, clear every lakeside stage before
  *  `stageId` in order (sequential unlock; L18 bridge therefore also has L13–L15) by replaying 场景设计部's verified wins through
  *  the real R5 provider (preview/commit/finishVisualStep), then start `stageId` and stop ONE move short: mode 'win' = recorded
  *  winning replay minus its last swap; 'lose' = deterministic non-winning swaps until 1 move is left and a losing swap exists.
- *  The active record is paused, so the real lakeside entry (regionSelection) restores exactly this board. */
+ *  The active record is paused, so the real lakeside entry (regionSelection) restores exactly this board. *//*QF_TRIAL_END*/
 export function seedLakeCheckpoint(profile:any,stageId:string,mode:'win'|'lose',opts?:{allowQa?:boolean}){
  if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
  const API:any=RegionalAPI,target=API.getStage(stageId);if(!target||target.region!=='lake')throw Error('not-lake-stage');
@@ -72,5 +72,18 @@ export function seedSkyChallengeWins(profile:any,count:number,opts?:{allowQa?:bo
   for(const a of w.actions){const p=P.previewAction(a);ok(p,'preview');ok(P.commitAction(p.token),'commit');let v=P.snapshot().visual;while(v){ok(P.finishVisualStep(v.token),'visual');v=P.snapshot().visual;}}
   const s=P.snapshot();if(s.state!=='result.saved'||!s.result?.completionRecorded)throw Error('sky-unregistered-replay '+w.stageId);}
  return {won:SKY_CHALLENGE_WITNESSES.slice(0,count).map(w=>w.stageId)};
+}
+/** r5 journal-sky-just-unlocked: the profile was made with the last mainline stage paused ONE move short (finish=false); a fresh
+ *  real controller restores that attempt, resumes, and commits the recorded last move (preview/commit/finishVisualStep), so the 12th
+ *  win is registered by the engine at setup time. Throws unless it ends in result.saved with completionRecorded. */
+export function finishPausedMainlineWin(profile:any,last:any,opts?:{allowQa?:boolean}){
+ if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
+ if(!Array.isArray(last))throw Error('no-last-move');
+ const c:any=profile.mainline.createController(),ok=(r:any,what:string)=>{if(!r?.ok)throw Error('just-won-failed: '+what+' '+(r?.reason||''));};
+ const b=c.snapshot();if(b.active?.status!=='playing'||!['run.paused','run.ready'].includes(b.state))throw Error('not-one-move-short '+b.state);
+ if(b.state==='run.paused')ok(c.resume(),'resume');
+ const p=c.previewAction(last);ok(p,'preview');ok(c.commitAction(p.token),'commit');let v=c.snapshot().visual;while(v){ok(c.finishVisualStep(v.token),'visual');v=c.snapshot().visual;}
+ const s=c.snapshot();if(s.state!=='result.saved'||!s.result?.completionRecorded)throw Error('just-won-unregistered '+s.state);
+ return {stageId:s.active?.stageId,completed:s.journey?.completed};
 }
 /*QF_PROBE_END*/

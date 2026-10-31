@@ -23,8 +23,8 @@ export function qaQuery(host:any=globalThis):string{
  try{addObj(host?.wx?.getLaunchOptionsSync?.()?.query);}catch{}
  if(!out.size)return '';const parts:string[]=[];out.forEach((v,k)=>{parts.push(k+'='+v);});return '?'+parts.join('&');
 }
-/** Harness enable without launch params (DevTools `cli open` ignores 编译模式 启动参数): the autoplay tool sets
- *  globalThis.__qfHooksEnable=true or calls __qfPreTransition('enable'). Still behind qaSkipAllowed (WeChat release never). */
+/*QF_TRIAL_BEGIN*//** Harness enable without launch params (DevTools `cli open` ignores 编译模式 启动参数): the autoplay tool sets
+ *  globalThis.__qfHooksEnable=true or calls __qfPreTransition('enable'). Still behind qaSkipAllowed (WeChat release never). *//*QF_TRIAL_END*/
 export function qaHarnessEnabled(host:any=globalThis):boolean{try{return host?.__qfHooksEnable===true;}catch{return false;}}
 export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarget|null{
  let q=search;

@@ -49,13 +49,31 @@ for(const [W,Hh] of [[390,844],[320,568]])for(const [tag,cp,sky,region,want,en] 
   o.close();await H.flush();o.open('journal');await H.flush();const j=o.popups.find('JourneyPanel');
   const cell=j.root.find('Chapter-'+region).getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string,fc=j.root.find('Focus-'+region),go=fc?fc.getComponentsInChildren(cc.Label).find(l=>l.node.name==='Go').string:null;
   const ENTER=/^(前往 ›|继续 ›|再访 ›)$/;
-  if(!en){assert(!['可前往'].includes(cell)&&!/^\d\/\d/.test(cell)&&!cell.endsWith('…'),`${tag} @${W}: grey button but cell says 「${cell}」`);if(go!=null)assert(!ENTER.test(go),`${tag} @${W}: grey button but focus card says 「${go}」`);}
+  if(!en){assert(!['可前往'].includes(cell)&&!/^\d\/\d/.test(cell)&&!cell.endsWith('…'),`${tag} @${W}: grey button but cell says 「${cell}」`);if(go!=null)assert(!ENTER.test(go),`${tag} @${W}: grey button but focus card says 「${go}」`);
+   {const m=/(\d+) ?关后开启$/.exec(want);if(m){const n=+m[1];assert([B.gateCellText(n),B.gateCellText(n,true)].includes(cell),`${tag} @${W}: cell 「${cell}」 is UI设计部 「${n} 关后开启」`);if(go!=null)assert([B.GATE_LOCKED_LABEL(n),B.gateCellText(n)].includes(go),`${tag} @${W}: focus 「${go}」`);}}}
   else{const c=want.startsWith('继续')?want.split(' ')[1]:null,expCell=c?c:want.startsWith('再访')?'4/4 ✓':'可前往',expGo=c?'继续 ›':want.startsWith('再访')?'再访 ›':'前往 ›';
     assert.equal(cell,expCell,`${tag} @${W}: cell agrees with the button`);if(go!=null)assert.equal(go,expGo,`${tag} @${W}: focus card agrees with the button`);}
   agreeN++;out.push(`${tag}@${W}: button 「${L.string}」${en?'':' grey'} · cell 「${cell}」${go!=null?' · focus 「'+go+'」':''}`);o.dispose();}
 // grid cell for a locked mainline-gated region
 {const {o}=await page(4,0,'sky',390,844);o.close();await H.flush();o.open('journal');await H.flush();const j=o.popups.find('JourneyPanel');
- const st=j.root.find('Chapter-sky').getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string;assert(st==='通关第 8 关后'||(st.endsWith('…')&&'通关第 8 关后'.startsWith(st.slice(0,-1))),'sky cell '+st);out.push('sky cell (locked)=「'+st+'」');o.dispose();}
+ const st=j.root.find('Chapter-sky').getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string;assert(st==='8 关后开启'||st==='8关后开启','sky locked cell = region unlock N=8 in the UI设计部 format: '+st);out.push('sky cell (locked)=「'+st+'」');o.dispose();}
+// 4. every journal-sky hook key, state built from its OWN spec the way PreTransitionRun.setup does (profile → just-won → seed)
+const HOOKS={'journal-sky-gated':['通关第 12 关后开启',false,'12 关后开启'],'journal-sky-just-unlocked':['前往天空之城',true,'可前往'],'journal-sky-open':['前往天空之城',true,'可前往'],'journal-sky-progress':['继续 1/4',true,'1/4'],'journal-sky-cleared':['再访天空之城',true,'4/4 ✓']};
+const snapOf=()=>c.testProfile.mainline.createController().snapshot();let diffNote='';const journeys={};
+for(const [k,[want,en,cellWant]] of Object.entries(HOOKS))for(const [W,Hh] of [[390,844],[320,568]]){const sp=K.preSpec(k);assert(sp,k);
+  const prof=c.preTransitionProfile(sp.checkpoint,sp.finish);assert.equal(prof.ok,true,k+' profile');
+  if(sp.justWon){const pre=snapOf();assert.equal(pre.journey.completed,11,k+': before the win only 11 registered');RF.finishPausedMainlineWin(c.testProfile,prof.lastAction,{allowQa:true});}
+  if(sp.skyChallenges)RF.seedSkyChallengeWins(c.testProfile,sp.skyChallenges,{allowQa:true});
+  const sn=snapOf(),insp=RC.inspect(sn.journey);journeys[k]=sn;
+  assert.equal(insp.regions[2].challengeUnlocked,k!=='journal-sky-gated',k+' real sky challenge gate');assert.equal(insp.regions[2].unlocked,true,k+' sky region unlocked');
+  const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>c.islandOverview(),gates:()=>c.islandGates(),enterRegion(){},enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode:'day'})});
+  await H.flush();o.sync(W,Hh,true);o.open('sky');await H.flush();const p=o.popups.find('ChapterPanel'),btn=p.root.find('Continue-sky'),L=btn.getComponentsInChildren(cc.Label)[0];
+  assert.equal(L.string,want,`${k} @${W}: button`);assert.equal(btn.__disabled===true,!en,k+' tappable');if(!en)assert(!p.root.find('ChapterCondition'),k+' nothing above');
+  o.close();await H.flush();o.open('journal');await H.flush();const j=o.popups.find('JourneyPanel'),cell=j.root.find('Chapter-sky').getComponentsInChildren(cc.Label).find(l=>l.node.name==='Status').string,fc=j.root.find('Focus-sky'),go=fc?fc.getComponentsInChildren(cc.Label).find(l=>l.node.name==='Go').string:null;
+  assert.equal(cell,cellWant,`${k} @${W}: cell`);if(!en&&go!=null)assert(!/继续 ›|前往 ›|再访 ›/.test(go),k+' focus '+go);
+  out.push(`hook ${k} @${W}: cleared ${sn.journey.completed} · sky gate ${insp.regions[2].challengeUnlocked?'open':'closed'} · button 「${L.string}」${en?'':' grey'} · cell 「${cell}」${go!=null?' · focus 「'+go+'」':''}`);o.dispose();}
+{const a=journeys['journal-sky-just-unlocked'],b=journeys['journal-sky-open'];const strip=x=>JSON.stringify(x.journey.records.map(r=>[r.bestStars>0]));
+ assert.equal(strip(a),strip(b),'just-unlocked and open: same cleared set (1–12)');diffNote=`just-unlocked vs open: same 12 cleared; just-unlocked state=${a.state} (12th win committed on the island from a paused attempt) vs open state=${b.state}`;out.push(diffNote);}
 delete globalThis.location;
 console.log('PASS N derived from region-campaign challengeUnlocked: '+JSON.stringify(derived));
 for(const x of out)console.log('PASS '+x);
