@@ -116,6 +116,8 @@ export function createJourneyUi(h: JourneyUiHost) {
    *  + JOURNEY_PAPER_AA (0.5 pt: the downsampled bevel blends ~half a pt into the paper on device, where 界面验收部 measures
    *  lum > 0.62), not from the panel node. tools/new-regions/test_journey_paper_r5.cjs re-derives these numbers from the PNG. */
   const PAPER_INNER_SRC = { left: 202, right: 173, artPx: 3 } as const, JOURNEY_PAPER_AA = 0.5;
+  /** r5 P3: false = a locked region page has ONE condition text (the grey button). true restores the small count line above it. */
+  const LOCKED_PAGE_COUNT_LINE = false;
   /** Content band in panel units: [x0, x1] = paper inner edge + JOURNEY_INNER_PAD pt on each side. */
   function paperBand(PW: number, P: (x: number) => number) {
     const x0 = -PW / 2 + PAPER_INNER_SRC.left / PAPER_INNER_SRC.artPx + P(JOURNEY_INNER_PAD + JOURNEY_PAPER_AA), x1 = PW / 2 - PAPER_INNER_SRC.right / PAPER_INNER_SRC.artPx - P(JOURNEY_INNER_PAD + JOURNEY_PAPER_AA);
@@ -226,15 +228,21 @@ export function createJourneyUi(h: JourneyUiHost) {
     const win = p.sprite('r2/region_' + c.id, 0, y + wh / 2, ww, wh); const row = a.row?.() || null; if (row && row.state === 'far') win.grayscale = true;
     const sealKey = 'popup/reward_seal_' + c.id; if (row?.state !== 'far') p.sprite(sealKey, -ww / 2 + P(22), y + P(22), P(40), P(40));
     y += wh + P(14);
-    p.text(c.description, 0, y + P(10), P(15), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterDescription' }); y += P(30);
+    // r5 P3 (界面验收部 journal-3277421c §已有问题): text and the button stay inside the paper inner edge + 8.5 pt (paperBand, the
+    // same rule as the journey book) at every width; a description that does not fit wraps to 2 lines (never …, never a smaller font).
+    const band = paperBand(PW, P), TW = Math.min(PW - P(48), band.w), descLines = measure(c.description, P(15)) > TW ? 2 : 1;
+    p.text(c.description, band.cx, y + P(10) + (descLines - 1) * P(10.5), P(15), 'brown2', { bold: false, width: TW, lines: descLines, name: 'ChapterDescription' }); y += P(30) + (descLines - 1) * P(21);
     const gate = a.gate(), reason = gate?.reason, d = REGION_DEFS.find(x => x.id === c.id)!;
     const st: RegionRow = row || { id: c.id, done: 0, total: c.stages, state: gate?.ok ? 'open' : 'locked', hasData: true, isNew: false, tappable: true };
     const count = st.state === 'locked' || st.state === 'far' ? unlockText(c.id) : st.done + ' / ' + st.total + ' 关';
-    p.text(count, 0, y, P(14), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCount' }); y += P(22);
+    // r5 P3: a LOCKED page shows its condition once — on the grey button (「通关第 N 关后开启」); the small 「通关第 N 关后」 count line
+    // repeated it. UI设计部 can ask for it back: set LOCKED_PAGE_COUNT_LINE = true (test_chapter_locked_r5 then expects 2).
+    const lockedPage = st.state === 'locked';
+    if (!lockedPage || LOCKED_PAGE_COUNT_LINE) { p.text(count, band.cx, y, P(14), 'brown2', { bold: false, width: TW, name: 'ChapterCount' }); y += P(22); }
     // Stars stay on the region page (SPEC §8): mainline x/12 and the region's challenge marks x/4.
     const ss = d.provider === 'mainline' && st.state !== 'locked' && st.state !== 'far' ? a.stats?.() : null;
-    if (ss) { p.text('★ ' + ss.stars + '/12 · 挑战 ' + ss.challenges + '/4', 0, y, P(14), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterStars' }); y += P(22); }
-    if (c.id === 'coast' && st.hasData && st.state !== 'locked') { p.text(coastChapterHint(st.done), 0, y, P(14), 'teal', { width: PW - P(48), name: 'CoastChapter' }); y += P(22); }
+    if (ss) { p.text('★ ' + ss.stars + '/12 · 挑战 ' + ss.challenges + '/4', 0, y, P(14), 'brown2', { bold: false, width: TW, name: 'ChapterStars' }); y += P(22); }
+    if (c.id === 'coast' && st.hasData && st.state !== 'locked') { p.text(coastChapterHint(st.done), 0, y, P(14), 'teal', { width: TW, name: 'CoastChapter' }); y += P(22); }
     const skyLocked = id === 'sky' && (st.state === 'locked' || st.state === 'far');   // UI设计部 r4: locked → no line at all; never dev wording
     if (extra && !skyLocked) { y += P(10);
       if (id === 'sky') p.button('secondary', '前往天空城', 0, y + P(21), P(240), P(42), () => a.skycity(), { fontSize: P(15), name: 'VisitSkycity' });
@@ -242,11 +250,11 @@ export function createJourneyUi(h: JourneyUiHost) {
       y += P(52); }
     const view = regionView(st, gate, a.stats?.()?.challenges ?? 0), mc = view.state === 'gated' ? view : null;
     const btn = { text: view.text, enabled: view.enabled, flat: view.flat }, blocked = reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : null;
-    const enabled = btn.enabled && !!gate?.ok, by = PH - P(26) - P(26);
+    const enabled = btn.enabled && !!gate?.ok, by = PH - P(26) - P(26), BTW = Math.min(P(240), band.w);
     // UI设计部 r4: a locked page has nothing above the grey button (its text already is the condition + 开启).
-    if (!enabled && (blocked || btn.enabled || st.state === 'far')) p.text(blocked || (btn.enabled ? '暂不可进入' : unlockText(c.id)), 0, by - P(40), P(13), 'brown2', { bold: false, width: PW - P(48), name: 'ChapterCondition' });
-    if (enabled) p.button('primary', btn.text, 0, by, P(240), P(52), () => { if (a.gate()?.ok) a.enter(); }, { fontSize: P(18), name: 'Continue-' + c.id });
-    else flatDisabled(p, btn.enabled ? '暂不可进入' : btn.text, 0, by, P(240), P(52), 'Continue-' + c.id, mc ? GATE_LOCKED_FALLBACK(mc.n!) : view.state === 'locked' && view.n != null ? GATE_LOCKED_FALLBACK(view.n) : undefined);
+    if (!enabled && (blocked || btn.enabled || st.state === 'far')) p.text(blocked || (btn.enabled ? '暂不可进入' : unlockText(c.id)), 0, by - P(40), P(13), 'brown2', { bold: false, width: TW, name: 'ChapterCondition' });
+    if (enabled) p.button('primary', btn.text, band.cx, by, BTW, P(52), () => { if (a.gate()?.ok) a.enter(); }, { fontSize: P(18), name: 'Continue-' + c.id });
+    else flatDisabled(p, btn.enabled ? '暂不可进入' : btn.text, band.cx, by, BTW, P(52), 'Continue-' + c.id, mc ? GATE_LOCKED_FALLBACK(mc.n!) : view.state === 'locked' && view.n != null ? GATE_LOCKED_FALLBACK(view.n) : undefined);
     p.button('secondary', '返回章节', 0, PH - P(4), P(140), P(36), () => p.close(a.back), { fontSize: P(14), name: 'BackToChapters', sound: 'back' });
     return p;
   }
@@ -276,7 +284,7 @@ export function createJourneyUi(h: JourneyUiHost) {
       tween(holder).delay(i * m.sealStepS).to(m.sealDropS, { position: p0, scale: new Vec3(1, 1, 1) }, { easing: 'cubicOut' }).start();
     });
   }
-  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
+  return { version: JOURNEY_UI_VERSION, openJourney, openChapter, blankSeal, buildEndingSeals, rowStatusText, rowName, chapterButton, coastChapterHint, barShown, rowAppear, JOURNEY_MOTION, ellipsize, STATUS_PT, JOURNEY_FRAME_IN, JOURNEY_INNER_PAD, PAPER_INNER_SRC, JOURNEY_PAPER_AA, paperBand, LOCKED_PAGE_COUNT_LINE, GATE_LOCKED_LABEL, GATE_LOCKED_FALLBACK, GATE_CELL_LABEL, GATE_CELL_TEMPLATE, gateCellText, cellFitStep, cellFit: () => lastCellFit, challengeGateLevel, mainlineChallengeButton, unlockText, regionView };
 }
 export type JourneyUi = ReturnType<typeof createJourneyUi>;
 (globalThis as any).__qfJourneyUi = { version: JOURNEY_UI_VERSION, create: createJourneyUi };
