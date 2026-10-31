@@ -69,7 +69,7 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
  *    ok          = mounted && !overBudget && !frameOverBudget  (the verdict; an over-budget stage is a violation, never ok:true).
  *  frameMaxMs is the longest gap between drawn frames of the whole game during the stage; the split's own per-frame work is
  *  [QF_MEADOW_SPLIT] maxFrameWorkMs. Budgets are unchanged. */
-export function stageLine(target:string,stage:string,ms:number,budgetMs:number,mounted:boolean,frameMaxMs?:number,reason?:string){
+export function stageLine(target:string,stage:string,ms:number,budgetMs:number,mounted:boolean,x?:{frameMaxMs?:number;reason?:string}){const frameMaxMs=x?.frameMaxMs,reason=x?.reason;
  const o:any={target,stage,ms,budgetMs,mounted,overBudget:ms>budgetMs};
  if(frameMaxMs!==undefined){o.frameMaxMs=frameMaxMs;o.frameOverBudget=frameMaxMs>budgetMs;}
  o.ok=mounted&&!o.overBudget&&!o.frameOverBudget;if(!mounted&&reason)o.reason=reason;return o;}
@@ -90,7 +90,7 @@ export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SK
   for(const st of MEADOW_LEG_STAGES){
    /*QF_PROBE_BEGIN*/let last=Date.now(),max=0;const tick=()=>{const n=Date.now();max=Math.max(max,n-last);last=n;};try{director.on(Director.EVENT_AFTER_DRAW,tick);}catch{}const t0=Date.now();/*QF_PROBE_END*/
    let ok=true,why='';try{await run[st.id]();}catch(e){ok=false;why=String((e as any)?.message||e);}all=all&&ok;void why;
-   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{const ms=Date.now()-t0;console.info('[QF_PRELOAD_STAGE] '+JSON.stringify(stageLine('meadow',st.id,ms,st.ms,ok,max,why)));}catch{}/*QF_PROBE_END*/
+   /*QF_PROBE_BEGIN*/try{director.off(Director.EVENT_AFTER_DRAW,tick);}catch{}try{const ms=Date.now()-t0;console.info('[QF_PRELOAD_STAGE] '+JSON.stringify(stageLine('meadow',st.id,ms,st.ms,ok,{frameMaxMs:max,reason:why})));}catch{}/*QF_PROBE_END*/
    await wait(gap);}
   if(!all)meadowStaged=null;return all;})();
  return meadowStaged;
