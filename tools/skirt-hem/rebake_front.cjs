@@ -8,7 +8,7 @@
  *  minimising the front-hem lift (drape/gravity term: lowest hem point, apron hem, single-vertex lift, flare) subject to NO
  *  leg/knee/shoe vertex crossing the dress or apron with a 6 mm margin (hem_lib limb-segment test).  No envelope floor: light
  *  smoothing (sigma 1 frame) then every frame AND every half frame is re-verified and bumped until clear.
- *  Seated clips: thigh > 45 deg from vertical keeps the authored seated drape, 30..45 deg blends authored -> re-solved.
+ *  Seated clips (sit_down, sit_hold, stand_up) keep the authored seated drape unchanged.
  *  A second pass clears pre-existing leg pokes of the back/side panels (seat contact, back-swing shin) with the smallest
  *  outward pitch/roll of that panel (same verification).
  *  Modes:  --solve --clips a,b --curves out.json      (parallelisable)
@@ -59,11 +59,10 @@ function solveClip(clip){const C=R.clips[clip],dur=C.duration,n=Math.round(dur*F
   const old=ts.map(t=>{H.applyClip(R,clip,t);const o={};for(const i of [iF,iL,iM])o[i]=R.nodes[i].q.slice();return o;});
   // which frames are re-solved: non-seated clips -> every frame unless the authored clip already meets every target (then the
   // clip is kept byte-identical in pose); seated clips -> only frames with the thigh within 32 deg of vertical (the gate's checked
-  // range) whose authored pose misses a target, ramped in/out over 4 frames from the authored seated drape.
+  // range) ... seated clips are left as authored.
   const meetsAll=k=>{const m=metrics(clip,ts[k],{},mw[k]);return m.dress.lift<=0.025&&m.apron.lift<=0.025&&Math.max(m.dress.maxVertLift,m.apron.maxVertLift)<=0.045&&Math.max(m.dress.flare,m.apron.flare)<=0.27&&m.dress.belowKnee>=0.05&&hits(FRONT,pose(clip,ts[k],{}),mw[k],0).n===0;};
   let blend;if(!SEATED.has(clip)){const keep=ts.every((t,k)=>meetsAll(k));blend=ts.map(()=>keep?0:1);}
-  else{const th=ts.map(t=>{H.applyClip(R,clip,t);return H.thighFromVertical(R,H.world(R));});const need=ts.map((t,k)=>th[k]<=32&&!meetsAll(k));
-    blend=ts.map((t,k)=>{if(need[k])return 1;let d=99;for(let j=0;j<ts.length;j++)if(need[j])d=Math.min(d,Math.abs(j-k));return d<=4?1-d/5:0;});}
+  else blend=ts.map(()=>0);// seated clips keep the authored seated drape (task 03 morph + skirt pose); a partial re-solve made the lap pokes worse (try3)
   const t0=Date.now();let A=ts.map(()=>0),B1=ts.map(()=>0),B2=ts.map(()=>0),unsolved=0;
   for(let k=0;k<ts.length;k++){if(blend[k]<=0)continue;const r=solveFrame(clip,ts[k],mw[k]);A[k]=r.A;B1[k]=r.B1;B2[k]=r.B2;if(!r.ok)unsolved++;}
   const raw={A:A.slice(),B1:B1.slice(),B2:B2.slice()};
