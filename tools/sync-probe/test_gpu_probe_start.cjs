@@ -8,7 +8,7 @@ const assert=require('node:assert/strict'),fs=require('fs'),path=require('path')
 const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
 const F=path.join(__dirname,'../../creator-build-project/assets/scripts/region/CamTraceLog.ts'),src=fs.readFileSync(F,'utf8');
 const js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
-function load(g,query,root){const m={exports:{}};const ev=new Map();const logs=[];
+function load(g,query,root){g.__QF_CAM_START_LINE=true;const m={exports:{}};const ev=new Map();const logs=[];
  const director={root,on(e,f){ev.set(f,e);},off(e,f){ev.delete(f);}};
  const cc={Director:{EVENT_AFTER_DRAW:'a'},director,sys:{},assetManager:{assets:new Map(),bundles:new Map()},Game:{},Input:{EventType:{}},game:{on(){}},input:{on(){}},screen:{},view:{},Vec3:class{},MeshRenderer:class{}};
  const con={log:s=>logs.push(String(s)),info(){},warn(){},error(){}};
