@@ -1,5 +1,5 @@
 {
- "note": "b20 option E (\u573a\u666f\u8bbe\u8ba1\u90e8, Grok Bot chose E 2026-10-30): I3 (6.1,-0.452,9.1) -> I4 (3.9,0.09,3.9), one continuous waypoint walk round the north end of the lean_01 canopy. y = RegionWalkable floor. Curve per ggbot/nodewalker-waypoints@b1b42327 planChained: 7.776 m / 6.48 s (polyline 8.409 m, 1 leg). Baked graph edge I3-I4 uses the same via (8.794 m, single walk today).",
+ "note": "b20 option E (场景设计部, Grok Bot chose E 2026-10-30): I3 (6.1,-0.452,9.1) -> I4 (3.9,0.09,3.9), one continuous waypoint walk round the north end of the lean_01 canopy. y = RegionWalkable floor. Curve per ggbot/nodewalker-waypoints@b1b42327 planChained: 7.776 m / 6.48 s (polyline 8.409 m, 1 leg). Baked graph edge I3-I4 uses the same via (8.794 m, single walk today). | b20 walkable-terrain: last via (3.75,5.4) -> (2.7,4.9) (west of the 0.48 m grass tuft at (3.26,4.81); the east detour (4.3,5.3),(4.5,4.5) has no 0.15 m gap past the tufts/flowers at (4.49,4.88),(4.70,3.79)); y re-read from the terrain-only walkable bake.",
  "region": "island",
  "from": "I3",
  "to": "I4",
@@ -30,9 +30,9 @@
    6.3
   ],
   [
-   3.75,
-   0.05,
-   5.4
+   2.7,
+   0.1,
+   4.9
   ]
  ],
  "check": {
