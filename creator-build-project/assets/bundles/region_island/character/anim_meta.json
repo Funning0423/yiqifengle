@@ -11664,6 +11664,300 @@
        1.2,
        0.0
       ]
+     ],
+     "seat_fix_sit_down_04": [
+      [
+       0.1,
+       0
+      ],
+      [
+       0.133333,
+       1
+      ],
+      [
+       0.166667,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_05": [
+      [
+       0.133333,
+       0
+      ],
+      [
+       0.166667,
+       1
+      ],
+      [
+       0.2,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_06": [
+      [
+       0.166667,
+       0
+      ],
+      [
+       0.2,
+       1
+      ],
+      [
+       0.233333,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_07": [
+      [
+       0.2,
+       0
+      ],
+      [
+       0.233333,
+       1
+      ],
+      [
+       0.266667,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_08": [
+      [
+       0.233333,
+       0
+      ],
+      [
+       0.266667,
+       1
+      ],
+      [
+       0.3,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_20": [
+      [
+       0.633333,
+       0
+      ],
+      [
+       0.666667,
+       1
+      ],
+      [
+       0.7,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_21": [
+      [
+       0.666667,
+       0
+      ],
+      [
+       0.7,
+       1
+      ],
+      [
+       0.733333,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_22": [
+      [
+       0.7,
+       0
+      ],
+      [
+       0.733333,
+       1
+      ],
+      [
+       0.766667,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_23": [
+      [
+       0.733333,
+       0
+      ],
+      [
+       0.766667,
+       1
+      ],
+      [
+       0.8,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_24": [
+      [
+       0.766667,
+       0
+      ],
+      [
+       0.8,
+       1
+      ],
+      [
+       0.833333,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_25": [
+      [
+       0.8,
+       0
+      ],
+      [
+       0.833333,
+       1
+      ],
+      [
+       0.866667,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_26": [
+      [
+       0.833333,
+       0
+      ],
+      [
+       0.866667,
+       1
+      ],
+      [
+       0.9,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_27": [
+      [
+       0.866667,
+       0
+      ],
+      [
+       0.9,
+       1
+      ],
+      [
+       0.933333,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_28": [
+      [
+       0.9,
+       0
+      ],
+      [
+       0.933333,
+       1
+      ],
+      [
+       0.966667,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_29": [
+      [
+       0.933333,
+       0
+      ],
+      [
+       0.966667,
+       1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_30": [
+      [
+       0.966667,
+       0
+      ],
+      [
+       1,
+       1
+      ],
+      [
+       1.033333,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_31": [
+      [
+       1,
+       0
+      ],
+      [
+       1.033333,
+       1
+      ],
+      [
+       1.066667,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_32": [
+      [
+       1.033333,
+       0
+      ],
+      [
+       1.066667,
+       1
+      ],
+      [
+       1.1,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_33": [
+      [
+       1.066667,
+       0
+      ],
+      [
+       1.1,
+       1
+      ],
+      [
+       1.133333,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_34": [
+      [
+       1.1,
+       0
+      ],
+      [
+       1.133333,
+       1
+      ],
+      [
+       1.166667,
+       0
+      ]
+     ],
+     "seat_fix_sit_down_35": [
+      [
+       1.133333,
+       0
+      ],
+      [
+       1.166667,
+       1
+      ],
+      [
+       1.2,
+       0
+      ]
      ]
     },
     "settle_time_s": 0.8667
@@ -15712,6 +16006,202 @@
        1.26667,
        0.0
       ]
+     ],
+     "seat_fix_stand_up_02": [
+      [
+       0.033333,
+       0
+      ],
+      [
+       0.066667,
+       1
+      ],
+      [
+       0.1,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_03": [
+      [
+       0.066667,
+       0
+      ],
+      [
+       0.1,
+       1
+      ],
+      [
+       0.133333,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_04": [
+      [
+       0.1,
+       0
+      ],
+      [
+       0.133333,
+       1
+      ],
+      [
+       0.166667,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_05": [
+      [
+       0.133333,
+       0
+      ],
+      [
+       0.166667,
+       1
+      ],
+      [
+       0.2,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_06": [
+      [
+       0.166667,
+       0
+      ],
+      [
+       0.2,
+       1
+      ],
+      [
+       0.233333,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_07": [
+      [
+       0.2,
+       0
+      ],
+      [
+       0.233333,
+       1
+      ],
+      [
+       0.266667,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_08": [
+      [
+       0.233333,
+       0
+      ],
+      [
+       0.266667,
+       1
+      ],
+      [
+       0.3,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_09": [
+      [
+       0.266667,
+       0
+      ],
+      [
+       0.3,
+       1
+      ],
+      [
+       0.333333,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_10": [
+      [
+       0.3,
+       0
+      ],
+      [
+       0.333333,
+       1
+      ],
+      [
+       0.366667,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_11": [
+      [
+       0.333333,
+       0
+      ],
+      [
+       0.366667,
+       1
+      ],
+      [
+       0.4,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_12": [
+      [
+       0.366667,
+       0
+      ],
+      [
+       0.4,
+       1
+      ],
+      [
+       0.433333,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_13": [
+      [
+       0.4,
+       0
+      ],
+      [
+       0.433333,
+       1
+      ],
+      [
+       0.466667,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_14": [
+      [
+       0.433333,
+       0
+      ],
+      [
+       0.466667,
+       1
+      ],
+      [
+       0.5,
+       0
+      ]
+     ],
+     "seat_fix_stand_up_15": [
+      [
+       0.466667,
+       0
+      ],
+      [
+       0.5,
+       1
+      ],
+      [
+       0.533333,
+       0
+      ]
      ]
     },
     "release_time_s": 0.8667
@@ -16430,7 +16920,30 @@
      "task21_refine_sit_down_286": 26,
      "task21_refine_stand_up_174": 27,
      "task21_refine_stand_up_208": 28,
-     "sit_drape_blend_comp": 29
+     "sit_drape_blend_comp": 29,
+     "seat_fix_sit_down_04": 30,
+     "seat_fix_sit_down_05": 31,
+     "seat_fix_sit_down_06": 32,
+     "seat_fix_sit_down_07": 33,
+     "seat_fix_sit_down_08": 34,
+     "seat_fix_sit_down_20": 35,
+     "seat_fix_sit_down_21": 36,
+     "seat_fix_sit_down_22": 37,
+     "seat_fix_sit_down_23": 38,
+     "seat_fix_sit_down_24": 39,
+     "seat_fix_sit_down_25": 40,
+     "seat_fix_sit_down_26": 41,
+     "seat_fix_sit_down_27": 42,
+     "seat_fix_sit_down_28": 43,
+     "seat_fix_sit_down_29": 44,
+     "seat_fix_stand_up_03": 45,
+     "seat_fix_stand_up_04": 46,
+     "seat_fix_stand_up_05": 47,
+     "seat_fix_stand_up_06": 48,
+     "seat_fix_stand_up_07": 49,
+     "seat_fix_stand_up_08": 50,
+     "seat_fix_stand_up_09": 51,
+     "seat_fix_stand_up_10": 52
     }
    },
    "LOD0_G2_DRESS": {
@@ -16472,7 +16985,42 @@
      "skirt_back_thin_sit_d_32": 34,
      "skirt_back_thin_stand_02": 35,
      "skirt_back_thin_stand_08": 36,
-     "skirt_back_thin_stand_11": 37
+     "skirt_back_thin_stand_11": 37,
+     "seat_fix_sit_down_04": 38,
+     "seat_fix_sit_down_05": 39,
+     "seat_fix_sit_down_06": 40,
+     "seat_fix_sit_down_07": 41,
+     "seat_fix_sit_down_08": 42,
+     "seat_fix_sit_down_20": 43,
+     "seat_fix_sit_down_21": 44,
+     "seat_fix_sit_down_22": 45,
+     "seat_fix_sit_down_23": 46,
+     "seat_fix_sit_down_24": 47,
+     "seat_fix_sit_down_25": 48,
+     "seat_fix_sit_down_26": 49,
+     "seat_fix_sit_down_27": 50,
+     "seat_fix_sit_down_28": 51,
+     "seat_fix_sit_down_29": 52,
+     "seat_fix_sit_down_30": 53,
+     "seat_fix_sit_down_31": 54,
+     "seat_fix_sit_down_32": 55,
+     "seat_fix_sit_down_33": 56,
+     "seat_fix_sit_down_34": 57,
+     "seat_fix_sit_down_35": 58,
+     "seat_fix_stand_up_02": 59,
+     "seat_fix_stand_up_03": 60,
+     "seat_fix_stand_up_04": 61,
+     "seat_fix_stand_up_05": 62,
+     "seat_fix_stand_up_06": 63,
+     "seat_fix_stand_up_07": 64,
+     "seat_fix_stand_up_08": 65,
+     "seat_fix_stand_up_09": 66,
+     "seat_fix_stand_up_10": 67,
+     "seat_fix_stand_up_11": 68,
+     "seat_fix_stand_up_12": 69,
+     "seat_fix_stand_up_13": 70,
+     "seat_fix_stand_up_14": 71,
+     "seat_fix_stand_up_15": 72
     }
    },
    "LOD0_G2_BODY": {
