@@ -120,13 +120,9 @@
    "frames": 74,
    "hits": 350,
    "panels": {
-    "dress:skirt.front.low.mid": {
-     "n": 11,
-     "maxCm": 0.893
-    },
     "dress:skirt.front.low": {
-     "n": 12,
-     "maxCm": 0.775
+     "n": 23,
+     "maxCm": 0.893
     },
     "axis:dress": {
      "n": 47,
@@ -219,13 +215,9 @@
    "frames": 38,
    "hits": 186,
    "panels": {
-    "dress:skirt.front.low.mid": {
-     "n": 8,
-     "maxCm": 0.893
-    },
     "dress:skirt.front.low": {
-     "n": 6,
-     "maxCm": 0.775
+     "n": 14,
+     "maxCm": 0.893
     },
     "axis:dress": {
      "n": 29,
@@ -318,12 +310,8 @@
    "frames": 76,
    "hits": 327,
    "panels": {
-    "dress:skirt.front.low.mid": {
-     "n": 12,
-     "maxCm": 0.388
-    },
     "dress:skirt.front.low": {
-     "n": 12,
+     "n": 24,
      "maxCm": 0.662
     },
     "axis:dress": {
@@ -352,7 +340,7 @@
    "frames": 506,
    "hits": 525,
    "panels": {
-    "dress:skirt.front.low.mid": {
+    "dress:skirt.front.low": {
      "n": 3,
      "maxCm": 0.117
     },
