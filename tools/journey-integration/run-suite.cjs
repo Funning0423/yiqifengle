@@ -107,7 +107,7 @@ const tests=[
  ['cam-trace-per-camera','tools/cam-trace/test_cam_trace_per_camera.cjs'],
  ['cam-trace-default-off','tools/cam-trace/test_cam_trace_default_off.cjs'],
  ['storage-probe','tools/storage-probe/test_storage_probe.cjs'],
- ['host-sync-hot-transitive','tools/host-sync/test_no_storage_hot_transitive.cjs'],
+ ['host-sync-hot-transitive','tools/host-sync/test_no_storage_hot_transitive.cjs'],['report-runtime-async','tools/host-sync/test_report_runtime_async.cjs'],
  ['mainline-storage-cache','tools/storage-cache/test_mainline_storage_cache.cjs'],
  ['region-flow-checkpoint-reads','tools/storage-cache/test_region_flow_checkpoint_reads.cjs'],['host-env-once','tools/storage-cache/test_host_env_once.cjs'],
  ['sync-probe','tools/sync-probe/test_sync_probe.cjs'],['gpu-probe','tools/sync-probe/test_gpu_probe.cjs'],
