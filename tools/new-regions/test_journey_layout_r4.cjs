@@ -8,7 +8,7 @@
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{createHarness}=require('../board-ui/harness.cjs');
 const H=createHarness(),cc=H.cc,J=H.load('ui/JourneyCore'),B=H.load(path.join(H.BUNDLES,'board_art/journey_ui/JourneyPanels.ts')).createJourneyUi(H.load('ui/JourneyUi').journeyUiHost());
 const {IslandJourneyOverlay}=H.load('world-r2/IslandJourneyOverlay'),{resetUiNightWeight}=H.load('ui/NightTint');
-const DEV=/3D|3d|场景/,MIN_GAP=8,OUT=process.env.QF_R4_LAYOUT_OUT||'';
+const DEV=/3D|3d|场景/,MIN_GAP=8,SIDE_TOL=0.6,OUT=process.env.QF_R4_LAYOUT_OUT||'';
 const rec=n=>Array.from({length:12},(_,i)=>({bestStars:i<n?1:0}));
 const SHIPPED=[...Array.from({length:12},(_,i)=>({id:'r05-x-'+i,region:['tide','meadow','sky'][i%3]})),...Array.from({length:6},(_,i)=>({id:'r05-lake-0'+(i+1),region:'lake'}))];
 const COAST=Array.from({length:9},(_,i)=>({id:'r06-coast-0'+(i+1),region:'coast'}));
@@ -18,7 +18,7 @@ const STATES={ // early: sky / lake / meadow have data but are locked (the audit
 const SIZES=[[320,568],[360,780],[375,667],[390,844],[393,852],[414,896],[430,932]];
 const box=(n,W,Hh)=>{const t=n.getComponent(cc.UITransform),p=n.worldPosition,s=n.worldScale,w=t.width*Math.abs(s.x),h=t.height*Math.abs(s.y);
   const cx=p.x+W/2,cy=Hh/2-p.y;return {x0:+(cx-w*t.anchorX).toFixed(2),x1:+(cx+w*(1-t.anchorX)).toFixed(2),y0:+(cy-h*(1-t.anchorY)).toFixed(2),y1:+(cy+h*t.anchorY).toFixed(2)};};
-(async()=>{const table=[],checks=[];let combos=0,farN=0,lockN=0,btnN=0,devN=0,pagesN=0;
+(async()=>{const table=[],checks=[];let selfN=0;const SIDE_TARGET=MIN_GAP+B.JOURNEY_PAPER_AA,sideMiss=g=>Object.entries(g).filter(([,v])=>Math.abs(v-SIDE_TARGET)>SIDE_TOL).map(([k])=>k);let combos=0,farN=0,lockN=0,btnN=0,devN=0,pagesN=0;
 for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for(const [W,Hh] of SIZES){
   const entered=[];globalThis.__worldDayNight={snapshot:()=>({mode})};resetUiNightWeight();
   const o=new IslandJourneyOverlay(cc._scene,{invoke:fn=>fn(),mainlineStatus:()=>({journey:{records:S.records}}),gates:()=>({r5:S.r5,challenges:S.challenges,stages:S.stages}),enterRegion:v=>entered.push(v),enterR4(){},enterSkycity(){},returnHome(){},toggleDayNight(){},dayNight:()=>({mode})});
@@ -36,7 +36,10 @@ for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for
   const BR=box(p.root.find('JourneyBar'),W,Hh);gap.barL=q(BR.x0-IN.x0);gap.barR=q(IN.x1-BR.x1);
   assert(Math.abs(BR.x0-C.x0)<0.05&&Math.abs(BR.x1-C.x1)<0.05&&Math.abs(BR.x0-G.x0)<0.05&&Math.abs(BR.x1-G.x1)<0.05,tag+' bar aligned with card and grid '+JSON.stringify([BR,C,G]));
   for(const [k,v] of Object.entries(gap))assert(v>=MIN_GAP-0.01,`${tag} ${k} gap ${v} pt < ${MIN_GAP} pt to the inner frame`);
-  assert(Math.abs(gap.gridL-gap.gridR)<0.05&&Math.abs(gap.cardL-gap.cardR)<0.05&&Math.abs(gap.gridL-MIN_GAP-B.JOURNEY_PAPER_AA)<0.05,tag+' exactly '+(MIN_GAP+B.JOURNEY_PAPER_AA)+' pt inside the paper on both sides '+JSON.stringify(gap));
+  { const bad=sideMiss(gap);assert.deepEqual(bad,[],tag+' left/right gap each = own paper-edge target '+SIDE_TARGET+' ±'+SIDE_TOL+' pt '+JSON.stringify(gap));
+    // negative self-test: content moved 1 pt to one side (and 1 pt narrower so both gaps stay ≥ 8) must FAIL the per-side check
+    for(const d of [1,-1]){const mv=Object.fromEntries(Object.entries(gap).map(([k,v])=>[k,+(k.endsWith('L')?(d>0?v+1:v):(d<0?v+1:v)).toFixed(2)]));
+      assert(Object.values(mv).every(v=>v>=MIN_GAP-0.01),tag+' self-test keeps ≥8');assert(sideMiss(mv).length>0,tag+' self-test: 1 pt shift '+(d>0?'right':'left')+' must fail '+JSON.stringify(mv));selfN++;} }
   const cellsOut=[];
   for(const r of rows){const n=p.root.find('Chapter-'+r.id),ls=n.getComponentsInChildren(cc.Label),names=ls.map(l=>l.string);
     const seals=n.getComponentsInChildren(cc.UITransform).filter(t=>/Seal/.test(t.node.name)).map(t=>t.node);
@@ -92,5 +95,6 @@ checks.push(`no player-visible 3D/场景 dev wording: ${devN} labels on the jour
 checks.push(`locked pages have no text between the content and the grey button; region page of every locked-with-data region: disabled button = cell §13.2 label + 开启, tap enters nothing (${btnN} pages)`);
 checks.push(`progress bar + grid + focus card ≥${MIN_GAP} pt to the paper inner edge (src ${B.PAPER_INNER_SRC.left}/${B.PAPER_INNER_SRC.right} px) aligned on ${combos} combos (7 screens × day/night × early/late)`);
 checks.push(`远方 only without data, never a seal (${farN} cells); locked-with-data: faint seal + one-line 11 pt §13.2 label, no wrap, ellipsis (${lockN} cells)`);
+checks.push(`left and right gaps each match their own paper-edge target ${MIN_GAP}+${B.JOURNEY_PAPER_AA} pt ±${SIDE_TOL} (grid, card, bar); negative self-test: 1 pt shift each way with both gaps ≥ ${MIN_GAP} fails on ${selfN} cases`);
 for(const c of checks)console.log('PASS '+c);console.log(JSON.stringify({status:'PASS',checks},null,2));
 })().catch(e=>{console.error(e);process.exit(1);});
