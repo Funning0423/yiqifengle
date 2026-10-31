@@ -82,7 +82,15 @@ build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
     [ "$size" -gt "$MIN_BYTES" ] || reason="$reason size=$size<=$MIN_BYTES"
     if grep -q "$ERR_TEXT" "$log"; then reason="$reason log:'$ERR_TEXT'"; fi
     nd=$(dirty | wc -l | tr -d ' '); [ "$nd" = 0 ] || reason="$reason git-status:$nd-changed"
-    if [ "$strip" = 1 ]; then sd=$(stage_dirty | wc -l | tr -d ' '); [ "$sd" = 0 ] || reason="$reason stage-meta:$sd-changed"; fi
+    if [ "$strip" = 1 ]; then
+      # Keep the names AND copies of the stage metas Creator rewrote/created before any stage cleanup (e318bdd2 lost them).
+      sml="$LOG_DIR/stage-meta.$GUARD_SHORT.try$try.txt"; stage_dirty > "$sml"; sd=$(wc -l < "$sml" | tr -d ' ')
+      if [ "$sd" != 0 ]; then
+        smd="$LOG_DIR/stage-meta.$GUARD_SHORT.try$try"; rm -rf "$smd"
+        while read -r f; do mkdir -p "$smd/$(dirname "$f")"; cp -p "$BP/$f" "$smd/$f"; done < "$sml"
+        reason="$reason stage-meta:$sd-changed"; echo "   stage-meta changed ($sd), list=$sml copies=$smd:"; sed 's/^/     /' "$sml"
+      fi
+    fi
     echo "   exit=$code size=$size dirty=$nd log=$log"
     if [ -z "$reason" ]; then
       echo "OK [$out] TOTAL_BYTES=$size"
