@@ -226,8 +226,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
-    "bytes": 31475,
-    "sha256": "7decd356cbe52b7330a9c87ced72db02a1ff41a10a5256be6c32b9cb1087034b"
+    "bytes": 32912,
+    "sha256": "fd049e9e066d10b5c7c7759b3a54a9d055ef857afb3cc98a9a0f27e0bad5da2e"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta",
@@ -4706,8 +4706,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
-    "bytes": 12642,
-    "sha256": "c675979a04f529f8c93f96ecac56deeac538eebca66ed94fc8e298d34ea5fc4e"
+    "bytes": 13025,
+    "sha256": "3dce4434e37a1b32ed1e3a7cca60bc0ffa6da969a35f5cdefc196cfb903881e0"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
@@ -5106,8 +5106,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 30643,
-    "sha256": "fda0c0e0a10207858a0efe133cf9302b7c1b01686e9c6fe4fbc06e267fba64fd"
+    "bytes": 30716,
+    "sha256": "32e7cb195ece65269b714161d49d4ffe72ec0dfba0df4104e9645301891b107f"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
