@@ -18,7 +18,14 @@ function guarded(src){const calls=[...src.matchAll(/setEnterLevelEnd\?\.\(/g)].m
 const wnc=rd('world-r2/WorldNativeComposition.ts');assert.ok(guarded(wnc),'WorldNativeComposition: setEnterLevelEnd outside the coastKit guard');
 assert.ok(!guarded(wnc.replace("if(coastKit){const w=window.innerWidth","{const w=window.innerWidth")),'self-check: unguarded call not detected');
 console.log('ok   WorldNativeComposition: setEnterLevelEnd only behind coastKit (self-check: unguarded call detected)');
-const base=cp.execFileSync('git',['show','571b6af6:creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts'],{cwd:ROOT,encoding:'utf8',maxBuffer:64<<20});
+const base0=cp.execFileSync('git',['show','571b6af6:creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts'],{cwd:ROOT,encoding:'utf8',maxBuffer:64<<20});
+/* approved frozen diff 05 (Grok Bot 2026-10-31 04:06 ET, fin e1db013b): reportRuntime diagnostic write async on wx. Base = 571b6af6 + exactly that hunk. */
+const D05_OLD="    try {if(event!=='tick')sys.localStorage.setItem('dot-runtime-diagnostics-20261010:world-flow',JSON.stringify(data));}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}";
+const D05_NEW=["    // P0 finR: never a sync host write from a world state change; WeChat writes the diagnostic asynchronously.",
+ "    try {if(event!=='tick'){const key='dot-runtime-diagnostics-20261010:world-flow',json=JSON.stringify(data),wx=(globalThis as any).wx;",
+ "      if(wx&&typeof wx.setStorage==='function')wx.setStorage({key,data:json,fail:(e:any)=>console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(e?.errMsg||e))});",
+ "      else sys.localStorage.setItem(key,json);}}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}"].join('\n');
+assert.equal(base0.split(D05_OLD).length,2,'diff 05 anchor');const base=base0.replace(D05_OLD,D05_NEW);
 const DIFF=fs.readFileSync(path.join(ROOT,'tools/coast-board-lens/01-WorldFlowComponent-enter-level-board-pose.diff'),'utf8');
 assert.ok(!/^-[^-]/m.test(DIFF),'diff 01 removes a line');const added=DIFF.split('\n').filter(l=>/^\+[^+]/.test(l)||l==='+').map(l=>l.slice(1));
 function onlyAdded(cur){const lines=cur.split('\n'),rest=[];const pool=added.slice();for(const l of lines){const j=pool.indexOf(l);if(j>=0)pool.splice(j,1);else rest.push(l);}return pool.length===0&&rest.join('\n')===base;}

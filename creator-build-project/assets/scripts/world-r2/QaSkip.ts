@@ -8,7 +8,7 @@ export const QA_SKIP_TARGETS:readonly QaSkipTarget[]=['island-finale','meadow-fi
 export const QA_SKIP_CHECKPOINT:Record<QaSkipTarget,{completed:number;finish:boolean}>={
  'island-finale':{completed:4,finish:false},'meadow-finale':{completed:8,finish:false},'skycity-finale':{completed:12,finish:false},lakeside:{completed:12,finish:true},
 };
-/** P0 finR (Mac dc48cb42 [QF_SYNC] STEADY f1836: preTransitionEnabled → qaSkipAllowed → wx.getAccountInfoSync): the mini-program
+/** P0 finR (Mac dc48cb42 sync-gate STEADY f1836: preTransitionEnabled → qaSkipAllowed → wx.getAccountInfoSync): the mini-program
  *  envVersion and the launch/enter query are fixed for the process, so each is read from the host ONCE per wx object (first call =
  *  boot) and served from memory afterwards. Every env/query gate (QaSkip, PreTransitionKeys, DebugQuery, JourneyTransport,
  *  DevPreviewMark) goes through these two functions; no gameplay call reaches a sync host API. A throwing read is cached as ''/null. */

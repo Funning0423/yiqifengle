@@ -107,7 +107,7 @@ async function main(){
  // pins
  const PIN={'scripts/regional-r05/runtime/regional-session.js':'730332db8e4b2f7543d091fd2effb54b8b7b4929b9fb207fec46b1a71fc0248b','scripts/regional-r05/runtime/rule-guide.js':'2653f7233a890100a1e7c7bb8ca5cfc5f5d3a44bc93a9de3b32796c55af9f3ea',
   'scripts/CharacterMotion.ts':'3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657','scripts/world-r2/WorldNativeComposition.ts':'eb3b3b2b491c6767f5d7b7855d8dd117e998b0b1baffa15995323f8e8da20803',
-  'scripts/world-r1/WorldFlowComponent.ts':'e5d501a3f46ac6a9aac472f3d84eab949a50921ddd6e86b4b1a01abcc68ff487','scripts/WorldIntegrationBoot.ts':'19619af0b691b94d8d88031fb93e1cd28ef00ec1e5170b609286714faf7cb834',
+  'scripts/world-r1/WorldFlowComponent.ts':'a4e60111c8936bee65ab5e7918532b563bb490e2ea9858cfb68227c2b92bb8f1'/* + approved diff 05 (reportRuntime async, Grok Bot 2026-10-31 04:06 ET) */,'scripts/WorldIntegrationBoot.ts':'19619af0b691b94d8d88031fb93e1cd28ef00ec1e5170b609286714faf7cb834',
   'scripts/regional-r05/runtime/coast-kit.js':'6ce4523fbf8aca24539384ce9c4bcfb49d6d7c94bbcdc2b9b5652ca05014d982'};
  for(const [f,h] of Object.entries(PIN))ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(A,f))).digest('hex')===h,'pinned (kit-off/frozen) '+f);
  const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);
