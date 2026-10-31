@@ -3,7 +3,7 @@
 // (no key from ?qfPre or launch query, no __qfPreTransition global, run() refuses) and the source keeps every gate on the path.
 // Negative self-test: the same checks FAIL on (a) an ungated stub of the key/runner API and (b) source copies with a gate removed.
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs'),{createHarness}=require('../board-ui/harness.cjs');
-const KEYS=['journal-sky-open','journal-sky-progress','journal-sky-cleared'],SRC=path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2');
+const KEYS=['journal-sky-open','journal-sky-progress','journal-sky-cleared','journal-sky-gated','journal-sky-just-unlocked'],SRC=path.resolve(__dirname,'../../creator-build-project/assets/scripts/world-r2');
 const release=(q)=>({wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}}),getLaunchOptionsSync:()=>({query:q||{}})}});
 async function inert(K,RUN){const errs=[];
   for(const k of KEYS){
@@ -17,10 +17,10 @@ async function inert(K,RUN){const errs=[];
   return errs;}
 function sourceGates(keys,run){const errs=[];
   if(!/if\(!m\|\|!\(PRE_KEYS as readonly string\[\]\)\.includes\(m\[1\]\)\|\|!qaSkipAllowed\(host\)\)return null;/.test(keys))errs.push('preTransitionKey lost its release gate');
-  if(!/export function preTransitionEnabled\([^\n]*\{\n if\(!qaSkipAllowed\(host\)\)return false;/.test(keys))errs.push('preTransitionEnabled lost its release gate');
+  if(!/export function preTransitionEnabled\([^\n]*\{\n let on=false;\n \/\*QF_TRIAL_BEGIN\*\/if\(qaSkipAllowed\(host\)\)\{/.test(keys))errs.push('preTransitionEnabled lost its release gate');
   if(!/export function installPreTransition\(deps:PreDeps\):boolean\{\n if\(!qaSkipAllowed\(\)\)return false;/.test(run))errs.push('installer lost its release gate');
   if(!/async run\(key:string[^\n]*\n  if\(key==='enable'\)\{if\(!qaSkipAllowed\(\)\)return[^\n]*\n  if\(!preTransitionEnabled\(\)\)return/.test(run))errs.push('run() lost its gate');
-  const i=run.indexOf('if(spec.skyChallenges!=null){try{seedSkyChallengeWins('),s=run.indexOf('private async setup'),e=run.indexOf('private scale');
+  const i=run.indexOf('if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)seedSkyChallengeWins('),s=run.indexOf('private async setup'),e=run.indexOf('private scale');
   if(i<s||i>e)errs.push('journal-sky seeding outside the gated runner setup');
   const outside=(run.slice(0,s)+run.slice(e)).split('\n').filter(l=>!/^(\/\*QF_PROBE_BEGIN\*\/)?import /.test(l)).join('\n');
   if(/skyChallenges|seedSkyChallengeWins\(/.test(outside))errs.push('journal-sky seeding referenced outside setup');
@@ -36,7 +36,7 @@ function sourceGates(keys,run){const errs=[];
     stubRun={installPreTransition:()=>{globalThis.__qfPreTransition=()=>({ok:true});return true;},PreTransitionRunner:class{async run(){return {ok:true};}}};
   const n1=await inert(stub,stubRun);assert(n1.length>=KEYS.length*3+1+KEYS.length,'self-test (a) caught '+n1.length+': '+n1.join('; '));
   // negative self-test (b): each gate removed from the real source must be caught
-  const muts=[[keysSrc.replace('||!qaSkipAllowed(host))return null;','))return null;'),runSrc],[keysSrc.replace(/(export function preTransitionEnabled\([^\n]*\{\n) if\(!qaSkipAllowed\(host\)\)return false;/,'$1'),runSrc],
+  const muts=[[keysSrc.replace('||!qaSkipAllowed(host))return null;','))return null;'),runSrc],[keysSrc.replace(/(export function preTransitionEnabled\([^\n]*\{\n let on=false;\n \/\*QF_TRIAL_BEGIN\*\/)if\(qaSkipAllowed\(host\)\)\{/,'$1if(true){'),runSrc],
     [keysSrc,runSrc.replace('):boolean{\n if(!qaSkipAllowed())return false;','):boolean{\n')],[keysSrc,runSrc.replace("\n  if(!preTransitionEnabled())return","\n  if(false)return")],
     [keysSrc,runSrc.replace('export function installPreTransition','const _j=(s:any)=>s.skyChallenges;\nexport function installPreTransition')]];
   muts.forEach(([k,r],i)=>{assert.notEqual(k+r,keysSrc+runSrc,'mutation '+i+' applied');assert(sourceGates(k,r).length>0,'self-test (b) mutation '+i+' not caught');});
