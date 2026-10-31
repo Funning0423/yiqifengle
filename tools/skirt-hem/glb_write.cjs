@@ -3,7 +3,7 @@
  *  Everything else (meshes, morph targets, skin, images, materials, extras) is carried over byte for byte. */
 const H=require('./hem_lib.cjs');
 /** edits: [{anim:name, node:index, path:'rotation', times:Float32Array, values:Float32Array}] (one sampler per edit, LINEAR). */
-function rewrite(buf,edits,attrs){const {json,bin}=H.parseGlb(buf);const j=JSON.parse(JSON.stringify(json));
+function rewrite(buf,edits,attrs,targets){const {json,bin}=H.parseGlb(buf);const j=JSON.parse(JSON.stringify(json));
   const extra=[];// new raw blobs appended as new buffer views
   const addAcc=(arr,type,minmax)=>{const bv=j.bufferViews.length+extra.length;extra.push(Buffer.from(arr.buffer,arr.byteOffset,arr.byteLength));
     const a={bufferView:bv,componentType:5126,count:arr.length/({SCALAR:1,VEC4:4,VEC3:3}[type]),type};if(minmax){a.min=[Math.min(...arr)];a.max=[Math.max(...arr)];}j.accessors.push(a);return j.accessors.length-1;};
@@ -13,6 +13,17 @@ function rewrite(buf,edits,attrs){const {json,bin}=H.parseGlb(buf);const j=JSON.
     const oi=addAcc(Float32Array.from(e.values),'VEC4');const s={input:ti,output:oi,interpolation:'LINEAR'};an.samplers.push(s);ch.sampler=an.samplers.length-1;}
   for(const a of attrs||[]){const m=j.meshes.find(x=>x.name===a.mesh);const p=m.primitives[0];const old=j.accessors[p.attributes[a.attr]];const bv=j.bufferViews.length+extra.length;
     extra.push(Buffer.from(a.data.buffer,a.data.byteOffset,a.data.byteLength));const n={...old,bufferView:bv,byteOffset:0};delete n.sparse;j.accessors.push(n);p.attributes[a.attr]=j.accessors.length-1;}
+  /* new sparse morph targets (b21 seated fix): {mesh, name, idx:Uint16Array (increasing), vals:Float32Array (VEC3 deltas)} */
+  for(const g of targets||[]){const m=j.meshes.find(x=>x.name===g.mesh);if(!m)throw Error('no mesh '+g.mesh);const p=m.primitives[0];if(m.primitives.length!==1)throw Error('multi-primitive '+g.mesh);
+    const nv=j.accessors[p.attributes.POSITION].count;const bi=j.bufferViews.length+extra.length;extra.push(Buffer.from(g.idx.buffer,g.idx.byteOffset,g.idx.byteLength));
+    const bv=j.bufferViews.length+extra.length;extra.push(Buffer.from(g.vals.buffer,g.vals.byteOffset,g.vals.byteLength));
+    const mn=[0,0,0],mx=[0,0,0];for(let k=0;k<g.vals.length;k++){const c=k%3;mn[c]=Math.min(mn[c],g.vals[k]);mx[c]=Math.max(mx[c],g.vals[k]);}
+    j.accessors.push({componentType:5126,count:nv,type:'VEC3',min:mn,max:mx,sparse:{count:g.idx.length,indices:{bufferView:bi,componentType:5123},values:{bufferView:bv}}});
+    const pos=j.accessors.length-1;const tgt={POSITION:pos};
+    // existing targets also carry NORMAL deltas: keep every target's attribute set identical (zero normal delta, one sparse entry)
+    if((p.targets||[]).some(x=>x.NORMAL!==undefined)){const zi=Uint16Array.from([g.idx[0]]),zv=new Float32Array(3);const b1=j.bufferViews.length+extra.length;extra.push(Buffer.from(zi.buffer));const b2=j.bufferViews.length+extra.length;extra.push(Buffer.from(zv.buffer));
+      j.accessors.push({componentType:5126,count:nv,type:'VEC3',sparse:{count:1,indices:{bufferView:b1,componentType:5123},values:{bufferView:b2}}});tgt.NORMAL=j.accessors.length-1;}
+    p.targets=p.targets||[];p.targets.push(tgt);m.extras=m.extras||{};m.extras.targetNames=m.extras.targetNames||[];m.extras.targetNames.push(g.name);if(Array.isArray(m.weights))m.weights.push(0);}
   // drop unreferenced samplers
   for(const an of j.animations){const used=[...new Set(an.channels.map(c=>c.sampler))].sort((a,b)=>a-b),map=new Map(used.map((s,k)=>[s,k]));an.samplers=used.map(s=>an.samplers[s]);an.channels.forEach(c=>c.sampler=map.get(c.sampler));}
   // referenced accessors
