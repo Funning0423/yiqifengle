@@ -273,8 +273,8 @@ export function gpuFrame(dev:any,am:any,now:number=pn()):void{const G=gpuProbe;G
 export function installGpuProbe(dev:any,am:any,onFrameEnd?:(f:()=>void)=>void):boolean{const G=gpuProbe;if(G.installed||!dev)return false;G.installed=true;gpuWrapDevice(dev);
  const h=onFrameEnd||((f:()=>void)=>director.on(Director.EVENT_AFTER_DRAW,f));try{h(()=>gpuFrame(dev,am));}catch{}return true;}
 /** r2 (B360 481c599c NOPROBE): camTrace / GPU probe must never be silently off in a TEST build.
- *  1. One unconditional startup line (test builds only: stripped with the probes): `[QF_CAM] enabled=<0|1> src=<query|global|none> query=<read>`.
- *     src=global = globalThis.__QF_CAM_TRACE (harness/CDP set before the game scripts load); query = debugSearch() (location.search +
+ *  1. One unconditional startup line on the game runtime (wx host; test builds only: stripped with the probes): `[QF_CAM] enabled=<0|1> src=<query|global|none> query=<read>`.
+ *     src=global = globalThis.__QF_CAM_TRACE (harness/CDP set before the game scripts load); query = debugSearch() (URL search string +
  *     wx enter/launch query + globalThis.__qfQuery). Note: DevTools `cli open` does NOT pass 编译模式 启动参数 to the game, so a run that
  *     relies only on the compile condition logs enabled=0 src=none here; harness scripts must carry launchQuery (?camTrace=1).
  *  2. GPU probe install: at module load when director.root.device exists (`[QF_GPU] probe installed at=module`), else lazily on the
@@ -282,10 +282,10 @@ export function installGpuProbe(dev:any,am:any,onFrameEnd?:(f:()=>void)=>void):b
  *     frames → `[QF_GPU] probe NOT installed reason=no-device frames=<n>`. */
 export const GPU_PROBE_START=Object.freeze({maxFrames:600});
 export function camStartSrc(q:string,g:any):string{if(/(?:^|[?&])camTrace=1(?:&|$)/.test(q||''))return 'query';try{if(camFlagOn(g&&g.__QF_CAM_TRACE))return 'global';}catch{}return 'none';}
-export const camStart={emit:(s:string)=>console.log(s),last:'',enabled:false,src:'none',gpu:'off' as string};
+export const camStart={emit:(s:string)=>camSink.emit(s)/* one direct line, not buffered */,last:'',enabled:false,src:'none',gpu:'off' as string};
 /** harness read-back (autoplay tool result.camStart): globalThis.__qfCamStart = {line,enabled,src,gpu} (gpu: off|module|deferred|pending|not-installed:<reason>) */
 function camStartPublish():void{try{(globalThis as any).__qfCamStart={line:camStart.last,enabled:camStart.enabled,src:camStart.src,gpu:camStart.gpu};}catch{}}
-export function camStartLine(q:string,g:any,on:boolean):string{const src=camStartSrc(q,g),s='[QF_CAM] enabled='+(on?1:0)+' src='+src+' query='+(q||'-');camStart.last=s;camStart.enabled=on;camStart.src=src;camStartPublish();try{camStart.emit(s);}catch{}return s;}
+export function camStartLine(q:string,g:any,on:boolean):string{const src=camStartSrc(q,g),s='[QF_CAM] enabled='+(on?1:0)+' src='+src+' query='+(q||'-');camStart.last=s;camStart.enabled=on;camStart.src=src;camStartPublish();if(camSinkOn()||(g&&g.__QF_CAM_START_LINE===true))try{camStart.emit(s);}catch{}/* game runtime (wx host) always; Node unit tests stay silent unless asked */return s;}
 export function gpuProbeStart(getDev:()=>any,am:any,on?:(f:()=>void)=>void,off?:(f:()=>void)=>void,maxFrames:number=GPU_PROBE_START.maxFrames,hook?:(f:()=>void)=>void):string{
  const G=gpuProbe;if(G.installed)return 'already';
  let dev:any=null;try{dev=getDev();}catch{dev=null;}
