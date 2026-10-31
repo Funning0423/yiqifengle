@@ -1,6 +1,6 @@
 # Mac steps — coast arrival runtime (运镜bot, cine/b20-coast-arrival-runtime)
 Lock from 全流程测试部 first (and no `.build.lock` held by anyone else in the project root; create it for the run, remove after);
-one DevTools; free disk >= 9 GiB. Any console line containing `[QF_COAST]` (console.error) at any step = FAIL; fallback count must be 0.
+one DevTools; free disk >= 9 GiB. Any console line containing `[QF_COAST]` — console.error OR console.warn, including the `material: PLACEHOLDER` warn — at any step = FAIL, no exemptions (Grok Bot 2026-10-30; 6d477c44 runs COAST_MATERIAL_MODE='coast-palette', so the placeholder path must never be hit); fallback count must be 0.
 1. Open creator-build-project in Cocos Creator 3.8.8 and let it import. Creator creates (do NOT hand-write):
    - creator-build-project/assets/bundles/region_coast/scripts.meta (folder)
    - creator-build-project/assets/bundles/region_coast/scripts/CoastArrivalLens.ts.meta
@@ -19,3 +19,5 @@ one DevTools; free disk >= 9 GiB. Any console line containing `[QF_COAST]` (cons
      <= 38.867 s of the arrival; report the minimum and its time. Gate: >= 38.5 px (desktop real-walk replay predicts 35.3-35.6 px = FAIL).
    - note which clips she plays in S7 (desktop replay: walk_loop only, no walk_start / walk_stop; see STATUS).
 7. Kit off (no ?qfcoastkit): same level entry as before the patch, 0 `[QF_COAST]`, no region_coast load from line 156.
+
+8. S6/S7 follow camera (option A, Grok Bot 2026-10-30): during her walk 30.675–40.075 s she stays inside the 0.08 frame margin on every screen (suite gate coast-arrival-frame-margin); record 18.675–42.175 s on 390x844 and 390x520 and check she never leaves the frame or goes under the menu capsule/HUD.
