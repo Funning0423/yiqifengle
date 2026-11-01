@@ -38,7 +38,7 @@ export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:bo
  const r5Platform=R4Port.createSynchronousStorage(storage('r5'));
  const r5={platform:r5Platform,journey:mainline.journey,namespace:namespace+'r5:',inspect:()=>R5_KEYS.map(key=>[key,r5Platform.load(key)])};
  const out:any={namespace,mainline,r4,r5,stageId:stage.stageId,seed:stage.seed,lastAction:stage.actions[stage.actions.length-1],completed};
- if(defer){const all=()=>[...lanes.values()];out.pendingWrites=()=>all().reduce((n,c)=>n+c.pending(),0);
+ if(defer){const all=()=>Array.from(lanes.values());out.pendingWrites=()=>all().reduce((n,c)=>n+c.pending(),0);
   /** writes the buffered keys, at most `perFrame` sync storage calls per step (write + verify re-read = 2 per key) */
   out.flushStep=(perFrame:number=CHECKPOINT_FLUSH_PER_FRAME)=>{let budget=Math.max(2,perFrame|0);for(const c of all()){budget=c.flushSome(budget);if(budget<2)break;}return out.pendingWrites();};
   out.endDefer=()=>{for(const c of all())c.endDefer();};pendingFlush=out;}
@@ -62,7 +62,7 @@ export function deferredStorage(store:{getItem(k:string):any;setItem(k:string,v:
  return {
   getItem(k:string){if(cache.has(k))return cache.get(k);if(deferring)return null;const v=store.getItem(k);cache.set(k,v);return v;},
   setItem(k:string,v:string){if(deferring){cache.set(k,String(v));dirty.add(k);return;}dirty.delete(k);cache.delete(k);try{store.setItem(k,v);}finally{verify(k);}},
-  flushSome(budget:number){for(const k of [...dirty]){if(budget<2)break;dirty.delete(k);budget-=2;try{store.setItem(k,cache.get(k));}finally{verify(k);}}return budget;},
+  flushSome(budget:number){for(const k of Array.from(dirty)){if(budget<2)break;dirty.delete(k);budget-=2;try{store.setItem(k,cache.get(k));}finally{verify(k);}}return budget;},
   pending(){return dirty.size;},
   endDefer(){if(dirty.size)throw Error('checkpoint-flush-incomplete');deferring=false;},
   invalidate(){if(!deferring)cache.clear();},
