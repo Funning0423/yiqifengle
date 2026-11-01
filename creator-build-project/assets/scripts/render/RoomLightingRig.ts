@@ -601,6 +601,13 @@ export class RoomLightingRig {
  * honoured; same size, same format, same passes → no visual change. Scan is O(vertices) and only when the vertex count changes.
  */
 export const SHADOW_RESOURCE = /^(Spot)?Shadow(Map|Depth)\d+$/;
+/** r3 (fin r6 6fb9181b: DepthStencil893/896 1024² destroyed + re-created every frame while the result chest RenderTexture camera renders;
+ *  same executor rule as the shadow maps): an off-screen window's DepthStencil<win> is MANAGED too (its Color<win> is the RenderTexture,
+ *  external). Pinned like the shadow maps. Because every new RenderTexture gets a NEW window id (chest 893 → 896 → …), pinned textures of
+ *  windows that no longer exist are released (releaseDeadWindows), so pinning never leaks. */
+export const PIN_RESOURCE = /^((Spot)?Shadow(Map|Depth)|DepthStencil)\d+$/;
+/** Per-window resources (trailing number = renderWindowId); SpotShadow* is per light, not per window. */
+export const WINDOW_RESOURCE = /^(?:Shadow(?:Map|Depth)|DepthStencil)(\d+)$/;
 /** cc.rendering.ResourceResidency */
 export const RESIDENCY = Object.freeze({ MANAGED: 0, PERSISTENT: 2 });
 
@@ -611,7 +618,7 @@ export function pinShadowResidency(rg: any): number {
   let changed = 0;
   for (let v = 0; v < n; v++) {
     let name = ''; try { name = String(rg.vertexName(v)); } catch { continue; }
-    if (!SHADOW_RESOURCE.test(name)) continue;
+    if (!PIN_RESOURCE.test(name)) continue;
     const t = rg.getTraits(v);
     if (t && t.residency === RESIDENCY.MANAGED) { t.residency = RESIDENCY.PERSISTENT; changed++; }
   }
@@ -624,7 +631,7 @@ export function releaseResized(rg: any, deviceTextures: any): number {
   if (!rg || !deviceTextures || typeof deviceTextures.forEach !== 'function') return 0;
   const drop: string[] = [];
   deviceTextures.forEach((res: any, name: string) => {
-    if (!SHADOW_RESOURCE.test(String(name))) return;
+    if (!PIN_RESOURCE.test(String(name))) return;
     const tex = res?.texture; if (!tex) return;
     let v = -1; try { v = rg.find(name); } catch { return; } if (v < 0 || v === 4294967295) return;
     const d = rg.getDesc(v); if (d && (d.width !== tex.width || d.height !== tex.height)) drop.push(name);
@@ -633,16 +640,36 @@ export function releaseResized(rg: any, deviceTextures: any): number {
   return drop.length;
 }
 
-const state = { installed: false, seen: -1, pinned: 0, resized: 0 };
-export function shadowResidencyStats() { return { installed: state.installed, pinned: state.pinned, resized: state.resized }; }
+/** Pure: release pinned per-window device textures whose window is gone (aliveIds = renderWindowId of root.windows). */
+export function releaseDeadWindows(deviceTextures: any, aliveIds: Set<number>): number {
+  if (!deviceTextures || typeof deviceTextures.forEach !== 'function' || !aliveIds || !aliveIds.size) return 0;
+  const drop: string[] = [];
+  deviceTextures.forEach((_res: any, name: string) => { const m = WINDOW_RESOURCE.exec(String(name)); if (m && !aliveIds.has(Number(m[1]))) drop.push(name); });
+  for (const name of drop) { try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
+  return drop.length;
+}
+/** renderWindowId of every live window, or null when the engine does not expose ids (then nothing is released). */
+export function aliveWindowIds(root: any): Set<number> | null {
+  const ws = root?.windows; if (!ws || typeof ws.length !== 'number') return null; const out = new Set<number>();
+  for (let i = 0; i < ws.length; i++) { const id = ws[i]?.renderWindowId; if (typeof id !== 'number') return null; out.add(id); }
+  return out;
+}
+const state = { installed: false, seen: -1, pinned: 0, resized: 0, dead: 0, winSig: -1 };
+export function shadowResidencyStats() { return { installed: state.installed, pinned: state.pinned, resized: state.resized, deadReleased: state.dead }; }
 
 /** Runs right before each render-graph execute (after windowResize + compile, so descriptors are final for this frame). */
 export function shadowResidencyBeforeExecute(pipeline: any): void {
   const rg = pipeline?.resourceGraph; if (!rg) return;
   const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
   if (n !== state.seen) { state.seen = n; state.pinned += pinShadowResidency(rg); }
-  if (state.pinned) state.resized += releaseResized(rg, pipeline?._executor?._context?.deviceTextures);
+  const dt = pipeline?._executor?._context?.deviceTextures;
+  if (state.pinned) state.resized += releaseResized(rg, dt);
+  if (state.pinned) { const sig = windowSig(root()); if (sig !== state.winSig) { state.winSig = sig; const ids = aliveWindowIds(root()); if (ids) state.dead += releaseDeadWindows(dt, ids); } }
 }
+/** Allocation-free window-set signature (count + id sum + id xor); the id Set is built only when it changes. */
+export function windowSig(root: any): number { const ws = root?.windows; if (!ws || typeof ws.length !== 'number') return -2; let a = 0, x = 0;
+  for (let i = 0; i < ws.length; i++) { const id = ws[i]?.renderWindowId | 0; a += id; x ^= (id * 2654435761) | 0; } return ws.length * 1e9 + a * 1e3 + (x & 0x3ff); }
+function root(): any { try { return (director as any).root; } catch { return null; } }
 
 /** Wrap the pipeline's execute once (custom pipeline exists after director init; retried each frame until it does). */
 export function wrapPipeline(pipeline: any): boolean {
