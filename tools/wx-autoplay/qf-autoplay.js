@@ -71,7 +71,11 @@ try{wx.onUnhandledRejection&&wx.onUnhandledRejection(function(r){var x=r&&r.reas
 function scanState(s){if(!s)return;try{var w=s.world||{},j=w.journey||{};if(s.journeyPhase==='failed'||j.phase==='failed')noteFail('journeyFailed',(j.region||'?')+'>'+(j.target||'?')+': '+(j.error||w.error||'failed'));if(w.error)noteFail('snapshotErrors',w.error);if(s.error)noteFail('snapshotErrors',s.error);if(s.snapErr)noteFail('snapshotErrors','snapshot threw: '+s.snapErr);}catch(e){}}
 var touch=installTouch(wx);g.__QF_AUTOPLAY={touch:touch,api:api};
 if(err){console.error('[QF_AUTOPLAY] script rejected: '+err);w2('result.json',JSON.stringify({ok:false,error:err}));flush();return;}
-if(script.launchQuery){try{if(!g.location||!g.location.search)g.location={search:script.launchQuery,href:'game.js'+script.launchQuery};}catch(e){console.warn('[QF_AUTOPLAY] launchQuery not applied');}}
+if(script.launchQuery){try{g.__qfQuery=String(script.launchQuery);}catch(e){}/* journal-r6 J6: DevTools' worker location.search is never empty, so the location patch below never applied there; __qfQuery is read by debugSearch (camTrace…) and qfPre */
+  try{if(!g.location||!g.location.search)g.location={search:script.launchQuery,href:'game.js'+script.launchQuery};}catch(e){console.warn('[QF_AUTOPLAY] launchQuery not applied');}}
+/* qfPre=X in launchQuery but no '[QF_PRE] auto key=X' startup line → the key never reached the game: run INCOMPLETE */
+var preWant=(function(){var m=/[?&]qfPre=([a-z0-9-]+)/.exec(script.launchQuery||'');return m?m[1]:null;})(),preAutoKeys=[];
+(function(){var o=console.info;console.info=function(){try{var a=String(arguments[0]);var m=/^\[QF_PRE\] auto key=(\S+) src=(\S+)/.exec(a);if(m)preAutoKeys.push(m[1]+'@'+m[2]);}catch(e){}return o.apply(console,arguments);};})();
 var memWarn=0;try{wx.onMemoryWarning(function(r){memWarn++;console.warn('[QF_AUTOPLAY] memory warning',r&&r.level);});}catch(e){}
 var fpsT=Date.now(),fpsF=0,fps=null;function frames(){var cc=g.cc;try{return cc&&cc.director?cc.director.getTotalFrames():null;}catch(e){return null;}}
 function win(){try{var i=wx.getSystemInfoSync();return {w:i.windowWidth,h:i.windowHeight,dpr:i.pixelRatio};}catch(e){return {w:DESIGN_W,h:DESIGN_H,dpr:1};}}
@@ -144,6 +148,7 @@ function run(){
     writeState('final');res.journeyFailures=gameFail.journeyFailed;res.snapshotErrors=gameFail.snapshotErrors;res.uncaughtErrors=gameFail.uncaught;res.hudSuppressedErrors=gameFail.hudSuppressed;
     var gf=gameFail.journeyFailed.length+gameFail.snapshotErrors.length+gameFail.uncaught.length+gameFail.hudSuppressed.length;res.gameFailures=gf;
     if(gf>0&&script.allowGameFailures!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'game failures: '+gf+' (journey failed '+gameFail.journeyFailed.length+', snapshot errors '+gameFail.snapshotErrors.length+', uncaught '+gameFail.uncaught.length+', hud-suppressed '+gameFail.hudSuppressed.length+')';}
+    res.preAuto={want:preWant,seen:preAutoKeys};if(preWant&&!preAutoKeys.some(function(x){return x.split('@')[0]===preWant;})){res.ok=false;res.status='INCOMPLETE';res.failReason=(res.failReason?res.failReason+'; ':'')+'INCOMPLETE: launchQuery qfPre='+preWant+' but no [QF_PRE] auto key='+preWant+' line (seen: '+(preAutoKeys.join(',')||'none')+')';}
     if(consoleErrors>0&&script.allowConsoleErrors!==true){res.ok=false;res.failReason=(res.failReason?res.failReason+'; ':'')+'console errors: '+consoleErrors;}w2('result.json',JSON.stringify(res,null,1));console.info('[QF_AUTOPLAY] done ok='+res.ok);flush();},
     function(e){clearInterval(stTimer);res.ok=false;res.error=String(e);w2('result.json',JSON.stringify(res,null,1));flush();});
 }

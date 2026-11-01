@@ -60,7 +60,23 @@ export const PRE_UNSUPPORTED:readonly {key:string;reason:string}[]=[
 /** WeChat has no location: read the DevTools launch query (编译模式 启动参数 qfHooks=1&qfPre=…) as a search string. */
 export function preSearch(search?:string|null,host:any=globalThis):string{
  if(search!=null)return search;
- return qaQuery(host);/* location.search + enter/launch query merged (DevTools worker location.search is never empty) */
+ const q=qaQuery(host),gq=preGlobalQuery(host);/* location.search + enter/launch query merged (DevTools worker location.search is never empty) */
+ if(!gq)return q;const m=new Map<string,string>();for(const s of [q,gq])for(const part of s.replace(/^\?/,'').split('&')){if(!part)continue;const i=part.indexOf('=');m.set(i<0?part:part.slice(0,i),i<0?'':part.slice(i+1));}
+ const out:string[]=[];m.forEach((v,k)=>out.push(v===''?k:k+'='+v));return '?'+out.join('&');
+}
+/** journal-r6 J6 (6c28894f, J390A: harness launchQuery with a qfPre key, no auto run): the wx autoplay harness only
+ *  patched location when location.search was empty, which it never is in the DevTools worker, and qfPre never read
+ *  globalThis.__qfQuery (camTrace already did, via region/DebugQuery). Now the harness always sets __qfQuery and qfPre reads it;
+ *  it wins over location/launch keys, same order as debugSearch. '' when unset. */
+export function preGlobalQuery(host:any=globalThis):string{
+ try{const f=host?.__qfQuery;if(typeof f==='string')return f;if(f&&typeof f==='object')return '?'+Object.keys(f).map(k=>k+'='+String(f[k])).join('&');}catch{}
+ return '';
+}
+/** Where the auto key came from, for the unconditional startup line: 'global' (__qfQuery), 'query' (location / DevTools launch),
+ *  or 'none' (no qfPre anywhere; a device-preview default key also reports 'none'). */
+export function preKeySource(host:any=globalThis):'query'|'global'|'none'{
+ const has=(q:string)=>/(?:^|[?&])qfPre=/.test(q);let gq='';try{gq=preGlobalQuery(host);}catch{}
+ if(has(gq))return 'global';let q='';try{q=qaQuery(host);}catch{}return has(q)?'query':'none';
 }
 /** `?qfPre=<key>` (valid key only). Never in WeChat release. */
 export function preTransitionKey(search?:string|null,host:any=globalThis):PreKey|null{

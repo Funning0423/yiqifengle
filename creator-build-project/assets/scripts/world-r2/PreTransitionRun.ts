@@ -12,7 +12,7 @@ import { director, Director, game, UITransform, Canvas, Vec3 } from 'cc';
 import { warmJourneyUi } from '../ui/JourneyUi';
 import { setLastRegion } from '../ui/UiPrefs';
 /*QF_PROBE_BEGIN*/import { QF_DEVICE_PREVIEW } from './PreTransitionKeys';/*QF_PROBE_END*/
-import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
+import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, preKeySource, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
 async function waitFor(pred:()=>any,ms:number,step=100):Promise<boolean>{const t=Date.now();while(Date.now()-t<ms){try{if(pred())return true;}catch{}await sleep(step);}return false;}
@@ -161,6 +161,7 @@ export type PreDeps={
 /** Boot hook (WorldIntegrationBoot): returns whether a test entry was registered. */
 export function installPreTransition(deps:PreDeps):boolean{
  if(!qaSkipAllowed())return false;/* WeChat release envVersion: never registered. develop/trial/web: registered but inert until a query gate or 'enable' */
+ /*QF_PROBE_BEGIN*/try{console.info('[QF_PRE] auto key='+(preTransitionKey()||'none')+' src='+preKeySource());}catch{}/* journal-r6 J6: always one line in every test build (release returns above) so a missed qfPre key is visible in the log *//*QF_PROBE_END*/
  let registered=false;
  /*QF_TRIAL_BEGIN*/{const runner=new PreTransitionRunner(deps),G=globalThis as any;
  G.__qfPreTransition=(key:string,opts?:any)=>runner.run(key,opts);
