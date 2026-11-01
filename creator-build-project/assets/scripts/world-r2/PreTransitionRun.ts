@@ -5,7 +5,7 @@ import {armSkycityWarmOnSailRide} from '../region/TransitionPreload';
 import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
 import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
 import { director, Director, game, Node, UITransform, Canvas, Vec3 } from 'cc';
-import { deferNextCheckpointWrites, takeCheckpointFlush, CHECKPOINT_FLUSH_PER_FRAME } from './RegionFlowTest';
+/*QF_PROBE_BEGIN*/import { deferNextCheckpointWrites, takeCheckpointFlush, CHECKPOINT_FLUSH_PER_FRAME } from './RegionFlowTest';/*QF_PROBE_END*/
 import { qaSkipAllowed } from './QaSkip';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
@@ -27,7 +27,7 @@ function nodePoint(n:Node,frame:{width:number;height:number}){
 }
 /** cocos getLocation space (canvas px, y up) -> top-left CSS px */
 function locToCss(x:number,y:number,frame:{width:number;height:number}){const cw=game.canvas?.width||frame.width,ch=game.canvas?.height||frame.height;return {x:Math.round(x*frame.width/cw),y:Math.round(frame.height-y*frame.height/ch)};}
-const engineFrame=()=>new Promise<void>(r=>{try{director.once(Director.EVENT_AFTER_DRAW,()=>r());}catch{setTimeout(r,16);}});
+/*QF_PROBE_BEGIN*/const engineFrame=()=>new Promise<void>(r=>{try{director.once(Director.EVENT_AFTER_DRAW,()=>r());}catch{setTimeout(r,16);}});
 /** Writes a deferred QA profile one step per frame under the scoped qa:pre-transition-profile reason. Exported for the gate. */
 export async function flushOverFrames(fl:any,nextFrame:()=>Promise<void>=engineFrame,perFrame=CHECKPOINT_FLUSH_PER_FRAME):Promise<R>{
  const g:any=globalThis;let guard=0;
@@ -35,7 +35,7 @@ export async function flushOverFrames(fl:any,nextFrame:()=>Promise<void>=engineF
   try{fl.flushStep(perFrame);}catch(e){return {ok:false,reason:'profile-flush: '+String((e as Error).message||e)};}finally{g.__qfSyncAllow=prev;}
   if(++guard>4096)return {ok:false,reason:'profile-flush: no progress'};}while(fl.pendingWrites()>0);
  try{fl.endDefer();}catch(e){return {ok:false,reason:'profile-flush: '+String((e as Error).message||e)};}
- await nextFrame();return {ok:true};}
+ await nextFrame();return {ok:true};}/*QF_PROBE_END*/
 export class PreTransitionRunner{
  private last:{spec:PreSpec}|null=null;private running=false;
  constructor(private d:PreDeps){}
@@ -82,18 +82,18 @@ export class PreTransitionRunner{
    let r=await this.toPlace('island');if(!r.ok)return r;
    let prof:any=null;
    if(spec.checkpoint!==null){
-    /* [QF_SYNC] qa allow (P0 finR): the test-only profile replays 1..12 witness stages into a FRESH isolated namespace through the real
+    /* sync-probe qa allow (P0 finR): the test-only profile replays 1..12 witness stages into a FRESH isolated namespace through the real
      * controllers in ONE synchronous call (by design: the profile must exist before the next frame places her). Since finR each key is
      * read once (write-through cache, test_region_flow_checkpoint_reads: ≤ distinct keys + writes), but its writes are sync by nature.
      * This QA hook never runs in release (preTransitionEnabled = false) and the reason is scoped to this one call (finally restores). */
     const g:any=globalThis,prev=g.__qfSyncAllow;g.__qfSyncAllow='pre-transition-profile';
-    /* p0-meadow-ab A: the profile is built in memory (0 sync calls in this frame) and written out below, ≤ CHECKPOINT_FLUSH_PER_FRAME
+    /* p0-meadow-ab A: the profile is built in memory (0 sync calls in this frame) and written out below at a capped number
      * sync calls per frame, before any world move (the sail no longer starts in the frame that built the profile). */
-    deferNextCheckpointWrites(true);
-    try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;deferNextCheckpointWrites(false);}
-    const fl=takeCheckpointFlush();
+    /*QF_PROBE_BEGIN*/deferNextCheckpointWrites(true);/*QF_PROBE_END*/
+    try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;/*QF_PROBE_BEGIN*/deferNextCheckpointWrites(false);/*QF_PROBE_END*/}
+    /*QF_PROBE_BEGIN*/const fl=takeCheckpointFlush();/*QF_PROBE_END*/
     if(!prof.ok)return prof;
-    if(fl){const r=await flushOverFrames(fl,this.d.nextFrame);if(!r.ok)return r;}}
+    /*QF_PROBE_BEGIN*/if(fl){const r=await flushOverFrames(fl,this.d.nextFrame);if(!r.ok)return r;}/*QF_PROBE_END*/}
    if(spec.place==='island'){
     if(spec.key==='skycity-visit'){const j=this.d.islandJourney();j?.open?.('sky');if(!await waitFor(()=>findPath(['ChapterPanel','VisitSkycity']),5000))return {ok:false,reason:'chapter-panel-not-open'};}
     return {ok:true};
