@@ -303,7 +303,8 @@
     },
     {
       "path": "creator-build-project/assets/bundles/board_art/popup/icon_moon.png",
-      "sha256": "e67141ab6f8e6a68d3e5a79ab632bde102ea2a48e1a0eac4ed106ded61de6a75"
+      "sha256": "865690c332096034e6862fce37967fac916ed30fcec0784c3150198433e5f8af",
+      "note": "Grok Bot approval 2026-10-31 20:02 ET: icon alpha defect fix (opaque black wedge at moon tip), also improves 海岛小憩 (journal r6d, tools/art-fix/clean_icon_alpha.py)"
     },
     {
       "path": "creator-build-project/assets/bundles/board_art/popup/icon_moon.png.meta",
@@ -343,7 +344,8 @@
     },
     {
       "path": "creator-build-project/assets/bundles/board_art/popup/icon_sun.png",
-      "sha256": "bbcbb50f30e93847d31e49980e2d6a8e0dd6b1f30e725ed0e67281b5e4185ff8"
+      "sha256": "85061e6aa09df28fda2aebc9630875830ebbb4e622e351fc8c9f6424eda73f5a",
+      "note": "Grok Bot approval 2026-10-31 20:02 ET: icon alpha defect fix (opaque black wedge at moon tip), also improves 海岛小憩 (journal r6d, tools/art-fix/clean_icon_alpha.py)"
     },
     {
       "path": "creator-build-project/assets/bundles/board_art/popup/icon_sun.png.meta",
