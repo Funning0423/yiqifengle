@@ -119,13 +119,16 @@ export function applyRenderBudgetToCameras(root: any, scale: number): number {
   return n;
 }
 export function fullResRequested(search: string): boolean { return /(?:^\?|&)fullres=1(?:&|$)/.test(search || ''); }
+/** P0 (Mac 3e5be7f5, 160 per-frame errors from boot: visitResource→_getOrCreateDeviceTex 'reading t' + Error 16329 in buildLightBuffer):
+ *  Cocos 3.8.8's builtin custom pipeline declares its per-camera render-graph resources (ScaledRadiance/depth for
+ *  enableShadingScale) when a camera's pipeline configuration is set up, not when camera.pipelineSettings is swapped at runtime.
+ *  Writing pipelineSettings from a scene-launch/frame hook made the graph reference undeclared resources every frame.
+ *  So the runtime NEVER touches camera.pipelineSettings: only the 60 fps cap stays. The DPR≤2 budget is reported
+ *  (__qfRenderBudgetScale) and stays OPEN until it can be authored on the camera/pipeline asset in the editor. */
 export function installRenderBudget(): void {
   const g = globalThis as any; if (g.__qfRenderBudget) return; g.__qfRenderBudget = true;
   try { game.frameRate = RENDER_BUDGET.frameRate; } catch { }
   let scale = 1; try { scale = fullResRequested(debugSearch()) ? 1 : budgetShadingScale(screen.devicePixelRatio || 1); } catch { }
-  g.__qfRenderBudgetScale = scale; if (scale >= 1) return;
-  let frame = 0; const scan = () => { try { applyRenderBudgetToCameras((director as any).root, scale); } catch { } };
-  try { director.on(Director.EVENT_AFTER_SCENE_LAUNCH, scan);
-    director.on(Director.EVENT_BEFORE_UPDATE, () => { if (++frame % RENDER_BUDGET.scanFrames === 1) scan(); }); } catch { }
+  g.__qfRenderBudgetScale = scale; g.__qfRenderBudgetApplied = false;
 }
 installRenderBudget();

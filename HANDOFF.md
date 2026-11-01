@@ -36,6 +36,8 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 
 ## Open issues 未结问题
 
+- P0 FIXED on box (Mac re-run pending): perf-r1 3e5be7f5 threw 160 per-frame render errors from boot (visitResource→_getOrCreateDeviceTex "reading 't'", Error 16329 in buildLightBuffer) and hung island→meadow (evidence /workspace/qifengle/test-reports/20261101T1430_perf-r1-3e5be7f5/). Cause: the #4 render budget (174b4e91/56c06a5a) swapped camera.pipelineSettings (enableShadingScale) at runtime; the 3.8.8 builtin custom pipeline only declares those per-camera graph resources at camera setup. Fix: runtime never writes pipelineSettings; 60 fps cap kept. Gate `render-budget-pipeline` (negative = 56c06a5a). The #2 shadow change is not implicated (errors start at boot, before any balloon). OPEN: effective DPR≤2 is NOT applied now — needs authoring on the camera/pipeline asset in the editor, then a Mac check.
+
 - perf overlay: auto-on when `wx.getAccountInfoSync().miniProgram.envVersion` is trial/develop (3e5be7f5), never release; `?perf=1` kept. It is only constructed in devPreviewBuild builds, so a FORMAL_RELEASE-stripped upload shows nothing even as 体验版 — use a preview-flavor build for the trial upload to read device numbers.
 1. **env_meadow shader compile stall**: about a 1.6 s frame at sail set-off. A+B probes are in place; warm-up C is not done. See `outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md`.
 2. **Lake freeze (fc3123fa)**: not confirmed on the Mac. fin r7/r8 are pending. Likely a DevTools host stall, but this is unproven.
