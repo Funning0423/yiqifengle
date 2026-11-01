@@ -2821,8 +2821,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
-    "bytes": 49051,
-    "sha256": "7604f85bd818bcc81a38c61a227719900b68d7762b6e951162ce14cbbf26e516"
+    "bytes": 49100,
+    "sha256": "9cfd83b01eb41004008cc9f5cbf25c535b673a3bf617acc316a534f0e8a7297f"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
@@ -3211,8 +3211,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 9846,
-    "sha256": "4ffe63db531e24c36b7a7aa9f8b951b7550d8dd02547307e5ce94451cca5bd2c"
+    "bytes": 9974,
+    "sha256": "0e18c4f5745d9581382cade53707fc4b2506eab012d4e64d398cf1e0c0278232"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",

@@ -104,10 +104,10 @@ export interface ReleaseOptions { keep: readonly string[]; mounted?: (region: st
 export function regionKey(x:string):string{const k=String(x||'').toLowerCase().replace(/^region_/,'');return Object.prototype.hasOwnProperty.call(REGION_RELEASE_BUNDLES,k)?k:'';}
 /** perf-r1 #3 (Grok Bot b): registry of live region roots (mountRegion models + lakeside rigs). A root counts as mounted until it is
  *  destroyed (inactive/hidden roots still hold the bundle's meshes/materials). No name search, no new component. */
-const liveRoots=new Set<{key:string;node:Node}>();
+const liveRoots:Set<{key:string;node:Node}>=((globalThis as any).__qfRegionRoots||=new Set())/* shared with lakeside files that register without importing RegionLoader */;
 export function registerRegionRoot(region:string,node:Node):void{const key=regionKey(region);if(key&&node)liveRoots.add({key,node});}
 export function regionMounted(region:string,valid:(n:any)=>boolean=(n)=>isValid(n,true)):boolean{
-  const key=regionKey(region);let hit=false;for(const e of [...liveRoots]){if(!valid(e.node)){liveRoots.delete(e);continue;}if(e.key===key)hit=true;}return hit;}
+  const key=regionKey(region);let hit=false;for(const e of Array.from(liveRoots)){if(!valid(e.node)){liveRoots.delete(e);continue;}if(e.key===key)hit=true;}return hit;}
 /** Pure plan: which regions' bundles may go now. */
 export function planRegionRelease(target: string, opts: { keep?: readonly string[]; mounted?: (region: string) => boolean }): string[] {
   const mounted = opts.mounted || ((r: string) => regionMounted(r));
