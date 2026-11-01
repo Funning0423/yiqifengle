@@ -1,0 +1,58 @@
+{
+  "timeUTC": "2026-10-15T17:05:58.758134+00:00",
+  "baselineCommit": "4f78549",
+  "baselineManifestFiles": 2244,
+  "baselineCreatedBy": "git archive into disposable /tmp directory; no other working tree edited",
+  "integratedCommit": "1d08cd52f85d4db90a0e530205386c7c0f98ea24",
+  "scope": "Actual Node checks on frozen source and combined integration; no browser/editor launched",
+  "checks": [
+    {
+      "test": "tools/test_character_action_clock.cjs",
+      "runs": {
+        "frozen": {
+          "exitCode": 1,
+          "evidence": "test_character_action_clock.frozen.txt",
+          "excerpt": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 0.9999999999999984\n- 1\n\n    at /tmp/qifengle-integration-frozen-baseline-d9l2s_sc/tools/test_character_action_clock.cjs:12:694 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 0.9999999999999984,\n  expected: 1,\n  operator: 'strictEqual',"
+        },
+        "integrated": {
+          "exitCode": 1,
+          "evidence": "test_character_action_clock.integrated.txt",
+          "excerpt": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 0.9999999999999984\n- 1\n\n    at /workspace/shared/game-integration-20261015/tools/test_character_action_clock.cjs:12:694 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 0.9999999999999984,\n  expected: 1,\n  operator: 'strictEqual',"
+        }
+      },
+      "classification": "PRE_EXISTING_FAILURE_REPRODUCED"
+    },
+    {
+      "test": "tools/board-ui/test_board_ui_pure.cjs",
+      "runs": {
+        "frozen": {
+          "exitCode": 1,
+          "evidence": "test_board_ui_pure.frozen.txt",
+          "excerpt": "PASS BuildInfo: committed placeholder dev; label \"v0.1 \u00b7 \u6784\u5efa <sha>\"; write_build_info stamps a 7-char sha\nPASS UI flags live in localStorage under qfl.ui.* (seenTools JSON list, cabinHintSeen \"1\"), tolerate corrupt values, never in journey code\nPASS GameAudio sfxMuted: qfl.audio.sfxMuted persists, mutes every SFX (UI clicks included) but not music; restored on next load\nPASS BoardLayout reference phone 390\u00d7844: pause (38,67) hit 44, plate 88\u2013302 \u00d7 96\u2013156, pitch 42.6, tray centre \u2248400, tools y 730 step 82\nPASS tool bar choice: in-stock only, \u661f\u5149 > \u98ce\u8bed\u94c3 > \u6f6e\u6c50\u74f6 > regional, max 3, never pearl\nPASS idle hint clock: first hint after 5 s idle, then every 8 s; input or inactive restarts; frame spikes clamp to 0.25 s\nPASS night tint: sprites multiply by K_UI / K_SEA, text recolours; every role keeps contrast \u2265 4.5 on the night panel\nPASS cabin hint curve: 0.4 s in to 0.25, 3 \u00d7 (0.7 s up to 1, 0.9 s down to 0.25), rests at 0.25; reduced motion holds 0.6\nnode:assert:152\n  throw new AssertionError(obj);\n  ^\n"
+        },
+        "integrated": {
+          "exitCode": 1,
+          "evidence": "test_board_ui_pure.integrated.txt",
+          "excerpt": "PASS BuildInfo: committed placeholder dev; label \"v0.1 \u00b7 \u6784\u5efa <sha>\"; write_build_info stamps a 7-char sha\nPASS UI flags live in localStorage under qfl.ui.* (seenTools JSON list, cabinHintSeen \"1\"), tolerate corrupt values, never in journey code\nPASS GameAudio sfxMuted: qfl.audio.sfxMuted persists, mutes every SFX (UI clicks included) but not music; restored on next load\nPASS BoardLayout reference phone 390\u00d7844: pause (38,67) hit 44, plate 88\u2013302 \u00d7 96\u2013156, pitch 42.6, tray centre \u2248400, tools y 730 step 82\nPASS tool bar choice: in-stock only, \u661f\u5149 > \u98ce\u8bed\u94c3 > \u6f6e\u6c50\u74f6 > regional, max 3, never pearl\nPASS idle hint clock: first hint after 5 s idle, then every 8 s; input or inactive restarts; frame spikes clamp to 0.25 s\nPASS night tint: sprites multiply by K_UI / K_SEA, text recolours; every role keeps contrast \u2265 4.5 on the night panel\nPASS cabin hint curve: 0.4 s in to 0.25, 3 \u00d7 (0.7 s up to 1, 0.9 s down to 0.25), rests at 0.25; reduced motion holds 0.6\nnode:assert:152\n  throw new AssertionError(obj);\n  ^\n"
+        }
+      },
+      "classification": "PRE_EXISTING_FAILURE_REPRODUCED"
+    },
+    {
+      "test": "tools/test_startup_ready_gate.cjs",
+      "runs": {
+        "frozen": {
+          "exitCode": 1,
+          "evidence": "test_startup_ready_gate.frozen.txt",
+          "excerpt": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2 !== 3\n\n    at reachMount (/tmp/qifengle-integration-frozen-baseline-d9l2s_sc/tools/test_startup_ready_gate.cjs:30:78)\n    at async /tmp/qifengle-integration-frozen-baseline-d9l2s_sc/tools/test_startup_ready_gate.cjs:33:168 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 2,\n  expected: 3,\n  operator: 'strictEqual',\n  diff: 'simple'"
+        },
+        "integrated": {
+          "exitCode": 1,
+          "evidence": "test_startup_ready_gate.integrated.txt",
+          "excerpt": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2 !== 3\n\n    at reachMount (/workspace/shared/game-integration-20261015/tools/test_startup_ready_gate.cjs:30:78)\n    at async /workspace/shared/game-integration-20261015/tools/test_startup_ready_gate.cjs:33:168 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 2,\n  expected: 3,\n  operator: 'strictEqual',\n  diff: 'simple'"
+        }
+      },
+      "classification": "PRE_EXISTING_FAILURE_REPRODUCED"
+    }
+  ]
+}

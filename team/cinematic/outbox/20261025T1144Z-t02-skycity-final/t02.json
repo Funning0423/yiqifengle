@@ -1,0 +1,239 @@
+{
+ "test": "t02_sky_final",
+ "ok": true,
+ "F2": {
+  "ok": true,
+  "after": [
+   {
+    "screen": "390x844",
+    "herPct": 32.2,
+    "ringPct": 2.3,
+    "herMargin": 0.08
+   },
+   {
+    "screen": "414x896",
+    "herPct": 32.2,
+    "ringPct": 2.3,
+    "herMargin": 0.08
+   },
+   {
+    "screen": "360x780",
+    "herPct": 32.2,
+    "ringPct": 2.3,
+    "herMargin": 0.08
+   },
+   {
+    "screen": "375x667",
+    "herPct": 32.2,
+    "ringPct": 4.5,
+    "herMargin": 0.13
+   },
+   {
+    "screen": "390x520",
+    "herPct": 32.2,
+    "ringPct": 4.5,
+    "herMargin": 0.13
+   },
+   {
+    "screen": "320x568",
+    "herPct": 32.2,
+    "ringPct": 4.5,
+    "herMargin": 0.13
+   },
+   {
+    "screen": "768x1024",
+    "herPct": 32.2,
+    "ringPct": 4.5,
+    "herMargin": 0.13
+   }
+  ],
+  "before": [
+   {
+    "screen": "390x844",
+    "herPct": 3.1,
+    "ringPct": 22.7,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "414x896",
+    "herPct": 3.1,
+    "ringPct": 22.7,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "360x780",
+    "herPct": 3.1,
+    "ringPct": 22.7,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "375x667",
+    "herPct": 3.1,
+    "ringPct": 25,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "390x520",
+    "herPct": 3.1,
+    "ringPct": 31.8,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "320x568",
+    "herPct": 3.1,
+    "ringPct": 25,
+    "herMargin": 0.22
+   },
+   {
+    "screen": "768x1024",
+    "herPct": 3.1,
+    "ringPct": 31.8,
+    "herMargin": 0.22
+   }
+  ]
+ },
+ "F1": {
+  "ok": true,
+  "option": "C",
+  "offBackDeg": 50,
+  "armM": 6,
+  "lensUpM": 1.3,
+  "fov": 45,
+  "lensInBox": false,
+  "feet": [
+   0.9,
+   0.04,
+   -27.1
+  ],
+  "faceDeg": -147.8
+ },
+ "F3": {
+  "ok": true,
+  "meshClearM": 1.21,
+  "nearest": "env_sky_static_palette",
+  "headBlockedBy": "",
+  "chestBlockedBy": "",
+  "city": [
+   {
+    "screen": "390x844",
+    "after": {
+     "cityPct": 78.2,
+     "ruinsPct": 15.1,
+     "skyPct": 5.6
+    },
+    "before": {
+     "cityPct": 67.3,
+     "ruinsPct": 17.8,
+     "skyPct": 8.9
+    }
+   },
+   {
+    "screen": "414x896",
+    "after": {
+     "cityPct": 78.2,
+     "ruinsPct": 15.1,
+     "skyPct": 5.6
+    },
+    "before": {
+     "cityPct": 67.3,
+     "ruinsPct": 17.8,
+     "skyPct": 8.9
+    }
+   },
+   {
+    "screen": "360x780",
+    "after": {
+     "cityPct": 78.2,
+     "ruinsPct": 15.1,
+     "skyPct": 5.6
+    },
+    "before": {
+     "cityPct": 67.1,
+     "ruinsPct": 17.8,
+     "skyPct": 8.9
+    }
+   },
+   {
+    "screen": "375x667",
+    "after": {
+     "cityPct": 77.6,
+     "ruinsPct": 14.9,
+     "skyPct": 5.8
+    },
+    "before": {
+     "cityPct": 64,
+     "ruinsPct": 21.3,
+     "skyPct": 9.4
+    }
+   },
+   {
+    "screen": "390x520",
+    "after": {
+     "cityPct": 76.2,
+     "ruinsPct": 14.8,
+     "skyPct": 5.4
+    },
+    "before": {
+     "cityPct": 63.9,
+     "ruinsPct": 25.1,
+     "skyPct": 9.4
+    }
+   },
+   {
+    "screen": "320x568",
+    "after": {
+     "cityPct": 77.5,
+     "ruinsPct": 14.9,
+     "skyPct": 5.8
+    },
+    "before": {
+     "cityPct": 64,
+     "ruinsPct": 21.5,
+     "skyPct": 9.4
+    }
+   },
+   {
+    "screen": "768x1024",
+    "after": {
+     "cityPct": 76.2,
+     "ruinsPct": 14.8,
+     "skyPct": 5.4
+    },
+    "before": {
+     "cityPct": 63.9,
+     "ruinsPct": 25.1,
+     "skyPct": 9.4
+    }
+   }
+  ],
+  "oldMeshClearM": 4.47
+ },
+ "F4": {
+  "ok": true,
+  "approachS": 1.4,
+  "wayRound": 1,
+  "yawPeakDegS": 51.7,
+  "yawAccPeakDegS2": 114,
+  "lensInBoxFrames": 0,
+  "faceS": 0.27,
+  "chestS": 0.27,
+  "maxStepM": 0.102,
+  "minMeshClearM": 0.58,
+  "walkLensStartClearM": 0.58
+ },
+ "F5": {
+  "ok": true,
+  "holdS": true,
+  "continuationHook": true,
+  "windWipeFallback": true,
+  "buttonViaHook": true,
+  "endCameraAccessor": true,
+  "countdownAfterEaseIn": true,
+  "armedAfterReward": true,
+  "inputDisarms": true,
+  "wipeHooks": true,
+  "noBlackOfOurs": true,
+  "bakedPoseUsed": true,
+  "orbitApproach": true
+ }
+}

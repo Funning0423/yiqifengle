@@ -1,0 +1,2 @@
+{"note":"Canary: 2 m under the island bottom below the cloud-bridge end, looking up at a removed palette face. MUST see a hole (the test fails itself if it does not, so a broken ray test cannot pass silently).",
+ "cams":[{"tag":"canary","at":"under cloud-bridge end","pos":[-46.36,-7.63,67.55],"lookAt":[-46.66,-5.63,67.25],"fov":48,"aspect":0.462}]}

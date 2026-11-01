@@ -1,0 +1,23 @@
+# Task16 lower cloth contact candidate — FAIL/OPEN
+
+Fixed task15 input375fb067. No BODY, base positions, original morph, skin weights, rig, original animation, UV, materials, textures or indices changed. New welded sparse contact fields affect146dress and192apron vertices; maximum9.399mm and5.524mm. Independent cuff correction14apron vertices maximum2.085mm addresses faces537/539 around.265s. No geometry hidden and thresholds unchanged.
+
+The previous rejected lower solver output was an analysis seed, not an accepted full-motion correction. Early sit_down basis fields9–12 are removed entirely, preserving the original early return contact geometry. Late return support grows continuously from zero at.6s. Stand_up excludes the proven conflicting sleeve-approach contact interval via continuous support with zero across.17–.215s. Two early-return ramp experiments were rejected after additional samples found per-pair increases; neither was packaged.
+
+Reproduction: `python3 tools/offline-character/repair_lower_task16.py` reads fixed task15 GLB from Git and writes deterministic sparse morphs plus matching metadata at the existing resource/UUID. Normals are rebuilt only for affected morph triangles. Runtime controller and foot/UI/grassland sources are unchanged; Boot diagnostic identity is updated.
+
+Final guarded asset381pose check:300dense failures119→80; stand_up42→32; sit_down77→48; all381failures172→133; no per-pair increases. Sleeve/APRON8→0; dense leg/DRESS4469→3133; leg/APRON1883→1855; APRON/DRESS1925→1024. Cuff additional66samples at1ms:.235–.300s sleeve60→0, no increase in any pair. Early return and remaining return leg/layer failures remain open; the prior12upper-waist-containing poses are not assumed unchanged. Natural runtime, screenshots and additional boundary evidence are recorded separately and do not follow from CPU clip sampling.
+
+Not release approved. Body/boots preserve the previously passed508subitem; phone, extended ground contact, performance, full sleeve angles and remaining natural motion failures are still open.
+
+First native-route candidate a19e18b was rejected: actual blended stand_up.124s hand/APRON5→7, despite pure-clip samples having no increases. Exact native triangle provenance identifies new contacts on APRON788 (vertices114/563/565). Withdrawing only these3vertices from the new stand_up fields restores hand5 while retaining APRON/DRESS8→0 at the same actual skeleton and weights. It does not alter BODY or original morphs. This guard is included in the next full verification and runtime build.
+
+Zero targets are omitted from both assets and metadata bindings. Each mesh was checked at1200samples for exact posed-position equality before/after pruning. This reduces dense imported morph buffers without changing geometry or thresholds, preserving the30MiB package limit.
+
+R2full native136frames exposed5 additional hand increases in incoming stand_up.019–.089s, although selected.124s was protected. R2is rejected. R3adds continuous lower-field support entry at.105–.123s after the mixed seated hand-contact interval. Only new stand_up curves below.123s change; GLBbytes remain2f01c3f2. CPU381rechecked changed dictionaries plus exact equality for all unchanged samples:119→80,172→133,0per-pair increases. Resampling all136R2actual skeletons with the new curves yields57→38failures and zero increases, pending final actualR3verification.
+
+Final actual R3 verification completed: runtime BUILD_SHA9305d47 and GLB/metadata identity directly read. One active window completed real home door→stand_up→90turn→walk/start/loop/stop→island→lighthouse door→180turn→return→sit_down→home/sit_hold. Stable island/UI and multiangle character images were actually viewed. The136actual native frames(71stand_up,65sit_down) compare against task15on the exact sameTRS/weights:57→39failed, zero per-pair increases; stand_up21→15,sit_down36→24. This is actual runtime evidence, separate from resampling predictions. Remaining failures stayOPEN.
+
+Only own s13closed after observer removal and camera restoration; officialIDEstatus confirms service running. Formal80storage/479package byte hashes unchanged; task15source2225andpackage509 retained. No publish/freeze/credential/permission changes. Desktop locked after earlier close prevented a final CUAproject-list view; official runtime/close/status APIs remained available and no unlock was attempted.
+
+OfficialLibrary normal batch retry remained blocked before any write: tools/list IncompleteRead;0newconfirmedIDs. Viewed screenshots and hashes remain local. No extra retry or alternate upload was performed. R1/R2rejected candidates and failed reads are retained as evidence; final119→80must not be confused with rejected119→61.

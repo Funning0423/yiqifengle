@@ -1,0 +1,30 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {load}=require('./load.cjs');
+const R=load('region/TransitResume.ts');
+const A=load('region/TransitAudioHooks.ts');
+const place=[1.5,2,3.5];
+for(const hidden of [0,5,60,600]){
+ const back=R.resumeAfterBackground(hidden,place);
+ assert.equal(back.jumped,false);
+ assert.equal(back.advancedS,0);
+ assert.deepEqual(back.pose,place);
+ assert.equal(back.fadeInS,hidden>30?0.35:0);
+ const watched=R.foregroundWatchdog(hidden,1);
+ assert.ok(watched<=R.watchdogCap()+1e-9);
+ assert.ok(watched>0);
+}
+const sail=R.reopenAfterKill({completed:['mainline-01','mainline-02','mainline-03','mainline-04']});
+assert.equal(sail.atSea,false);assert.equal(sail.region,'meadow');assert.equal(sail.node,'M0');assert.equal(sail.board,'mainline-05');
+const air=R.reopenAfterKill({completed:['mainline-01','mainline-02','mainline-03','mainline-04','mainline-05','mainline-06','mainline-07','mainline-08']});
+assert.equal(air.inAir,false);assert.equal(air.node,'S0');assert.equal(air.board,'mainline-09');
+A.resetTransitAudio();
+const heard=[];
+A.onTransitCue((cue,info)=>heard.push([cue,!!info.resumed]));
+A.emitTransitCue('sail-cruise-loop-start',{t:0,region:'island'});
+A.setTransitPaused(true);
+A.emitTransitCue('node-arrive',{t:1,region:'island',node:'I2'});
+assert.equal(heard.length,1);
+A.setTransitPaused(false);
+assert.deepEqual(heard[1],[ 'sail-cruise-loop-start', true ]);
+console.log('transit-background-resume PASS');

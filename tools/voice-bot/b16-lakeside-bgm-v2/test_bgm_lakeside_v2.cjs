@@ -1,0 +1,22 @@
+// Lakeside 「风起」 v2 shipped as bgm_lakeside for main-line L13-16: loop length, format, manifest.
+const fs = require('fs'), path = require('path'), crypto = require('crypto');
+const root = path.resolve(__dirname, '../../..');
+let fail = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fail++; };
+const mp3 = path.join(root, 'creator-build-project/assets/bundles/region_lakeside/audio/bgm_lakeside.mp3');
+const b = fs.readFileSync(mp3);
+const tbl = fs.readFileSync(path.join(root, 'creator-build-project/assets/scripts/audio/SceneAudioTable.ts'), 'utf8');
+ok(/lakeside:\s*\{\s*path:\s*'audio\/bgm_lakeside',\s*bundle:\s*'region_lakeside',\s*loopS:\s*57\.6\b/.test(tbl), 'BGM_CANDIDATES.lakeside loopS = 57.6 (16 bars x 3.6 s)');
+for (const s of ['mainline-13', 'mainline-14', 'mainline-15', 'mainline-16']) ok(new RegExp(`stageId: '${s}', place: 'lakeside', track: 'lakeside'`).test(tbl), `${s} board plays track lakeside (bgm_lakeside v2)`);
+let i = 0; if (b.slice(0, 3).toString() === 'ID3') i = 10 + ((b[6] << 21) | (b[7] << 14) | (b[8] << 7) | b[9]);
+while (i < b.length - 4 && !(b[i] === 0xff && (b[i + 1] & 0xe0) === 0xe0)) i++;
+const h = b.readUInt32BE(i), ver = (h >> 19) & 3, br = (h >> 12) & 15, sr = (h >> 10) & 3, mode = (h >> 6) & 3;
+ok(ver === 3 && sr === 0, 'MPEG-1 44.1 kHz (same as old bgm_lakeside)');
+ok(br === 5 || b.length < 360000, '48 kbps CBR header / size budget');
+ok(mode !== 3, 'stereo');
+const dur = b.length * 8 / 48000; ok(dur > 57.0 && dur < 58.6, `file length ≈ 57.6 s at 48 kbps (${dur.toFixed(2)} s)`);
+ok(b.length < 400552, `smaller than the old bgm_lakeside (${b.length} B, ${b.length - 400552} B)`);
+const man = JSON.parse(fs.readFileSync(path.join(root, 'assets-MANIFEST-SHA256.json'), 'utf8'));
+const e = man.find(x => x.path.endsWith('region_lakeside/audio/bgm_lakeside.mp3'));
+ok(e && e.bytes === b.length && e.sha256 === crypto.createHash('sha256').update(b).digest('hex'), 'assets manifest bytes + sha256 match');
+ok(fs.existsSync(mp3 + '.meta'), '.meta kept (uuid unchanged)');
+console.log(fail ? `FAIL ${fail}` : 'ALL PASS bgm_lakeside v2'); process.exit(fail ? 1 : 0);

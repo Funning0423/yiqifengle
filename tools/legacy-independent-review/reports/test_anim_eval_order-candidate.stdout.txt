@@ -1,0 +1,43 @@
+{
+ "status": "PASS",
+ "boot": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+ "results": [
+  {
+   "name": "engine mock reproduces the r4 bug: girl added (onLoad, baked) BEFORE useBakedAnimation=false -> states without _clipEval; AnimRig must repair them or bones stay in bind pose",
+   "ok": true,
+   "info": {
+    "evalCreated": 3,
+    "repaired": [
+     "walk_loop",
+     "idle_breathing_loop",
+     "sit_hold"
+    ],
+    "clipEval": "walk_loop:true idle_breathing_loop:true sit_hold:true",
+    "thighRangeDeg": 28.64,
+    "spineRangeDeg": 14.32,
+    "sitThighDeg": 51.57,
+    "restDeg": 0
+   }
+  },
+  {
+   "name": "fixed order (flag set before the girl enters the scene): every state has an evaluator from onLoad, nothing to repair, walk + sit poses written",
+   "ok": true,
+   "info": {
+    "evalCreated": 3,
+    "repaired": [],
+    "clipEval": "walk_loop:true idle_breathing_loop:true sit_hold:true",
+    "thighRangeDeg": 28.64,
+    "spineRangeDeg": 14.32,
+    "sitThighDeg": 51.57,
+    "restDeg": 0
+   }
+  },
+  {
+   "name": "Boot mountWorld order: useBakedAnimation set on the girl BEFORE reference.addChild(girl)",
+   "ok": true,
+   "info": {
+    "flagBeforeAddChild": true
+   }
+  }
+ ]
+}

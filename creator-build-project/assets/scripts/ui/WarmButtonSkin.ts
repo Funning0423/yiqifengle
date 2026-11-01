@@ -4,7 +4,11 @@ import { warmButtonPairGeometry } from './WarmButtonGeometry';
 const LAYER=1<<18;
 const MAX_BYTES=8*1024*1024;
 type Frames=[SpriteFrame,SpriteFrame];
-type Entry={key:string,width:number,height:number,ivory:boolean,refs:number,texture:RenderTexture|null,frames:Frames|null,bytes:number,clients:Set<(f:Frames)=>void>};
+/** Extra frames a bake may wait for the RT before the flat fallback (full6 P2). */
+export const WARM_BAKE_RETRIES=2;
+/** Middle row of the side-by-side RT: both faces (centre of each half) must be opaque. Pure. */
+export function warmFacesOpaque(row:ArrayLike<number>|null|undefined,w?:number):boolean{if(!row)return false;const half=w??Math.floor(row.length/8);if(row.length<half*2*4)return false;return row[Math.floor(half/2)*4+3]>=250&&row[Math.floor(half*1.5)*4+3]>=250;}
+type Entry={f0?:number,key:string,width:number,height:number,ivory:boolean,refs:number,texture:RenderTexture|null,frames:Frames|null,bytes:number,clients:Set<(f:Frames)=>void>,tries?:number};
 const caches=new WeakMap<Node,SkinCache>();
 
 /** One serial offscreen baker per scene, one paired RT per shared style. No update loop. */
@@ -60,19 +64,24 @@ class SkinCache {
       this.mesh=utils.createMesh(warmButtonPairGeometry(e.width,e.height,e.ivory),undefined,{calculateBounds:true});this.renderer!.mesh=this.mesh;
       this.camera!.orthoHeight=e.height/2;this.camera!.targetTexture=e.texture;
       this.camera!.enabled=true;
-      director.once(Director.EVENT_AFTER_DRAW,this.finish,this);
+      e.f0=director.getTotalFrames();director.once(Director.EVENT_AFTER_DRAW,this.finish,this);
     }catch(error){console.warn('[WarmButton] 3D bake failed; neutral emergency surface retained.',error);this.stopDraw();this.drop(e);this.current=null;this.pump();}
   }
   private finish(){
     const e=this.current;if(this.dead||!e)return;
+    // P2 (Mac full5 06:01:04, home→island crossing-out): on a heavy frame (scene/camera set changing) the bake camera enabled
+    // this frame may not have rendered into the RT yet by AFTER_DRAW → transparent readback → flat fallback + warn. Give the
+    // SAME bake up to WARM_BAKE_RETRIES more frames before giving up (camera stays on, still one readback per frame, bounded).
+    const live=!!(e.refs&&isValid(this.scene,true)&&e.texture),row0=live?this.readRow(e):null,diag=live&&!warmFacesOpaque(row0)?this.diag(e,row0):null;
+    if(live&&(e.tries||0)<WARM_BAKE_RETRIES&&!warmFacesOpaque(row0)){e.tries=(e.tries||0)+1;director.once(Director.EVENT_AFTER_DRAW,this.finish,this);return;}
     this.stopDraw();this.current=null;
     if(e.refs&&isValid(this.scene,true)&&e.texture){
       try{
         const w=e.texture.width/2,h=e.texture.height;
         // One bounded GPU readback per style, never per press/frame. A shader that failed
         // silently must not clear the still-clickable fallback and leave an invisible button.
-        const row=e.texture.readPixels(0,Math.floor(h/2),w*2,1);
-        if(!row||row.length<w*2*4||row[Math.floor(w/2)*4+3]<250||row[Math.floor(w*1.5)*4+3]<250)throw Error('Button RT did not produce both opaque faces');
+        const row=row0;
+        if(!warmFacesOpaque(row,w))throw Error('Button RT did not produce both opaque faces '+JSON.stringify(diag));
         const frames=[] as SpriteFrame[];
         // Assign early so partially failed frame allocation is also owned and released.
         e.frames=frames as Frames;
@@ -86,6 +95,18 @@ class SkinCache {
     }else this.drop(e);
     this.pump();
   }
+  /** full8: root-cause data for the Mac 'Frame creation failed' (transparent RT 3 frames running at home→island). Says WHERE the
+   *  bake went: render camera attached to the scene? its window still the RT's (a root/view resize may re-target it)? rig/model
+   *  live and the model in the render scene? frames elapsed since the camera was enabled. Read-only, only on a failed readback. */
+  private diag(e:Entry,row:ArrayLike<number>|null):Record<string,unknown>{
+    const o:Record<string,unknown>={tries:e.tries||0,frames:director.getTotalFrames()-(e.f0??0),rt:[e.texture?.width,e.texture?.height]};
+    try{const w=e.texture!.width/2;o.alpha=row?[row[Math.floor(w/2)*4+3],row[Math.floor(w*1.5)*4+3]]:null;o.rgbL=row?[row[Math.floor(w/2)*4],row[Math.floor(w/2)*4+1],row[Math.floor(w/2)*4+2]]:null;}catch{}
+    try{const c:any=this.camera,rc=c?.camera;o.camOn=!!c?.enabledInHierarchy;o.rcAttached=!!rc?.scene;o.rcSceneIsMain=rc?.scene===(this.scene as any).renderScene;
+      o.rcWindowIsRT=!!rc&&rc.window===(e.texture as any)?.window;o.rcWin=rc?.window?[rc.window.width,rc.window.height]:null;o.rcVis=rc?.visibility;o.rcEnabled=rc?.enabled;}catch{}
+    try{const m:any=(this.renderer as any)?.model;o.rigOn=!!this.rig?.activeInHierarchy;o.model=!!m;o.modelEnabled=m?.enabled;o.modelInScene=!!m&&m.scene===(this.scene as any).renderScene;o.modelLayer=this.renderer?.node.layer;o.mesh=!!this.renderer?.mesh;o.pass=this.material?.passes.length;}catch{}
+    return o;
+  }
+  private readRow(e:Entry):ArrayLike<number>|null{try{const t=e.texture!;return t.readPixels(0,Math.floor(t.height/2),t.width,1) as any;}catch{return null;}}
   private stopDraw(){
     director.off(Director.EVENT_AFTER_DRAW,this.finish,this);
     if(isValid(this.camera,true)){this.camera.enabled=false;this.camera.targetTexture=null;}
@@ -118,6 +139,10 @@ export class WarmButtonSkin {
     const key=`${width}:${height}:${ivory?1:0}`;if(key===this.key){if(this.frames)ready();return;}
     this.key=key;const generation=++this.generation;this.sprite.spriteFrame=null;this.frames=null;this.release?.();this.release=null;
     this.node.getComponent(UITransform)!.setContentSize(width,height);
+    // full8b (Mac afb9a70c: 'Button RT did not produce both opaque faces' rt [2,1], alpha [0,0]): the caller laid the button out at
+    // 0×0 (collapsed / not yet sized) → scale·0 → max(1,…) = a 1 px face that no geometry covers. A sub-pixel button has nothing to
+    // bake: wait for the real size (the next configure with ≥1×1 re-keys and bakes). The Graphics fallback stays meanwhile.
+    if(!(width>=1&&height>=1))return;
     const scene=director.getScene();if(!scene){this.key='';return;}
     let cache=caches.get(scene);if(!cache){cache=new SkinCache(scene);caches.set(scene,cache);}
     this.release=cache.acquire(width,height,ivory,frames=>{

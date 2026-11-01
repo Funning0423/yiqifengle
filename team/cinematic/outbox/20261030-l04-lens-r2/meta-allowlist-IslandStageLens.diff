@@ -1,0 +1,15 @@
+--- a/tools/build-guard/meta-allowlist.json
++++ b/tools/build-guard/meta-allowlist.json
+@@ -61,6 +61,12 @@
+       },
+       "why": "fullN 2026-10-30: Creator script meta for 运镜bot camera-owned file in 8c98bbfe (00-camera-owned-files); 8c98bbfe approved as-is by Grok Bot. Needs Grok Bot review per this file's rule."
+     },
++    "creator-build-project/assets/scripts/region/IslandStageLens.ts.meta": {
++      "allowAdd": {
++        "importer": "typescript"
++      },
++      "why": "b20 2026-10-30: Creator script meta for 运镜bot camera-owned file IslandStageLens.ts (方案 E island stage-04 lens, outbox 20261030-l04-lens-r2). Needs Grok Bot review per this file's rule."
++    },
+     "creator-build-project/assets/bundles/board_art/popup/icon_vibrate.png.meta": {
+       "allowAdd": {
+         "importer": "image"

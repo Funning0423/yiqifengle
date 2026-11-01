@@ -1,0 +1,76 @@
+PASS piece touch raw-end/node-cancel commits exactly once
+PASS piece touch genuine raw-cancel never commits
+PASS piece mouse-ID0 raw-end/node-cancel commits exactly once
+PASS piece mouse-ID0 genuine raw-cancel never commits
+PASS tool touch raw-end/node-cancel commits exactly once
+PASS tool touch genuine raw-cancel never commits
+PASS tool mouse-ID0 raw-end/node-cancel commits exactly once
+PASS tool mouse-ID0 genuine raw-cancel never commits
+PASS piece ui-y-down raw release preserves calibrated endpoint
+PASS piece screen-calibrated raw release preserves calibrated endpoint
+PASS tool ui-y-down raw release preserves calibrated endpoint
+PASS tool screen-calibrated raw release preserves calibrated endpoint
+PASS piece guarded raw-end/node-cancel rejects missing-code
+PASS piece guarded raw-end/node-cancel rejects throwing-code
+PASS piece guarded raw-end/node-cancel rejects wrong-code
+PASS piece guarded raw-end/node-cancel rejects missing-target
+PASS piece guarded raw-end/node-cancel rejects wrong-target
+PASS piece guarded raw-end/node-cancel rejects missing-current-target
+PASS piece guarded raw-end/node-cancel rejects wrong-current-target
+PASS piece guarded raw-end/node-cancel rejects missing-node-type
+PASS piece guarded raw-end/node-cancel rejects foreign-window
+PASS piece guarded raw-end/node-cancel rejects screen-miss-destination
+PASS piece guarded raw-end/node-cancel rejects screen-different-cell
+PASS piece guarded raw-end/node-cancel rejects outside-negative
+PASS piece guarded raw-end/node-cancel rejects outside-positive
+PASS piece guarded raw-end/node-cancel rejects nan-location
+PASS piece guarded raw-end/node-cancel rejects origin-rollback
+PASS piece guarded raw-end/node-cancel rejects stale-version
+PASS piece guarded raw-end/node-cancel rejects modal
+PASS piece guarded raw-end/node-cancel rejects node-hide
+PASS piece guarded raw-end/node-cancel rejects root-hide
+PASS piece guarded raw-end/node-cancel rejects game-hide
+PASS piece guarded raw-end/node-cancel rejects disable
+PASS piece guarded raw-end/node-cancel rejects rotate
+PASS piece guarded raw-end/node-cancel rejects rotate-back
+PASS piece guarded raw-end/node-cancel rejects safe-insets
+PASS piece guarded raw-end/node-cancel rejects destroy-node
+PASS piece guarded raw-end/node-cancel rejects destroy-board
+PASS tool guarded raw-end/node-cancel rejects missing-code
+PASS tool guarded raw-end/node-cancel rejects throwing-code
+PASS tool guarded raw-end/node-cancel rejects wrong-code
+PASS tool guarded raw-end/node-cancel rejects missing-target
+PASS tool guarded raw-end/node-cancel rejects wrong-target
+PASS tool guarded raw-end/node-cancel rejects missing-current-target
+PASS tool guarded raw-end/node-cancel rejects wrong-current-target
+PASS tool guarded raw-end/node-cancel rejects missing-node-type
+PASS tool guarded raw-end/node-cancel rejects foreign-window
+PASS tool guarded raw-end/node-cancel rejects screen-miss-destination
+PASS tool guarded raw-end/node-cancel rejects screen-different-cell
+PASS tool guarded raw-end/node-cancel rejects outside-negative
+PASS tool guarded raw-end/node-cancel rejects outside-positive
+PASS tool guarded raw-end/node-cancel rejects nan-location
+PASS tool guarded raw-end/node-cancel rejects origin-rollback
+PASS tool guarded raw-end/node-cancel rejects stale-version
+PASS tool guarded raw-end/node-cancel rejects modal
+PASS tool guarded raw-end/node-cancel rejects node-hide
+PASS tool guarded raw-end/node-cancel rejects root-hide
+PASS tool guarded raw-end/node-cancel rejects game-hide
+PASS tool guarded raw-end/node-cancel rejects disable
+PASS tool guarded raw-end/node-cancel rejects rotate
+PASS tool guarded raw-end/node-cancel rejects rotate-back
+PASS tool guarded raw-end/node-cancel rejects safe-insets
+PASS tool guarded raw-end/node-cancel rejects destroy-node
+PASS tool guarded raw-end/node-cancel rejects destroy-board
+PASS piece foreign touch-start preserves owner without a commit
+PASS piece foreign touch-move preserves owner without a commit
+PASS piece foreign touch-end preserves owner without a commit
+PASS piece foreign touch-cancel preserves owner without a commit
+PASS tool foreign touch-start preserves owner without a commit
+PASS tool foreign touch-move preserves owner without a commit
+PASS tool foreign touch-end preserves owner without a commit
+PASS tool foreign touch-cancel preserves owner without a commit
+PASS piece unchanged layout preserves legal engine release
+PASS tool unchanged layout preserves legal engine release
+PASS source hash unchanged during tests
+{"status":"PASS","source":"/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix","sourceSha256":"d66b1c9f4ac429d8cfdb9ebd5b4dad34e2f8f636f8df8fcceabef4020baea377","testSha256":"4ae15bb97647049eef426eb66a48a12019478e12745b2bdb64925f8366802185","scope":"Actual UI TS + mainline controller; source-derived two-layer Cocos 3.8.8 event double. No real browser/device events.","checks":75,"failed":0}

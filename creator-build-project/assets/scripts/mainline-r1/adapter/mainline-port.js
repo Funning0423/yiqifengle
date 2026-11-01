@@ -33,6 +33,17 @@ function bind(controller, view, lifecycle) {
   var disposed = false,
     animating = null,
     epoch = 0;
+  // Presentation is not an OS hide. Preserve the committed board and pause it;
+  // render/animation callbacks can throw on a later tick, outside refresh's stack.
+  function presentationFailed(error) {
+    if (disposed) return;
+    epoch++; animating = null;
+    controller.pause();
+    try { if (view.cancelAnimations) view.cancelAnimations(); } catch (_) {}
+    try { view.render(present(controller.snapshot(), 'before')); } catch (_) {}
+    console.error('[QF_BOARD_PRESENTATION_ERROR]', String(error && error.stack || error));
+    if (view.onError) { try { view.onError(error); } catch (_) {} }
+  }
   function refresh() {
     if (disposed) return;
     var s = controller.snapshot(),
@@ -42,7 +53,7 @@ function bind(controller, view, lifecycle) {
       animating = null;
       if (view.cancelAnimations) view.cancelAnimations();
     }
-    view.render(present(s, 'before'));
+    try { view.render(present(s, 'before')); } catch (error) { presentationFailed(error); return; }
     if (s.state !== 'run.resolving' || !v || animating === v.token) return;
     var token = v.token,
       ownEpoch = epoch,
@@ -54,14 +65,15 @@ function bind(controller, view, lifecycle) {
         used = true;
         var current = controller.snapshot();
         if (!current.visual || current.visual.token !== token) return;
-        view.render(present(current, 'after'));
-        animating = null;
-        var r = controller.finishVisualStep(token);
-        if (r.ok) refresh();
+        try {
+          view.render(present(current, 'after'));
+          animating = null;
+          var r = controller.finishVisualStep(token);
+          if (r.ok) refresh();
+        } catch (error) { presentationFailed(error); }
       });
     } catch (e) {
-      hide();
-      if (view.onError) view.onError(e);
+      presentationFailed(e);
     }
   }
   function hide() {

@@ -1,0 +1,378 @@
+{
+  "_superseded": "Superseded by creator-build-project/assets/scripts/audio/SceneAudioTable.ts (feat/scene-audio-r1 format): BGM_CANDIDATES, PENDING_LAYER_ASSETS, SCENE_AMBIENCE_DESIGN, FOOTSTEP_SETS, SCENE_GROUND_TYPES. Kept only as the design record for transition timings. See docs/audio/scene-sound-design.md §8.",
+  "version": 1,
+  "status": "PROVISIONAL (Voice bot, 2026-10-18). feat/scene-audio-r1 did not exist on GitHub when this was written; the cloud task should map these rows onto its real config format. Values (paths, loop facts, volumes, fades, intervals) are the design source of truth; key names are not.",
+  "conventions": {
+    "bundle": "Cocos bundle name; null = resources",
+    "path": "path inside the bundle, no extension",
+    "vol": "AudioSource.volume at the default music slider (0.4). Multiply by ambienceBedGain(slider) like AmbienceAudio/LakeAmbience do today; BGM keeps using GameAudio musicVolume",
+    "loopS": "circular loop period in seconds. Every new loop file carries a 0.15 s duplicate of its own start after loopS (dupS), same as amb_lake_loop: start the second source at loopS - 0.15 and cross linearly (identical audio) for 0.15 s, or use platform loop as a fallback",
+    "intervalS": "random one-shot spacing [min, max] seconds, measured start to start",
+    "followRoomLight": "true = scale by (1 - WorldFlow.getRoomLightWeight()) like the current sea waves (silent indoors)",
+    "fadeInS / fadeOutS": "layer fades when the scene is entered / left (equal-power)",
+    "bgmHandover": "shape 'dip': old track fades out over the first 4 s of xfadeS, new track fades in over the last 4 s (2 s overlap). Used where keys differ (island F major -> meadow G major -> sky D minor) so the two keys barely overlap; the ambience bed carries the gap"
+  },
+  "bgm": {
+    "island": {
+      "bundle": "audio_bgm_island",
+      "path": "audio/bgm_main"
+    },
+    "meadow": {
+      "bundle": "region_meadow",
+      "path": "audio/bgm_meadow"
+    },
+    "skycity": {
+      "bundle": "region_skycity",
+      "path": "audio/bgm_skycity"
+    }
+  },
+  "scenes": {
+    "home": {
+      "bgm": "island",
+      "bgmGain": 1.0,
+      "layers": [
+        {
+          "id": "sea_muffled",
+          "kind": "loop",
+          "bundle": "audio_bgm_island",
+          "path": "audio/amb_island_shore_loop",
+          "loopS": 24.0,
+          "dupS": 0.15,
+          "vol": 0.7,
+          "followRoomLight": true,
+          "fadeInS": 1.5,
+          "fadeOutS": 1.5
+        }
+      ],
+      "notes": "Indoors the room-light weight is 1, so the sea is silent, exactly as today. No gulls, no wind indoors."
+    },
+    "island": {
+      "bgm": "island",
+      "bgmGain": 1.0,
+      "layers": [
+        {
+          "id": "shore",
+          "kind": "loop",
+          "bundle": "audio_bgm_island",
+          "path": "audio/amb_island_shore_loop",
+          "loopS": 24.0,
+          "dupS": 0.15,
+          "vol": 0.7,
+          "followRoomLight": true,
+          "fadeInS": 2.0,
+          "fadeOutS": 3.0,
+          "fallback": {
+            "bundle": null,
+            "path": "audio_amb/amb_waves_loop",
+            "vol": 0.55,
+            "why": "shipped synthetic waves (resources) if the island bundle is not loaded yet"
+          }
+        },
+        {
+          "id": "gulls",
+          "kind": "gullEvents",
+          "bundle": null,
+          "paths": [
+            "audio_sfx/sfx_amb_gull_1",
+            "audio_sfx/sfx_amb_gull_2",
+            "audio_sfx/sfx_amb_gull_3"
+          ],
+          "vol": 0.6,
+          "intervalS": [
+            8,
+            20
+          ],
+          "pan": "camera-relative (AmbienceAudio GULL_EVENTS)",
+          "night": {
+            "rateScale": 0.4,
+            "volDb": -3
+          },
+          "notes": "unchanged gull v6 system (AmbienceAudio); only the scene gate is new: gulls ONLY in home-outdoor/island/the first 10 s of the sail"
+        }
+      ]
+    },
+    "sea": {
+      "bgm": "island",
+      "bgmGain": 0.708,
+      "bgmHandover": {
+        "to": "meadow",
+        "atFraction": 0.5,
+        "xfadeS": 6.0,
+        "shape": "dip"
+      },
+      "layers": [
+        {
+          "id": "sea_open",
+          "kind": "loop",
+          "bundle": "transport_sail",
+          "path": "audio_amb/amb_sea_open_loop",
+          "loopS": 24.0,
+          "dupS": 0.15,
+          "vol": 0.8,
+          "fadeInS": 6.0,
+          "fadeOutS": 4.0
+        },
+        {
+          "id": "gulls_far",
+          "kind": "gullEvents",
+          "bundle": null,
+          "paths": [
+            "audio_sfx/sfx_amb_gull_2",
+            "audio_sfx/sfx_amb_gull_3"
+          ],
+          "vol": 0.38,
+          "intervalS": [
+            5,
+            8
+          ],
+          "activeS": [
+            0,
+            10
+          ],
+          "notes": "far gulls only while the island is still in view; none on open sea"
+        }
+      ],
+      "notes": "Sail leg <= 30.5 s (sail-qa4 timing.json). Island shore fades out 0-8 s after departure; meadow layers fade in over the last 6 s (docking). Boat SFX (leave shore / waves / sail / dock) are the separate r5 sail-audio task, not this table."
+    },
+    "meadow": {
+      "bgm": "meadow",
+      "bgmGain": 1.0,
+      "layers": [
+        {
+          "id": "birds_bed",
+          "kind": "loop",
+          "bundle": "region_meadow",
+          "path": "audio/amb_meadow_birds_loop",
+          "loopS": 30.0,
+          "dupS": 0.15,
+          "vol": 0.8,
+          "fadeInS": 3.0,
+          "fadeOutS": 4.0
+        },
+        {
+          "id": "insects",
+          "kind": "loop",
+          "bundle": "region_meadow",
+          "path": "audio/amb_meadow_insects_loop",
+          "loopS": 19.25,
+          "dupS": 0.15,
+          "vol": 0.5,
+          "fadeInS": 4.0,
+          "fadeOutS": 4.0,
+          "night": {
+            "volDb": 3
+          }
+        },
+        {
+          "id": "breeze",
+          "kind": "loop",
+          "bundle": null,
+          "path": "audio_amb/amb_wind_soft_loop",
+          "loopS": null,
+          "vol": 0.25,
+          "fadeInS": 3.0,
+          "fadeOutS": 3.0,
+          "notes": "reuses the shipped soft-wind loop (resources, 12 KB); loop it the way WindAudio already does"
+        },
+        {
+          "id": "birds",
+          "kind": "oneshot",
+          "bundle": "region_meadow",
+          "paths": [
+            "audio/sfx_meadow_bird_1",
+            "audio/sfx_meadow_bird_2",
+            "audio/sfx_meadow_bird_3"
+          ],
+          "vol": 0.5,
+          "volJitter": [
+            0.7,
+            1.0
+          ],
+          "intervalS": [
+            6,
+            16
+          ],
+          "pan": [
+            -0.6,
+            0.6
+          ],
+          "shuffleBag": true,
+          "night": {
+            "rateScale": 0.25,
+            "volDb": -4
+          }
+        },
+        {
+          "id": "windmill",
+          "kind": "oneshot",
+          "bundle": "region_meadow",
+          "paths": [
+            "audio/sfx_windmill_creak_1",
+            "audio/sfx_windmill_creak_2"
+          ],
+          "vol": 0.45,
+          "volJitter": [
+            0.8,
+            1.0
+          ],
+          "intervalS": [
+            9,
+            18
+          ],
+          "pan": "towards windmill_sail_hub if known, else +0.35",
+          "notes": "ideally once per sail-blade revolution of windmill_sails_loop, skipped randomly so it never sounds mechanical"
+        }
+      ],
+      "forbidden": [
+        "gulls",
+        "shore",
+        "sea_open"
+      ]
+    },
+    "lakeside": {
+      "bgm": "island",
+      "bgmGain": 0.708,
+      "layers": [
+        {
+          "id": "lake",
+          "kind": "loop",
+          "bundle": "region_lakeside",
+          "path": "audio/amb_lake_loop",
+          "loopS": 19.0,
+          "dupS": 0.15,
+          "vol": 0.55,
+          "fadeInS": 1.2,
+          "fadeOutS": 0.8,
+          "notes": "shipped LakeAmbience file and numbers, unchanged"
+        }
+      ],
+      "forbidden": [
+        "gulls",
+        "shore"
+      ],
+      "notes": "Plan B: lakeside comes after sky city (unlocks after main-line level 12), reached by hot-air balloon descent. Candidate bgm_lakeside (F major) exists but is not wired; until then the island BGM 3 dB softer under the lake bed."
+    },
+    "balloon": {
+      "bgm": "meadow",
+      "bgmHandover": {
+        "to": "skycity",
+        "atFraction": 0.45,
+        "xfadeS": 6.0,
+        "shape": "dip"
+      },
+      "layers": [
+        {
+          "id": "sky_air",
+          "kind": "loop",
+          "bundle": "region_skycity",
+          "path": "audio/amb_sky_air_loop",
+          "loopS": 32.0,
+          "dupS": 0.15,
+          "vol": 0.5,
+          "fadeInS": 12.0,
+          "fadeOutS": 3.0
+        }
+      ],
+      "notes": "meadow layers fade out over 10 s after take-off. If region_skycity is not loaded yet, run the balloon without the air bed (BGM only)."
+    },
+    "skycity": {
+      "bgm": "skycity",
+      "bgmGain": 1.0,
+      "layers": [
+        {
+          "id": "sky_air",
+          "kind": "loop",
+          "bundle": "region_skycity",
+          "path": "audio/amb_sky_air_loop",
+          "loopS": 32.0,
+          "dupS": 0.15,
+          "vol": 0.75,
+          "fadeInS": 4.0,
+          "fadeOutS": 3.0
+        }
+      ],
+      "forbidden": [
+        "gulls",
+        "shore",
+        "birds",
+        "insects"
+      ]
+    }
+  },
+  "boards": {
+    "rule": "A level board keeps its region's BGM (no restart) and ambience at -6 dB (beds x0.5); one-shot intervals x2 (half as many). Region: r05-meadow-* -> meadow, r05-sky-* -> skycity, r04/r05-lake-* -> lakeside, everything else -> island.",
+    "bedGain": 0.5,
+    "oneShotIntervalScale": 2.0
+  },
+  "transitions": {
+    "default": {
+      "bgmXfadeS": 1.5,
+      "layerFadeOutS": 3.0,
+      "layerFadeInS": 3.0
+    },
+    "home->island": {
+      "bgmXfadeS": 0,
+      "carry": [
+        "shore"
+      ],
+      "notes": "same track; shore opens with the door via room-light weight"
+    },
+    "island->sea": {
+      "bgmXfadeS": 0,
+      "carry": [
+        "shore (fade 0-8 s)",
+        "gulls_far (0-10 s)"
+      ]
+    },
+    "sea->meadow": {
+      "bgmXfadeS": 6.0,
+      "carry": [
+        "sea_open (fade 4 s after docking)"
+      ],
+      "notes": "BGM handover already done mid-voyage; if the voyage was skipped, crossfade 6 s on arrival",
+      "shape": "dip"
+    },
+    "meadow->balloon": {
+      "bgmXfadeS": 0,
+      "carry": [
+        "birds_bed/insects/breeze (fade 10 s)"
+      ]
+    },
+    "balloon->skycity": {
+      "bgmXfadeS": 6.0,
+      "carry": [
+        "sky_air (0.5 -> 0.75 over 6 s)"
+      ],
+      "shape": "dip"
+    },
+    "skycity->balloon-descent": {
+      "bgmXfadeS": 0,
+      "carry": [
+        "sky_air (0.75 -> 0.5 over 4 s)"
+      ]
+    },
+    "balloon-descent->lakeside": {
+      "bgmXfadeS": 6.0,
+      "shape": "dip",
+      "dip": {
+        "outS": 4.0,
+        "inS": 4.0,
+        "overlapS": 2.0,
+        "toStartsAtBar1": true
+      },
+      "carry": [
+        "sky_air holds 0.5 through the dip, then fades out over 10 s",
+        "lake fades in over 12 s from the start of the dip to 0.55"
+      ],
+      "notes": "plan B; D minor -> F major (relative keys)"
+    },
+    "any->board": {
+      "bgmXfadeS": 0,
+      "notes": "keep the region track; beds to x0.5 over 1.5 s"
+    },
+    "skycity->island / any->home": {
+      "bgmXfadeS": 3.0,
+      "notes": "returning home: 3 s crossfade, all region layers fade 3 s, gulls resume after 4 s"
+    }
+  }
+}

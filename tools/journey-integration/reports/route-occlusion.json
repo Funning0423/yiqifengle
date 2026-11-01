@@ -1,0 +1,1920 @@
+{
+ "status": "FAIL",
+ "timeUTC": "2026-10-26T10:32:44.945Z",
+ "fps": 30,
+ "clearanceM": 1.1,
+ "geometry": {
+  "skycityMeshes": 37,
+  "skycityTris": 88054,
+  "lakesideInstances": 813,
+  "islandObjs": 34,
+  "meadowObjs": 20,
+  "balloonParts": 5,
+  "boatParts": 10,
+  "standPoint": [
+   0,
+   0.10000000149011612,
+   0
+  ]
+ },
+ "scope": "Geometry on real GLB triangles (full Draco skycity) + real TS cameras. Not a render or device acceptance. Her dock/shore walk positions are path-linear.",
+ "results": [
+  {
+   "leg": "sail island→meadow",
+   "screen": "390x844",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "PASS",
+   "O2": "PASS",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "blackFrames": 0,
+   "occludedFrames": 2,
+   "occludedSpans": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 12,
+   "grazeSample": [
+    {
+     "t": 10.97,
+     "k": "face",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "chest",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 11,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "414x896",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "PASS",
+   "O2": "PASS",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "blackFrames": 0,
+   "occludedFrames": 2,
+   "occludedSpans": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 12,
+   "grazeSample": [
+    {
+     "t": 10.97,
+     "k": "face",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "chest",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 11,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "360x780",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "PASS",
+   "O2": "PASS",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "blackFrames": 0,
+   "occludedFrames": 2,
+   "occludedSpans": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 12,
+   "grazeSample": [
+    {
+     "t": 10.97,
+     "k": "face",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "chest",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 11,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "375x667",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "PASS",
+   "O2": "PASS",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "blackFrames": 0,
+   "occludedFrames": 2,
+   "occludedSpans": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 12,
+   "grazeSample": [
+    {
+     "t": 10.97,
+     "k": "face",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "chest",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 11,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "320x568",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "PASS",
+   "O2": "PASS",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "blackFrames": 0,
+   "occludedFrames": 2,
+   "occludedSpans": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 12,
+   "grazeSample": [
+    {
+     "t": 10.97,
+     "k": "face",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "chest",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 11,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "390x520",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "PASS",
+   "O2": "PASS",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "blackFrames": 0,
+   "occludedFrames": 2,
+   "occludedSpans": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 12,
+   "grazeSample": [
+    {
+     "t": 10.97,
+     "k": "face",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "chest",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 11,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "768x1024",
+   "O1": "PASS",
+   "O1palmException": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     },
+     "frames": 2
+    }
+   ],
+   "O1sgMain": "PASS",
+   "O2": "PASS",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "blackFrames": 0,
+   "occludedFrames": 2,
+   "occludedSpans": [
+    {
+     "t0": 10.97,
+     "t1": 11,
+     "phase": "S-c",
+     "first": {
+      "t": 10.97,
+      "pose": "seated",
+      "face": "island:env_prop_palm_lean_01 (9/9)",
+      "head": "island:env_prop_palm_lean_01 (9/9)",
+      "chest": "island:env_prop_palm_lean_01 (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 12,
+   "grazeSample": [
+    {
+     "t": 10.97,
+     "k": "face",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 10.97,
+     "k": "chest",
+     "by": "island:env_prop_palm_lean_01"
+    },
+    {
+     "t": 11,
+     "k": "head",
+     "by": "island:env_prop_palm_lean_01"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.288,
+   "clearAtS": 5,
+   "clearPhase": "S-a",
+   "clearNearest": "island:env_island_props_merged"
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "390x844",
+   "O1": "FAIL",
+   "O2": "PASS",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "blackFrames": 3,
+   "occludedFrames": 1003,
+   "occludedSpans": [
+    {
+     "t0": 0,
+     "t1": 21.13,
+     "phase": "B-b",
+     "first": {
+      "t": 0,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (8/9)",
+      "head": "balloon:balloon_basket (6/9)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    },
+    {
+     "t0": 21.6,
+     "t1": 21.6,
+     "phase": "B-d",
+     "first": {
+      "t": 21.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.7,
+     "t1": 21.8,
+     "phase": "B-d",
+     "first": {
+      "t": 21.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.93,
+     "t1": 21.93,
+     "phase": "B-d",
+     "first": {
+      "t": 21.93,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 23.23,
+     "t1": 24.23,
+     "phase": "B-d",
+     "first": {
+      "t": 23.23,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 24.7,
+     "t1": 25.07,
+     "phase": "B-d",
+     "first": {
+      "t": 24.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.17,
+     "t1": 25.43,
+     "phase": "B-d",
+     "first": {
+      "t": 25.17,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.6,
+     "t1": 35.87,
+     "phase": "B-d",
+     "first": {
+      "t": 25.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 36,
+     "t1": 36,
+     "first": {
+      "t": 36,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 996,
+   "grazeSample": [
+    {
+     "t": 0,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "chest",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0.03,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 3,
+   "clearAtS": 0,
+   "clearPhase": "B-b",
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 70,
+    "spans": [
+     {
+      "t0": 15.47,
+      "t1": 17.77,
+      "first": {
+       "t": 15.47,
+       "lensY": -0.85,
+       "basketY": -8.85,
+       "faceY": -7.85,
+       "cutPts": 11
+      },
+      "last": {
+       "t": 17.77,
+       "lensY": 8.48,
+       "basketY": -0.96,
+       "faceY": 0.04,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "414x896",
+   "O1": "FAIL",
+   "O2": "PASS",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "blackFrames": 3,
+   "occludedFrames": 1003,
+   "occludedSpans": [
+    {
+     "t0": 0,
+     "t1": 21.13,
+     "phase": "B-b",
+     "first": {
+      "t": 0,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (8/9)",
+      "head": "balloon:balloon_basket (6/9)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    },
+    {
+     "t0": 21.6,
+     "t1": 21.6,
+     "phase": "B-d",
+     "first": {
+      "t": 21.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.7,
+     "t1": 21.8,
+     "phase": "B-d",
+     "first": {
+      "t": 21.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.93,
+     "t1": 21.93,
+     "phase": "B-d",
+     "first": {
+      "t": 21.93,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 23.23,
+     "t1": 24.23,
+     "phase": "B-d",
+     "first": {
+      "t": 23.23,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 24.7,
+     "t1": 25.07,
+     "phase": "B-d",
+     "first": {
+      "t": 24.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.17,
+     "t1": 25.43,
+     "phase": "B-d",
+     "first": {
+      "t": 25.17,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.6,
+     "t1": 35.87,
+     "phase": "B-d",
+     "first": {
+      "t": 25.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 36,
+     "t1": 36,
+     "first": {
+      "t": 36,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 996,
+   "grazeSample": [
+    {
+     "t": 0,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "chest",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0.03,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 3,
+   "clearAtS": 0,
+   "clearPhase": "B-b",
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 70,
+    "spans": [
+     {
+      "t0": 15.47,
+      "t1": 17.77,
+      "first": {
+       "t": 15.47,
+       "lensY": -0.85,
+       "basketY": -8.85,
+       "faceY": -7.85,
+       "cutPts": 11
+      },
+      "last": {
+       "t": 17.77,
+       "lensY": 8.48,
+       "basketY": -0.96,
+       "faceY": 0.04,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "360x780",
+   "O1": "FAIL",
+   "O2": "PASS",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "blackFrames": 3,
+   "occludedFrames": 1003,
+   "occludedSpans": [
+    {
+     "t0": 0,
+     "t1": 21.13,
+     "phase": "B-b",
+     "first": {
+      "t": 0,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (8/9)",
+      "head": "balloon:balloon_basket (6/9)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    },
+    {
+     "t0": 21.6,
+     "t1": 21.6,
+     "phase": "B-d",
+     "first": {
+      "t": 21.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.7,
+     "t1": 21.8,
+     "phase": "B-d",
+     "first": {
+      "t": 21.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.93,
+     "t1": 21.93,
+     "phase": "B-d",
+     "first": {
+      "t": 21.93,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 23.23,
+     "t1": 24.23,
+     "phase": "B-d",
+     "first": {
+      "t": 23.23,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 24.7,
+     "t1": 25.07,
+     "phase": "B-d",
+     "first": {
+      "t": 24.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.17,
+     "t1": 25.43,
+     "phase": "B-d",
+     "first": {
+      "t": 25.17,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.6,
+     "t1": 35.87,
+     "phase": "B-d",
+     "first": {
+      "t": 25.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 36,
+     "t1": 36,
+     "first": {
+      "t": 36,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 996,
+   "grazeSample": [
+    {
+     "t": 0,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "chest",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0.03,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 3,
+   "clearAtS": 0,
+   "clearPhase": "B-b",
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 70,
+    "spans": [
+     {
+      "t0": 15.47,
+      "t1": 17.77,
+      "first": {
+       "t": 15.47,
+       "lensY": -0.85,
+       "basketY": -8.85,
+       "faceY": -7.85,
+       "cutPts": 11
+      },
+      "last": {
+       "t": 17.77,
+       "lensY": 8.48,
+       "basketY": -0.96,
+       "faceY": 0.04,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "375x667",
+   "O1": "FAIL",
+   "O2": "PASS",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "blackFrames": 3,
+   "occludedFrames": 1003,
+   "occludedSpans": [
+    {
+     "t0": 0,
+     "t1": 21.13,
+     "phase": "B-b",
+     "first": {
+      "t": 0,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (8/9)",
+      "head": "balloon:balloon_basket (6/9)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    },
+    {
+     "t0": 21.6,
+     "t1": 21.6,
+     "phase": "B-d",
+     "first": {
+      "t": 21.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.7,
+     "t1": 21.8,
+     "phase": "B-d",
+     "first": {
+      "t": 21.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.93,
+     "t1": 21.93,
+     "phase": "B-d",
+     "first": {
+      "t": 21.93,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 23.23,
+     "t1": 24.23,
+     "phase": "B-d",
+     "first": {
+      "t": 23.23,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 24.7,
+     "t1": 25.07,
+     "phase": "B-d",
+     "first": {
+      "t": 24.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.17,
+     "t1": 25.43,
+     "phase": "B-d",
+     "first": {
+      "t": 25.17,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.6,
+     "t1": 35.87,
+     "phase": "B-d",
+     "first": {
+      "t": 25.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 36,
+     "t1": 36,
+     "first": {
+      "t": 36,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 996,
+   "grazeSample": [
+    {
+     "t": 0,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "chest",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0.03,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 3,
+   "clearAtS": 0,
+   "clearPhase": "B-b",
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 70,
+    "spans": [
+     {
+      "t0": 15.47,
+      "t1": 17.77,
+      "first": {
+       "t": 15.47,
+       "lensY": -0.85,
+       "basketY": -8.85,
+       "faceY": -7.85,
+       "cutPts": 11
+      },
+      "last": {
+       "t": 17.77,
+       "lensY": 8.48,
+       "basketY": -0.96,
+       "faceY": 0.04,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "320x568",
+   "O1": "FAIL",
+   "O2": "PASS",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "blackFrames": 3,
+   "occludedFrames": 1003,
+   "occludedSpans": [
+    {
+     "t0": 0,
+     "t1": 21.13,
+     "phase": "B-b",
+     "first": {
+      "t": 0,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (8/9)",
+      "head": "balloon:balloon_basket (6/9)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    },
+    {
+     "t0": 21.6,
+     "t1": 21.6,
+     "phase": "B-d",
+     "first": {
+      "t": 21.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.7,
+     "t1": 21.8,
+     "phase": "B-d",
+     "first": {
+      "t": 21.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.93,
+     "t1": 21.93,
+     "phase": "B-d",
+     "first": {
+      "t": 21.93,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 23.23,
+     "t1": 24.23,
+     "phase": "B-d",
+     "first": {
+      "t": 23.23,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 24.7,
+     "t1": 25.07,
+     "phase": "B-d",
+     "first": {
+      "t": 24.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.17,
+     "t1": 25.43,
+     "phase": "B-d",
+     "first": {
+      "t": 25.17,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.6,
+     "t1": 35.87,
+     "phase": "B-d",
+     "first": {
+      "t": 25.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 36,
+     "t1": 36,
+     "first": {
+      "t": 36,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 996,
+   "grazeSample": [
+    {
+     "t": 0,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "chest",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0.03,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 3,
+   "clearAtS": 0,
+   "clearPhase": "B-b",
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 70,
+    "spans": [
+     {
+      "t0": 15.47,
+      "t1": 17.77,
+      "first": {
+       "t": 15.47,
+       "lensY": -0.85,
+       "basketY": -8.85,
+       "faceY": -7.85,
+       "cutPts": 11
+      },
+      "last": {
+       "t": 17.77,
+       "lensY": 8.48,
+       "basketY": -0.96,
+       "faceY": 0.04,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "390x520",
+   "O1": "FAIL",
+   "O2": "PASS",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "blackFrames": 3,
+   "occludedFrames": 1003,
+   "occludedSpans": [
+    {
+     "t0": 0,
+     "t1": 21.13,
+     "phase": "B-b",
+     "first": {
+      "t": 0,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (8/9)",
+      "head": "balloon:balloon_basket (6/9)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    },
+    {
+     "t0": 21.6,
+     "t1": 21.6,
+     "phase": "B-d",
+     "first": {
+      "t": 21.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.7,
+     "t1": 21.8,
+     "phase": "B-d",
+     "first": {
+      "t": 21.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.93,
+     "t1": 21.93,
+     "phase": "B-d",
+     "first": {
+      "t": 21.93,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 23.23,
+     "t1": 24.23,
+     "phase": "B-d",
+     "first": {
+      "t": 23.23,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 24.7,
+     "t1": 25.07,
+     "phase": "B-d",
+     "first": {
+      "t": 24.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.17,
+     "t1": 25.43,
+     "phase": "B-d",
+     "first": {
+      "t": 25.17,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.6,
+     "t1": 35.87,
+     "phase": "B-d",
+     "first": {
+      "t": 25.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 36,
+     "t1": 36,
+     "first": {
+      "t": 36,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 996,
+   "grazeSample": [
+    {
+     "t": 0,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "chest",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0.03,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 3,
+   "clearAtS": 0,
+   "clearPhase": "B-b",
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 70,
+    "spans": [
+     {
+      "t0": 15.47,
+      "t1": 17.77,
+      "first": {
+       "t": 15.47,
+       "lensY": -0.85,
+       "basketY": -8.85,
+       "faceY": -7.85,
+       "cutPts": 11
+      },
+      "last": {
+       "t": 17.77,
+       "lensY": 8.48,
+       "basketY": -0.96,
+       "faceY": 0.04,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "768x1024",
+   "O1": "FAIL",
+   "O2": "PASS",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "blackFrames": 3,
+   "occludedFrames": 1003,
+   "occludedSpans": [
+    {
+     "t0": 0,
+     "t1": 21.13,
+     "phase": "B-b",
+     "first": {
+      "t": 0,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (8/9)",
+      "head": "balloon:balloon_basket (6/9)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    },
+    {
+     "t0": 21.6,
+     "t1": 21.6,
+     "phase": "B-d",
+     "first": {
+      "t": 21.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.7,
+     "t1": 21.8,
+     "phase": "B-d",
+     "first": {
+      "t": 21.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "face": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 21.93,
+     "t1": 21.93,
+     "phase": "B-d",
+     "first": {
+      "t": 21.93,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 23.23,
+     "t1": 24.23,
+     "phase": "B-d",
+     "first": {
+      "t": 23.23,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 24.7,
+     "t1": 25.07,
+     "phase": "B-d",
+     "first": {
+      "t": 24.7,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.17,
+     "t1": 25.43,
+     "phase": "B-d",
+     "first": {
+      "t": 25.17,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 25.6,
+     "t1": 35.87,
+     "phase": "B-d",
+     "first": {
+      "t": 25.6,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (5/9)"
+     }
+    },
+    {
+     "t0": 36,
+     "t1": 36,
+     "first": {
+      "t": 36,
+      "pose": "seated(basket, sit_hold skeleton)",
+      "chest": "balloon:balloon_basket (9/9)"
+     }
+    }
+   ],
+   "centreRayGrazeFrames": 996,
+   "grazeSample": [
+    {
+     "t": 0,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0,
+     "k": "chest",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 0.03,
+     "k": "face",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 3,
+   "clearAtS": 0,
+   "clearPhase": "B-b",
+   "clearNearest": null,
+   "O3": "PASS",
+   "O3cuts": [],
+   "O3fallbackMinGapM": {
+    "m": 26,
+    "at": 11.2
+   },
+   "islandSeaExposure": {
+    "frames": 70,
+    "spans": [
+     {
+      "t0": 15.47,
+      "t1": 17.77,
+      "first": {
+       "t": 15.47,
+       "lensY": -0.85,
+       "basketY": -8.85,
+       "faceY": -7.85,
+       "cutPts": 11
+      },
+      "last": {
+       "t": 17.77,
+       "lensY": 8.48,
+       "basketY": -0.96,
+       "faceY": 0.04,
+       "cutPts": 4
+      }
+     }
+    ]
+   }
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "390x844",
+   "O1": "PASS",
+   "O1lakeStrutException": [],
+   "O2": "PASS",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "blackFrames": 0,
+   "occludedFrames": 0,
+   "occludedSpans": [],
+   "centreRayGrazeFrames": 104,
+   "grazeSample": [
+    {
+     "t": 9.93,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 9.97,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10.03,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
+   "clearPhase": "walk-to-basket",
+   "clearNearest": "skycity:env_sky_static_palette"
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "414x896",
+   "O1": "PASS",
+   "O1lakeStrutException": [],
+   "O2": "PASS",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "blackFrames": 0,
+   "occludedFrames": 0,
+   "occludedSpans": [],
+   "centreRayGrazeFrames": 104,
+   "grazeSample": [
+    {
+     "t": 9.93,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 9.97,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10.03,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
+   "clearPhase": "walk-to-basket",
+   "clearNearest": "skycity:env_sky_static_palette"
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "360x780",
+   "O1": "PASS",
+   "O1lakeStrutException": [],
+   "O2": "PASS",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "blackFrames": 0,
+   "occludedFrames": 0,
+   "occludedSpans": [],
+   "centreRayGrazeFrames": 104,
+   "grazeSample": [
+    {
+     "t": 9.93,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 9.97,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10.03,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
+   "clearPhase": "walk-to-basket",
+   "clearNearest": "skycity:env_sky_static_palette"
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "375x667",
+   "O1": "PASS",
+   "O1lakeStrutException": [],
+   "O2": "PASS",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "blackFrames": 0,
+   "occludedFrames": 0,
+   "occludedSpans": [],
+   "centreRayGrazeFrames": 109,
+   "grazeSample": [
+    {
+     "t": 9.93,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 9.97,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10.03,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
+   "clearPhase": "walk-to-basket",
+   "clearNearest": "skycity:env_sky_static_palette"
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "320x568",
+   "O1": "PASS",
+   "O1lakeStrutException": [],
+   "O2": "PASS",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "blackFrames": 0,
+   "occludedFrames": 0,
+   "occludedSpans": [],
+   "centreRayGrazeFrames": 109,
+   "grazeSample": [
+    {
+     "t": 9.93,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 9.97,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10.03,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
+   "clearPhase": "walk-to-basket",
+   "clearNearest": "skycity:env_sky_static_palette"
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "390x520",
+   "O1": "PASS",
+   "O1lakeStrutException": [],
+   "O2": "PASS",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "blackFrames": 0,
+   "occludedFrames": 0,
+   "occludedSpans": [],
+   "centreRayGrazeFrames": 117,
+   "grazeSample": [
+    {
+     "t": 9.93,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 9.97,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10.03,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
+   "clearPhase": "walk-to-basket",
+   "clearNearest": "skycity:env_sky_static_palette"
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "768x1024",
+   "O1": "PASS",
+   "O1lakeStrutException": [],
+   "O2": "PASS",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "blackFrames": 0,
+   "occludedFrames": 0,
+   "occludedSpans": [],
+   "centreRayGrazeFrames": 117,
+   "grazeSample": [
+    {
+     "t": 9.93,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 9.97,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    },
+    {
+     "t": 10.03,
+     "k": "head",
+     "by": "balloon:balloon_basket"
+    }
+   ],
+   "softCloudFrames": 0,
+   "softSample": [],
+   "minLensClearM": 1.246,
+   "clearAtS": 4.7,
+   "clearPhase": "walk-to-basket",
+   "clearNearest": "skycity:env_sky_static_palette"
+  }
+ ]
+}

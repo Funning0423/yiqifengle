@@ -20,9 +20,11 @@ function createCc(state) {
   class Color { constructor(r = 255, g = 255, b = 255, a = 255) { if (typeof r === 'string') { const h = r.replace('#', ''); const n = (i) => parseInt(h.slice(i, i + 2), 16); this.r = n(0); this.g = n(2); this.b = n(4); this.a = h.length >= 8 ? n(6) : 255; } else Object.assign(this, { r, g, b, a }); } toHEX(fmt = '#rrggbb') { const h = v => Math.round(v).toString(16).padStart(2, '0'); return h(this.r) + h(this.g) + h(this.b) + (fmt === '#rrggbbaa' ? h(this.a) : ''); } }
   class Size { constructor(width = 0, height = 0) { this.width = width; this.height = height; } }
   class Rect { constructor(x = 0, y = 0, width = 0, height = 0) { Object.assign(this, { x, y, width, height }); } }
-  class Component { constructor() { this.enabled = true; this.node = null; } get isValid() { return !!this.node && this.node.isValid; } get enabledInHierarchy() { return this.enabled && !!this.node && this.node.activeInHierarchy; } addComponent(C) { return this.node.addComponent(C); } getComponent(C) { return this.node.getComponent(C); } scheduleOnce() {} }
+  class Component { constructor() { this.enabled = true; this.node = null; } get enabled() { return this._enabled !== false; } set enabled(v) { const was = this.enabledInHierarchy; this._enabled = !!v; if (was && !this.enabledInHierarchy) this.onDisable?.(); } get isValid() { return !!this.node && this.node.isValid; } get enabledInHierarchy() { return this.enabled && !!this.node && this.node.activeInHierarchy; } addComponent(C) { return this.node.addComponent(C); } getComponent(C) { return this.node.getComponent(C); } scheduleOnce() {} }
   class Node extends Emitter {
     constructor(name = '') { super(); this.name = name; this.children = []; this.components = []; this.parent = null; this.position = new Vec3(); this.scale = new Vec3(1, 1, 1); this.angle = 0; this.euler = new Vec3(); this.rotation = new Quat(); this.layer = 1; this.active = true; this.isValid = true; }
+    get active() { return this._active !== false; }
+    set active(v) { const list = []; this.walk(n => list.push([n, n.activeInHierarchy])); this._active = !!v; for (const [n, before] of list) { const after = n.activeInHierarchy; if (before !== after) { n.emit(Node.EventType?.ACTIVE_IN_HIERARCHY_CHANGED || 'active-changed'); if (!after) for (const c of n.components) c.onDisable?.(); } } }
     get activeInHierarchy() { return this.active && this.isValid && (!this.parent || this.parent.activeInHierarchy); }
     get worldScale() { const p = this.parent ? this.parent.worldScale : new Vec3(1, 1, 1); return new Vec3(p.x * this.scale.x, p.y * this.scale.y, 1); }
     get worldPosition() { if (!this.parent) return this.position.clone(); const p = this.parent.worldPosition, s = this.parent.worldScale; return new Vec3(p.x + this.position.x * s.x, p.y + this.position.y * s.y, p.z + this.position.z); }
@@ -119,8 +121,8 @@ function createCc(state) {
   const bundles = new Map();
   const assetManager = {
     getBundle: n => bundles.get(n) || null,
-    loadBundle: (n, cb) => later(() => { if (state.failBundles.has(n) || !fs.existsSync(path.join(BUNDLES, n))) { cb(Error('missing bundle ' + n), null); return; } if (!bundles.has(n)) bundles.set(n, makeBundle(n)); cb(null, bundles.get(n)); }),
-    loadAny: (_o, cb) => later(() => cb(Error('no materials in tests'), null)),
+    loadBundle: (n, cb) => later(() => { if (state.failBundles.has(n) || !fs.existsSync(path.join(BUNDLES, n))) { cb(Error('missing bundle ' + n), null); return; } if (!bundles.has(n)) { bundles.set(n, makeBundle(n)); if (state.onBundle) state.onBundle(n); } cb(null, bundles.get(n)); }),
+    loadAny: (_o, ...rest) => { const cb = rest.reverse().find(f => typeof f === 'function'); later(() => cb && cb(Error('no materials in tests'), null)); }, // full9c-b: cc's loadAny(req, options?, onProgress?, onComplete)
     loadRemote: (_u, _o, cb) => later(() => cb(Error('no remote in tests'), null)),
   };
   const resources = { load: (p, type, cb) => later(() => { state.resourceLoads.push(p); cb(null, new ImageAsset({ width: 896, height: 128, path: p })); }) };
@@ -131,7 +133,7 @@ function createCc(state) {
   const property = (...a) => (a.length >= 2 && typeof a[1] === 'string') ? undefined : () => {};
   return {
     Emitter, Vec2, Vec3, Quat, Color, Size, Rect, Component, Node, UITransform, Sprite, Label, Graphics, UIOpacity, BlockInputEvents, Mask, ScrollView, Canvas, Camera, MeshRenderer, SphereLight, EventTouch,
-    ImageAsset, Texture2D, SpriteFrame, TextAsset, Prefab, Material, RenderTexture, JsonAsset, AudioSource, AudioClip,
+    ImageAsset, Texture2D, SpriteFrame, TextAsset, Prefab, Material, RenderTexture, JsonAsset, AudioSource, AudioClip, TTFFont: class TTFFont { },
     Director: { EVENT_AFTER_SCENE_LAUNCH: 'director_after_scene_launch' }, game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, view, ResolutionPolicy: { EXACT_FIT: 1 }, Layers: { Enum: { UI_2D: 1 << 25, DEFAULT: 1 } }, director, sys, assetManager, AssetManager: {}, resources,
     isValid: (o, strict) => !!o && o.isValid !== false, profiler: { hideStats() {} }, _decorator: { ccclass: () => c => c, property }, tween, Tween, input, Input: { EventType: { TOUCH_START: 'touch-start' } },
     instantiate: p => new Node('Instance'), geometry: { Ray: class { constructor() { this.o = new Vec3(); this.d = new Vec3(); } }, ERaycastMode: { ANY: 0, CLOSEST: 1 }, intersect: { rayModel: () => 0 } },
@@ -169,6 +171,10 @@ function createHarness(options = {}) {
     if (fs.existsSync(abs + '.js')) return { kind: 'node', id: abs + '.js' };
     throw Error('Cannot resolve ' + spec + ' from ' + from);
   }
+  // Creator merges a bundle folder's scripts into the bundle's own index.js and runs it on loadBundle (asset/bundle.html).
+  function runBundleScripts(n) { const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : e.name.endsWith('.ts') ? [path.join(d, e.name)] : []);
+    const dir = path.join(BUNDLES, n); if (fs.existsSync(dir)) for (const f of walk(dir)) { state.bundleScripts = (state.bundleScripts || []).concat(n + ':' + path.relative(dir, f)); load(f); } }
+  state.onBundle = runBundleScripts;
   function load(file) {
     if (!path.isAbsolute(file)) {
       const rel = file.replace(/\.ts$/, ''); if (overrides[rel]) return overrides[rel];
@@ -177,8 +183,11 @@ function createHarness(options = {}) {
     if (cache.has(file)) return cache.get(file).exports;
     const out = ts.transpileModule(fs.readFileSync(file, 'utf8'), { fileName: file, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019, experimentalDecorators: true, esModuleInterop: true, isolatedModules: true } }).outputText;
     const module = { exports: {} }; cache.set(file, module);
-    const req = spec => { const r = resolve(file, spec); return r.kind === 'cc' ? cc : r.kind === 'env' ? { DEBUG: false, EDITOR: false, PREVIEW: false, WECHAT: false } : r.kind === 'override' ? overrides[r.rel] : r.kind === 'ts' ? load(r.file) : require(r.id); };
+    const req = spec => { const r = resolve(file, spec); return r.kind === 'cc' ? cc : r.kind === 'env' ? { DEBUG: !!options.debug, EDITOR: false, PREVIEW: false, WECHAT: false } : r.kind === 'override' ? overrides[r.rel] : r.kind === 'ts' ? load(r.file) : require(r.id); };
     new Function('exports', 'require', 'module', '__filename', '__dirname', out)(module.exports, req, module, file, path.dirname(file));
+    /* full9c: tools-only companion (code moved out of assets/ for the bundle budget) — its exports are merged in, the asset's own win */
+    const comp = path.join(ROOT, 'tools/asset-companions', path.relative(SCRIPTS, file));
+    if (!path.relative(SCRIPTS, file).startsWith('..') && fs.existsSync(comp)) { const c = load(comp); for (const k of Object.keys(c)) if (!(k in module.exports)) module.exports[k] = c[k]; }
     return module.exports;
   }
   const flush = async (n = 6) => { for (let i = 0; i < n; i++) await new Promise(r => setImmediate(r)); };

@@ -1,0 +1,26 @@
+'use strict';
+const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
+const H = require('../board-ui/harness.cjs').createHarness();
+const Component = H.load('world-r1/WorldFlowComponent').WorldFlowComponent;
+const c = new Component(), calls = [], ticks = [];
+c.node = new H.cc.Node('Host');
+// The 2D board harness omits worldRotation; supply the Cocos identity boundary explicitly.
+c.node.worldRotation = { x: 0, y: 0, z: 0, w: 1 };
+c.lastDiagnosticAt = Date.now();
+const snapshot = { state: 'home', hidden: false, needsResume: false };
+c.flow = { snapshot: () => snapshot, advance: dt => calls.push(dt), fault: error => { throw Error(error); } };
+const job = { elapsed: 0, seconds: 1, tick: t => ticks.push(t), off() {}, resolve() {}, reject: e => { throw e; } };
+c.jobs.add(job);
+c.update(5);
+assert.deepEqual(calls, [.1]); assert.deepEqual(ticks, [.1]);
+assert.equal(c.clock.rawSeconds, 5); assert.equal(c.clock.appliedSeconds, .1);
+for (const dt of [NaN, Infinity, 0, -1]) c.update(dt);
+assert.deepEqual(calls, [.1]); assert.deepEqual(ticks, [.1]);
+snapshot.needsResume = true; c.update(5);
+assert.deepEqual(calls, [.1]); assert.deepEqual(ticks, [.1]);
+snapshot.needsResume = false; c.update(.0125);
+assert.deepEqual(calls, [.1, .0125]); assert.deepEqual(ticks, [.1, .1125]);
+c.disposed = true; c.update(5); assert.deepEqual(calls, [.1, .0125]);
+const report = { status: 'PASS', actualEntry: 'WorldFlowComponent.update', recordedFlowSeconds: calls, recordedAnimationJobProgress: ticks, capSeconds: .1, invalidFramesIgnored: true, needsResumeBlocksBothClocks: true, disposedBlocked: true, scope: 'Actual TS component; Cocos identity node and downstream flow recording doubles. Full real WorldFlow + actor clock exercised separately.' };
+fs.writeFileSync(path.join(__dirname, 'reports/component-frame-cap.json'), JSON.stringify(report, null, 2) + '\n');
+console.log(JSON.stringify(report, null, 2));

@@ -1,0 +1,543 @@
+import {waitRegionAsset} from './RegionAssetDeadline';
+import {sailRideStarted} from './TransitionPreload';
+import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
+import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
+import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME,lakeBoardS} from './TransitionStaging';
+import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
+import {SKY_LAKE_CONT,lakeBasketYaw,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
+import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './TransitionAnchorData';
+import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
+import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
+import {camTag,camLog,camActorProbe/*QF_PROBE_BEGIN*/,camProbeLake/*QF_PROBE_END*/} from './CamTraceLog';
+import {SKY_PRE_FOLLOW,SKY_LAKE_AT_S6_M,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
+import {skyResumeBegin} from './SkyResumeLens'/* full9c: 运镜bot f3ad48bb, pose-only; we stay the only writer */;
+import {skyLakeEntry} from './SkyLakeEntry';
+import {startLegClock} from './LegTiming';
+import {blendPose as lakeBlendPose} from './LakesideBalloon';
+import {SKY_WALK_SHOT,skyBoxesToWorld,skyLocalToWorld,skyWalkShot} from './SkyWalkShot';
+import {SKY_FINALE_CITY_LOCAL,SKY_FINALE_POSE_LOCAL} from './SkyFinaleShot';
+import {firstMaterial,placeholderPlank,hidePlaceholders,findDeep,realModelPresent} from './TransitionProps';
+import {createGangwayDriver} from './SailGangway';
+import {setMooringRopes} from './SkyMooringRopes';
+import {basketObstacleEvent} from './BasketObstacles';
+import {sailBoardPaths,sailOffPath} from './TransitionStagingMath';
+import {Animation,Camera,Component,Director,Mat4,Material,Mesh,MeshRenderer,Node,Vec3,director,isValid,sys,view} from 'cc';
+import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
+import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+import {SkyNightTexture} from '../render/SkyNightTexture';
+import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials, meadowGroundMaterials, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
+import {rotate} from '../world-r1/CameraPose';
+import {RegionJourneyController, journeyDistanceAt, routeLength, sampleRoute} from '../world-r1/RegionJourneyCore';
+import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
+import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+import type {Cancellation, CharacterAdapter, Pose, Vec, WorldLease} from '../world-r1/WorldFlowCore';
+import { TailToken, beginTail, endTail } from './WalkTail';
+import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
+import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
+import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
+import {LAKESIDE_CAMERA_LAYOUT,lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+import {lakesideQaAdvance} from './LakesideQaShot';
+import {LAKESIDE_TOUCHDOWN,lakesideBoardBlendAtS,lakesideBoardByS,lakesideBoardBlendDurS,lakesideDoorWideLens,LAKESIDE_DOOR_HOLD,lakesideBoardEntryM,lakesideDoorBlendU,lakesideDoorLens,lakesideDoorRideCamera,lakesideDoorBlendS,lakesideDoorBlendDurS,lakesideDoorBlendPose,lakesideRouteTiming,LAKESIDE_BALLOON_LANDING,lakesideBalloonRide,lakesideBalloonMooring,footLockStep,footLockSwing,lakesideNearestWalkable,LAKESIDE_PATH_V4,LAKESIDE_STEPDOWN,stepdownRootAt,walkFrom,standupRootK} from './LakesideBalloon';
+import {arrivalPose} from '../world-r1/RegionJourneyCore';
+import {lakesideViewport} from './LakesideLandingHook';
+import {arrivalMark,markSeenT03,publishLakesideRide,registerLakesideRideSkip} from './LakesideArrivalCore';
+import {boardSafeInsets} from '../ui/BoardLayout';
+import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
+import {onDayNightChange} from '../world-r1/DayNightContract';
+import {regionBoardEnd,regionBoardSource,setMeadowBoardFraming,setRegionBoardSource,type BoardLandingRegion,type RegionBoardSource} from './RegionBoardLanding';
+import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
+import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
+import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
+import {transportFor} from './JourneyTransport';
+import {awaitVehicle, VEHICLE_ASSET_WAIT_MS} from './TransportWait';
+import {diagDumpScene,diagParams,lakeDiagAt,loadTransitPrefab,mountYardBalloon} from './BalloonTransit';
+import {LakesideLegHide} from './LakesideLegHide';
+import {cloudseaDaySaved} from './SkycityCloudsea';
+LakesideLegHide.ownerSaved=cloudseaDaySaved/* b17r13: env_cloud_layer shared with the night hide (01892b6e), one true original */;
+import {mountVehicle} from './TransportVehicle';
+import {stepTransitClock} from './TransportLeg';
+import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,sailVehicle,seatFromBench} from './TransportLeg';
+import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_PORT_STEP_LOCAL} from './SailLanding';
+import {createSailDriver,playSailBeats} from './SailRide';
+import {mountSailArt,type SailArt} from './SailArt';
+import {meadowSplitLoad,takeSailWarm} from './SailPreload';
+import {mountBalloonLease} from './BalloonRide';
+function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
+function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
+/** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
+export {REGION_JOURNEY_LAYOUT};
+/** 运镜bot: map between the board copy (board rig coordinates; boardLocal = the prefab root's own transform) and this placed
+ *  journey copy (world): toJourney = J·B⁻¹, toBoard = B·J⁻¹ (rigid, both copies share the prefab scale). Skycity also takes
+ *  the two framing anchors from the journey copy (world). */
+function journeyBoardSource(region:BoardLandingRegion,model:Node,boardLocal:Mat4):RegionBoardSource{
+ const J=new Mat4();Mat4.copy(J,model.worldMatrix);const Bi=new Mat4();Mat4.invert(Bi,boardLocal);const M=new Mat4();Mat4.multiply(M,J,Bi);const Mi=new Mat4();Mat4.invert(Mi,M);
+ const tf=(m:Mat4)=>(p:Vec):Vec=>{const v=new Vec3(p[0],p[1],p[2]);Vec3.transformMat4(v,v,m);return [v.x,v.y,v.z];};
+ const mm=M as any;for(let i=0;i<16;i++)if(!Number.isFinite(mm['m'+String(i).padStart(2,'0')]))throw Error('region-board-map-invalid');
+ return {region,map:{toJourney:tf(M),toBoard:tf(Mi)},...(region==='skycity'?{anchors:{spawn:anchor(model,'anchor_spawn_girl'),court:anchor(model,'anchor_starcourt_center')}}:{})};
+}
+/** Real bundled GLBs and required anchors/materials are prepared before publishing ready. Rigid placement only,
+ * at original metre scale. The original island remains alive; a second area never replaces the visible first area. */
+export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJourneyController{
+ const mounted=new Map<JourneyRegion,Node>();
+ return new RegionJourneyController({
+  readCamera():Pose{const c=options.camera,p=c.node.worldPosition,q=c.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:c.fov};},
+  async prepare(from,to,start,token,progress){
+   if(to==='lakeside')return prepareLakesideJourney(options.parent,options.camera,from,start,token,progress);
+   if(to==='skycity'&&transportFor(from,to)==='balloon'){
+    const waited=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled,load:()=>mountBalloonLease({parent:options.parent,meadow:mounted.get('meadow')??null,start,token,progress})});
+    const lease=waited.value;if(lease.model)mounted.set('skycity',lease.model);return lease;
+   }
+   // Rainbow bridge removed (b16): the only on-foot-free legs are sail (island→meadow) and balloon (→skycity, →lakeside).
+   if(!(from==='island'&&to==='meadow'&&transportFor(from,to)==='sail'))throw Error('journey-transport-unsupported:'+from+'-'+to);
+   const def=REGIONS[to];if(!def)throw Error('journey-region-unavailable');
+   const sailWait=true;
+   const prefab=sailWait?(await awaitVehicle({kind:'sail',cancelled:()=>token.cancelled,load:()=>waitRegionAsset(meadowSplitLoad().then(()=>loadRegionPrefab(def,p=>progress(p*.72))),token,VEHICLE_ASSET_WAIT_MS)/* P0 wipe r2: never the one-burst load */})).value:await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
+   if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
+   prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
+   let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,sailArt:SailArt|null=null;
+   const release=()=>{if(dead)return;dead=true;sailArt?.dispose();if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();};
+   try{
+    const sail=true;
+    // 运镜bot r5 (meadow-girlsize A): the sail arrival ends at M1 → closer board camera.
+    setMeadowBoardFraming('A');
+    const warmed=sail?takeSailWarm():null;
+    // P0 wipe: the warm rig is used as is; the old path instantiated a second meadow here and destroyed it (a full mount inside the 3 s window).
+    if(warmed){model=warmed;rig.addChild(model);}else model=mountRegion(def,prefab,rig);
+    // 运镜bot: the prefab's own root transform = the board copy's transform in its (identity) board rig, before the journey places it.
+    boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);
+    for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
+    if(to==='meadow'){
+     mountYardBalloon(model)/* full9c: deflated balloon waits in the yard (not awaited) */;
+     for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
+     const grass=validateModel(model);configureMeadowVertexColors(model);
+     // These local backdrops enclose the source island when both scenes coexist. Reuse the world's existing sky.
+     for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(backdrop)for(const r of backdrop.getComponentsInChildren(MeshRenderer))r.enabled=false;}
+     // N1 (e2a03ec audit): at night the reused island sky reads as day out here. Keep the meadow dome as a night-only sky
+     // with SkyNightTexture (night picture on demand, gradient until it lands); WorldFlowComponent.applyDayNight drives
+     // nightBlend and the dome's visibility on every day/night change. Day keeps the old path (dome off).
+     mountMeadowNightSky(model);
+     effect=await waitRegionAsset(loadWindEffect(),token);token.check();effect.addRef();
+     const material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('journey-meadow-wind-material-missing');owned.push(material);
+     for(const r of grass)for(let i=0;i<r.sharedMaterials.length;i++)r.setSharedMaterial(material,i);
+     motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');
+     // N2: grass + topmost cloud follow the journey's night grade.
+     motion.journeyNight=true;motion.clouds=meadowCloudMaterials(find(model,'meadow_clouds_near'));
+     motion.grounds=meadowGroundMaterials([find(model,'meadow_terrain'),find(model,'meadow_river_bank')]);
+    }else{const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');await waitRegionAsset(ambient.prepare(),token);token.check();}
+    progress(.86);
+    model.setRotationFromEuler(0,180,0);
+    {const root=sailMeadowRoot();model.setWorldPosition(root[0],root[1],root[2]);}
+    // 运镜bot (region hooks): the route ENDS on THIS screen's board camera (RegionBoardLanding: the board background's own pose
+    // for the board UI's viewport, mapped onto this journey copy); if the screen or the map cannot be read, the old end is kept.
+    let board:JourneyBoardEnd|undefined;
+    try{boardSrc=journeyBoardSource(to as BoardLandingRegion,model,boardLocal!);const v=lakesideViewport(view.getFrameSize());board=regionBoardEnd(boardSrc,v.width/v.height,v);}catch(error){boardSrc=null;board=undefined;try{console.error('[QF_REGION] board landing unavailable: '+String(error));}catch{}}
+    let route:JourneyRoute;
+    let sailDriver:ReturnType<typeof createSailDriver>|null=null;
+    let sailPlan:Parameters<typeof playSailBeats>[4]|null=null;
+    if(sail){
+     const sr=sailRoute(),m0=sailM0World(),m1=sailM1World(),berth=sailBerthWorld(),root=sailMeadowRoot();
+     const step=meadowLocalToWorld(SAIL_LANDING_STEP_LOCAL,root);
+     const walk=SAIL_LANDING_WALK_LOCAL.map(p=>meadowLocalToWorld(p,root));
+     const built=sailJourneyPath(start,m0,m1,[...sr.samples,...walk]);
+     const sailPath=built.path;if(board&&!(board.blendM<routeLength(sailPath)))board=undefined;
+     route={from,to,path:sailPath,bridgeStart:built.bridgeStart,bridgeEnd:built.bridgeEnd,speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(board?{board}:{})};
+     let boat:Node|null=null,seat:Node|null=null,sailNode:Node|null=null;
+     try{sailArt=await mountSailArt(rig,model);boat=sailArt.boat;seat=sailArt.seat;sailNode=sailArt.sail;}catch(error){try{console.info('[QF_SAIL] '+String((error as Error)?.message||error));}catch{}}
+     const tl=sailBeats(sr.length);
+     const sceneRoot=options.parent.scene||director.getScene();
+     const rider=sceneRoot?find(sceneRoot,'FLOW_REFERENCE_PLACEHOLDER_NOT_B'):null;
+     if(!rider)console.error('[QF_SAIL] rider missing: FLOW_REFERENCE_PLACEHOLDER_NOT_B is not a scene-root child');
+     const boardPose=board?{position:board.position as Vec,target:board.target as Vec,fovVerticalDeg:board.fovVerticalDeg}:null;
+     sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:walk,boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,art:sailArt,boardPose,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
+     const dock=sr.samples[0];
+     const deck:Vec=[SAIL_I6[0]+0.75,-0.18,dock[2]];
+     // Port rail (mirror of board_step) → landing_step ends the sail clock.
+     const vEnd=sailVehicle(tl,sr.samples,tl.beats.find(b=>b.id==='S-e')!.t1);
+     const onBoat=(local:Vec):Vec=>{
+      const c=Math.cos(vEnd.yaw),s=Math.sin(vEnd.yaw);
+      return [berth[0]+local[0]*c+local[2]*s,berth[1]+local[1],berth[2]-local[0]*s+local[2]*c];
+     };
+     const standAt=seatFromBench(onBoat([0,0.06,-0.07]),vEnd.yaw);
+     const port=onBoat(SAIL_PORT_STEP_LOCAL);
+     const v0=sailVehicle(tl,sr.samples,0),fx=Math.sin(v0.yaw),fz=Math.cos(v0.yaw),p0=sr.samples[0];
+     const sit=seatFromBench([p0[0]-fx*0.55,p0[1]+0.06,p0[2]-fz*0.55],v0.yaw);
+     const arrival=[step,...walk.slice(1),m0,m1];
+     // transitions-continuous (场景设计部 b19 stances): I4 → dock ramp → new I6 → dock_board → gangway → sit (A1/A2);
+     // stand_up → port gangway → landing_step (A5). Dock/gangway art comes later as named nodes; until then swappable placeholders.
+     const bp=sailBoardPaths(start,v0.pos,v0.yaw),off=sailOffPath(berth,vEnd.yaw,step),G=TRANSITION_STAGING.gangway,I=TRANSITION_STAGING.island;
+     // cand7 (b19 dock models): the real island_dock (IslandProps, ISLAND_PROPS.structures) and the real sail_gangway (sailboat.glb
+     // sail_gangway_hinge, driven from its extras) replace the plankBetween boxes. Boxes are a fallback only when a model is missing;
+     // a dock that mounts later removes them in the same call (realModelArrived), and they are hidden when their region is left.
+     const hull=firstMaterial(boat),scn=director.getScene(),dockReal=realModelPresent('island_dock')||!!findDeep(scn,'island_dock');
+     const gangway=createGangwayDriver(boat,findDeep);if(gangway)gangway.set('stowed-meadow');
+     const props={pier:dockReal?null:placeholderPlank(rig,'island_dock',[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[0]],[(I.dockDeck.x[0]+I.dockDeck.x[1])/2,I.dockDeck.top,I.dockDeck.z[1]],I.dockDeck.x[1]-I.dockDeck.x[0],.12,hull),
+      ramp:dockReal?null:placeholderPlank(rig,'island_dock_ramp',[-1.4,I.dockRamp.top[0],I.dockRamp.z[0]],[-1.4,I.dockRamp.top[1],I.dockRamp.z[1]],I.dockRamp.x[1]-I.dockRamp.x[0],.08,hull),
+      islandPlank:gangway?null:placeholderPlank(rig,'sail_gangway',I.dockBoard,bp.boat[1],G.widthM,.05,hull),
+      meadowPlank:gangway?null:placeholderPlank(rig,'sail_gangway_meadow',off[2],off[3],G.widthM,.05,hull),gangway};
+     if(props.meadowPlank)props.meadowPlank.active=false;
+     const sitStart=bp.boat[bp.boat.length-1];
+     sailPlan={total:tl.build05S,approach:bp.toI6,pier:bp.dock.slice(1),plankOn:bp.boat.slice(1,-1),props,deck:sitStart,disembark:off,arrival,sit,stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
+    }
+    token.check();
+    // N3: at night the path and windmill dim to x0.6 with the same night weight.
+    if(motion&&model)motion.grounds.push(...meadowGroundMaterials([find(model,'meadow_path'),find(model,'windmill_static_merged'),find(model,'windmill_sails')],MEADOW_PROP_NIGHT));mounted.set(to,model);progress(.98);
+    if(boardSrc&&route.board)setRegionBoardSource(to as BoardLandingRegion,boardSrc);
+    const lease:JourneySceneLease={route,show(visible){if(dead)return;if(!visible)hidePlaceholders(rig)/* cand7: off with the meadow lease; SailRide re-shows on cue */;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release,
+     ...(sailDriver&&sailPlan?{onFrame:(dt:number)=>sailDriver!.onFrame(dt,false),startPose:()=>{const v=view.getFrameSize();return sailDriver!.pose({w:v.width,h:v.height});},ride:(actor,world,token)=>{sailRideStarted();return playSailBeats(sailDriver!,actor,world,token,sailPlan!);}}:{})};
+    return lease;
+   }catch(error){release();throw error;}
+  }
+ });
+}
+/** N1: meadow_sky_dome as a night-only sky (SkyNightTexture on its renderer). Returns the component, or null without a dome. */
+export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):SkyNightTexture|null{
+ const dome=find(model,'meadow_sky_dome');const r=dome?dome.getComponentsInChildren(MeshRenderer)[0]:null;if(!dome||!r)return null;
+ const sky=dome.getComponent(SkyNightTexture)||dome.addComponent(SkyNightTexture);sky.skyRenderer=r;(sky as any).__qfNightOnly=true;
+ r.enabled=night;sky.setNightBlend(night?1:0);
+ try{if((globalThis as any).__worldFlowLog)console.info('[QF_SKY] '+JSON.stringify({event:'meadow-night-sky',night}));}catch{}
+ return sky;
+}
+function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
+/** 风铃湖畔: skycity → lakeside on the existing balloon. LakesideCameraLayout.lakesideJourney(start) still places the
+ *  scene; the basket descends onto the south-bank walk stop. */
+class LakesideBalloonTicker extends Component{step:(dt:number)=>void=()=>{};lateUpdate(dt:number){this.step(Math.max(0,Math.min(0.1,dt||0)));}}
+/** 运镜bot: the lakeside route ends on THIS screen's board camera (the board UI's frame: viewport + boardSafeInsets); the
+ *  base landing is kept if anything about the screen cannot be read. */
+function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
+ try{const v=lakesideViewport(view.getFrameSize());return lakesideScreenLanding(L,lakesideScreenFrame(v.width,v.height,boardSafeInsets(v.width,v.height)),LAKESIDE_CAMERA_LAYOUT.stopLocal/* b18 v4 stop */);}catch{return L.landing;}}
+/** r4-prep A: blend weight at which the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame; ~1 m + the 1 s landing hook before the swap). */
+export const LAKESIDE_BOARD_PRELOAD_W=.9;
+/** r5 per-part fill: re-write the journey fill only on a weight step of >= 1/64, or when it reaches 0 / 1 exactly. */
+export function lakesideFillStep(prev:number,next:number):boolean{return Math.abs(next-prev)>=1/64||(next!==prev&&(next===0||next===1));}
+async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+ if(from!=='skycity')throw Error('journey-region-order');
+ const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
+ let tailStop=()=>{}/* b15 handover: only the journey owner ends the exit walk */,waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{},beforeDraw=()=>{};let fillW=0;
+ /** P2 lakeside gate (Grok Bot 2026-10-29): show(true) at the set-off used to turn on the WHOLE rig, so the lakeside land
+  *  (LK_terrain / LK_far_hills, mounted by lakesideJourney() at deck height 66 m ahead, land fill at weight 0 under the skycity
+  *  lights) filled the skycity walk background dark green (finstart 62–116). The model stays mounted, batched and filled
+  *  (preloaded, no stall/mask at the switch) but inactive until the door; the walk sees the skycity sky. */
+ let lakeOpen=false;const openLake=()=>{if(lakeOpen)return;lakeOpen=true;if(lakeModel&&isValid(lakeModel,true))lakeModel.active=true;};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+ const legHide=new LakesideLegHide()/* b17 night lakeside blocker: earlier legs' leftovers off once she boards */;
+ const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);tailStop();rig.active=false;if(isValid(rig,true))rig.destroy();legHide.restore();try{setMooringRopes(director.getScene(),'5a',false);basketObstacleEvent('lakeside:released');}catch{}/* cand7 */batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();publishLakesideRide(null);};
+ const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+ try{
+  progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);lakeModel=model;
+  await mountLakesideScenery(model,token,take);token.check();
+  // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
+  batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
+  // r4 land fill (VB): enableLakesideInstancing gave the landform GLBs their filled copies (same source as the board:
+  // lakesideModeLighting(mode).landFill*); the journey re-writes them on the day/night toggle like the board's applyDir.
+  // r5 per-part fill: the journey copy follows the atmosphere blend weight, rewritten on a step >= 1/64 or at 0 / 1.
+  applyLakesideLandFill(model,lakesideDayNightMode(),fillW);
+  offLand=onDayNightChange(()=>{if(!dead)applyLakesideLandFill(model,lakesideDayNightMode(),fillW);});
+  // r4-prep D (lead): the journey's lake reads the SAME water source as the board (its own lakeside-water.mtl copy written by
+  // lakesideWaterMaterial / applyLakesideWaterMode from LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting). Not loaded = old look,
+  // r4 journey fix 1: and one always-on [QF_LAKE] journey-water-fallback ERROR line with the reason + asset path (no throw, the walk goes on).
+  let waterAsset:Material|null=null;try{waterAsset=await loadLakesideWaterAsset(token,take);}catch(error){if(token.cancelled||dead)throw error;logLakesideJourneyWaterFallback(error);waterAsset=null;}token.check();
+  if(waterAsset){const water=lakesideWaterMaterial(waterAsset);owned.push(water);applyLakesideWaterMode(water,lakesideDayNightMode());useLakesideWater(model,water);
+   offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});journeyWater=water;}
+  if(!isValid(parent,true))throw Error('journey-owner-destroyed');
+  // clip19: lake from the ride's S6, not the prepare-time root (19bd812a: board checkpoint, lake hill over the mooring)
+  const M5C=TRANSITION_STAGING.skyMooring5a,L=lakesideJourney(continuousTransitions()&&M5C.option==='C'?[...M5C.walkWorld[0]] as Vec:start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);lakeYaw=L.yawDeg/* r4 journey fix 2: sun turned with the lake */;
+  // 运镜bot r5 lakeside-landing-cam: ONE shot from the skycity camera to the standing landing pose E (= this screen's board
+  // camera, LAKESIDE_CAMERA_LAYOUT.landing via lakesideRouteLanding): the flight lens ends exactly on E, so the 1 s landing hook
+  // and the board take over without a cut. The basket carries her (stand_point) and flies the west corridor round the tree.
+  const shore=L.arrival[L.arrival.length-1],v4Stop=L.toWorld([...LAKESIDE_CAMERA_LAYOUT.stopLocal] as Vec),E=arrivalPose([shore,v4Stop],L.focus,L.landing)/* b18: solved from the v4 stop, = this screen's board lens */,landPose:Pose={position:E.position,target:E.target,fovVerticalDeg:L.landing.arrivalFovDeg};
+  // v2: she walks from S6 round the roots to the island edge (production walk), boards the moored basket under a fade, flies.
+  const K=LAKESIDE_BALLOON_LANDING,moored=lakesideBalloonMooring(shore,L.toWorld),M5=TRANSITION_STAGING.skyMooring5a,atC=continuousTransitions()&&M5.option==='C'/* full2-cam task 4: the game rides from mooring C (data), not T-03's launch-point walk */,R=lakesideBalloonRide(atC?[[M5.walkWorld[0][0],M5.walkWorld[0][1],M5.walkWorld[0][2]] as Vec/* full7 (a): the counted leg starts at S6; ride() walks the node path there first */,...M5.walkWorld.slice(1).map(p=>[p[0],p[1],p[2]] as Vec)]:[start,...K.walkLocal.slice(1).map(p=>L.toWorld([p[0],p[1],p[2]]))],L.toWorld([K.launchLocal[0],K.launchLocal[1],K.launchLocal[2]]),moored.mooring,landPose),flight=R.flight,path=[...R.path,...moored.walk],walkM=routeLength(R.walk);
+  const entry=atC?skyLakeEntry(start,M5 as any):null/* full8b: checkpoint → S6 lead-in (uncounted, walked by the ride) */;
+  let route:JourneyRoute={from,to:'lakeside',...(entry?{entry}:{}),path,bridgeStart:walkM+flight.bridgeStart,bridgeEnd:walkM+flight.bridgeEnd,speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};
+  const total=routeLength(path);route={...route,timing:lakesideRouteTiming(total,R.T+moored.timing.durationS,K.walkEaseS,moored.timing.easeOutS)};token.check();progress(.98);
+  const loaded=await awaitVehicle({kind:'balloon',cancelled:()=>token.cancelled||dead,load:async()=>{token.check();const prefab=await loadTransitPrefab('transport_balloon');if(!prefab)throw Error('balloon-prefab-missing');return prefab;}});
+  token.check();const prefab=loaded.value;prefab.addRef();held.push(prefab);const vehicle=mountVehicle(prefab,rig);vehicle.name='LakesideMooredBalloon';
+  // b15 getout v2: the basket carries the exit yaw for the whole ride (door wall +Z toward her shore walk, 96.19° at the b15
+  // mooring); her seat yaw under stand_point is compensated in board(), so her ride facing is unchanged.
+  if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
+  // r4 journey fix 3: the first show (under the set-off black, right after prime() switched the fog) draws the water copy once, tiny, in
+  // front of the camera, so its shader/PSO exist before the lake first comes into view (no first-sight hitch). Once per journey.
+  const warmWater=()=>{if(warm||dead||!journeyWater)return;warm=prewarmLakesideWaterDraw(camera,journeyWater,lakesideWaterSourceRenderer(lakeModel,isLakesideWaterNode));};
+  const clock={t:0,hiddenFor:0,fade:0};
+  let lastPose:Pose|null=null;let ropes5a=false;let rideCam=false/* full9b single writer: true while the ride's own before-draw writers own the lens; lease.onFrame stays silent */;
+  const readLens=():Pose=>{const p=camera.node.worldPosition,q=camera.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:camera.fov};};
+  const doorVs=view.getVisibleSize(),doorWide=lakesideDoorWideLens(moored.walk,moored.mooring,landPose,doorVs.width/Math.max(1,doorVs.height),{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* T-03: pulled back, lake + her whole body in frame, held under the place-name sign, option B */,doorLens=doorWide?doorWide.lens:lakesideDoorLens(moored.walk,moored.mooring,doorVs.width/Math.max(1,doorVs.height),undefined,undefined,{...boardSafeInsets(doorVs.width,doorVs.height),h:doorVs.height})/* b16 item 6: safe insets (route F3) *//* b15 door shot: where the ride lens arrives at touchdown */;
+  const ride=async(actor:CharacterAdapter,world:WorldLease,rideToken:Cancellation)=>{
+   rideCam=true;
+   // full7 (a): region walk to S6 (not counted) with a continuous follow lens, then the counted leg from S6
+   const g00=((actor as any).node as Node|undefined)?.worldPosition,skyPre=atC?skyLakePreWalk(g00?[g00.x,g00.y,g00.z]:start,M5 as any):null;
+   if(atC&&!skyPre)try{const h=g00?[g00.x,g00.y,g00.z]:start,s6=M5.walkWorld[0];console.info('[QF_SKY_PREWALK] '+JSON.stringify({none:true,start:h.map(v=>+v.toFixed(3)),dS6M:+Math.hypot(h[0]-s6[0],h[1]-s6[1],h[2]-s6[2]).toFixed(3),atS6M:SKY_LAKE_AT_S6_M}));}catch{/* diag */}
+   if(skyPre){/* full9b diag (finale prewalk 26.95 m, not on any baked start): her start + the skycity model frame the finale (RegionNodeStage.toWorld) used vs skyMooring5a */
+    try{const rg=findDeep(director.getScene(),'RegionJourney-skycity'),md=rg?.children[0],r3=(v:number)=>Math.round(v*1000)/1000;
+     console.info('[QF_SKY_PREWALK] '+JSON.stringify({start:skyPre.path[0].map(r3),s6:skyPre.path[skyPre.path.length-1].map(r3),lengthM:r3(skyPre.lengthM),keys:skyPre.keys,
+      herYawDeg:(()=>{const n=(actor as any).node as Node|undefined;return n&&isValid(n,true)?r3(n.eulerAngles.y):null;})(),
+      model:md?{name:md.name,pos:[md.worldPosition.x,md.worldPosition.y,md.worldPosition.z].map(r3),yawDeg:r3(md.eulerAngles.y),rigPos:[rg!.worldPosition.x,rg!.worldPosition.y,rg!.worldPosition.z].map(r3),rigYawDeg:r3(rg!.eulerAngles.y)}:null,
+      m5:{world:M5.world,worldYawDeg:M5.worldYawDeg,pos:M5.pos,yawDeg:M5.yawDeg}}));}catch{/* diag only */}
+    const preClock=startLegClock('skycity-S6-prewalk'),girl0=(actor as any).node as Node|undefined,c0=readLens();let st=0,smooth:Pose|null=null;const P=skyPre.path;
+    const pvs=view.getVisibleSize();let run:ReturnType<typeof skyResumeBegin>=null;try{run=skyResumeBegin(P,M5 as any,c0,{leg:'finale',screen:{w:Math.round(pvs.width),h:Math.round(pvs.height)}});}catch(e){run=null;console.error('[QF_SKY_RESUME] skyResumeBegin threw: '+String(e));}
+    const preDraw=()=>{if(dead||!girl0||!isValid(girl0,true))return;const dt=Math.min(.1,Math.max(0,director.getDeltaTime()));st+=dt;const g=girl0.worldPosition,her:Vec=[g.x,g.y,g.z];
+     let k=0,b=Infinity;for(let i=0;i+1<P.length;i++){const a=P[i],c=P[i+1],vx=c[0]-a[0],vz=c[2]-a[2],l2=vx*vx+vz*vz||1,u=Math.max(0,Math.min(1,((her[0]-a[0])*vx+(her[2]-a[2])*vz)/l2)),dx=a[0]+vx*u-her[0],dz=a[2]+vz*u-her[2],d=dx*dx+dz*dz;if(d<b){b=d;k=i;}}
+     const dir=[P[k+1][0]-P[k][0],0,P[k+1][2]-P[k][2]],want=skyPreFollowPose(her,dir);const a=1-Math.pow(.5,dt/SKY_PRE_FOLLOW.halfLifeS);
+     if(run){world.setCamera(run.step(her,dt))/* baked: the plan's pose, written here (single writer) */;return;}
+     smooth=smooth?lakeBlendPose(smooth,want,a):want;world.setCamera(st<SKY_PRE_FOLLOW.blendInS?lakeBlendPose(c0,smooth,st/SKY_PRE_FOLLOW.blendInS):smooth);};
+    director.on(Director.EVENT_BEFORE_DRAW,preDraw);
+    try{await actor.perform({kind:'walk',path:P,duration:skyPre.durationS,stopAtEnd:false} as any,rideToken);}finally{director.off(Director.EVENT_BEFORE_DRAW,preDraw);preClock.stop({keys:skyPre.keys,lengthM:+skyPre.lengthM.toFixed(2)});}
+    rideToken.check();}
+   const legClock=startLegClock('skycity-lakeside');
+   const ticker=rig.addComponent(LakesideBalloonTicker);
+   const from=readLens()/* the skycity camera at set-off: the walk lens blends out of it (7.5 s), orbiting round her */;
+   const seat=find(vehicle,'stand_point')||vehicle,girl=(actor as any).node as Node|undefined;let prev:Node|null=null,aboard=false;
+   // T-03 + WindWipe: the boarding cover is ONE 'ride' WindWipe (no black fade of ours). Covered → seat her + jump the ride by
+   // flightSkipS (clock to cutT); beforeReveal resolves once the ride camera has been placed for 2 frames; the ride clock is frozen
+   // at cutT during the hold and runs again from the reveal. Hooks filter kind 'ride' + our id and are removed at segment end.
+   // transitions-continuous (segment 6, 运镜bot SkyLakeContinuous): no WindWipe boarding. She walks to the basket, the door
+   // opens, she steps in and sits (BASKET_RIDE_POSE.lakeside), the burner ignites and the envelope fills (INFLATE), the 18 s
+   // lift-off T-03 hid under black plays time-compressed (liftS), then T-03's 12 s visible flight unchanged, touchdown/board unchanged.
+   const contLake=continuousTransitions();
+   // full2-cam C2: door close-up spot beside the lakeside basket (her P0), preferring the option-B wide side
+   let c2Spot:{position:Vec}|null=null;try{c2Spot=contLake?basketCloseSpot(moored.start as Vec,moored.mooring as Vec,transitionOccluderBoxes() as any,undefined,[doorLens]):null;}catch{c2Spot=null;}
+   const c2Lens=(s:number,base:Pose):Pose=>{if(!c2Spot||!girl||!isValid(girl,true)||s<C2_CLOSE.inAtS)return base;const g=girl.worldPosition;return c2ClosePose(s,base,basketClosePose(c2Spot.position,[g.x,g.y,g.z]));};let sl:SkyLake|null=null,tau=0,boardStarted=false,boarded=false,boardEndTau=0;
+   const wipeOn=!contLake&&typeof world.fadeCover==='function',fade=wipeOn?(w:number,s:number)=>Promise.resolve(world.fadeCover!(w,s)).catch(()=>{}):null;
+   let walkDone=false,blackDone=!wipeOn,fadingOut=false,fadingIn=false,held=!wipeOn,placed=0;let wipeEv:WipeEvent|null=null;
+   const mine=(e:WipeEvent)=>!!wipeEv&&e.kind==='ride'&&e.id===wipeEv.id;
+   const unhook=[onWipeCovered(e=>{if(mine(e)){blackDone=true;clock.t=Math.max(clock.t,R.cutT);placed=0;}}),
+    addWipeBeforeReveal(e=>!mine(e)||placed>=2),onWipeRevealed(e=>{if(mine(e))coverContent(null);})];
+   const unhookAll=()=>{for(const u of unhook.splice(0))try{u();}catch{}};
+   const runWipe=async()=>{wipeEv=newWipeEvent('ride',wipeContentFor('lakeside',true));coverContent(wipeContentFor('lakeside',true));coverAudioOut(WINDWIPE.outS);
+    await fade!(1,WINDWIPE.outS);if(dead)return;emitWipeCovered(wipeEv);const hooks=startWipeBeforeReveal(wipeEv),t0=Date.now();
+    await new Promise<void>(res=>{const tick=()=>{const h=(Date.now()-t0)/1000;if(dead||h>=20||(h>=WINDWIPE.holdS&&hooks()&&coverReady()))res();else setTimeout(tick,16);};tick();});
+    held=true;coverAudioIn(WINDWIPE.inS);fadingIn=true;await fade!(0,WINDWIPE.inS);emitWipeRevealed(wipeEv);};
+   const ldoor=find(vehicle,'basket_door')||find(vehicle,'basket_door_leaf'),lenv=find(vehicle,'balloon_envelope'),lflame=find(vehicle,'burner_flame');
+   const envHome=lenv&&isValid(lenv,true)?{p:lenv.position.clone(),s:lenv.scale.clone()}:null;
+   const inflate=(it:number)=>{const f=inflateAt(it);if(envHome&&lenv&&isValid(lenv,true))lenv.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
+    if(lflame&&isValid(lflame,true)){lflame.active=it>0;const k=f.flame;lflame.setScale(k,k,k);}};
+   let stepInS:number=SKY_LAKE_CONT.stepInS,inflateTau0=0;let boardFn:()=>void=()=>{};
+   if(contLake){
+    const D5=TRANSITION_DURATIONS.seg5a;stepInS=(D5.intoBasket||lakeBoardS())+D5.turn180/* 0: turn removed */+D5.sitDown/* b19 seconds; real walk+sit are held to this window */;
+    // compress: ignition + inflate start during the walk to the basket (finish as she sits); only a remainder delays liftoff
+    const inW=R.walkS+D5.doorReach+stepInS,ign=Math.max(0,D5.inflate-inW);
+    // full2-cam task 4: mooring C — basket on 场景设计部's lift keys, T-02 finale → walk lens (SkyWalkShot) on the data walk
+    let walkCam:((tau:number)=>Pose)|null=null;if(atC){try{const fin={position:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.position),target:skyLocalToWorld(M5,SKY_FINALE_POSE_LOCAL.target),fovVerticalDeg:SKY_FINALE_POSE_LOCAL.fovVerticalDeg};
+     const W=skyWalkShot(M5.walkWorld,M5.walkMps,2,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,M5.walkWorld)] as any,skyLocalToWorld(M5,SKY_FINALE_CITY_LOCAL),{...SKY_WALK_SHOT,plan:SKY_5A_WALK_PLAN} as any,fin);walkCam=tau=>{camTag('SkyWalkShot');return W.pose(W.gazeS+tau*W.walkS/R.walkS);};}catch{walkCam=null;}}
+    // full2-cam E: C1 close-up — lens beside door A at the mooring, panning to her from the door stand to the seat
+    let boardClose:((tau:number)=>Pose)|null=null;if(atC){const door=M5.walkWorld[M5.walkWorld.length-1] as Vec,plain=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false,liftTraj:SKY_5A_LIFT_KEYS,walkCam}),
+      spot=basketCloseSpot(door,M5.world as Vec,[...transitionOccluderBoxes(),...skyBoxesToWorld(M5,SKYCITY_LENS_OCCLUDERS,[door])] as any,undefined,[walkCam?walkCam(R.walkS):plain.cam(R.walkS-1e-6,null),plain.cam(plain.flightAt,null)]);
+     if(spot)boardClose=tau=>basketClosePose(spot.position,boardFeetAt(door,M5.seat as Vec,tau-R.walkS,D5.doorReach,stepInS-D5.sitDown));}
+    sl=skyLakeContinuous(R,doorLens,{...(SKY_LAKE_CONT as any),doorS:D5.doorReach,stepInS,igniteS:ign,liftS:D5.liftoff,flightS:TRANSITION_RETIME.lakeFlightS,placeholder:false,...(atC?{liftTraj:SKY_5A_LIFT_KEYS,walkCam,boardClose}:{})});
+    boardEndTau=sl.walkS+D5.doorReach+stepInS;inflateTau0=Math.max(0,boardEndTau-D5.inflate)/* ignition + fill overlap boarding and sit_down, full as she is seated */;inflate(0);if(lflame)lflame.active=false;
+    chainMark('lakeside','C1-basket-in');guardBeforeWalk((actor as any).anim,'C1 walk to basket');}
+   const boardIn=async()=>{legClock.mark('door');openLake();
+    let dt0=0;const dStep=()=>{dt0+=Math.min(.1,Math.max(0,director.getDeltaTime()));if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,BALLOON_DOOR.openDeg*Math.min(1,Math.max(0,(dt0-BALLOON_DOOR.openDelayS)/BALLOON_DOOR.openS)),0);};
+    director.on(Director.EVENT_BEFORE_DRAW,dStep);
+    try{if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});rideToken.check();
+     const g=girl&&isValid(girl,true)?girl.worldPosition:null,sp=seat.worldPosition;
+     if(g){legClock.mark('stepIn');guardBeforeWalk((actor as any).anim,'C1 step into basket');const here:Vec=[g.x,g.y,g.z],to:Vec=[sp.x,g.y,sp.z],L=Math.hypot(to[0]-here[0],to[2]-here[2]);
+      if(L>.05)await actor.perform({kind:'walk',path:[here,to],duration:Math.max(.5,L/TRANSITION_STAGING.walkMps),stopAtEnd:true} as any,rideToken);
+      legClock.mark('sit');try{await actor.perform({kind:'sit',seat:seatFromBench([sp.x,sp.y+BASKET_RIDE_POSE.lakeside.offset[1],sp.z],moored.startYawRad)} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;}}
+     rideToken.check();boardFn();legHide.apply(director.getScene());
+    }finally{director.off(Director.EVENT_BEFORE_DRAW,dStep);if(ldoor&&isValid(ldoor,true))ldoor.setRotationFromEuler(0,0,0);}
+    boarded=true;};
+   const diag=diagParams(),diagAt=lakeDiagAt();let diagDone=false;
+   const walking=actor.perform({kind:'walk',path:R.walk,duration:R.walkS,distanceAt:R.walkAt},rideToken).then(()=>{walkDone=true;});
+   // T-03 (GGbot): arrival trace + board preload from the set-off (P1 45 s: the board preload used to start only at atmosphere
+   // weight 0.9, i.e. at the very end of the route, so the board mount ran after the landing instead of during the flight)
+   legClock.mark('walk');arrivalMark('ride-start');void preloadLakesideBoard();/*QF_PROBE_BEGIN*/if(camLog.on)camProbeLake(lakeModel,'walk');/*QF_PROBE_END*/
+   // T-03 skip API: the skip badge (2nd viewing on) runs a WindWipe 'ride'; under the cover it calls this, which jumps the
+   // ride clock to touchdown (R.T) on the next tick; resolves once the touchdown frame has been applied.
+   const flightAt=R.cutT+K.boardBlackS/2;let skipReq=false,skipped=false,landedOk:()=>void=()=>{};const landed=new Promise<void>(r=>{landedOk=r;});
+   const offSkip=registerLakesideRideSkip(()=>{if(skipReq)return landed;skipReq=true;skipped=true;arrivalMark('skip');openLake();return landed;});
+   const pub=(t:number,isLanded:boolean)=>publishLakesideRide({t,flightAt,touchdownAt:R.T,skippable:!skipReq&&t>=flightAt&&t<R.T-1,landed:isLanded,skipped});
+   let c4=false,lakeIgn=false;
+   await new Promise<void>((ok,bad)=>{
+    walking.catch(bad);
+    const off=rideToken.onCancel(()=>{unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);offSkip();publishLakesideRide(null);bad(Error('cancelled'));});
+    const board=()=>{if(aboard||!girl||!isValid(girl,true))return;aboard=true;prev=girl.parent;girl.setParent(seat,true);
+     // b15 stand-up v1b (角色动画bot 968be1d1 REPORT): she rides seated 0.494 m behind P0 facing the door (stand_point local
+     // 0.032,-0.1,-0.099; basket floor board top = basket y 0), so the stand_up root motion ends on P0 with no turn.
+     {const S=TRANSITION_STAGING.basket.seat;girl.setPosition(S[0],-.1,S[2]);}/* door2: seat (−0.032,0,0.099) facing exit door B */girl.setRotationFromEuler(0,moored.seatYawDeg(moored.startYawRad*180/Math.PI),0);};
+    boardFn=()=>board();
+    const apply=(writeCam=true)=>{
+     const t=Math.min(clock.t,R.T);/*QF_PROBE_BEGIN*/if(camLog.on)camProbeLake(null,t>=R.liftT&&t<R.T?'ascent':t<R.liftT?'board':'landed');/*QF_PROBE_END*/const pos=sl&&atC&&tau<sl.touchdownAt?sl.basket(tau):sl&&tau>=sl.flightAt&&t<R.cutT?R.flight.vehicle(t-R.liftT):R.vehicle(t);
+     if(sl&&atC&&isValid(vehicle,true))vehicle.setRotationFromEuler(0,lakeBasketYaw(sl,tau,M5.worldYawDeg,moored.doorYawDeg),0)/* moored −68.19 → landing (door B exit) */;
+     {const m=t<R.liftT;if(m!==ropes5a){ropes5a=m;setMooringRopes(director.getScene(),'5a',m);}}/* cand7: 5a rope while the basket is moored, stowed at lift-off */
+     if(isValid(vehicle,true))vehicle.setWorldPosition(pos[0],pos[1],pos[2]);
+     if(t>=R.cutT)board()/* under full black (or a plain cut when the world has no cover) */;
+     if(t>=R.cutT)legHide.apply(director.getScene())/* b17: island env_cloud_layer, day and night; skycity untouched */;
+     if(camLog.on&&sl&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,!boarded,'C1');}
+     lastPose=sl?sl.cam(tau,from):lakesideDoorRideCamera(R,doorLens,t,from);if(writeCam)world.setCamera(sl?c2Lens(tau-sl.touchdownAt,lastPose):lastPose)/* C2 close-up starts before touchdown */;if(t>=R.cutT&&placed<9)placed++;
+     // Web diagnostics (Mac bisect, night lakeside blocker): ?hideNode=a,b hides by exact name every frame of THIS leg too (the
+     // BalloonTransit hook only runs on the meadow→skycity leg); ?diagDump=1&lakeDiagAt=t logs every active renderer once at ride time t.
+     if(diag.hide.length){const sc=director.getScene();if(sc){const hideIn=(n:Node)=>{if(diag.hide.includes(n.name))n.active=false;for(const c of n.children)hideIn(c);};hideIn(sc);}}
+     if(diag.dump&&!diagDone&&diagAt!==null&&clock.t+1e-6>=diagAt){diagDone=true;diagDumpScene(clock.t,'lakeside');}
+     lease.progress!(t<R.cutT?R.walkAt(sl?Math.min(tau,R.walkS):t):walkM+journeyDistanceAt(flight.total,flight.timing,Math.max(0,t-R.liftT)))/* atmosphere + the board preload */;
+    };
+    beforeDraw=()=>{if(!dead)apply();};
+    director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
+    ticker.step=(dt)=>{
+     const hidden=typeof document!=='undefined'&&!!document.hidden;
+     if(sl){const d=hidden?0:Math.max(0,Math.min(.1,dt));
+      if(tau<sl.walkS)tau=Math.min(sl.walkS,tau+d);
+      else if(!boarded){if(walkDone&&!boardStarted){boardStarted=true;void boardIn().catch(bad);}tau=Math.min(boardEndTau-1e-3,tau+d);}
+      else{const prevTau=tau;tau=Math.max(tau,boardEndTau)+d;if(prevTau<sl.flightAt&&tau>=sl.flightAt){inflate(INFLATE.durationS);if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}chainMark('lakeside','C3-flight');legClock.mark('flight');}}
+      if(tau<sl.flightAt&&tau>=inflateTau0){if(!lakeIgn){lakeIgn=true;chainMark('lakeside','C2-ignite-inflate');}inflate(tau-inflateTau0);}
+      clock.t=sl.rideT(tau);if(!(clock.t+1e-4<R.T)&&!c4){c4=true;chainMark('lakeside','C4-settle');}
+      apply(clock.t+1e-4>=R.T)/* full9b single writer: beforeDraw writes the lens; the ticker only on its last step (beforeDraw is removed below) */;pub(clock.t,false);
+      if(clock.t+1e-4>=R.T){off();unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
+      return;}
+     const next=stepTransitClock(clock,dt,hidden);
+     const resumed=clock.fade<=0&&next.fade>0;
+     // the shot clock waits for her: at the basket until the walk has really ended, in the black until the cover is down
+     let t=Math.max(next.t,clock.t);if(!walkDone&&t>R.fadeOutAt)t=R.fadeOutAt;if((!blackDone||!held)&&t>R.cutT)t=R.cutT/* frozen under the wipe hold */;
+     if(skipReq&&walkDone&&blackDone&&held&&t>=R.cutT)t=R.T/* T-03 badge skip: under GGbot's WindWipe 'ride' cover */;
+     clock.t=t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;
+     if(fade&&walkDone&&!fadingOut&&t>=R.fadeOutAt){fadingOut=true;void runWipe();}
+     if(resumed&&fade&&(!fadingOut||fadingIn)){try{void fade(next.fade,0.35);}catch{/* cover optional */}}
+     apply(clock.t+1e-4>=R.T);pub(clock.t,false);
+     if(clock.t+1e-4>=R.T){off();unhookAll();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);ticker.step=()=>{};ok();}
+    };
+   });
+   offSkip();
+   rideToken.check();
+   if(girl&&isValid(girl,true)&&aboard){const back=prev&&isValid(prev,true)?prev:rig.parent;if(back)girl.setParent(back,true);}
+   // b15 getout v3 (角色动画bot getout_v3/INTEGRATE.md: b15 mooring, door yaw 96.19°, P0 inside the basket): at touchdown (off the board
+   // frame) she faces the flight heading; cancelAndReset turns her to the door at P0 (no authored in-basket turn), then idle
+   // 0.5 s → door_reach (basket_door opens 0.333 s in, to +100°) → planner walk (walk_start → walk_loop at the clip-picked
+   // speed → walk_stop_bodyL) with a ≥1 m corner and the support-foot lock. The board takes over while she walks.
+   // T-03: touchdown hook for the place-name sign (GGbot): ride.T s after the segment start
+   // T-03 sign (GGbot LakesideArrivalUI): the event carries the sign timing, so a retimed landing only changes LAKESIDE_TOUCHDOWN
+   openLake();/*QF_PROBE_BEGIN*/if(camLog.on)camProbeLake(null,'landed');/*QF_PROBE_END*/pub(R.T,true);arrivalMark('touchdown',{skipped});legClock.mark('touchdown');legClock.stop({to:'touchdown',designS:+(sl?sl.touchdownAt:R.T).toFixed(2)/* full9b: game-time design from S6 (walk+door+stepIn+ignite+lift+flight); R.T is the compressed ride clock */,rideClockS:+R.T.toFixed(2)});if(!skipped)markSeenT03(sys.localStorage as any)/* first full viewing → badge from the 2nd */;
+   try{(globalThis as any).__qfLakesideTouchdownAt=R.T;director.emit(LAKESIDE_TOUCHDOWN.event,{atS:R.T,skipped,signAtS:LAKESIDE_TOUCHDOWN.signAtS,signS:LAKESIDE_TOUCHDOWN.signS,boardByS:lakesideBoardByS()/* option B: board blend START (touchdown +5.3); board reached when her walk is in, ≈ +12.0 */});}catch{/* listeners only */}
+   landedOk();
+   if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
+   const door=find(vehicle,moored.exitDoorNode)||find(vehicle,'basket_door')/* two-door: the exit leaf (BASKET_DOORS) */;door?.setRotationFromEuler(0,0,0);
+   if(moored.exitDoorLegacy)try{console.info('[QF_TRANSITION] lakeside exit: single-door legacy (BASKET_DOORS.modelReady=false)');}catch{}
+   // b15 acceptance (5a177b4c door strip): the engine kept her SkeletalAnimation 'sit_hold' state PLAYING (auto-played on
+   // re-activation after board()/setParent), so Cocos overwrote the joints every frame and door_reach / walk_start / walk_loop
+   // (driven by the actor's own rig clock, whose states must never play) never reached the screen: seated pose sliding out.
+   // The rig is the only clock: stop any engine-played state at touchdown and on every get-out tick.
+   let engineStops=0;const stopEngineStates=()=>{const anim=(actor as any).anim;if(!anim||!anim.clips)return;for(const c of anim.clips){if(!c)continue;const st=anim.getState(c.name);if(st&&st.isPlaying){try{st.stop();engineStops++;if(engineStops===1)console.warn('[QF_LAKESIDE] stopped engine-played character state '+c.name+' at get-out');}catch{/* state gone */}}}};
+   stopEngineStates();
+   const landedM=routeLength([...R.path,moored.walk[0]]);lease.progress!(landedM);
+   // b15 door shot: the ride lens holds on the basket (lastPose, the route's last frame) until she is clear of the basket
+   // (LAKESIDE_DOOR_HOLD.outM along the moored walk, or a game-time cap); only then does the controller arrive and the board
+   // fade in, still overlapping the rest of her (offscreen) walk to the shore.
+   let outOk:()=>void=()=>{};const out=new Promise<void>(r=>{outOk=r;});
+   // T-03 option B: the wide touchdown lens holds under the place-name sign; the board blend starts by itself at touchdown +
+   // lakesideBoardBlendAtS() (0.5 s after the sign leaves) and runs until her walk reaches the board entry distance, so she stays
+   // in frame; game time, frame step clamped to 0.1 s like WorldFlowComponent; driven here (before draw), independent of the
+   // stand-up / get-out ticker
+   const blendAtS=lakesideBoardBlendAtS();let sinceTouch=0,wideU=0,wideDur=-1;
+   // T-03 sign placement: her + the balloon (envelope, ropes, basket) as normalized screen rects, so the sign never covers them
+   const avoidOf=(n:Node|null|undefined)=>{if(!n||!isValid(n,true))return null;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const cw=Math.max(1,(camera as any).camera?.width||1),chh=Math.max(1,(camera as any).camera?.height||1),o=new Vec3();
+    for(const r of n.getComponentsInChildren(MeshRenderer)){const b:any=(r as any).model?.worldBounds;if(!b)continue;for(let i=0;i<8;i++){const p=new Vec3(b.center.x+(i&1?1:-1)*b.halfExtents.x,b.center.y+(i&2?1:-1)*b.halfExtents.y,b.center.z+(i&4?1:-1)*b.halfExtents.z);camera.worldToScreen(p,o);
+     x0=Math.min(x0,o.x/cw);x1=Math.max(x1,o.x/cw);y0=Math.min(y0,1-o.y/chh);y1=Math.max(y1,1-o.y/chh);}}
+    return x1>x0?{x:x0,y:y0,w:x1-x0,h:y1-y0}:null;};
+   let avoidN=0;const publishAvoid=()=>{avoidN++;/* every frame while she walks */try{(globalThis as any).__qfLakesideAvoid=[avoidOf(vehicle),avoidOf(girl)].filter(Boolean);}catch{/* placement hint only */}};
+   const hold=()=>{if(dead)return;sinceTouch+=Math.min(.1,Math.max(0,director.getDeltaTime()));
+    if(doorWide&&sinceTouch>=blendAtS){const gp=girl&&isValid(girl,true)?girl.worldPosition:null;
+     if(wideDur<0){const vs2=view.getVisibleSize(),w=(actor as any).walkProgress?.(),walked=typeof w==='number'&&isFinite(w)?Math.max(0,w)*moored.length:0;
+      wideDur=lakesideBoardBlendDurS(doorLens,landPose,walked,lakesideBoardEntryM(moored.walk,landPose,vs2.width/Math.max(1,vs2.height),walked),moored.mps);}
+     wideU=Math.min(1,(sinceTouch-blendAtS)/wideDur);
+     lastPose=wideU>=1?landPose:lakesideDoorBlendPose(doorLens,landPose,wideU,gp?[gp.x,gp.y,gp.z]:undefined,LAKESIDE_TOUCHDOWN.blendAimPull);if(wideU>=1)outOk();}
+    // full2-cam C2: door / step-out close-up over the option-B lens, pulled back onto it as she walks out (BasketCloseShot.c2ClosePose)
+    const out=lastPose?c2Lens(sinceTouch,lastPose):null;
+    if(out)world.setCamera(out);publishAvoid();};director.on(Director.EVENT_BEFORE_DRAW,hold);
+   // b15 stand-up v1b: on the seat (where she rode) sit_hold → HARD CUT stand_up (REPORT: start_pose = sit_hold f0, no crossfade;
+   // 1.2667 s time clock, root carried seat → P0 along the facing by stand_up root_motion.forward_m (LAKESIDE_STANDUP)) → crossfade 0.2 into idle at P0 facing the door (cancelAndReset
+   // in place) = getout t0. Without the stand_up clip / playNamed: the old placement (cancelAndReset straight to P0).
+   {const a=actor as any,n=girl,canStand=!!(a.rig?.has?.('stand_up')&&typeof a.playNamed==='function'&&n&&isValid(n,true));
+    if(canStand){const w=n!.worldPosition,seatRoot:Vec=[w.x,w.y,w.z],P0=moored.start as Vec;
+     const seatDef={position:seatRoot,back:seatRoot,yawRad:moored.startYawRad,seatedFoot:seatRoot,standingFoot:P0,seatedControllerRoot:seatRoot,standingControllerRoot:P0};
+     const dur=(typeof a.rig?.duration==='function'&&a.rig.duration('stand_up'))||1.266667;
+     const prevStep=ticker.step;
+     try{actor.cancelAndReset({kind:'seated',seat:seatDef} as any);a.pendingIdle=false;a.playNamed('stand_up',false,0);
+      await new Promise<void>((ok,bad)=>{let st=0;const off=rideToken.onCancel(()=>{bad(Object.assign(Error('cancelled'),{name:'Cancelled'}));});
+       ticker.step=(dt)=>{stopEngineStates();st=Math.min(dur,st+dt);const k=standupRootK(st,dur),m=a.node;
+        if(m&&isValid(m,true))m.setWorldPosition(seatRoot[0]+(P0[0]-seatRoot[0])*k,seatRoot[1]+(P0[1]-seatRoot[1])*k,seatRoot[2]+(P0[2]-seatRoot[2])*k);
+        if(st>=dur){off();ok();}};});}
+     catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_LAKESIDE] stand-up skipped: '+String(e));}
+     finally{ticker.step=prevStep;}
+     rideToken.check();}
+    actor.cancelAndReset({kind:'standing',controllerRoot:moored.start,yawRad:moored.startYawRad});}
+   const holdCapS=moored.walkStartAt+LAKESIDE_DOOR_HOLD.outM/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
+   const qaMark0=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object')q.mark=lakesideQaAdvance(q.mark,m);}catch{/* qa only */}};
+   let tailDone=false/* b16: the tail cleared its ticker step (she is on the shore); the door blend must not restore it */;
+   // b15 handover: the exit walk has its own token: once the ride resolved, a later flow cancel (pause, a level, a dialog)
+   // must not stop her midway; before that the ride token still aborts it. Journey release (leaving the region) ends it.
+   const tailToken=new TailToken();let rideOver=false;const offTail=rideToken.onCancel(()=>{if(!rideOver)tailToken.cancel();});let released=false;tailStop=()=>{released=true;tailToken.cancel();endTail(actor);}/* b17: synchronous, before the 主页 restore */;
+   const tail=(async()=>{
+   const rideToken=tailToken as any as Cancellation;
+    let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
+    // b16 P0 (运镜bot): keep a handle on the tail's own step, so the tail end clears ONLY it (see the end of the tail)
+    const tailStep=(dt:number)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
+     if(stepping){const u=t-moored.walkStartAt,r=stepdownRootAt(u),a=actor as any,P0=moored.start,sy=Math.sin(moored.startYawRad),cy=Math.cos(moored.startYawRad);
+      // sd3: root Y = board (P0 0.602) + y_m while walk_start_stepdown plays; forward along the exit heading
+      // b18 fix ①: off the board the root follows the measured lawn (v4 terrain profile), blended in by the drop fraction
+      // r[1]/−0.03 (0 on the board, 1 once the step has landed), instead of the hard 0.572 (right foot 4.9 mm into the 0.5754 lawn)
+      const drop=Math.max(0,Math.min(1,r[1]/-.03)),yB=P0[1]+r[1],yG=moored.groundYAt(r[0]);
+      if(a.node&&isValid(a.node,true))a.node.setWorldPosition(P0[0]+sy*r[0],yB+(yG-(P0[1]-.03))*drop,P0[2]+cy*r[0]);
+      lease.progress!(landedM+r[0]);if(r[0]>=LAKESIDE_DOOR_HOLD.outM)outOk();}
+     if(reached){const w=(actor as any).walkProgress?.();if(typeof w==='number'){const s=walkBase+w*walkLen;lease.progress!(landedM+s);if(s>=LAKESIDE_DOOR_HOLD.outM)outOk();}
+      // support-foot lock in the corner (lateUpdate: after the driver placed her on the path this frame)
+      const a=actor as any,y=a.yawRad,n=girl;if(walking&&typeof y==='number'&&n&&isValid(n,true)){// b18 fix ②: stance foot only from a real contact (lastFootEmit; lastFoot alone is never null), recovery only in swing
+       const fe=a.lastFootEmit,pl=fe&&(a.lastFoot==='L'||a.lastFoot==='R')?a.lastFoot:null,sw=footLockSwing(a.motionT,fe?fe.t:null);
+       lock=footLockStep(lock,pl,lockYaw===null?y:lockYaw,y,dt,sw);lockYaw=y;if(lock[0]||lock[1]){const p=n.worldPosition;n.setWorldPosition(p.x+lock[0],p.y,p.z+lock[1]);}}}};
+    ticker.step=tailStep;
+    const qaMark=(m:string)=>{try{const q=(globalThis as any).__qaLakeside;if(q&&typeof q==='object'){const n=lakesideQaAdvance(q.mark,m);if(n!==q.mark){q.mark=n;q.markT=t;}}}catch{/* qa only */}};
+    await waitUntil(moored.T0);rideToken.check();qaMark('door');if(contLake)chainMark('lakeside','C5-door-walk-out');
+    const reach=actor.performDoorReach?actor.performDoorReach(rideToken).catch(()=>{}):Promise.resolve();
+    await waitUntil(moored.walkStartAt);
+    const SD=LAKESIDE_STEPDOWN,av=actor as any,hasSd=!!(av.rig?.has?.(SD.clip)&&typeof av.playNamed==='function');
+    if(hasSd){
+     // sd3: hard cut door_reach → walk_start_stepdown at T0+1.8 (the door job ends here), root from its table, then hard cut to
+     // walk_loop @0.453 s and the planner walk (phase kept: beginWalk continues a running walk_loop) from s = 1.1566 m at 0.8 m/s.
+     const j=av.job;if(j&&j.action?.kind==='door-reach'){av.job=null;try{j.off();}catch{/* token */}j.resolve();}
+     av.pendingIdle=false;av.playNamed(SD.clip,false,0);stepping=true;qaMark('walk');
+     await waitUntil(moored.walkStartAt+SD.durationS);stepping=false;rideToken.check();
+     av.playNamed('walk_loop',true,0,false,SD.loopTime);
+     const rest=walkFrom(moored.walk,SD.forwardEnd),restLen=routeLength(rest),stopS=(typeof av.rig?.duration==='function'?av.rig.duration('walk_stop_bodyL'):0)||1.4667;
+     walkBase=SD.forwardEnd;walkLen=restLen;reached=true;walking=true;
+     await actor.perform({kind:'walk',path:rest,duration:Math.max(.5,(restLen-.5)/LAKESIDE_BALLOON_LANDING.exitWalkMps+stopS),stopAtEnd:true} as any,rideToken);walking=false;
+     try{const lp=av.lastPlan;if(lp)console.info('[QF_LAKESIDE] stepdown walk plan '+JSON.stringify(lp)+' (INTEGRATE stop warp '+SD.stopWarp+')');}catch{/* log only */}
+    }else{
+    await reach;rideToken.check();
+    reached=true;walking=true;qaMark('walk');
+    await actor.perform({kind:'walk',path:moored.walk,duration:moored.walkS,stopAtEnd:true} as any,rideToken);walking=false;}
+    rideToken.check();lease.progress!(landedM+moored.length);
+    // b16 P0 fix: when the door→board blend is still running it OWNS ticker.step (it wraps this step and stops calling it once
+    // tailDone); blanking it here froze the blend clock (el), so the ride never resolved and the journey stayed region-travel/ready.
+    if(ticker.step===tailStep)ticker.step=()=>{};tailDone=true;outOk();qaMark('shore');
+    const before=moored.walk[moored.walk.length-2];
+    const end=moored.walk[moored.walk.length-1];
+    actor.cancelAndReset({kind:'standing',controllerRoot:end,yawRad:Math.atan2(end[0]-before[0],end[2]-before[2])});
+   })();
+   // the controller arrives now (board fade-in overlaps her offscreen walk); it must not reset her to the shore root
+   // b16 P1-3a (运镜bot): the exit walk is scripted (no ground snap / water block). If it is interrupted mid-route (pause, background,
+   // a cancelled ride) she must not be left where the script stopped (foot-lock offset / step-down root, possibly off the lawn over
+   // the water): project her onto the nearest walkable point of the route. Not on a journey release (主页 places her at home).
+   tail.catch(()=>{if(released||dead)return;try{const n=girl;if(!n||!isValid(n,true))return;const w=n.worldPosition,q=lakesideNearestWalkable(moored.walk,[w.x,w.y,w.z]);
+    if(q.offM>.01||Math.abs(w.y-q.point[1])>.01)actor.cancelAndReset({kind:'standing',controllerRoot:q.point,yawRad:q.yawRad});}catch{/* she is gone */}});
+   (lease as any).tail=tail;beginTail(actor,tail,moored.walk[moored.walk.length-1]);tail.catch(()=>{}).then(()=>{offTail();if((lease as any).tail===tail)(lease as any).tail=null;});
+   tail.catch(()=>{}).then(()=>outOk());const offOut=rideToken.onCancel(()=>outOk());
+   try{await out;rideToken.check();qaMark0('out')/* when she is out, not after the blend */;
+    // she is out: blend the held door lens onto the landing (= board) pose in game time, then hand over
+    // b16: the blend follows her real walk progress up to the board entry distance (whole body inside 0.85 of the board
+    // frame), so she stays clearly in frame through the blend and the board fade-in; never shorter than the SPEC blend
+    const a=lastPose||landPose,blendS=lakesideDoorBlendS(a,landPose),vs=view.getVisibleSize(),entryM=lakesideBoardEntryM(moored.walk,landPose,vs.width/Math.max(1,vs.height),LAKESIDE_DOOR_HOLD.outM);
+    let el=0,u=0;const durS=lakesideDoorBlendDurS(blendS,LAKESIDE_DOOR_HOLD.outM,entryM,moored.length/Math.max(.1,moored.walkS)),capS=blendS+(entryM-LAKESIDE_DOOR_HOLD.outM)/Math.max(.1,moored.length/Math.max(.1,moored.walkS))+LAKESIDE_DOOR_HOLD.capPadS;
+    await new Promise<void>((ok,bad)=>{const offB=rideToken.onCancel(()=>{bad(Error('cancelled'));});const prevStep=ticker.step;
+     if(doorWide){ticker.step=(dt)=>{if(!tailDone)prevStep(dt);if(wideU>=1){lastPose=landPose;ticker.step=tailDone?()=>{}:prevStep;offB();ok();}};return;}/* T-03: the before-draw hold drives the blend */
+     ticker.step=(dt)=>{if(!tailDone)prevStep(dt);el+=dt;const w=(actor as any).walkProgress?.(),walked=typeof w==='number'?w*moored.length:entryM;
+      void walked;u=Math.min(1,el/durS)/* b18: pure game time → C2 smooth */;const gp=girl&&isValid(girl,true)?girl.worldPosition:null;lastPose=lakesideDoorBlendPose(a,landPose,u,gp?[gp.x,gp.y,gp.z]:undefined);if(u>=1){lastPose=landPose;ticker.step=tailDone?()=>{}:prevStep;offB();ok();}};});
+   }finally{director.off(Director.EVENT_BEFORE_DRAW,hold);offOut();}
+   rideToken.check();rideOver=true;rideCam=false;arrivalMark('ride-resolved');publishLakesideRide(null);
+  };
+  // r4.2: first show is staged across two frames under the set-off black (fog + tiny water, then the lake). Later shows turn on at once.
+  let showSerial=0,shown=false;
+  const showScene=(s:number)=>{if(dead||s!==showSerial)return;if(lakeModel&&isValid(lakeModel,true))lakeModel.active=lakeOpen;rig.active=true;shown=true;};
+  const lease:JourneySceneLease={route,show(visible){if(dead)return;const s=++showSerial;if(!visible){rig.active=false;return;}atmosphere.prime();warmWater();
+    if(shown){showScene(s);return;}let fired=false;const go=()=>{if(fired)return;fired=true;showScene(s);};try{director.once('director_after_draw' as any,go);}catch{}setTimeout(go,50)/* paused game: never stall */;},progress(d){if(dead)return;const w=lakesideAtmosphereWeight(route,total,d);atmosphere.apply(w);if(lakesideFillStep(fillW,w)){fillW=w;applyLakesideLandFill(model,lakesideDayNightMode(),w);}},onFrame(){return rideCam?undefined:(lastPose||undefined);}/* keeps the controller from re-applying its set-off camera after the ride; full9b: silent while the ride writes (was a 2nd writer every frame, lastPose without the C2 close-up) */,dispose:release,ride};
+  // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
+  const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
+  return lease;
+ }catch(error){/* r4.2 item 3: a cancelled prepare is not a failure */if(!token.cancelled&&(error as any)?.name!=='Cancelled'){try{console.error('[QF_LAKE] skycity→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}}release();throw error;}
+}

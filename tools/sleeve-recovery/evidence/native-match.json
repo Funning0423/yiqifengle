@@ -1,0 +1,22 @@
+{
+  "modelSHA": "6e4342028c11b43f2bf1834825e40e70cc3d6176052c95894f88b715e76495a8",
+  "nativeSHA": "e70b5f680b82904d697b6d2cb08e0c578521eb27ded5ab550959cbdca6fee9f6",
+  "checks": [
+    {
+      "primitive": 0,
+      "positionsNormalsUVColorsWeightsIndicesMatchFinalGLB": true,
+      "zeroWeightJointLanesCreatorPruned": true
+    },
+    {
+      "primitive": 1,
+      "positionsNormalsUVColorsWeightsIndicesMatchFinalGLB": true,
+      "zeroWeightJointLanesCreatorPruned": true
+    },
+    {
+      "primitive": 2,
+      "positionsNormalsUVColorsWeightsIndicesMatchFinalGLB": true,
+      "zeroWeightJointLanesCreatorPruned": true
+    }
+  ],
+  "postBuildModelPatches": 0
+}

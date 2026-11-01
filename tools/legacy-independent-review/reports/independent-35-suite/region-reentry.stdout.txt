@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "scope": "Actual adapter/provider with node doubles; target entry/reentry ownership, no actual window or 3D scene acceptance",
+  "checks": [
+    {
+      "end": 4,
+      "region": "tide",
+      "stage": "r05-tide-01",
+      "attemptPreserved": true,
+      "native": false
+    },
+    {
+      "end": 8,
+      "region": "meadow",
+      "stage": "r05-meadow-01",
+      "attemptPreserved": true,
+      "native": false
+    },
+    {
+      "end": 12,
+      "region": "sky",
+      "stage": "r05-sky-01",
+      "attemptPreserved": true,
+      "native": false
+    }
+  ]
+}

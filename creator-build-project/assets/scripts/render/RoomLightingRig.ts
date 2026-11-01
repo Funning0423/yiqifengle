@@ -1,5 +1,5 @@
 import { Node, Scene, DirectionalLight, SpotLight, MeshRenderer, SkeletalAnimation,
-  Material, Mesh, Texture2D, EffectAsset, Color, Vec3, Vec4, Quat, director, renderer, utils, isValid } from 'cc';
+  Material, Mesh, Texture2D, EffectAsset, Color, Vec3, Vec4, Quat, director, Director, renderer, utils, isValid } from 'cc';
 
 /** Cocos 3.8.8 runtime lighting. Imported assets, cameras and bones stay unchanged; lamp emission uses one owned material instance.
  * One room-only directional shadow map + one unshadowed local lamp; two steam draw calls.
@@ -111,6 +111,8 @@ export class RoomLightingRig {
   private paused = false;
   private time = 0;
   private accumulator = 0;
+  /** fix-cloud-sit: backdrop ticks skipped because the sail ride owns clouds/sea. */
+  private sailYields = 0;
   private updates = 0;
   private sun: DirectionalLight | null = null;
   private sunState: SunState | null = null;
@@ -492,6 +494,11 @@ export class RoomLightingRig {
         detail.offset.w = detail.base.w + this.seaDetailTime * .01;
         detail.instance.setProperty('tilingOffset', detail.offset);
       }
+      // fix-cloud-sit: while the sail ride holds the island FX (SailArt.sync sets __QF_SAIL_HOLD_ISLAND_FX), SailArt owns
+      // env_cloud_layer (moves it over the lens every frame) and hides the island sea. Writing them here at 30 Hz from
+      // lateUpdate put the cloud shell back at the island every other frame: the whole-voyage cloud flicker. Same yield as
+      // IslandAtmosphereFx / ShoreBreak. SailArt.dispose restores layerHome, after which this drift resumes from it.
+      if ((globalThis as any).__QF_SAIL_HOLD_ISLAND_FX) { this.sailYields++; return; }
       const sea = this.sea;
       if (sea && live(sea.node)) sea.node.setPosition(sea.position.x, sea.position.y + Math.sin(t * .41) * .003, sea.position.z);
       const c = this.clouds;
@@ -530,7 +537,7 @@ export class RoomLightingRig {
       foliageTwoSidedBindings: this.foliageMaterials.length,
       seaDetailBound: !!this.seaDetail, seaDetailTime: this.seaDetailTime,
       lampShadow: false, steamEmitters: this.steam.length, shadowRenderers: this.states.length,
-      plantBound: !!this.plant, seaBound: !!this.sea, cloudsBound: !!this.clouds, notices: this.notices.slice(),
+      plantBound: !!this.plant, seaBound: !!this.sea, cloudsBound: !!this.clouds, sailYields: this.sailYields, notices: this.notices.slice(),
       verification: 'Runtime configuration and lifecycle only; native Creator/WeChat visual/performance acceptance required.' };
   }
 
@@ -580,3 +587,102 @@ export class RoomLightingRig {
     this.plant = null; this.sea = null; this.clouds = null; this.sun = null;
   }
 }
+
+/* ===== p0-shadow-churn: shadow-map residency (see note below) ===== */
+
+/**
+ * p0-shadow-churn (fin e8cd7c1e finV): the 3.8.8 custom pipeline (builtin-pipeline windowResize) registers ShadowMap<win>/ShadowDepth<win>
+ * (and SpotShadowMap<n>/SpotShadowDepth<n>) as MANAGED render-graph resources. The web executor's _removeDeviceResource releases every
+ * MANAGED texture that is not in pipeline.resourceUses, and resourceUses is empty at that point every frame (headless trace: uses=[],
+ * before=[Color0,DepthStencil0,ShadowMap0,ShadowDepth0] after=[Color0,DepthStencil0]). Result: the 1024² colour + depth pair is
+ * destroyed and re-created EVERY frame while a shadow-casting main light is on (Mac: 112–116 creates/s, ~460 MB/s churn).
+ * Fix without touching the engine: mark those resources PERSISTENT (residency !== MANAGED, so the executor keeps them). The executor
+ * still re-creates a device texture when the descriptor size changes (createDeviceTex → checkTexture), so a shadow-size change is
+ * honoured; same size, same format, same passes → no visual change. Scan is O(vertices) and only when the vertex count changes.
+ */
+export const SHADOW_RESOURCE = /^(Spot)?Shadow(Map|Depth)\d+$/;
+/** r3 (fin r6 6fb9181b: DepthStencil893/896 1024² destroyed + re-created every frame while the result chest RenderTexture camera renders;
+ *  same executor rule as the shadow maps): an off-screen window's DepthStencil<win> is MANAGED too (its Color<win> is the RenderTexture,
+ *  external). Pinned like the shadow maps. Because every new RenderTexture gets a NEW window id (chest 893 → 896 → …), pinned textures of
+ *  windows that no longer exist are released (releaseDeadWindows), so pinning never leaks. */
+export const PIN_RESOURCE = /^((Spot)?Shadow(Map|Depth)|DepthStencil)\d+$/;
+/** Per-window resources (trailing number = renderWindowId); SpotShadow* is per light, not per window. */
+export const WINDOW_RESOURCE = /^(?:Shadow(?:Map|Depth)|DepthStencil)(\d+)$/;
+/** cc.rendering.ResourceResidency */
+export const RESIDENCY = Object.freeze({ MANAGED: 0, PERSISTENT: 2 });
+
+/** Pure: pin every shadow resource of a resource graph to PERSISTENT. Returns how many were changed. */
+export function pinShadowResidency(rg: any): number {
+  if (!rg || typeof rg.vertexName !== 'function' || typeof rg.getTraits !== 'function') return 0;
+  const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
+  let changed = 0;
+  for (let v = 0; v < n; v++) {
+    let name = ''; try { name = String(rg.vertexName(v)); } catch { continue; }
+    if (!PIN_RESOURCE.test(name)) continue;
+    const t = rg.getTraits(v);
+    if (t && t.residency === RESIDENCY.MANAGED) { t.residency = RESIDENCY.PERSISTENT; changed++; }
+  }
+  return changed;
+}
+
+/** Pure: device textures of pinned resources whose descriptor size changed (e.g. RoomLightingRig 512 → 1024) are released so the
+ *  executor re-creates them at the new size exactly once — the size-change behaviour MANAGED residency used to give. */
+export function releaseResized(rg: any, deviceTextures: any): number {
+  if (!rg || !deviceTextures || typeof deviceTextures.forEach !== 'function') return 0;
+  const drop: string[] = [];
+  deviceTextures.forEach((res: any, name: string) => {
+    if (!PIN_RESOURCE.test(String(name))) return;
+    const tex = res?.texture; if (!tex) return;
+    let v = -1; try { v = rg.find(name); } catch { return; } if (v < 0 || v === 4294967295) return;
+    const d = rg.getDesc(v); if (d && (d.width !== tex.width || d.height !== tex.height)) drop.push(name);
+  });
+  for (const name of drop) { try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
+  return drop.length;
+}
+
+/** Pure: release pinned per-window device textures whose window is gone (aliveIds = renderWindowId of root.windows). */
+export function releaseDeadWindows(deviceTextures: any, aliveIds: Set<number>): number {
+  if (!deviceTextures || typeof deviceTextures.forEach !== 'function' || !aliveIds || !aliveIds.size) return 0;
+  const drop: string[] = [];
+  deviceTextures.forEach((_res: any, name: string) => { const m = WINDOW_RESOURCE.exec(String(name)); if (m && !aliveIds.has(Number(m[1]))) drop.push(name); });
+  for (const name of drop) { try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
+  return drop.length;
+}
+/** renderWindowId of every live window, or null when the engine does not expose ids (then nothing is released). */
+export function aliveWindowIds(root: any): Set<number> | null {
+  const ws = root?.windows; if (!ws || typeof ws.length !== 'number') return null; const out = new Set<number>();
+  for (let i = 0; i < ws.length; i++) { const id = ws[i]?.renderWindowId; if (typeof id !== 'number') return null; out.add(id); }
+  return out;
+}
+const state = { installed: false, seen: -1, pinned: 0, resized: 0, dead: 0, winSig: -1 };
+export function shadowResidencyStats() { return { installed: state.installed, pinned: state.pinned, resized: state.resized, deadReleased: state.dead }; }
+
+/** Runs right before each render-graph execute (after windowResize + compile, so descriptors are final for this frame). */
+export function shadowResidencyBeforeExecute(pipeline: any): void {
+  const rg = pipeline?.resourceGraph; if (!rg) return;
+  const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
+  if (n !== state.seen) { state.seen = n; state.pinned += pinShadowResidency(rg); }
+  const dt = pipeline?._executor?._context?.deviceTextures;
+  if (state.pinned) state.resized += releaseResized(rg, dt);
+  if (state.pinned) { const sig = windowSig(root()); if (sig !== state.winSig) { state.winSig = sig; const ids = aliveWindowIds(root()); if (ids) state.dead += releaseDeadWindows(dt, ids); } }
+}
+/** Allocation-free window-set signature (count + id sum + id xor); the id Set is built only when it changes. */
+export function windowSig(root: any): number { const ws = root?.windows; if (!ws || typeof ws.length !== 'number') return -2; let a = 0, x = 0;
+  for (let i = 0; i < ws.length; i++) { const id = ws[i]?.renderWindowId | 0; a += id; x ^= (id * 2654435761) | 0; } return ws.length * 1e9 + a * 1e3 + (x & 0x3ff); }
+function root(): any { try { return (director as any).root; } catch { return null; } }
+
+/** Wrap the pipeline's execute once (custom pipeline exists after director init; retried each frame until it does). */
+export function wrapPipeline(pipeline: any): boolean {
+  if (!pipeline || typeof pipeline.execute !== 'function' || pipeline.__qfShadowResidency) return false;
+  const orig = pipeline.execute;
+  pipeline.execute = function (this: any, ...a: any[]) { try { shadowResidencyBeforeExecute(this); } catch { } return orig.apply(this, a); };
+  pipeline.__qfShadowResidency = true; return true;
+}
+
+export function installShadowResidency(): boolean {
+  if (state.installed) return false; state.installed = true;
+  const tryWrap = () => { const p = (director as any).root?.pipeline; if (p && (p.__qfShadowResidency || wrapPipeline(p))) director.off(Director.EVENT_BEFORE_DRAW, tryWrap); };
+  try { director.on(Director.EVENT_BEFORE_DRAW, tryWrap); } catch { }
+  return true;
+}
+installShadowResidency();

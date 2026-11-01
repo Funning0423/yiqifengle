@@ -18,7 +18,7 @@
  * Not added (the island already has them, see combined_visual_m.glb): beach_gull (env_anim_seagull_01 + two
  * flying gulls), beach_crab (env_anim_crab_01, env_anim_hermit_crab_v22), beach_turtle (env_anim_turtle_01).
  */
-import { projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
+import { fromLookAt, projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
 export type V3 = [number, number, number];
 export type PropRole = 'bag' | 'journal' | 'settings';
 export type WorldProp = Readonly<{ prefab: string; position: V3; yawDeg: number; scale: number }>;
@@ -28,7 +28,7 @@ export const ISLAND_PROPS = Object.freeze({
   bundle: 'region_island',
   dir: 'ui-props',
   /** combined_visual_m.glb sub-asset "M_env_palette.material" (the island's shared palette material). */
-  paletteMaterialUuid: '498b3fa5-2dd3-4e86-93b8-637ae51438fe@18b7e',
+  paletteMaterialUuid: '61fa04e2-644b-5997-bfd1-812b61d3586b@18b7e',
   paletteMaterialName: 'M_env_palette',
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
@@ -56,6 +56,11 @@ export const ISLAND_PROPS = Object.freeze({
     { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
   ] as readonly WorldProp[],
+  /** b19 dock models: resident island structures authored in island coordinates (mounted at the origin, rebound to M_env_palette like the palms).
+   *  island_dock: pier deck x[-2.5,-1.1] z[8.9,14.4] top -0.18, shore ramp z[8.2,8.9], boarding end near (-1.40,-0.14,12.22); node name read by RegionJourneyAdapter. */
+  structures: [
+    { prefab: 'island_dock', position: [0, 0, 0] as V3, yawDeg: 0, scale: 1 },
+  ] as readonly WorldProp[],
   buttons: {
     bag: { prefab: 'ui_satchel', label: '行囊', heightM: 0.915, widthM: 0.86, depthM: 0.514 },
     journal: { prefab: 'ui_notebook', label: '旅程册', heightM: 0.89, widthM: 0.665, depthM: 0.314 },
@@ -68,7 +73,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** T9n-2 night sea: env_sea_surface's render material (RoomLightingRig's own instance, which only scrolls tilingOffset) gets
    * mainColor = authored mainColor x tint, blended by the props night weight; restored exactly at weight 0. Never the shared
    * M_env_sea material; skipped when the renderer has no instance. tint is sRGB hex (linear = (0.212, 0.347, 0.451)). */
-  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3' },
+  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3', journeyTint: '#4a6a8c' },
   /** Seconds for the props' night weight to follow a day/night switch (labels, lamp light, water tint fade together). */
   nightFadeS: 0.5,
   notAdded: {
@@ -246,22 +251,45 @@ export function rippleAt(t: number, k: number): { scale: number; alpha: number }
 }
 
 /** Signpost visual rect (projected AABB) in UI units for the current camera (null = not in front of the camera). */
-export function signpostRectUi(pose: CameraPose, width: number, height: number): Rect | null {
-  const S = ISLAND_PROPS.signpost;
-  return projectRectUi(pose, width, height, propCorners(S, S.boxMin, S.boxMax));
+export function signpostRectUi(pose: CameraPose, width: number, height: number, shiftX = 0): Rect | null {
+  const S = ISLAND_PROPS.signpost, P = shiftX ? { ...S, position: [S.position[0] + shiftX, S.position[1], S.position[2]] as V3 } : S;
+  return projectRectUi(pose, width, height, propCorners(P, S.boxMin, S.boxMax));
+}
+/** b16 真机复核 ④：木牌离屏幕右缘至少 SIGN_EDGE_PT（12pt）。SIGN_BOX_SLACK_PT = 真机木牌（灯、木纹外沿）比 boxMin/boxMax 投影宽出的量：
+ *  d58c1012 Mac web 实测 390/414/430 宽木牌离右缘约 3pt，同一机位此投影约 12.6–13.6pt，差约 10pt。 */
+export const SIGN_EDGE_PT = 12, SIGN_BOX_SLACK_PT = 10;
+/** World-x shift (metres, <= 0) that keeps the signpost's right edge >= SIGN_EDGE_PT + SIGN_BOX_SLACK_PT in from the screen
+ *  edge at this width; 0 when it already fits. Linear solve on the projected right edge, refined once (perspective). */
+export function signpostShiftX(pose: CameraPose, width: number, height: number): number {
+  const lim = width / 2 - SIGN_EDGE_PT - SIGN_BOX_SLACK_PT - 0.5 /* b16 复核2 ④: 0.5pt margin so the 22pt hit edge can still cover the sign */, right = (dx: number) => { const r = signpostRectUi(pose, width, height, dx); return r ? r.x + r.width / 2 : NaN; };
+  let dx = 0;
+  for (let i = 0; i < 3; i++) { const r0 = right(dx), over = r0 - lim; if (!Number.isFinite(over) || over <= 0.05) break; const k = r0 - right(dx - 1); if (!(k > 0)) break; dx -= over / k; }
+  return dx;
 }
 /** Minimum mainline (signpost) touch target, logical px. */
 export const SIGN_HIT_MIN = 88;
+/** Absolute floor for a clamped hit rect (44 pt). */
+export const SIGN_HIT_FLOOR = 44;
+/** b16 复核2 ④：点击区（及其子节点）右缘离屏幕右缘至少 22pt（原来夹在 12pt，390 实测 12.6pt）。 */
+export const SIGN_HIT_EDGE_PT = 22;
 /** Mainline hit rect: the visual rect grown to >= SIGN_HIT_MIN per axis. The growth is placed (centred first, then
  * shifted while still covering the whole sign) so it stays inside an 8 px safe inset and off the bottom-row prop hits. */
-export function signpostHitUi(pose: CameraPose, width: number, height: number): Rect | null {
-  const r = signpostRectUi(pose, width, height); if (!r) return null;
+export function signpostHitUi(pose: CameraPose, width: number, height: number, shiftX = signpostShiftX(pose, width, height)): Rect | null {
+  const r = signpostRectUi(pose, width, height, shiftX); if (!r) return null;
   const w = Math.max(SIGN_HIT_MIN, r.width), h = Math.max(SIGN_HIT_MIN, r.height), ex = (w - r.width) / 2, ey = (h - r.height) / 2;
   const slots = propButtonLayout(width, height).slots.map(s => s.hit), inset = 8;
-  const clear = (c: Rect) => c.x - c.width / 2 >= -width / 2 + inset && c.x + c.width / 2 <= width / 2 - inset && c.y - c.height / 2 >= -height / 2 + inset && c.y + c.height / 2 <= height / 2 - inset
+  const clear = (c: Rect) => c.x - c.width / 2 >= -width / 2 + inset && c.x + c.width / 2 <= width / 2 - SIGN_HIT_EDGE_PT && c.y - c.height / 2 >= -height / 2 + inset && c.y + c.height / 2 <= height / 2 - inset
     && slots.every(b => !(Math.abs(c.x - b.x) < (c.width + b.width) / 2 && Math.abs(c.y - b.y) < (c.height + b.height) / 2));
   for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) { const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h }; if (clear(c)) return c; }
-  return { x: r.x, y: r.y, width: w, height: h }; // nothing clear: keep centred (tests assert this never happens on supported frames)
+  // nothing clear: keep centred, but never past the screen edges (right >= SIGN_HIT_EDGE_PT, left >= inset) and never below 44 pt
+  const x0 = Math.max(-width / 2 + inset, r.x - w / 2), x1 = Math.min(width / 2 - SIGN_HIT_EDGE_PT, r.x + w / 2), cw = Math.max(SIGN_HIT_FLOOR, x1 - x0);
+  return { x: Math.min(width / 2 - SIGN_HIT_EDGE_PT - cw / 2, (x0 + x1) / 2), y: r.y, width: cw, height: h };
+}
+
+/** p0drag8: true when the whole hit rect lies inside the viewport (UI units, centre origin). An off-screen rect (explore orbit
+ *  turned away from the signpost) must NOT become the invisible mainline hit area: the flat 继续旅程 button takes over instead. */
+export function signRectOnScreen(r: Rect | null, width: number, height: number): boolean {
+  return !!r && Math.abs(r.x) + r.width / 2 <= width / 2 && Math.abs(r.y) + r.height / 2 <= height / 2;
 }
 
 /* ---------- T9n night look (engine-free) ---------- */
@@ -301,8 +329,51 @@ export function propNightWeight(): number { return propNight; }
 export function srgbToLinear(h: string): [number, number, number] {
   const x = h.replace('#', ''); return [0, 2, 4].map(i => { const v = parseInt(x.slice(i, i + 2), 16) / 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }) as [number, number, number];
 }
-/** Night sea mainColor at weight w: authored colour (0..255 RGBA) lerped toward authored x tint (sRGB-byte multiply, as Color stores it). */
-export function seaColorAt(authored: readonly number[], w: number): number[] {
-  const k = Math.max(0, Math.min(1, w)), t = hexRgba(ISLAND_PROPS.seaNight.tint);
-  return [0, 1, 2].map(i => Math.round(authored[i] + (authored[i] * t[i] / 255 - authored[i]) * k)).concat([authored[3] ?? 255]);
+/** Night sea mainColor at weight w: authored colour (0..255 RGBA) lerped toward authored x tint (sRGB-byte multiply, as Color stores it).
+ * j (0..1) = region-journey weight: the night tint deepens toward seaNight.journeyTint so the open sea under the journey lens reads as night,
+ * not day-cyan. w = 0 (day) always returns the authored colour, whatever j is. */
+export function seaColorAt(authored: readonly number[], w: number, j = 0): number[] {
+  const k = Math.max(0, Math.min(1, w)), q = Math.max(0, Math.min(1, j)), a = hexRgba(ISLAND_PROPS.seaNight.tint), b = hexRgba(ISLAND_PROPS.seaNight.journeyTint);
+  return [0, 1, 2].map(i => { const t = a[i] + (b[i] - a[i]) * q; return Math.round(authored[i] + (authored[i] * t / 255 - authored[i]) * k); }).concat([authored[3] ?? 255]);
+}
+
+/** p0drag11 (Mac p0drag10 tpSign: yaw 4.6°, the lens went PAST the sign along her→sign, the sign then hid her, the lens pull brought
+ * the lens back in front of it and the sign ended up BEHIND the lens). Within the explore orbit (looks at her, arm ≤ 12 m, portrait
+ * hfov ≈ 20°) no pose shows the sign AND her: every walkable spot is 7.9–24 m behind the sign's front plane. So the 'sign' shot is
+ * chosen from the sign's front-face normal (text side = local +Z turned by yawDeg), in world space:
+ *  - lens ≥ minFrontM in front of the panel plane and the text normal ≤ maxTextDeg off the text → lens direction;
+ *  - her sight line (lens → her look point) clear of the sign box (+pad), so the occlusion pull never moves the lens;
+ *  - the view aims at the text centre (orbit aim offset, released by the next drag); it is in the frustum (|ndc| ≤ 0.8). The whole sign
+ *    does not fit: the lens can be at most ~3.6 m in front of the panel (arm ≤ 12 m), the panel is 2.8 × 4.3 m.
+ * `poseAt(i, yawDeg, pitchDeg, dist)` = the orbit's raw pose with her on candidate spot i (target = her look point).
+ * Returns {i, yaw, pitch, dist, aim (text centre − look point), frontM, textDeg, rect, textM} or null. */
+export function signTextCenter(): V3 {
+  const S = ISLAND_PROPS.signpost, a = S.yawDeg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), t = S.text.center;
+  return [S.position[0] + S.scale * (t[0] * c + t[2] * s), S.position[1] + S.scale * t[1], S.position[2] + S.scale * (-t[0] * s + t[2] * c)];
+}
+export type SignView = { i: number; yaw: number; pitch: number; dist: number; aim: V3; frontM: number; textDeg: number; rect: Rect; textM: number };
+export function signFrontView(n: number, poseAt: (i: number, yawDeg: number, pitchDeg: number, dist: number) => { position: V3; target: V3; fovVerticalDeg: number },
+  pitches: readonly number[], dists: readonly number[], width: number, height: number, o: { minFrontM?: number; maxTextDeg?: number } = {}, accept?: (i: number, pose: { position: V3; target: V3; fovVerticalDeg: number }) => boolean): SignView | null {
+  const S = ISLAND_PROPS.signpost, a = S.yawDeg * Math.PI / 180, nx = Math.sin(a), nz = Math.cos(a);
+  const minFront = o.minFrontM ?? 1.5, cosMax = Math.cos((o.maxTextDeg ?? 60) * Math.PI / 180), pad = 0.3, tc = signTextCenter();
+    // the scene sees the sign as its renderer's WORLD AABB (LensGuard / occlusion boxes), so her sight line is judged against that (+pad)
+  const C = propCorners(S, S.boxMin, S.boxMax), lo = [0, 1, 2].map(k => Math.min(...C.map(q => q[k])) - pad), hi = [0, 1, 2].map(k => Math.max(...C.map(q => q[k])) + pad);
+  const segHits = (A: readonly number[], B: readonly number[]) => { let t0 = 0, t1 = 1;
+    for (let k = 0; k < 3; k++) { const d = B[k] - A[k];
+      if (Math.abs(d) < 1e-9) { if (A[k] < lo[k] || A[k] > hi[k]) return false; continue; }
+      let u = (lo[k] - A[k]) / d, v = (hi[k] - A[k]) / d; if (u > v) { const s = u; u = v; v = s; } t0 = Math.max(t0, u); t1 = Math.min(t1, v); if (t0 > t1) return false; }
+    return true; };
+  let best: SignView | null = null, bs = Infinity;
+  for (let i = 0; i < n; i++) for (const pitch of pitches) for (const dist of dists) for (let yaw = -180; yaw < 180; yaw += 5) {
+    const P = poseAt(i, yaw, pitch, dist), p = P.position, front = (p[0] - tc[0]) * nx + (p[2] - tc[2]) * nz;
+    if (front < minFront) continue;
+    const v = [p[0] - tc[0], p[1] - tc[1], p[2] - tc[2]], vl = Math.hypot(v[0], v[1], v[2]) || 1, cos = (v[0] * nx + v[2] * nz) / vl;
+    if (cos < cosMax || segHits(p, P.target) || (accept && !accept(i, P))) continue;/* accept: the scene's own occlusion guard leaves this lens alone */
+    const aimed = fromLookAt({ position: p, target: tc, fovVerticalDeg: P.fovVerticalDeg } as any), q = projectPoint(aimed, width / height, tc);
+    const r = signpostRectUi(aimed, width, height);
+    if (!(q.depth > 0.5) || Math.abs(q.x) > 0.8 || Math.abs(q.y) > 0.8 || !r) continue;
+    const s = (1 - cos) * 2 - Math.min(12, vl) / 6 + pitch / 90;/* frontal, then as far from the panel as the 12 m arm allows */
+    if (s < bs) { bs = s; best = { i, yaw, pitch, dist, aim: [tc[0] - P.target[0], tc[1] - P.target[1], tc[2] - P.target[2]], frontM: front, textDeg: Math.acos(Math.min(1, cos)) * 180 / Math.PI, rect: r, textM: vl }; }
+  }
+  return best;
 }

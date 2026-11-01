@@ -1,0 +1,41 @@
+{
+  "scope": "Production UI/host logic on Cocos memory doubles, not browser or rendering",
+  "results": [
+    {
+      "file": "tools/board-ui/test_board_runtime.cjs",
+      "exit": 0,
+      "status": "PASS",
+      "output": "PASS HUD: only the pause button and the info plate (title, goals, moves); no back / bag / retry / hint / status line\nPASS toast: tool prompts show for 2 s then fade out; a new message restarts the timer\nPASS auto hint: after 5 s idle the managed hint lights cells, again 8 s later; input clears it; no action or command is sent\nPASS lock return: hidden→visible while paused opens the full pause panel on the next tick; leaving run.paused closes it\nPASS pause panel: pause → PausePanel (3 tiles, music + sfx toggles, resume, home); resume sends resume after the close animation\nPASS pause → 重来 asks first (留下 keeps the pause page); 重来 restarts; 回到小岛 exits at once without a confirm\nPASS pause → 行囊 (level bag: tools, no pearl, earned chests open via openChest) and → 设置 (full settings); toggles drive GameAudio\nPASS result pages: win with host chest/next actions, 差一点点 lose + replay, 还没存上 grey chest + retry save, 旅途回顾 read-only\nPASS reward popup: a chest opened while the board is up shows 获得 with the gained tools; closing queues the first-time intro\nPASS tool intro: each bar tool is introduced once (qfl.ui.seenTools), never again on the next board\nPASS night: board sprites multiply by K_UI, text recolours, board tiles too; back to day restores\nPASS beacon cell: lighthouse + ring on the current target, faint dots for beaconRoute.slice(cursor + 1)\nPASS invalid swap: no commit, both pieces shake (reduced motion: no shake)\nPASS settings music slider: drag updates the volume, release and cancel keep it\nPASS info plate: goals, divider, moves icon and count stay inside hud_levelplate; title stays on the top row\nPASS teardown: onDestroy clears popups and host; later updates are inert\n{\"status\":\"PASS\",\"checks\":16,\"scope\":\"Real board-ui ManagedMobileBoardUI + panels on Cocos memory doubles (tools/board-ui/harness.cjs); not rendering, device touch or WeChat\"}\n"
+    },
+    {
+      "file": "tools/board-ui/test_board_tools.cjs",
+      "exit": 0,
+      "status": "PASS",
+      "output": "PASS bar: priority order, max 3, no pearl, no permanent names, count badges; frozen for the run\nPASS tap arms a targeted tool (toast prompt), cell tap uses it; tapping again disarms with no cost\nPASS drag to a cell uses the tool; drag outside / cancel keep it; second finger is ignored; hide/late-end cancels\nPASS no tool input while paused / read-only / a popup is open\nPASS regional reward art: tideNet / sunSeed / starShears use the r2 slices; mainline stays on the square board slices\nPASS drag ghost tracks the pointer every frame with no lift; cancel never spends the tool\nPASS press-hold: the piece follows the finger, swaps only on release over a neighbor, and an armed tool cannot eat the drag\nPASS tray drag: ghost follows the live finger every frame and the tool is used only on touch end\nPASS piece swap waits for a real touch end; cancel does not swap or clear\nPASS layout points and UI points both land on their cells; the reported bomb points are the top row\nPASS hold a piece and release on a layout-space neighbor swaps; a slide inside the cell stays a tap\nPASS drag a bomb from the tray onto the reported cells and release calls useTool\nPASS regional tools: one slot, tideAnchor / prismShift fire at once, sunSeed targets a cell\nPASS seed 1 rejects the corner pairs but still calls swap; holding and cancel do not\nPASS seed 1 legal layout releases clear and spend a move once the visual clock runs\nPASS a screen point that is not the UI point still releases onto that cell and clears\nPASS a touch end stuck on the press cell still swaps to the last layout cell\nPASS layout bomb release calls useTool and the clear shows after the visual clock; cancel does not\nPASS input stays blocked until presentForPlay, then a legal drag clears\nPASS level 03 浆果野餐 uses the same release path and clears a legal swap\nPASS a stale screen channel never overrides a newer owner live sample returning to the press\nPASS touch end on the neighbor cell swaps that cell, the same identity as the second tap\nPASS known layout-alias END rollback to the tray preserves PR52 when no newer owner sample returns\nPASS touch end on the bomb cell uses that cell, and a later move off the board still retracts\n{\"status\":\"PASS\",\"checks\":24,\"scope\":\"Real board-ui ManagedMobileBoardUI tool bar on Cocos memory doubles; no rendering or device touch\"}\n"
+    },
+    {
+      "file": "tools/board-ui/test_reward_background_return.cjs",
+      "exit": 0,
+      "status": "PASS",
+      "output": "{\n  \"status\": \"PASS\",\n  \"scope\": \"Actual production TS, controller witness actions, Map-only storage, Cocos doubles. No native input/GPU/phone lockscreen claim.\",\n  \"checks\": [\n    {\n      \"which\": \"before-claim\",\n      \"cycles\": 3,\n      \"duplicateEvents\": true,\n      \"storageUnchanged\": true,\n      \"sameResultPanel\": true,\n      \"noGlobalResume\": true\n    },\n    {\n      \"which\": \"after-chest\",\n      \"cycles\": 3,\n      \"duplicateEvents\": true,\n      \"storageUnchanged\": true,\n      \"sameResultPanel\": true,\n      \"noGlobalResume\": true\n    },\n    {\n      \"which\": \"after-region\",\n      \"cycles\": 3,\n      \"duplicateEvents\": true,\n      \"storageUnchanged\": true,\n      \"sameResultPanel\": true,\n      \"noGlobalResume\": true\n    }\n  ],\n  \"nextButtonRouted\": true,\n  \"duplicateRewardsZeroWrites\": true,\n  \"disposed\": true\n}\n(node:30) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "file": "tools/board-ui/test_restored_entry_resume.cjs",
+      "exit": 0,
+      "status": "PASS",
+      "output": "PASS restored paused entry: explicit resume, no silent state change, exact saved bytes and action retained\n"
+    },
+    {
+      "file": "tools/board-ui/test_region_flow_entry.cjs",
+      "exit": 0,
+      "status": "PASS",
+      "output": "{\n  \"status\": \"PASS\",\n  \"scope\": \"Actual engine/controller replay with temporary storage; no native/device claim\",\n  \"checks\": [\n    {\n      \"end\": 4,\n      \"preWinActions\": 5,\n      \"completedAfter\": 4,\n      \"gates\": [\n        true,\n        false,\n        false\n      ],\n      \"namespace\": \"dot-region-flow-test-mv9ryj0g-1-5v92iof6af5:\"\n    },\n    {\n      \"end\": 8,\n      \"preWinActions\": 14,\n      \"completedAfter\": 8,\n      \"gates\": [\n        true,\n        true,\n        false\n      ],\n      \"namespace\": \"dot-region-flow-test-mv9ryjdj-1-h1n3x9sojyp:\"\n    },\n    {\n      \"end\": 12,\n      \"preWinActions\": 10,\n      \"completedAfter\": 12,\n      \"gates\": [\n        true,\n        true,\n        true\n      ],\n      \"namespace\": \"dot-region-flow-test-mv9ryk9p-1-yprhjm1l7x:\"\n    }\n  ]\n}\n"
+    },
+    {
+      "file": "tools/board-ui/test_chapter_gates.cjs",
+      "exit": 0,
+      "status": "PASS",
+      "output": "{\n  \"status\": \"PASS\",\n  \"checkedCompletedCounts\": 13,\n  \"cardMilestones\": [\n    4,\n    8,\n    12\n  ],\n  \"actualProviderFailureOverridesCard\": true\n}\n"
+    }
+  ]
+}

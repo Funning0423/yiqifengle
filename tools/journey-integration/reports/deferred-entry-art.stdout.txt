@@ -1,0 +1,6 @@
+PASS deferred entry {"flushFirst":true,"waiter":true,"oldLate":false}
+PASS deferred entry {"flushFirst":false,"waiter":true,"oldLate":false}
+PASS deferred entry {"flushFirst":false,"waiter":true,"oldLate":true}
+PASS deferred entry {"flushFirst":false,"waiter":false,"oldLate":false}
+PASS deferred entry {"flushFirst":false,"waiter":false,"oldLate":true}
+{"status":"PASS","checks":5}

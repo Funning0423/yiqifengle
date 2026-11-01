@@ -1,0 +1,11 @@
+[QF_BOARD_PRESENTATION_ERROR] Error: injected presentation before stable save
+    at u.render (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/test_board_storage_recovery.cjs:18:129)
+    at Object.render (eval at load (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/harness.cjs:183:5), <anonymous>:1295:33)
+    at Object.render (eval at load (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/workspace/shared/legacy-test-audit-20261015/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/workspace/shared/legacy-test-audit-20261015/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at Object.safeCommand [as command] (eval at load (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at ManagedMobileBoardUI.swap (eval at load (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/harness.cjs:183:5), <anonymous>:1366:29)
+    at ManagedMobileBoardUI.tap (eval at load (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/harness.cjs:183:5), <anonymous>:1406:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/harness.cjs:183:5), <anonymous>:856:18)
+    at ManagedMobileBoardUI.eval (eval at load (/workspace/shared/legacy-test-audit-20261015/tools/board-ui/harness.cjs:183:5), <anonymous>:205:22)

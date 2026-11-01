@@ -9,7 +9,7 @@ const path = require('path'), fs = require('fs'), Module = require('module'), cr
 const ROOT = path.resolve(__dirname, '../../..'), P = path.join(ROOT, 'creator-build-project'), S = path.join(P, 'assets/scripts');
 const ts = require(process.env.QF_TYPESCRIPT_MODULE || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript');
 const tr = f => ts.transpileModule(fs.readFileSync(path.join(S, f), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true, downlevelIteration: false } }).outputText;
-const CODE = { 'audio/GameAudio.ts': tr('audio/GameAudio.ts'), 'audio/SceneMusic.ts': tr('audio/SceneMusic.ts') };
+const CODE = { 'world-r2/LevelRegion.ts':tr('world-r2/LevelRegion.ts'), 'audio/SceneAudioTable.ts': tr('audio/SceneAudioTable.ts'), 'audio/GameAudio.ts': tr('audio/GameAudio.ts'), 'audio/SceneMusic.ts': tr('audio/SceneMusic.ts') };
 let fail = 0, pass = 0; const ok = (c, m, d) => { console.log((c ? 'PASS ' : 'FAIL ') + m + (d === undefined ? '' : ' ' + JSON.stringify(d))); if (c) pass++; else fail++; };
 const near = (a, b, e) => Math.abs(a - b) <= e;
 
@@ -42,7 +42,7 @@ function world(opts = {}) {
     game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, sys: { localStorage: { getItem: k => store.has(k) ? store.get(k) : null, setItem: (k, v) => store.set(k, String(v)) } },
     input, Input: { EventType: { TOUCH_END: 'touch', MOUSE_UP: 'mouse', KEY_DOWN: 'key' } } };
   const mods = {};
-  const req = from => id => { if (id === 'cc') return cc; const key = { './GameAudio': 'audio/GameAudio.ts' }[id]; if (!key) throw Error('unexpected import ' + id + ' from ' + from); return load(key); };
+  const req = from => id => { if (id === 'cc') return cc; const key = { './GameAudio': 'audio/GameAudio.ts', './SceneAudioTable': 'audio/SceneAudioTable.ts', '../world-r2/LevelRegion':'world-r2/LevelRegion.ts' }[id]; if (!key) throw Error('unexpected import ' + id + ' from ' + from); return load(key); };
   function load(key) { if (mods[key]) return mods[key].exports; const m = new Module(key); m.filename = path.join(S, key); m.paths = []; mods[key] = m; m.require = req(key); m._compile(CODE[key], m.filename); return m.exports; }
   const GA = load('audio/GameAudio.ts'), SM = load('audio/SceneMusic.ts');
   GA.GameAudio.now = () => now;
@@ -195,6 +195,7 @@ for (const gate of ['mute', 'hide', 'interrupt', 'volume0']) { const { w } = loo
     [{ state: 'skycity-loading', stable: 'island' }, null], [{ state: 'skycity', stable: 'skycity' }, 'skycity'],
     [{ state: 'level-loading', stable: 'island' }, null], [{ state: 'level', stable: 'level' }, null],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'meadow' }, 'meadow'],
+    [{state:'level',stable:'level',boardPresent:true,boardProvider:'mainline-v33',boardStageId:'mainline-05'},'meadow'],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'sky' }, 'skycity'],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'tide' }, 'island'],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'mainline-v33' }, 'island'], [{}, 'island']];
@@ -283,7 +284,7 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
   snap.snap = { state: 'level', stable: 'level' }; w.scene.byName.ManagedMobileBoardUI = [board]; pres = { provider: 'regional-r05', active: { region: 'meadow' } };
   w.step(0.3);
   ok(w.bundleLoads.length === 2 && w.bundleLoads[1].n === 'region_meadow' && w.a.musicDiagnostics().path === 'audio/bgm_meadow', 'meadow region board -> setMusic(audio/bgm_meadow, region_meadow)');
-  ok(w.a.musicDiagnostics().sceneCrossfade.fadingOut && w.a.musicDiagnostics().sceneCrossfade.xfadeS === 1.5, 'scene switch still uses the 1.5 s crossfade (no room fade-in flag)');
+  ok(w.a.musicDiagnostics().sceneCrossfade.fadingOut && w.a.musicDiagnostics().sceneCrossfade.xfadeS === 2, 'scene switch uses the 2 s region crossfade (no room fade-in flag)');
   w.bundleLoads[1].cb(new Error('missing'), null); w.step(0.3);
   ok(w.a.musicDiagnostics().path === ISL.p && w.a.musicDiagnostics().bundle === ISL.b, 'meadow BGM unavailable -> falls back to island BGM (cached audio_bgm_island bundle)');
   w.step(2); ok(w.bundleLoads.length === 2, 'fallback is sticky for this visit (no retry loop)');
@@ -322,7 +323,7 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
   ok(dup.length === 0, 'no duplicate uuids across assets/**/*.meta (' + allMetas.length + ' metas)', dup);
   for (const [f, minS, maxS] of [['bundles/region_meadow/audio/bgm_meadow.mp3', 72, 73.5], ['bundles/region_skycity/audio/bgm_skycity.mp3', 71.5, 73], ['bundles/audio_bgm_island/audio/bgm_main.mp3', 83, 84.5]]) {
     const p = path.join(P, 'assets', f), m = J(p + '.meta'), buf = fs.readFileSync(p);
-    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0110 = 48 kbps, mode != 3 (stereo)
+    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0010 = 40 kbps (MPEG-1 L3 table index 2; 48 = 0b0011) since v3.2 size pass (was 48), mode != 3 (stereo)
     let i = 0; if (buf.slice(0, 3).toString() === 'ID3') i = 10 + ((buf[6] << 21) | (buf[7] << 14) | (buf[8] << 7) | buf[9]);
     while (i < buf.length - 4 && !(buf[i] === 0xff && (buf[i + 1] & 0xe0) === 0xe0)) i++;
     const KB = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
@@ -331,10 +332,30 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
     const br = (buf[i + 2] >> 4) & 15, sr = (buf[i + 2] >> 2) & 3, mode = (buf[i + 3] >> 6) & 3;
     const kbps = KB[br];
     // first frame may be the Xing/LAME info frame (still 48k CBR header with LAME); check a later frame too
-    ok(m.importer === 'audio-clip' && kbps === 48 && sr === 0 && mode !== 3 && buf.length > 3e5 && buf.length < 6e5, f + ': audio-clip meta, MPEG-1 44.1 kHz stereo, ' + buf.length + ' B', { kbps, mode, uuid: m.uuid });
+    ok(m.importer === 'audio-clip' && kbps === 40 && sr === 0 && mode !== 3 && buf.length > 3e5 && buf.length < 6e5, f + ': audio-clip meta, MPEG-1 44.1 kHz stereo, ' + buf.length + ' B', { kbps, mode, uuid: m.uuid });
   }
   ok(J(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3.meta')).uuid === '24969762-d70f-41d5-abe0-6cf06ce46946', 'island bgm_main.mp3 keeps its uuid 24969762-… after the move');
-  ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3'))).digest('hex') === '21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a', 'island bgm_main.mp3 bytes unchanged by the move (sha256 21ca21ac…)');
+  ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3'))).digest('hex') === '183993fbb55f983368fc91d67333ee07620bbf79625cbcee0b4b782212cd6e28', 'island bgm_main.mp3 = v3.2 40 kbps re-encode of 21ca21ac… (sha256 183993fb…)');
+}
+// ---------- 「主页」 transition (GGbot, Mac re-check 2607de6): region bgm + wind/waves bed + sfx_* fade with the picture, then island bgm fades in ----------
+{ const w = world({ noInitial: true }); unlock(w); const a = w.a;
+  a.setMusic('audio/bgm_skycity', 'region_skycity'); const sb = w.mkBundle('region_skycity'); w.bundles.region_skycity = sb; w.bundleLoads[0].cb(null, sb); sb.loads[0].cb(null, w.clip('bgm_skycity', 72));
+  w.step(.5); const sky = w.live().find(x => x.clip && x.clip.name === 'bgm_skycity'); const v0 = sky && sky.volume;
+  a.clips.set('sfx_tap', w.clip('sfx_tap', 3)); a.play('sfx_tap', .8); const sfx = w.live().find(x => x.clip && x.clip.name === 'sfx_tap');
+  ok(!!sky && v0 > 0 && !!sfx, 'transition setup: skycity bgm + one sfx playing', { v0 });
+  a.fadeTransition(0, .4); w.step(.2);
+  ok(near(a.transitionGain(), .5, .06) && near(sky.volume, v0 * .5, v0 * .08) && near(sfx.volume, .4, .06), 'mid fade (0.2 of 0.4 s): bgm, sfx and the bed gain all at ~50% together (no hard cut)', { g: a.transitionGain(), bgm: sky.volume, sfx: sfx.volume });
+  ok(a.getMusicVolume() === .4, 'the settings slider value is untouched by the transition', a.getMusicVolume());
+  w.step(.25);
+  ok(a.transitionGain() === 0 && sky.volume === 0 && sfx.volume === 0, 'end of the 0.4 s fade-out: region bgm and sfx silent', { bgm: sky.volume, sfx: sfx.volume });
+  const island = w.SM.SCENE_TRACKS.island; a.switchTrackAfterTransition(island.path, island.bundle);
+  ok(!sky.playing && !sfx.playing && a.transitionGain() === 1, 'after returnHome: skycity bgm stopped, sfx stopped, gain restored', { sky: sky.playing, sfx: sfx.playing });
+  const ib = w.mkBundle(island.bundle); w.bundles[island.bundle] = ib; w.bundleLoads.at(-1).cb(null, ib); ib.loads[0].cb(null, w.clip('bgm_main', 60));
+  w.step(.3); const isl = w.live().find(x => x.clip && x.clip.name === 'bgm_main'); const vIn = isl && isl.volume; w.step(1.5);
+  ok(!!isl && isl.playing && vIn > 0 && vIn < isl.volume - 1e-3 && near(isl.volume, .4, .02), 'island bgm fades in (not a hard start) and reaches the slider level', { vIn, v: isl && isl.volume });
+  ok(w.live().filter(x => x.clip && x.clip.name === 'bgm_skycity').length === 0 && a.musicDiagnostics().path === island.path, 'region (skycity) bgm is not playing on the island; island bgm is the music', a.musicDiagnostics().path);
+  a.setMusic('audio/bgm_main_x', null); a.fadeTransition(0, .4); w.step(.1); a.fadeTransition(1, .2); w.step(.3);
+  ok(a.transitionGain() === 1, 'failure path: fadeTransition(1) restores the gain', a.transitionGain());
 }
 console.log((fail ? 'FAILED ' + fail : 'ALL PASS') + ' scene-bgm (' + pass + ' checks)');
 process.exitCode = fail ? 1 : 0;

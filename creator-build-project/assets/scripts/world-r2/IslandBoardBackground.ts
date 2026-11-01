@@ -1,4 +1,4 @@
-import { _decorator, Component, assetManager, AssetManager, ImageAsset, Texture2D, SpriteFrame, Sprite, Node, Layers, UITransform, Color, isValid } from 'cc';
+import { _decorator, Component, assetManager, AssetManager, ImageAsset, Texture2D, SpriteFrame, Sprite, Node, Layers, UITransform, UIOpacity, Color, isValid } from 'cc';
 import type { LevelBackgroundFactory, LevelBackgroundFrame } from './LevelBackground';
 import type { Cancellation } from '../world-r1/WorldFlowCore';
 import { boardBackgroundFor, boardChapter } from '../ui/BoardArt';
@@ -6,7 +6,7 @@ import { tintRgb, uiNightWeight } from '../ui/NightTint';
 const { ccclass } = _decorator;
 /** Board scenery: one painted picture (750×1624), cover-fit behind the board HUD.
  *  天空回声 (r05-sky-*) loads region_skycity/board/bg_skycity_board.jpg. Tide, R4, mainline, and 花粉草甸
- *  (no env_meadow.glb, so no meadow picture) load region_island/board/bg_island_board.jpg.
+ *  (meadow entry is blocked until its real scene is integrated) load region_island/board/bg_island_board.jpg.
  *  Night multiplies the same picture by K_SEA. There is no second night render. */
 export const BACKGROUND_SIZE = { width: 750, height: 1624 } as const;
 export function coverSize(width: number, height: number, iw = BACKGROUND_SIZE.width, ih = BACKGROUND_SIZE.height) {
@@ -55,6 +55,7 @@ export const createIslandBoardBackground: LevelBackgroundFactory = async ({ pare
         const c = coverSize(width, height); node.getComponent(UITransform)!.setContentSize(c.width, c.height); node.setPosition(0, 0, 0);
       },
       setVisible: (value: boolean) => { if (disposed) return; visible = value; if (node && isValid(node, true)) node.active = value; },
+      setFade: (a: number) => { if (disposed || !node || !isValid(node, true)) return; const op = node.getComponent(UIOpacity) || node.addComponent(UIOpacity); op.opacity = Math.round(255 * Math.min(1, Math.max(0, a))); },
       setPaused: () => { },
       diagnostics: () => ({ renderer: 'board-ui-static-picture', bundle: picture.bundle, path: picture.path, chapter, provider: selection.provider, stageId: selection.stageId, visible, night: tint?.night ?? 0, size: node ? { width: node.getComponent(UITransform)!.width, height: node.getComponent(UITransform)!.height } : null, dynamicTextureUploads: 0 }),
       dispose,

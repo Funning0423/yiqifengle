@@ -1,0 +1,205 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b",
+  "files": [],
+  "subMetas": {
+    "80ff7": {
+      "importer": "gltf-mesh",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@80ff7",
+      "displayName": "",
+      "id": "80ff7",
+      "name": "far_island_lighthouse.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 212
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6348c": {
+      "importer": "gltf-mesh",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@6348c",
+      "displayName": "",
+      "id": "6348c",
+      "name": "far_islet_a.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 50
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "210be": {
+      "importer": "gltf-mesh",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@210be",
+      "displayName": "",
+      "id": "210be",
+      "name": "far_islet_b.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 50
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b8425": {
+      "importer": "gltf-mesh",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@b8425",
+      "displayName": "",
+      "id": "b8425",
+      "name": "far_islet_c.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 82
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "65ac7": {
+      "importer": "gltf-mesh",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@65ac7",
+      "displayName": "",
+      "id": "65ac7",
+      "name": "far_meadow_coast.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 370
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dd225": {
+      "importer": "gltf-material",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@dd225",
+      "displayName": "",
+      "id": "dd225",
+      "name": "M_transit_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c59e1": {
+      "importer": "gltf-scene",
+      "uuid": "633ce12f-ce8b-46e6-93e4-f9cfd332292b@c59e1",
+      "displayName": "",
+      "id": "c59e1",
+      "name": "transit_far_cards.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "transit_palette_256",
+        "uri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@80ff7",
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@6348c",
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@210be",
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@b8425",
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@65ac7"
+      ],
+      "skeletons": [],
+      "textures": [
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@e39f7"
+      ],
+      "materials": [
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@dd225"
+      ],
+      "scenes": [
+        "633ce12f-ce8b-46e6-93e4-f9cfd332292b@c59e1"
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}

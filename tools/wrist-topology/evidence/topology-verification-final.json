@@ -1,0 +1,581 @@
+{
+  "status": "PASS_STRUCTURAL_CONNECTION_AND_UNCHANGED_ANIMATION_NOT_VISUAL_ACCEPTANCE",
+  "baselineSHA256": "8294a71c2fb1ec441f2a0a187620da293c7a0a5d1435273c073304f018797e53",
+  "candidateSHA256": "245e923f668a4e570d1021ef58aacd871305129b152c30a08e6ea9ffc4969e72",
+  "existingBindPositionsUnchanged": true,
+  "seamWindingConsistent": true,
+  "newSkinSeamVertices": 40,
+  "removedCapTriangles": 28,
+  "addedAnnulusTriangles": 68,
+  "UVSeamWelds": [
+    {
+      "newVertex": 4136,
+      "cuffVertex": 2022,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4137,
+      "cuffVertex": 2004,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4138,
+      "cuffVertex": 2003,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4139,
+      "cuffVertex": 2005,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4140,
+      "cuffVertex": 2006,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4141,
+      "cuffVertex": 2007,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4142,
+      "cuffVertex": 2008,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4143,
+      "cuffVertex": 2009,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4144,
+      "cuffVertex": 2010,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4145,
+      "cuffVertex": 2011,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4146,
+      "cuffVertex": 2012,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4147,
+      "cuffVertex": 2013,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4148,
+      "cuffVertex": 2014,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4149,
+      "cuffVertex": 2015,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4150,
+      "cuffVertex": 2016,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4151,
+      "cuffVertex": 2017,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4152,
+      "cuffVertex": 2018,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4153,
+      "cuffVertex": 2019,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4154,
+      "cuffVertex": 2020,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4155,
+      "cuffVertex": 2021,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4156,
+      "cuffVertex": 2535,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4157,
+      "cuffVertex": 2536,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4158,
+      "cuffVertex": 2537,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4159,
+      "cuffVertex": 2538,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4160,
+      "cuffVertex": 2539,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4161,
+      "cuffVertex": 2540,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4162,
+      "cuffVertex": 2541,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4163,
+      "cuffVertex": 2542,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4164,
+      "cuffVertex": 2524,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4165,
+      "cuffVertex": 2523,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4166,
+      "cuffVertex": 2525,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4167,
+      "cuffVertex": 2526,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4168,
+      "cuffVertex": 2527,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4169,
+      "cuffVertex": 2528,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4170,
+      "cuffVertex": 2529,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4171,
+      "cuffVertex": 2530,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4172,
+      "cuffVertex": 2531,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4173,
+      "cuffVertex": 2532,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4174,
+      "cuffVertex": 2533,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "newVertex": 4175,
+      "cuffVertex": 2534,
+      "incidentWeldedEdgeUseCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "clip": "idle_breathing_loop",
+      "samples": 216,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "wind_sway_loop",
+      "samples": 481,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_loop",
+      "samples": 172,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "sit_hold",
+      "samples": 241,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "stand_up",
+      "samples": 153,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "sit_down",
+      "samples": 145,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "door_reach",
+      "samples": 241,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_start",
+      "samples": 232,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_stop_bodyL",
+      "samples": 177,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_stop_bodyR",
+      "samples": 177,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_turn_90_bodyL",
+      "samples": 177,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_turn_90_bodyR",
+      "samples": 177,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_turn_180",
+      "samples": 177,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    },
+    {
+      "clip": "walk_turn_180_bodyR",
+      "samples": 177,
+      "jointPoseIdentical": true,
+      "cuffUVSeamGapMm": 0,
+      "note": "exact equal positions and weights: identical linear skin transforms at every time, not only samples"
+    }
+  ],
+  "caveat": "does not establish no sleeve intersections or natural elbow appearance"
+}

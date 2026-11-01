@@ -1,0 +1,9 @@
+{
+  "package_version": 2,
+  "version": "1.0.0",
+  "name": "qf-meta-import",
+  "description": "One-shot: wait for asset-db, refresh the listed new assets so Creator writes their .meta, verify every listed .meta exists with the expected importer, log, mark done, quit. Writes no .meta itself. No UI.",
+  "main": "./main.js",
+  "author": "GGbot",
+  "editor": ">=3.8.0"
+}

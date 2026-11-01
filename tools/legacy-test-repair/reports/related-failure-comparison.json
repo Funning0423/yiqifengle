@@ -1,0 +1,22 @@
+{
+  "baselineCommit": "c5b4d6d503eeccf4fb7c9ed8dd9a94b3707b536b",
+  "baselineMethod": "git archive into fresh disposable /tmp directory; original integrated tree never edited",
+  "checks": [
+    {
+      "test": "tools/walk-driver/test_action_transitions.cjs",
+      "baselineExitCode": 1,
+      "candidateExitCode": 1,
+      "identicalOutputAfterSourcePathNormalization": true,
+      "classification": "PRE_EXISTING_FAILURE_REPRODUCED",
+      "firstLine": "AssertionError [ERR_ASSERTION]: sit 2.006046579344563,2.9713408754964563"
+    },
+    {
+      "test": "tools/walk-driver/test_walk_driver.cjs",
+      "baselineExitCode": 1,
+      "candidateExitCode": 1,
+      "identicalOutputAfterSourcePathNormalization": true,
+      "classification": "PRE_EXISTING_FAILURE_REPRODUCED",
+      "firstLine": "TypeError: Cannot read properties of undefined (reading 'position')"
+    }
+  ]
+}

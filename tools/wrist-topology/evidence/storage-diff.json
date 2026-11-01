@@ -1,0 +1,15 @@
+{
+  "before": 77,
+  "after": 78,
+  "changed": [],
+  "original74Changed": [],
+  "added": [
+    {
+      "path": "/Users/shineanl/Library/Application Support/\u5fae\u4fe1\u5f00\u53d1\u8005\u5de5\u5177/d1e8765721a6c23d43b14c95b1843e6b/WeappSimulator/WeappStorage/storage_532168068_o6zAJsyVywhLyVc7SOr16mCN9f74.json",
+      "bytes": 8,
+      "sha256": "c0dec195ad1674f359816d5f4b58a437c3b89ec8aa7c3109ebb4b4e5373505fa"
+    }
+  ],
+  "original74": 74,
+  "original74Baseline": "/Users/shineanl/Documents/Codex/2026-10-14/task-9/evidence/storage-before.json"
+}

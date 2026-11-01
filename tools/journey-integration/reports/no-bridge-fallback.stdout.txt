@@ -1,0 +1,11 @@
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"sail","attempt":1,"elapsedMs":0,"coverAlpha":0.42,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"sail","attempt":1,"elapsedMs":0,"coverAlpha":0.42,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"sail","attempt":1,"elapsedMs":0,"coverAlpha":0.42,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"sail","attempt":2,"elapsedMs":7400,"coverAlpha":0.42,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"balloon","attempt":1,"elapsedMs":0,"coverAlpha":0.27,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"balloon","attempt":1,"elapsedMs":0,"coverAlpha":0.27,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"balloon","attempt":1,"elapsedMs":0,"coverAlpha":0.27,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"balloon","attempt":2,"elapsedMs":7400,"coverAlpha":0.27,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"balloon","attempt":1,"elapsedMs":0,"coverAlpha":0.2,"gentle":true,"cameraHeld":true}
+[QF_TRANSPORT_WAIT] {"active":true,"kind":"balloon","attempt":2,"elapsedMs":0,"coverAlpha":0.2,"gentle":true,"cameraHeld":true}
+{"status":"PASS","cases":["sail-7s","sail-20s","sail-retry","balloon-7s","balloon-20s","balloon-retry"]}

@@ -1,0 +1,24 @@
+{
+ "sources": [
+  "tools/sample_dialog/mock_r5_u2.json"
+ ],
+ "name": {
+  "file": "QFLDialogName.ttf",
+  "bytes": 6252,
+  "chars": 16,
+  "glyphs": 17,
+  "outline": "glyf",
+  "missing": []
+ },
+ "body": {
+  "file": "QFLDialogBody.ttf",
+  "bytes": 40512,
+  "chars": 254,
+  "glyphs": 255,
+  "outline": "glyf",
+  "missing": []
+ },
+ "name_chars_sha256": "261cb957481a24be1c53c9c4bf4ce94d8615965e39a984f84d8353e9af490c66",
+ "body_chars_sha256": "7f993af51a1b60d82b2f7978a79a7b0edc30460925e23329ca3cd21a9d60469b",
+ "license": "SIL OFL 1.1 (licenses/qfl-dialog-name-ofl.txt, licenses/qfl-dialog-body-ofl.txt)"
+}

@@ -1,0 +1,4 @@
+PASS helper: day weight 0 = the authored day colour, weight 1 = the journey night sky, eased in between; written only on change
+PASS meadow motion: board camera clear colour follows the UI night weight; ground/cloud grade identical to the journey copy; day untouched
+PASS wiring: meadow board grades like the journey, mounts a night dome only at night, follows toggles and frees its listener; sky city too
+PASS sky city wrapper: board sky follows the day/night mode and its toggles; listener freed on dispose

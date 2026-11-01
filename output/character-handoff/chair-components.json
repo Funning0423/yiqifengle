@@ -1,0 +1,8 @@
+[
+  {
+    "object": "env_interior_props_merged",
+    "verts": 820,
+    "faces": 512,
+    "selection": "exact triangle difference original minus no-chair room; world positions quantized 1e-5m"
+  }
+]

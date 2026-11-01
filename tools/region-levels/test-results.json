@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "scope": "Node real rule engines/controllers; isolated Map persistence with injected faults. No Cocos renderer, browser, device or visual acceptance.",
+  "checks": [
+    {
+      "name": "catalog preserves frozen budgets, exact goals, stage identity and seed banks",
+      "status": "PASS",
+      "stages": 12,
+      "budgetAndRulesChanged": false
+    },
+    {
+      "name": "36 shipped mainline openings win without tools; every action prefix cold-restores",
+      "status": "PASS",
+      "openings": 36,
+      "actions": 613,
+      "prefixRestores": 613
+    },
+    {
+      "name": "24 meadow/sky challenge seeds replay all goals and cold-recover every prefix",
+      "status": "PASS",
+      "openings": 24,
+      "actions": 227,
+      "includedStageToolActions": 0,
+      "externalInventoryUsed": false
+    },
+    {
+      "name": "actual 12-stage progression, 4/8 entry versus 8/12 challenge gates, reward claims, cold storage",
+      "status": "PASS",
+      "stages": 12,
+      "regionBoundaryTransitions": 2,
+      "rewardClaims": 15,
+      "writes": 255
+    },
+    {
+      "name": "malformed, unavailable, read-only and sparse counter projections fail closed with no mutation",
+      "status": "PASS",
+      "invalidViews": 9,
+      "sparseCountersCannotUnlock": true
+    },
+    {
+      "name": "boundary winning-journal failures cannot unlock meadow/sky; cold retry records exactly once",
+      "status": "PASS",
+      "cases": [
+        {
+          "stageId": "mainline-04",
+          "recoveredNext": "mainline-05"
+        },
+        {
+          "stageId": "mainline-08",
+          "recoveredNext": "mainline-09"
+        }
+      ]
+    },
+    {
+      "name": "mid-level cold reopen preserves board and needs explicit resume; late tokens do not write",
+      "status": "PASS",
+      "coldReopens": 62
+    },
+    {
+      "name": "meadow/sky chest and region-gift writes: before/after faults, retry, duplicate and cold claims",
+      "status": "PASS",
+      "cases": [
+        {
+          "level": 4,
+          "method": "openChest",
+          "mode": "before",
+          "duplicateGrants": 0
+        },
+        {
+          "level": 4,
+          "method": "openChest",
+          "mode": "after",
+          "duplicateGrants": 0
+        },
+        {
+          "level": 4,
+          "method": "claimRegion",
+          "mode": "before",
+          "duplicateGrants": 0
+        },
+        {
+          "level": 4,
+          "method": "claimRegion",
+          "mode": "after",
+          "duplicateGrants": 0
+        },
+        {
+          "level": 8,
+          "method": "openChest",
+          "mode": "before",
+          "duplicateGrants": 0
+        },
+        {
+          "level": 8,
+          "method": "openChest",
+          "mode": "after",
+          "duplicateGrants": 0
+        },
+        {
+          "level": 8,
+          "method": "claimRegion",
+          "mode": "before",
+          "duplicateGrants": 0
+        },
+        {
+          "level": 8,
+          "method": "claimRegion",
+          "mode": "after",
+          "duplicateGrants": 0
+        }
+      ]
+    },
+    {
+      "name": "meadow/sky challenges progress in order, recover proof receipts and claim one regional memento",
+      "status": "PASS",
+      "stages": 8,
+      "actions": 75,
+      "regionalMementos": 2
+    },
+    {
+      "name": "corrupt journey/checkpoint and stale concurrent writer preserve original bytes and lock regions",
+      "status": "PASS",
+      "corruptCases": 4,
+      "staleWriterProtected": true
+    }
+  ]
+}

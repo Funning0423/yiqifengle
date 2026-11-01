@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "scope": "Cloud static, Node runtime, isolated Map persistence, Cocos memory doubles; no visual/device acceptance",
+  "syntaxFiles": [
+    "creator-build-project/assets/scripts/mainline-r1/runtime/index.js",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/verified-seeds.js"
+  ],
+  "typecheck": "TypeScript 5.9.3 --strict --noEmit --esModuleInterop --target ES2017 --module commonjs tools/region-levels/contract-typecheck.ts",
+  "fullCreatorTypecheck": "not run: Creator build/editor declarations not present",
+  "diffWhitespaceCheck": true,
+  "results": {
+    "test-results.json": {
+      "checks": 10,
+      "sha256": "8139af4cff0a33e5dd3aead9087ec7643448bb320aca030c5b2faddfcd52a3b7"
+    },
+    "production-binding-results.json": {
+      "checks": 18,
+      "sha256": "6e30bd2e93685062eb9c9bced53f06c1711ecf02dec1232689c9d16a0f7c9cfc"
+    },
+    "retry-protection-results.json": {
+      "checks": 11,
+      "sha256": "5edff4cd08fee3035e55d0d0eb01ad78fc3e888772c5235b295ff8e0197359e2"
+    },
+    "legacy-regression-results.json": {
+      "checks": 6,
+      "sha256": "2991075a4c009b9c42c79305aa25955105cac883a6709caa1d4d4ddad7686597"
+    }
+  },
+  "productionSHA256": {
+    "creator-build-project/assets/scripts/mainline-r1/runtime/index.js": "6f8f9e0d681ed0a09ea58591f3c7ed8c2639a0d1b8749d6274e9d1d0098ef3b3",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js": "57ea81f302b4f5b44d014da999d57b0ac91920b2ae8c44bb5e113d3b7819e305",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js": "9532d28a732d9bc575053ecb1c3a68488ba5f6444715d84200abee02bec600e3",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign.js": "b2306213707d79181d7c7bb1b5a8614e589730218b342eb9ce4f51a7f6cc704a",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/verified-seeds.js": "4df5ece9598437d1d2f5212ad7382a4dfe7831baf5bacfbea56cf5a4bf8798e3"
+  },
+  "newMetaUuidsUnique": true
+}

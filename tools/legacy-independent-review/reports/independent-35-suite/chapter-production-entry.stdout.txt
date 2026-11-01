@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "milestone": 4,
+      "completed": 3,
+      "won": false,
+      "actualProviderGates": [
+        false,
+        false,
+        false
+      ],
+      "journalLabelsAndChapterClicksVerified": true
+    },
+    {
+      "milestone": 4,
+      "completed": 4,
+      "won": true,
+      "actualProviderGates": [
+        true,
+        false,
+        false
+      ],
+      "journalLabelsAndChapterClicksVerified": true
+    },
+    {
+      "milestone": 8,
+      "completed": 7,
+      "won": false,
+      "actualProviderGates": [
+        true,
+        false,
+        false
+      ],
+      "journalLabelsAndChapterClicksVerified": true
+    },
+    {
+      "milestone": 8,
+      "completed": 8,
+      "won": true,
+      "actualProviderGates": [
+        true,
+        true,
+        false
+      ],
+      "journalLabelsAndChapterClicksVerified": true
+    },
+    {
+      "milestone": 12,
+      "completed": 11,
+      "won": false,
+      "actualProviderGates": [
+        true,
+        true,
+        false
+      ],
+      "journalLabelsAndChapterClicksVerified": true
+    },
+    {
+      "milestone": 12,
+      "completed": 12,
+      "won": true,
+      "actualProviderGates": [
+        true,
+        true,
+        true
+      ],
+      "journalLabelsAndChapterClicksVerified": true
+    }
+  ],
+  "scope": "Actual legal mainline replay, R5 campaign host, IslandJourneyOverlay, IslandPanels and button events on Cocos structural doubles. No rendered/device acceptance."
+}

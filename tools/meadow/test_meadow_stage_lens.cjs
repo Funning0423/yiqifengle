@@ -1,0 +1,120 @@
+#!/usr/bin/env node
+'use strict';
+/** 运镜bot b20 meadow-board-lens (Grok Bot acceptance, Oct 30). 场景设计部 moved M1–M3 (3fb967af); the one shared board lens on M1
+ *  put her stage-06 feet off-screen on 390×844 (x ≈ −16 pt). Each meadow board 05–08 must frame its own node:
+ *   A. 7 screens × 05–08: her whole box on screen, ≥ 8 pt from every edge, clear of the board UI (≥ GIRL_STAND.minGapPt) and of the
+ *      WeChat capsule; node in front of the lens; line of sight to feet / face / crown clear; lens ≥ 1.5 m over ground (r 0.5 m)
+ *      and ≥ 0.5 m from solids.
+ *   B. 05 is the reviewed pose of 3fb967af, unchanged, on every screen ≥ 390 pt wide (narrow screens: room edge 6 → 10 pt for the 8 pt rule).
+ *   C. board→follow / follow→board blends folded into the reward walk (RegionNodeStage.meadowRewardFold, no pause): per real dt (60 fps, 30 fps, jitter) on 7 screens,
+ *      speed ≤ 8 m/s, step ≤ 0.5 m, yaw / pitch ≤ 90°/s, angular acc p99 ≤ 200°/s², FOV ≤ 1.5°/frame; lens path clearance as A.
+ *   D. wiring: the stage reaches the lens (level entry + reward walk), the follow→board blend ends on that stage's lens.
+ *  On 3fb967af (no MeadowStageLens) this FAILs at A (06 off-screen) and C. */
+const fs=require('node:fs'),path=require('node:path');
+const {load,ROOT}=require('../region-nodes/load.cjs');
+const MS=load('region/MeadowSceneData.ts'),RB=load('region/RegionBoardLanding.ts'),BL=load('ui/BoardLayout.ts'),N=load('region/RegionNodes.ts'),EC=load('region/ExploreCameraCore.ts');
+const GEO=require('./meadow-lens-geo.cjs');
+let SL=null;try{SL=load('region/MeadowStageLens.ts');}catch{SL=null;}
+const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]],STAGES=[['mainline-05','M1'],['mainline-06','M2'],['mainline-07','M3'],['mainline-08','M4']];
+const EDGE_PT=8,GROUND_M=1.5,SOLID_M=0.5,CAP={mps:7.5/* Grok Bot r2: headroom under the approved 8 m/s */,step:.5,degS:90,degS2:200,fovFrame:1.5};
+const node=k=>N.REGION_NODES.meadow.nodes.find(n=>n.key===k).at;
+const fails=[],report={stages:{},blends:[]};
+const setStage=s=>{if(SL)SL.setMeadowBoardStage(s);};
+const lens=(w,h,s)=>{setStage(s);return RB.meadowBoardCamera(w,h);};
+RB.setMeadowBoardFraming('A');
+const H=1.7253,face=f=>[f[0],f[1]+1.55,f[2]];
+for(const [w,h] of SCREENS){const k=w+'x'+h,safe=BL.boardSafeInsets(w,h),ui=RB.girlStandUi(w,h,safe);report.stages[k]={};
+ for(const [st,n] of STAGES){const cam=lens(w,h,st),b=RB.girlBoxPt(cam,node(n),w,h),r={};report.stages[k][st]=r;
+  r.position=cam.position.map(x=>+x.toFixed(3));r.target=cam.target.map(x=>+x.toFixed(3));r.fov=+cam.fovVerticalDeg.toFixed(3);
+  if(!b){fails.push(`${k} ${st} ${n} behind the lens`);continue;}
+  r.box=[b.l,b.t,b.r,b.b].map(x=>+x.toFixed(1));r.edgePt=+Math.min(b.l,w-b.r,b.t,h-b.b).toFixed(1);
+  r.margin=+Math.min(b.l/w,(w-b.r)/w,b.t/h,(h-b.b)/h).toFixed(3);
+  if(!(r.edgePt>=EDGE_PT))fails.push(`${k} ${st} ${n} ${r.edgePt} pt from the screen edge (< ${EDGE_PT})`);
+  let gap=Infinity;for(const q of ui){const ox=Math.min(b.r,q.r)-Math.max(b.l,q.l),oy=Math.min(b.b,q.b)-Math.max(b.t,q.t);gap=ox>0&&oy>0?-1:Math.min(gap,Math.hypot(Math.max(q.l-b.r,b.l-q.r,0),Math.max(q.t-b.b,b.t-q.b,0)));}
+  r.uiGapPt=+gap.toFixed(1);if(gap<RB.GIRL_STAND.minGapPt)fails.push(`${k} ${st} UI gap ${gap.toFixed(1)} pt`);
+  const c=safe.capsule;r.capsule=!!(c&&b.r>c.left&&b.l<c.right&&b.t<c.bottom&&b.b>c.top);if(r.capsule)fails.push(`${k} ${st} WeChat capsule over her`);
+  const g=GEO.groundClear(cam.position),s=GEO.solidClear(cam.position);r.groundM=+g.toFixed(2);r.solidM=+s.d.toFixed(2);
+  if(!(g>=GROUND_M))fails.push(`${k} ${st} lens ${g.toFixed(2)} m over ground`);if(!(s.d>=SOLID_M))fails.push(`${k} ${st} lens ${s.d.toFixed(2)} m from ${s.name}`);
+  const f=node(n);for(const [nm,p] of [['feet',[f[0],f[1]+.05,f[2]]],['face',face(f)],['crown',[f[0],f[1]+H,f[2]]]]){const o=GEO.blocked(cam.position,p);if(o)fails.push(`${k} ${st} ${nm} hidden by ${o}`);}
+ }}
+// B. 05 unchanged
+const FX=path.join(__dirname,'fixtures/meadow_board_05_pose_3fb967af.json'),fx=JSON.parse(fs.readFileSync(FX,'utf8'));
+if(process.argv.includes('--write-05-fixture')){fx.M1=node('M1');for(const [w,h] of SCREENS)fx.poses[w+'x'+h]=lens(w,h,'mainline-05');fs.writeFileSync(FX,JSON.stringify(fx,null,1));console.log('wrote',FX);}
+if(Math.max(...fx.M1.map((x,i)=>Math.abs(x-node('M1')[i])))>1e-9)fails.push('M1 moved since the 05 fixture ('+fx.M1+' → '+node('M1')+'): review stage 05, then --write-05-fixture');
+const frozen=fx.poses;
+for(const [w,h] of SCREENS){const k=w+'x'+h,cam=lens(w,h,'mainline-05'),o=frozen[k];
+ const d=Math.max(...cam.position.map((x,i)=>Math.abs(x-o.position[i])),...cam.target.map((x,i)=>Math.abs(x-o.target[i])),Math.abs(cam.fovVerticalDeg-o.fovVerticalDeg));if(d>1e-9)fails.push(`${k} 05 lens moved (${d})`);}
+// C. blends, folded into the reward walk (Grok Bot plan 1, RegionNodeStage.meadowRewardFold): she walks from t=0 at WALK_SPEED_MPS;
+//    board(s0) → LIVE follow lens (moving with her) over T0; then follow; T1 s before the node: follow snapshot → board(s1). No pause:
+//    T0 + T1 ≤ the walk. Per real dt (60 fps, 30 fps, jitter), 7 screens.
+const NW=load('region/NodeWalker.ts');
+const edge=(a,b)=>{const e=N.REGION_NODES.meadow.edges.find(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a));return e.a===a?e.path:e.path.slice().reverse();};
+const head=(p,q)=>Math.atan2(q[0]-p[0],q[2]-p[2]),dir=p=>{const d=[0,1,2].map(i=>p.target[i]-p.position[i]),l=Math.hypot(...d);return d.map(x=>x/l);};
+const yp=p=>{const d=dir(p);return [Math.atan2(d[0],d[2])*180/Math.PI,Math.asin(d[1])*180/Math.PI];},wrap=a=>((a+540)%360)-180;
+const DT={'60fps':()=>1/60,'30fps':()=>1/30,jitter:i=>[1/60,1/60,1/30,1/60,1/20,1/60][i%6]};
+const blendS=(a,b,min)=>SL&&SL.meadowBlendSeconds?SL.meadowBlendSeconds(a,b,min):min;
+const herAt=(path,t)=>{const L=NW.pathLength(path),d=Math.min(L,t*NW.WALK_SPEED_MPS),p=NW.pointAlong(path,d),q=NW.pointAlong(path,Math.min(L,d+.05)),o=NW.pointAlong(path,Math.max(0,d-.05));return {p,yaw:head(o,q)};};
+const followAt=(path,t,w,h)=>{const s=herAt(path,t);return EC.followPose(s.p,s.yaw,w,h,0);};
+const foldAt=(path,t,w,h)=>{const s=herAt(path,t),q=NW.pointAlong(path,3);return EC.followPose(s.p,head(path[0],q),w,h,0);};/* RegionNodeStage.meadowRewardFold: one heading */
+report.folds=[];report.tables={};
+const runOne=(key,ts,T,at,herFn,w,h)=>{const out={};for(const [dn,dtf] of Object.entries(DT)){let t=ts,i=0,prev=at(ts),pr=null,blk=0,blkMax=0,edgeMin=Infinity;const m={T:+T.toFixed(3),v:0,step:0,yaw:0,pitch:0,fov:0,acc:[],ground:Infinity,solid:Infinity},tab=[];
+   tab.push([+(t).toFixed(4),...prev.position.map(x=>+x.toFixed(3)),...yp(prev).map(x=>+x.toFixed(2)),+prev.fovVerticalDeg.toFixed(3)]);
+   while(t<ts+T-1e-9){const dt=dtf(i++);t=Math.min(ts+T,t+dt);const q=at(t),s=Math.hypot(...[0,1,2].map(j=>q.position[j]-prev.position[j]));
+    const [y0,p0]=yp(prev),[y1,p1]=yp(q),yr=wrap(y1-y0)/dt,prt=(p1-p0)/dt,rate=Math.hypot(yr,prt);m.v=Math.max(m.v,s/dt);m.step=Math.max(m.step,s);m.yaw=Math.max(m.yaw,Math.abs(yr));m.pitch=Math.max(m.pitch,Math.abs(prt));
+    m.fov=Math.max(m.fov,Math.abs(q.fovVerticalDeg-prev.fovVerticalDeg));if(pr!==null)m.acc.push(Math.abs(rate-pr)/dt);pr=rate;
+    if(i%4===0||t>=ts+T){m.ground=Math.min(m.ground,GEO.groundClear(q.position));m.solid=Math.min(m.solid,GEO.solidClear(q.position).d);
+     if(herFn&&dn==='30fps'){const her=herFn(t),bx=RB.girlBoxPt(q,her,w,h);edgeMin=Math.min(edgeMin,bx?Math.min(bx.l,w-bx.r,bx.t,h-bx.b):-1e9);if(GEO.blocked(q.position,face(her))){blk+=4*dt;blkMax=Math.max(blkMax,blk);}else blk=0;}}
+    tab.push([+t.toFixed(4),...q.position.map(x=>+x.toFixed(3)),y1,p1,q.fovVerticalDeg].map(x=>+(+x).toFixed(4)));prev=q;}
+   m.acc.sort((x,y)=>x-y);const acc99=m.acc.length?m.acc[Math.floor(.99*(m.acc.length-1))]:0;delete m.acc;m.acc99=acc99;
+   const k=key+' '+dn,row={key:k,...Object.fromEntries(Object.entries(m).map(([x,v])=>[x,+(+v).toFixed(3)]))};if(herFn&&dn==='30fps'){row.herEdgeMinPt=+edgeMin.toFixed(1);row.faceBlockedMaxS=+blkMax.toFixed(2);
+    if(edgeMin<0)fails.push(k+': she leaves the frame during the walk');if(blkMax>0.5)fails.push(k+': face blocked '+blkMax.toFixed(2)+' s');}
+   report.blends.push(row);report.tables[k]=tab;
+   const bad=[];if(m.v>CAP.mps)bad.push('speed '+m.v.toFixed(2)+' m/s');if(m.step>CAP.step)bad.push('step '+m.step.toFixed(2)+' m');if(m.yaw>CAP.degS)bad.push('yaw '+m.yaw.toFixed(0)+'°/s');if(m.pitch>CAP.degS)bad.push('pitch '+m.pitch.toFixed(0)+'°/s');
+   if(acc99>CAP.degS2)bad.push('acc p99 '+acc99.toFixed(0)+'°/s²');if(m.fov>CAP.fovFrame)bad.push('fov '+m.fov.toFixed(2)+'°/frame');if(m.ground<GROUND_M)bad.push('ground '+m.ground.toFixed(2)+' m');if(m.solid<SOLID_M)bad.push('solid '+m.solid.toFixed(2)+' m');
+   if(bad.length)fails.push(k+': '+bad.join(', '));}};
+const gap2=(a,b)=>Math.max(...[0,1,2].map(i=>Math.abs(a.position[i]-b.position[i])),...[0,1,2].map(i=>Math.abs(dir(a)[i]-dir(b)[i])),Math.abs(a.fovVerticalDeg-b.fovVerticalDeg));
+for(const [w,h] of SCREENS)for(const [s0,s1,a,b] of [['mainline-05','mainline-06','M1','M2'],['mainline-06','mainline-07','M2','M3'],['mainline-07','mainline-08','M3','M4'],['mainline-08','mainline-09','M4','M6']]){
+ const path=edge(a,b),walkS=NW.pathLength(path)/NW.WALK_SPEED_MPS,B0=lens(w,h,s0),her=t=>herAt(path,t).p;
+ if(s1==='mainline-09'){const T0=blendS(B0,foldAt(path,0,w,h),EC.BLEND_S.boardToFollow);runOne(`${w}x${h} ${a}>${b} board>follow`,0,T0,t=>EC.blendPose(B0,foldAt(path,t,w,h),t,T0),null,w,h);continue;}
+ if(!SL||!SL.meadowFoldPlan){fails.push(`${w}x${h} ${a}>${b}: no fold plan (MeadowStageLens.meadowFoldPlan)`);continue;}
+ const B1=lens(w,h,s1),F=foldAt(path,0,w,h),plan=SL.meadowFoldPlan(B0,F,path[0],walkS,w/h),at=t=>SL.meadowFoldPose(plan,her(t),t);
+ const g0=gap2(at(0),B0),g1=gap2(at(walkS),B1);if(g0>1e-6)fails.push(`${w}x${h} ${a}>${b}: first frame ≠ board lens (${g0})`);if(g1>1e-6)fails.push(`${w}x${h} ${a}>${b}: does not end on the next board lens (${g1})`);
+ report.folds.push({key:`${w}x${h} ${a}>${b}`,walkS:+walkS.toFixed(2),k:+plan.k.toFixed(3),standS:0});
+ runOne(`${w}x${h} ${a}>${b} fold`,0,walkS,at,her,w,h);}
+// E. reopen-at-05 (TransitResume.reopenAfterKill → M0, board 05): her M0 box on the reopen lens: whole, ≥ 8 pt from the edges, clear of
+//    every board UI rect (real boardSafeInsets) and the capsule, LOS, lens ≥ 1.5 m over ground; the walk M0 → M1 folds that lens into
+//    the 05 lens (≤ 7.5 m/s …). FAILs on the default (authored) lens: she sits on the first tool button.
+report.reopen={};
+{const hasReopen=!!(SL&&SL.setMeadowReopenAtM0);
+ for(const [w,h] of SCREENS){const k=w+'x'+h,safe=BL.boardSafeInsets(w,h),ui=RB.girlStandUi(w,h,safe),f=node('M0');
+  RB.setMeadowBoardFraming('authored');if(hasReopen)SL.setMeadowReopenAtM0(true);const cam=RB.meadowBoardCamera(w,h);
+  const def=MS.meadowScenePose(w/h),bd=RB.girlBoxPt(def,f,w,h);
+  const ov=(b)=>{let worst=null;for(const q of ui){const ox=Math.min(b.r,q.r)-Math.max(b.l,q.l),oy=Math.min(b.b,q.b)-Math.max(b.t,q.t);if(ox>0&&oy>0){const a=ox*oy;if(!worst||a>worst.areaPt2)worst={rect:[q.l,q.t,q.r,q.b].map(x=>+x.toFixed(0)),areaPt2:+a.toFixed(0),ofHerPct:+(100*a/((b.r-b.l)*(b.b-b.t))).toFixed(1)};}}return worst;};
+  const r={defaultBox:bd?[bd.l,bd.t,bd.r,bd.b].map(x=>+x.toFixed(1)):null,defaultOverlap:bd?ov(bd):'behind'};
+  const b=RB.girlBoxPt(cam,f,w,h);r.position=cam.position.map(x=>+x.toFixed(3));
+  if(!b){fails.push(k+' reopen: M0 behind the lens');report.reopen[k]=r;continue;}
+  r.box=[b.l,b.t,b.r,b.b].map(x=>+x.toFixed(1));r.edgePt=+Math.min(b.l,w-b.r,b.t,h-b.b).toFixed(1);r.overlap=ov(b);
+  let gap=Infinity;for(const q of ui){gap=Math.min(gap,Math.hypot(Math.max(q.l-b.r,b.l-q.r,0),Math.max(q.t-b.b,b.t-q.b,0)));}r.uiGapPt=r.overlap?-1:+gap.toFixed(1);
+  r.groundM=+GEO.groundClear(cam.position).toFixed(2);r.solidM=+GEO.solidClear(cam.position).d.toFixed(2);report.reopen[k]=r;
+  if(r.overlap)fails.push(`${k} reopen-05: she overlaps board UI ${JSON.stringify(r.overlap)}`+(hasReopen?'':' (default lens: no reopen lens)'));
+  if(r.edgePt<EDGE_PT)fails.push(`${k} reopen-05: ${r.edgePt} pt from the edge`);if(r.groundM<GROUND_M)fails.push(`${k} reopen-05 lens ${r.groundM} m over ground`);if(r.solidM<SOLID_M)fails.push(`${k} reopen-05 lens ${r.solidM} m from solids`);
+  for(const [nm,p] of [['feet',[f[0],f[1]+.05,f[2]]],['face',face(f)],['crown',[f[0],f[1]+H,f[2]]]]){const o=GEO.blocked(cam.position,p);if(o)fails.push(`${k} reopen-05 ${nm} hidden by ${o}`);}
+  if(!hasReopen)continue;
+  // fold M0 → M1 into the 05 lens (framing A)
+  RB.setMeadowBoardFraming('A');setStage('mainline-05');const B1=RB.meadowBoardCamera(w,h),path=edge('M0','M1'),walkS=NW.pathLength(path)/NW.WALK_SPEED_MPS,her=t=>herAt(path,t).p;
+  const plan=SL.meadowFoldPlan(cam,foldAt(path,0,w,h),path[0],walkS,w/h),at=t=>SL.meadowFoldPose(plan,her(t),t),g0=gap2(at(0),cam),g1=gap2(at(walkS),B1);
+  if(g0>1e-6)fails.push(`${k} reopen fold: first frame ≠ reopen lens (${g0})`);if(g1>1e-6)fails.push(`${k} reopen fold: does not end on the 05 lens (${g1})`);
+  report.folds.push({key:`${k} M0>M1 reopen`,walkS:+walkS.toFixed(2),k:+plan.k.toFixed(3),standS:0});runOne(`${k} M0>M1 reopen-fold`,0,walkS,at,her,w,h);}
+ RB.setMeadowBoardFraming('A');}
+// D. wiring
+const src=f=>fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts',f),'utf8');
+const rns=src('world-r2/RegionNodeStage.ts'),wnc=src('world-r2/WorldNativeComposition.ts'),rbl=src('region/RegionBoardLanding.ts');
+if(!SL)fails.push('region/MeadowStageLens.ts missing (one shared lens on M1)');
+if(!/meadowBoardNode\(\)/.test(rbl))fails.push('meadowBoardCamera does not frame the stage node (RegionBoardLanding)');
+if(!/meadowRewardFold\(/.test(rns)||!/setMeadowBoardStage\(toStage\)/.test(rns)||!/blendPath\(walkS,t=>meadowFoldPose\(fold,this\.girl\(\),t\)\)/.test(rns)||!/meadowBlendSeconds\(board,live\(\)/.test(rns)||!/yaw0=Math\.atan2/.test(rns))fails.push('RegionNodeStage.playReward: meadow reward walk does not land on / blend to the stage lens');
+if(!/meadowReopenAtM0\(\)/.test(rbl)||!/playMeadowReopen\(/.test(rns)||!/blendPath\(walkS,t=>meadowFoldPose\(fold,this\.girl\(\),t\)\);await this\.rideWalkTail\(walk,\(\)=>meadowFoldPose\(fold,this\.girl\(\),walkS\)\);await walk;/.test(rns)/* b21: the fold also rides her walk tail */)fails.push('reopen-05: lens / fold not wired (RegionBoardLanding meadowReopenAtM0, RegionNodeStage.playMeadowReopen)');
+if(!/setMeadowBoardStage\(selection\.stageId\)/.test(wnc))fails.push('WorldNativeComposition: level entry does not pick the stage lens');
+const outDir=path.join(__dirname,'reports');fs.mkdirSync(outDir,{recursive:true});fs.writeFileSync(path.join(outDir,'meadow-stage-lens.json'),JSON.stringify(report,null,1));
+for(const [k,v] of Object.entries(report.stages))console.log(k,Object.entries(v).map(([s,r])=>`${s.slice(-2)} edge ${r.edgePt}pt margin ${r.margin} ui ${r.uiGapPt}pt ground ${r.groundM}m solid ${r.solidM}m`).join(' | '));
+if(fails.length){console.error('meadow-stage-lens FAIL ('+fails.length+')\n '+fails.slice(0,40).join('\n ')+(fails.length>40?'\n …':''));process.exit(1);}
+console.log('meadow-stage-lens PASS ('+report.blends.length+' blend runs)');

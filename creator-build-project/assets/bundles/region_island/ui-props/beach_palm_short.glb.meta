@@ -1,11 +1,94 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "82ccf373-b97c-4151-9aec-bc4696a561b0",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "12153": {
+      "importer": "gltf-mesh",
+      "uuid": "82ccf373-b97c-4151-9aec-bc4696a561b0@12153",
+      "displayName": "",
+      "id": "12153",
+      "name": "beach_palm_short.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 643
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "18b7e": {
+      "importer": "gltf-material",
+      "uuid": "82ccf373-b97c-4151-9aec-bc4696a561b0@18b7e",
+      "displayName": "",
+      "id": "18b7e",
+      "name": "M_env_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4fa02": {
+      "importer": "gltf-scene",
+      "uuid": "82ccf373-b97c-4151-9aec-bc4696a561b0@4fa02",
+      "displayName": "",
+      "id": "4fa02",
+      "name": "beach_palm_short.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
-    "tangents": 1
+    "tangents": 1,
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "82ccf373-b97c-4151-9aec-bc4696a561b0@12153"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "82ccf373-b97c-4151-9aec-bc4696a561b0@18b7e"
+      ],
+      "scenes": [
+        "82ccf373-b97c-4151-9aec-bc4696a561b0@4fa02"
+      ]
+    }
   }
 }

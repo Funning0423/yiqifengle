@@ -1,0 +1,100 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-15T17:21:28.479Z",
+  "sourceRoot": "/workspace/shared/legacy-test-repair-20261015",
+  "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
+  "checks": [
+    {
+      "id": "J04 failed-load-explicit-retry",
+      "status": "PASS",
+      "loads": 2,
+      "noFalseArrival": true
+    },
+    {
+      "id": "J06 duplicate-prepare-and-cancelled-late-load",
+      "status": "PASS",
+      "lateLeaseDisposedOnce": true,
+      "duplicateLoadRejected": true,
+      "retryOwnerPreserved": true
+    },
+    {
+      "id": "J05/J06 distance-pause-resume-and-old-walk-completion",
+      "status": "PASS",
+      "distanceAtPause": 3.4929354190155943,
+      "noTeleportOnResume": true,
+      "oldCallbackHarmless": true,
+      "cameraSamples": 5
+    },
+    {
+      "id": "J02/J03 legal-two-hop-route-current-region",
+      "status": "PASS",
+      "regions": [
+        "island",
+        "meadow",
+        "skycity"
+      ],
+      "driver": "actor.walkProgress, not wall clock",
+      "rendered": false
+    },
+    {
+      "id": "J04 malformed-route-wrong-origin",
+      "status": "PASS",
+      "rejected": true,
+      "disposed": true
+    },
+    {
+      "id": "J04 malformed-route-wrong-destination",
+      "status": "PASS",
+      "rejected": true,
+      "disposed": true
+    },
+    {
+      "id": "J04 malformed-route-valid-but-unrequested-hop",
+      "status": "PASS",
+      "rejected": true,
+      "disposed": true
+    },
+    {
+      "id": "J04 malformed-route-nan-point",
+      "status": "PASS",
+      "rejected": true,
+      "disposed": true
+    },
+    {
+      "id": "J04 malformed-route-zero-speed",
+      "status": "PASS",
+      "rejected": true,
+      "disposed": true
+    },
+    {
+      "id": "J04 malformed-route-discontinuous-start",
+      "status": "PASS",
+      "rejected": true,
+      "disposed": true
+    },
+    {
+      "id": "J04 malformed-route-invalid-bridge",
+      "status": "PASS",
+      "rejected": true,
+      "disposed": true
+    },
+    {
+      "id": "J06 disposed-load-cannot-resurrect",
+      "status": "PASS",
+      "disposed": true,
+      "noLateResurrection": true
+    },
+    {
+      "id": "J04 asset-timeout-is-failure-not-ready",
+      "status": "PASS",
+      "realRequestDeadline": true,
+      "noImplicitSuccess": true
+    },
+    {
+      "id": "J04 asset-cancel-and-success-cleanup",
+      "status": "PASS",
+      "cancellationSettlesPromptly": true,
+      "actualAssetRequired": true
+    }
+  ]
+}

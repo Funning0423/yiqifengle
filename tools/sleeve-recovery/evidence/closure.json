@@ -1,0 +1,19 @@
+{
+  "sourceCount": 575,
+  "sourceChanged": [
+    "bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb"
+  ],
+  "packageCount": 479,
+  "packageBytes": 29474293,
+  "mainBytes": 1861856,
+  "testCloneOnlyChanged": [
+    "game.js",
+    "project.config.json"
+  ],
+  "finalModelPostTestChanged": false,
+  "finalMeshAndAnimationChecked": true,
+  "window": "s9",
+  "windowClosed": true,
+  "buildCount": 1,
+  "windowCount": 1
+}

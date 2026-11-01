@@ -1,34 +1,43 @@
 import { ManagedToolArt } from './ManagedToolArt';
 import { managedTools, TOOL_NAMES, type ManagedTool } from './world-r2/ManagedTools';
-import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, input, isValid } from 'cc';
+import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, input, isValid, sys } from 'cc';
 import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/LevelBackground';
 import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
-import { boardLayout, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
-import { PopupStack, TintSet, artButton, makeLabel, measure, playSound } from './ui/PopupKit';
+import { MINIGAME } from 'cc/env';
+import { ruleGuideDy, RULE_GUIDE_MAX_LINES, wrapKinsoku, boardLayout, boardSafeInsets, cellCenter, pickToolBar, qaForcedToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
+import { PopupStack, popupScale, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
 import { openPause, openRestartConfirm, openResult, type ResultModel, type ResultReward } from './ui/BoardPanels';
 import { hasSeenTool, reducedMotion } from './ui/UiPrefs';
+import { RegionArrivalTitle } from './ui/RegionArrivalTitle';
+import { RegionTitleGate, markRegionTitleSeen, regionTitleFor } from './ui/RegionArrivalTitleCore';
 import Controller from './r4-cloud-compat/runtime/challenge-controller.js';
 import Port from './r4-cloud-compat/adapter/cocos-port.js';
 const { ccclass } = _decorator;
 const { createSynchronousStorage, bindChallengeController } = Port;
 /** Result-page actions owned by the world host (WorldIntegrationBoot): availability is pushed every frame. */
-export interface HostResultAction { visible: boolean; claimed?: boolean; run: () => void }
-export interface HostResultActions { mainNext?: HostResultAction; chest?: HostResultAction; regionReward?: HostResultAction; next?: HostResultAction; claim?: HostResultAction }
+export interface HostResultAction { visible: boolean; claimed?: boolean; run: (then?: () => any) => void }
+export interface HostResultActions { mainNext?: HostResultAction; chest?: HostResultAction; regionReward?: HostResultAction; next?: HostResultAction; claim?: HostResultAction; ending?: HostResultAction; afterClaims?: HostResultAction }
 const GOAL_ART: Record<string, string> = { moss: 'board/obstacle_moss', roots: 'board/obstacle_roots', beacons: 'r2/beacon_lighthouse', pearls: 'board/obstacle_shell_2', shells: 'board/obstacle_shell_2', lines: 'board/special_line_h', specials: 'board/special_bomb', blooms: 'board/piece_flower', relays: 'board/special_line_v' };
 export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? PIECE_KEYS[Number(key.slice(4))] : GOAL_ART[key] || 'board/piece_flower'; }
 /** b-board v3.1 board skin: wood tray with tile_a/b bases, piece_* art, obstacles, specials; top-left pause + one info
  *  plate; ≤3 tool slots; transient toast; idle auto-hint (5 s, then every 8 s); every dialog is a lite popup. */
+function countNodes(n: Node): number { let k = 1; for (const c of n.children) k += countNodes(c); return k; }
+/** Toast / say(): enter = toastFade (200 ms), exit 150 ms (U1 audit 2026-10-29). */
+const TOAST_OUT_S = 0.15;
 @ccclass('ManagedMobileBoardUI')
 export class ManagedMobileBoardUI extends Component {
-  private managed: any = null; private disposing = false; private frameKinds = new Set<string>();
+  private managed: any = null; private disposing = false; private frameKinds = new Set<string>(); private presentationError: string | null = null;
   initializeManaged(fixture: any, binding: any, backgroundFrame?: (portrait: boolean, layout?: LevelBackgroundFrame) => void, backgroundStatus?: () => LevelBackgroundStatus) {
     if (this.managed || this.root) throw Error('Already initialized'); if (this.deferPresentation) this.presented = false; this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
   }
   managedViewVersion() { return 'mobile-managed-v2-board-ui'; }
   diagnostics() {
-    return { background: this.backgroundStatus?.() ?? { state: 'missing-provider' }, snapshot: this.controller.snapshot(), checkpoint: this.controller.session?.checkpoint() || null, presentation: this.snapshot,
+    return { presentationError: this.presentationError,
+      inputGate: { presented: this.presented, active: this.inputVisible(), state: this.snapshot?.state, piecePointer: this.dragStart?.pointer ?? null, toolPointer: this.toolDrag?.pointer ?? null,
+        visualPending: !!this.visualDone, visualLeft: this.visualLeft, entryPending: !!this.entryFinish },
+      prewarm: { ...this.prewarmStats, pending: this.prewarm ? this.prewarm.parked.length - this.prewarm.next : 0, laidOut: this.prewarmedFrame }, background: this.backgroundStatus?.() ?? { state: 'missing-provider' }, snapshot: this.controller.snapshot(), checkpoint: this.controller.session?.checkpoint() || null, presentation: this.snapshot,
       layout: this.measureLayout(), storage: this.managed?.storageEntries?.() || [], frameKinds: Array.from(this.frameKinds), goalSemantics: this.goalKeys.map((key, i) => ({ key, value: this.goalLabels[i]?.string, icon: goalArt(key) })),
       toolBar: this.toolBar.slice(), popups: this.popups ? this.popups.names() : [], hintCells: this.hintCells.slice(), hints: this.hintClock.count(), toast: this.toastLabel?.string || '', art: BoardArt.shared().diagnostics() };
   }
@@ -46,24 +55,35 @@ export class ManagedMobileBoardUI extends Component {
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
-  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1;
+  private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1; private toastFade = 0.2; private toastEnd = TOAST_S; private noticeShown = false; private noticeUp = false; private queuedTip = '';
+  /** region-title SPEC §6/§7: the 2.0 s place name at a new region's first board; tips, the stale notice and tool intros wait behind it. */
+  private regionTitle: RegionArrivalTitle | null = null; private titleGate = new RegionTitleGate(); private titleClock = 0; private titleStage = '';
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
-  private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {};
+  private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private resultAttemptKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
-  private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null;
+  private rewardShown: RewardItem[] = []; private rewardChest = false;
+  private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null; private boardArtRequest: Promise<boolean> | null = null;
   /** World entry sets this before initializeManaged so a finger cannot land until presentForPlay. Standalone and test boards stay presented. */
   deferPresentation = false;
   /** Managed entry keeps the board off-screen until the island shot ends and a finger can land. Standalone boards start presented. */
-  private presented = true; private readyWait: (() => void) | null = null; private entryFinish: (() => void) | null = null; private entryTimer: any = null;
+  private presented = true; private entryReleased = false; private readyWait: (() => void) | null = null; private entryFinish: (() => void) | null = null; private entryTimer: any = null;
   /** Clear/drop frames advance on the component clock. A stalled setTimeout must not leave the pre-clear board on screen. */
   private visualStamp = 0; private visualDone: (() => void) | null = null; private visualLeft = -1;
   /** Last presentation was hidden (lock / background). The next visible paused frame asks update() to open the pause panel. */
   private boardWasHidden = false; private returnPause = false;
-  private hide = () => { this.selected = -1; this.host?.hide(); }; private show = () => this.host?.show();
+  /** r4-prep (lead): set by the world adapter for 风铃湖畔 boards, which are only reached by landing from the island→lakeside
+   *  journey. A restored unfinished attempt there resumes straight into a playable board on reveal (steps shown as usual,
+   *  first-time tool intros still queue on run.ready) instead of opening 「暂停一下」. Other boards keep the explicit Resume. */
+  resumeRestoredOnPresent = false;
+  private pressHandles: PressHandle[] = [];
+  private resetOnHide = () => this.resetInput();
+  private presentationActive = () => { if (this.root && !this.root.activeInHierarchy) this.resetInput(); };
+  private hide = () => { this.resetInput(); this.host?.hide(); }; private show = () => this.host?.show();
   private resize = () => { if (!this.disposing && this.root && isValid(this.root, true)) this.layout(); };
   initialize(fixture: any, backgroundFrame?: (portrait: boolean, layout?: LevelBackgroundFrame) => void) {
     this.fixture = fixture; this.backgroundFrame = backgroundFrame; if (!this.managed) profiler.hideStats(); view.resizeWithBrowserSize(true);
     this.root = this.box('NativeBoardCanvas', this.node, 0, 0, 1, 1);
+    this.root.on(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED, this.presentationActive);
     const canvas = this.root.addComponent(Canvas); canvas.alignCanvasWithScreen = false;
     const cameraNode = new Node('NativeUICamera'); cameraNode.layer = Layers.Enum.UI_2D; this.node.addChild(cameraNode); cameraNode.setPosition(0, 0, 1000);
     this.camera = cameraNode.addComponent(Camera); this.camera.projection = Camera.ProjectionType.ORTHO; this.camera.near = .1; this.camera.far = 2000; this.camera.priority = 50; this.camera.visibility = Layers.Enum.UI_2D; this.camera.clearFlags = Camera.ClearFlag.DEPTH_ONLY; canvas.cameraComponent = this.camera;
@@ -80,10 +100,36 @@ export class ManagedMobileBoardUI extends Component {
       this.under.push(this.tint.sprite(this.sprite(this.layers.Under, 'board/special_bomb', 'Pinwheel-' + i), 'ui'));
       const n = this.box('Tile-' + i, this.grid, 0, 0, 50, 50);
       this.tint.sprite(this.sprite(n, PIECE_KEYS[0], 'ProjectPieceArt'), 'ui');
-      n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { this.input(); if (!this.presented || this.modalOpen() || this.snapshot?.state !== 'run.ready' || this.snapshot?.readOnly) return; const p = e.getUILocation(); let yDown = typeof this.layoutYDown === 'function' && this.layoutYDown(n, p.x, p.y); if (typeof this.cellAt === 'function' && this.cellAt(p.x, p.y, yDown) !== i && this.cellAt(p.x, p.y, !yDown) === i) yDown = !yDown; const axis = typeof this.cellAt === 'function' && this.cellAt(p.x, p.y, yDown) !== i ? 'screen' : 'ui'; const loc = typeof e.getLocation === 'function' ? e.getLocation() : null; this.dragStart = { index: i, pointer: e.getID(), point: { x: p.x, y: p.y }, x: p.x, y: p.y, yDown, axis, prior: this.selected, sx: loc && typeof loc.x === 'number' ? loc.x : undefined, sy: loc && typeof loc.y === 'number' ? loc.y : undefined, sw: (e as any).windowId }; }, this);
-      n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.dragStart; if (!d || d.index !== i) return; const p = e.getUILocation(), dx = p.x - d.point.x, dy = p.y - d.point.y; d.x = p.x; d.y = p.y; if (!d.consumed && Math.max(Math.abs(dx), Math.abs(dy)) < Math.min(18, this.cell * .35)) return; if (!d.consumed) { this.armedTool = null; if (this.paintToolTray) this.paintToolTray(); } d.consumed = true; d.mx = p.x; d.my = p.y; const j = i + (Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : (dy > 0 ? -7 : 7)); d.aim = j >= 0 && j < 49 && Math.abs(i % 7 - j % 7) + Math.abs(Math.floor(i / 7) - Math.floor(j / 7)) === 1 ? j : -1; if (this.followPiece) this.followPiece(e); }, this);
-      n.on(Node.EventType.TOUCH_END, (e: EventTouch) => { const d = this.dragStart; if (d && d.index !== i) { if (this.finishForeignRelease) this.finishForeignRelease(i, d, e); return; } if (!d) { if (this.releaseOnto) this.releaseOnto(i, e); return; } this.dragStart = null; if (e && d && d.index === i) GameAudio.notifyUserGesture(); if (!d || d.index !== i) return; if (this.releasePiece) { this.releasePiece(i, d, e); return; } if (d.consumed) { if (typeof d.aim === 'number' && d.aim >= 0) this.swap(i, d.aim); return; } this.tap(i); }, this);
-      n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => { const d = this.dragStart; if (d && e && typeof e.getID === 'function' && d.pointer !== e.getID()) return; this.dragStart = null; if (this.hidePieceGhost) this.hidePieceGhost(); this.cancelToolInput(); this.paintToolTray(); this.paint(); }, this); this.cells.push(n);
+      n.on(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED, () => { if (!n.activeInHierarchy && this.dragStart?.index === i) this.resetInput(); });
+      n.on(Node.EventType.TOUCH_START, (e: EventTouch) => {
+        if (!n.activeInHierarchy || this.dragStart || this.toolDrag || !this.canUseTools() || !this.pointerEvent(e)) return;
+        this.input(); const p = e.getUILocation(); let yDown = this.layoutYDown(n, p.x, p.y);
+        if (this.cellAt(p.x, p.y, yDown) !== i && this.cellAt(p.x, p.y, !yDown) === i) yDown = !yDown;
+        const axis = this.cellAt(p.x, p.y, yDown) === i ? 'ui' : 'screen';
+        const loc = typeof e.getLocation === 'function' ? e.getLocation() : null;
+        if (axis === 'screen' && this.cellHit(loc, e.windowId) !== i) return;
+        this.dragStart = { index: i, pointer: e.getID(), originWindow: e.windowId, start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, x: p.x, y: p.y,
+          yDown, axis, version: this.toolVersion(), prior: this.selected, sx: loc?.x, sy: loc?.y, startSX: loc?.x, startSY: loc?.y, sw: e.windowId,
+          legacyLayoutAlias: yDown && !!loc && Math.hypot(loc.x - p.x, loc.y - p.y) <= 1 && this.cellHit(loc, e.windowId) !== i, latestHit: i };
+      }, this);
+      n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.dragStart; if (!d || d.index !== i || !this.owns(d, e)) return; this.followPiece(e); }, this);
+      n.on(Node.EventType.TOUCH_END, (e: EventTouch) => {
+        const d = this.dragStart;
+        if (!d) { this.releaseOnto(i, e); return; }
+        if (!this.owns(d, e)) return;
+        if (d.index !== i) { this.finishForeignRelease(i, d, e); return; }
+        this.dragStart = null; if (!this.canUseTools()) { this.resetInput(); return; }
+        GameAudio.notifyUserGesture(); this.releasePiece(i, d, e);
+      }, this);
+      n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => {
+        if (!this.owns(this.dragStart, e) && !this.owns(this.toolDrag, e)) return;
+        if (!isValid(n, true) || this.cells[i] !== n) { this.dragStart = null; this.cancelToolInput(); return; }
+        const d = this.dragStart;
+        if (d?.index === i && this.nodeCancelIsRelease(n, d, e) && this.beside(i, this.cellFromEvent(e, d))) {
+          this.dragStart = null; GameAudio.notifyUserGesture(); this.releasePiece(i, d, e); return;
+        }
+        this.resetInput();
+      }, this); this.cells.push(n);
     }
     for (const name of ['Over', 'Covers', 'Marks', 'BeaconArt']) this.layers[name] = this.box(name, this.grid, 0, 0, 1, 1);
     for (let i = 0; i < 49; i++) { this.over.push(this.tint.sprite(this.sprite(this.layers.Over, 'board/special_line_h', 'Ribbon-' + i), 'ui')); this.covers.push(this.tint.sprite(this.sprite(this.layers.Covers, 'board/obstacle_roots', 'Cover-' + i), 'ui')); }
@@ -114,11 +160,12 @@ export class ManagedMobileBoardUI extends Component {
     this.toast = this.box('Toast', this.root, 0, 0, 300, 40); this.toast.addComponent(UIOpacity).opacity = 0;
     this.toastBg = this.box('ToastPlate', this.toast, 0, 0, 300, 40).addComponent(Graphics);
     this.toastLabel = makeLabel(this.toast, '', 0, 0, 15, { width: 320, name: 'ToastText' }); this.tint.label(this.toastLabel, 'brown');
+    this.regionTitle = new RegionArrivalTitle(this.root);
     this.stagePanel = this.box('NativeStageSelection', this.root, 0, 0, 1, 1);
-    this.popups = new PopupStack(this.root, () => ({ width: this.layoutInfo?.width || 390, height: this.layoutInfo?.height || 844 }));
+    this.popups = new PopupStack(this.root, () => ({ width: this.layoutInfo?.width || 390, height: this.layoutInfo?.height || 844, safeInsets: this.layoutInfo?.safe }));
     const art = BoardArt.shared(); this.artOff = art.onChange(() => { if (!this.disposing && isValid(this.root, true)) this.refreshArt(); });
-    void art.load('board'); void art.load('popup'); void art.load('r2');
-    this.layout(); this.bind(); if (!this.managed) { game.on(Game.EVENT_HIDE, this.hide); game.on(Game.EVENT_SHOW, this.show); } view.on('canvas-resize', this.resize, this); if (typeof window !== 'undefined') window.addEventListener('resize', this.resize);
+    this.boardArtRequest = art.load('board'); void art.load('popup'); void art.load('r2');
+    this.layout(); this.bind(); game.on(Game.EVENT_HIDE, this.resetOnHide); if (!this.managed) { game.on(Game.EVENT_HIDE, this.hide); game.on(Game.EVENT_SHOW, this.show); } view.on('canvas-resize', this.resize, this); if (typeof window !== 'undefined') window.addEventListener('resize', this.resize);
     this.refreshArt();
     if (this.deferPresentation) { this.holdBoardCamera(); this.node.active = false; }
     if (!this.managed) (globalThis as any).__nativeBoard = { snapshot: () => this.controller.snapshot(), storage: () => Array.from(this.values), coldReload: () => this.coldReload(), hide: () => this.hide(), show: () => this.show(), fixture: () => this.fixture, layout: () => this.measureLayout(), scope: 'Native Cocos UI; board-ui phase-1 art; disposable memory' };
@@ -152,36 +199,71 @@ export class ManagedMobileBoardUI extends Component {
   private setFrame(s: Sprite, key: string | null) { const f = key ? BoardArt.shared().frame(key) : null; s.node.active = !!f; if (f && s.spriteFrame !== f) s.spriteFrame = f; }
   private place(n: Node, x: number, y: number, w: number, h = w) { n.setPosition(x, y, 0); n.getComponent(UITransform)!.setContentSize(w, h); }
   private pressable(node: Node, face: Node, tap: () => void, sound: 'button' | 'back' | 'tool' = 'button') {
-    let down = false;
-    node.on(Node.EventType.TOUCH_START, (e: EventTouch) => { e.propagationStopped = true; this.input(); if (!this.presented || this.modalOpen()) return; down = true; face.setPosition(0, -3, 0); }, this);
-    node.on(Node.EventType.TOUCH_CANCEL, () => { down = false; face.setPosition(0, 0, 0); }, this);
-    node.on(Node.EventType.TOUCH_END, (e: EventTouch) => { e.propagationStopped = true; const was = down; down = false; face.setPosition(0, 0, 0); if (!was || this.modalOpen()) return; GameAudio.notifyUserGesture(); playSound(sound); tap(); }, this);
+    this.pressHandles.push(bindPressable(node, face, () => { this.input(); tap(); },
+      { sound, enabled: () => this.inputVisible() && !this.modalOpen() && !this.dragStart && !this.toolDrag }));
   }
+  private inputVisible() { return !this.disposing && !this.entryReleased && this.enabled !== false && this.node?.activeInHierarchy !== false && this.root?.activeInHierarchy !== false && this.presented && !this.snapshot?.hidden; }
+  private pointerEvent(e?: EventTouch) { const p = e && typeof e.getUILocation === 'function' ? e.getUILocation() : null; return !!e && typeof e.getID === 'function' && Number.isFinite(e.getID()) && Number.isFinite(e.windowId) && !!p && Number.isFinite(p.x) && Number.isFinite(p.y); }
+  // Window identity belongs to START, not the latest observed coordinate sample.
+  private owns(d: any, e?: EventTouch) { return !!d && !!e && typeof e.getID === 'function' && d.pointer === e.getID() && d.originWindow === e.windowId; }
+  /** Cocos 3.8.8 changes node type to CANCEL for a normal release outside the
+   * source hit box; getEventCode() retains the original input type. Its deprecated
+   * API is intentionally version-scoped. Missing evidence stays a cancellation. */
+  private nodeCancelIsRelease(source: Node, d: any, e: EventTouch) {
+    if (!this.owns(d, e) || !this.pointerEvent(e) || !this.canUseTools() || d.version !== this.toolVersion()
+      || !isValid(source, true) || !source.activeInHierarchy || e.type !== Node.EventType.TOUCH_CANCEL
+      || e.target !== source || e.currentTarget !== source || e.windowId !== d.originWindow) return false;
+    try {
+      if (typeof e.getEventCode !== 'function' || e.getEventCode() !== Node.EventType.TOUCH_END) return false;
+      const screen = e.getLocation();
+      if (!screen || !Number.isFinite(screen.x) || !Number.isFinite(screen.y)
+        || source.getComponent(UITransform)?.hitTest(screen, e.windowId) !== false) return false;
+      // No old aim, receiving-cell hint or PR52 origin rollback may authorize a
+      // cancel adaptation. Also verify the destination in the engine's screen
+      // hit-test channel; UI-coordinate calculations alone are not independent.
+      const hit = this.cellFromEvent(e, d);
+      const target = hit >= 0 ? this.cells[hit] : null;
+      return !!target && isValid(target, true) && target.activeInHierarchy
+        && this.releaseHit(d, e) === hit
+        && target.getComponent(UITransform)?.hitTest(screen, d.originWindow) === true;
+    } catch { return false; }
+  }
+  private resetInput() {
+    this.dragStart = null; this.cancelToolInput(); for (const h of this.pressHandles) h.cancel();
+    if (this.root && isValid(this.root, true)) resetPresses(this.root);
+    if (!this.disposing && this.snapshot && this.root && isValid(this.root, true)) { this.paintToolTray(); this.paint(); }
+  }
+  onDisable() { this.resetInput(); }
   // ---------------- tools ----------------
   private toolArt!: ManagedToolArt; private armedTool: string | null = null; private toolTapAccepted = false;
-    private toolDrag: { kind: string, slot: number, pointer: number, start: { x: number, y: number }, point: { x: number, y: number }, moved: boolean, version: string, yDown?: boolean, sx?: number, sy?: number, sw?: number, hover?: number, hx?: number, hy?: number, mx?: number, my?: number } | null = null; private toolGhost: Node | null = null; private pieceGhost: Node | null = null;
+    private toolDrag: { x?: number, y?: number, axis?: string, startSX?: number, startSY?: number, latestHit?: number, legacyLayoutAlias?: boolean, kind: string, slot: number, pointer: number, readonly originWindow: number, start: { x: number, y: number }, point: { x: number, y: number }, moved: boolean, version: string, yDown?: boolean, sx?: number, sy?: number, sw?: number, hover?: number, hx?: number, hy?: number, mx?: number, my?: number } | null = null; private toolGhost: Node | null = null; private pieceGhost: Node | null = null;
   private toolCatalog(): ManagedTool[] { return this.managed?.tools?.() || managedTools(this.snapshot); }
-  private barTools(): ManagedTool[] { const c = this.toolCatalog(), out: ManagedTool[] = []; for (const k of this.toolBar) { const t = c.find(x => x.kind === k); if (t) out.push(t); } return out; }
+  private barTools(): ManagedTool[] { const c = this.toolCatalog(), out: ManagedTool[] = [], qa = this.qaTools(); for (const k of this.toolBar) { const t = c.find(x => x.kind === k); if (t) out.push(t); else if (qa) out.push({ kind: k, name: TOOL_NAMES[k] || k, count: 0, targeted: false, available: false, reason: 'QA' }); } return out; }
+  /** QA frames only (`qaTools=N` URL); the wechat player build constant-folds this to null (`MINIGAME`). */
+  private qaTools(): string[] | null { if (MINIGAME) return null; try { return qaForcedToolBar(typeof location !== 'undefined' ? String(location.search || '') : null, false); } catch { return null; } }
   private toolVersion() { const a = this.snapshot?.active; return `${a?.attemptId || a?.stageId}:${a?.actions?.length ?? a?.turn ?? 0}:${a?.version ?? 0}`; }
-  private canUseTools() { return this.presented && !this.modalOpen() && this.snapshot?.state === 'run.ready' && !this.snapshot?.readOnly; }
+  private canUseTools() { return this.inputVisible() && !this.modalOpen() && this.snapshot?.state === 'run.ready' && !this.snapshot?.readOnly; }
   /** run.ready can take a finger. A settled pause, result or readonly screen is the real screen too — not a half board. */
   private entryShowable(s = this.snapshot) {
     if (!s || !this.geo || this.cells.length !== 49) return false;
     if (s.state === 'run.ready' && !s.readOnly) return true;
-    if (s.readOnly || s.state === 'error.readonly' || s.state === 'run.unsaved' || s.state === 'run.paused' || s.state === 'book.ready' || s.state === 'stage.detail') return true;
+    if (s.readOnly || s.state === 'error.readonly' || s.state === 'run.unsaved' || s.state === 'storage.unsaved' || s.state === 'run.paused' || s.state === 'book.ready' || s.state === 'stage.detail') return true;
     return typeof s.state === 'string' && s.state.indexOf('result.') === 0;
   }
   private wakeEntry() { if (!this.readyWait || !this.entryShowable()) return; const go = this.readyWait; this.readyWait = null; go(); }
-  private pieceArtReady() { const art = BoardArt.shared(); return art.loaded('board') && !!art.frame(PIECE_KEYS[0]); }
+  private pieceArtReady() { const art = BoardArt.shared(); return art.loaded('board') && PIECE_KEYS.every(key => !!art.frame(key)); }
   /** Piece art and a showable session (run.ready, or a settled pause/result). A hung load rejects so the island can take the finger again. */
   whenInteractive(): Promise<void> {
+    if (this.entryReleased || this.disposing) return Promise.reject(Error('enter-level-not-ready'));
     const cap = 8000;
     return new Promise<void>((resolve, reject) => {
       let settled = false;
+      const art = BoardArt.shared(), loaded = this.boardArtRequest = art.load('board');
       const finish = (err?: Error) => {
         if (settled) return;
         settled = true; this.entryFinish = null; this.readyWait = null;
         if (this.entryTimer != null) { clearTimeout(this.entryTimer); this.entryTimer = null; }
+        if (err || this.disposing || this.entryReleased) art.cancelLoad('board', loaded);
         if (err && !this.disposing) reject(err); else resolve();
       };
       this.entryFinish = () => finish();
@@ -193,32 +275,96 @@ export class ManagedMobileBoardUI extends Component {
       this.entryTimer = setTimeout(() => {
         this.entryTimer = null;
         if (settled) return;
-        if (this.disposing || this.entryShowable()) finish();
+        if (this.disposing) finish();
+        else if (this.entryShowable() && this.pieceArtReady()) finish();
         else finish(Error('enter-level-not-ready'));
       }, cap);
-      const art = BoardArt.shared(), loaded = art.loaded('board') ? Promise.resolve(true) : art.load('board');
       loaded.then(ok => {
         if (settled || this.disposing) { finish(); return; }
-        if (this.entryShowable() && (!ok || this.pieceArtReady())) { finish(); return; }
+        if (!ok) { finish(Error('enter-level-not-ready')); return; }
+        if (this.entryShowable() && this.pieceArtReady()) { finish(); return; }
         consider();
-      }, () => { if (settled || this.disposing) finish(); else if (this.entryShowable()) finish(); else consider(); });
+      }, () => { if (settled || this.disposing) finish(); else finish(Error('enter-level-not-ready')); });
       consider();
     });
   }
+  /** Release this lease's pending entry synchronously, before Cocos' deferred onDestroy.
+   * A later UI must never inherit a request that this old UI can still cancel. */
+  releaseEntryResources() {
+    if (this.entryReleased) return;
+    this.entryReleased = true;
+    const pending = this.boardArtRequest; this.boardArtRequest = null;
+    this.artOff?.(); this.artOff = null;
+    if (this.entryTimer != null) { clearTimeout(this.entryTimer); this.entryTimer = null; }
+    if (pending) BoardArt.shared().cancelLoad('board', pending);
+    if (this.entryFinish) { const finish = this.entryFinish; this.entryFinish = null; this.readyWait = null; finish(); }
+    else this.readyWait = null;
+  }
   /** Called once the enter shot has finished and whenInteractive has resolved. The camera stays dark until this turn. */
   presentForPlay() {
-    this.presented = true; this.releaseBoardCamera();
+    if (this.entryReleased || this.disposing) return;
+    this.presented = true; this.finishPrewarm(); this.releaseBoardCamera();
     if (this.node && isValid(this.node, true)) this.node.active = true;
-    if (!this.disposing && this.root && isValid(this.root, true)) this.layout();
+    // r4.2 items 10/11: a finished hidden pre-activation already laid out this frame size; the swap frame only toggles visibility.
+    if (!this.disposing && this.root && isValid(this.root, true) && (!this.prewarmedFrame || this.prewarmedFrame !== this.frameKey())) this.layout();
+    if (this.veil && isValid(this.veil, true)) this.veil.opacity = 255;
+    this.maybeShowRegionTitle();
+    // Restored attempts intentionally stay paused. Unlike an OS hide/show,
+    // a new view has no boardWasHidden edge to request the recovery controls.
+    // Offer explicit Resume on its first visible update; never unlock silently.
+    if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden) {
+      if (this.resumeRestoredOnPresent && this.snapshot.active && !this.modalOpen()) { let r: any = null; try { r = this.managed?.intercept?.('resume') ?? this.host.command('resume'); } catch { r = null; } if (!r || r.ok === false) this.returnPause = true; }
+      else this.returnPause = true;
+    }
   }
-  private cancelToolInput() { this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
+  // ---------------- r4.2 items 10/11: hidden pre-activation ----------------
+  /** Nodes switched on per frame by the hidden pre-activation (a whole unit at a time; a grid layer of 49 sprites is one unit). */
+  static PREWARM_NODE_BUDGET = 64;
+  private prewarm: { parked: Node[]; next: number } | null = null; private prewarmedFrame = ''; private veil: UIOpacity | null = null;
+  private prewarmStats = { started: false, frames: 0, done: false, flushed: 0 };
+  /** World entry (r4.2 items 10/11, Mac r4: swap frame 29-42 ms). The swap frame used to switch the whole board UI on at once (~400 nodes,
+   *  label textures, the rule guide). The level adapter calls this after initializeManaged; afterFrame(go) runs go on a later frame. The host
+   *  is then switched on while nothing can draw it (board camera held, root at opacity 0 so no other UI_2D camera batches it), and the big
+   *  subtrees follow a budget per frame from update(); the last step lays out once. presentForPlay finishes whatever is left synchronously,
+   *  so visibility/input semantics are unchanged if frames never come. Only nodes no other code toggles are parked: the grid's layers and
+   *  cells, the HUD's pause button and info plate. */
+  prewarmPresentation(afterFrame: (go: () => void) => void) {
+    if (!this.deferPresentation || this.presented || this.prewarmStats.started || this.entryReleased || this.disposing || !this.root) return;
+    afterFrame(() => this.beginPrewarm());
+  }
+  private beginPrewarm() {
+    if (this.presented || this.prewarmStats.started || this.entryReleased || this.disposing || !this.node || !isValid(this.node, true) || !this.root || !isValid(this.root, true) || this.node.active) return;
+    this.prewarmStats.started = true;
+    const parked: Node[] = [];
+    for (const holder of [this.grid, this.hud]) if (holder && isValid(holder, true)) for (const c of holder.children.slice()) if (c.active) { c.active = false; parked.push(c); }
+    this.veil = this.root.getComponent(UIOpacity) || this.root.addComponent(UIOpacity); this.veil.opacity = 0;
+    this.prewarm = { parked, next: 0 };
+    this.holdBoardCamera(); this.node.active = true;
+  }
+  private stepPrewarm() {
+    const p = this.prewarm; if (!p) return;
+    let used = 0;
+    while (p.next < p.parked.length && used < ManagedMobileBoardUI.PREWARM_NODE_BUDGET) { const n = p.parked[p.next++]; if (isValid(n, true) && !n.active) { n.active = true; used += countNodes(n); } }
+    this.prewarmStats.frames++;
+    if (p.next < p.parked.length) return;
+    this.prewarm = null; this.prewarmStats.done = true;
+    if (!this.disposing && this.root && isValid(this.root, true)) { this.layout(); this.prewarmedFrame = this.frameKey(); }
+  }
+  private finishPrewarm() {
+    const p = this.prewarm; if (!p) return; this.prewarm = null;
+    for (; p.next < p.parked.length; p.next++) { const n = p.parked[p.next]; if (isValid(n, true) && !n.active) { n.active = true; this.prewarmStats.flushed++; } }
+  }
+  private frameKey() { const f = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); return Math.max(240, f.width) + 'x' + Math.max(320, f.height); }
+  /** b18 (UI设计部): cancelling a tool drops the tip held behind the stale notice (it no longer applies); the notice itself keeps its full 0.3/2/0.3. */
+  private dropHeldTip() { if (this.noticeUp) this.queuedTip = ''; }
+  private cancelToolInput() { this.dropHeldTip(); for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */
   private syncToolBar() {
     const a = this.snapshot?.active; if (!a) { this.toolBar = []; this.toolBarKey = ''; return; }
     const key = [this.snapshot.provider, a.stageId, a.attemptId, a.seed].join('|'), fresh = !(a.actions?.length) && !(a.turn);
     if (key === this.toolBarKey && !(fresh && this.toolBar.length === 0)) return;
     if (key === this.toolBarKey && !fresh) return;
-    this.toolBarKey = key; this.toolBar = pickToolBar(this.toolCatalog());
+    this.toolBarKey = key; this.toolBar = this.qaTools() || pickToolBar(this.toolCatalog());
     for (const k of this.toolBar) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k);
   }
   private useToolAt(kind: string, index: number) {
@@ -228,7 +374,7 @@ export class ManagedMobileBoardUI extends Component {
     if (tool.targeted && (!Number.isInteger(index) || index < 0 || index > 48)) { this.say('先点道具再选格子，或把道具拖到格子上'); return false; }
     const r = this.managed.useTool(kind, index);
     if (!r.ok) this.say(r.reason === 'illegal-or-unsupported-action' ? '换一个有作用的落点，道具还在' : '暂不可操作 · ' + r.reason);
-    else { this.armedTool = null; this.selected = -1; this.toastT = Math.min(this.toastT, TOAST_S); }
+    else { this.armedTool = null; this.selected = -1; if (!this.noticeUp) this.toastT = Math.min(this.toastT, this.toastEnd); }
     this.paintToolTray(); this.paint(); return !!r.ok;
   }
   private tapTool(slot: number) {
@@ -237,7 +383,7 @@ export class ManagedMobileBoardUI extends Component {
     if (!tool?.available) { this.cancelToolInput(); this.say(tool?.reason || '本关没有可用道具'); this.paintToolTray(); this.paint(); return false; }
     if (!tool.targeted) return this.useToolAt(tool.kind, -1);
     this.armedTool = this.armedTool === tool.kind ? null : tool.kind; this.selected = -1;
-    this.say(this.armedTool ? `${tool.name} · 点选目标` : '已收回，道具没有消耗'); this.paintToolTray(); this.paint(); return true;
+    if (!this.armedTool && this.noticeUp) this.dropHeldTip(); else { const armed = this.armedTool; this.say(armed ? `${tool.name} · 点选目标` : '已收回，道具没有消耗', 0.2, armed ? () => this.armedTool === armed : undefined); } this.paintToolTray(); this.paint(); return true;
   }
   /** A press is layout pt (origin top-left, y down) when that reading sits on the node, otherwise Cocos UI (y up). */
   private layoutYDown(node: Node, x: number, y: number) {
@@ -269,43 +415,58 @@ export class ManagedMobileBoardUI extends Component {
     return -1;
   }
   /** Screen hit when the press did not land in cellAt, or when the screen point and the UI point differ. A locked axis never flips, so a y-down point is not mirrored onto another row. */
-  private cellFromEvent(e: EventTouch | null, tracked: { x?: number, y?: number, yDown?: boolean, sx?: number, sy?: number, sw?: number, axis?: string } | null) {
+  private cellFromEvent(e: EventTouch | null, tracked: any) {
     const screen = e && typeof e.getLocation === 'function' ? e.getLocation() : null;
     const ui = e && typeof e.getUILocation === 'function' ? e.getUILocation() : null;
-    const windowId = e && typeof (e as any).windowId === 'number' ? (e as any).windowId : tracked && tracked.sw;
-    const screenPoint = screen && typeof screen.x === 'number' ? screen : (tracked && typeof tracked.sx === 'number' ? { x: tracked.sx as number, y: tracked.sy as number } : null);
-    const distinct = !!(screen && ui && typeof screen.x === 'number' && typeof ui.x === 'number' && (screen.x !== ui.x || screen.y !== ui.y));
-    if ((tracked && tracked.axis === 'screen') || distinct) { const byScreen = this.cellHit(tracked && tracked.axis === 'screen' ? screenPoint : screen, windowId); if (byScreen >= 0) return byScreen; }
-    const x = ui && typeof ui.x === 'number' ? ui.x : tracked && typeof tracked.x === 'number' ? tracked.x : screen && screen.x;
-    const y = ui && typeof ui.y === 'number' ? ui.y : tracked && typeof tracked.y === 'number' ? tracked.y : screen && screen.y;
-    if (typeof x !== 'number' || typeof y !== 'number') return -1;
-    const locked = !!(tracked && typeof tracked.yDown === 'boolean');
-    const first = this.cellAt(x, y, !!(tracked && tracked.yDown));
-    if (first >= 0) return first;
-    if (!locked) { const second = this.cellAt(x, y, !(tracked && tracked.yDown)); if (second >= 0) return second; }
-    if (distinct || (tracked && tracked.axis === 'screen') || !ui) return this.cellHit(screenPoint, windowId);
-    return -1;
+    if (tracked?.axis === 'screen') return this.cellHit(screen || (Number.isFinite(tracked.sx) ? { x: tracked.sx, y: tracked.sy } : null), e?.windowId ?? tracked.sw);
+    const p = ui || (Number.isFinite(tracked?.x) ? { x: tracked.x, y: tracked.y } : tracked?.point);
+    return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? this.cellAt(p.x, p.y, !!tracked?.yDown) : -1;
+  }
+  /** Latest owner observation replaces prior reach, including a return to origin or an off-board sample. */
+  private observePointer(d: any, e?: EventTouch) {
+    const live = e ? null : this.livePoint(d.pointer), p = e && this.pointerEvent(e) ? e.getUILocation() : live;
+    if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y)) return false;
+    const screen = e && typeof e.getLocation === 'function' ? e.getLocation() : live && Number.isFinite(live.sx) ? { x: live.sx as number, y: live.sy as number } : null;
+    d.x = d.mx = p.x; d.y = d.my = p.y;
+    if (screen && Number.isFinite(screen.x) && Number.isFinite(screen.y)) { d.sx = screen.x; d.sy = screen.y; }
+    if (e) d.sw = e.windowId;
+    d.latestHit = this.cellFromEvent(e || null, d); if (Number.isInteger(d.index) && d.latestHit !== d.index) d.leftStart = true; return true;
+  }
+  private pointerTravel(d: any) { return d.axis === 'screen' && Number.isFinite(d.sx) && Number.isFinite(d.startSX)
+    ? Math.hypot(d.sx - d.startSX, d.sy - d.startSY) : Math.hypot(d.x - d.start.x, d.y - d.start.y); }
+  /** PR52 compatibility is narrow: a known layout/screen alias may roll END back exactly to START.
+   * A newer owner move/live observation invalidates that old destination. Explicit outside releases always cancel.
+   * A different receiving cell is additional evidence only when it equals the latest owner hit and END is the known origin/sentinel anomaly. */
+  private releaseHit(d: any, e: EventTouch, receivingCell = -1) {
+    if (!this.pointerEvent(e)) return -1;
+    const ui = e.getUILocation(), p = d.axis === 'screen' && typeof e.getLocation === 'function' ? e.getLocation() : ui;
+    const start = d.axis === 'screen' ? { x: d.startSX, y: d.startSY } : d.start;
+    const hit = this.cellFromEvent(e, d), origin = !!p && Math.hypot(p.x - start.x, p.y - start.y) <= 1;
+    const last = Number.isInteger(d.latestHit) ? d.latestHit : -1;
+    if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y)) return -1;
+    const outsideViewport = p.x < 0 || p.y < 0 || (d.axis !== 'screen' && (p.x > this.layoutInfo.width || p.y > this.layoutInfo.height));
+    if (outsideViewport) return -1;
+    if (receivingCell >= 0 && receivingCell === last && (origin || (p.x === 1 && p.y === 1))) return receivingCell;
+    if (origin && d.legacyLayoutAlias && last >= 0 && last !== d.index) return last;
+    return hit;
   }
   private moveGhost(x: number, y: number) {
-    const d = this.layoutInfo; if (!this.toolGhost) { this.toolGhost = this.box('ToolDragGhost', this.root, 0, 0, 56, 56); this.tint.sprite(this.toolGhost.addComponent(Sprite), 'ui'); }
+    const d = this.layoutInfo; if (!this.toolGhost) { this.toolGhost = this.box('ToolDragGhost', this.root, 0, 0, 56, 56); this.tint.sprite(this.toolGhost.addComponent(Sprite), 'ui'); this.box('ToolFallback', this.toolGhost, 0, 0, 56, 56).addComponent(Graphics); }
     const sprite = this.toolGhost.getComponent(Sprite)!; sprite.sizeMode = Sprite.SizeMode.CUSTOM; sprite.spriteFrame = this.toolFrame(this.toolDrag!.kind);
     const ghost = toolDisplaySize(this.toolDrag!.kind, 56); this.toolGhost.getComponent(UITransform)!.setContentSize(ghost.width, ghost.height);
+    this.paintToolFallback(this.toolGhost, this.toolDrag!.kind, true, !!sprite.spriteFrame);
     const at = this.pointerWorld(x, y, this.toolDrag?.yDown, this.toolDrag && typeof this.toolDrag.sx === 'number' ? { x: this.toolDrag.sx, y: this.toolDrag.sy as number } : null);
     this.toolGhost.active = true; this.toolGhost.setSiblingIndex(this.root.children.length - 1); this.toolGhost.setWorldPosition(at.x, at.y, 0);
   }
   /** Pin the ghost to the pointer every frame while the finger is down. No fixed lift. A live touch can start the drag without a node move. */
   private followGhost() {
     const d = this.toolDrag;
-    if (!d || !d.point || this.disposing || !this.layoutInfo) return;
+    if (!d || this.disposing || !this.layoutInfo) return;
     if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); return; }
-    const live = this.livePoint(d.pointer);
-    if (live) { d.point.x = live.x; d.point.y = live.y; }
-    if (!d.moved && Math.hypot(d.point.x - d.start.x, d.point.y - d.start.y) < 12) return;
-    if (!d.moved) { d.moved = true; this.armedTool = null; }
-    this.moveGhost(d.point.x, d.point.y);
-    const i = this.cellFromEvent(null, d);
-    if (i >= 0) { d.hover = i; d.hx = d.point.x; d.hy = d.point.y; }
-    if (d.start) { const reach = typeof d.mx === 'number' ? Math.hypot(d.mx - d.start.x, d.my - d.start.y) : 0, liveReach = Math.hypot(d.point.x - d.start.x, d.point.y - d.start.y); if (liveReach > reach + 0.5) { d.mx = d.point.x; d.my = d.point.y; } }
+    this.observePointer(d); d.point.x = d.x ?? d.point.x; d.point.y = d.y ?? d.point.y;
+    if (!d.moved && this.pointerTravel(d) < 12) return;
+    d.moved = true; this.armedTool = null; this.moveGhost(d.point.x, d.point.y);
+    const i = this.cellFromEvent(null, d); d.latestHit = d.hover = i;
     if (i !== this.selected) { this.selected = i; this.paint(); }
   }
   /** Latest finger from the engine touch list. Headless doubles keep the last move point. */
@@ -326,40 +487,16 @@ export class ManagedMobileBoardUI extends Component {
     if (!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || a > 48 || b < 0 || b > 48 || a === b) return false;
     return Math.abs(a % 7 - b % 7) + Math.abs(Math.floor(a / 7) - Math.floor(b / 7)) === 1;
   }
-  /** Cell the finger actually crossed, from the last move point. A live sample must not pull that point back to the press. */
-  private moveNeighbor(i: number, d: any) {
-    if (!d || !d.consumed || !d.point || typeof d.mx !== 'number' || typeof d.my !== 'number' || typeof this.cellAt !== 'function') return -1;
-    const yDown = !!d.yDown, direct = this.cellAt(d.mx, d.my, yDown);
-    if (direct >= 0) return this.beside(i, direct) ? direct : -1;
-    const flipped = this.cellAt(d.mx, d.my, !yDown);
-    if (this.beside(i, flipped)) return flipped;
-    const dx = d.mx - d.point.x, dy = d.my - d.point.y;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < this.cell * 0.55) return -1;
-    const vertical = yDown ? (dy > 0 ? 7 : -7) : (dy > 0 ? -7 : 7);
-    const j = i + (Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : vertical);
-    return this.beside(i, j) ? j : -1;
-  }
-  /** Move the held piece with the finger. Crossing the dead-zone clears a sticky armed tool; it does not swap. */
+  /** Move only the owning finger's piece. No historical maximum may replace a newer return/outside sample. */
   private followPiece(e?: EventTouch) {
-    const d = this.dragStart;
-    if (!d || this.disposing || !this.layoutInfo) return;
-    if (!this.presented || this.modalOpen() || !this.snapshot || this.snapshot.state !== 'run.ready' || this.snapshot.readOnly) { this.retractPiece(); return; }
-    if (e && typeof e.getLocation === 'function') { const s = e.getLocation(); if (s && typeof s.x === 'number') { d.sx = s.x; d.sy = s.y; d.sw = e.windowId; } }
-    const live = this.livePoint(d.pointer);
-    if (live) { d.x = live.x; d.y = live.y; if (typeof live.sx === 'number') { d.sx = live.sx; d.sy = live.sy; } }
-    if (typeof d.x !== 'number' || !d.point || typeof d.point.x !== 'number') return;
-    const dx = d.x - d.point.x, dy = d.y - d.point.y;
-    if (!d.consumed && Math.max(Math.abs(dx), Math.abs(dy)) < Math.min(18, this.cell * .35)) return;
+    const d = this.dragStart; if (!d || this.disposing || !this.layoutInfo || (e && !this.owns(d, e))) return;
+    if (!this.canUseTools() || d.version !== this.toolVersion()) { this.retractPiece(); return; }
+    this.observePointer(d, e);
+    if (!d.consumed && this.pointerTravel(d) < Math.min(18, this.cell * .35)) return;
     if (!d.consumed) { this.armedTool = null; this.paintToolTray(); }
-    d.consumed = true;
-    if (d.point && typeof d.mx === 'number') { const reach = Math.hypot(d.mx - d.point.x, d.my - d.point.y), liveReach = Math.hypot(d.x - d.point.x, d.y - d.point.y); if (liveReach > reach + 0.5) { d.mx = d.x; d.my = d.y; } }
-    else if (typeof d.mx !== 'number') { d.mx = d.x; d.my = d.y; }
-    const hit = this.cellFromEvent(e || null, d);
-    const via = this.moveNeighbor(d.index, d);
-    d.aim = this.beside(d.index, hit) ? hit : (this.beside(d.index, via) ? via : -1);
-    this.placePieceGhost(d);
-    const mark = d.aim >= 0 ? d.aim : -1;
-    if (mark !== this.selected) { this.selected = mark; this.paint(); }
+    d.consumed = true; const hit = this.cellFromEvent(null, d); d.latestHit = hit;
+    d.aim = this.beside(d.index, hit) ? hit : -1; this.placePieceGhost(d);
+    if (d.aim !== this.selected) { this.selected = d.aim; this.paint(); }
   }
   private placePieceGhost(d: { index: number, x: number, y: number, yDown?: boolean, sx?: number, sy?: number }) {
     const info = this.layoutInfo; if (!info || !this.cells) return;
@@ -377,54 +514,72 @@ export class ManagedMobileBoardUI extends Component {
   private hidePieceGhost() { if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; }
   private retractPiece() { this.dragStart = null; this.hidePieceGhost(); this.selected = -1; if (!this.disposing) this.paint(); }
   /** Real touch end only. Adjacent cell swaps. A still finger, or a release back on the start cell, stays a tap. */
-  private releasePiece(i: number, d: any, e: EventTouch) {
-    this.hidePieceGhost();
-    if (!d) return;
-    let hit = this.cellFromEvent(e, d);
-    const via = this.moveNeighbor(i, d);
-    if (this.beside(i, via) && !this.beside(i, hit)) hit = via;
+  private releasePiece(i: number, d: any, e: EventTouch, receivingCell = -1) {
+    this.hidePieceGhost(); if (!d || !this.canUseTools() || d.version !== this.toolVersion()) { this.selected = -1; this.paint(); return; }
+    const hit = this.releaseHit(d, e, receivingCell);
     if (this.beside(i, hit)) { this.armedTool = null; this.selected = -1; this.paint(); this.swap(i, hit); return; }
-    if (!d.consumed || hit === i || hit < 0) { if (typeof d.prior === 'number') this.selected = d.prior; this.tap(i); return; }
+    if ((!d.consumed || !d.leftStart) && hit === i) { this.selected = typeof d.prior === 'number' ? d.prior : -1; this.tap(i); return; }
     this.armedTool = null; this.selected = -1; this.paint();
   }
-  /** Touch end landed on another cell node. That node index is the drop, the same identity a second tap already uses. */
   private finishForeignRelease(i: number, d: any, e: EventTouch) {
-    if (!d || this.dragStart !== d || !e || typeof e.getID !== 'function' || d.pointer !== e.getID()) return;
-    this.dragStart = null; this.hidePieceGhost();
-    if (!(d.consumed && this.beside(d.index, i))) { this.selected = -1; if (!this.disposing) this.paint(); return; }
-    GameAudio.notifyUserGesture();
-    this.armedTool = null; this.selected = -1; this.paint(); this.swap(d.index, i);
+    if (this.dragStart !== d || !this.owns(d, e)) return;
+    this.dragStart = null; this.releasePiece(d.index, d, e, i);
   }
-  /** Tool finger came up on a cell node. Spend it on that cell, the same way a tap on the cell would. */
   private releaseOnto(i: number, e: EventTouch) {
-    const d = this.toolDrag;
-    if (!d || !d.moved || !Number.isInteger(i) || i < 0 || i > 48 || !e || typeof e.getID !== 'function' || d.pointer !== e.getID()) return;
-    this.toolDrag = null; this.toolTapAccepted = false;
-    if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false;
-    if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); this.paint(); return; }
-    GameAudio.notifyUserGesture();
-    this.useToolAt(d.kind, i);
+    const d = this.toolDrag; if (!d || !d.moved || !this.owns(d, e)) return;
+    this.finishToolRelease(d, e, i);
   }
   private toolFrame(kind: string) { const key = TOOL_KEYS[kind]; return (key && BoardArt.shared().frame(key)) || this.toolArt?.frame(kind) || null; }
   private endToolDrag(e: EventTouch, slot?: number) {
-    const d = this.toolDrag; if (!d || d.pointer !== e.getID() || (slot !== undefined && slot !== d.slot)) return; this.toolDrag = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false;
-    if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); this.paint(); return; }
-    GameAudio.notifyUserGesture();
-    const p = e.getUILocation(), moved = d.moved || Math.hypot(p.x - d.start.x, p.y - d.start.y) >= 12;
+    const d = this.toolDrag; if (!d || !this.owns(d, e) || (slot !== undefined && slot !== d.slot)) return;
+    this.finishToolRelease(d, e);
+  }
+  private finishToolRelease(d: any, e: EventTouch, receivingCell = -1) {
+    if (!this.owns(d, e)) return;
+    this.toolDrag = null; this.toolTapAccepted = false;
+    this.tools[d.slot]?.getChildByName('Face')?.setPosition(0, 0, 0);
+    if (this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false;
+    if (!this.canUseTools() || d.version !== this.toolVersion() || !this.pointerEvent(e)) { this.cancelToolInput(); this.paintToolTray(); this.paint(); return; }
+    GameAudio.notifyUserGesture(); const p = e.getUILocation(), moved = d.moved || Math.hypot(p.x - d.start.x, p.y - d.start.y) >= 12;
     if (!moved) { if (this.tools[d.slot].getComponent(UITransform)!.hitTest(e.getLocation(), e.windowId)) { this.toolTapAccepted = this.tapTool(d.slot); if (this.toolTapAccepted) playSound('tool'); } return; }
-    let i = typeof this.cellFromEvent === 'function' ? this.cellFromEvent(e, d) : this.cellAt(p.x, p.y, d.yDown); if (!(i >= 0) && d.moved && d.point && d.start && typeof this.cellAt === 'function' && Math.hypot(p.x - d.start.x, p.y - d.start.y) <= 1) { const tracked = this.cellAt(d.point.x, d.point.y, !!d.yDown); if (tracked >= 0) i = tracked; } if (!(i >= 0) && d.moved && typeof d.mx === 'number' && typeof this.cellAt === 'function') { const tracked = this.cellAt(d.mx, d.my, !!d.yDown); const flipped = tracked >= 0 ? tracked : this.cellAt(d.mx, d.my, !d.yDown); if (flipped >= 0) i = flipped; } if (!(i >= 0) && d.moved && typeof d.hover === 'number' && d.hover >= 0 && typeof d.hx === 'number') { const pad = Math.max(48, this.cell || 48), near = Math.hypot(p.x - d.hx, p.y - d.hy) <= pad, stuck = !!(d.start && Math.hypot(p.x - d.start.x, p.y - d.start.y) <= 1 && typeof d.mx === 'number' && Math.hypot(d.mx - d.hx, d.my - d.hy) <= pad); if (near || stuck) i = d.hover; } this.armedTool = null; this.selected = -1; this.paintToolTray(); this.paint();
+    const i = this.releaseHit(d, e, receivingCell); this.armedTool = null; this.selected = -1; this.paintToolTray(); this.paint();
     if (i < 0) { this.say('已收回，道具没有消耗'); return; } this.useToolAt(d.kind, i);
   }
   private toolSlot(slot: number) {
     const n = this.box('slot-' + slot, this.tray, 0, 0, 64, 64);
     const face = this.box('Face', n, 0, 0, 64, 64);
     const sel = this.box('ToolSelection', face, 0, 0, 64, 64); sel.addComponent(Graphics);
-    const art = this.box('OriginalToolArt', face, 0, 0, 60, 60); this.tint.sprite(art.addComponent(Sprite), 'ui'); art.addComponent(Graphics); art.addComponent(UIOpacity);
+    const art = this.box('OriginalToolArt', face, 0, 0, 60, 60); this.tint.sprite(art.addComponent(Sprite), 'ui'); art.addComponent(UIOpacity);
+    this.box('ToolFallback', art, 0, 0, 60, 60).addComponent(Graphics);
     const count = this.box('ToolCount', face, 22, 21, 24, 24); count.addComponent(Graphics); const q = makeLabel(count, '', 0, 0, 14, { width: 26, name: 'Quantity' }); this.tint.label(q, 'brown');
-    n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { this.input(); if (this.toolDrag || !this.canUseTools()) return; const tool = this.barTools()[slot]; if (!tool?.available) { this.cancelToolInput(); this.paintToolTray(); this.paint(); this.say(tool?.reason || '本关没有可用道具'); return; } this.toolTapAccepted = false; const p = e.getUILocation(); face.setPosition(0, -3, 0); this.toolDrag = { kind: tool.kind, slot, pointer: e.getID(), start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, moved: false, version: this.toolVersion(), yDown: typeof this.layoutYDown === 'function' && this.layoutYDown(n, p.x, p.y) }; }, this);
-    n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.toolDrag; if (!d || d.pointer !== e.getID()) return; if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); return; } const p = e.getUILocation(); d.point.x = p.x; d.point.y = p.y; const loc = typeof e.getLocation === 'function' ? e.getLocation() : null; if (loc && typeof loc.x === 'number') { d.sx = loc.x; d.sy = loc.y; d.sw = e.windowId; } if (!d.moved && Math.hypot(p.x - d.start.x, p.y - d.start.y) < 12) return; d.moved = true; this.armedTool = null; d.mx = p.x; d.my = p.y; this.moveGhost(p.x, p.y); const i = typeof this.cellFromEvent === 'function' ? this.cellFromEvent(e, d) : this.cellAt(p.x, p.y, d.yDown); if (i >= 0) { d.hover = i; d.hx = p.x; d.hy = p.y; } else if (Math.hypot(p.x - d.start.x, p.y - d.start.y) < 12) d.hover = -1; if (i !== this.selected) { this.selected = i; this.paint(); } this.paintToolTray(); }, this);
-    n.on(Node.EventType.TOUCH_END, (e: EventTouch) => { face.setPosition(0, 0, 0); this.endToolDrag(e, slot); }, this);
-    n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => { face.setPosition(0, 0, 0); if (this.toolDrag?.pointer !== e.getID()) return; this.cancelToolInput(); this.paintToolTray(); this.paint(); }, this);
+    n.on(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED, () => { if (!n.activeInHierarchy && this.toolDrag?.slot === slot) this.resetInput(); });
+    n.on(Node.EventType.TOUCH_START, (e: EventTouch) => {
+      if (!n.activeInHierarchy || this.toolDrag || this.dragStart || !this.canUseTools() || !this.pointerEvent(e)) return;
+      this.input(); const tool = this.barTools()[slot]; if (!tool?.available) { this.cancelToolInput(); this.paintToolTray(); this.paint(); this.say(tool?.reason || '本关没有可用道具'); return; }
+      const p = e.getUILocation(), yDown = this.layoutYDown(n, p.x, p.y), loc = e.getLocation();
+      const uiScreen = { x: p.x, y: yDown ? this.layoutInfo.height - p.y : p.y };
+      const uiHit = n.getComponent(UITransform)!.hitTest(uiScreen, e.windowId), axis = uiHit ? 'ui' : 'screen';
+      if (!uiHit && !n.getComponent(UITransform)!.hitTest(loc, e.windowId)) return;
+      this.toolTapAccepted = false; face.setPosition(0, -3, 0);
+      this.toolDrag = { kind: tool.kind, slot, pointer: e.getID(), originWindow: e.windowId, start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, x: p.x, y: p.y,
+        moved: false, version: this.toolVersion(), yDown, axis, sx: loc.x, sy: loc.y, startSX: loc.x, startSY: loc.y, sw: e.windowId, latestHit: -1,
+        legacyLayoutAlias: yDown && Math.hypot(loc.x - p.x, loc.y - p.y) <= 1 && !n.getComponent(UITransform)!.hitTest(loc, e.windowId) };
+    }, this);
+    n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => {
+      const d = this.toolDrag; if (!d || d.slot !== slot || !this.owns(d, e)) return;
+      if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); return; }
+      if (!this.observePointer(d, e)) return; d.point.x = d.x!; d.point.y = d.y!;
+      if (!d.moved && this.pointerTravel(d) < 12) return;
+      d.moved = true; this.armedTool = null; this.moveGhost(d.point.x, d.point.y); d.hover = d.latestHit;
+      if (d.latestHit !== this.selected) { this.selected = d.latestHit!; this.paint(); } this.paintToolTray();
+    }, this);
+    n.on(Node.EventType.TOUCH_END, (e: EventTouch) => this.endToolDrag(e, slot), this);
+    n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => {
+      const d = this.toolDrag; if (d?.slot !== slot || !this.owns(d, e)) return;
+      if (!isValid(n, true) || this.tools[slot] !== n) { this.cancelToolInput(); return; }
+      if (this.nodeCancelIsRelease(n, d, e)) { this.endToolDrag(e, slot); return; }
+      this.cancelToolInput(); this.paintToolTray(); this.paint();
+    }, this);
     return n;
   }
   private paintToolTray() {
@@ -439,7 +594,7 @@ export class ManagedMobileBoardUI extends Component {
       const legacy = !TOOL_KEYS[tool.kind], box = legacy ? size * 0.72 : size, fit = legacy ? { width: box, height: box } : toolDisplaySize(tool.kind, box);
       artNode.getComponent(UITransform)!.setContentSize(fit.width, fit.height); artNode.setPosition(0, legacy ? 4 : 0, 0);
       sprite.spriteFrame = frame; sprite.grayscale = !tool.available; artNode.getComponent(UIOpacity)!.opacity = tool.available ? 255 : 140;
-      const fallback = artNode.getComponent(Graphics)!; fallback.clear(); if (!frame) this.drawToolEmblem(fallback, tool.kind, tool.available);
+      this.paintToolFallback(artNode, tool.kind, tool.available, !!frame);
       const badge = n.getChildByName('Face')!.getChildByName('ToolCount')!, bg = badge.getComponent(Graphics)!, night = this.tint.weight(), k = 1 - 0.38 * night, r = 11 * g.k;
       badge.setPosition(size * 0.29, size * 0.28, 0); bg.clear();
       bg.fillColor = new Color(60, 40, 20, 70); bg.circle(0.5, -1.5, r); bg.fill();
@@ -451,6 +606,12 @@ export class ManagedMobileBoardUI extends Component {
       this.targets['tool-' + tool.kind] = n; if (tool.kind === 'bomb') this.targets.bomb = n;
     });
   }
+  private paintToolFallback(art: Node, kind: string, available: boolean, hasFrame: boolean) {
+    // Creator allows one UI renderer per node; keep vector art beneath its own node.
+    const node = art.getChildByName('ToolFallback')!, size = art.getComponent(UITransform)!.contentSize;
+    node.getComponent(UITransform)!.setContentSize(size.width, size.height); node.active = !hasFrame;
+    const graphics = node.getComponent(Graphics)!; graphics.clear(); if (!hasFrame) this.drawToolEmblem(graphics, kind, available);
+  }
   private drawToolEmblem(g: Graphics, kind: string, available: boolean) {
     if (kind === 'prismShift') {
       const polygon = (points: number[][], color: string) => { g.fillColor = new Color(available ? color : '#91afa0'); points.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.close(); g.fill(); };
@@ -460,25 +621,13 @@ export class ManagedMobileBoardUI extends Component {
     }
   }
   // ---------------- layout ----------------
-  private safeInsets(w: number, h: number): SafeArea & { portrait: boolean } {
-    const portrait = w < h * 1.1; let top = portrait ? 47 : 12, bottom = portrait ? 34 : 21, left = portrait ? 0 : 44, right = left;
-    if (typeof document !== 'undefined' && document.documentElement && typeof getComputedStyle === 'function') { const css = getComputedStyle(document.documentElement); const read = (name: string) => parseFloat(css.getPropertyValue(name)) || 0; top = Math.max(top, read('--safe-top')); bottom = Math.max(bottom, read('--safe-bottom')); left = Math.max(left, read('--safe-left')); right = Math.max(right, read('--safe-right')); }
-    const wx = (globalThis as any).wx; let info: any = null, capsule: any = null;
-    try { info = wx?.getWindowInfo?.(); } catch { } if (!info) try { info = wx?.getSystemInfoSync?.(); } catch { }
-    const ww = Number(info?.windowWidth) || w, hh = Number(info?.windowHeight) || h, sx = w / ww, sy = h / hh;
-    const finite = (x: any) => typeof x === 'number' && Number.isFinite(x);
-    if (ww > 0 && hh > 0 && Number.isFinite(sx) && Number.isFinite(sy)) {
-      const a = info?.safeArea;
-      if (a && [a.top, a.bottom, a.left, a.right].every(finite) && a.top >= 0 && a.bottom >= a.top && a.bottom <= hh && a.left >= 0 && a.right >= a.left && a.right <= ww) { top = Math.max(top, a.top * sy); bottom = Math.max(bottom, (hh - a.bottom) * sy); left = Math.max(left, a.left * sx); right = Math.max(right, (ww - a.right) * sx); }
-      try { const r = wx?.getMenuButtonBoundingClientRect?.(); if (r && [r.top, r.bottom, r.left, r.right].every(finite) && r.top >= 0 && r.bottom > r.top && r.bottom < hh * .35 && r.left >= 0 && r.right > r.left && r.right <= ww) capsule = { top: r.top * sy, bottom: r.bottom * sy, left: r.left * sx, right: r.right * sx }; } catch { }
-    }
-    if (!capsule && portrait) capsule = { top: top + 4, bottom: top + 36, left: w - 93, right: w - 6 };
-    return { top, bottom, left, right, portrait, capsule };
-  }
+  private safeInsets(w: number, h: number): SafeArea & { portrait: boolean } { return boardSafeInsets(w, h); }
   private layout() {
     const frame = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); const w = Math.max(240, frame.width), h = Math.max(320, frame.height);
     if (!this.managed) view.setDesignResolutionSize(w, h, ResolutionPolicy.EXACT_FIT); if (game.canvas) director.root?.resize(game.canvas.width, game.canvas.height); this.camera.orthoHeight = h / 2; this.root.getComponent(UITransform)!.setContentSize(w, h);
-    const safe = this.safeInsets(w, h), g = boardLayout(w, h, safe, Math.max(2, this.goalKeys.length)); this.geo = g;
+    const safe = this.safeInsets(w, h), g = boardLayout(w, h, safe, Math.max(2, this.goalKeys.length));
+    if (this.geo && JSON.stringify(this.geo) !== JSON.stringify(g)) this.resetInput();
+    this.geo = g;
     const X = (x: number) => x - w / 2, Y = (y: number) => h / 2 - y, P = g.pitch; this.cell = P;
     this.boardCenter.set(X(g.grid.x), Y(g.grid.y), 0); this.grid.setPosition(this.boardCenter); this.grid.getComponent(UITransform)!.setContentSize(g.grid.size, g.grid.size);
     this.regionalFocus.setPosition(this.boardCenter); this.boardFrame.setPosition(this.boardCenter);
@@ -487,9 +636,9 @@ export class ManagedMobileBoardUI extends Component {
     this.cells.forEach((n, i) => { const c = cellCenter(g, i); n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.getComponent(UITransform)!.setContentSize(P, P); });
     this.place(this.pause, X(g.pause.x), Y(g.pause.y), g.pause.hit); this.place(this.pause.getChildByName('Face')!.getChildByName('Art')!, 0, 0, g.pause.size * 126 / 128, g.pause.size);
     this.layoutPlate();
-    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0);
+    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast(); this.regionTitle?.place(w, h, g.toast.y, { top: g.plate.y + g.plate.height / 2, bottom: g.tray.y - g.tray.height / 2 });
     this.layoutInfo = { width: w, height: h, safe, board: g.grid.size, cell: P, boardCenter: { x: this.boardCenter.x, y: this.boardCenter.y }, toolY: Y(g.tools.y), pitch: P, geometry: g, skyReserved: g.tray.y - g.tray.height / 2 };
-    this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2 });
+    this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2, board: { x: g.grid.x, y: g.grid.y, size: g.grid.size } });
     this.popups.layout(); this.paint(); this.paintToolTray(); if (this.snapshot) this.render(this.snapshot);
   }
   /** Info plate: row 1 level title (the only place the name appears), row 2 goal pieces + counts | hourglass + moves.
@@ -572,7 +721,10 @@ export class ManagedMobileBoardUI extends Component {
         if (this.disposing || !this.root || !isValid(this.root, true)) { done(); return; }
         for (const c of this.cells) tween(c).to(0.08, { scale: new Vec3(.94, .94, 1) }).to(.08, { scale: Vec3.ONE }).start();
         this.armVisual(done);
-      }, cancelAnimations: () => this.cancelAnimations()
+      }, cancelAnimations: () => this.cancelAnimations(), onError: (error: Error) => {
+        this.presentationError = String(error?.stack || error);
+        if (!this.disposing) { this.returnPause = true; this.say('画面刷新中断，已暂停 · 可继续或返回小岛'); }
+      }
     });
   }
   /** One visual step. update() and setTimeout share this so a dropped timer still reveals the clear. */
@@ -589,12 +741,12 @@ export class ManagedMobileBoardUI extends Component {
   }
   private cancelAnimations() {
     this.epoch++; this.visualStamp++; this.visualDone = null; this.visualLeft = -1; if (this.timer !== null) { clearTimeout(this.timer); this.timer = null; }
-    this.cancelToolInput(); this.selected = -1; this.dragStart = null;
+    this.resetInput();
     for (const c of this.cells) { Tween.stopAllByTarget(c); if (!this.disposing && isValid(c, true)) c.setScale(1, 1, 1); }
     if (!this.disposing) this.paintToolTray();
   }
   private coldReload() { const before = this.controller.snapshot(); this.host.dispose(); this.bind(); return { before: before.state, after: this.controller.snapshot().state }; }
-  private command(name: string, ...args: any[]) { this.cancelToolInput(); this.paintToolTray(); this.selected = -1; this.dragStart = null; const r = this.managed?.intercept?.(name, ...args) ?? this.host.command(name, ...args); if (r && r.ok === false) this.say('暂不可操作 · ' + r.reason); return r; }
+  private command(name: string, ...args: any[]) { this.cancelToolInput(); if (!this.presentationError) this.paintToolTray(); this.selected = -1; this.dragStart = null; const r = this.managed?.intercept?.(name, ...args) ?? this.host.command(name, ...args); if (r && r.ok === false) this.say('暂不可操作 · ' + r.reason); return r; }
   private swap(a: number, b: number) {
     if (!this.presented || this.modalOpen() || this.snapshot.state !== 'run.ready' || this.snapshot.readOnly) return;
     this.selected = -1; const p = this.host.command('previewAction', ['swap', a, b]);
@@ -615,9 +767,11 @@ export class ManagedMobileBoardUI extends Component {
   /** Dialogs that block the world host. The result page itself is not one: its actions are host commands. */
   hostModalOpen() { return this.modalOpen(); }
   hostLayout() { return this.layoutInfo; }
+  showHostResultError(text:string) { this.hostResultError=text; if(this.snapshot&&this.isResult(this.snapshot)&&this.root?.activeInHierarchy&&!this.modalOpen())this.paintResult(this.snapshot); }
+  clearHostResultError() { if(!this.hostResultError)return; this.hostResultError=''; if(this.snapshot&&this.isResult(this.snapshot)&&this.root?.activeInHierarchy&&!this.modalOpen())this.paintResult(this.snapshot); }
   setHostActions(a: HostResultActions | null) { this.hostActions = a || {}; if (this.snapshot && this.isResult(this.snapshot)) this.paintResult(this.snapshot); }
   private modalOpen() { return !!this.popups && this.popups.names().some(n => n !== 'ResultPanel'); }
-  private isResult(s: any) { return s.state.startsWith('result.') || s.state === 'run.unsaved' || s.state === 'error.readonly'; }
+  private isResult(s: any) { return s.state.startsWith('result.') || s.state === 'run.unsaved' || s.state === 'storage.unsaved' || (s.state === 'error.readonly' || s.state === 'storage.readOnly'); }
   private playing() { const s = this.snapshot; return !!s?.active && !this.isResult(s) && !['book.ready', 'stage.detail'].includes(s.state); }
   private render(s: any) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
@@ -629,7 +783,7 @@ export class ManagedMobileBoardUI extends Component {
     if (s.state !== 'run.paused' && this.popups?.find('PausePanel')) this.popups.close('PausePanel');
     const book = ['book.ready', 'stage.detail'].includes(s.state), result = this.isResult(s), board = !book && !result;
     this.grid.active = board; this.boardFrame.active = board; this.regionalFocus.active = board && s.provider === 'regional-r05'; this.stagePanel.active = book; this.hud.active = board && !!s.active;
-    if (s.state !== 'run.ready' || s.readOnly) this.cancelToolInput();
+    if (s.hidden) this.resetInput(); else if (s.state !== 'run.ready' || s.readOnly) { this.dragStart = null; this.cancelToolInput(); for (const h of this.pressHandles) h.cancel(); }
     const goalKeys = s.provider === 'mainline-v33' ? (s.active?.goalOrder || []) : s.provider === 'regional-r05' ? Object.keys(s.active?.goals || {}) : Object.keys(s.active?.goals || { beacons: 0, moss: 0, type5: 0 });
     const relayout = goalKeys.length !== this.goalKeys.length; this.goalKeys = goalKeys;
     this.moves.string = s.active ? String(s.active.moves) : '';
@@ -727,13 +881,42 @@ export class ManagedMobileBoardUI extends Component {
     g.strokeColor = new Color(255, 226, 140, 255); g.lineWidth = 3; g.circle(from.x, from.y, this.cell * .5); g.stroke(); g.strokeColor = new Color(120, 200, 190, 255); g.circle(to.x, to.y, this.cell * .46); g.stroke();
   }
   private box(name: string, parent: Node, x: number, y: number, w: number, h: number) { const n = new Node(name); n.layer = Layers.Enum.UI_2D; parent.addChild(n); n.setPosition(x, y); n.addComponent(UITransform).setContentSize(w, h); return n; }
+  /** region-title SPEC §6/§8.3: after presentForPlay (and on any later new board in the same view) show the region's name once.
+   *  The flag is written when the title starts, so leaving mid-title never replays it. */
+  private maybeShowRegionTitle() {
+    if (!this.presented || this.disposing || !this.regionTitle) return;
+    const s = this.snapshot, stage = String(s?.active?.stageId ?? ''); if (!stage || stage === this.titleStage) return; this.titleStage = stage;
+    let store: any = null; try { store = sys.localStorage; } catch { store = null; }
+    const id = regionTitleFor(s, store); if (!id) return;
+    markRegionTitleSeen(store, id); this.titleGate.begin(this.titleClock); this.regionTitle.show(id); this.regionTitle.node.setSiblingIndex(this.root.children.length - 1);
+  }
   // ---------------- toast / input / hint ----------------
-  /** Transient strip above the tool bar: tool prompts and errors only, fades after 2 s. */
-  private say(text: string) {
-    if (!text || !this.toastLabel) return; this.toastLabel.string = text; this.toastT = 0;
-    const w = Math.min(330, measure(text, 15) + 40), h = 32; this.toast.getComponent(UITransform)!.setContentSize(w, h); this.paintToast(w, h); this.toast.setSiblingIndex(this.root.children.length - 1);
+  /** Transient strip above the board tray (BoardLayout.toast, every region alike): tool prompts and errors only, fades after 2 s. */
+  private say(text: string, fade = 0.2, valid?: () => boolean) {
+    if (!text || !this.toastLabel) return;
+    // region-title SPEC §7: the place name owns the toast slot for its 2.0 s; tips wait and come out afterwards in order.
+    if (this.titleGate.active(this.titleClock)) { this.titleGate.hold({ text, fade, valid }); return; }
+    // b18 (UI设计部): the stale-board notice has top priority; a tip arriving during it waits (latest wins) and shows after it fades.
+    if (this.noticeUp) { this.queuedTip = text; return; } this.toastLabel.string = text; this.toastT = 0; this.toastFade = fade; this.toastEnd = fade === 0.2 ? TOAST_S : fade + TOAST_S;
+    this.sizeToast(); this.toast.setSiblingIndex(this.root.children.length - 1); this.regionTitle?.node.setSiblingIndex(this.root.children.length - 1);
+  }
+  /** Pill = text + 40, capped by the layout's max width (≤ 330, inset from the edges); a longer line scales down to stay inside the caps. */
+  private sizeToast() {
+    const text = this.toastLabel?.string; if (!text) return;
+    const tw = measure(text, 15), w = Math.min(this.geo?.toast.maxWidth ?? 330, tw + 40), h = this.geo?.toast.height ?? 32, fit = Math.min(1, (w - 28) / tw);
+    this.toast.getComponent(UITransform)!.setContentSize(w, h); this.toastLabel.node.setScale(fit, fit, 1); this.paintToast(w, h);
   }
   private paintToast(w: number, h: number) { const g = this.toastBg, k = 1 - 0.38 * this.tint.weight(); g.clear(); g.fillColor = new Color(40, 30, 20, 40); g.roundRect(-w / 2 + 1, -h / 2 - 2, w, h, h / 2); g.fill(); g.fillColor = new Color(Math.round(248 * k), Math.round(242 * k), Math.round(226 * k), 240); g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.fill(); g.strokeColor = new Color(201, 177, 133, 255); g.lineWidth = 1.5; g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.stroke(); }
+  /** b18 (UI设计部): an old unfinished lake board was dropped on load → once, after presentForPlay (entry shot + transition done),
+   *  the board toast says 「关卡已调整，从头开始」: fade 0.3 s, hold 2 s, fade 0.3 s; no button, no popup, touches pass through; the
+   *  provider flag is cleared at once (in memory, so a restart never shows it). Toast sits in the plate→tray band like every tip. */
+  private staleNotice(s: any) {
+    if (this.titleGate.active(this.titleClock)) return; // §7: the place name first, then 「关卡已调整」
+    if (this.noticeShown || !s?.notice?.text || !s.active || s.state !== 'run.ready' || s.readOnly || this.modalOpen()) return;
+    if (Array.isArray(s.notice.stageIds) && !s.notice.stageIds.includes(s.active.stageId)) return;
+    this.noticeShown = true; this.say(String(s.notice.text), 0.3); this.noticeUp = true;
+    try { this.managed?.clearNotice?.(); } catch { }
+  }
   private input() { this.hintClock.reset(); if (this.hintCells.length) { this.hintCells = []; this.paintMarks(); } }
   private autoHint() {
     const s = this.snapshot, a = s?.active; if (!a) return;
@@ -743,21 +926,41 @@ export class ManagedMobileBoardUI extends Component {
   }
   update(dt: number) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
+    // r4.2: before presentForPlay the host is only active for the hidden pre-activation; nothing else runs (as when it was inactive).
+    if (!this.presented) { this.stepPrewarm(); return; }
     if (this.visualLeft >= 0) { this.visualLeft -= Math.max(0, dt); if (this.visualLeft <= 0) this.finishVisual(); }
     this.followGhost(); this.followPiece();
     if (this.returnPause) { this.returnPause = false; if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden && this.snapshot.active && !this.modalOpen()) this.openPausePanel(); }
     this.tint.update(); this.popups.update(dt);
-    const s = this.snapshot, active = !!s && s.state === 'run.ready' && !s.readOnly && !this.modalOpen() && !this.armedTool && !this.toolDrag && !this.dragStart && (typeof this.managed?.hint === 'function' || !!s.active?.guide);
+    this.titleClock += Math.max(0, dt); this.regionTitle?.update(dt); this.maybeShowRegionTitle();
+    if (this.titleGate.ended(this.titleClock)) this.hintClock.reset()/* §7: the 5 s auto-hint counts from the title's end */;
+    const titleUp = this.titleGate.active(this.titleClock);
+    const s = this.snapshot, active = !titleUp && !!s && s.state === 'run.ready' && !s.readOnly && !this.modalOpen() && !this.armedTool && !this.toolDrag && !this.dragStart && (typeof this.managed?.hint === 'function' || !!s.active?.guide);
     if (this.hintClock.tick(dt, active)) this.autoHint();
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
-    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, k = this.toastT < 0.2 ? this.toastT / 0.2 : this.toastT < TOAST_S ? 1 : Math.max(0, 1 - (this.toastT - TOAST_S) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > TOAST_S) this.toastT = -1; }
-    if (this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
+    if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, f = this.toastFade, e = this.toastEnd, k = this.toastT < f ? this.toastT / f : this.toastT < e ? 1 : Math.max(0, 1 - (this.toastT - e) / TOAST_OUT_S); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > e) { this.toastT = -1; if (this.noticeUp) { this.noticeUp = false; const q = this.queuedTip; this.queuedTip = ''; if (q) this.say(q); } } }
+    this.staleNotice(s);
+    if (!titleUp && this.toastT < 0 && !this.noticeUp && this.titleGate.pending()) { const q = this.titleGate.next(); if (q) this.say(q.text, q.fade, q.valid); }
+    if (!titleUp && this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
   }
   // ---------------- dialogs ----------------
+  /** QA board frames: the checkpoint is paused, so the recovery sheet would cover the playfield. */
+  revealPlayfield() {
+    this.returnPause = false;
+    this.introQueue.length = 0;
+    this.popups?.clear();
+    if (this.snapshot?.state === 'run.paused') {
+      try { this.managed?.intercept?.('resume') ?? this.host?.command?.('resume'); } catch { /* panel is already gone */ }
+    }
+    this.introQueue.length = 0;
+    this.popups?.clear();
+  }
   private openPausePanel() {
     const s = this.snapshot; if (!s?.active || this.modalOpen() || (s.state !== 'run.ready' && s.state !== 'run.paused')) return;
-    this.cancelToolInput(); this.dragStart = null; this.paintToolTray(); this.paint();
+    this.cancelToolInput(); this.dragStart = null;
+    // Recovery controls must not call the same failed board painter before opening.
+    if (!this.presentationError) { this.paintToolTray(); this.paint(); }
     if (s.state === 'run.ready') this.command('pause');
     const name = s.active.name ? `${String((s.active.level ?? 0) + 1).padStart(2, '0')} ${s.active.name}` : '';
     const mainline = s.provider === 'mainline-v33';
@@ -774,31 +977,46 @@ export class ManagedMobileBoardUI extends Component {
   private showRuleGuide() {
     const guide = this.snapshot?.active?.guide; if (!guide || this.modalOpen()) return;
     this.cancelToolInput(); this.dragStart = null; this.paintToolTray();
-    const body = [guide.rule, guide.tool?.description].filter(Boolean).join('\n'), lines = Math.min(8, Math.ceil(measure(body, 28) / 560) + body.split('\n').length);
-    const ph = 104 + 48 + 40 + lines * 40 + 48 + 104 + 72, p = this.popups.open({ name: 'RuleGuidePanel', height: ph, title: guide.title || '这一关的规则' });
-    p.text(guide.phaseLabel + (guide.heldTurns ? ' · 固定 ' + guide.heldTurns + ' 次行动' : ''), 0, 128, 26, 'brown2', { bold: false, width: 600 });
-    p.text(body, 0, 192 + lines * 20, 28, 'brown', { bold: false, width: 580, lines, height: lines * 40 + 8 });
+    // b16-fix P2（build05 全流程测试 P2-3：L13 规则弹窗正文左侧被裁约 10px）：正文原来居中、宽 580，比木框内沿（680 宽、两侧木边）还宽，
+    // 左右都压到木边下面。改为左对齐、文字盒宽 RULE_BODY_W=480，两侧各留 100（木边约 70 + 安全边距约 30，即屏幕上约 15pt），行数按每段 472 估算，避免 CLAMP 裁字。
+    const RULE_BODY_W = 480;
+    // b16 真机复核 ⑤：自己按 472 折行并做避头尾（行首不出现「）」等），Label 宽 480 不会再折一次。
+    const wrapped = wrapKinsoku([guide.rule, guide.tool?.description].filter(Boolean).join('\n'), RULE_BODY_W - 8, t => measure(t, 28)).slice(0, RULE_GUIDE_MAX_LINES),
+      body = wrapped.join('\n'), lines = wrapped.length;
+    const ph = 104 + 48 + 40 + lines * 40 + 48 + 104 + 72, vw = this.layoutInfo?.width || 390, vh = this.layoutInfo?.height || 844, plateBottom = this.geo ? this.geo.plate.y + this.geo.plate.height / 2 : 0,
+      p = this.popups.open({ name: 'RuleGuidePanel', height: ph, title: guide.title || '这一关的规则', dy: ruleGuideDy(vw, vh, ph, plateBottom, this.layoutInfo?.safe?.bottom ?? 34, popupScale(vw, vh)) });
+    p.text(guide.phaseLabel + (guide.heldTurns ? ' · 固定 ' + guide.heldTurns + ' 次行动' : ''), 0, 128, 26, 'brown2', { bold: false, width: RULE_BODY_W });
+    p.text(body, -RULE_BODY_W / 2, 192 + lines * 20, 28, 'brown', { bold: false, width: RULE_BODY_W, lines, height: lines * 40 + 8, align: 'left', name: 'RuleBody' });
     p.button('primary', '明白了', 0, ph - 72 - 52, 400, 104, () => p.close(), { fontSize: 36, name: 'GotIt' });
   }
   private closeResult() { const p = this.popups.find('ResultPanel'); if (p) p.destroy(); }
   private resultModel(s: any): ResultModel {
     const a = s.active || {}, mainline = s.provider === 'mainline-v33', won = a.status === 'won', h = this.hostActions;
-    const kind = s.state === 'error.readonly' ? 'readonly' : (s.state === 'result.unsaved' || s.state === 'run.unsaved') ? 'unsaved' : won ? 'win' : 'lose';
+    const kind = (s.state === 'error.readonly' || s.state === 'storage.readOnly') ? 'readonly' : (s.state === 'result.unsaved' || s.state === 'run.unsaved' || s.state === 'storage.unsaved') ? 'unsaved' : won ? 'win' : 'lose';
     const stars = typeof s.result?.stars === 'number' ? s.result.stars : typeof s.result?.earnedStars === 'number' ? s.result.earnedStars : won ? 1 : 0;
     const goalsLeft = Object.keys(a.goals || {}).filter(k => (a.goals[k] || 0) > 0).map(k => ({ art: goalArt(k), count: a.goals[k] }));
     const chest = mainline ? s.journey?.chests?.find((x: any) => x.level === a.level) : null, rewards: ResultReward[] = [];
     if (kind === 'win' && mainline && chest?.earned) rewards.push({ id: 'chest', label: chest.opened ? '宝箱已打开' : '打开宝箱', icon: 'popup/chest_closed', iconKind: 'chest', state: chest.opened ? 'claimed' : h.chest?.visible ? 'ready' : 'locked', claim: h.chest?.run });
-    if (kind === 'win' && mainline) { const region = s.journey?.regionRewards?.find((x: any) => x.region === Math.floor((a.level ?? 0) / 4)); if (region?.unlocked) { const tool = ['tideNet', 'sunSeed', 'starShears'][region.region] || 'tideNet'; rewards.push({ id: 'regionReward', label: region.claimed ? '地区道具已领取' : '领取地区道具', icon: '', iconKind: 'tool', tool, state: region.claimed ? 'claimed' : h.regionReward?.visible ? 'ready' : 'locked', claim: h.regionReward?.run }); } }
+    if (kind === 'win' && mainline) { const region = s.journey?.regionRewards?.find((x: any) => x.region === Math.floor((a.level ?? 0) / 4)); if (region?.unlocked) { const tool = ['tideNet', 'sunSeed', 'starShears'][region.region] || 'tideNet'; rewards.push({ id: 'regionReward', label: TOOL_NAMES[tool] || (region.claimed ? '地区道具已领取' : '地区道具'), icon: '', iconKind: 'tool', tool, state: region.claimed ? 'claimed' : h.regionReward?.visible ? 'ready' : 'locked', claim: h.regionReward?.run }); } }
     if (kind === 'win' && s.provider === 'regional-r05' && (h.claim?.visible || s.progress?.claimedRegions?.includes(a.region))) { const owned = !!s.progress?.claimedRegions?.includes(a.region); rewards.push({ id: 'claim', label: owned ? '地区印记已领取' : '领取地区印记', icon: 'popup/reward_seal_' + (a.region || 'tide'), iconKind: 'seal', state: owned ? 'claimed' : 'ready', claim: h.claim?.run }); }
-    const next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : null;
+    const ending = !h.mainNext?.visible && !h.next?.visible && !!h.ending?.visible, next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : ending ? h.ending.run : null;
     return { kind, score: a.score || 0, stars, movesUsed: Array.isArray(a.actions) ? a.actions.length : null, movesLeft: a.moves ?? null, goalsLeft, chestHint: mainline && kind !== 'readonly', rewards,
-      next, replay: kind === 'lose' && mainline && s.state === 'result.saved' ? () => this.command('startStage', a.stageId, {}) : null,
-      retrySave: () => this.command('retrySave'), home: () => { this.popups.clear(); this.resultKey = ''; this.command('requestExit'); } };
+      unlockHint: mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? a.level === 3 ? '主线 05 与潮汐挑战已开放；前往风车草甸' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放' : undefined : undefined,
+      hostError: this.hostResultError || undefined, failHint: kind === 'lose' && typeof s.uiFailHint === 'string' && s.uiFailHint ? s.uiFailHint : undefined,
+      next, nextLabel: ending ? '继续' : undefined, replay: kind === 'lose' && s.state === 'result.saved' ? mainline ? () => this.command('startStage', a.stageId, {}) : s.provider === 'regional-r05' ? () => this.command('retryStage') : null : null,
+      retrySave: () => this.command('retrySave'), home: () => {
+        // 回小岛 joins the host's claim batch: the chest / region claims fired by the same tap are written first, then we leave.
+        const go = () => { this.popups.clear(); this.resultKey = ''; return this.command('requestExit'); }, after = this.hostActions.afterClaims;
+        if (after) after.run(go); else go();
+      } };
   }
   private paintResult(s: any) {
-    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
+    const attemptKey = (s.active?.stageId || '') + '|' + (s.active?.attemptId || '');
+    if (this.resultAttemptKey && attemptKey !== this.resultAttemptKey) this.hostResultError = '';
+    this.resultAttemptKey = attemptKey;
+    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, m.failHint, m.hostError, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
     if (key === this.resultKey && this.popups.find('ResultPanel')) return;
-    this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.toast.getComponent(UIOpacity)!.opacity = 0;
+    this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.noticeUp = false; this.queuedTip = ''; this.toast.getComponent(UIOpacity)!.opacity = 0;
     const p = openResult(this.popups, m, this.toolArt); if (this.modalOpen()) p.root.setSiblingIndex(Math.max(0, this.root.children.length - 2));
   }
   /** Reward claim popup: shown when a chest / regional tool / memento flips to claimed while this board is open. */
@@ -810,21 +1028,30 @@ export class ManagedMobileBoardUI extends Component {
     const items: RewardItem[] = [];
     for (const kind of Object.keys(now.tools)) { const d = (Number(now.tools[kind]) || 0) - (Number(before.tools[kind]) || 0); if (d > 0) items.push({ kind, count: d, label: (TOOL_NAMES[kind] || kind) + ' ×' + d }); }
     if (now.charms > before.charms) items.push({ kind: 'charm', count: now.charms - before.charms, label: '装扮 ×' + (now.charms - before.charms), seal: 'r2/icon_charm' });
-    if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
+    if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空之城', lake: '湖畔', coast: '夜航', snow: '雪山', rail: '铁路', cloud: '云海', spring: '温泉' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
     if (!items.length) items.push({ kind: 'seal', count: 0, label: '一份海风的礼物', seal: 'popup/star_full' });
-    const gained = items.map(i => i.kind);
+    // SPEC v2.1: the result screen shows its rewards on the panel itself (badges over the chest); no separate 「获得」 popup there.
+    if (this.isResult(s) || this.popups.find('ResultPanel')) return;
     const behind = this.popups.find('ResultPanel'); if (behind) behind.root.active = false;
-    const desc = memento ? '地区印记收进旅程册了。' : region && !chest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
-    openReward(this.popups, items, this.toolArt, { chest: !!chest, description: desc, done: () => { if (behind && behind.alive) behind.root.active = true; for (const k of gained) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); this.flushIntro(); } });
+    const open = this.popups.find('RewardPanel');
+    const merged = open ? this.rewardShown.slice() : [];
+    for (let i = 0; i < items.length; i++) { const it = items[i]; let hit: RewardItem | null = null; for (let j = 0; j < merged.length; j++) if (merged[j].kind === it.kind && merged[j].label === it.label) hit = merged[j]; if (hit) hit.count += it.count; else merged.push(it); }
+    this.rewardShown = merged.length ? merged : items.slice(); this.rewardChest = (open && this.rewardChest) || !!chest;
+    if (open) open.destroy();
+    const desc = memento ? '地区印记收进旅程册了。' : region && !chest && !this.rewardChest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
+    const shown = this.rewardShown.slice(), hadChest = this.rewardChest;
+    openReward(this.popups, shown, this.toolArt, { chest: hadChest, description: desc, done: () => { this.rewardShown = []; this.rewardChest = false; if (behind && behind.alive) behind.root.active = true; for (let i = 0; i < shown.length; i++) { const k = shown[i].kind; if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); } this.flushIntro(); } });
   }
-  private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
+  private flushIntro() { if (!this.introQueue.length || this.modalOpen() || this.titleGate.active(this.titleClock)) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
   onDestroy() {
     if (this.disposing) return; this.disposing = true;
-    if (this.entryTimer != null) { clearTimeout(this.entryTimer); this.entryTimer = null; }
-    if (this.entryFinish) { const go = this.entryFinish; this.entryFinish = null; this.readyWait = null; go(); }
-    else if (this.readyWait) { const go = this.readyWait; this.readyWait = null; go(); }
+    // Cocos destroys child nodes before this component. Detach global listeners
+    // before cleanup and never assume a child still owns its event/child arrays.
+    game.off(Game.EVENT_HIDE, this.resetOnHide); game.off(Game.EVENT_HIDE, this.hide); game.off(Game.EVENT_SHOW, this.show); view.off('canvas-resize', this.resize, this);
+    this.resetInput(); for (const h of this.pressHandles) h.dispose(); this.pressHandles.length = 0;
+    this.releaseEntryResources();
     this.cancelAnimations(); this.backgroundFrame = undefined; this.backgroundStatus = undefined; this.artOff?.(); this.artOff = null;
-    game.off(Game.EVENT_HIDE, this.hide); game.off(Game.EVENT_SHOW, this.show); view.off('canvas-resize', this.resize, this); if (typeof window !== 'undefined') window.removeEventListener('resize', this.resize);
+    if (this.root && isValid(this.root, true)) this.root.off(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED, this.presentationActive); if (typeof window !== 'undefined') window.removeEventListener('resize', this.resize);
     try { this.popups?.clear(); this.host?.dispose(); } finally { this.tint.clear(); if (!this.managed) delete (globalThis as any).__nativeBoard; }
   }
 }

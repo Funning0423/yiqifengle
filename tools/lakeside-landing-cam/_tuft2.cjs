@@ -1,0 +1,2 @@
+const A=require('./audit.cjs'),FL=require('../journey-integration/journey-framing-lib.cjs');
+(async()=>{const G=await A.geometry();for(const q of [[-2,4.8,58.7],[-0.5,4.5,59.5],[1,5.5,58]]){const p=A.LJ.toWorld(q);const o=[];for(const [nm,d] of [['down',[0,-1,0]],['up',[0,1,0]]]){let s=[p[0],p[1],p[2]],k=0,hs=[];while(k++<3){const h=FL.cast(G.stat,s,d,60);if(!h)break;hs.push(h.obj.name+'@'+h.t.toFixed(2));s=s.map((v,i)=>v+d[i]*(h.t+.02));}o.push(nm+': '+hs.join(' > '));}console.log(q.join(','),o.join(' | '));}})();

@@ -1,0 +1,19 @@
+{
+  "kind": "frozen-stage-candidate-not-release",
+  "repository_base_commit": "bc81575fead2d4d05b11b962c936d3b76708ad4b",
+  "repository_base_tree": "900c6ac0a6c49e68639196e29aac292d3564704e",
+  "files": {
+    "README.md": "709afdeca19890d2587966713e1a4d121f27290f6eebc0a3c3056b0ef7eb47e1",
+    "anim_meta.json": "aeaa23399c6dba01871f8303da704e5ca053e5b56c11398125ce6aa1587249bb",
+    "character-skirt-v2-normal-h1.glb": "af5c0efa865211679610a785c39bdf19a1c8ea5720be8fa769ddae06da90c20d",
+    "evidence/merged-h1-structural-audit.json": "148eb508c724327ac757c536c24eb35cd6fe450083172253acfca99acca158cf",
+    "evidence/v2-runtime-audit.json": "8c13cba47a06b7f97b870e4d75f8f033ed59cea8f7b2ef0012ed07022b1adfb0",
+    "tools/convert_targets_normals_for_runtime.py": "c1dccc048fccb081409d6821627eb382639831a1908b2c0db91a2efe25e3660f",
+    "tools/glb_io.py": "c97100aa9bd41c282e0a40810d62a8e7e8e049b910c8638dfb869e7a395fc440",
+    "tools/merge_h1_shoes.py": "e132b1a420af597875c5146ccb9faf256d3810ca45b81d55173960274a79ed56",
+    "tools/verify_snapshot.py": "57390bcdc92d9fd2a3fe26860c0e800a4f22e00865bf11941dda8eb00f9f3e0a"
+  },
+  "contact_solver_accepted": false,
+  "cocos_importer_gpu_accepted": false,
+  "knee_release_refinement_included": false
+}

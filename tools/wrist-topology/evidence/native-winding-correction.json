@@ -1,0 +1,38 @@
+{
+  "inputGLBSHA256": "544cd656bd112545cc568e4d78f2e918c548ffec67a2f3ec13c1a375f0828319",
+  "finalGLBSHA256": "245e923f668a4e570d1021ef58aacd871305129b152c30a08e6ea9ffc4969e72",
+  "nativeFile": "character-fix/creator-build-project/build/wechat-home-seat-local/subpackages/region_island/native/dc/dce9f061-7913-4893-9eb9-35e039adda3c@ee698.bin",
+  "beforeNativeSHA256": "7edd015dec0263cf115b20ca74e36ea08eb378f8847609a9f11092cfb0fe5be2",
+  "afterNativeSHA256": "b34ae178c0ebfe698a94658f2bb51b4b81bee837815c58ad1ee0a40495dd98e4",
+  "bytesChanged": 1433,
+  "unchangedNativeLength": true,
+  "serializedImportFile": "character-fix/creator-build-project/build/wechat-home-seat-local/subpackages/region_island/import/09/09dd2d851.json",
+  "beforeImportSHA256": "de344568ac50425e776f104626bd31e4d5e18df110d51ce18e96cc6dcc480123",
+  "afterImportSHA256": "e6de5a8c36ce5cebf228aa4385a9020a56f8e881a69b875f6339441b3d9f3deb",
+  "meshHashRuntimeRecomputed": true,
+  "checks": [
+    {
+      "primitive": 0,
+      "normalsAndIndicesMatchFinalGLB": true,
+      "positionsUVColorsWeightsExact": true,
+      "weightedJointLanesExact": true,
+      "unweightedJointLanesPrunedByCreator": true
+    },
+    {
+      "primitive": 1,
+      "normalsAndIndicesMatchFinalGLB": true,
+      "positionsUVColorsWeightsExact": true,
+      "weightedJointLanesExact": true,
+      "unweightedJointLanesPrunedByCreator": true
+    },
+    {
+      "primitive": 2,
+      "normalsAndIndicesMatchFinalGLB": true,
+      "positionsUVColorsWeightsExact": true,
+      "weightedJointLanesExact": true,
+      "unweightedJointLanesPrunedByCreator": true
+    }
+  ],
+  "CreatorBuildCount": 1,
+  "finalRuntimeTest": "NOT_RUN: only s8 recorded rejected input winding candidate; no reopen"
+}

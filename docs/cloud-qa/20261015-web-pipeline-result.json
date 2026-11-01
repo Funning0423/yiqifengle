@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-15T16:54:25.763Z",
+  "status": "TOOLING_VERIFIED_BUILD_AND_RUNTIME_BLOCKED",
+  "contractTests": 38,
+  "source": "34e8b193175e80f516671bf0d78d1921ba46d5e2f8f253d202093355b0e34f4d",
+  "sourceFiles": 607,
+  "expectedBundles": [
+    "audio_bgm_island",
+    "board_art",
+    "internal",
+    "main",
+    "region_island",
+    "region_meadow",
+    "region_skycity",
+    "resources",
+    "static_seat_preview"
+  ],
+  "productTreeUnchanged": true,
+  "productSha256": "ebca1645b26b716574a0dd99b3d9eb2dc9c9804f89289bf9d1a91ca678cc415c",
+  "productFiles": 606,
+  "plan": "PLAN_ONLY",
+  "buildAttempt": "BLOCKED",
+  "wrapperExitCode": 2,
+  "duplicateRunExitCode": 1,
+  "engineProcessStarted": false,
+  "engineBuild": "NOT_RUN",
+  "runtimeSmoke": "NOT_RUN",
+  "visualAcceptance": "NOT_RUN",
+  "blockers": [
+    "Official Creator 3.8 editor installation/CLI support is documented for Windows/macOS, not this linux host.",
+    "An explicitly verified official Cocos Creator 3.8.8 executable is required.",
+    "Supported cloud browser WebGL unavailable; see independent cloud-browser-recheck-20261015 report."
+  ],
+  "newToolDependencies": [],
+  "userMacUsed": false,
+  "unsafeFlagsUsed": false
+}

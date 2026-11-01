@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "file": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+  "typescript": "5.9.3",
+  "diagnosticErrors": 0,
+  "scope": "TypeScript syntax transpile only, not full Cocos compile"
+}

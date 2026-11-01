@@ -1,0 +1,48 @@
+{
+ "status": "PASS",
+ "passed": 2,
+ "total": 2,
+ "limits": {
+  "angleDeg": 0.1,
+  "fovDeg": 0.1,
+  "positionCm": 1,
+  "clearanceM": 1.1,
+  "turnDps": 20
+ },
+ "blendM": {
+  "meadow": 12,
+  "skycity": 22
+ },
+ "swapTable": [],
+ "landing": [],
+ "results": [
+  {
+   "id": "hook residual / failure paths",
+   "status": "PASS",
+   "residual": {
+    "gap": {
+     "positionM": 4.809284699050153,
+     "viewDeg": 3.555968236953808e-15,
+     "fovDeg": 0
+    },
+    "seconds": 1.2023211747625382,
+    "writes": 74,
+    "result": {
+     "ok": true,
+     "result": "blended"
+    }
+   },
+   "far": "not-at-landing",
+   "noPose": "no-board-pose",
+   "noCamera": "no-camera",
+   "rejected": "camera-rejected",
+   "throws": "error",
+   "viewportThrows": "error",
+   "noDeps": "no-deps"
+  },
+  {
+   "id": "wiring",
+   "status": "PASS"
+  }
+ ]
+}

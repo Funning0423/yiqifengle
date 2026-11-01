@@ -1,0 +1,362 @@
+{
+  "issues": [
+    "QF-WRIST-20261013",
+    "QF-HEEL-20261013"
+  ],
+  "source_sha256": "1364896733341c1dcc43deb1b6cd6a3bbaa147b7830ec36475404b6664e37c68",
+  "wrist": [
+    {
+      "clip": "idle_breathing_loop",
+      "bone": "hand.L",
+      "keys": 2,
+      "old_max_bind_delta_deg": 54.18979928294313,
+      "new_max_bind_delta_deg": 52.207138061472705,
+      "adjacent_min_dot": 1.0
+    },
+    {
+      "clip": "idle_breathing_loop",
+      "bone": "hand.R",
+      "keys": 4,
+      "old_max_bind_delta_deg": 44.3595493614629,
+      "new_max_bind_delta_deg": 44.291790081849264,
+      "adjacent_min_dot": 0.9998748302459717
+    },
+    {
+      "clip": "wind_sway_loop",
+      "bone": "hand.L",
+      "keys": 2,
+      "old_max_bind_delta_deg": 5.915117333884393e-06,
+      "new_max_bind_delta_deg": 5.915117333884393e-06,
+      "adjacent_min_dot": 1.0
+    },
+    {
+      "clip": "wind_sway_loop",
+      "bone": "hand.R",
+      "keys": 2,
+      "old_max_bind_delta_deg": 6.15664931839995e-06,
+      "new_max_bind_delta_deg": 6.15664931839995e-06,
+      "adjacent_min_dot": 1.0
+    },
+    {
+      "clip": "walk_loop",
+      "bone": "hand.L",
+      "keys": 22,
+      "old_max_bind_delta_deg": 160.43971016365234,
+      "new_max_bind_delta_deg": 59.9997648054331,
+      "adjacent_min_dot": 0.9999388456344604
+    },
+    {
+      "clip": "walk_loop",
+      "bone": "hand.R",
+      "keys": 21,
+      "old_max_bind_delta_deg": 167.66338630891556,
+      "new_max_bind_delta_deg": 59.99988578889594,
+      "adjacent_min_dot": 0.9997061491012573
+    },
+    {
+      "clip": "sit_hold",
+      "bone": "hand.L",
+      "keys": 2,
+      "old_max_bind_delta_deg": 47.30357408253723,
+      "new_max_bind_delta_deg": 46.995347938512005,
+      "adjacent_min_dot": 1.0
+    },
+    {
+      "clip": "sit_hold",
+      "bone": "hand.R",
+      "keys": 2,
+      "old_max_bind_delta_deg": 56.26989860531661,
+      "new_max_bind_delta_deg": 53.430274498613976,
+      "adjacent_min_dot": 1.0
+    },
+    {
+      "clip": "stand_up",
+      "bone": "hand.L",
+      "keys": 26,
+      "old_max_bind_delta_deg": 76.36183906506515,
+      "new_max_bind_delta_deg": 58.97295671055158,
+      "adjacent_min_dot": 0.9972109794616699
+    },
+    {
+      "clip": "stand_up",
+      "bone": "hand.R",
+      "keys": 29,
+      "old_max_bind_delta_deg": 162.2498409841025,
+      "new_max_bind_delta_deg": 59.99980374771354,
+      "adjacent_min_dot": 0.9945676326751709
+    },
+    {
+      "clip": "sit_down",
+      "bone": "hand.L",
+      "keys": 24,
+      "old_max_bind_delta_deg": 78.8784916457129,
+      "new_max_bind_delta_deg": 59.19688068954922,
+      "adjacent_min_dot": 0.9902680516242981
+    },
+    {
+      "clip": "sit_down",
+      "bone": "hand.R",
+      "keys": 30,
+      "old_max_bind_delta_deg": 157.03218985438116,
+      "new_max_bind_delta_deg": 59.99966931615777,
+      "adjacent_min_dot": 0.9902680516242981
+    },
+    {
+      "clip": "door_reach",
+      "bone": "hand.L",
+      "keys": 60,
+      "old_max_bind_delta_deg": 179.75882742779118,
+      "new_max_bind_delta_deg": 59.99996592696131,
+      "adjacent_min_dot": 0.9902680516242981
+    },
+    {
+      "clip": "door_reach",
+      "bone": "hand.R",
+      "keys": 10,
+      "old_max_bind_delta_deg": 44.3595481755642,
+      "new_max_bind_delta_deg": 44.291788950559585,
+      "adjacent_min_dot": 0.9974231123924255
+    },
+    {
+      "clip": "walk_start",
+      "bone": "hand.L",
+      "keys": 24,
+      "old_max_bind_delta_deg": 160.16131039343955,
+      "new_max_bind_delta_deg": 59.9997581656647,
+      "adjacent_min_dot": 0.9884665012359619
+    },
+    {
+      "clip": "walk_start",
+      "bone": "hand.R",
+      "keys": 29,
+      "old_max_bind_delta_deg": 166.54379826204223,
+      "new_max_bind_delta_deg": 59.99987225871694,
+      "adjacent_min_dot": 0.9902680516242981
+    },
+    {
+      "clip": "walk_stop_bodyL",
+      "bone": "hand.L",
+      "keys": 39,
+      "old_max_bind_delta_deg": 175.13654210679834,
+      "new_max_bind_delta_deg": 59.99994590539549,
+      "adjacent_min_dot": 0.9929515719413757
+    },
+    {
+      "clip": "walk_stop_bodyL",
+      "bone": "hand.R",
+      "keys": 37,
+      "old_max_bind_delta_deg": 174.99323605881472,
+      "new_max_bind_delta_deg": 59.999945124606924,
+      "adjacent_min_dot": 0.9781476259231567
+    },
+    {
+      "clip": "walk_stop_bodyR",
+      "bone": "hand.L",
+      "keys": 31,
+      "old_max_bind_delta_deg": 153.91949503164318,
+      "new_max_bind_delta_deg": 59.99954856598185,
+      "adjacent_min_dot": 0.9950422644615173
+    },
+    {
+      "clip": "walk_stop_bodyR",
+      "bone": "hand.R",
+      "keys": 36,
+      "old_max_bind_delta_deg": 165.6660009625928,
+      "new_max_bind_delta_deg": 59.99986053879959,
+      "adjacent_min_dot": 0.9902680516242981
+    },
+    {
+      "clip": "walk_turn_90_bodyL",
+      "bone": "hand.L",
+      "keys": 22,
+      "old_max_bind_delta_deg": 54.18983256372604,
+      "new_max_bind_delta_deg": 52.207158943959676,
+      "adjacent_min_dot": 0.9854882955551147
+    },
+    {
+      "clip": "walk_turn_90_bodyL",
+      "bone": "hand.R",
+      "keys": 25,
+      "old_max_bind_delta_deg": 44.3595481755642,
+      "new_max_bind_delta_deg": 44.291788950559585,
+      "adjacent_min_dot": 0.9902679920196533
+    },
+    {
+      "clip": "walk_turn_90_bodyR",
+      "bone": "hand.L",
+      "keys": 22,
+      "old_max_bind_delta_deg": 54.18983256372604,
+      "new_max_bind_delta_deg": 52.207158943959676,
+      "adjacent_min_dot": 0.9793704748153687
+    },
+    {
+      "clip": "walk_turn_90_bodyR",
+      "bone": "hand.R",
+      "keys": 21,
+      "old_max_bind_delta_deg": 44.3595481755642,
+      "new_max_bind_delta_deg": 44.291788950559585,
+      "adjacent_min_dot": 0.9902680516242981
+    },
+    {
+      "clip": "walk_turn_180",
+      "bone": "hand.L",
+      "keys": 14,
+      "old_max_bind_delta_deg": 56.60094751558524,
+      "new_max_bind_delta_deg": 53.610028876623964,
+      "adjacent_min_dot": 0.9991590976715088
+    },
+    {
+      "clip": "walk_turn_180",
+      "bone": "hand.R",
+      "keys": 19,
+      "old_max_bind_delta_deg": 49.864079640322586,
+      "new_max_bind_delta_deg": 49.13511377740051,
+      "adjacent_min_dot": 0.9966326355934143
+    },
+    {
+      "clip": "walk_turn_180_bodyR",
+      "bone": "hand.L",
+      "keys": 14,
+      "old_max_bind_delta_deg": 54.18983256372604,
+      "new_max_bind_delta_deg": 52.207158943959676,
+      "adjacent_min_dot": 0.9996033906936646
+    },
+    {
+      "clip": "walk_turn_180_bodyR",
+      "bone": "hand.R",
+      "keys": 18,
+      "old_max_bind_delta_deg": 51.50666726074245,
+      "new_max_bind_delta_deg": 50.38530704471442,
+      "adjacent_min_dot": 0.9978363513946533
+    }
+  ],
+  "shoes": [
+    {
+      "side": "L",
+      "vertices": 257,
+      "rigid_lower_vertices": 177,
+      "changed_weights": 111,
+      "shaft_blend_start_m": 0.094,
+      "shaft_blend_end_m": 0.176
+    },
+    {
+      "side": "R",
+      "vertices": 257,
+      "rigid_lower_vertices": 177,
+      "changed_weights": 111,
+      "shaft_blend_start_m": 0.094,
+      "shaft_blend_end_m": 0.176
+    }
+  ],
+  "wrist_weights": [
+    {
+      "side": "L",
+      "component_vertices": 86,
+      "hand_weight_range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "side": "L",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "L",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "L",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "L",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "L",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "R",
+      "component_vertices": 86,
+      "hand_weight_range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "side": "R",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "R",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "R",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "R",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "side": "R",
+      "component_vertices": 30,
+      "hand_weight_range": [
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "door_ik": {
+    "clip": "door_reach",
+    "bones": [
+      "upper_arm.L",
+      "forearm.L"
+    ],
+    "target": "original palm trajectory (hand local [0,.075,0])",
+    "contact_preserved": true,
+    "endpoint_influence": 0,
+    "unreachable_keys": 0,
+    "keys": 60
+  },
+  "candidate_sha256": "7df192cbe4461901112a13a4d4abf4029c31b6b732292abc7133337f080be3e1"
+}

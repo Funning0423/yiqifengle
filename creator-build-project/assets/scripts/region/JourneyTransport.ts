@@ -1,0 +1,60 @@
+import type {JourneyRegion as CoreJourneyRegion} from '../world-r1/RegionJourneyCore';
+import { wxEnvVersion, wxQaEnv } from '../world-r2/QaSkip';
+/** Journey vehicles. island→meadow is sail, meadow→skycity is balloon, skycity→lakeside is balloon.
+ * The rainbow bridge is removed (b16): any other pair has no journey and throws `journey-transport-unsupported`.
+ * QA overrides other than the leg's own vehicle are ignored with a warn. A slow sail preload stays on the sail. */
+export type TransportKind='sail'|'balloon';
+export type JourneyRegion=CoreJourneyRegion;
+export const JOURNEY_TRANSPORT:{'island-meadow':TransportKind;'meadow-skycity':TransportKind;'skycity-lakeside':TransportKind}={
+ 'island-meadow':'sail','meadow-skycity':'balloon','skycity-lakeside':'balloon',
+};
+function warnKept(via:string,requested:string,kept:string):void{
+ try{console.warn('[QF_TRANSPORT] '+JSON.stringify({event:'transport-override-ignored',via,requested,kept}));}catch{/* ignore */}
+}
+/** Old preload hook. A slow meadow warm keeps the sail. */
+export function noteSailPreloadFallback(reason:string):void{
+ warnKept('sail-preload',String(reason||'slow'),'sail');
+}
+export function sailPreloadFellBack():boolean{return false;}
+/** QA builds only: web (no wx) or a WeChat develop/trial env. Release minigames ignore the query. */
+export function transportQaEnabled(host:any=(globalThis as any).wx):boolean{
+ if(!host)return true;
+ try{return wxQaEnv(host);}catch{return false;}/* env read once per wx (QaSkip) */
+}
+/** Balloon callers pass a host (`globalThis` or `{wx,__QF_TRANSPORT,location}`). No wx means QA is on. */
+export function qaTransportEnabled(host:any=globalThis):boolean{
+ try{
+  const wx=host?.wx;if(!wx)return true;
+  const env=wxEnvVersion(wx);/* read once per wx (QaSkip) */
+  if(env==='develop'||env==='trial')return true;
+  return false;
+ }catch{return false;}
+}
+export function transportQaOverride(search?:string,host:any=(globalThis as any).wx):TransportKind|null{
+ let q=search;
+ if(q===undefined){try{q=String((globalThis as any).location?.search||'');}catch{q='';}}
+ const m=/[?&]transport=(sail|balloon)(?:&|$)/.exec(q||'');
+ if(!m||!transportQaEnabled(host))return null;
+ return m[1] as TransportKind;
+}
+function isKind(v:unknown):v is TransportKind{return v==='sail'||v==='balloon';}
+function overrideFromHost(host:any):TransportKind|null{
+ if(!qaTransportEnabled(host))return null;
+ const direct=host?.__QF_TRANSPORT;
+ if(isKind(direct))return direct;
+ try{const q=host?.location?.search;if(typeof q==='string'&&q.includes('transport=')){const v=new URLSearchParams(q).get('transport');if(isKind(v))return v;}}catch{/* ignore */}
+ return null;
+}
+/** Third argument is a QA kind, `null` (no override), or a balloon host object. Omitted: read the page query, then `globalThis`.
+ * Only the leg's own vehicle can be selected. */
+export function transportFor(from:JourneyRegion|string,to:JourneyRegion|string,third?:TransportKind|null|object):TransportKind{
+ let override:TransportKind|null=null;
+ if(isKind(third))override=third;
+ else if(third===null)override=null;
+ else if(third===undefined)override=transportQaOverride()??overrideFromHost(globalThis);
+ else override=overrideFromHost(third);
+ if(from==='island'&&to==='meadow'){if(override&&override!=='sail')warnKept('island-meadow',override,'sail');return 'sail';}
+ if(from==='meadow'&&to==='skycity'){if(override&&override!=='balloon')warnKept('meadow-skycity',override,'balloon');return 'balloon';}
+ if(from==='skycity'&&to==='lakeside'){if(override&&override!=='balloon')warnKept('skycity-lakeside',override,'balloon');return 'balloon';}
+ throw Error('journey-transport-unsupported:'+from+'-'+to);
+}

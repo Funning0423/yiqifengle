@@ -1,0 +1,37 @@
+[
+  {
+    "path": "/clips/walk_turn_180/cocos_meta_split/to_s",
+    "old": 1.466667,
+    "new": 1.5
+  },
+  {
+    "path": "/clips/walk_turn_180/duration_s",
+    "old": 1.466667,
+    "new": 1.5
+  },
+  {
+    "path": "/clips/walk_turn_180/frames",
+    "old": 44,
+    "new": 45
+  },
+  {
+    "path": "/clips/walk_turn_180/events/1/time_s",
+    "old": 1.1,
+    "new": 1.05
+  },
+  {
+    "path": "/clips/walk_turn_90_bodyL/cocos_meta_split/to_s",
+    "old": 1.466667,
+    "new": 1.5
+  },
+  {
+    "path": "/clips/walk_turn_90_bodyL/duration_s",
+    "old": 1.466667,
+    "new": 1.5
+  },
+  {
+    "path": "/clips/walk_turn_90_bodyL/frames",
+    "old": 44,
+    "new": 45
+  }
+]

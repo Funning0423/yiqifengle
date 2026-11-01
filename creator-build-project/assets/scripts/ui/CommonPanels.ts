@@ -5,7 +5,7 @@ import { ResultChest3D } from '../ResultChest3D';
 import { TOOL_NAMES } from '../world-r2/ManagedTools';
 import { BoardArt, HERO_KEYS, TOOL_KEYS, toolDisplaySize } from './BoardArt';
 import { CONTENT_BOTTOM, CONTENT_TOP, PopupPanel, PopupStack, makeLabel, measure, pressable, uiNode } from './PopupKit';
-import { markToolSeen, reducedMotion, setReducedMotion } from './UiPrefs';
+import { markToolSeen, musicOn, reducedMotion, setMusicOn, setReducedMotion, setVibrateEnabled, vibrate, vibrateEnabled } from './UiPrefs';
 /** Panels shared by the board and the island (INTEGRATION §3 / r2 / r3): settings, about, licence text, bag, first-get
  *  tool intro and the reward claim ("获得"). Layout numbers are the 750-design px of c-popups/src/compose*.py. */
 export interface ToolArtSource { frame(kind: string): SpriteFrame | null }
@@ -38,27 +38,31 @@ export function toolArt(p: PopupPanel, kind: string, x: number, y: number, w: nu
   const s = n.addComponent(Sprite); s.sizeMode = Sprite.SizeMode.CUSTOM; s.spriteFrame = f; p.tint.sprite(s, 'ui'); return s;
 }
 // ---------------- settings ----------------
+/** System-panels SPEC §2: one control type (switch) — 音乐 · 音效 · 震动 ┆ 夜色 · 减少动态 ┆ 关于. Whole row is the hit area. */
+export const SETTINGS_ROWS = ['MusicToggle', 'SfxToggle', 'VibrateToggle', 'NightToggle', 'ReducedMotion'] as const;
 export function openSettings(stack: PopupStack, opts: { onClose?: () => void; onAbout?: () => void } = {}): PopupPanel {
-  const p = stack.open({ name: 'SettingsPanel', height: 768, title: '设置', titleArt: 'popup/title_2', closable: true, onClose: opts.onClose });
-  const audio = GameAudio.instance, rows = [136, 248, 360, 472];
-  iconRow(p, 'popup/icon_music', '音乐', rows[0]);
-  p.slider(162, rows[0], 236, 32, audio ? audio.getMusicVolume() : 0.4, v => { GameAudio.instance?.setMusicVolume(v); }, 'MusicVolume');
-  iconRow(p, 'popup/icon_sfx', '音效', rows[1]);
-  p.toggle(230, rows[1], 56, !(audio?.isSfxMuted() ?? false), on => { GameAudio.instance?.setSfxMuted(!on); }, 'SfxToggle');
-  iconRow(p, 'popup/icon_sun', '昼夜', rows[2]);
+  const RH = 112, y0 = 150, gap = 30, ph = 900;
+  const p = stack.open({ name: 'SettingsPanel', height: ph, title: '设置', titleArt: 'popup/title_2', closable: true, onClose: opts.onClose });
+  const ys = [y0, y0 + RH, y0 + RH * 2, y0 + RH * 3 + gap, y0 + RH * 4 + gap];
+  const row = (i: number, icon: string, label: string, on: boolean, change: (on: boolean) => void, name: string, enabled = true) => {
+    const hit = uiNode('Row-' + name, p.body, 600, RH), hp = p.at(0, ys[i]); hit.setPosition(hp[0], hp[1], 0);
+    iconRow(p, icon, label, ys[i]);
+    const t = p.toggle(236, ys[i], 56, on, change, name);
+    if (!enabled) { const op = t.node.addComponent(UIOpacity); op.opacity = 115; t.node.on(Node.EventType.TOUCH_START, (e: any) => { if (e) e.propagationStopped = true; }, null, true); return t; }
+    pressable(hit, hit, () => { const v = !t.value(); t.set(v, true); change(v); }, { sound: 'button' });
+    return t;
+  };
+  row(0, 'popup/icon_music', '音乐', musicOn(GameAudio.instance), on => setMusicOn(GameAudio.instance, on), 'MusicToggle');
+  row(1, 'popup/icon_sfx', '音效', !(GameAudio.instance?.isSfxMuted() ?? false), on => { GameAudio.instance?.setSfxMuted(!on); }, 'SfxToggle');
+  row(2, 'popup/icon_vibrate', '震动', vibrateEnabled(), on => { setVibrateEnabled(on); if (on) vibrate('light'); }, 'VibrateToggle');
+  const div = uiNode('Divider', p.body, 540, 4), dp = p.at(0, ys[2] + RH / 2 + gap / 2); div.setPosition(dp[0], dp[1], 0);
+  p.tint.shape(div.addComponent(Graphics), (g, night, al) => { const k = 1 - 0.4 * night; g.strokeColor = new Color(Math.round(217 * k), Math.round(191 * k), Math.round(140 * k), Math.round(255 * al)); g.lineWidth = 3; for (let x = -270; x < 270; x += 24) { g.moveTo(x, 0); g.lineTo(x + 12, 0); } g.stroke(); });
   const dn = dayNight();
-  const day = p.button('primary', '晴昼', 80, rows[2], 136, 62, () => pick('day'), { icon: 'popup/icon_sun', iconScale: 0.5, fontSize: 24, name: 'Day' });
-  const night = p.button('secondary', '夜色', 222, rows[2], 136, 62, () => pick('night'), { icon: 'popup/icon_moon', iconScale: 0.5, fontSize: 24, name: 'Night' });
-  const paintSeg = (mode: string) => { day.setKind(mode === 'day' ? 'primary' : 'secondary'); night.setKind(mode === 'night' ? 'primary' : 'secondary'); };
-  function pick(mode: string) { const now = dayNight(); if (!now) return; if (now.mode !== mode) { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } } const after = dayNight(); paintSeg(after ? after.mode : mode); }
-  paintSeg(dn ? dn.mode : 'day'); if (!dn) { day.setEnabled(false); night.setEnabled(false); }
-  iconRow(p, 'popup/icon_motion', '减少动态', rows[3]);
-  p.toggle(230, rows[3], 56, reducedMotion(), on => setReducedMotion(on), 'ReducedMotion');
-  const y = rows[3] + 112 + 24;
-  const about = uiNode('AboutRow', p.body, 560, 100); const ap = p.at(0, y + 22); about.setPosition(ap[0], ap[1], 0);
-  p.sprite('popup/icon_about', -240, y + 20, undefined, 56);
-  p.text('关于《咦，起风了》', -196, y, 32, 'brown', { align: 'left', width: 420 });
-  const version = p.text(buildLabel(), -196, y + 44, 26, 'brown2', { align: 'left', width: 420, bold: false, name: 'BuildLabel' });
+  row(3, 'popup/icon_moon', '夜色', dn?.mode === 'night', on => { const now = dayNight(); if (!now) return; if ((now.mode === 'night') !== on) { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } } }, 'NightToggle', !!dn);
+  row(4, 'popup/icon_motion', '减少动态', reducedMotion(), on => setReducedMotion(on), 'ReducedMotion');
+  const y = ys[4] + RH / 2 + 56;
+  const about = uiNode('AboutRow', p.body, 560, 92); const ap = p.at(0, y); about.setPosition(ap[0], ap[1], 0);
+  const version = p.text('关于《咦，起风了》 · ' + BUILD_VERSION + ' ›', 0, y, 26, 'brown2', { bold: false, width: 560, name: 'BuildLabel' });
   pressable(about, version.node, () => (opts.onAbout || (() => openAbout(stack)))(), { sound: 'button' });
   return p;
 }
@@ -180,30 +184,32 @@ export function spin(p: PopupPanel, n: Node, secondsPerTurn: number) {
 // ---------------- reward claim ("获得") ----------------
 export interface RewardItem { kind: string; count: number; label: string; art?: string | null; seal?: string | null }
 export function openReward(stack: PopupStack, items: RewardItem[], legacy: ToolArtSource | null, opts: { chest?: boolean; description?: string; done?: () => void } = {}): PopupPanel {
-  const ph = 884, p = stack.open({ name: 'RewardPanel', height: ph, title: '获得', titleArt: 'popup/title_3', dy: 30, onClose: opts.done });
-  const mouthY = 300, chestY = 320, size = 340;
-  const rays = p.sprite('popup/fx_rays', 0, mouthY, 560, 560, 'half'); const raysOp = rays.node.addComponent(UIOpacity); raysOp.opacity = 0; spin(p, rays.node, 12);
-  const shadow = uiNode('ChestShadow', p.body, 300, 60); const sp = p.at(0, chestY + 140); shadow.setPosition(sp[0], sp[1], 0);
+  const hasChest = opts.chest !== false, n = Math.min(3, items.length);
+  const ph = hasChest ? 748 : 652, heroY = hasChest ? 258 : 252, heroSize = n === 1 ? 276 : n === 2 ? 220 : 182, p = stack.open({ name: 'RewardPanel', height: ph, title: '获得', titleArt: 'popup/title_3', dy: 30, onClose: opts.done });
+  const mouthY = heroY, chestY = 308, size = 276;
+  const rays = p.sprite('popup/fx_rays', 0, mouthY, hasChest ? 460 : 420, hasChest ? 460 : 420, 'half'); const raysOp = rays.node.addComponent(UIOpacity); raysOp.opacity = 0; spin(p, rays.node, 12);
+  const shadow = uiNode('ChestShadow', p.body, 300, 60); const sp = p.at(0, chestY + 110); shadow.setPosition(sp[0], sp[1], 0);
   p.tint.shape(shadow.addComponent(Graphics), (g, _n, a) => { for (let i = 0; i < 4; i++) { g.fillColor = new Color(60, 40, 20, Math.round((40 - i * 9) * a)); g.ellipse(0, 0, 150 - i * 18, 26 - i * 4); g.fill(); } });
+  shadow.active = hasChest;
   let chest: ResultChest3D | null = null; const fallback = opts.chest === false ? null : (() => { const s = p.sprite('popup/chest_closed', 0, chestY + 30, 300, undefined, 'half'); return s; })();
   if (opts.chest !== false) {
     chest = new ResultChest3D(p.body, size); const cp = p.at(0, chestY); chest.node.setPosition(cp[0], cp[1], 0); p.tint.sprite(chest.sprite, 'half');
     chest.node.active = false;
     void chest.load().then(ok => { if (!ok || !chest || !isValid(chest.node, true)) return; chest.node.active = true; if (fallback && isValid(fallback.node, true)) fallback.node.active = false; chest.open(!reducedMotion()); });
   }
-  const n = Math.min(3, items.length), xs = n === 1 ? [0] : n === 2 ? [-110, 110] : [-180, 0, 180], ys = n === 3 ? [220, 186, 220] : [200, 200];
+  const xs = n === 1 ? [0] : n === 2 ? [-140, 140] : [-204, 0, 204], ys = n === 3 ? [heroY + 16, heroY - 16, heroY + 16] : [heroY, heroY];
   const itemNodes: Node[] = [];
   for (let i = 0; i < n; i++) {
-    const it = items[i], holder = uiNode('Gain-' + it.kind, p.body, 140, 140); itemNodes.push(holder);
-    if (it.seal) p.sprite(it.seal, 0, 0, undefined, 116, 'half', holder).node.setPosition(0, 0, 0);
-    else { const s = toolArt(p, it.kind, 0, 0, 108, legacy, holder); s?.node.setPosition(0, 0, 0); }
-    if (!it.seal && it.count > 0) { const b = uiNode('Count', holder, 48, 48); b.setPosition(38, -38, 0); badge(p, b, '×' + it.count); }
+    const it = items[i], holder = uiNode('Gain-' + it.kind, p.body, heroSize, heroSize); itemNodes.push(holder);
+    if (it.seal) p.sprite(it.seal, 0, 0, undefined, heroSize, 'half', holder).node.setPosition(0, 0, 0);
+    else { const s = toolArt(p, it.kind, 0, 0, heroSize, legacy, holder); s?.node.setPosition(0, 0, 0); }
+    if (!it.seal && it.count > 0) { const b = uiNode('Count', holder, 48, 48); b.setPosition(heroSize * .34, -heroSize * .34, 0); badge(p, b, '×' + it.count); }
     holder.active = false; (holder as any).__to = p.at(xs[i], ys[i % ys.length]);
   }
   const t1 = items.map(it => it.label).join('  ·  ');
-  p.text(t1, 0, 568, 32, 'brown', { width: 620, name: 'GainList' });
-  p.text(opts.description || '海风吹开了宝箱，收进行囊吧。', 0, 641, 28, 'brown2', { bold: false, width: 620 });
-  p.button('primary', '收下', 0, 776, 420, 104, () => p.close(), { fontSize: 38, name: 'Accept' });
+  p.text(t1, 0, hasChest ? 492 : 426, 32, 'brown', { width: 620, name: 'GainList' });
+  p.text(opts.description || '海风吹开了宝箱，收进行囊吧。', 0, hasChest ? 551 : 485, 28, 'brown2', { bold: false, width: 620 });
+  p.button('primary', '收下', 0, ph - 98, 420, 104, () => p.close(), { fontSize: 38, name: 'Accept' });
   const update = p.update.bind(p); let t = 0; const from = p.at(0, mouthY);
   p.update = (dt: number) => {
     update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (chest) chest.update(dt);
@@ -224,4 +230,34 @@ export function badge(p: PopupPanel, n: Node, text: string) {
     g.lineWidth = 3; g.strokeColor = new Color(149, 103, 55, Math.round(255 * a)); g.circle(0, 0, r); g.stroke();
   });
   const l = makeLabel(n, text, 0, 0, 22, { width: 48 }); p.tint.label(l, 'brown');
+}
+// ---------------- version update (system-panels SPEC §3) ----------------
+/** One focus: 「重启更新」; 「稍后」 is a thin text line. No ×, the shade does not close it. */
+export const PINWHEEL = { r: 54, glowR: 88, glowBlur: 23, hubR: 7.7, revPerS: 0.5 } as const;
+export function openUpdate(stack: PopupStack, apply: () => void, later: () => void): PopupPanel {
+  const ph = 640, p = stack.open({ name: 'UpdatePanel', height: ph, title: '', closable: false });
+  p.plank.active = false;
+  const mill = uiNode('Pinwheel', p.body, 200, 200), mp = p.at(0, 150); mill.setPosition(mp[0], mp[1], 0);
+  // SPEC §3 (pt × 750/390): blades R28 → 54 px, glow #FFDC8C α59% R46 blur 12 → 88 / 23 px, hub Ø8 #FFF0CB → r 7.7 px.
+  // Graphics has no MSAA here, so edges are feathered: each blade is filled, then stroked 1.6 px at half alpha (≈ 1 px AA ramp).
+  const BL: number[][] = [[0xE8, 0x80, 0x34], [0x37, 0x7F, 0x6C], [0xF2, 0xB5, 0x44], [0xC9, 0x77, 0x3A]], R = PINWHEEL.r;
+  p.tint.shape(mill.addComponent(Graphics), (g, night, a) => {
+    const k = 1 - 0.35 * night;
+    for (let i = 0; i < 8; i++) { const u = i / 7, rr = PINWHEEL.glowR - PINWHEEL.glowBlur * (1 - u); g.fillColor = new Color(0xFF, 0xDC, 0x8C, Math.round(255 * 0.59 * a / 8)); g.circle(0, 0, rr); g.fill(); }
+    for (let i = 0; i < 4; i++) {
+      const c = BL[i], q = i * Math.PI / 2, col = (al: number) => new Color(Math.round(c[0] * k), Math.round(c[1] * k), Math.round(c[2] * k), Math.round(255 * al * a));
+      const path = () => { g.moveTo(0, 0); g.lineTo(Math.cos(q) * R, Math.sin(q) * R); g.lineTo(Math.cos(q + 0.9) * R * 0.62, Math.sin(q + 0.9) * R * 0.62); g.close(); };
+      g.fillColor = col(1); path(); g.fill(); g.lineWidth = 1.6; g.strokeColor = col(0.5); path(); g.stroke();
+    }
+    g.fillColor = new Color(0xFF, 0xF0, 0xCB, Math.round(255 * a)); g.circle(0, 0, PINWHEEL.hubR); g.fill();
+    g.lineWidth = 1.4; g.strokeColor = new Color(0xFF, 0xF0, 0xCB, Math.round(128 * a)); g.circle(0, 0, PINWHEEL.hubR + 0.4); g.stroke();
+  });
+  p.text('新版本已准备好', 0, 286, 42, 'brown', { name: 'UpdateTitle' });
+  p.text('重启后即可体验新版本。', 0, 362, 30, 'brown2', { bold: false, name: 'UpdateLine' });
+  p.button('primary', '重启更新', 0, 470, 460, 108, () => p.close(apply), { fontSize: 36, name: 'ApplyUpdate' });
+  const l = p.text('稍后', 0, 572, 28, 'brown2', { bold: false, name: 'UpdateLater' }); l.node.getComponent(UITransform)!.setContentSize(250, 92);
+  pressable(l.node, l.node, () => p.close(later), { sound: 'back' });
+  const update = p.update.bind(p); let t = 0;
+  p.update = (dt: number) => { update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (isValid(mill, true) && !reducedMotion()) mill.angle = -360 * PINWHEEL.revPerS * t; };
+  return p;
 }

@@ -1,0 +1,96 @@
+import {Cancellation,type Action,type Vec} from '../world-r1/WorldFlowCore';
+import type {CharacterAdapter} from '../world-r1/WorldFlowCore';
+import {emitTransitCue} from './TransitAudioHooks';
+import {transportFor,type TransportKind} from './JourneyTransport';
+import {walkPair} from './RegionNodeProgress';
+import {planWalk,routeKeys,WALK_SPEED_MPS,type WalkPlan} from './NodeWalker';
+import {meadowDepartureCut} from './BalloonB1Start';
+import {stopEngineStates} from './EngineAnimStop';
+import {basketObstacleEvent} from './BasketObstacles';
+
+export type WalkResult=Readonly<{transport:TransportKind|'walk';departure:boolean;segments:number;region:string;to:string;timedOut:boolean}>;
+/** One segment must finish or be cut. A stuck `perform` must not freeze advanceMainline. */
+export const WALK_SEGMENT_TIMEOUT_MS=12000;
+export type PathPlace=(path:readonly Vec[])=>Vec[];
+function heading(path:readonly Vec[]):number{
+ const a=path.length>1?path[path.length-2]:path[0],b=path[path.length-1];
+ return Math.atan2(b[0]-a[0],b[2]-a[2]);
+}
+/** Resolves even when `perform` never returns. The girl is stood at the segment end. */
+/** p0drag11: `live()` false = the walk was taken over (e.g. __qfTeleport stood her elsewhere): no end-of-segment re-stand; `onToken`
+ *  receives the segment's Cancellation so the owner can cancel it. */
+export async function performBounded(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,action:Action,end:Vec,yawRad:number,timeoutMs=WALK_SEGMENT_TIMEOUT_MS,live?:()=>boolean,onToken?:(t:Cancellation)=>void):Promise<'done'|'timeout'>{
+ // fix-cloud-sit: every region-node walk (meadow / skycity / lakeside) starts with no engine-played state left over from a ride
+ // (sit_hold after the sail); the rig is the only pose clock. Same rule as the lakeside get-out (1033173f).
+ if((action as any).kind==='walk'||(action as any).kind==='stand')stopEngineStates((character as any).anim,'node '+(action as any).kind);
+ const token=new Cancellation();if(onToken)onToken(token);
+ let mode:''|'done'|'timeout'='';
+ let timer:ReturnType<typeof setTimeout>|undefined;
+ const work=character.perform(action,token).then(()=>{if(!mode)mode='done';},()=>{if(!mode)mode='timeout';});
+ const limit=new Promise<void>(resolve=>{timer=setTimeout(()=>{if(!mode)mode='timeout';try{token.cancel();}catch{/* already finished */}resolve();},timeoutMs);});
+ await Promise.race([work,limit]);
+ if(timer)clearTimeout(timer);
+ if(mode!=='done'){
+  try{token.cancel();}catch{/* ignore */}
+  if(live&&!live())return 'timeout';/* p0drag11 (Mac p0drag10 skn po: teleported, then re-stood at the old walk's end (8.77,8.14)) */
+  try{character.cancelAndReset({kind:'standing',controllerRoot:[end[0],end[1],end[2]],yawRad});}catch{/* caller still continues */}
+  return 'timeout';
+ }
+ return 'done';
+}
+async function runPlan(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,plan:WalkPlan,region:string,to:string,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<boolean>{
+ let timedOut=false;
+ emitTransitCue('node-walk-start',{t:0,region,node:to});
+ for(let i=0;i<plan.segments.length;i++){
+  const raw=plan.segments[i].path;
+  const path=place?place(raw):raw.slice();
+  const end=path[path.length-1];
+  const yaw=heading(path);
+  if(i>0)character.cancelAndReset({kind:'standing',controllerRoot:[path[0][0],path[0][1],path[0][2]],yawRad:yaw});
+  const action:Action={kind:'walk',path,duration:plan.segments[i].duration};
+  const status=await performBounded(character,action,end,yaw,timeoutMs);
+  if(status==='timeout')timedOut=true;
+ }
+ emitTransitCue('node-arrive',{t:0,region,node:to});
+ try{basketObstacleEvent('node:'+to)/* cand9: e.g. node:M4 → meadow basket obstacle on */;}catch{}
+ return timedOut;
+}
+/** Issue the clipped walk on the bound adapter. A stuck perform is cut to the segment end. */
+export async function runRewardWalk(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,fromStage:string,toStage:string,token?:Cancellation,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<WalkResult>{
+ void token;
+ await (character as any).__qfWalkTail?.done/* b15: a walk tail finishes first */;
+ const spec=walkPair(fromStage,toStage);
+ let plan=planWalk(spec.region,spec.from,spec.to);
+ /* full6 gate handoff: the meadow→skycity departure stops at the yard gate (B1 goes on to the basket door from there; M6 lies
+  * past the door → U-turn, and against the windmill base). One direct segment at the natural speed. */
+ {const full=routeKeys(spec.region as any,spec.from,spec.to).path,cut=meadowDepartureCut(spec.region,spec.to,spec.nextRegion??undefined,full);
+  if(cut.length!==full.length){let L=0;for(let i=1;i<cut.length;i++)L+=Math.hypot(cut[i][0]-cut[i-1][0],cut[i][1]-cut[i-1][1],cut[i][2]-cut[i-1][2]);plan={segments:[{path:cut,duration:L/WALK_SPEED_MPS}],cut:false,fades:0,lengthM:L} as WalkPlan;}}
+ try{basketObstacleEvent('node:'+spec.from)/* cand9: leaving a node also asserts it (resume at M4 straight into the M4→M6 departure) */;}catch{}
+ const timedOut=await runPlan(character,plan,spec.region,spec.to,place,timeoutMs);
+ const transport:TransportKind|'walk'=spec.departure&&spec.nextRegion?transportFor(spec.region,spec.nextRegion):'walk';
+ return {transport,departure:spec.departure,segments:plan.segments.length,region:spec.region,to:spec.to,timedOut};
+}
+/** r3 reopen-at-05 (运镜bot): from M0 (where reopenAfterKill puts her) to the 05 stand M1, one direct walk (8.966 m ≤ DIRECT_MAX_M). */
+export async function runMeadowReopenWalk(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<WalkResult>{
+ const plan=planWalk('meadow','M0','M1');
+ const timedOut=await runPlan(character,plan,'meadow','M1',place,timeoutMs);
+ return {transport:'walk',departure:false,segments:plan.segments.length,region:'meadow',to:'M1',timedOut};
+}
+/** After mainline-12 she leaves the stair top and walks north to the star-ring terrace. */
+export async function runSkyFinale(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,place?:PathPlace,timeoutMs=WALK_SEGMENT_TIMEOUT_MS):Promise<WalkResult>{
+ const plan=planWalk('skycity','S4','S6');
+ const timedOut=await runPlan(character,plan,'skycity','S6',place,timeoutMs);
+ return {transport:'walk',departure:false,segments:plan.segments.length,region:'skycity',to:'S6',timedOut};
+}
+
+/** full7b (Grok Bot: L12 done → she resumes near S6): after the balloon lands her on the b19 S0 deck, a player who finished L12
+ *  walks on to the finale terrace S6 along the skycity node path (SkyLakePreWalk: spurs cut, no turn > 90°, one continuous
+ *  segment at WALK_SPEED_MPS, world coordinates). Players before L12 never call this. Returns false when she is already at S6. */
+export async function runSkyResumeToS6(character:Pick<CharacterAdapter,'perform'|'cancelAndReset'>,path:readonly Vec[],durationS:number,timeoutMs=Math.max(WALK_SEGMENT_TIMEOUT_MS,(durationS+8)*1000)):Promise<boolean>{
+ if(path.length<2)return false;
+ emitTransitCue('node-walk-start',{t:0,region:'skycity',node:'S6'});
+ const p=path.map(v=>[v[0],v[1],v[2]] as Vec),end=p[p.length-1],yaw=heading(p);
+ await performBounded(character,{kind:'walk',path:p,duration:durationS} as Action,end,yaw,timeoutMs);
+ emitTransitCue('node-arrive',{t:0,region:'skycity',node:'S6'});
+ return true;
+}

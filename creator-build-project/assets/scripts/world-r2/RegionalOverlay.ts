@@ -23,6 +23,7 @@ export function paintRegionalOverlay(snapshot:any,cells:Node[]):void {
   if(p.done)l.string='✓';
   else if(region==='tide')l.string=p.progress>=p.layers?'待潮':'开壳';
   else if(region==='meadow')l.string=icon.active?'→':'花粉';
+  else if(region==='lake')l.string='风铃';
   else l.string=`${active?'':'待'}${p.polarity===0?'○':'●'}`;
   // A segmented progress strip replaces fractional counters at 6–8px. Current relay
   // is gold, completed segments teal; selected relay/partner is connected on the board.

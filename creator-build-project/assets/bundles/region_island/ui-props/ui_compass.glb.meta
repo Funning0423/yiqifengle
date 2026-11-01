@@ -1,11 +1,94 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "db811556-a738-4ae2-8d83-025dd46a663c",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "ea4e8": {
+      "importer": "gltf-mesh",
+      "uuid": "db811556-a738-4ae2-8d83-025dd46a663c@ea4e8",
+      "displayName": "",
+      "id": "ea4e8",
+      "name": "ui_compass.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 532
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "18b7e": {
+      "importer": "gltf-material",
+      "uuid": "db811556-a738-4ae2-8d83-025dd46a663c@18b7e",
+      "displayName": "",
+      "id": "18b7e",
+      "name": "M_env_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9d602": {
+      "importer": "gltf-scene",
+      "uuid": "db811556-a738-4ae2-8d83-025dd46a663c@9d602",
+      "displayName": "",
+      "id": "9d602",
+      "name": "ui_compass.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
-    "tangents": 1
+    "tangents": 1,
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "db811556-a738-4ae2-8d83-025dd46a663c@ea4e8"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "db811556-a738-4ae2-8d83-025dd46a663c@18b7e"
+      ],
+      "scenes": [
+        "db811556-a738-4ae2-8d83-025dd46a663c@9d602"
+      ]
+    }
   }
 }

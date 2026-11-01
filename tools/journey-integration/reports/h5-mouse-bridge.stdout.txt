@@ -1,0 +1,14 @@
+PASS web, engine without mouse: bridge active "mouse-to-touch"
+PASS mouse click → one touchstart/move/end ["touchstart:9917","touchmove:9917","touchend:9917"]
+PASS mousedown default prevented (no text selection/focus steal)
+PASS hover move / stray up without down: nothing
+PASS right button ignored
+PASS real tap + compat mouse events: fires once ["touchstart:1","touchend:1"]
+PASS mouse works again after compat window ["touchstart:9917","touchend:9917"]
+PASS firesTouchEvents mouse ignored
+PASS WeChat: bridge never installs
+PASS WeChat: no synthetic events
+PASS engine already maps mouse→touch: inactive (no double fire)
+PASS dispose removes listeners
+PASS auto-install gates on engine EVENT_MOUSE / INPUT_TOUCH
+h5-mouse-bridge: 13 pass, 0 fail

@@ -1,0 +1,18 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
++   0.9999999999999984,
+-   1,
+    0,
+    0
+  ]
+
+    at /workspace/shared/legacy-test-repair-20261015/tools/test_character_action_clock.cjs:52:34 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [Array],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

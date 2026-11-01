@@ -1,0 +1,89 @@
+{
+  "baseline": "d8dafa166fe9789ffbca7fbaca600ee97f9bc75c",
+  "inputFileCount": 2116,
+  "inputMismatches": [],
+  "inputAggregateSHA256": "9e8fb384aa5a98f3ffe868c14a603e32a74a0684c13dfaee6354c6a7000ecba8",
+  "branch": "fix/ui-scale-region-meadow",
+  "registrationCommit": "396c4e0",
+  "uiCommit": "e72609c",
+  "regionGuardCommit": "f271b41",
+  "defectStates": {
+    "UI-SCALE": "OPEN",
+    "REGION-MEADOW": "OPEN",
+    "CHARACTER-FEET": "OPEN",
+    "CHARACTER-SITTING": "OPEN"
+  },
+  "checks": {
+    "safeArea": {
+      "status": "PASS",
+      "samples": 10038,
+      "supportedSamples": 10033,
+      "supportedFailures": 0,
+      "checks": 7660,
+      "failedChecks": []
+    },
+    "viewports": {
+      "status": "PASS",
+      "geometrySamples": 9673,
+      "geometrySamplesFailed": 0,
+      "inputChecks": 387,
+      "inputChecksFailed": 0
+    },
+    "priority": {
+      "status": "PASS",
+      "layouts": [
+        {
+          "width": 390,
+          "height": 844,
+          "panelHeight": 569,
+          "pages": 1
+        },
+        {
+          "width": 320,
+          "height": 568,
+          "panelHeight": 544,
+          "pages": 2
+        },
+        {
+          "width": 844,
+          "height": 390,
+          "panelHeight": 366,
+          "pages": 1
+        }
+      ],
+      "checks": [
+        "missing meadow cannot mutate selection, exit won level, enter fake scenery or read recovery/save data",
+        "island and real sky-city art routing remain intact",
+        "current PNG icons mounted inside card hit area, enlarged, reachable on finite pages",
+        "unavailable next disabled; all four user defects remain OPEN"
+      ],
+      "scope": "Node geometry and method contracts only; actual Cocos visual/scene acceptance queued"
+    }
+  },
+  "meadowBundleInventory": [
+    {
+      "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3",
+      "bytes": 436288,
+      "sha256": "eb173a0d679f52e69a457c0a3512623e427efe5c2cf679e6caa9e1cb243cd87f"
+    },
+    {
+      "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3.meta",
+      "bytes": 222,
+      "sha256": "b0d94518e28f748390997806438e09e595271fe5d6160cc5c1d7cc875a850d39"
+    },
+    {
+      "path": "creator-build-project/assets/bundles/region_meadow/audio.meta",
+      "bytes": 169,
+      "sha256": "5168d9967c3fde5a10424c696746552a894cf497860e7e4e4d025b107fc47633"
+    }
+  ],
+  "missing": [
+    "approved current env_meadow.glb with provenance/hash",
+    "Creator imported meadow prefab subasset UUID and committed meta",
+    "meadow camera position/target/vertical FOV and anchors",
+    "ambient clip identity and any required grass shader/instancing compatibility",
+    "dedicated region background/visit lease wired through RegionLoader; current selection/reveal/cancel/resize/dispose path"
+  ],
+  "runtimeAcceptance": "QUEUED: requires parent confirmation that current task35 test has ended. No IDE/browser/build service started.",
+  "scope": "Node in-memory contract and geometry checks only. No real save accessed. No visual or actual meadow scene acceptance claimed."
+}

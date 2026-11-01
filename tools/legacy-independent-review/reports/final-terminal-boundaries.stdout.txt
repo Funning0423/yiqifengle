@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "shippedGlb": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+  "checks": [
+    {
+      "kind": "stand",
+      "check": "real-GLB-terminal-tolerance",
+      "duration": 1.2666670083999634,
+      "root": [
+        -0.016162758009872102,
+        0,
+        -4.413050709661525
+      ],
+      "completions": 1
+    },
+    {
+      "kind": "stand",
+      "check": "cancel-before-terminal",
+      "successes": 0,
+      "noLateRoot": true
+    },
+    {
+      "kind": "sit",
+      "check": "real-GLB-terminal-tolerance",
+      "duration": 1.2000000476837158,
+      "root": [
+        0.4327299768730942,
+        0,
+        -4.207611558444886
+      ],
+      "completions": 1
+    },
+    {
+      "kind": "sit",
+      "check": "cancel-before-terminal",
+      "successes": 0,
+      "noLateRoot": true
+    },
+    {
+      "kind": "stand",
+      "check": "irregular-partial-frames",
+      "frames": 34,
+      "exactRoot": [
+        -0.016162758009872102,
+        0,
+        -4.413050709661525
+      ]
+    },
+    {
+      "kind": "sit",
+      "check": "irregular-partial-frames",
+      "frames": 31,
+      "exactRoot": [
+        0.4327299768730942,
+        0,
+        -4.207611558444886
+      ]
+    },
+    {
+      "kind": "walk",
+      "check": "shared-terminal-normalization",
+      "exactRoot": [
+        0.1538372419901279,
+        0,
+        -4.103050709661526
+      ],
+      "yaw": 0.5016040541891194
+    },
+    {
+      "kind": "turn",
+      "check": "shared-terminal-normalization",
+      "exactRoot": [
+        -0.016162758009872102,
+        0,
+        -4.413050709661525
+      ],
+      "yaw": -0.4292036732051034
+    }
+  ],
+  "scope": "Shipped GLB and real TS controller on JS Cocos-node/evaluator doubles; no Creator import, WebGL, foot-contact or visual acceptance."
+}

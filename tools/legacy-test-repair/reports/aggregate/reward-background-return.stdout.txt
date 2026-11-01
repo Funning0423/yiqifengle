@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "Actual production TS, controller witness actions, Map-only storage, Cocos doubles. No native input/GPU/phone lockscreen claim.",
+  "checks": [
+    {
+      "which": "before-claim",
+      "cycles": 3,
+      "duplicateEvents": true,
+      "storageUnchanged": true,
+      "sameResultPanel": true,
+      "noGlobalResume": true
+    },
+    {
+      "which": "after-chest",
+      "cycles": 3,
+      "duplicateEvents": true,
+      "storageUnchanged": true,
+      "sameResultPanel": true,
+      "noGlobalResume": true
+    },
+    {
+      "which": "after-region",
+      "cycles": 3,
+      "duplicateEvents": true,
+      "storageUnchanged": true,
+      "sameResultPanel": true,
+      "noGlobalResume": true
+    }
+  ],
+  "nextButtonRouted": true,
+  "duplicateRewardsZeroWrites": true,
+  "disposed": true
+}

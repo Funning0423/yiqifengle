@@ -1,0 +1,956 @@
+{
+  "status": "PASS",
+  "worldCases": 40,
+  "cases": [
+    {
+      "route": "exit",
+      "at": "standing",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.1
+        ],
+        "clip": "stand",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "standing",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.1
+        ],
+        "clip": "stand",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "standing",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.1
+        ],
+        "clip": "stand",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "standing",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.1
+        ],
+        "clip": "stand",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "turning-out",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.3
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "turning-out",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.3
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "turning-out",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.3
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "turning-out",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.3
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "walking-out",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.666666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "walking-out",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.666666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "walking-out",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.666666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "walking-out",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.666666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "opening-door",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.883333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "opening-door",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.883333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "opening-door",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.883333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "opening-door",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.883333333,
+        "camera": 1
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "crossing-out",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.366666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.047505863
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "crossing-out",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.366666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.047505863
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "crossing-out",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.366666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.047505863
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "exit",
+      "at": "crossing-out",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.366666667
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.047505863
+      },
+      "activeS": 13.1
+    },
+    {
+      "route": "return",
+      "at": "walking-home",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          2,
+          0,
+          8
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 0.045558017
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "walking-home",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          2,
+          0,
+          8
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 0.045558017
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "walking-home",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          2,
+          0,
+          8
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 0.045558017
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "walking-home",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          2,
+          0,
+          8
+        ],
+        "clip": "turn",
+        "clipTime": 0.333333333,
+        "camera": 0.045558017
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "crossing-in",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.924827743
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "crossing-in",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.924827743
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "crossing-in",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.924827743
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "crossing-in",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.924827743
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "closing-door",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.25,
+        "camera": 1
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "closing-door",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.25,
+        "camera": 1
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "closing-door",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.25,
+        "camera": 1
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "closing-door",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          2
+        ],
+        "clip": "walk",
+        "clipTime": 1.25,
+        "camera": 1
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "walking-to-seat",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          1.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "walking-to-seat",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          1.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "walking-to-seat",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          1.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "walking-to-seat",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          1.633333333
+        ],
+        "clip": "walk",
+        "clipTime": 0.333333333,
+        "camera": 0.215686275
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "sitting",
+      "hiddenS": 3,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.216666667
+        ],
+        "clip": "sit",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "sitting",
+      "hiddenS": 3,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.216666667
+        ],
+        "clip": "sit",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "sitting",
+      "hiddenS": 10,
+      "framesWhileHidden": false,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.216666667
+        ],
+        "clip": "sit",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 24.2
+    },
+    {
+      "route": "return",
+      "at": "sitting",
+      "hiddenS": 10,
+      "framesWhileHidden": true,
+      "frozenAt": {
+        "pos": [
+          0,
+          0,
+          0.216666667
+        ],
+        "clip": "sit",
+        "clipTime": 0.333333333,
+        "camera": 1
+      },
+      "activeS": 24.2
+    }
+  ],
+  "watchdog": {
+    "walkHomeS": 11.1,
+    "cases": [
+      {
+        "at": "walking-home",
+        "hiddenS": 3,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 3,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 10,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 10,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 60,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 60,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 75,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 75,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 600,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 3,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 3,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 10,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 10,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 60,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 60,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 75,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 75,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "crossing-in",
+        "hiddenS": 600,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 3,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 3,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 10,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 10,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 60,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 60,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 75,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 75,
+        "framesWhileHidden": true,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-to-seat",
+        "hiddenS": 600,
+        "framesWhileHidden": false,
+        "ok": true,
+        "watchdogSeconds": 11.117
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 75,
+        "timeoutS": 12.1,
+        "ok": true
+      },
+      {
+        "at": "walking-home",
+        "hiddenS": 600,
+        "timeoutS": 12.1,
+        "ok": true
+      },
+      {
+        "clock": "wall (r4.1)",
+        "hiddenS": 75,
+        "result": "return-home-timeout"
+      }
+    ]
+  },
+  "audio": [
+    {
+      "hiddenS": 3,
+      "bgmOffsetAtHideS": 13.25,
+      "bgmOffsetOnShowS": 13.25,
+      "exitTrackAtHideS": 4.25,
+      "exitTrackOnShowS": 4.25,
+      "bgmRestarts": 0
+    },
+    {
+      "hiddenS": 10,
+      "bgmOffsetAtHideS": 13.25,
+      "bgmOffsetOnShowS": 13.25,
+      "exitTrackAtHideS": 4.25,
+      "exitTrackOnShowS": 4.25,
+      "bgmRestarts": 0
+    },
+    {
+      "hiddenS": 60,
+      "bgmOffsetAtHideS": 13.25,
+      "bgmOffsetOnShowS": 13.25,
+      "exitTrackAtHideS": 4.25,
+      "exitTrackOnShowS": 4.25,
+      "bgmRestarts": 0
+    },
+    {
+      "hiddenS": 600,
+      "bgmOffsetAtHideS": 13.25,
+      "bgmOffsetOnShowS": 13.25,
+      "exitTrackAtHideS": 4.25,
+      "exitTrackOnShowS": 4.25,
+      "bgmRestarts": 0
+    },
+    {
+      "clipLandedWhileHidden": true,
+      "hiddenS": 10,
+      "exitTrackOnShowS": 1.5
+    },
+    {
+      "clipLandedWhileHidden": true,
+      "hiddenS": 600,
+      "exitTrackOnShowS": 1.5
+    }
+  ],
+  "steps": {
+    "uninterruptedSteps": 15,
+    "cases": 12
+  },
+  "checks": [
+    "exit + walk home frozen on hide (every state, 3 s / 10 s, with/without hidden frames): pos, clip time, camera, door, wind, jobs unchanged",
+    "show continues the same walk by itself: no paused/home/standing re-entry, no cancelAndReset, no second leaveHome/load, same states + active time as uninterrupted",
+    "seated / island / cancel keep paused + 继续",
+    "BGM paused (not stopped), resumed at the same offset, no restart",
+    "exit track held on crossing-out and continued at its offset, one voice; island tail / interruption unchanged",
+    "footsteps: same plants as uninterrupted, none doubled",
+    "r4.1b: home-walk watchdog on foreground time: 3 s / 10 s / 60 s / 75 s / 10 min backgrounds (> 60 s limit) mid-walk-home resolve ok, no snap; wall-clock host times out",
+    "r4.1b: BGM / exit track offsets do not jump by the hidden duration (3 s … 10 min); exit clip landing while hidden starts at the held offset"
+  ],
+  "scope": "WorldFlowCore + GameAudio + FootstepCore on mocks (frame clock = WorldFlowComponent.update rule); no engine, no device audio"
+}

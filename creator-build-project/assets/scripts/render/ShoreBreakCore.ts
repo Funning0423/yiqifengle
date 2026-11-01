@@ -289,7 +289,7 @@ export function keptShoreLips(): number[][] {
   }
   return out;
 }
-function ribbons(segs: number[][]): number[][][] {
+export function ribbons(segs: number[][]): number[][][] {
   const sorted: number[][] = [], n0 = segs.length;
   for (let i = 0; i < n0; i++) sorted.push(segs[i]);
   sorted.sort(function (a, b) { return a[0] - b[0]; });

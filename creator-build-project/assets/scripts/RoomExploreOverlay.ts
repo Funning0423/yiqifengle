@@ -1,15 +1,19 @@
 import {Node,UITransform,Label,Layers,Color,EventTouch,isValid} from 'cc';
 import {AudioUnlock} from './audio/AudioUnlock';
+import {uiNightWeight} from './ui/NightTint';
+/** Night text rule shared with the glass sign (cine/night-glass-r4): no backing, warm text, darker warm outline. Day stays 33,45,45,170. */
+export const ROOM_HINT_OUTLINE={day:[33,45,45,170],night:[38,24,12,230]} as const;
 type RoomView={enabled:boolean;settling:boolean;door:{visible:boolean;x:number;y:number;direction:number}};
+type GlassSignTap={tap:(x:number,y:number)=>boolean;hit:(x:number,y:number)=>boolean};
 type Commands={roomView:(aspect:number)=>RoomView;lookRoom:(dx:number,dy:number)=>boolean;leaveHome:()=>unknown};
 /** Plain scene-linked copy: no Button, panel, extra camera, asset load, timer or global input hook.
  * Audio (GGbot 2026-10-11): this full-screen surface swallows every room touch, so it forwards the gesture to GameAudio itself,
  * synchronously, on touch start/end (room-swipe) and before leaving through the door (door-tap). The global first-touch
  * unlock lives in audio/AudioUnlock.ts (wx/canvas/cocos layers); these calls are the in-handler backup. */
 export class RoomExploreOverlay {
- private root:Node;private prompt:Label;private guide:Label;private pointer:number|null=null;private start={x:0,y:0};private last={x:0,y:0};private dragged=false;private blocked=false;private width=1;private height=1;private disposed=false;private rect={x:0,y:0,w:0,h:0};private handle={x:0,y:0,visible:false};
+ private root:Node;private prompt:Label;private guide:Label;private pointer:number|null=null;private start={x:0,y:0};private last={x:0,y:0};private dragged=false;private blocked=false;private width=1;private height=1;private disposed=false;private rect={x:0,y:0,w:0,h:0};private handle={x:0,y:0,visible:false};private outlineQ=-1;
  private leave:()=>void;
- constructor(parent:Node,private commands:()=>Commands|null,private allowed:()=>boolean,leave:()=>void){
+ constructor(parent:Node,private commands:()=>Commands|null,private allowed:()=>boolean,leave:()=>void,private sign:()=>GlassSignTap|null=()=>null){
   this.leave=()=>{AudioUnlock.gesture('door-tap','leave');leave();};
   this.root=new Node('RoomExploreSurface');this.root.layer=Layers.Enum.UI_2D;parent.addChild(this.root);this.root.addComponent(UITransform);this.root.active=false;
   this.prompt=this.text('DoorHandleInvitation','推开门，开始冒险',17,224);this.guide=this.text('RoomLookGuide','向左轻拖，看看门口  ›',14,260);
@@ -20,15 +24,19 @@ export class RoomExploreOverlay {
   const c=this.commands(),v=c?.roomView(width/height),enabled=!!v?.enabled&&this.allowed();this.root.active=enabled;
   if(!enabled){this.cancel();return;}
   this.handle={x:v!.door.x*width,y:v!.door.y*height,visible:v!.door.visible};
-  this.prompt.node.active=v!.door.visible;this.guide.node.active=!v!.door.visible;
+  this.prompt.node.active=v!.door.visible;this.guide.node.active=!v!.door.visible;this.nightOutline();
   if(v!.door.visible){const w=Math.min(224,width-32),h=48;this.prompt.node.getComponent(UITransform)!.setContentSize(w,h);const x=Math.max(w/2+16,Math.min(width-w/2-16,this.handle.x)),y=Math.max(84,Math.min(height-100,this.handle.y+42));this.prompt.node.setPosition(x-width/2,y-height/2,0);this.rect={x:x-w/2,y:y-h/2,w,h};}
   else {this.guide.string=v!.door.direction>0?'向左轻拖，看看门口  ›':'‹  向右轻拖，看看门口';this.guide.node.setPosition(0,-height/2+88,0);this.rect={x:0,y:0,w:0,h:0};}
  }
+ private nightOutline(){const w=uiNightWeight(),q=Math.round(w*255);if(q===this.outlineQ)return;const first=this.outlineQ<0;this.outlineQ=q;if(first&&q===0)return;const D=ROOM_HINT_OUTLINE.day,N=ROOM_HINT_OUTLINE.night,c=new Color(...[0,1,2,3].map(i=>Math.round(D[i]+(N[i]-D[i])*w)) as [number,number,number,number]);for(const l of [this.prompt,this.guide])if(isValid(l,true))l.outlineColor=c;}
  private down(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchstart');if(!this.root.active||!this.allowed())return;const id=e.getID();if(id===null)return;if(this.pointer!==null||e.getAllTouches().length>1){this.blocked=true;return;}const p=e.getUILocation();this.pointer=id;this.start={x:p.x,y:p.y};this.last={...this.start};this.dragged=false;}
  private move(e:EventTouch){if(e.getID()!==this.pointer||this.blocked)return;if(!this.allowed()||!this.commands()?.roomView(this.width/this.height).enabled){this.cancel();return;}const p=e.getUILocation();if(Math.hypot(p.x-this.start.x,p.y-this.start.y)>8)this.dragged=true;if(this.dragged)this.commands()?.lookRoom((p.x-this.last.x)/this.width,(p.y-this.last.y)/this.height);this.last={x:p.x,y:p.y};}
- private up(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchend');if(e.getID()!==this.pointer){if(e.getAllTouches().length===0)this.cancel();return;}const p=e.getUILocation(),r=this.rect;const tap=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8&&this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);this.cancel();if(tap&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled)this.leave();}
+ private up(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchend');if(e.getID()!==this.pointer){if(e.getAllTouches().length===0)this.cancel();return;}const p=e.getUILocation(),r=this.rect;
+  // Glass sign (world-r1/GlassSign.ts): a still tap on its projected card starts its feedback; the sign leaves home itself.
+  {const still=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8,s=e.getLocation();if(still&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled&&this.sign()?.tap(s.x,s.y)){AudioUnlock.gesture('door-tap','leave');this.cancel();return;}}
+  const tap=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8&&this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);this.cancel();if(tap&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled)this.leave();}
  /** Same door-handle hit area as up(): rect or within 28 px of the handle, door on screen. */
- private onDoor(e:EventTouch){try{const p=e.getUILocation(),r=this.rect;return this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);}catch{return false;}}
+ private onDoor(e:EventTouch){try{const p=e.getUILocation(),r=this.rect,g=e.getLocation();if(this.sign()?.hit(g.x,g.y))return true;return this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);}catch{return false;}}
  private cancel(){this.pointer=null;this.dragged=false;this.blocked=false;}
  diagnostics(){return {visible:this.root.active,doorVisible:this.handle.visible,prompt:this.prompt.string,handle:{...this.handle},rect:{...this.rect},dragging:this.dragged,buttonless:true};}
  dispose(){if(this.disposed)return;this.disposed=true;this.cancel();if(isValid(this.root,true)){this.root.off(Node.EventType.TOUCH_START,this.down,this);this.root.off(Node.EventType.TOUCH_MOVE,this.move,this);this.root.off(Node.EventType.TOUCH_END,this.up,this);this.root.off(Node.EventType.TOUCH_CANCEL,this.cancel,this);this.root.destroy();}}

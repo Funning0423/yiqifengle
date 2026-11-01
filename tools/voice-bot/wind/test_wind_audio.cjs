@@ -4,10 +4,16 @@ const path = require('path'), fs = require('fs'), Module = require('module');
 const ROOT = path.resolve(__dirname, '../../..');
 const DIR = path.join(ROOT, 'creator-build-project/assets/scripts/audio');
 const SRC = path.join(DIR, 'WindAudio.ts'), AMB = path.join(DIR, 'AmbienceAudio.ts');
-const VN = process.env.VB_TS || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript';
+const VN = process.env.VB_TS || process.env.QF_TYPESCRIPT_MODULE || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript';
 const ts = require(VN);
 const tr = (f) => ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true } }).outputText;
 const js = tr(SRC), ambJs = tr(AMB);
+/* b23 (wind-audio FAIL in the b20 ad3bd76c full suite, 'crane gull re-arms the random timer (8..20 s) 7.98'): not load. AmbienceAudio.rnd was
+ * Math.random, and the check read gullIn AFTER run(1.6) had already counted down the time since the crane gull re-armed it, so
+ * rnd < ~0.002 put it under 8. Reproduced at about 1 in 190 runs; rnd=()=>0 reproduces it every time (negative case below). Fix: seeded rnd
+ * (mulberry32, QF_WIND_SEED overrides) and the check reads the value at the re-arm moment (gullIn + clock - lastGullAt + the start frame's dt). */
+const SEED = Number(process.env.QF_WIND_SEED || 0x5eed);
+function seeded(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 let fail = 0; const ok = (c, m, d) => { console.log((c ? 'PASS ' : 'FAIL ') + m + (d === undefined ? '' : ' ' + JSON.stringify(d))); if (!c) fail++; };
 const near = (a, b, e = 1e-3) => Math.abs(a - b) <= e;
 
@@ -41,6 +47,7 @@ function env(opts = {}) {
   amb.AmbienceAudio.onGullCall(e => { if (e.phase === 'start') gulls.push({ t: +now.toFixed(3), n: e.clip, v: e.vol }); });
   const mod = load(SRC, js, { './AmbienceAudio': amb });
   amb.AmbienceAudio.windExit = 0;
+  amb.AmbienceAudio.rnd = opts.rnd || seeded(SEED);   // b23: deterministic (was Math.random: ~1/190 runs failed the crane re-arm check)
   if (!opts.withAmbience) onceCbs.splice(0, 1);       // only WindAudio unless asked
   onceCbs.forEach(cb => cb());
   const w = audioNode.getComponent(mod.WindAudio), a = audioNode.getComponent(amb.AmbienceAudio);
@@ -205,7 +212,16 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
 { const e = env({ withAmbience: true }); e.flow.w = 0; e.run(0.5); e.gulls.length = 0;
   e.a.lastGullAt = e.a.clock - 1; const tLast = e.now() - 1; e.a.gullIn = 0.1; e.run(5);
   ok(e.gulls.length === 1 && e.gulls[0].t - tLast >= 2.5 - 1e-6 && near(e.gulls[0].v, 0.6), 'random gull due 1.1 s after the last gull -> postponed past the 2.5 s gap, vol 0.6', { since: e.gulls[0] && +(e.gulls[0].t - tLast).toFixed(2) });
-  e.flow.cranes[0]({}); e.run(1.6); ok(e.gulls.length === 2 && e.a.gullIn >= 8 - 1e-6, 'crane gull re-arms the random timer (8..20 s)', +e.a.gullIn.toFixed(2));
+  e.flow.cranes[0]({}); e.run(1.6); const rearm = e.a.gullIn + (e.a.clock - e.a.lastGullAt) + 1 / 60;   // start frame also counts down (startCall re-arms, then gullIn -= dt)
+  ok(e.gulls.length === 2 && rearm >= 8 - 1e-6 && rearm <= 20 + 1e-6, 'crane gull re-arms the random timer (8..20 s)', +rearm.toFixed(2));
+}
+// b23 negative/edge: rnd at its extremes. rnd=()=>0 re-arms to exactly 8; the OLD check (gullIn after the run) fails there, the new one passes.
+for (const [r, lo] of [[() => 0, 8], [() => 0.999999, 20]]) {
+  const e = env({ withAmbience: true, rnd: r }); e.flow.w = 0; e.run(0.5); e.gulls.length = 0;
+  e.a.lastGullAt = e.a.clock - 1; e.a.gullIn = 0.1; e.run(5); e.flow.cranes[0]({}); e.run(1.6);
+  const rearm = e.a.gullIn + (e.a.clock - e.a.lastGullAt) + 1 / 60, oldCheck = e.a.gullIn >= 8 - 1e-6;
+  ok(e.gulls.length === 2 && near(rearm, lo === 8 ? 8 : 8 + 0.999999 * 12, 1e-6), 'rnd extreme re-arm = ' + lo + ' s', +rearm.toFixed(3));
+  if (lo === 8) ok(!oldCheck, 'negative: old post-run check fails at rnd=0 (the b23 flake)', +e.a.gullIn.toFixed(3));
 }
 // gated: muted -> no exit gulls, no waves floor; invisible world -> no waves floor
 { const e = env({ withAmbience: true }); e.GameAudio.instance.can = false; ramp(e, 0, 1, 3); e.flow.listeners[0]('full', 1); e.run(1);
@@ -224,7 +240,30 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
   ok(z.soft === 0 && z.strong === 0 && !z.softPlaying && !z.strongPlaying && e.a.src.volume === 0 && !e.a.src.playing, 'music 0: wind and waves inaudible on the next frame', { wind: z, waves: e.a.src.volume, playing: e.a.src.playing });
   music = 1; e.run(1 / 60);
   ok(near(e.w.snapshot().strong, full.strong, 0.02) && near(e.w.snapshot().soft, full.soft, 0.02) && e.a.src.playing && near(e.a.src.volume, full.waves, 0.02), 'music back to 1 restores the design full level', { wind: e.w.snapshot(), waves: e.a.src.volume, full });
-  music = 0.5; e.run(1 / 60);
-  ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.5: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+  // A1c (GGbot): the default slider 0.4 is the design level (was ×0.4 → ~12 dB under the bgm outdoors); below it the bed scales linearly.
+  music = 0.4; e.run(1 / 60);
+  ok(near(e.w.snapshot().strong, full.strong, 0.02) && near(e.a.src.volume, full.waves, 0.02), 'music 0.4 (default): design full level', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+  music = 0.2; e.run(1 / 60);
+  ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.2: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+}
+// A3b (GGbot): every (re)start of the waves bed fades in from 0 - also when the bed paused ITSELF (transition gain -> 0, heard < 0.002),
+// which is the real meadow -> home path (Mac readme-v2-a3: waves-play heard 0.516). The slider-at-0 resume stays immediate (above).
+{ const e = env({ withAmbience: true }); let tg = 1; const logs = [];
+  e.GameAudio.instance.getMusicVolume = () => 0.4; e.GameAudio.instance.transitionGain = () => tg;
+  const ci = console.info; console.info = (m) => { if (String(m).startsWith('[QF_AUDIO]')) logs.push(JSON.parse(String(m).slice(11))); };
+  global.__worldFlowLog = true;
+  try {
+    e.flow.w = 0; e.run(4); const full = e.a.src.volume;
+    ok(e.a.src.playing && full > 0.3, 'A3b: outdoors waves at the bed level', full);
+    tg = 0; e.run(0.5); ok(!e.a.src.playing && e.a.vol > 0.3, 'A3b: transition gain 0 -> waves self-pause, smoothed vol still stale', { playing: e.a.src.playing, vol: e.a.vol });
+    tg = 1; let first = -1;
+    for (let i = 0; i < 180 && first < 0; i++) { e.run(1 / 60); if (e.a.src.playing) first = e.a.src.volume; }
+    ok(first > 0 && first < 0.05, 'A3b: self-pause restart: first audible frame near 0 (not the stale ~0.5)', first);
+    const st = logs.filter(l => l.event === 'waves-start').pop();
+    ok(st && st.from === 'zero' && near(st.vol, +first.toFixed(3), 1e-3), 'A3b: [QF_AUDIO] waves-start logs the first-frame vol', st);
+    e.run(2.5); ok(near(e.a.src.volume, full, 0.03), 'A3b: back at the bed level ~2.5 s later', e.a.src.volume);
+    e.a.quiet(); let q = -1; for (let i = 0; i < 180 && q < 0; i++) { e.run(1 / 60); if (e.a.src.playing) q = e.a.src.volume; }
+    ok(q > 0 && q < 0.05, 'A3b: restart after quiet() (hide / external stop) also from 0', q);
+  } finally { console.info = ci; delete global.__worldFlowLog; }
 }
 console.log(fail ? 'FAILED ' + fail : 'ALL PASS wind-audio'); process.exitCode = fail ? 1 : 0;

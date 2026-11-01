@@ -1,0 +1,8 @@
+{
+  "buildExit": 36,
+  "firstBuildMainBytes": 699091,
+  "firstBuildTotalBytes": 27546421,
+  "runtimeBlocker": "wx0446ba2621dda60a plugin unauthorized; separateEngine=true inserts cloud engine plugin",
+  "resolution": "Use local compressed engine (separateEngine=false), no plugin permission changes",
+  "visualAcceptance": false
+}

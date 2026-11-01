@@ -1,0 +1,284 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199",
+  "files": [],
+  "subMetas": {
+    "72584": {
+      "importer": "gltf-mesh",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@72584",
+      "displayName": "",
+      "id": "72584",
+      "name": "cloud_f.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 320
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "69fe4": {
+      "importer": "gltf-mesh",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@69fe4",
+      "displayName": "",
+      "id": "69fe4",
+      "name": "cloud_a.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 320
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "35c12": {
+      "importer": "gltf-mesh",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@35c12",
+      "displayName": "",
+      "id": "35c12",
+      "name": "cloud_b.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 240
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "25b6c": {
+      "importer": "gltf-mesh",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@25b6c",
+      "displayName": "",
+      "id": "25b6c",
+      "name": "cloud_c.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 400
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e793a": {
+      "importer": "gltf-mesh",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@e793a",
+      "displayName": "",
+      "id": "e793a",
+      "name": "cloud_d.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 240
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9d23a": {
+      "importer": "gltf-mesh",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@9d23a",
+      "displayName": "",
+      "id": "9d23a",
+      "name": "cloud_e.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 320
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7910e": {
+      "importer": "gltf-mesh",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@7910e",
+      "displayName": "",
+      "id": "7910e",
+      "name": "night_stars.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 440
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f0c17": {
+      "importer": "gltf-material",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@f0c17",
+      "displayName": "",
+      "id": "f0c17",
+      "name": "M_transit_cloud.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c4f40": {
+      "importer": "gltf-material",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@c4f40",
+      "displayName": "",
+      "id": "c4f40",
+      "name": "M_transit_star.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4321d": {
+      "importer": "gltf-scene",
+      "uuid": "51c17de0-5c01-4c19-9d8c-81ce532a2199@4321d",
+      "displayName": "",
+      "id": "4321d",
+      "name": "transit_clouds.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "transit_palette_256",
+        "uri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@69fe4",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@35c12",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@25b6c",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@e793a",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@9d23a",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@72584",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@7910e"
+      ],
+      "skeletons": [],
+      "textures": [
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@3effa",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@221a5"
+      ],
+      "materials": [
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@f0c17",
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@c4f40"
+      ],
+      "scenes": [
+        "51c17de0-5c01-4c19-9d8c-81ce532a2199@4321d"
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}

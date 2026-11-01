@@ -38,3 +38,16 @@ Native Cocos UI branch update: see docs/NATIVE-BOARD-20261009.md for the current
 Mobile native board revision: see docs/MOBILE-NATIVE-BOARD-20261009.md. Official Cocos 3.8.8 Web build and three viewport touch/recovery cases passed.
 
 Isolated world/R5 integration: docs/WORLD-R5-INTEGRATION-20261009.md. Original UI/scene/GLB retained; three regional witness replays validated; current-session only, no score registration or rewards.
+
+## reward-background-return 需要 Node ≥22.6
+`tools/board-ui/test_reward_background_return.cjs` 用到 `node:module` 的 `stripTypeScriptTypes`，Node 22.6 才有。Node 版本更低时，测试会打印 `BLOCKED_NODE: … requires Node >=22.6 …, found vX` 并以退出码 78 结束，`run-suite.cjs` 把它记成 BLOCKED（`BLOCKED_NODE`）。它**不会**被算作通过。
+在 Mac 上用正确的 Node 跑（任选一种，不影响系统里的 Node）：
+```bash
+cd ~/qfl-milestone            # 仓库根目录
+npx -y node@22 --version      # 应 ≥ v22.6
+npx -y node@22 tools/board-ui/test_reward_background_return.cjs; echo exit=$?
+# 或者用 nvm：nvm install 22 && nvm exec 22 node tools/board-ui/test_reward_background_return.cjs
+# 也可以只用 Node 22 跑这一项：nvm exec 22 node tools/journey-integration/run-suite.cjs reward-background-return
+```
+
+注意（2026-10-17 在 box 上用 Node v22.23.3 实测，基于 f3d3614）：环境满足以后，这个测试仍然**失败**，位置是 `test_reward_background_return.cjs:38` 的 `assert(reward)`，原因是找不到 `RewardPanel` 弹窗。所以它不只是环境问题，测试或代码还需要单独修。

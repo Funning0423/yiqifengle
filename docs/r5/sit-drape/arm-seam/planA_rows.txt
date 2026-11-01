@@ -1,0 +1,29 @@
+TAIL lift {'L': 0.04000000000000003, 'R': 0.011000000000000003} {'L': 3.02, 'R': 8.88}
+ROW sit_down {"f": 20, "lift_mm": {"L": 0, "R": 1.2}, "need_mm": {"L": 0.0, "R": 0.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 45.55, "R": 46.5}}
+ROW sit_down {"f": 21, "lift_mm": {"L": 0.2, "R": 4.0}, "need_mm": {"L": 0.0, "R": 0.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 41.76, "R": 45.31}}
+ROW sit_down {"f": 22, "lift_mm": {"L": 2.1, "R": 13.0}, "need_mm": {"L": 0.0, "R": 0.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 32.45, "R": 25.29}}
+ROW sit_down {"f": 23, "lift_mm": {"L": 7.0, "R": 22.2}, "need_mm": {"L": 0.0, "R": 6.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 33.71, "R": 12.27}}
+ROW sit_down {"f": 24, "lift_mm": {"L": 22.0, "R": 29.0}, "need_mm": {"L": 0.0, "R": 24.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 37.34, "R": 15.54}}
+ROW sit_down {"f": 25, "lift_mm": {"L": 37.6, "R": 46.1}, "need_mm": {"L": 12.0, "R": 32.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 35.02, "R": 26.38}}
+ROW sit_down {"f": 26, "lift_mm": {"L": 56.3, "R": 64.9}, "need_mm": {"L": 42.0, "R": 52.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 20.31, "R": 14.32}}
+ROW sit_down {"f": 27, "lift_mm": {"L": 76.8, "R": 76.8}, "need_mm": {"L": 64.0, "R": 74.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 12.3, "R": 3.03}}
+ROW sit_down {"f": 28, "lift_mm": {"L": 90.0, "R": 90.0}, "need_mm": {"L": 88.0, "R": 88.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 2.16, "R": 3.15}}
+ROW sit_down {"f": 29, "lift_mm": {"L": 102.0, "R": 90.0}, "need_mm": {"L": 100.0, "R": 88.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 1.59, "R": 2.28}}
+ROW sit_down {"f": 30, "lift_mm": {"L": 94.0, "R": 76.8}, "need_mm": {"L": 92.0, "R": 70.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 2.55, "R": 5.79}}
+ROW sit_down {"f": 31, "lift_mm": {"L": 80.2, "R": 61.5}, "need_mm": {"L": 76.0, "R": 50.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 3.97, "R": 12.25}}
+ROW sit_down {"f": 32, "lift_mm": {"L": 66.6, "R": 44.4}, "need_mm": {"L": 58.0, "R": 32.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 7.05, "R": 13.6}}
+ROW sit_down {"f": 33, "lift_mm": {"L": 40.0, "R": 11.0}, "need_mm": {"L": 40.0, "R": 11.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 0.63, "R": 0.27}}
+ROW sit_down {"f": 34, "lift_mm": {"L": 40.0, "R": 11.0}, "need_mm": {"L": 40.0, "R": 11.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 1.59, "R": 2.96}}
+ROW sit_down {"f": 35, "lift_mm": {"L": 40.0, "R": 11.0}, "need_mm": {"L": 40.0, "R": 11.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 2.3, "R": 5.84}}
+ROW sit_down {"f": 36, "lift_mm": {"L": 40.0, "R": 11.0}, "need_mm": {"L": 40.0, "R": 11.0}, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 3.02, "R": 8.88}}
+ROW stand_up {"f": 0, "lift_mm": 0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 0.22, "R": 0.29}}
+ROW stand_up {"f": 1, "lift_mm": 18.8, "need_mm": 10.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 5.49, "R": 10.47}}
+ROW stand_up {"f": 2, "lift_mm": 22.2, "need_mm": 20.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 1.69, "R": 4.76}}
+ROW stand_up {"f": 3, "lift_mm": 26.0, "need_mm": 24.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 1.83, "R": 3.02}}
+ROW stand_up {"f": 4, "lift_mm": 30.0, "need_mm": 28.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 24.94, "R": 3.57}}
+ROW stand_up {"f": 5, "lift_mm": 28.0, "need_mm": 26.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 38.72, "R": 2.85}}
+ROW stand_up {"f": 6, "lift_mm": 23.9, "need_mm": 10.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 57.34, "R": 13.73}}
+ROW stand_up {"f": 7, "lift_mm": 14.0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 64.84, "R": 16.77}}
+ROW stand_up {"f": 8, "lift_mm": 6.0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 60.23, "R": 11.2}}
+ROW stand_up {"f": 9, "lift_mm": 1.8, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 55.29, "R": 14.2}}
+ROW stand_up {"f": 10, "lift_mm": 0, "need_mm": 0.0, "hits": {"apron": 0, "dress": 0, "body": 0}, "clear_mm": {"L": 50.39, "R": 15.34}}

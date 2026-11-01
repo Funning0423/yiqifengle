@@ -1,0 +1,4 @@
+PASS start: the journey arrival (w >= 0.9) and the landing hook preload (not awaited) both start the one idempotent preload
+PASS spread: instances a batch per frame, then components enabled a batch per frame, camera off, board layer first
+PASS swap: adopted lease keeps its rig active; the camera shows only when visible AND the board host is shown (reveal), lighting as before
+PASS free once: unadopted preload cancelled + disposed with the journey; adopted lease disposes its holder with itself

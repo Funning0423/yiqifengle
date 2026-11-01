@@ -1,0 +1,9 @@
+{
+  "package_version": 2,
+  "version": "1.0.0",
+  "name": "qf-meadow-encode",
+  "description": "One-shot: set meshCompress.encode=true on region_meadow/env_meadow.glb via asset-db, reimport, log, mark done, quit. No UI.",
+  "main": "./main.js",
+  "author": "GGbot",
+  "editor": ">=3.8.0"
+}

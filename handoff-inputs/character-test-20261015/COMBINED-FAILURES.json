@@ -1,0 +1,30 @@
+{
+  "status": "FAIL",
+  "scope": "Four actual combined runtime frames; no full geometric pass claim",
+  "rows": [
+    {
+      "frame": 0,
+      "cuffApron": 118,
+      "handApron": 0,
+      "legsDress": 30
+    },
+    {
+      "frame": 12,
+      "cuffApron": 50,
+      "handApron": 28,
+      "legsDress": 56
+    },
+    {
+      "frame": 37,
+      "cuffApron": 8,
+      "handApron": 0,
+      "legsDress": 23
+    },
+    {
+      "frame": 73,
+      "cuffApron": 0,
+      "handApron": 0,
+      "legsDress": 53
+    }
+  ]
+}

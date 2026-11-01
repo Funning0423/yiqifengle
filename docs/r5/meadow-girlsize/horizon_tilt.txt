@@ -1,0 +1,12 @@
+yaw 0 none ground@30m ±12°: left y 160 right y 160 tilt 0.0° drop L/R 0.00 0.00
+yaw 0 sphere ground@30m ±12°: left y 225 right y 225 tilt 0.0° drop L/R 2.03 2.03
+yaw 0 cyl ground@30m ±12°: left y 220 right y 220 tilt 0.0° drop L/R 1.87 1.87
+yaw 45 none ground@30m ±12°: left y 160 right y 160 tilt 0.0° drop L/R 0.00 0.00
+yaw 45 sphere ground@30m ±12°: left y 225 right y 225 tilt 0.0° drop L/R 2.03 2.03
+yaw 45 cyl ground@30m ±12°: left y 175 right y 210 tilt 5.1° drop L/R 0.47 1.57
+yaw 90 none ground@30m ±12°: left y 160 right y 160 tilt 0.0° drop L/R 0.00 0.00
+yaw 90 sphere ground@30m ±12°: left y 225 right y 225 tilt 0.0° drop L/R 2.03 2.03
+yaw 90 cyl ground@30m ±12°: left y 165 right y 165 tilt 0.0° drop L/R 0.16 0.16
+yaw 225 none ground@30m ±12°: left y 160 right y 160 tilt 0.0° drop L/R 0.00 0.00
+yaw 225 sphere ground@30m ±12°: left y 225 right y 225 tilt 0.0° drop L/R 2.03 2.03
+yaw 225 cyl ground@30m ±12°: left y 175 right y 210 tilt 5.1° drop L/R 0.47 1.57

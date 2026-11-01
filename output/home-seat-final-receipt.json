@@ -1,0 +1,41 @@
+{
+  "buildExit": 36,
+  "buildFinishedSeconds": 10,
+  "mainBytes": 1861856,
+  "totalBytes": 28709186,
+  "gatePassed": true,
+  "subpackages": {
+    "internal": 297535,
+    "resources": 433034,
+    "main": 985500,
+    "audio_bgm_island": 502421,
+    "board_art": 2675272,
+    "region_island": 2819224,
+    "region_meadow": 437368,
+    "region_skycity": 7492206,
+    "static_seat_preview": 11204770
+  },
+  "cloudEnginePlugins": {},
+  "entryObserved": "WorldR5Integration.scene",
+  "runtimeObserved": [
+    "WORLD_STARTUP_READY",
+    "rear glass alpha .06",
+    "night sky/cloud/palm through window",
+    "new seated heroine+stool visible",
+    "native drag changed room camera",
+    "touch accepted; BGM started"
+  ],
+  "errorsObservedAfterEngineFix": 0,
+  "warnings": [
+    "HarmonyOS library notice",
+    "setInnerAudioOption unsupported in DevTools"
+  ],
+  "pending": [
+    "departure/return and board input",
+    "static/dynamic visual seam and separate stool persistence",
+    "2k-vs-1k pixel comparison and physical device quality",
+    "individual subpackage delivery limits",
+    "BuildInfo dev"
+  ],
+  "incident": "Native drag unexpectedly opened preview compile; canceled while compiling, no upload stage or QR result observed; further drags stopped"
+}

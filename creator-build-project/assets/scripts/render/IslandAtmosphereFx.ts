@@ -2,6 +2,7 @@ import { Node, Scene, MeshRenderer, Material, Mesh, Color, Vec3, EffectAsset, ut
 import { ISLAND_FX, approachNight, lightFromNight, pickNight, beamGeometry, beamState, bandGeometry, discGeometry, glintGeometry, moonState, smokePuffs } from './IslandAtmosphereFxCore';
 import * as PropsLayout from '../world-r2/IslandPropsLayout';
 import { GullFlock } from './GullFlock';
+import { smokeLeanScale, windYawDelta } from './GlobalWind';
 import type { FxGeometry, V3 } from './IslandAtmosphereFxCore';
 /** cc wrapper for IslandAtmosphereFxCore (chimney smoke + lighthouse beam/glow/sea glint).
  * Nodes live under one scene-root node 'IslandAtmosphereFx' (outside the imported model: renderer classification,
@@ -52,10 +53,14 @@ export class IslandAtmosphereFx {
     mr.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; mr.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF;
     return { node, material, applied: '' };
   }
+  /** r4-prep (C): lakeside journey arrival fade for the island-only gulls (1 normal .. 0 none). */
+  setIslandFade(f: number): void { if (this.gulls) this.gulls.setFade(f); }
   /** Called from WorldFlowComponent.applyDayNight (same inputs as DoorSpillHint/RoomLightingRig). */
   setView(exterior: boolean, night: boolean): void { this.exterior = exterior; this.night = night; if (this.gulls) this.gulls.setView(exterior); if (!exterior) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); } }
   /** lateUpdate: after WorldFlow wrote this frame's camera. camera = main world camera node (live position). */
-  advance(dt: number, camera: Node | null, wind: number): void {
+  advance(dt: number, camera: Node | null, wind: number, seaSurfaceY?: number): void {
+    if ((globalThis as any).__QF_SAIL_HOLD_ISLAND_FX) { if (this.root && this.root.active) { (this as any)._qfHoldHid = true; this.root.active = false; } return; }
+    if ((this as any)._qfHoldHid && this.root) { this.root.active = true; (this as any)._qfHoldHid = false; }
     const root = this.root; if (!root || !isValid(root, true)) return;
     const step = Number.isFinite(dt) && dt > 0 ? Math.min(dt, .1) : 0; this.time += step;
     // Night weight: first sync snaps to the current mode, afterwards a switch fades over nightFadeS (T9n mechanism).
@@ -72,11 +77,11 @@ export class IslandAtmosphereFx {
     this.place(this.beam, null, b.rotation, null, ISLAND_FX.beam.color, b.alpha);
     this.place(this.glow, b.glowPos, b.glowRotation, [b.glowScale, b.glowScale, b.glowScale], ISLAND_FX.glow.color, b.glowAlpha);
     this.place(this.glint, null, b.glintRotation, null, ISLAND_FX.glint.color, b.glintAlpha);
-    const m = moonState(this.time, cam, this.lightShown); this.last.moon = m.moonAlpha; this.last.band = m.bandAlpha;
+    const m = moonState(this.time, cam, this.lightShown, seaSurfaceY); this.last.moon = m.moonAlpha; this.last.band = m.bandAlpha;
     this.place(this.moon, null, m.moonRotation, null, ISLAND_FX.moon.color, m.moonAlpha);
     this.place(this.halo, null, m.moonRotation, null, ISLAND_FX.moon.haloColor, m.haloAlpha);
     for (let k = 0; k < this.bands.length; k++) this.place(this.bands[k], m.bandPos, m.bandRotation, [m.bandScale, 1, m.bandScale], ISLAND_FX.band.color, m.bandLayerAlpha[k]);
-    const puffs = smokePuffs(this.time, Number.isFinite(wind) ? wind : 0, this.nightShown, this.smokeShown, cam); this.last.puffs = [];
+    const puffs = smokePuffs(this.time, Number.isFinite(wind) ? wind : 0, this.nightShown, this.smokeShown, cam, { delta: windYawDelta(), scale: smokeLeanScale() }); this.last.puffs = [];
     for (let i = 0; i < puffs.length && i < this.puffs.length; i++) { const q = puffs[i]; this.last.puffs.push(q.alpha); this.place(this.puffs[i], q.position, q.rotation, q.scale, q.color, q.alpha); }
   }
   private place(fx: Fx | null, pos: V3 | null, rot: number[], scale: V3 | null, rgb: V3, alpha: number): void {

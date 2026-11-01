@@ -1,0 +1,109 @@
+{
+  "status": "PASS_REAL_GLB_NODE_FK_NOT_COCOS_OR_RENDER",
+  "results": [
+    {
+      "name": "sit lower-body matched-entry contract: current idle frame zero equals sit_down root/hips/legs",
+      "ok": true,
+      "info": {
+        "idle_breathing_loop -> sit_down": {
+          "maxLocalTranslationMm": 0,
+          "maxLocalRotationDeg": 0.018508017611356495
+        }
+      }
+    },
+    {
+      "name": "current sit/stand contact-safe blending: actual controller roots preserve planted feet under 2 mm",
+      "ok": true,
+      "info": {
+        "stand": [
+          1.5881788698292125,
+          1.3901501966399323
+        ],
+        "sit": [
+          1.4917608465627936,
+          1.3118621882277912
+        ]
+      }
+    },
+    {
+      "name": "cancel mid-sit then idle/walk equals cold clip defaults, including omitted skirt TRS",
+      "ok": true,
+      "info": {
+        "idleMaxComponentDifference": 0,
+        "walkMaxComponentDifference": 0
+      }
+    },
+    {
+      "name": "door is a cancellable two-second action and never writes controller translation",
+      "ok": true,
+      "info": {
+        "durationSec": 2,
+        "contactSec": 0.6333
+      }
+    },
+    {
+      "name": "real flow touch-and-release: contact before door rotation; whole recovery before walking",
+      "ok": true,
+      "info": {
+        "contactAt": 0.6333333333333336,
+        "contactDoorDeg": 0,
+        "palmErrorMm": 4.3968895145910665,
+        "firstRotationAt": 0.6500000000000004,
+        "releaseGapMm": 31.791905945033616,
+        "walkAfterSeconds": 2.0000000000000995
+      }
+    },
+    {
+      "name": "real flow touch-and-release: contact before door rotation; whole recovery before walking (lease has no wait)",
+      "ok": true,
+      "info": {
+        "contactAt": 0.6333333333333336,
+        "contactDoorDeg": 0,
+        "palmErrorMm": 4.3968895145910665,
+        "firstRotationAt": 0.6500000000000004,
+        "releaseGapMm": 31.791905945033616,
+        "walkAfterSeconds": 2.0000000000000995
+      }
+    },
+    {
+      "name": "legacy/missing-clip adapter preserves one-second door-only flow {\"legacy\":true}",
+      "ok": true,
+      "info": {
+        "openingSeconds": 1.0000000000000497
+      }
+    },
+    {
+      "name": "legacy/missing-clip adapter preserves one-second door-only flow {\"missingClip\":true}",
+      "ok": true,
+      "info": {
+        "openingSeconds": 1.0000000000000497
+      }
+    },
+    {
+      "name": "cancel door at 0.3 s: no late door/character writes; next leave still works",
+      "ok": true,
+      "info": {
+        "cancelledAt": 0.3,
+        "restoredRoot": [
+          0.4327299768730942,
+          0,
+          -4.207611558444886
+        ],
+        "retry": "island"
+      }
+    },
+    {
+      "name": "cancel door at 0.9 s: no late door/character writes; next leave still works",
+      "ok": true,
+      "info": {
+        "cancelledAt": 0.9,
+        "restoredRoot": [
+          0.4327299768730942,
+          0,
+          -4.207611558444886
+        ],
+        "retry": "island"
+      }
+    }
+  ]
+}

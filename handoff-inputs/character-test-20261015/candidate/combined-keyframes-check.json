@@ -1,0 +1,379 @@
+{
+  "candidateSHA256": "2f98cf0e1ee1a1213008397e2fd369868576317cd53e718333f7158d2c4de19f",
+  "baseline": "Same supplied candidate GLB and exact replay pose, hand_rest_support target set to zero. This isolates only the existing support morph; it is not an independent previous GLB replay.",
+  "scope": "Actual TS roundtrip replay397; specified consecutive shard of the full sit-action/transition/settled-hold frames. All397 rows required; cuff region includes all triangles touching original sleeve rings0..6, sleeve region all triangles touching sleeve IDs1503..2542. Shared torso/shoulder union root may include neighboring torso faces. Hands vs apron/dress; apron vs dress; thigh/pelvis BODY primitive4 plus main shin/thigh-weighted faces vs cloth; dress bind-centroidZ front/back halves. Does not cover all within-half dress self folds or scene/seat/foot support. localSupportPairs includes either face touching a changed cloth vertex.",
+  "rows": [
+    {
+      "frame": 0,
+      "time": -0.008333333333333333,
+      "clip": "sit_hold",
+      "clipTime": 0,
+      "action": null,
+      "supportWeight": 1,
+      "upperGarmentPairs": 0,
+      "baseline": {
+        "cuffApron": {
+          "totalPairs": 56,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 43,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 56,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 43,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 106,
+          "localSupportPairs": 106
+        },
+        "handDress": {
+          "totalPairs": 43,
+          "localSupportPairs": 43
+        },
+        "apronDress": {
+          "totalPairs": 65,
+          "localSupportPairs": 65
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 30,
+          "localSupportPairs": 22
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      },
+      "candidate": {
+        "cuffApron": {
+          "totalPairs": 118,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 52,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 118,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 52,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "apronDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 30,
+          "localSupportPairs": 22
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      }
+    },
+    {
+      "frame": 12,
+      "time": 0.09166666666666666,
+      "clip": "stand_up",
+      "clipTime": 0.09166666666666666,
+      "action": "stand",
+      "supportWeight": 0.5416666666666667,
+      "upperGarmentPairs": 0,
+      "baseline": {
+        "cuffApron": {
+          "totalPairs": 48,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 10,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 48,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 10,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 20,
+          "localSupportPairs": 20
+        },
+        "handDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "apronDress": {
+          "totalPairs": 33,
+          "localSupportPairs": 33
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 57,
+          "localSupportPairs": 45
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      },
+      "candidate": {
+        "cuffApron": {
+          "totalPairs": 50,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 14,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 50,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 14,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 28,
+          "localSupportPairs": 28
+        },
+        "handDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "apronDress": {
+          "totalPairs": 4,
+          "localSupportPairs": 4
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 56,
+          "localSupportPairs": 44
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      }
+    },
+    {
+      "frame": 37,
+      "time": 0.3,
+      "clip": "stand_up",
+      "clipTime": 0.3000000000000001,
+      "action": "stand",
+      "supportWeight": 0,
+      "upperGarmentPairs": 0,
+      "baseline": {
+        "cuffApron": {
+          "totalPairs": 8,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 8,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "apronDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 23,
+          "localSupportPairs": 0
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      },
+      "candidate": {
+        "cuffApron": {
+          "totalPairs": 8,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 8,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "apronDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 23,
+          "localSupportPairs": 0
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      }
+    },
+    {
+      "frame": 73,
+      "time": 0.6,
+      "clip": "stand_up",
+      "clipTime": 0.6000000000000003,
+      "action": "stand",
+      "supportWeight": 0,
+      "upperGarmentPairs": 0,
+      "baseline": {
+        "cuffApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "apronDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 53,
+          "localSupportPairs": 0
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      },
+      "candidate": {
+        "cuffApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "cuffDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "sleeveApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "sleeveDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "handDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "apronDress": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsApron": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        },
+        "legsDress": {
+          "totalPairs": 53,
+          "localSupportPairs": 0
+        },
+        "dressFrontBack": {
+          "totalPairs": 0,
+          "localSupportPairs": 0
+        }
+      }
+    }
+  ]
+}

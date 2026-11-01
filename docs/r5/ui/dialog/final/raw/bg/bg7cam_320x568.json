@@ -1,0 +1,49 @@
+{
+ "W": 320,
+ "H": 568,
+ "scale": 1.0,
+ "progress": 0.6,
+ "s_m": 2.96,
+ "route_len_m": 4.933,
+ "girl_root": [
+  -1.3316,
+  0,
+  2.6504
+ ],
+ "girl_yaw_deg": 139.86,
+ "camera": {
+  "position": [
+   -2.3019,
+   1.95,
+   4.6599
+  ],
+  "target": [
+   -1.3312,
+   0.76,
+   2.6507
+  ],
+  "fovVerticalDeg": 60.0,
+  "rig": "TRANSITION_CAMERA.returnFollow.out + targetHeight -0.10 m (对话镜头建议)"
+ },
+ "girl_bbox_pt": [
+  99.1,
+  77.3,
+  211.3,
+  408.6
+ ],
+ "girl_head_pt": [
+  159.9,
+  148.1
+ ],
+ "mode": "day",
+ "char_glb": "/workspace/yiqifengle/previews/角色动画bot/r5-wrist-footik/final/chr_b_r5g2_r5wrist_v4_final.glb",
+ "island_glb": "bc81575f:creator-project/assets/firstslice/combined_visual_m.glb",
+ "anim": "walk_loop@8",
+ "light": {
+  "sun": 1.9,
+  "sky": 0.6,
+  "view_transform": "Standard",
+  "exposure": 0.0,
+  "look": "None"
+ }
+}

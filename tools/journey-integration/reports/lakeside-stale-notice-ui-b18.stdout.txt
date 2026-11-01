@@ -1,0 +1,8 @@
+PASS copy: 10 字, ≤ 14
+PASS repairs are pooled process-wide (any Store may load first) and cleared by clearNotice
+PASS board: once, 0.3 s in / 2 s hold / 0.3 s out, flag cleared at once, never again; toast has no input blocker
+PASS board: not before presentForPlay (entry shot + transition), not for another stage, not under a modal
+PASS priority: a tool tip during the notice waits — notice stays (text + timing), tip shown after it fades
+PASS cancel: tip held during the notice + tool cancelled during the notice -> no tip after; cancel does not cut the notice short
+PASS position + night: the notice uses the shared Toast (BoardLayout.toast band, under the plate, over the tray) with tint
+lakeside-stale-notice-ui-b18 7 PASS

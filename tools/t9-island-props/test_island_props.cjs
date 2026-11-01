@@ -49,7 +49,7 @@ ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2, >= 40 % of the po
 });
 ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers the whole sign, inside the 8 px inset, clear of bottom-row hits and the girl',()=>{
   const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3);assert.equal(L.SIGN_HIT_MIN,88);
-  for(const [w,h] of FRAMES){const v=L.signpostRectUi(pose,w,h),r=L.signpostHitUi(pose,w,h);
+  for(const [w,h] of FRAMES){const v=L.signpostRectUi(pose,w,h,L.signpostShiftX(pose,w,h)),r=L.signpostHitUi(pose,w,h); // b16 ④: the sign is shifted left on wide phones
     assert(r.width>=88&&r.height>=88,'hit '+r.width+'x'+r.height+' '+w+'x'+h);
     assert(r.x-r.width/2<=v.x-v.width/2+1e-6&&r.x+r.width/2>=v.x+v.width/2-1e-6&&r.y-r.height/2<=v.y-v.height/2+1e-6&&r.y+r.height/2>=v.y+v.height/2-1e-6,'hit covers sign '+w+'x'+h);
     assert(inside(r,w,h,8),'hit inside inset '+w+'x'+h);
@@ -65,13 +65,13 @@ ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world 
   assert(L.rippleAt(W.ripple.periodS/2,0).alpha>.99&&a0.alpha<1e-9,'fade in/out');assert(W.ripple.nightAlpha<W.ripple.alpha&&W.shadow.nightAlpha<W.shadow.alpha,'dimmer at night');
   for(const p of P.palms){assert(p.position[2]>6.5&&p.position[2]<10.5,'palm z on beach');assert(p.position[1]>-1&&p.position[1]<.2);}
   assert(P.signpost.position[1]<P.seaY,'sign posts stand in the water');
-  const dir=path.resolve(SRC,'../bundles/region_island',P.dir),names=[P.signpost.prefab,...P.palms.map(p=>p.prefab),...Object.values(P.buttons).map(b=>b.prefab)];
+  const dir=path.resolve(SRC,'../bundles/region_island',P.dir),names=[P.signpost.prefab,...P.palms.map(p=>p.prefab),...P.structures.map(p=>p.prefab),...Object.values(P.buttons).map(b=>b.prefab)];
   for(const n of names){const m=JSON.parse(fs.readFileSync(path.join(dir,n+'.glb.meta'),'utf8'));assert.equal(m.importer,'gltf');assert.equal(m.userData.tangents,1,'Tangents=Exclude '+n);
     const b=fs.readFileSync(path.join(dir,n+'.glb')),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)));assert(!j.images,'no embedded images '+n);
     const mats=j.materials.map(x=>x.name);assert(mats.every(x=>x==='M_env_palette'||(n==='ui_signpost'&&x==='M_signpost_lamp')),'materials '+n+' '+mats);
     assert((j.extensionsUsed||[]).includes('KHR_draco_mesh_compression'));}
   assert(!fs.existsSync(path.join(dir,'beach_gull.glb'))&&!fs.existsSync(path.join(dir,'beach_crab.glb'))&&!fs.existsSync(path.join(dir,'beach_turtle.glb')),'duplicate animals not added');
-  assert.equal(fs.readdirSync(dir).filter(f=>f.endsWith('.glb')).length,6);
+  assert.equal(fs.readdirSync(dir).filter(f=>f.endsWith('.glb')).length,7);
 });
 ok('IslandPropTaps: subscribe/unsubscribe, info flags, listener errors isolated',()=>{
   const got=[];const off=T.onPropTap((t,ph,i)=>got.push([t,ph,i.blocked,i.props]));const bad=T.onPropTap(()=>{throw Error('x');});
@@ -178,7 +178,7 @@ ok('R3: IslandProps.setSignEntrance(0) hides the whole sign set (sign node, wate
   assert(/if \(e <= 0\) \{ if \(this\.lampLight && isValid\(this\.lampLight, true\) && this\.lampLight\.enabled\) \{ this\.lampLight\.luminance = 0; this\.lampLight\.enabled = false; \}/.test(src),'lamp light off at 0');
   assert(/for \(const g of \[this\.glow, this\.lampGlow\]\) if \(g && isValid\(g\.node, true\) && g\.node\.active\) g\.node\.active = false;/.test(src),'glows off at 0');
   assert(/const on = L\.enabled && this\.entrance > 0; if \(this\.lampLight\.enabled !== on\) this\.lampLight\.enabled = on;/.test(src),'tickWater keeps it off');
-  assert(/this\.tickSea\(w\);/.test(src)&&!/tickSea\([^)]*entrance/.test(src),'sea tint independent of the sign');
+  assert(/this\.tickSea\(this\.nightW\);/.test(src)&&!/tickSea\([^)]*entrance/.test(src),'sea tint independent of the sign and of the exterior layer');
   assert(/if \(this\.root\.active !== o\.exterior\) this\.root\.active = o\.exterior;/.test(src),'whole prop root off when the exterior is not visible (nothing in the room)');
 });
 ok('night sign text: day ink stays #633f21; night ink stays #3a220f',()=>{
@@ -230,9 +230,18 @@ ok('T9n-2 lamp + sea: amber unlit lamp glass (not white), soft glow, board light
   const lin=L.srgbToLinear(P.seaNight.tint);assert.deepEqual(lin.map(v=>+v.toFixed(3)),[0.212,0.347,0.451]);
   assert.deepEqual(L.seaColorAt([255,255,255,255],0),[255,255,255,255]);assert.deepEqual(L.seaColorAt([255,255,255,255],1),[127,159,179,255]);
   assert.deepEqual(L.seaColorAt([200,220,240,255],0.5),[150,179,204,255]);
+  // v3.1 journey night sea: day untouched whatever the journey weight; j=0 is the old night; j=1 deepens to journeyTint
+  assert.equal(P.seaNight.tint,'#7f9fb3');assert.equal(P.seaNight.journeyTint,'#4a6a8c');
+  for(const c of [[255,255,255,255],[200,220,240,255],[90,180,210,200]])for(const j of [0,.3,1])assert.deepEqual(L.seaColorAt(c,0,j),c,'day sea must stay authored');
+  assert.deepEqual(L.seaColorAt([200,220,240,255],0.5,0),L.seaColorAt([200,220,240,255],0.5));
+  assert.deepEqual(L.seaColorAt([255,255,255,255],1,1),[74,106,140,255]);
+  {const lum=v=>.2126*v[0]+.7152*v[1]+.0722*v[2],base=[120,200,220,255];let prev=1e9;for(const j of [0,.25,.5,.75,1]){const l=lum(L.seaColorAt(base,1,j));assert(l<prev,'journey tint monotonic darker');prev=l;}}
+  {const boot=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8'),src2=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+   assert(/night:dn\?\.mode==='night',journey:s\.state==='region-travel'/.test(boot),'boot passes journey from region-travel');
+   assert(/journey\?: boolean/.test(src2)&&/approachNight\(this\.journeyW, !!o\.journey, dt\)/.test(src2)&&/t\.tick\(w, this\.journeyW, dt\)/.test(src2),'IslandProps fades journey weight into the sea tint');}
   const src=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
-  assert(/mat === shared\) \{ this\.stats\.sea = 'skipped:no-instance'/.test(src),'never the shared sea material');
-  assert(!/setSharedMaterial\([^)]*sea/i.test(src)&&/restoreSea\(\)/.test(src)&&/this\.tickSea\(w\)/.test(src));
+  {const st=fs.readFileSync(path.join(SRC,'world-r2/SeaNightTint.ts'),'utf8');assert(/never adopt the shared asset/.test(st)&&/m === shared\) \{ this\.state = 'failed'/.test(st),'never the shared sea material');}
+  assert(!/setSharedMaterial\([^)]*sea/i.test(src)&&/restoreSea\(\)/.test(src)&&/this\.tickSea\(this\.nightW\)/.test(src));
   assert(/effectName: 'builtin-unlit', technique: 0 \}\); m\.setProperty\('mainColor', new Color\(S\.lampGlass\.nightColor\)\)/.test(src)&&/SignLampGlow/.test(src));
   assert(!/moon/i.test(src),'no moon (owned by 场景特效bot)');
 });

@@ -1,0 +1,167 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "eb1e6694-6ba5-470c-99b6-f1872d3ff027",
+  "files": [],
+  "subMetas": {
+    "1f7f0": {
+      "importer": "gltf-mesh",
+      "uuid": "eb1e6694-6ba5-470c-99b6-f1872d3ff027@1f7f0",
+      "displayName": "",
+      "id": "1f7f0",
+      "name": "rm_bank_left.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 113
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "da662": {
+      "importer": "gltf-mesh",
+      "uuid": "eb1e6694-6ba5-470c-99b6-f1872d3ff027@da662",
+      "displayName": "",
+      "id": "da662",
+      "name": "rm_bank_right.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 113
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9a8b0": {
+      "importer": "gltf-mesh",
+      "uuid": "eb1e6694-6ba5-470c-99b6-f1872d3ff027@9a8b0",
+      "displayName": "",
+      "id": "9a8b0",
+      "name": "rm_reeds.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 308
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "eb1e6694-6ba5-470c-99b6-f1872d3ff027@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dd225": {
+      "importer": "gltf-material",
+      "uuid": "eb1e6694-6ba5-470c-99b6-f1872d3ff027@dd225",
+      "displayName": "",
+      "id": "dd225",
+      "name": "M_transit_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "db9ab": {
+      "importer": "gltf-scene",
+      "uuid": "eb1e6694-6ba5-470c-99b6-f1872d3ff027@db9ab",
+      "displayName": "",
+      "id": "db9ab",
+      "name": "transit_river_mouth.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "transit_palette_256",
+        "uri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "eb1e6694-6ba5-470c-99b6-f1872d3ff027@1f7f0",
+        "eb1e6694-6ba5-470c-99b6-f1872d3ff027@da662",
+        "eb1e6694-6ba5-470c-99b6-f1872d3ff027@9a8b0"
+      ],
+      "skeletons": [],
+      "textures": [
+        "eb1e6694-6ba5-470c-99b6-f1872d3ff027@e39f7"
+      ],
+      "materials": [
+        "eb1e6694-6ba5-470c-99b6-f1872d3ff027@dd225"
+      ],
+      "scenes": [
+        "eb1e6694-6ba5-470c-99b6-f1872d3ff027@db9ab"
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}

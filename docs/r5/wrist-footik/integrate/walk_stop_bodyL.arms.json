@@ -1,0 +1,1966 @@
+{
+ "rows": [
+  {
+   "f": 0.0,
+   "L": {
+    "elbow_flex_deg": 37.6,
+    "elbow_gap_cm": 3.12,
+    "elbow_x_cm": 22.74,
+    "upper_frontal_deg": 14.1,
+    "fore_frontal_deg": 1.5,
+    "palm_vs_thigh_deg": 47.7,
+    "hand_fwd_cm": 18.6
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 4.44,
+    "elbow_x_cm": 15.47,
+    "upper_frontal_deg": 3.9,
+    "fore_frontal_deg": 19.8,
+    "palm_vs_thigh_deg": 20.8,
+    "hand_fwd_cm": -3.5
+   }
+  },
+  {
+   "f": 0.5,
+   "L": {
+    "elbow_flex_deg": 37.6,
+    "elbow_gap_cm": 3.21,
+    "elbow_x_cm": 22.68,
+    "upper_frontal_deg": 14.2,
+    "fore_frontal_deg": 2.2,
+    "palm_vs_thigh_deg": 46.8,
+    "hand_fwd_cm": 17.9
+   },
+   "R": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 4.41,
+    "elbow_x_cm": 15.66,
+    "upper_frontal_deg": 3.9,
+    "fore_frontal_deg": 19.5,
+    "palm_vs_thigh_deg": 20.8,
+    "hand_fwd_cm": -3.4
+   }
+  },
+  {
+   "f": 1.0,
+   "L": {
+    "elbow_flex_deg": 37.6,
+    "elbow_gap_cm": 3.29,
+    "elbow_x_cm": 22.6,
+    "upper_frontal_deg": 14.4,
+    "fore_frontal_deg": 2.9,
+    "palm_vs_thigh_deg": 46.0,
+    "hand_fwd_cm": 17.2
+   },
+   "R": {
+    "elbow_flex_deg": 34.7,
+    "elbow_gap_cm": 3.81,
+    "elbow_x_cm": 15.84,
+    "upper_frontal_deg": 4.0,
+    "fore_frontal_deg": 19.1,
+    "palm_vs_thigh_deg": 20.9,
+    "hand_fwd_cm": -3.3
+   }
+  },
+  {
+   "f": 1.5,
+   "L": {
+    "elbow_flex_deg": 37.6,
+    "elbow_gap_cm": 3.39,
+    "elbow_x_cm": 22.45,
+    "upper_frontal_deg": 14.3,
+    "fore_frontal_deg": 3.5,
+    "palm_vs_thigh_deg": 44.7,
+    "hand_fwd_cm": 16.5
+   },
+   "R": {
+    "elbow_flex_deg": 33.6,
+    "elbow_gap_cm": 3.9,
+    "elbow_x_cm": 16.22,
+    "upper_frontal_deg": 4.5,
+    "fore_frontal_deg": 18.9,
+    "palm_vs_thigh_deg": 19.6,
+    "hand_fwd_cm": -2.9
+   }
+  },
+  {
+   "f": 2.0,
+   "L": {
+    "elbow_flex_deg": 37.7,
+    "elbow_gap_cm": 4.02,
+    "elbow_x_cm": 22.29,
+    "upper_frontal_deg": 14.2,
+    "fore_frontal_deg": 4.1,
+    "palm_vs_thigh_deg": 43.4,
+    "hand_fwd_cm": 15.7
+   },
+   "R": {
+    "elbow_flex_deg": 32.5,
+    "elbow_gap_cm": 3.99,
+    "elbow_x_cm": 16.6,
+    "upper_frontal_deg": 5.0,
+    "fore_frontal_deg": 18.7,
+    "palm_vs_thigh_deg": 18.4,
+    "hand_fwd_cm": -2.5
+   }
+  },
+  {
+   "f": 2.5,
+   "L": {
+    "elbow_flex_deg": 37.7,
+    "elbow_gap_cm": 4.19,
+    "elbow_x_cm": 22.17,
+    "upper_frontal_deg": 14.1,
+    "fore_frontal_deg": 5.5,
+    "palm_vs_thigh_deg": 41.0,
+    "hand_fwd_cm": 14.6
+   },
+   "R": {
+    "elbow_flex_deg": 32.0,
+    "elbow_gap_cm": 3.26,
+    "elbow_x_cm": 17.19,
+    "upper_frontal_deg": 6.0,
+    "fore_frontal_deg": 18.2,
+    "palm_vs_thigh_deg": 16.2,
+    "hand_fwd_cm": -1.1
+   }
+  },
+  {
+   "f": 3.0,
+   "L": {
+    "elbow_flex_deg": 37.7,
+    "elbow_gap_cm": 4.32,
+    "elbow_x_cm": 22.0,
+    "upper_frontal_deg": 14.0,
+    "fore_frontal_deg": 6.8,
+    "palm_vs_thigh_deg": 38.6,
+    "hand_fwd_cm": 13.4
+   },
+   "R": {
+    "elbow_flex_deg": 31.4,
+    "elbow_gap_cm": 3.49,
+    "elbow_x_cm": 17.75,
+    "upper_frontal_deg": 7.0,
+    "fore_frontal_deg": 17.5,
+    "palm_vs_thigh_deg": 14.1,
+    "hand_fwd_cm": 0.2
+   }
+  },
+  {
+   "f": 3.5,
+   "L": {
+    "elbow_flex_deg": 37.7,
+    "elbow_gap_cm": 4.38,
+    "elbow_x_cm": 21.7,
+    "upper_frontal_deg": 13.6,
+    "fore_frontal_deg": 8.6,
+    "palm_vs_thigh_deg": 36.7,
+    "hand_fwd_cm": 11.9
+   },
+   "R": {
+    "elbow_flex_deg": 31.3,
+    "elbow_gap_cm": 3.65,
+    "elbow_x_cm": 18.38,
+    "upper_frontal_deg": 8.0,
+    "fore_frontal_deg": 16.5,
+    "palm_vs_thigh_deg": 13.0,
+    "hand_fwd_cm": 2.1
+   }
+  },
+  {
+   "f": 4.0,
+   "L": {
+    "elbow_flex_deg": 37.8,
+    "elbow_gap_cm": 4.03,
+    "elbow_x_cm": 21.33,
+    "upper_frontal_deg": 13.1,
+    "fore_frontal_deg": 10.4,
+    "palm_vs_thigh_deg": 34.9,
+    "hand_fwd_cm": 10.5
+   },
+   "R": {
+    "elbow_flex_deg": 31.1,
+    "elbow_gap_cm": 3.82,
+    "elbow_x_cm": 18.95,
+    "upper_frontal_deg": 8.9,
+    "fore_frontal_deg": 15.2,
+    "palm_vs_thigh_deg": 12.3,
+    "hand_fwd_cm": 3.9
+   }
+  },
+  {
+   "f": 4.5,
+   "L": {
+    "elbow_flex_deg": 37.5,
+    "elbow_gap_cm": 4.02,
+    "elbow_x_cm": 20.93,
+    "upper_frontal_deg": 12.7,
+    "fore_frontal_deg": 12.7,
+    "palm_vs_thigh_deg": 33.1,
+    "hand_fwd_cm": 9.1
+   },
+   "R": {
+    "elbow_flex_deg": 31.0,
+    "elbow_gap_cm": 3.97,
+    "elbow_x_cm": 19.48,
+    "upper_frontal_deg": 9.7,
+    "fore_frontal_deg": 13.8,
+    "palm_vs_thigh_deg": 12.1,
+    "hand_fwd_cm": 5.8
+   }
+  },
+  {
+   "f": 5.0,
+   "L": {
+    "elbow_flex_deg": 37.2,
+    "elbow_gap_cm": 3.71,
+    "elbow_x_cm": 20.48,
+    "upper_frontal_deg": 12.2,
+    "fore_frontal_deg": 14.9,
+    "palm_vs_thigh_deg": 31.2,
+    "hand_fwd_cm": 7.6
+   },
+   "R": {
+    "elbow_flex_deg": 30.8,
+    "elbow_gap_cm": 4.05,
+    "elbow_x_cm": 19.94,
+    "upper_frontal_deg": 10.3,
+    "fore_frontal_deg": 12.3,
+    "palm_vs_thigh_deg": 12.5,
+    "hand_fwd_cm": 7.6
+   }
+  },
+  {
+   "f": 5.5,
+   "L": {
+    "elbow_flex_deg": 37.0,
+    "elbow_gap_cm": 3.48,
+    "elbow_x_cm": 20.0,
+    "upper_frontal_deg": 11.6,
+    "fore_frontal_deg": 16.7,
+    "palm_vs_thigh_deg": 29.5,
+    "hand_fwd_cm": 6.2
+   },
+   "R": {
+    "elbow_flex_deg": 30.9,
+    "elbow_gap_cm": 4.05,
+    "elbow_x_cm": 20.28,
+    "upper_frontal_deg": 10.7,
+    "fore_frontal_deg": 11.1,
+    "palm_vs_thigh_deg": 13.8,
+    "hand_fwd_cm": 9.2
+   }
+  },
+  {
+   "f": 6.0,
+   "L": {
+    "elbow_flex_deg": 36.7,
+    "elbow_gap_cm": 3.31,
+    "elbow_x_cm": 19.47,
+    "upper_frontal_deg": 10.9,
+    "fore_frontal_deg": 18.4,
+    "palm_vs_thigh_deg": 27.9,
+    "hand_fwd_cm": 4.8
+   },
+   "R": {
+    "elbow_flex_deg": 31.0,
+    "elbow_gap_cm": 4.02,
+    "elbow_x_cm": 20.56,
+    "upper_frontal_deg": 10.9,
+    "fore_frontal_deg": 9.7,
+    "palm_vs_thigh_deg": 15.5,
+    "hand_fwd_cm": 10.8
+   }
+  },
+  {
+   "f": 6.5,
+   "L": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 3.21,
+    "elbow_x_cm": 19.23,
+    "upper_frontal_deg": 10.6,
+    "fore_frontal_deg": 19.8,
+    "palm_vs_thigh_deg": 26.5,
+    "hand_fwd_cm": 3.7
+   },
+   "R": {
+    "elbow_flex_deg": 31.1,
+    "elbow_gap_cm": 4.05,
+    "elbow_x_cm": 20.78,
+    "upper_frontal_deg": 11.3,
+    "fore_frontal_deg": 9.0,
+    "palm_vs_thigh_deg": 17.4,
+    "hand_fwd_cm": 11.9
+   }
+  },
+  {
+   "f": 7.0,
+   "L": {
+    "elbow_flex_deg": 36.2,
+    "elbow_gap_cm": 3.12,
+    "elbow_x_cm": 18.95,
+    "upper_frontal_deg": 10.2,
+    "fore_frontal_deg": 21.1,
+    "palm_vs_thigh_deg": 25.2,
+    "hand_fwd_cm": 2.5
+   },
+   "R": {
+    "elbow_flex_deg": 31.2,
+    "elbow_gap_cm": 4.05,
+    "elbow_x_cm": 20.97,
+    "upper_frontal_deg": 11.7,
+    "fore_frontal_deg": 8.2,
+    "palm_vs_thigh_deg": 19.5,
+    "hand_fwd_cm": 13.0
+   }
+  },
+  {
+   "f": 7.5,
+   "L": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.19,
+    "elbow_x_cm": 18.89,
+    "upper_frontal_deg": 10.1,
+    "fore_frontal_deg": 21.6,
+    "palm_vs_thigh_deg": 22.6,
+    "hand_fwd_cm": 1.7
+   },
+   "R": {
+    "elbow_flex_deg": 32.0,
+    "elbow_gap_cm": 4.06,
+    "elbow_x_cm": 21.05,
+    "upper_frontal_deg": 11.9,
+    "fore_frontal_deg": 7.6,
+    "palm_vs_thigh_deg": 21.4,
+    "hand_fwd_cm": 13.7
+   }
+  },
+  {
+   "f": 8.0,
+   "L": {
+    "elbow_flex_deg": 35.6,
+    "elbow_gap_cm": 3.34,
+    "elbow_x_cm": 18.83,
+    "upper_frontal_deg": 10.0,
+    "fore_frontal_deg": 22.1,
+    "palm_vs_thigh_deg": 20.3,
+    "hand_fwd_cm": 0.8
+   },
+   "R": {
+    "elbow_flex_deg": 32.8,
+    "elbow_gap_cm": 4.04,
+    "elbow_x_cm": 21.12,
+    "upper_frontal_deg": 12.2,
+    "fore_frontal_deg": 7.0,
+    "palm_vs_thigh_deg": 23.7,
+    "hand_fwd_cm": 14.5
+   }
+  },
+  {
+   "f": 8.5,
+   "L": {
+    "elbow_flex_deg": 35.4,
+    "elbow_gap_cm": 3.83,
+    "elbow_x_cm": 18.83,
+    "upper_frontal_deg": 9.9,
+    "fore_frontal_deg": 22.5,
+    "palm_vs_thigh_deg": 18.2,
+    "hand_fwd_cm": 0.2
+   },
+   "R": {
+    "elbow_flex_deg": 33.6,
+    "elbow_gap_cm": 3.97,
+    "elbow_x_cm": 21.12,
+    "upper_frontal_deg": 12.3,
+    "fore_frontal_deg": 6.3,
+    "palm_vs_thigh_deg": 26.5,
+    "hand_fwd_cm": 15.2
+   }
+  },
+  {
+   "f": 9.0,
+   "L": {
+    "elbow_flex_deg": 35.1,
+    "elbow_gap_cm": 3.95,
+    "elbow_x_cm": 18.82,
+    "upper_frontal_deg": 9.8,
+    "fore_frontal_deg": 22.9,
+    "palm_vs_thigh_deg": 16.6,
+    "hand_fwd_cm": -0.5
+   },
+   "R": {
+    "elbow_flex_deg": 34.4,
+    "elbow_gap_cm": 3.89,
+    "elbow_x_cm": 21.12,
+    "upper_frontal_deg": 12.4,
+    "fore_frontal_deg": 5.6,
+    "palm_vs_thigh_deg": 29.6,
+    "hand_fwd_cm": 15.8
+   }
+  },
+  {
+   "f": 9.5,
+   "L": {
+    "elbow_flex_deg": 34.8,
+    "elbow_gap_cm": 4.0,
+    "elbow_x_cm": 18.8,
+    "upper_frontal_deg": 9.7,
+    "fore_frontal_deg": 23.3,
+    "palm_vs_thigh_deg": 15.9,
+    "hand_fwd_cm": -1.2
+   },
+   "R": {
+    "elbow_flex_deg": 35.2,
+    "elbow_gap_cm": 3.83,
+    "elbow_x_cm": 21.13,
+    "upper_frontal_deg": 12.7,
+    "fore_frontal_deg": 5.1,
+    "palm_vs_thigh_deg": 32.6,
+    "hand_fwd_cm": 16.5
+   }
+  },
+  {
+   "f": 10.0,
+   "L": {
+    "elbow_flex_deg": 34.6,
+    "elbow_gap_cm": 4.15,
+    "elbow_x_cm": 18.78,
+    "upper_frontal_deg": 9.6,
+    "fore_frontal_deg": 23.7,
+    "palm_vs_thigh_deg": 16.0,
+    "hand_fwd_cm": -2.0
+   },
+   "R": {
+    "elbow_flex_deg": 36.0,
+    "elbow_gap_cm": 3.77,
+    "elbow_x_cm": 21.13,
+    "upper_frontal_deg": 12.9,
+    "fore_frontal_deg": 4.6,
+    "palm_vs_thigh_deg": 35.7,
+    "hand_fwd_cm": 17.2
+   }
+  },
+  {
+   "f": 10.5,
+   "L": {
+    "elbow_flex_deg": 34.8,
+    "elbow_gap_cm": 4.13,
+    "elbow_x_cm": 18.71,
+    "upper_frontal_deg": 9.4,
+    "fore_frontal_deg": 24.3,
+    "palm_vs_thigh_deg": 16.6,
+    "hand_fwd_cm": -2.2
+   },
+   "R": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 3.72,
+    "elbow_x_cm": 21.13,
+    "upper_frontal_deg": 13.0,
+    "fore_frontal_deg": 4.2,
+    "palm_vs_thigh_deg": 38.8,
+    "hand_fwd_cm": 17.7
+   }
+  },
+  {
+   "f": 11.0,
+   "L": {
+    "elbow_flex_deg": 35.0,
+    "elbow_gap_cm": 4.44,
+    "elbow_x_cm": 18.63,
+    "upper_frontal_deg": 9.3,
+    "fore_frontal_deg": 25.0,
+    "palm_vs_thigh_deg": 17.9,
+    "hand_fwd_cm": -2.5
+   },
+   "R": {
+    "elbow_flex_deg": 36.8,
+    "elbow_gap_cm": 3.67,
+    "elbow_x_cm": 21.13,
+    "upper_frontal_deg": 13.1,
+    "fore_frontal_deg": 3.8,
+    "palm_vs_thigh_deg": 42.0,
+    "hand_fwd_cm": 18.2
+   }
+  },
+  {
+   "f": 11.5,
+   "L": {
+    "elbow_flex_deg": 35.2,
+    "elbow_gap_cm": 4.37,
+    "elbow_x_cm": 18.51,
+    "upper_frontal_deg": 9.0,
+    "fore_frontal_deg": 25.7,
+    "palm_vs_thigh_deg": 19.8,
+    "hand_fwd_cm": -2.8
+   },
+   "R": {
+    "elbow_flex_deg": 36.8,
+    "elbow_gap_cm": 3.56,
+    "elbow_x_cm": 21.06,
+    "upper_frontal_deg": 13.0,
+    "fore_frontal_deg": 3.8,
+    "palm_vs_thigh_deg": 44.9,
+    "hand_fwd_cm": 18.7
+   }
+  },
+  {
+   "f": 12.0,
+   "L": {
+    "elbow_flex_deg": 35.3,
+    "elbow_gap_cm": 4.29,
+    "elbow_x_cm": 18.39,
+    "upper_frontal_deg": 8.7,
+    "fore_frontal_deg": 26.3,
+    "palm_vs_thigh_deg": 22.2,
+    "hand_fwd_cm": -3.0
+   },
+   "R": {
+    "elbow_flex_deg": 36.8,
+    "elbow_gap_cm": 3.46,
+    "elbow_x_cm": 20.98,
+    "upper_frontal_deg": 13.0,
+    "fore_frontal_deg": 3.8,
+    "palm_vs_thigh_deg": 47.9,
+    "hand_fwd_cm": 19.2
+   }
+  },
+  {
+   "f": 12.5,
+   "L": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 4.18,
+    "elbow_x_cm": 18.25,
+    "upper_frontal_deg": 8.4,
+    "fore_frontal_deg": 27.0,
+    "palm_vs_thigh_deg": 24.7,
+    "hand_fwd_cm": -3.1
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 3.39,
+    "elbow_x_cm": 20.94,
+    "upper_frontal_deg": 13.0,
+    "fore_frontal_deg": 3.8,
+    "palm_vs_thigh_deg": 50.9,
+    "hand_fwd_cm": 19.7
+   }
+  },
+  {
+   "f": 13.0,
+   "L": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 4.06,
+    "elbow_x_cm": 18.11,
+    "upper_frontal_deg": 8.2,
+    "fore_frontal_deg": 27.7,
+    "palm_vs_thigh_deg": 27.5,
+    "hand_fwd_cm": -3.2
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 3.32,
+    "elbow_x_cm": 20.89,
+    "upper_frontal_deg": 13.0,
+    "fore_frontal_deg": 3.9,
+    "palm_vs_thigh_deg": 53.9,
+    "hand_fwd_cm": 20.2
+   }
+  },
+  {
+   "f": 13.5,
+   "L": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 3.95,
+    "elbow_x_cm": 18.0,
+    "upper_frontal_deg": 8.0,
+    "fore_frontal_deg": 28.4,
+    "palm_vs_thigh_deg": 28.1,
+    "hand_fwd_cm": -3.2
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 3.32,
+    "elbow_x_cm": 20.87,
+    "upper_frontal_deg": 12.9,
+    "fore_frontal_deg": 4.0,
+    "palm_vs_thigh_deg": 49.9,
+    "hand_fwd_cm": 20.6
+   }
+  },
+  {
+   "f": 14.0,
+   "L": {
+    "elbow_flex_deg": 37.4,
+    "elbow_gap_cm": 3.84,
+    "elbow_x_cm": 17.89,
+    "upper_frontal_deg": 7.9,
+    "fore_frontal_deg": 29.2,
+    "palm_vs_thigh_deg": 28.8,
+    "hand_fwd_cm": -3.2
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 3.25,
+    "elbow_x_cm": 20.85,
+    "upper_frontal_deg": 12.8,
+    "fore_frontal_deg": 4.1,
+    "palm_vs_thigh_deg": 45.8,
+    "hand_fwd_cm": 21.1
+   }
+  },
+  {
+   "f": 14.5,
+   "L": {
+    "elbow_flex_deg": 37.9,
+    "elbow_gap_cm": 4.13,
+    "elbow_x_cm": 17.77,
+    "upper_frontal_deg": 7.6,
+    "fore_frontal_deg": 29.4,
+    "palm_vs_thigh_deg": 28.9,
+    "hand_fwd_cm": -3.2
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 3.18,
+    "elbow_x_cm": 20.81,
+    "upper_frontal_deg": 12.7,
+    "fore_frontal_deg": 4.2,
+    "palm_vs_thigh_deg": 41.9,
+    "hand_fwd_cm": 21.2
+   }
+  },
+  {
+   "f": 15.0,
+   "L": {
+    "elbow_flex_deg": 38.5,
+    "elbow_gap_cm": 4.01,
+    "elbow_x_cm": 17.64,
+    "upper_frontal_deg": 7.4,
+    "fore_frontal_deg": 29.6,
+    "palm_vs_thigh_deg": 29.2,
+    "hand_fwd_cm": -3.3
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 3.1,
+    "elbow_x_cm": 20.77,
+    "upper_frontal_deg": 12.6,
+    "fore_frontal_deg": 4.2,
+    "palm_vs_thigh_deg": 37.9,
+    "hand_fwd_cm": 21.4
+   }
+  },
+  {
+   "f": 15.5,
+   "L": {
+    "elbow_flex_deg": 38.9,
+    "elbow_gap_cm": 3.95,
+    "elbow_x_cm": 17.6,
+    "upper_frontal_deg": 7.4,
+    "fore_frontal_deg": 29.7,
+    "palm_vs_thigh_deg": 29.2,
+    "hand_fwd_cm": -3.1
+   },
+   "R": {
+    "elbow_flex_deg": 37.2,
+    "elbow_gap_cm": 3.04,
+    "elbow_x_cm": 20.76,
+    "upper_frontal_deg": 12.5,
+    "fore_frontal_deg": 4.3,
+    "palm_vs_thigh_deg": 33.9,
+    "hand_fwd_cm": 21.6
+   }
+  },
+  {
+   "f": 16.0,
+   "L": {
+    "elbow_flex_deg": 39.4,
+    "elbow_gap_cm": 3.9,
+    "elbow_x_cm": 17.56,
+    "upper_frontal_deg": 7.4,
+    "fore_frontal_deg": 29.9,
+    "palm_vs_thigh_deg": 29.4,
+    "hand_fwd_cm": -3.0
+   },
+   "R": {
+    "elbow_flex_deg": 37.5,
+    "elbow_gap_cm": 2.98,
+    "elbow_x_cm": 20.76,
+    "upper_frontal_deg": 12.3,
+    "fore_frontal_deg": 4.5,
+    "palm_vs_thigh_deg": 29.9,
+    "hand_fwd_cm": 21.7
+   }
+  },
+  {
+   "f": 16.5,
+   "L": {
+    "elbow_flex_deg": 39.8,
+    "elbow_gap_cm": 3.87,
+    "elbow_x_cm": 17.54,
+    "upper_frontal_deg": 7.4,
+    "fore_frontal_deg": 30.0,
+    "palm_vs_thigh_deg": 29.3,
+    "hand_fwd_cm": -2.8
+   },
+   "R": {
+    "elbow_flex_deg": 37.8,
+    "elbow_gap_cm": 2.96,
+    "elbow_x_cm": 20.8,
+    "upper_frontal_deg": 12.2,
+    "fore_frontal_deg": 4.2,
+    "palm_vs_thigh_deg": 26.2,
+    "hand_fwd_cm": 21.7
+   }
+  },
+  {
+   "f": 17.0,
+   "L": {
+    "elbow_flex_deg": 40.3,
+    "elbow_gap_cm": 3.85,
+    "elbow_x_cm": 17.53,
+    "upper_frontal_deg": 7.5,
+    "fore_frontal_deg": 30.0,
+    "palm_vs_thigh_deg": 29.3,
+    "hand_fwd_cm": -2.6
+   },
+   "R": {
+    "elbow_flex_deg": 38.1,
+    "elbow_gap_cm": 2.94,
+    "elbow_x_cm": 20.85,
+    "upper_frontal_deg": 12.2,
+    "fore_frontal_deg": 3.9,
+    "palm_vs_thigh_deg": 22.6,
+    "hand_fwd_cm": 21.7
+   }
+  },
+  {
+   "f": 17.5,
+   "L": {
+    "elbow_flex_deg": 40.2,
+    "elbow_gap_cm": 3.86,
+    "elbow_x_cm": 17.54,
+    "upper_frontal_deg": 7.6,
+    "fore_frontal_deg": 29.7,
+    "palm_vs_thigh_deg": 29.2,
+    "hand_fwd_cm": -2.3
+   },
+   "R": {
+    "elbow_flex_deg": 38.4,
+    "elbow_gap_cm": 2.96,
+    "elbow_x_cm": 20.93,
+    "upper_frontal_deg": 12.2,
+    "fore_frontal_deg": 3.8,
+    "palm_vs_thigh_deg": 19.3,
+    "hand_fwd_cm": 21.6
+   }
+  },
+  {
+   "f": 18.0,
+   "L": {
+    "elbow_flex_deg": 40.2,
+    "elbow_gap_cm": 3.87,
+    "elbow_x_cm": 17.56,
+    "upper_frontal_deg": 7.6,
+    "fore_frontal_deg": 29.5,
+    "palm_vs_thigh_deg": 29.2,
+    "hand_fwd_cm": -2.1
+   },
+   "R": {
+    "elbow_flex_deg": 38.7,
+    "elbow_gap_cm": 2.97,
+    "elbow_x_cm": 21.01,
+    "upper_frontal_deg": 12.1,
+    "fore_frontal_deg": 3.7,
+    "palm_vs_thigh_deg": 16.1,
+    "hand_fwd_cm": 21.5
+   }
+  },
+  {
+   "f": 18.5,
+   "L": {
+    "elbow_flex_deg": 40.1,
+    "elbow_gap_cm": 3.8,
+    "elbow_x_cm": 17.46,
+    "upper_frontal_deg": 7.5,
+    "fore_frontal_deg": 29.2,
+    "palm_vs_thigh_deg": 28.8,
+    "hand_fwd_cm": -1.9
+   },
+   "R": {
+    "elbow_flex_deg": 38.9,
+    "elbow_gap_cm": 2.99,
+    "elbow_x_cm": 21.11,
+    "upper_frontal_deg": 12.1,
+    "fore_frontal_deg": 3.6,
+    "palm_vs_thigh_deg": 12.9,
+    "hand_fwd_cm": 21.4
+   }
+  },
+  {
+   "f": 19.0,
+   "L": {
+    "elbow_flex_deg": 40.0,
+    "elbow_gap_cm": 3.73,
+    "elbow_x_cm": 17.36,
+    "upper_frontal_deg": 7.4,
+    "fore_frontal_deg": 29.0,
+    "palm_vs_thigh_deg": 28.4,
+    "hand_fwd_cm": -1.7
+   },
+   "R": {
+    "elbow_flex_deg": 39.1,
+    "elbow_gap_cm": 3.0,
+    "elbow_x_cm": 21.21,
+    "upper_frontal_deg": 12.1,
+    "fore_frontal_deg": 3.6,
+    "palm_vs_thigh_deg": 9.8,
+    "hand_fwd_cm": 21.4
+   }
+  },
+  {
+   "f": 19.5,
+   "L": {
+    "elbow_flex_deg": 39.7,
+    "elbow_gap_cm": 3.68,
+    "elbow_x_cm": 17.27,
+    "upper_frontal_deg": 7.3,
+    "fore_frontal_deg": 28.7,
+    "palm_vs_thigh_deg": 28.0,
+    "hand_fwd_cm": -1.7
+   },
+   "R": {
+    "elbow_flex_deg": 39.3,
+    "elbow_gap_cm": 2.98,
+    "elbow_x_cm": 21.27,
+    "upper_frontal_deg": 12.0,
+    "fore_frontal_deg": 3.4,
+    "palm_vs_thigh_deg": 7.1,
+    "hand_fwd_cm": 21.3
+   }
+  },
+  {
+   "f": 20.0,
+   "L": {
+    "elbow_flex_deg": 39.3,
+    "elbow_gap_cm": 3.63,
+    "elbow_x_cm": 17.19,
+    "upper_frontal_deg": 7.2,
+    "fore_frontal_deg": 28.4,
+    "palm_vs_thigh_deg": 27.7,
+    "hand_fwd_cm": -1.7
+   },
+   "R": {
+    "elbow_flex_deg": 39.5,
+    "elbow_gap_cm": 2.96,
+    "elbow_x_cm": 21.32,
+    "upper_frontal_deg": 11.9,
+    "fore_frontal_deg": 3.2,
+    "palm_vs_thigh_deg": 5.0,
+    "hand_fwd_cm": 21.1
+   }
+  },
+  {
+   "f": 20.5,
+   "L": {
+    "elbow_flex_deg": 39.0,
+    "elbow_gap_cm": 3.57,
+    "elbow_x_cm": 17.04,
+    "upper_frontal_deg": 7.0,
+    "fore_frontal_deg": 28.2,
+    "palm_vs_thigh_deg": 27.2,
+    "hand_fwd_cm": -1.7
+   },
+   "R": {
+    "elbow_flex_deg": 39.6,
+    "elbow_gap_cm": 2.85,
+    "elbow_x_cm": 21.31,
+    "upper_frontal_deg": 11.6,
+    "fore_frontal_deg": 2.9,
+    "palm_vs_thigh_deg": 6.1,
+    "hand_fwd_cm": 21.0
+   }
+  },
+  {
+   "f": 21.0,
+   "L": {
+    "elbow_flex_deg": 38.6,
+    "elbow_gap_cm": 3.5,
+    "elbow_x_cm": 16.89,
+    "upper_frontal_deg": 6.8,
+    "fore_frontal_deg": 27.9,
+    "palm_vs_thigh_deg": 26.8,
+    "hand_fwd_cm": -1.8
+   },
+   "R": {
+    "elbow_flex_deg": 39.8,
+    "elbow_gap_cm": 2.75,
+    "elbow_x_cm": 21.29,
+    "upper_frontal_deg": 11.4,
+    "fore_frontal_deg": 2.5,
+    "palm_vs_thigh_deg": 7.8,
+    "hand_fwd_cm": 20.8
+   }
+  },
+  {
+   "f": 21.5,
+   "L": {
+    "elbow_flex_deg": 38.2,
+    "elbow_gap_cm": 3.42,
+    "elbow_x_cm": 16.71,
+    "upper_frontal_deg": 6.5,
+    "fore_frontal_deg": 27.7,
+    "palm_vs_thigh_deg": 26.3,
+    "hand_fwd_cm": -2.0
+   },
+   "R": {
+    "elbow_flex_deg": 40.0,
+    "elbow_gap_cm": 2.61,
+    "elbow_x_cm": 21.24,
+    "upper_frontal_deg": 11.1,
+    "fore_frontal_deg": 2.1,
+    "palm_vs_thigh_deg": 11.4,
+    "hand_fwd_cm": 20.7
+   }
+  },
+  {
+   "f": 22.0,
+   "L": {
+    "elbow_flex_deg": 37.9,
+    "elbow_gap_cm": 3.33,
+    "elbow_x_cm": 16.53,
+    "upper_frontal_deg": 6.2,
+    "fore_frontal_deg": 27.4,
+    "palm_vs_thigh_deg": 25.7,
+    "hand_fwd_cm": -2.2
+   },
+   "R": {
+    "elbow_flex_deg": 40.2,
+    "elbow_gap_cm": 2.48,
+    "elbow_x_cm": 21.19,
+    "upper_frontal_deg": 10.9,
+    "fore_frontal_deg": 1.7,
+    "palm_vs_thigh_deg": 15.3,
+    "hand_fwd_cm": 20.6
+   }
+  },
+  {
+   "f": 22.5,
+   "L": {
+    "elbow_flex_deg": 37.5,
+    "elbow_gap_cm": 3.25,
+    "elbow_x_cm": 16.34,
+    "upper_frontal_deg": 5.9,
+    "fore_frontal_deg": 27.1,
+    "palm_vs_thigh_deg": 25.1,
+    "hand_fwd_cm": -2.5
+   },
+   "R": {
+    "elbow_flex_deg": 40.5,
+    "elbow_gap_cm": 2.33,
+    "elbow_x_cm": 21.12,
+    "upper_frontal_deg": 10.7,
+    "fore_frontal_deg": 1.0,
+    "palm_vs_thigh_deg": 19.0,
+    "hand_fwd_cm": 20.6
+   }
+  },
+  {
+   "f": 23.0,
+   "L": {
+    "elbow_flex_deg": 37.2,
+    "elbow_gap_cm": 3.47,
+    "elbow_x_cm": 16.16,
+    "upper_frontal_deg": 5.6,
+    "fore_frontal_deg": 26.8,
+    "palm_vs_thigh_deg": 24.4,
+    "hand_fwd_cm": -2.8
+   },
+   "R": {
+    "elbow_flex_deg": 40.8,
+    "elbow_gap_cm": 2.19,
+    "elbow_x_cm": 21.04,
+    "upper_frontal_deg": 10.5,
+    "fore_frontal_deg": 0.4,
+    "palm_vs_thigh_deg": 22.8,
+    "hand_fwd_cm": 20.6
+   }
+  },
+  {
+   "f": 23.5,
+   "L": {
+    "elbow_flex_deg": 36.8,
+    "elbow_gap_cm": 3.37,
+    "elbow_x_cm": 15.92,
+    "upper_frontal_deg": 5.1,
+    "fore_frontal_deg": 26.3,
+    "palm_vs_thigh_deg": 23.8,
+    "hand_fwd_cm": -3.2
+   },
+   "R": {
+    "elbow_flex_deg": 41.2,
+    "elbow_gap_cm": 2.18,
+    "elbow_x_cm": 21.15,
+    "upper_frontal_deg": 10.7,
+    "fore_frontal_deg": -0.1,
+    "palm_vs_thigh_deg": 26.6,
+    "hand_fwd_cm": 20.4
+   }
+  },
+  {
+   "f": 24.0,
+   "L": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 3.28,
+    "elbow_x_cm": 15.69,
+    "upper_frontal_deg": 4.6,
+    "fore_frontal_deg": 25.9,
+    "palm_vs_thigh_deg": 23.3,
+    "hand_fwd_cm": -3.6
+   },
+   "R": {
+    "elbow_flex_deg": 41.5,
+    "elbow_gap_cm": 2.19,
+    "elbow_x_cm": 21.25,
+    "upper_frontal_deg": 11.0,
+    "fore_frontal_deg": -0.6,
+    "palm_vs_thigh_deg": 30.5,
+    "hand_fwd_cm": 20.2
+   }
+  },
+  {
+   "f": 24.5,
+   "L": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 3.19,
+    "elbow_x_cm": 15.49,
+    "upper_frontal_deg": 4.2,
+    "fore_frontal_deg": 25.6,
+    "palm_vs_thigh_deg": 23.0,
+    "hand_fwd_cm": -3.7
+   },
+   "R": {
+    "elbow_flex_deg": 41.8,
+    "elbow_gap_cm": 2.21,
+    "elbow_x_cm": 21.39,
+    "upper_frontal_deg": 11.2,
+    "fore_frontal_deg": -1.0,
+    "palm_vs_thigh_deg": 34.0,
+    "hand_fwd_cm": 20.0
+   }
+  },
+  {
+   "f": 25.0,
+   "L": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 3.11,
+    "elbow_x_cm": 15.28,
+    "upper_frontal_deg": 3.8,
+    "fore_frontal_deg": 25.2,
+    "palm_vs_thigh_deg": 22.8,
+    "hand_fwd_cm": -3.9
+   },
+   "R": {
+    "elbow_flex_deg": 42.1,
+    "elbow_gap_cm": 2.23,
+    "elbow_x_cm": 21.52,
+    "upper_frontal_deg": 11.5,
+    "fore_frontal_deg": -1.3,
+    "palm_vs_thigh_deg": 37.5,
+    "hand_fwd_cm": 19.7
+   }
+  },
+  {
+   "f": 25.5,
+   "L": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 3.07,
+    "elbow_x_cm": 15.11,
+    "upper_frontal_deg": 3.5,
+    "fore_frontal_deg": 24.9,
+    "palm_vs_thigh_deg": 22.6,
+    "hand_fwd_cm": -3.9
+   },
+   "R": {
+    "elbow_flex_deg": 41.9,
+    "elbow_gap_cm": 2.28,
+    "elbow_x_cm": 21.71,
+    "upper_frontal_deg": 11.8,
+    "fore_frontal_deg": -1.2,
+    "palm_vs_thigh_deg": 40.3,
+    "hand_fwd_cm": 19.2
+   }
+  },
+  {
+   "f": 26.0,
+   "L": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 3.02,
+    "elbow_x_cm": 14.95,
+    "upper_frontal_deg": 3.3,
+    "fore_frontal_deg": 24.5,
+    "palm_vs_thigh_deg": 22.5,
+    "hand_fwd_cm": -3.9
+   },
+   "R": {
+    "elbow_flex_deg": 41.6,
+    "elbow_gap_cm": 2.33,
+    "elbow_x_cm": 21.9,
+    "upper_frontal_deg": 12.0,
+    "fore_frontal_deg": -1.2,
+    "palm_vs_thigh_deg": 43.1,
+    "hand_fwd_cm": 18.7
+   }
+  },
+  {
+   "f": 26.5,
+   "L": {
+    "elbow_flex_deg": 36.3,
+    "elbow_gap_cm": 3.39,
+    "elbow_x_cm": 14.79,
+    "upper_frontal_deg": 3.1,
+    "fore_frontal_deg": 24.1,
+    "palm_vs_thigh_deg": 22.0,
+    "hand_fwd_cm": -3.9
+   },
+   "R": {
+    "elbow_flex_deg": 41.4,
+    "elbow_gap_cm": 2.54,
+    "elbow_x_cm": 22.28,
+    "upper_frontal_deg": 12.6,
+    "fore_frontal_deg": -0.6,
+    "palm_vs_thigh_deg": 43.0,
+    "hand_fwd_cm": 18.2
+   }
+  },
+  {
+   "f": 27.0,
+   "L": {
+    "elbow_flex_deg": 36.3,
+    "elbow_gap_cm": 3.35,
+    "elbow_x_cm": 14.64,
+    "upper_frontal_deg": 3.0,
+    "fore_frontal_deg": 23.8,
+    "palm_vs_thigh_deg": 21.5,
+    "hand_fwd_cm": -3.9
+   },
+   "R": {
+    "elbow_flex_deg": 41.1,
+    "elbow_gap_cm": 2.76,
+    "elbow_x_cm": 22.66,
+    "upper_frontal_deg": 13.2,
+    "fore_frontal_deg": -0.1,
+    "palm_vs_thigh_deg": 42.8,
+    "hand_fwd_cm": 17.7
+   }
+  },
+  {
+   "f": 27.5,
+   "L": {
+    "elbow_flex_deg": 36.3,
+    "elbow_gap_cm": 3.47,
+    "elbow_x_cm": 14.65,
+    "upper_frontal_deg": 3.1,
+    "fore_frontal_deg": 23.4,
+    "palm_vs_thigh_deg": 21.1,
+    "hand_fwd_cm": -3.6
+   },
+   "R": {
+    "elbow_flex_deg": 40.9,
+    "elbow_gap_cm": 2.97,
+    "elbow_x_cm": 23.03,
+    "upper_frontal_deg": 13.9,
+    "fore_frontal_deg": 0.5,
+    "palm_vs_thigh_deg": 42.5,
+    "hand_fwd_cm": 17.2
+   }
+  },
+  {
+   "f": 28.0,
+   "L": {
+    "elbow_flex_deg": 36.3,
+    "elbow_gap_cm": 3.2,
+    "elbow_x_cm": 14.66,
+    "upper_frontal_deg": 3.3,
+    "fore_frontal_deg": 23.0,
+    "palm_vs_thigh_deg": 20.7,
+    "hand_fwd_cm": -3.4
+   },
+   "R": {
+    "elbow_flex_deg": 40.6,
+    "elbow_gap_cm": 3.18,
+    "elbow_x_cm": 23.39,
+    "upper_frontal_deg": 14.5,
+    "fore_frontal_deg": 1.2,
+    "palm_vs_thigh_deg": 42.2,
+    "hand_fwd_cm": 16.6
+   }
+  },
+  {
+   "f": 28.5,
+   "L": {
+    "elbow_flex_deg": 36.2,
+    "elbow_gap_cm": 3.29,
+    "elbow_x_cm": 14.7,
+    "upper_frontal_deg": 3.4,
+    "fore_frontal_deg": 22.4,
+    "palm_vs_thigh_deg": 18.3,
+    "hand_fwd_cm": -3.0
+   },
+   "R": {
+    "elbow_flex_deg": 40.5,
+    "elbow_gap_cm": 3.44,
+    "elbow_x_cm": 23.78,
+    "upper_frontal_deg": 15.3,
+    "fore_frontal_deg": 2.3,
+    "palm_vs_thigh_deg": 41.0,
+    "hand_fwd_cm": 16.1
+   }
+  },
+  {
+   "f": 29.0,
+   "L": {
+    "elbow_flex_deg": 36.2,
+    "elbow_gap_cm": 3.21,
+    "elbow_x_cm": 14.72,
+    "upper_frontal_deg": 3.4,
+    "fore_frontal_deg": 21.8,
+    "palm_vs_thigh_deg": 15.9,
+    "hand_fwd_cm": -2.7
+   },
+   "R": {
+    "elbow_flex_deg": 40.4,
+    "elbow_gap_cm": 3.69,
+    "elbow_x_cm": 24.17,
+    "upper_frontal_deg": 16.1,
+    "fore_frontal_deg": 3.5,
+    "palm_vs_thigh_deg": 39.8,
+    "hand_fwd_cm": 15.6
+   }
+  },
+  {
+   "f": 29.5,
+   "L": {
+    "elbow_flex_deg": 36.1,
+    "elbow_gap_cm": 3.04,
+    "elbow_x_cm": 15.15,
+    "upper_frontal_deg": 4.0,
+    "fore_frontal_deg": 21.2,
+    "palm_vs_thigh_deg": 11.9,
+    "hand_fwd_cm": -2.3
+   },
+   "R": {
+    "elbow_flex_deg": 40.1,
+    "elbow_gap_cm": 4.29,
+    "elbow_x_cm": 24.29,
+    "upper_frontal_deg": 16.8,
+    "fore_frontal_deg": 4.9,
+    "palm_vs_thigh_deg": 39.0,
+    "hand_fwd_cm": 15.2
+   }
+  },
+  {
+   "f": 30.0,
+   "L": {
+    "elbow_flex_deg": 36.1,
+    "elbow_gap_cm": 3.12,
+    "elbow_x_cm": 15.56,
+    "upper_frontal_deg": 4.6,
+    "fore_frontal_deg": 20.6,
+    "palm_vs_thigh_deg": 7.9,
+    "hand_fwd_cm": -1.8
+   },
+   "R": {
+    "elbow_flex_deg": 39.8,
+    "elbow_gap_cm": 4.72,
+    "elbow_x_cm": 24.4,
+    "upper_frontal_deg": 17.4,
+    "fore_frontal_deg": 6.3,
+    "palm_vs_thigh_deg": 38.4,
+    "hand_fwd_cm": 14.8
+   }
+  },
+  {
+   "f": 30.5,
+   "L": {
+    "elbow_flex_deg": 36.0,
+    "elbow_gap_cm": 3.46,
+    "elbow_x_cm": 16.29,
+    "upper_frontal_deg": 5.3,
+    "fore_frontal_deg": 19.9,
+    "palm_vs_thigh_deg": 3.4,
+    "hand_fwd_cm": -1.2
+   },
+   "R": {
+    "elbow_flex_deg": 39.5,
+    "elbow_gap_cm": 4.88,
+    "elbow_x_cm": 24.23,
+    "upper_frontal_deg": 17.9,
+    "fore_frontal_deg": 7.8,
+    "palm_vs_thigh_deg": 38.5,
+    "hand_fwd_cm": 14.2
+   }
+  },
+  {
+   "f": 31.0,
+   "L": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.8,
+    "elbow_x_cm": 17.02,
+    "upper_frontal_deg": 6.0,
+    "fore_frontal_deg": 19.2,
+    "palm_vs_thigh_deg": 3.7,
+    "hand_fwd_cm": -0.6
+   },
+   "R": {
+    "elbow_flex_deg": 39.1,
+    "elbow_gap_cm": 5.03,
+    "elbow_x_cm": 24.06,
+    "upper_frontal_deg": 18.5,
+    "fore_frontal_deg": 9.4,
+    "palm_vs_thigh_deg": 39.1,
+    "hand_fwd_cm": 13.5
+   }
+  },
+  {
+   "f": 31.5,
+   "L": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 4.17,
+    "elbow_x_cm": 18.0,
+    "upper_frontal_deg": 6.7,
+    "fore_frontal_deg": 18.1,
+    "palm_vs_thigh_deg": 10.0,
+    "hand_fwd_cm": 0.1
+   },
+   "R": {
+    "elbow_flex_deg": 38.6,
+    "elbow_gap_cm": 5.16,
+    "elbow_x_cm": 23.65,
+    "upper_frontal_deg": 19.0,
+    "fore_frontal_deg": 11.0,
+    "palm_vs_thigh_deg": 42.4,
+    "hand_fwd_cm": 12.9
+   }
+  },
+  {
+   "f": 32.0,
+   "L": {
+    "elbow_flex_deg": 35.6,
+    "elbow_gap_cm": 4.35,
+    "elbow_x_cm": 18.97,
+    "upper_frontal_deg": 7.5,
+    "fore_frontal_deg": 16.9,
+    "palm_vs_thigh_deg": 16.8,
+    "hand_fwd_cm": 0.8
+   },
+   "R": {
+    "elbow_flex_deg": 38.2,
+    "elbow_gap_cm": 5.3,
+    "elbow_x_cm": 23.22,
+    "upper_frontal_deg": 19.6,
+    "fore_frontal_deg": 12.6,
+    "palm_vs_thigh_deg": 46.2,
+    "hand_fwd_cm": 12.3
+   }
+  },
+  {
+   "f": 32.5,
+   "L": {
+    "elbow_flex_deg": 35.5,
+    "elbow_gap_cm": 4.75,
+    "elbow_x_cm": 20.08,
+    "upper_frontal_deg": 8.5,
+    "fore_frontal_deg": 16.0,
+    "palm_vs_thigh_deg": 24.1,
+    "hand_fwd_cm": 1.6
+   },
+   "R": {
+    "elbow_flex_deg": 37.8,
+    "elbow_gap_cm": 5.37,
+    "elbow_x_cm": 22.62,
+    "upper_frontal_deg": 19.7,
+    "fore_frontal_deg": 13.7,
+    "palm_vs_thigh_deg": 49.6,
+    "hand_fwd_cm": 11.6
+   }
+  },
+  {
+   "f": 33.0,
+   "L": {
+    "elbow_flex_deg": 35.4,
+    "elbow_gap_cm": 5.12,
+    "elbow_x_cm": 21.17,
+    "upper_frontal_deg": 9.4,
+    "fore_frontal_deg": 15.0,
+    "palm_vs_thigh_deg": 31.4,
+    "hand_fwd_cm": 2.3
+   },
+   "R": {
+    "elbow_flex_deg": 37.4,
+    "elbow_gap_cm": 5.43,
+    "elbow_x_cm": 22.02,
+    "upper_frontal_deg": 19.9,
+    "fore_frontal_deg": 14.8,
+    "palm_vs_thigh_deg": 53.2,
+    "hand_fwd_cm": 10.9
+   }
+  },
+  {
+   "f": 33.5,
+   "L": {
+    "elbow_flex_deg": 35.4,
+    "elbow_gap_cm": 5.45,
+    "elbow_x_cm": 22.16,
+    "upper_frontal_deg": 10.4,
+    "fore_frontal_deg": 14.2,
+    "palm_vs_thigh_deg": 38.0,
+    "hand_fwd_cm": 3.1
+   },
+   "R": {
+    "elbow_flex_deg": 37.2,
+    "elbow_gap_cm": 5.5,
+    "elbow_x_cm": 21.5,
+    "upper_frontal_deg": 19.9,
+    "fore_frontal_deg": 15.7,
+    "palm_vs_thigh_deg": 55.9,
+    "hand_fwd_cm": 10.3
+   }
+  },
+  {
+   "f": 34.0,
+   "L": {
+    "elbow_flex_deg": 35.3,
+    "elbow_gap_cm": 5.95,
+    "elbow_x_cm": 23.12,
+    "upper_frontal_deg": 11.4,
+    "fore_frontal_deg": 13.3,
+    "palm_vs_thigh_deg": 44.6,
+    "hand_fwd_cm": 3.8
+   },
+   "R": {
+    "elbow_flex_deg": 36.9,
+    "elbow_gap_cm": 5.57,
+    "elbow_x_cm": 20.97,
+    "upper_frontal_deg": 19.9,
+    "fore_frontal_deg": 16.6,
+    "palm_vs_thigh_deg": 58.7,
+    "hand_fwd_cm": 9.7
+   }
+  },
+  {
+   "f": 34.5,
+   "L": {
+    "elbow_flex_deg": 35.2,
+    "elbow_gap_cm": 5.82,
+    "elbow_x_cm": 23.37,
+    "upper_frontal_deg": 11.5,
+    "fore_frontal_deg": 11.9,
+    "palm_vs_thigh_deg": 48.9,
+    "hand_fwd_cm": 4.2
+   },
+   "R": {
+    "elbow_flex_deg": 36.8,
+    "elbow_gap_cm": 5.42,
+    "elbow_x_cm": 20.45,
+    "upper_frontal_deg": 19.2,
+    "fore_frontal_deg": 16.1,
+    "palm_vs_thigh_deg": 59.8,
+    "hand_fwd_cm": 9.4
+   }
+  },
+  {
+   "f": 35.0,
+   "L": {
+    "elbow_flex_deg": 35.2,
+    "elbow_gap_cm": 5.69,
+    "elbow_x_cm": 23.62,
+    "upper_frontal_deg": 11.5,
+    "fore_frontal_deg": 10.5,
+    "palm_vs_thigh_deg": 53.2,
+    "hand_fwd_cm": 4.6
+   },
+   "R": {
+    "elbow_flex_deg": 36.7,
+    "elbow_gap_cm": 5.28,
+    "elbow_x_cm": 19.92,
+    "upper_frontal_deg": 18.5,
+    "fore_frontal_deg": 15.5,
+    "palm_vs_thigh_deg": 60.8,
+    "hand_fwd_cm": 9.0
+   }
+  },
+  {
+   "f": 35.5,
+   "L": {
+    "elbow_flex_deg": 35.3,
+    "elbow_gap_cm": 5.57,
+    "elbow_x_cm": 23.68,
+    "upper_frontal_deg": 11.5,
+    "fore_frontal_deg": 9.0,
+    "palm_vs_thigh_deg": 54.6,
+    "hand_fwd_cm": 5.0
+   },
+   "R": {
+    "elbow_flex_deg": 36.6,
+    "elbow_gap_cm": 5.13,
+    "elbow_x_cm": 19.58,
+    "upper_frontal_deg": 17.8,
+    "fore_frontal_deg": 14.8,
+    "palm_vs_thigh_deg": 59.6,
+    "hand_fwd_cm": 8.7
+   }
+  },
+  {
+   "f": 36.0,
+   "L": {
+    "elbow_flex_deg": 35.3,
+    "elbow_gap_cm": 5.58,
+    "elbow_x_cm": 23.73,
+    "upper_frontal_deg": 11.5,
+    "fore_frontal_deg": 7.6,
+    "palm_vs_thigh_deg": 56.0,
+    "hand_fwd_cm": 5.3
+   },
+   "R": {
+    "elbow_flex_deg": 36.6,
+    "elbow_gap_cm": 4.99,
+    "elbow_x_cm": 19.23,
+    "upper_frontal_deg": 17.0,
+    "fore_frontal_deg": 14.2,
+    "palm_vs_thigh_deg": 58.2,
+    "hand_fwd_cm": 8.4
+   }
+  },
+  {
+   "f": 36.5,
+   "L": {
+    "elbow_flex_deg": 35.3,
+    "elbow_gap_cm": 5.44,
+    "elbow_x_cm": 23.59,
+    "upper_frontal_deg": 11.5,
+    "fore_frontal_deg": 6.2,
+    "palm_vs_thigh_deg": 57.0,
+    "hand_fwd_cm": 5.6
+   },
+   "R": {
+    "elbow_flex_deg": 36.5,
+    "elbow_gap_cm": 4.84,
+    "elbow_x_cm": 19.06,
+    "upper_frontal_deg": 16.3,
+    "fore_frontal_deg": 13.5,
+    "palm_vs_thigh_deg": 57.2,
+    "hand_fwd_cm": 8.0
+   }
+  },
+  {
+   "f": 37.0,
+   "L": {
+    "elbow_flex_deg": 35.4,
+    "elbow_gap_cm": 5.28,
+    "elbow_x_cm": 23.44,
+    "upper_frontal_deg": 11.5,
+    "fore_frontal_deg": 4.7,
+    "palm_vs_thigh_deg": 58.1,
+    "hand_fwd_cm": 5.9
+   },
+   "R": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 4.68,
+    "elbow_x_cm": 18.88,
+    "upper_frontal_deg": 15.6,
+    "fore_frontal_deg": 12.9,
+    "palm_vs_thigh_deg": 56.2,
+    "hand_fwd_cm": 7.7
+   }
+  },
+  {
+   "f": 37.5,
+   "L": {
+    "elbow_flex_deg": 35.4,
+    "elbow_gap_cm": 5.11,
+    "elbow_x_cm": 23.15,
+    "upper_frontal_deg": 11.4,
+    "fore_frontal_deg": 3.3,
+    "palm_vs_thigh_deg": 58.8,
+    "hand_fwd_cm": 6.1
+   },
+   "R": {
+    "elbow_flex_deg": 36.4,
+    "elbow_gap_cm": 4.52,
+    "elbow_x_cm": 18.84,
+    "upper_frontal_deg": 14.8,
+    "fore_frontal_deg": 12.2,
+    "palm_vs_thigh_deg": 55.2,
+    "hand_fwd_cm": 7.4
+   }
+  },
+  {
+   "f": 38.0,
+   "L": {
+    "elbow_flex_deg": 35.5,
+    "elbow_gap_cm": 4.94,
+    "elbow_x_cm": 22.86,
+    "upper_frontal_deg": 11.4,
+    "fore_frontal_deg": 1.9,
+    "palm_vs_thigh_deg": 59.5,
+    "hand_fwd_cm": 6.3
+   },
+   "R": {
+    "elbow_flex_deg": 36.3,
+    "elbow_gap_cm": 4.36,
+    "elbow_x_cm": 18.79,
+    "upper_frontal_deg": 14.1,
+    "fore_frontal_deg": 11.5,
+    "palm_vs_thigh_deg": 54.2,
+    "hand_fwd_cm": 7.1
+   }
+  },
+  {
+   "f": 38.5,
+   "L": {
+    "elbow_flex_deg": 35.5,
+    "elbow_gap_cm": 4.76,
+    "elbow_x_cm": 22.49,
+    "upper_frontal_deg": 11.3,
+    "fore_frontal_deg": 0.5,
+    "palm_vs_thigh_deg": 60.2,
+    "hand_fwd_cm": 6.5
+   },
+   "R": {
+    "elbow_flex_deg": 36.2,
+    "elbow_gap_cm": 4.2,
+    "elbow_x_cm": 18.82,
+    "upper_frontal_deg": 13.4,
+    "fore_frontal_deg": 10.8,
+    "palm_vs_thigh_deg": 53.9,
+    "hand_fwd_cm": 6.9
+   }
+  },
+  {
+   "f": 39.0,
+   "L": {
+    "elbow_flex_deg": 35.6,
+    "elbow_gap_cm": 4.58,
+    "elbow_x_cm": 22.11,
+    "upper_frontal_deg": 11.2,
+    "fore_frontal_deg": -0.9,
+    "palm_vs_thigh_deg": 61.0,
+    "hand_fwd_cm": 6.5
+   },
+   "R": {
+    "elbow_flex_deg": 36.2,
+    "elbow_gap_cm": 4.02,
+    "elbow_x_cm": 18.84,
+    "upper_frontal_deg": 12.7,
+    "fore_frontal_deg": 10.1,
+    "palm_vs_thigh_deg": 53.5,
+    "hand_fwd_cm": 6.6
+   }
+  },
+  {
+   "f": 39.5,
+   "L": {
+    "elbow_flex_deg": 35.6,
+    "elbow_gap_cm": 4.48,
+    "elbow_x_cm": 21.81,
+    "upper_frontal_deg": 11.3,
+    "fore_frontal_deg": -1.7,
+    "palm_vs_thigh_deg": 61.0,
+    "hand_fwd_cm": 6.7
+   },
+   "R": {
+    "elbow_flex_deg": 36.1,
+    "elbow_gap_cm": 3.85,
+    "elbow_x_cm": 18.86,
+    "upper_frontal_deg": 12.0,
+    "fore_frontal_deg": 9.4,
+    "palm_vs_thigh_deg": 53.2,
+    "hand_fwd_cm": 6.4
+   }
+  },
+  {
+   "f": 40.0,
+   "L": {
+    "elbow_flex_deg": 35.7,
+    "elbow_gap_cm": 4.38,
+    "elbow_x_cm": 21.5,
+    "upper_frontal_deg": 11.3,
+    "fore_frontal_deg": -2.5,
+    "palm_vs_thigh_deg": 61.0,
+    "hand_fwd_cm": 6.8
+   },
+   "R": {
+    "elbow_flex_deg": 36.1,
+    "elbow_gap_cm": 3.68,
+    "elbow_x_cm": 18.88,
+    "upper_frontal_deg": 11.3,
+    "fore_frontal_deg": 8.6,
+    "palm_vs_thigh_deg": 53.0,
+    "hand_fwd_cm": 6.2
+   }
+  },
+  {
+   "f": 40.5,
+   "L": {
+    "elbow_flex_deg": 35.7,
+    "elbow_gap_cm": 4.25,
+    "elbow_x_cm": 21.16,
+    "upper_frontal_deg": 11.1,
+    "fore_frontal_deg": -3.4,
+    "palm_vs_thigh_deg": 61.0,
+    "hand_fwd_cm": 6.9
+   },
+   "R": {
+    "elbow_flex_deg": 36.0,
+    "elbow_gap_cm": 3.63,
+    "elbow_x_cm": 19.03,
+    "upper_frontal_deg": 11.0,
+    "fore_frontal_deg": 8.5,
+    "palm_vs_thigh_deg": 52.5,
+    "hand_fwd_cm": 6.0
+   }
+  },
+  {
+   "f": 41.0,
+   "L": {
+    "elbow_flex_deg": 35.7,
+    "elbow_gap_cm": 4.11,
+    "elbow_x_cm": 20.81,
+    "upper_frontal_deg": 11.0,
+    "fore_frontal_deg": -4.4,
+    "palm_vs_thigh_deg": 61.2,
+    "hand_fwd_cm": 7.0
+   },
+   "R": {
+    "elbow_flex_deg": 36.0,
+    "elbow_gap_cm": 3.58,
+    "elbow_x_cm": 19.17,
+    "upper_frontal_deg": 10.8,
+    "fore_frontal_deg": 8.4,
+    "palm_vs_thigh_deg": 52.1,
+    "hand_fwd_cm": 5.8
+   }
+  },
+  {
+   "f": 41.5,
+   "L": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 4.08,
+    "elbow_x_cm": 20.62,
+    "upper_frontal_deg": 11.0,
+    "fore_frontal_deg": -4.5,
+    "palm_vs_thigh_deg": 60.8,
+    "hand_fwd_cm": 7.0
+   },
+   "R": {
+    "elbow_flex_deg": 36.0,
+    "elbow_gap_cm": 3.53,
+    "elbow_x_cm": 19.28,
+    "upper_frontal_deg": 10.6,
+    "fore_frontal_deg": 8.2,
+    "palm_vs_thigh_deg": 52.2,
+    "hand_fwd_cm": 5.8
+   }
+  },
+  {
+   "f": 42.0,
+   "L": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 4.05,
+    "elbow_x_cm": 20.43,
+    "upper_frontal_deg": 11.1,
+    "fore_frontal_deg": -4.7,
+    "palm_vs_thigh_deg": 60.4,
+    "hand_fwd_cm": 7.1
+   },
+   "R": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.48,
+    "elbow_x_cm": 19.39,
+    "upper_frontal_deg": 10.3,
+    "fore_frontal_deg": 8.0,
+    "palm_vs_thigh_deg": 52.4,
+    "hand_fwd_cm": 5.7
+   }
+  },
+  {
+   "f": 42.5,
+   "L": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 4.03,
+    "elbow_x_cm": 20.27,
+    "upper_frontal_deg": 11.0,
+    "fore_frontal_deg": -4.9,
+    "palm_vs_thigh_deg": 60.3,
+    "hand_fwd_cm": 7.1
+   },
+   "R": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.43,
+    "elbow_x_cm": 19.46,
+    "upper_frontal_deg": 10.2,
+    "fore_frontal_deg": 7.8,
+    "palm_vs_thigh_deg": 52.4,
+    "hand_fwd_cm": 5.6
+   }
+  },
+  {
+   "f": 43.0,
+   "L": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 4.0,
+    "elbow_x_cm": 20.11,
+    "upper_frontal_deg": 11.0,
+    "fore_frontal_deg": -5.2,
+    "palm_vs_thigh_deg": 60.1,
+    "hand_fwd_cm": 7.1
+   },
+   "R": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.37,
+    "elbow_x_cm": 19.53,
+    "upper_frontal_deg": 10.0,
+    "fore_frontal_deg": 7.6,
+    "palm_vs_thigh_deg": 52.5,
+    "hand_fwd_cm": 5.6
+   }
+  },
+  {
+   "f": 43.5,
+   "L": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.98,
+    "elbow_x_cm": 19.98,
+    "upper_frontal_deg": 11.0,
+    "fore_frontal_deg": -5.4,
+    "palm_vs_thigh_deg": 60.0,
+    "hand_fwd_cm": 7.1
+   },
+   "R": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.31,
+    "elbow_x_cm": 19.57,
+    "upper_frontal_deg": 9.9,
+    "fore_frontal_deg": 7.5,
+    "palm_vs_thigh_deg": 52.5,
+    "hand_fwd_cm": 5.5
+   }
+  },
+  {
+   "f": 44.0,
+   "L": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.95,
+    "elbow_x_cm": 19.85,
+    "upper_frontal_deg": 10.9,
+    "fore_frontal_deg": -5.6,
+    "palm_vs_thigh_deg": 59.9,
+    "hand_fwd_cm": 7.1
+   },
+   "R": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 3.26,
+    "elbow_x_cm": 19.61,
+    "upper_frontal_deg": 9.7,
+    "fore_frontal_deg": 7.3,
+    "palm_vs_thigh_deg": 52.6,
+    "hand_fwd_cm": 5.4
+   }
+  },
+  {
+   "f": 44.5,
+   "L": {
+    "elbow_flex_deg": 35.9,
+    "elbow_gap_cm": 3.95,
+    "elbow_x_cm": 19.85,
+    "upper_frontal_deg": 10.9,
+    "fore_frontal_deg": -5.6,
+    "palm_vs_thigh_deg": 59.9,
+    "hand_fwd_cm": 7.1
+   },
+   "R": {
+    "elbow_flex_deg": 35.8,
+    "elbow_gap_cm": 3.26,
+    "elbow_x_cm": 19.61,
+    "upper_frontal_deg": 9.7,
+    "fore_frontal_deg": 7.3,
+    "palm_vs_thigh_deg": 52.6,
+    "hand_fwd_cm": 5.4
+   }
+  }
+ ],
+ "summary": {
+  "L.elbow_flex_deg": {
+   "min": 34.6,
+   "max": 40.3,
+   "worst_frame_max": 17.0
+  },
+  "L.elbow_gap_cm": {
+   "min": 3.02,
+   "max": 5.95,
+   "worst_frame_max": 34.0
+  },
+  "L.elbow_x_cm": {
+   "min": 14.64,
+   "max": 23.73,
+   "worst_frame_max": 36.0
+  },
+  "L.upper_frontal_deg": {
+   "min": 3.0,
+   "max": 14.4,
+   "worst_frame_max": 1.0
+  },
+  "L.fore_frontal_deg": {
+   "min": -5.6,
+   "max": 30.0,
+   "worst_frame_max": 16.5
+  },
+  "L.palm_vs_thigh_deg": {
+   "min": 3.4,
+   "max": 61.2,
+   "worst_frame_max": 41.0
+  },
+  "L.hand_fwd_cm": {
+   "min": -3.9,
+   "max": 18.6,
+   "worst_frame_max": 0.0
+  },
+  "R.elbow_flex_deg": {
+   "min": 30.8,
+   "max": 42.1,
+   "worst_frame_max": 25.0
+  },
+  "R.elbow_gap_cm": {
+   "min": 2.18,
+   "max": 5.57,
+   "worst_frame_max": 34.0
+  },
+  "R.elbow_x_cm": {
+   "min": 15.47,
+   "max": 24.4,
+   "worst_frame_max": 30.0
+  },
+  "R.upper_frontal_deg": {
+   "min": 3.9,
+   "max": 19.9,
+   "worst_frame_max": 33.0
+  },
+  "R.fore_frontal_deg": {
+   "min": -1.3,
+   "max": 19.8,
+   "worst_frame_max": 0.0
+  },
+  "R.palm_vs_thigh_deg": {
+   "min": 5.0,
+   "max": 60.8,
+   "worst_frame_max": 35.0
+  },
+  "R.hand_fwd_cm": {
+   "min": -3.5,
+   "max": 21.7,
+   "worst_frame_max": 16.0
+  }
+ }
+}

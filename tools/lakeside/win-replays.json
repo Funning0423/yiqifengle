@@ -1,0 +1,803 @@
+{
+ "format": "qf-lake-win-replay-1",
+ "note": "Each entry: real API.createSession(stageId, seed) (seed is in seedBank), apply actions in order with session.act(); after actions[0..n-2] status is playing, the last action (always a swap, for __qfPreTransition toResult/lastAction) makes it won. actions use the engine form [\"swap\",a,b] / [\"activate\",i], cell index = row*7+col.",
+ "dataFile": "creator-build-project/assets/scripts/regional-r05/runtime/lakeside-levels-data.js",
+ "stages": [
+  {
+   "label": "L13",
+   "stageId": "r04-lake-01",
+   "name": "两只风铃",
+   "contentRevision": "draft-2026-10-25",
+   "replays": [
+    {
+     "seed": 4,
+     "actions": [
+      [
+       "swap",
+       10,
+       11
+      ],
+      [
+       "swap",
+       24,
+       25
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      24,
+      25
+     ],
+     "moves": 2,
+     "movesAllowed": 14,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 480,
+     "movesRemaining": 12
+    },
+    {
+     "seed": 12,
+     "actions": [
+      [
+       "swap",
+       23,
+       30
+      ],
+      [
+       "swap",
+       24,
+       25
+      ],
+      [
+       "swap",
+       16,
+       23
+      ],
+      [
+       "swap",
+       20,
+       27
+      ],
+      [
+       "swap",
+       0,
+       7
+      ],
+      [
+       "swap",
+       8,
+       15
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      8,
+      15
+     ],
+     "moves": 6,
+     "movesAllowed": 14,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 600,
+     "movesRemaining": 8
+    },
+    {
+     "seed": 1,
+     "actions": [
+      [
+       "swap",
+       23,
+       24
+      ],
+      [
+       "swap",
+       3,
+       10
+      ],
+      [
+       "swap",
+       31,
+       32
+      ],
+      [
+       "swap",
+       29,
+       30
+      ],
+      [
+       "swap",
+       23,
+       24
+      ],
+      [
+       "swap",
+       1,
+       2
+      ],
+      [
+       "swap",
+       4,
+       11
+      ],
+      [
+       "swap",
+       7,
+       14
+      ],
+      [
+       "swap",
+       7,
+       14
+      ],
+      [
+       "swap",
+       8,
+       15
+      ],
+      [
+       "swap",
+       22,
+       29
+      ],
+      [
+       "swap",
+       21,
+       28
+      ],
+      [
+       "swap",
+       37,
+       44
+      ],
+      [
+       "swap",
+       18,
+       25
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      18,
+      25
+     ],
+     "moves": 14,
+     "movesAllowed": 14,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 990,
+     "movesRemaining": 0
+    }
+   ]
+  },
+  {
+   "label": "L14",
+   "stageId": "r04-lake-02",
+   "name": "两岸的铃",
+   "contentRevision": "draft-2026-10-25",
+   "replays": [
+    {
+     "seed": 11,
+     "actions": [
+      [
+       "swap",
+       6,
+       13
+      ],
+      [
+       "swap",
+       10,
+       11
+      ],
+      [
+       "swap",
+       28,
+       35
+      ],
+      [
+       "swap",
+       23,
+       30
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      23,
+      30
+     ],
+     "moves": 4,
+     "movesAllowed": 18,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 860,
+     "movesRemaining": 14
+    },
+    {
+     "seed": 8,
+     "actions": [
+      [
+       "swap",
+       21,
+       28
+      ],
+      [
+       "swap",
+       32,
+       39
+      ],
+      [
+       "swap",
+       27,
+       34
+      ],
+      [
+       "swap",
+       19,
+       20
+      ],
+      [
+       "swap",
+       8,
+       15
+      ],
+      [
+       "swap",
+       35,
+       42
+      ],
+      [
+       "swap",
+       1,
+       8
+      ],
+      [
+       "swap",
+       14,
+       15
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      14,
+      15
+     ],
+     "moves": 8,
+     "movesAllowed": 18,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 840,
+     "movesRemaining": 10
+    },
+    {
+     "seed": 10,
+     "actions": [
+      [
+       "swap",
+       42,
+       43
+      ],
+      [
+       "swap",
+       26,
+       27
+      ],
+      [
+       "swap",
+       14,
+       15
+      ],
+      [
+       "swap",
+       7,
+       14
+      ],
+      [
+       "swap",
+       17,
+       18
+      ],
+      [
+       "swap",
+       18,
+       25
+      ],
+      [
+       "swap",
+       18,
+       25
+      ],
+      [
+       "swap",
+       23,
+       24
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      23,
+      24
+     ],
+     "moves": 8,
+     "movesAllowed": 18,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 700,
+     "movesRemaining": 10
+    }
+   ]
+  },
+  {
+   "label": "L15",
+   "stageId": "r04-lake-03",
+   "name": "苔下的铃",
+   "contentRevision": "draft-2026-10-25",
+   "replays": [
+    {
+     "seed": 1,
+     "actions": [
+      [
+       "swap",
+       23,
+       24
+      ],
+      [
+       "swap",
+       39,
+       40
+      ],
+      [
+       "swap",
+       10,
+       17
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      10,
+      17
+     ],
+     "moves": 3,
+     "movesAllowed": 13,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 1290,
+     "movesRemaining": 10
+    },
+    {
+     "seed": 2,
+     "actions": [
+      [
+       "swap",
+       31,
+       32
+      ],
+      [
+       "swap",
+       37,
+       44
+      ],
+      [
+       "swap",
+       9,
+       16
+      ],
+      [
+       "swap",
+       22,
+       29
+      ],
+      [
+       "swap",
+       11,
+       18
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      11,
+      18
+     ],
+     "moves": 5,
+     "movesAllowed": 13,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 920,
+     "movesRemaining": 8
+    },
+    {
+     "seed": 3,
+     "actions": [
+      [
+       "swap",
+       23,
+       24
+      ],
+      [
+       "swap",
+       16,
+       17
+      ],
+      [
+       "swap",
+       32,
+       39
+      ],
+      [
+       "swap",
+       30,
+       31
+      ],
+      [
+       "swap",
+       32,
+       33
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      32,
+      33
+     ],
+     "moves": 5,
+     "movesAllowed": 13,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 810,
+     "movesRemaining": 8
+    }
+   ]
+  },
+  {
+   "label": "L16",
+   "stageId": "r04-lake-04",
+   "name": "角落里的铃",
+   "contentRevision": "draft-2026-10-23",
+   "replays": [
+    {
+     "seed": 4,
+     "actions": [
+      [
+       "swap",
+       10,
+       11
+      ],
+      [
+       "swap",
+       28,
+       29
+      ],
+      [
+       "swap",
+       30,
+       31
+      ],
+      [
+       "swap",
+       36,
+       37
+      ],
+      [
+       "swap",
+       2,
+       9
+      ],
+      [
+       "swap",
+       26,
+       33
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      26,
+      33
+     ],
+     "moves": 6,
+     "movesAllowed": 24,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 2050,
+     "movesRemaining": 18
+    },
+    {
+     "seed": 5,
+     "actions": [
+      [
+       "swap",
+       46,
+       47
+      ],
+      [
+       "swap",
+       25,
+       32
+      ],
+      [
+       "swap",
+       12,
+       13
+      ],
+      [
+       "swap",
+       29,
+       36
+      ],
+      [
+       "swap",
+       36,
+       43
+      ],
+      [
+       "swap",
+       36,
+       43
+      ],
+      [
+       "swap",
+       34,
+       41
+      ],
+      [
+       "swap",
+       32,
+       33
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      32,
+      33
+     ],
+     "moves": 8,
+     "movesAllowed": 24,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 1090,
+     "movesRemaining": 16
+    },
+    {
+     "seed": 11,
+     "actions": [
+      [
+       "swap",
+       2,
+       9
+      ],
+      [
+       "swap",
+       6,
+       13
+      ],
+      [
+       "swap",
+       21,
+       28
+      ],
+      [
+       "swap",
+       10,
+       11
+      ],
+      [
+       "swap",
+       16,
+       17
+      ],
+      [
+       "swap",
+       0,
+       7
+      ],
+      [
+       "swap",
+       37,
+       38
+      ],
+      [
+       "swap",
+       36,
+       37
+      ],
+      [
+       "swap",
+       5,
+       12
+      ],
+      [
+       "swap",
+       31,
+       38
+      ],
+      [
+       "swap",
+       18,
+       25
+      ],
+      [
+       "swap",
+       33,
+       40
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      33,
+      40
+     ],
+     "moves": 12,
+     "movesAllowed": 24,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 1570,
+     "movesRemaining": 12
+    }
+   ]
+  },
+  {
+   "label": "L17",
+   "stageId": "r04-lake-05",
+   "name": "一排风铃",
+   "contentRevision": "draft-2026-10-16",
+   "replays": [
+    {
+     "seed": 1,
+     "actions": [
+      [
+       "swap",
+       23,
+       24
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      23,
+      24
+     ],
+     "moves": 1,
+     "movesAllowed": 24,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 430,
+     "movesRemaining": 23
+    },
+    {
+     "seed": 4,
+     "actions": [
+      [
+       "swap",
+       10,
+       11
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      10,
+      11
+     ],
+     "moves": 1,
+     "movesAllowed": 24,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 620,
+     "movesRemaining": 23
+    },
+    {
+     "seed": 5,
+     "actions": [
+      [
+       "swap",
+       18,
+       25
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      18,
+      25
+     ],
+     "moves": 1,
+     "movesAllowed": 24,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 530,
+     "movesRemaining": 23
+    }
+   ]
+  },
+  {
+   "label": "L18",
+   "stageId": "r04-lake-06",
+   "name": "刻名的桥",
+   "contentRevision": "draft-2026-10-16",
+   "replays": [
+    {
+     "seed": 8,
+     "actions": [
+      [
+       "swap",
+       31,
+       38
+      ],
+      [
+       "swap",
+       30,
+       31
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      30,
+      31
+     ],
+     "moves": 2,
+     "movesAllowed": 26,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 780,
+     "movesRemaining": 24
+    },
+    {
+     "seed": 4,
+     "actions": [
+      [
+       "swap",
+       28,
+       29
+      ],
+      [
+       "swap",
+       24,
+       31
+      ],
+      [
+       "swap",
+       17,
+       24
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      17,
+      24
+     ],
+     "moves": 3,
+     "movesAllowed": 26,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 770,
+     "movesRemaining": 23
+    },
+    {
+     "seed": 11,
+     "actions": [
+      [
+       "swap",
+       22,
+       29
+      ],
+      [
+       "swap",
+       31,
+       38
+      ],
+      [
+       "swap",
+       31,
+       38
+      ]
+     ],
+     "lastAction": [
+      "swap",
+      31,
+      38
+     ],
+     "moves": 3,
+     "movesAllowed": 26,
+     "verified": true,
+     "lastIsSwap": true,
+     "score": 1200,
+     "movesRemaining": 23
+    }
+   ]
+  }
+ ]
+}

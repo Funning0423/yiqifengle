@@ -1,0 +1,2447 @@
+{
+ "status": "PASS",
+ "keepInside": {
+  "min": [
+   -1.1,
+   0.85,
+   -4.45
+  ],
+  "max": [
+   1.05,
+   2.2,
+   -0.9
+  ],
+  "cornerM": 0.5
+ },
+ "boxMarginM": 0.318,
+ "roomLook": {
+  "center": [
+   0,
+   1.55,
+   -2.5
+  ],
+  "blendFromM": 2.1,
+  "blendFullM": 1.6,
+  "pivotOffset": [
+   -0.2,
+   0,
+   0
+  ],
+  "viewTiltDeg": 8,
+  "lensMaxY": 1.55,
+  "lensCentreOffset": [
+   -0.017,
+   0,
+   -0.12
+  ],
+  "armGrowZM": 0.15,
+  "viewDownMinDeg": 9,
+  "viewDownMaxDeg": 31,
+  "viewDownSoftDeg": 3,
+  "centreFadeW": 0.5,
+  "r10": {
+   "edgeA": 330,
+   "edgeB": 14,
+   "bandDeg": 50,
+   "satDeg": 30,
+   "envK": 3,
+   "gazeM": 1.9
+  },
+  "framePts": [
+   [
+    -0.42,
+    -1.05,
+    -0.23
+   ],
+   [
+    -0.33,
+    -0.83,
+    0.02
+   ],
+   [
+    -0.32,
+    -0.57,
+    -0.29
+   ],
+   [
+    -0.36,
+    -0.53,
+    -0.17
+   ],
+   [
+    -0.36,
+    -0.6,
+    -0.07
+   ],
+   [
+    0.08,
+    0.01,
+    0.15
+   ],
+   [
+    0.1,
+    0.05,
+    -0.15
+   ],
+   [
+    0.03,
+    0.05,
+    -0.03
+   ],
+   [
+    -0.29,
+    -1.05,
+    -0.35
+   ],
+   [
+    -0.33,
+    -1.05,
+    -0.13
+   ],
+   [
+    -0.21,
+    -0.74,
+    -0.41
+   ],
+   [
+    0.16,
+    0.14,
+    0.01
+   ],
+   [
+    -0.15,
+    -1.05,
+    -0.24
+   ],
+   [
+    0.26,
+    -0.74,
+    0.09
+   ],
+   [
+    -0.14,
+    -0.83,
+    -0.42
+   ],
+   [
+    0.25,
+    0.1,
+    0.14
+   ],
+   [
+    0.04,
+    -0.97,
+    -0.13
+   ],
+   [
+    0.27,
+    -0.03,
+    0.16
+   ],
+   [
+    0.29,
+    0.01,
+    -0.19
+   ],
+   [
+    0.29,
+    0.12,
+    -0.07
+   ],
+   [
+    0.38,
+    -0.03,
+    -0.06
+   ],
+   [
+    0.37,
+    0.07,
+    0.08
+   ]
+  ]
+ },
+ "feel": {
+  "softK": 8,
+  "edgeSoftM": 0.08,
+  "insetM": 0.2,
+  "goalSpeedMS": 0,
+  "seedFadeS": 0.8,
+  "omega": 24,
+  "linAccMS2": 2,
+  "angAccDegS2": 100,
+  "safeFromM": 0.03,
+  "safeToM": 0.06,
+  "jerkMS3": 30,
+  "ffMaxMS": 0,
+  "ffTauS": 0.08,
+  "brakeMS2": 2,
+  "vMaxMS": 1.8,
+  "barrierAccMS2": 2,
+  "barrierK": 12,
+  "barrierWallM": -0.15,
+  "barrierLookS": 0.25,
+  "barrierHerM": 1.06
+ },
+ "worstWall": {
+  "yaw": 355,
+  "pitch": -14,
+  "dist": 3.35,
+  "boxes": true,
+  "m": 1.05
+ },
+ "worstToHer": {
+  "yaw": 30,
+  "pitch": -14,
+  "dist": 1.9,
+  "boxes": false,
+  "m": 1.28
+ },
+ "yawsWithWorldBoxes": [
+  {
+   "yaw": 0,
+   "w": 0,
+   "wallArmM": 2.99,
+   "lens": [
+    0.217,
+    1.468,
+    -1.582
+   ],
+   "toHerM": 2.67,
+   "wallGapM": 1.319
+  },
+  {
+   "yaw": 45,
+   "w": 0.717,
+   "wallArmM": 1.29,
+   "lens": [
+    0.238,
+    1.473,
+    -2.698
+   ],
+   "toHerM": 1.58,
+   "wallGapM": 1.473
+  },
+  {
+   "yaw": 90,
+   "w": 1,
+   "wallArmM": 1.29,
+   "lens": [
+    0,
+    1.55,
+    -2.5
+   ],
+   "toHerM": 1.83,
+   "wallGapM": 1.51
+  },
+  {
+   "yaw": 135,
+   "w": 1,
+   "wallArmM": 1.29,
+   "lens": [
+    0,
+    1.55,
+    -2.5
+   ],
+   "toHerM": 1.83,
+   "wallGapM": 1.51
+  },
+  {
+   "yaw": 180,
+   "w": 1,
+   "wallArmM": 1.56,
+   "lens": [
+    0,
+    1.55,
+    -2.5
+   ],
+   "toHerM": 1.83,
+   "wallGapM": 1.51
+  },
+  {
+   "yaw": 225,
+   "w": 1,
+   "wallArmM": 1.56,
+   "lens": [
+    0,
+    1.55,
+    -2.5
+   ],
+   "toHerM": 1.83,
+   "wallGapM": 1.51
+  },
+  {
+   "yaw": 270,
+   "w": 1,
+   "wallArmM": 1.56,
+   "lens": [
+    0,
+    1.55,
+    -2.5
+   ],
+   "toHerM": 1.83,
+   "wallGapM": 1.51
+  },
+  {
+   "yaw": 315,
+   "w": 0.163,
+   "wallArmM": 1.66,
+   "lens": [
+    -0.734,
+    1.373,
+    -2.986
+   ],
+   "toHerM": 1.72,
+   "wallGapM": 1.373
+  }
+ ],
+ "orbitYaws": [
+  0,
+  315
+ ],
+ "outdoorRegression": {
+  "cases": 240,
+  "changed": 0,
+  "places": [
+   "island",
+   "meadow",
+   "skycity",
+   "lakeside"
+  ]
+ },
+ "motion": {
+  "cases": 60,
+  "peakLinAccMS2": 10325.57,
+  "peakCameraAngAccDegS2": 26526.1,
+  "peakRawViewAngAccDegS2": 111244,
+  "peakViewLagDeg": 4.73,
+  "peakSpeedMS": 84.87,
+  "minWallGapM": 0.844,
+  "minToHerM": 1.29,
+  "rows": [
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 30,
+    "peakLinAccMS2": 99.87,
+    "cameraAngAccDegS2": 900.5,
+    "rawViewAngAccDegS2": 901,
+    "steadyViewAngAccDegS2": 41.2,
+    "cameraTurnDegS": 31.9,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 3.21,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 30,
+    "peakLinAccMS2": 140.75,
+    "cameraAngAccDegS2": 902,
+    "rawViewAngAccDegS2": 902,
+    "steadyViewAngAccDegS2": 45.4,
+    "cameraTurnDegS": 32.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 4.3,
+    "minWallGapM": 1.144,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 30,
+    "peakLinAccMS2": 145.13,
+    "cameraAngAccDegS2": 903.1,
+    "rawViewAngAccDegS2": 903,
+    "steadyViewAngAccDegS2": 81.7,
+    "cameraTurnDegS": 35.4,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 3.83,
+    "minWallGapM": 1.19,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 30,
+    "peakLinAccMS2": 280.8,
+    "cameraAngAccDegS2": 2701,
+    "rawViewAngAccDegS2": 2701,
+    "steadyViewAngAccDegS2": 365.4,
+    "cameraTurnDegS": 95.7,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 9.47,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 30,
+    "peakLinAccMS2": 260.95,
+    "cameraAngAccDegS2": 2705.3,
+    "rawViewAngAccDegS2": 2705,
+    "steadyViewAngAccDegS2": 382.9,
+    "cameraTurnDegS": 96.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 9.61,
+    "minWallGapM": 1.144,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 30,
+    "peakLinAccMS2": 130.31,
+    "cameraAngAccDegS2": 2708.5,
+    "rawViewAngAccDegS2": 2709,
+    "steadyViewAngAccDegS2": 685.5,
+    "cameraTurnDegS": 102.6,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 7.74,
+    "minWallGapM": 1.261,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 30,
+    "peakLinAccMS2": 393.5,
+    "cameraAngAccDegS2": 4802.3,
+    "rawViewAngAccDegS2": 4802,
+    "steadyViewAngAccDegS2": 1119.3,
+    "cameraTurnDegS": 169.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 16.47,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 30,
+    "peakLinAccMS2": 352.5,
+    "cameraAngAccDegS2": 4809.9,
+    "rawViewAngAccDegS2": 4810,
+    "steadyViewAngAccDegS2": 1175.8,
+    "cameraTurnDegS": 171.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 15.3,
+    "minWallGapM": 1.188,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 30,
+    "peakLinAccMS2": 419.55,
+    "cameraAngAccDegS2": 4815.1,
+    "rawViewAngAccDegS2": 4815,
+    "steadyViewAngAccDegS2": 1858.4,
+    "cameraTurnDegS": 181,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 14.17,
+    "minWallGapM": 1.19,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "pitch swing yaw 0",
+    "fps": 30,
+    "peakLinAccMS2": 49.23,
+    "cameraAngAccDegS2": 190.9,
+    "rawViewAngAccDegS2": 191,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 31.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 2,
+    "minWallGapM": 1.05,
+    "minToHerM": 2.57
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 30,
+    "peakLinAccMS2": 0.01,
+    "cameraAngAccDegS2": 0.5,
+    "rawViewAngAccDegS2": 107,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0.1,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 120",
+    "fps": 30,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 107,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 200",
+    "fps": 30,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 107,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 260",
+    "fps": 30,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 107,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 30,
+    "peakLinAccMS2": 0.96,
+    "cameraAngAccDegS2": 32.8,
+    "rawViewAngAccDegS2": 103,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 9.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0.27,
+    "minWallGapM": 1.391,
+    "minToHerM": 1.68
+   },
+   {
+    "name": "pinch yaw 0",
+    "fps": 30,
+    "peakLinAccMS2": 106.27,
+    "cameraAngAccDegS2": 548.4,
+    "rawViewAngAccDegS2": 548,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 11,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 2.13,
+    "minWallGapM": 1.319,
+    "minToHerM": 1.79
+   },
+   {
+    "name": "pinch yaw 270",
+    "fps": 30,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 0,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 30,
+    "peakLinAccMS2": 18.36,
+    "cameraAngAccDegS2": 110.4,
+    "rawViewAngAccDegS2": 132,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 2.3,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0.38,
+    "minWallGapM": 1.364,
+    "minToHerM": 1.67
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 30,
+    "peakLinAccMS2": 645.35,
+    "cameraAngAccDegS2": 3473.2,
+    "rawViewAngAccDegS2": 6815,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 237.3,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 21.22,
+    "minWallGapM": 0.956,
+    "minToHerM": 1.62,
+    "firstDragViewTurnDeg": 1.601,
+    "firstDragLensStepM": 0.7073
+   },
+   {
+    "name": "return after cinematic",
+    "fps": 30,
+    "peakLinAccMS2": 633.21,
+    "cameraAngAccDegS2": 1077.1,
+    "rawViewAngAccDegS2": 1077,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 36.4,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 21.18,
+    "minWallGapM": 0.844,
+    "minToHerM": 1.83,
+    "viewBackAfterS": 9
+   },
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 60,
+    "peakLinAccMS2": 238.83,
+    "cameraAngAccDegS2": 1801.2,
+    "rawViewAngAccDegS2": 1801,
+    "steadyViewAngAccDegS2": 41.3,
+    "cameraTurnDegS": 32,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 3.21,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 60,
+    "peakLinAccMS2": 228.7,
+    "cameraAngAccDegS2": 1804.1,
+    "rawViewAngAccDegS2": 1804,
+    "steadyViewAngAccDegS2": 45.9,
+    "cameraTurnDegS": 34.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 5.91,
+    "minWallGapM": 1.144,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 60,
+    "peakLinAccMS2": 429.19,
+    "cameraAngAccDegS2": 1806.3,
+    "rawViewAngAccDegS2": 1806,
+    "steadyViewAngAccDegS2": 82.1,
+    "cameraTurnDegS": 35.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 4.88,
+    "minWallGapM": 1.19,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 60,
+    "peakLinAccMS2": 569.72,
+    "cameraAngAccDegS2": 5402.6,
+    "rawViewAngAccDegS2": 5403,
+    "steadyViewAngAccDegS2": 369.4,
+    "cameraTurnDegS": 95.8,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 9.62,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 60,
+    "peakLinAccMS2": 718.48,
+    "cameraAngAccDegS2": 5411.4,
+    "rawViewAngAccDegS2": 5411,
+    "steadyViewAngAccDegS2": 407.6,
+    "cameraTurnDegS": 96.6,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 11.55,
+    "minWallGapM": 1.144,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 60,
+    "peakLinAccMS2": 556.93,
+    "cameraAngAccDegS2": 5418,
+    "rawViewAngAccDegS2": 5418,
+    "steadyViewAngAccDegS2": 719.9,
+    "cameraTurnDegS": 106.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 8.92,
+    "minWallGapM": 1.236,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 60,
+    "peakLinAccMS2": 562.31,
+    "cameraAngAccDegS2": 9603.6,
+    "rawViewAngAccDegS2": 9604,
+    "steadyViewAngAccDegS2": 1154.9,
+    "cameraTurnDegS": 170,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 16.86,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 60,
+    "peakLinAccMS2": 606.74,
+    "cameraAngAccDegS2": 9619.1,
+    "rawViewAngAccDegS2": 9619,
+    "steadyViewAngAccDegS2": 1236.7,
+    "cameraTurnDegS": 171.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 16.33,
+    "minWallGapM": 1.188,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 60,
+    "peakLinAccMS2": 1070.77,
+    "cameraAngAccDegS2": 9630.5,
+    "rawViewAngAccDegS2": 9631,
+    "steadyViewAngAccDegS2": 2195.4,
+    "cameraTurnDegS": 187.1,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 16.6,
+    "minWallGapM": 1.19,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "pitch swing yaw 0",
+    "fps": 60,
+    "peakLinAccMS2": 188.21,
+    "cameraAngAccDegS2": 680.4,
+    "rawViewAngAccDegS2": 680,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 36.1,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 2.4,
+    "minWallGapM": 1.05,
+    "minToHerM": 2.57
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 60,
+    "peakLinAccMS2": 0.01,
+    "cameraAngAccDegS2": 0.5,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0.1,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 120",
+    "fps": 60,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 200",
+    "fps": 60,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 260",
+    "fps": 60,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 60,
+    "peakLinAccMS2": 0.97,
+    "cameraAngAccDegS2": 33,
+    "rawViewAngAccDegS2": 104,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 9.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0.27,
+    "minWallGapM": 1.391,
+    "minToHerM": 1.68
+   },
+   {
+    "name": "pinch yaw 0",
+    "fps": 60,
+    "peakLinAccMS2": 227.46,
+    "cameraAngAccDegS2": 898.1,
+    "rawViewAngAccDegS2": 898,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 11.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 2.68,
+    "minWallGapM": 1.319,
+    "minToHerM": 1.79
+   },
+   {
+    "name": "pinch yaw 270",
+    "fps": 60,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 0,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 60,
+    "peakLinAccMS2": 31.42,
+    "cameraAngAccDegS2": 189.5,
+    "rawViewAngAccDegS2": 226,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 2.4,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0.4,
+    "minWallGapM": 1.364,
+    "minToHerM": 1.67
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 60,
+    "peakLinAccMS2": 2581.39,
+    "cameraAngAccDegS2": 18627,
+    "rawViewAngAccDegS2": 29109,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 474.3,
+    "viewLagDeg": 0.01,
+    "peakSpeedMS": 42.44,
+    "minWallGapM": 0.956,
+    "minToHerM": 1.29,
+    "firstDragViewTurnDeg": 1.601,
+    "firstDragLensStepM": 0.7073
+   },
+   {
+    "name": "return after cinematic",
+    "fps": 60,
+    "peakLinAccMS2": 2539.47,
+    "cameraAngAccDegS2": 4092.2,
+    "rawViewAngAccDegS2": 4092,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 67,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 42.36,
+    "minWallGapM": 0.844,
+    "minToHerM": 1.83,
+    "viewBackAfterS": 8.983
+   },
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 120,
+    "peakLinAccMS2": 921.46,
+    "cameraAngAccDegS2": 3602.5,
+    "rawViewAngAccDegS2": 3603,
+    "steadyViewAngAccDegS2": 41.3,
+    "cameraTurnDegS": 36.8,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 5.84,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 120,
+    "peakLinAccMS2": 852.92,
+    "cameraAngAccDegS2": 3608.4,
+    "rawViewAngAccDegS2": 3608,
+    "steadyViewAngAccDegS2": 46,
+    "cameraTurnDegS": 39.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 8.81,
+    "minWallGapM": 1.136,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 120,
+    "peakLinAccMS2": 829.1,
+    "cameraAngAccDegS2": 3612.9,
+    "rawViewAngAccDegS2": 3613,
+    "steadyViewAngAccDegS2": 82.2,
+    "cameraTurnDegS": 39.8,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 8.03,
+    "minWallGapM": 1.19,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 120,
+    "peakLinAccMS2": 1271.5,
+    "cameraAngAccDegS2": 10806.5,
+    "rawViewAngAccDegS2": 10806,
+    "steadyViewAngAccDegS2": 371.3,
+    "cameraTurnDegS": 95.9,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 9.62,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 120,
+    "peakLinAccMS2": 1924.14,
+    "cameraAngAccDegS2": 10824.2,
+    "rawViewAngAccDegS2": 10824,
+    "steadyViewAngAccDegS2": 412.5,
+    "cameraTurnDegS": 97.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 14.11,
+    "minWallGapM": 1.144,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 120,
+    "peakLinAccMS2": 1962.59,
+    "cameraAngAccDegS2": 10837.5,
+    "rawViewAngAccDegS2": 10837,
+    "steadyViewAngAccDegS2": 737.3,
+    "cameraTurnDegS": 106.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 13.48,
+    "minWallGapM": 1.193,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 120,
+    "peakLinAccMS2": 1720.1,
+    "cameraAngAccDegS2": 19209.8,
+    "rawViewAngAccDegS2": 19210,
+    "steadyViewAngAccDegS2": 1170.7,
+    "cameraTurnDegS": 170.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 17.1,
+    "minWallGapM": 1.05,
+    "minToHerM": 1.29
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 120,
+    "peakLinAccMS2": 2342.29,
+    "cameraAngAccDegS2": 19241.1,
+    "rawViewAngAccDegS2": 19241,
+    "steadyViewAngAccDegS2": 1284.8,
+    "cameraTurnDegS": 171.6,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 21.36,
+    "minWallGapM": 1.157,
+    "minToHerM": 1.32
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 120,
+    "peakLinAccMS2": 2726.52,
+    "cameraAngAccDegS2": 19264.5,
+    "rawViewAngAccDegS2": 19264,
+    "steadyViewAngAccDegS2": 2289.4,
+    "cameraTurnDegS": 188.9,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 19.03,
+    "minWallGapM": 1.19,
+    "minToHerM": 1.38
+   },
+   {
+    "name": "pitch swing yaw 0",
+    "fps": 120,
+    "peakLinAccMS2": 737.27,
+    "cameraAngAccDegS2": 2295.4,
+    "rawViewAngAccDegS2": 2295,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 45.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 5.14,
+    "minWallGapM": 1.05,
+    "minToHerM": 2.57
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 120,
+    "peakLinAccMS2": 0.02,
+    "cameraAngAccDegS2": 0.5,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0.1,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 120",
+    "fps": 120,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 200",
+    "fps": 120,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 260",
+    "fps": 120,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 108,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 120,
+    "peakLinAccMS2": 0.97,
+    "cameraAngAccDegS2": 33,
+    "rawViewAngAccDegS2": 104,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 9.2,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0.27,
+    "minWallGapM": 1.391,
+    "minToHerM": 1.68
+   },
+   {
+    "name": "pinch yaw 0",
+    "fps": 120,
+    "peakLinAccMS2": 826.04,
+    "cameraAngAccDegS2": 2470,
+    "rawViewAngAccDegS2": 2470,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 16.4,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 5.79,
+    "minWallGapM": 1.319,
+    "minToHerM": 1.79
+   },
+   {
+    "name": "pinch yaw 270",
+    "fps": 120,
+    "peakLinAccMS2": 0,
+    "cameraAngAccDegS2": 0,
+    "rawViewAngAccDegS2": 0,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 0,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0,
+    "minWallGapM": 1.51,
+    "minToHerM": 1.83
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 120,
+    "peakLinAccMS2": 65.84,
+    "cameraAngAccDegS2": 397.8,
+    "rawViewAngAccDegS2": 475,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 2.5,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 0.41,
+    "minWallGapM": 1.364,
+    "minToHerM": 1.67
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 120,
+    "peakLinAccMS2": 10325.57,
+    "cameraAngAccDegS2": 26526.1,
+    "rawViewAngAccDegS2": 111244,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 956.5,
+    "viewLagDeg": 4.73,
+    "peakSpeedMS": 84.87,
+    "minWallGapM": 0.956,
+    "minToHerM": 1.29,
+    "firstDragViewTurnDeg": 1.601,
+    "firstDragLensStepM": 0.7073
+   },
+   {
+    "name": "return after cinematic",
+    "fps": 120,
+    "peakLinAccMS2": 10164.78,
+    "cameraAngAccDegS2": 16148.8,
+    "rawViewAngAccDegS2": 16149,
+    "steadyViewAngAccDegS2": 0,
+    "cameraTurnDegS": 134,
+    "viewLagDeg": 0,
+    "peakSpeedMS": 84.73,
+    "minWallGapM": 0.844,
+    "minToHerM": 1.83,
+    "viewBackAfterS": 8.975
+   }
+  ]
+ },
+ "follow": [
+  {
+   "case": "drag 30°/s",
+   "fps": 30,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 902,
+   "peakLinAccMS2": 140.75,
+   "minWallGapM": 1.144,
+   "minToHerM": 1.32
+  },
+  {
+   "case": "drag 90°/s",
+   "fps": 30,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 2705.3,
+   "peakLinAccMS2": 260.95,
+   "minWallGapM": 1.144,
+   "minToHerM": 1.32
+  },
+  {
+   "case": "back-and-forth 150°/s at yaw 200 (room-centre zone)",
+   "fps": 30,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 0,
+   "peakLinAccMS2": 0,
+   "minWallGapM": 1.51,
+   "minToHerM": 1.83
+  },
+  {
+   "case": "back-and-forth 150°/s at yaw 340 (orbit zone)",
+   "fps": 30,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 9165.2,
+   "peakLinAccMS2": 955.23,
+   "minWallGapM": 1.13,
+   "minToHerM": 1.3
+  },
+  {
+   "case": "drag 30°/s",
+   "fps": 60,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 1804.1,
+   "peakLinAccMS2": 228.7,
+   "minWallGapM": 1.144,
+   "minToHerM": 1.32
+  },
+  {
+   "case": "drag 90°/s",
+   "fps": 60,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 5411.4,
+   "peakLinAccMS2": 718.48,
+   "minWallGapM": 1.144,
+   "minToHerM": 1.32
+  },
+  {
+   "case": "back-and-forth 150°/s at yaw 200 (room-centre zone)",
+   "fps": 60,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 0,
+   "peakLinAccMS2": 0,
+   "minWallGapM": 1.51,
+   "minToHerM": 1.83
+  },
+  {
+   "case": "back-and-forth 150°/s at yaw 340 (orbit zone)",
+   "fps": 60,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 18938.8,
+   "peakLinAccMS2": 1245.88,
+   "minWallGapM": 1.13,
+   "minToHerM": 2.46
+  },
+  {
+   "case": "drag 30°/s",
+   "fps": 120,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 3608.4,
+   "peakLinAccMS2": 852.92,
+   "minWallGapM": 1.136,
+   "minToHerM": 1.32
+  },
+  {
+   "case": "drag 90°/s",
+   "fps": 120,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 10824.2,
+   "peakLinAccMS2": 1924.14,
+   "minWallGapM": 1.144,
+   "minToHerM": 1.32
+  },
+  {
+   "case": "back-and-forth 150°/s at yaw 200 (room-centre zone)",
+   "fps": 120,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 0,
+   "peakLinAccMS2": 0,
+   "minWallGapM": 1.51,
+   "minToHerM": 1.83
+  },
+  {
+   "case": "back-and-forth 150°/s at yaw 340 (orbit zone)",
+   "fps": 120,
+   "viewLagDeg": 0,
+   "settleS": 0,
+   "overshootDeg": 0,
+   "overshootInputDirDeg": 0,
+   "cameraAngAccDegS2": 37438.2,
+   "peakLinAccMS2": 2458.59,
+   "minWallGapM": 1.13,
+   "minToHerM": 2.55
+  }
+ ],
+ "atRest": {
+  "corePoses": 693,
+  "outOfSafe": 0,
+  "worstEdgeNDC": 0.874,
+  "centrePoses": 1232,
+  "centreOut": 0,
+  "worstCentreNDC": 0.483,
+  "distMin": 1.9,
+  "lensMaxY": 1.55
+ },
+ "inFrame": {
+  "safeNDC": 0.9,
+  "screen": "390x844",
+  "orbitW": 0.28,
+  "cases": 72,
+  "outOfSafeFrames": 3005,
+  "minCoverage": 0.165,
+  "maxCoverage": 0.524,
+  "rows": [
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 30,
+    "orbitFrames": 223,
+    "outOfSafeFrames": 40,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.746,
+    "worstEdgeNDC": 1.882,
+    "minCoverage": 0.19,
+    "maxCoverage": 0.52
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 30,
+    "orbitFrames": 223,
+    "outOfSafeFrames": 38,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.822,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 30,
+    "orbitFrames": 223,
+    "outOfSafeFrames": 34,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.697,
+    "worstEdgeNDC": 1.733,
+    "minCoverage": 0.166,
+    "maxCoverage": 0.425
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 30,
+    "orbitFrames": 115,
+    "outOfSafeFrames": 14,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.746,
+    "worstEdgeNDC": 1.614,
+    "minCoverage": 0.19,
+    "maxCoverage": 0.513
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 30,
+    "orbitFrames": 115,
+    "outOfSafeFrames": 12,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.53,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 30,
+    "orbitFrames": 115,
+    "outOfSafeFrames": 12,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.697,
+    "worstEdgeNDC": 1.453,
+    "minCoverage": 0.174,
+    "maxCoverage": 0.422
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 30,
+    "orbitFrames": 92,
+    "outOfSafeFrames": 8,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.746,
+    "worstEdgeNDC": 1.882,
+    "minCoverage": 0.196,
+    "maxCoverage": 0.516
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 30,
+    "orbitFrames": 92,
+    "outOfSafeFrames": 8,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.822,
+    "minCoverage": 0.17,
+    "maxCoverage": 0.462
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 30,
+    "orbitFrames": 92,
+    "outOfSafeFrames": 7,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.697,
+    "worstEdgeNDC": 1.733,
+    "minCoverage": 0.166,
+    "maxCoverage": 0.427
+   },
+   {
+    "name": "pitch swing yaw 0",
+    "fps": 30,
+    "orbitFrames": 181,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.031,
+    "worstEdgeNDC": 0.573,
+    "minCoverage": 0.174,
+    "maxCoverage": 0.209
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 120",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 200",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 260",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pinch yaw 0",
+    "fps": 30,
+    "orbitFrames": 181,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.08,
+    "worstEdgeNDC": 0.791,
+    "minCoverage": 0.177,
+    "maxCoverage": 0.364
+   },
+   {
+    "name": "pinch yaw 270",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 30,
+    "orbitFrames": 181,
+    "outOfSafeFrames": 181,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.476,
+    "worstEdgeNDC": 1.252,
+    "minCoverage": 0.43,
+    "maxCoverage": 0.446
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 30,
+    "orbitFrames": 193,
+    "outOfSafeFrames": 5,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.793,
+    "worstEdgeNDC": 1.668,
+    "minCoverage": 0.233,
+    "maxCoverage": 0.519
+   },
+   {
+    "name": "return after cinematic",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 60,
+    "orbitFrames": 447,
+    "outOfSafeFrames": 84,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.801,
+    "worstEdgeNDC": 1.965,
+    "minCoverage": 0.19,
+    "maxCoverage": 0.522
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 60,
+    "orbitFrames": 447,
+    "outOfSafeFrames": 76,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.776,
+    "worstEdgeNDC": 1.903,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 60,
+    "orbitFrames": 447,
+    "outOfSafeFrames": 68,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.746,
+    "worstEdgeNDC": 1.811,
+    "minCoverage": 0.166,
+    "maxCoverage": 0.425
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 60,
+    "orbitFrames": 229,
+    "outOfSafeFrames": 28,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.746,
+    "worstEdgeNDC": 1.803,
+    "minCoverage": 0.19,
+    "maxCoverage": 0.522
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 60,
+    "orbitFrames": 229,
+    "outOfSafeFrames": 24,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.745,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 60,
+    "orbitFrames": 229,
+    "outOfSafeFrames": 22,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.697,
+    "worstEdgeNDC": 1.658,
+    "minCoverage": 0.172,
+    "maxCoverage": 0.422
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 60,
+    "orbitFrames": 183,
+    "outOfSafeFrames": 16,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.746,
+    "worstEdgeNDC": 1.882,
+    "minCoverage": 0.196,
+    "maxCoverage": 0.516
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 60,
+    "orbitFrames": 183,
+    "outOfSafeFrames": 16,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.822,
+    "minCoverage": 0.17,
+    "maxCoverage": 0.462
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 60,
+    "orbitFrames": 183,
+    "outOfSafeFrames": 14,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.697,
+    "worstEdgeNDC": 1.733,
+    "minCoverage": 0.166,
+    "maxCoverage": 0.427
+   },
+   {
+    "name": "pitch swing yaw 0",
+    "fps": 60,
+    "orbitFrames": 361,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.031,
+    "worstEdgeNDC": 0.573,
+    "minCoverage": 0.174,
+    "maxCoverage": 0.209
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 120",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 200",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 260",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pinch yaw 0",
+    "fps": 60,
+    "orbitFrames": 361,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.08,
+    "worstEdgeNDC": 0.791,
+    "minCoverage": 0.177,
+    "maxCoverage": 0.364
+   },
+   {
+    "name": "pinch yaw 270",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 60,
+    "orbitFrames": 361,
+    "outOfSafeFrames": 361,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.476,
+    "worstEdgeNDC": 1.252,
+    "minCoverage": 0.43,
+    "maxCoverage": 0.446
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 60,
+    "orbitFrames": 377,
+    "outOfSafeFrames": 310,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.748,
+    "worstEdgeNDC": 2.017,
+    "minCoverage": 0.233,
+    "maxCoverage": 0.523
+   },
+   {
+    "name": "return after cinematic",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 120,
+    "orbitFrames": 895,
+    "outOfSafeFrames": 172,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.829,
+    "worstEdgeNDC": 2.007,
+    "minCoverage": 0.188,
+    "maxCoverage": 0.522
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 120,
+    "orbitFrames": 895,
+    "outOfSafeFrames": 152,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.802,
+    "worstEdgeNDC": 1.944,
+    "minCoverage": 0.165,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 120,
+    "orbitFrames": 895,
+    "outOfSafeFrames": 138,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.771,
+    "worstEdgeNDC": 1.851,
+    "minCoverage": 0.166,
+    "maxCoverage": 0.427
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 120,
+    "orbitFrames": 459,
+    "outOfSafeFrames": 58,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.829,
+    "worstEdgeNDC": 1.923,
+    "minCoverage": 0.19,
+    "maxCoverage": 0.522
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 120,
+    "orbitFrames": 459,
+    "outOfSafeFrames": 50,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.802,
+    "worstEdgeNDC": 1.862,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 120,
+    "orbitFrames": 459,
+    "outOfSafeFrames": 46,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.771,
+    "worstEdgeNDC": 1.772,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.427
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 120,
+    "orbitFrames": 363,
+    "outOfSafeFrames": 32,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.746,
+    "worstEdgeNDC": 1.882,
+    "minCoverage": 0.193,
+    "maxCoverage": 0.518
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 120,
+    "orbitFrames": 363,
+    "outOfSafeFrames": 28,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.822,
+    "minCoverage": 0.169,
+    "maxCoverage": 0.462
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 120,
+    "orbitFrames": 363,
+    "outOfSafeFrames": 26,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.697,
+    "worstEdgeNDC": 1.733,
+    "minCoverage": 0.166,
+    "maxCoverage": 0.427
+   },
+   {
+    "name": "pitch swing yaw 0",
+    "fps": 120,
+    "orbitFrames": 721,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.031,
+    "worstEdgeNDC": 0.573,
+    "minCoverage": 0.174,
+    "maxCoverage": 0.209
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 120",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 200",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 260",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pinch yaw 0",
+    "fps": 120,
+    "orbitFrames": 721,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.08,
+    "worstEdgeNDC": 0.791,
+    "minCoverage": 0.177,
+    "maxCoverage": 0.364
+   },
+   {
+    "name": "pinch yaw 270",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 120,
+    "orbitFrames": 721,
+    "outOfSafeFrames": 721,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.476,
+    "worstEdgeNDC": 1.252,
+    "minCoverage": 0.43,
+    "maxCoverage": 0.446
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 120,
+    "orbitFrames": 72,
+    "outOfSafeFrames": 16,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.803,
+    "worstEdgeNDC": 1.905,
+    "minCoverage": 0.233,
+    "maxCoverage": 0.524
+   },
+   {
+    "name": "return after cinematic",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "follow 30°/s",
+    "fps": 30,
+    "orbitFrames": 112,
+    "outOfSafeFrames": 19,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.822,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "follow 90°/s",
+    "fps": 30,
+    "orbitFrames": 58,
+    "outOfSafeFrames": 6,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.53,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "follow back-and-forth",
+    "fps": 30,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "follow back-and-forth",
+    "fps": 30,
+    "orbitFrames": 99,
+    "outOfSafeFrames": 12,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.423,
+    "worstEdgeNDC": 1.568,
+    "minCoverage": 0.168,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "follow 30°/s",
+    "fps": 60,
+    "orbitFrames": 224,
+    "outOfSafeFrames": 38,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.776,
+    "worstEdgeNDC": 1.903,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "follow 90°/s",
+    "fps": 60,
+    "orbitFrames": 115,
+    "outOfSafeFrames": 12,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.724,
+    "worstEdgeNDC": 1.745,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "follow back-and-forth",
+    "fps": 60,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "follow back-and-forth",
+    "fps": 60,
+    "orbitFrames": 206,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.044,
+    "worstEdgeNDC": 0.643,
+    "minCoverage": 0.17,
+    "maxCoverage": 0.263
+   },
+   {
+    "name": "follow 30°/s",
+    "fps": 120,
+    "orbitFrames": 448,
+    "outOfSafeFrames": 76,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.802,
+    "worstEdgeNDC": 1.944,
+    "minCoverage": 0.165,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "follow 90°/s",
+    "fps": 120,
+    "orbitFrames": 230,
+    "outOfSafeFrames": 25,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.802,
+    "worstEdgeNDC": 1.862,
+    "minCoverage": 0.167,
+    "maxCoverage": 0.467
+   },
+   {
+    "name": "follow back-and-forth",
+    "fps": 120,
+    "orbitFrames": 0,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": null,
+    "worstEdgeNDC": null,
+    "minCoverage": null,
+    "maxCoverage": null
+   },
+   {
+    "name": "follow back-and-forth",
+    "fps": 120,
+    "orbitFrames": 410,
+    "outOfSafeFrames": 0,
+    "centreOutFrames": 0,
+    "worstCentreNDC": 0.04,
+    "worstEdgeNDC": 0.614,
+    "minCoverage": 0.169,
+    "maxCoverage": 0.237
+   }
+  ],
+  "centreOutFrames": 0
+ },
+ "blend": {
+  "rows": [
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 30,
+    "blendFrames": 172,
+    "cameraAngAccDegS2": 34.8,
+    "cameraAngJerkDegS3": 159,
+    "rawViewAngAccDegS2": 41
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 30,
+    "blendFrames": 172,
+    "cameraAngAccDegS2": 35.2,
+    "cameraAngJerkDegS3": 159,
+    "rawViewAngAccDegS2": 43
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 30,
+    "blendFrames": 172,
+    "cameraAngAccDegS2": 43.2,
+    "cameraAngJerkDegS3": 200,
+    "rawViewAngAccDegS2": 54
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 30,
+    "blendFrames": 58,
+    "cameraAngAccDegS2": 309.7,
+    "cameraAngJerkDegS3": 4361,
+    "rawViewAngAccDegS2": 365
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 30,
+    "blendFrames": 58,
+    "cameraAngAccDegS2": 311,
+    "cameraAngJerkDegS3": 4077,
+    "rawViewAngAccDegS2": 383
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 30,
+    "blendFrames": 58,
+    "cameraAngAccDegS2": 382.4,
+    "cameraAngJerkDegS3": 13214,
+    "rawViewAngAccDegS2": 482
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 30,
+    "blendFrames": 32,
+    "cameraAngAccDegS2": 949.8,
+    "cameraAngJerkDegS3": 36075,
+    "rawViewAngAccDegS2": 1119
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 30,
+    "blendFrames": 32,
+    "cameraAngAccDegS2": 966.4,
+    "cameraAngJerkDegS3": 29681,
+    "rawViewAngAccDegS2": 1176
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 30,
+    "blendFrames": 32,
+    "cameraAngAccDegS2": 1181.9,
+    "cameraAngJerkDegS3": 50056,
+    "rawViewAngAccDegS2": 1490
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 30,
+    "blendFrames": 178,
+    "cameraAngAccDegS2": 0.5,
+    "cameraAngJerkDegS3": 3,
+    "rawViewAngAccDegS2": 107
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 30,
+    "blendFrames": 178,
+    "cameraAngAccDegS2": 32.8,
+    "cameraAngJerkDegS3": 192,
+    "rawViewAngAccDegS2": 103
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 30,
+    "blendFrames": 178,
+    "cameraAngAccDegS2": 110.4,
+    "cameraAngJerkDegS3": 3776,
+    "rawViewAngAccDegS2": 132
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 30,
+    "blendFrames": 54,
+    "cameraAngAccDegS2": 2580,
+    "cameraAngJerkDegS3": 113964,
+    "rawViewAngAccDegS2": 6815
+   },
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 60,
+    "blendFrames": 348,
+    "cameraAngAccDegS2": 34.9,
+    "cameraAngJerkDegS3": 160,
+    "rawViewAngAccDegS2": 41
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 60,
+    "blendFrames": 348,
+    "cameraAngAccDegS2": 35.3,
+    "cameraAngJerkDegS3": 159,
+    "rawViewAngAccDegS2": 43
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 60,
+    "blendFrames": 348,
+    "cameraAngAccDegS2": 43.3,
+    "cameraAngJerkDegS3": 206,
+    "rawViewAngAccDegS2": 54
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 60,
+    "blendFrames": 116,
+    "cameraAngAccDegS2": 312.6,
+    "cameraAngJerkDegS3": 4273,
+    "rawViewAngAccDegS2": 369
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 60,
+    "blendFrames": 116,
+    "cameraAngAccDegS2": 316.5,
+    "cameraAngJerkDegS3": 4254,
+    "rawViewAngAccDegS2": 387
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 60,
+    "blendFrames": 116,
+    "cameraAngAccDegS2": 387.6,
+    "cameraAngJerkDegS3": 5691,
+    "rawViewAngAccDegS2": 487
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 60,
+    "blendFrames": 64,
+    "cameraAngAccDegS2": 979.9,
+    "cameraAngJerkDegS3": 23342,
+    "rawViewAngAccDegS2": 1155
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 60,
+    "blendFrames": 64,
+    "cameraAngAccDegS2": 995.5,
+    "cameraAngJerkDegS3": 23195,
+    "rawViewAngAccDegS2": 1213
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 60,
+    "blendFrames": 64,
+    "cameraAngAccDegS2": 1218.5,
+    "cameraAngJerkDegS3": 33624,
+    "rawViewAngAccDegS2": 1533
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 60,
+    "blendFrames": 358,
+    "cameraAngAccDegS2": 0.5,
+    "cameraAngJerkDegS3": 4,
+    "rawViewAngAccDegS2": 108
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 60,
+    "blendFrames": 358,
+    "cameraAngAccDegS2": 33,
+    "cameraAngJerkDegS3": 296,
+    "rawViewAngAccDegS2": 104
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 60,
+    "blendFrames": 358,
+    "cameraAngAccDegS2": 189.5,
+    "cameraAngJerkDegS3": 12412,
+    "rawViewAngAccDegS2": 226
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 60,
+    "blendFrames": 345,
+    "cameraAngAccDegS2": 7910.3,
+    "cameraAngJerkDegS3": 553294,
+    "rawViewAngAccDegS2": 10940
+   },
+   {
+    "name": "yaw sweep 30°/s pitch -14",
+    "fps": 120,
+    "blendFrames": 700,
+    "cameraAngAccDegS2": 34.9,
+    "cameraAngJerkDegS3": 160,
+    "rawViewAngAccDegS2": 41
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 10",
+    "fps": 120,
+    "blendFrames": 700,
+    "cameraAngAccDegS2": 35.4,
+    "cameraAngJerkDegS3": 159,
+    "rawViewAngAccDegS2": 43
+   },
+   {
+    "name": "yaw sweep 30°/s pitch 26",
+    "fps": 120,
+    "blendFrames": 700,
+    "cameraAngAccDegS2": 43.3,
+    "cameraAngJerkDegS3": 210,
+    "rawViewAngAccDegS2": 54
+   },
+   {
+    "name": "yaw sweep 90°/s pitch -14",
+    "fps": 120,
+    "blendFrames": 234,
+    "cameraAngAccDegS2": 313.5,
+    "cameraAngJerkDegS3": 4302,
+    "rawViewAngAccDegS2": 371
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 10",
+    "fps": 120,
+    "blendFrames": 234,
+    "cameraAngAccDegS2": 318.2,
+    "cameraAngJerkDegS3": 4287,
+    "rawViewAngAccDegS2": 390
+   },
+   {
+    "name": "yaw sweep 90°/s pitch 26",
+    "fps": 120,
+    "blendFrames": 234,
+    "cameraAngAccDegS2": 389.4,
+    "cameraAngJerkDegS3": 5984,
+    "rawViewAngAccDegS2": 489
+   },
+   {
+    "name": "yaw sweep 160°/s pitch -14",
+    "fps": 120,
+    "blendFrames": 132,
+    "cameraAngAccDegS2": 988.5,
+    "cameraAngJerkDegS3": 24061,
+    "rawViewAngAccDegS2": 1171
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 10",
+    "fps": 120,
+    "blendFrames": 132,
+    "cameraAngAccDegS2": 1001.9,
+    "cameraAngJerkDegS3": 23962,
+    "rawViewAngAccDegS2": 1228
+   },
+   {
+    "name": "yaw sweep 160°/s pitch 26",
+    "fps": 120,
+    "blendFrames": 132,
+    "cameraAngAccDegS2": 1228.1,
+    "cameraAngJerkDegS3": 35491,
+    "rawViewAngAccDegS2": 1544
+   },
+   {
+    "name": "pitch swing yaw 60",
+    "fps": 120,
+    "blendFrames": 718,
+    "cameraAngAccDegS2": 0.5,
+    "cameraAngJerkDegS3": 35,
+    "rawViewAngAccDegS2": 108
+   },
+   {
+    "name": "pitch swing yaw 300",
+    "fps": 120,
+    "blendFrames": 718,
+    "cameraAngAccDegS2": 33,
+    "cameraAngJerkDegS3": 2461,
+    "rawViewAngAccDegS2": 104
+   },
+   {
+    "name": "pinch yaw 315",
+    "fps": 120,
+    "blendFrames": 718,
+    "cameraAngAccDegS2": 397.8,
+    "cameraAngJerkDegS3": 49987,
+    "rawViewAngAccDegS2": 475
+   },
+   {
+    "name": "authored lens → drag flicks",
+    "fps": 120,
+    "blendFrames": 62,
+    "cameraAngAccDegS2": 26526.1,
+    "cameraAngJerkDegS3": 4312199,
+    "rawViewAngAccDegS2": 111244
+   },
+   {
+    "name": "follow 30°/s",
+    "fps": 30,
+    "blendFrames": 86,
+    "cameraAngAccDegS2": 35.2,
+    "cameraAngJerkDegS3": 159,
+    "rawViewAngAccDegS2": 43
+   },
+   {
+    "name": "follow 90°/s",
+    "fps": 30,
+    "blendFrames": 29,
+    "cameraAngAccDegS2": 311,
+    "cameraAngJerkDegS3": 4077,
+    "rawViewAngAccDegS2": 383
+   },
+   {
+    "name": "follow back-and-forth",
+    "fps": 30,
+    "blendFrames": 54,
+    "cameraAngAccDegS2": 7794.5,
+    "cameraAngJerkDegS3": 256387,
+    "rawViewAngAccDegS2": 9686
+   },
+   {
+    "name": "follow 30°/s",
+    "fps": 60,
+    "blendFrames": 174,
+    "cameraAngAccDegS2": 35.3,
+    "cameraAngJerkDegS3": 159,
+    "rawViewAngAccDegS2": 43
+   },
+   {
+    "name": "follow 90°/s",
+    "fps": 60,
+    "blendFrames": 58,
+    "cameraAngAccDegS2": 316.5,
+    "cameraAngJerkDegS3": 4254,
+    "rawViewAngAccDegS2": 387
+   },
+   {
+    "name": "follow 30°/s",
+    "fps": 120,
+    "blendFrames": 350,
+    "cameraAngAccDegS2": 35.4,
+    "cameraAngJerkDegS3": 159,
+    "rawViewAngAccDegS2": 43
+   },
+   {
+    "name": "follow 90°/s",
+    "fps": 120,
+    "blendFrames": 117,
+    "cameraAngAccDegS2": 318.2,
+    "cameraAngJerkDegS3": 4287,
+    "rawViewAngAccDegS2": 390
+   }
+  ],
+  "peakCameraAngAccDegS2": 26526.1,
+  "peakCameraAngJerkDegS3": 4312199
+ },
+ "old270WallGapM": 0.02
+}

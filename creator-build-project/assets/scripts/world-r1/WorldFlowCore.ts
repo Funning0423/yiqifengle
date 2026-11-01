@@ -1,12 +1,17 @@
+import type { RegionJourneyController, JourneyRegion, JourneySnapshot } from './RegionJourneyCore';
 import { CameraTrackFailure } from './CameraPose';
 import type { TrackOptions, WeightRamp } from './CameraPose';
 /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
 export type Vec = readonly [number, number, number];
 export type Mode = 'fixed' | 'motion';
-export type Place = 'home' | 'island' | 'level' | 'skycity';
+export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity' | 'lakeside';
 export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
-  'closing-door' | 'walking-to-seat' | 'sitting' | 'paused' | 'error' | 'disposed';
+  'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'lakeside' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
+/** Home-exit states (seat to island). r4.1: a background trip in one of them freezes the exit in place (see hide()). */
+export const EXIT_STATES:readonly State[]=['standing','turning-out','walking-out','opening-door','crossing-out'];
+/** r4.1: walk-home states (island to seat); a background trip freezes them in place too. */
+export const RETURN_STATES:readonly State[]=['walking-home','crossing-in','closing-door','walking-to-seat','sitting'];
 /** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
  * island camera (adapter-owned subset), without interior lighting. Omitted = false (old behaviour). */
 export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean; doorwayInterior?:boolean}>;
@@ -14,7 +19,7 @@ export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean;
 export type Pose = Readonly<{position:Vec; target:Vec; progress?:number; fovVerticalDeg?:number}>;
 export type Seat = Readonly<{position:Vec; back:Vec; yawRad:number; seatedFoot:Vec; standingFoot:Vec; seatedControllerRoot:Vec; standingControllerRoot:Vec}>;
 export type StablePose = {kind:'seated'; seat:Seat} | {kind:'standing'; controllerRoot:Vec; yawRad:number};
-export type Action = {kind:'stand'|'sit'; seat:Seat} | {kind:'turn'; controllerRoot:Vec; fromYawRad:number; toYawRad:number; direction:'left'} | {kind:'walk'; path:readonly Vec[]; duration:number};
+export type Action = {kind:'stand'|'sit'; seat:Seat} | {kind:'turn'; controllerRoot:Vec; fromYawRad:number; toYawRad:number; direction:'left'} | {kind:'walk'; path:readonly Vec[]; duration:number; /** optional distance-vs-time curve (0…duration → 0…path length) for a driver that supports it (replaces its start/stop walk plan). The frozen FlowReferenceStandin ignores it until its reviewed patch lands (controller-integrity guard). */ distanceAt?:(time:number)=>number};
 export class Cancelled extends Error { constructor() { super('World operation cancelled'); this.name='Cancelled'; } }
 export class Cancellation {
   cancelled=false;
@@ -45,6 +50,10 @@ export interface CharacterAdapter {
   /** T2+ optional: seconds into the sit clip where she is visually settled (anim_meta settle frame). The return-entry camera
    *  lands on cameraHome there; the clip still plays out before 'home'. Omitted/undefined = land at the clip end. */
   actionSettleSeconds?(kind:'sit'):number|undefined;
+  /** Optional door action: contact is in clip seconds; its promise resolves only after the full recovery.
+   *  Older adapters or assets without door_reach return null/omit these methods and retain the door-only flow. */
+  doorReachTiming?():{durationSec:number;contactSec:number}|null;
+  performDoorReach?(token:Cancellation):Promise<void>;
   /** Walk-duration contract (optional): distance-travelled fraction 0..1 of the CURRENT walk action, null/undefined when
    *  not walking. When present, camera track progress follows distance instead of elapsed time. */
   walkProgress?():number|null;
@@ -58,6 +67,10 @@ export type CameraEvent=Readonly<{kind:'crane-start';segment:'toIsland';progress
 /** UI is granted commands/status only; never a world node or camera reference. */
 export interface LevelLease {
   requestExit():Result; hide():void; showPaused():void; resume():Result; dispose():void;
+  /** skyfix: fade the board UI out over `seconds` (gradual, per rendered frame) before dispose; resolves when done. */
+  fadeOut?(seconds:number):Promise<void>;
+  /** Saved terminal page has no gameplay to resume. Errors/unsaved/playing keep the explicit pause gate. */
+  isSettledResult?():boolean;
   /** Resolves when the board may be shown: run.ready and able to take a finger, or a settled pause/result screen.
    *  Omitted = the lease is already playable when enter() resolves (older adapters). */
   whenPlayable?():Promise<void>;
@@ -86,6 +99,8 @@ export interface WorldLease {
   // `path`); drives the wind-strength channel. Leases that omit it simply never report wind (stays 0).
   /** T2+ optional: resolve after `seconds` of the same world job clock (used for timed camera marks). */
   wait?(seconds:number,token:Cancellation):Promise<void>;
+  /** v3.3 optional full-screen black cover ramp (alpha 0..1 over seconds, wall clock); resolves at the target. Omitted = no fade. */
+  fadeCover?(alpha:number,seconds:number):Promise<void>|void;
   cancelTransient():void;
   /** T5 room-light API (optional; owner GGbot; contract in render/RoomLightingRig.ts + docs/T5-material-swap.md "API").
    * WorldFlowCore itself never drives w; camera-segment owners call these. Older adapters may omit them. */
@@ -171,7 +186,7 @@ export interface RouteConfig {
   islandYawRad?:number;
 }
 export type Result={ok:true}|{ok:false;reason:string};
-export type Snapshot=Readonly<{state:State;stable:Place;mode:Mode;hidden:boolean;needsResume:boolean;characterReady:boolean;error:string|null}>;
+export type Snapshot=Readonly<{state:State;stable:Place;mode:Mode;hidden:boolean;needsResume:boolean;characterReady:boolean;error:string|null;journey?:JourneySnapshot}>;
 const HOME:Layers={interior:true,exterior:false,door:true,backdrop:true};
 const ISLAND:Layers={interior:false,exterior:true,door:true,backdrop:true,doorwayInterior:true};
 const BOTH:Layers={interior:true,exterior:true,door:true,backdrop:true};
@@ -219,11 +234,15 @@ export function rejoinSeconds(from:Pose,home:Pose):number {
   const a=f(from),b=f(home),deg=Math.acos(Math.max(-1,Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])))*180/Math.PI;
   return deg<.5?0:Math.max(.5,Math.min(2.0,deg/75));
 }
+/** skyfix: board exit fade (seconds) and its curve (smoothstep), shared by the native lease and the tests. */
+export const BOARD_EXIT_FADE_S=0.3;
+export function boardFadeOpacity(a0:number,t:number,seconds:number=BOARD_EXIT_FADE_S):number{const k=Math.max(0,Math.min(1,seconds>0?t/seconds:1));return Math.round(a0*(1-k*k*(3-2*k)));}
 export class WorldFlow {
   private state:State='idle'; private stable:Place='home'; private mode:Mode;
   private hidden=false; private needsResume=false; private error:string|null=null;
   private current:Cancellation|null=null; private world:WorldLease|null=null; private level:LevelLease|null=null;
   private character:CharacterAdapter|null; private readonly config:RouteConfig;
+  private readonly journey:RegionJourneyController|undefined;private levelOrigin:JourneyRegion='island';
   private visit:RegionVisitLease|null=null; private readonly skycity:RegionVisitAdapter|undefined;
   private readonly levels:LevelAdapter; private readonly loadWorld:(token:Cancellation)=>Promise<WorldLease>;
   private readonly emit:(snapshot:Snapshot)=>void;
@@ -247,12 +266,12 @@ export class WorldFlow {
   onDoorShut(listener:()=>void):()=>void {this.doorShutListeners.add(listener);return ()=>{this.doorShutListeners.delete(listener);};}
   private emitDoorShut():void {if(this.doorShutSent)return;this.doorShutSent=true;
     for(const fn of Array.from(this.doorShutListeners)){try{fn();}catch(error){console.warn('door shut listener failed',String(error));}}}
-  constructor(options:{config:RouteConfig;mode?:Mode;character?:CharacterAdapter;levels:LevelAdapter;skycity?:RegionVisitAdapter;loadWorld:(t:Cancellation)=>Promise<WorldLease>;onChange?:(s:Snapshot)=>void}) {
-    this.config=options.config;this.mode=options.mode??'fixed';this.character=options.character??null;this.levels=options.levels;this.skycity=options.skycity;this.loadWorld=options.loadWorld;this.emit=options.onChange??(()=>{});
+  constructor(options:{config:RouteConfig;mode?:Mode;character?:CharacterAdapter;levels:LevelAdapter;skycity?:RegionVisitAdapter;journey?:RegionJourneyController;loadWorld:(t:Cancellation)=>Promise<WorldLease>;onChange?:(s:Snapshot)=>void}) {
+    this.journey=options.journey;this.config=options.config;this.mode=options.mode??'fixed';this.character=options.character??null;this.levels=options.levels;this.skycity=options.skycity;this.loadWorld=options.loadWorld;this.emit=options.onChange??(()=>{});
   }
   /** T2+: leaveHome({from}) starts the stand-up move on `from` (no rejoin cut needed by the caller). */
   get continuousLeave():boolean {const c=this.config;return this.mode==='motion'&&!!(c.cameraStandTurn&&c.cameraTracks?.standTurn);}
-  snapshot():Snapshot {return Object.freeze({state:this.state,stable:this.stable,mode:this.mode,hidden:this.hidden,needsResume:this.needsResume,characterReady:this.characterReady(),error:this.error});}
+  snapshot():Snapshot {return Object.freeze({state:this.state,stable:this.stable,mode:this.mode,hidden:this.hidden,needsResume:this.needsResume,characterReady:this.characterReady(),error:this.error,...(this.journey?{journey:this.journey.snapshot()}:{})});}
   private change(state:State):void {this.state=state;this.emit(this.snapshot());}
   private characterReady():boolean {
     const a=this.character,c=a?.coordinates,s=this.config.seat;
@@ -260,19 +279,26 @@ export class WorldFlow {
       c.clearanceRadiusM>0&&c.clearanceRadiusM<=.18&&distance(c.standingRoot,s.standingControllerRoot)<1e-4&&
       distance(c.seatedRoot,s.seatedControllerRoot)<1e-4&&Math.abs(c.seatYawRad-s.yawRad)<1e-5);
   }
-  private pose():StablePose {return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
+  private pose():StablePose {if(this.stable!=='home'&&this.journey?.position())return this.journey.position()!;return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
   private restore():void {
     this.setWind(0); // stable poses (island idle, home, level, paused, after a cancel) are always wind 0
     if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.islandDoorDeg());
-    this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
+    if(this.stable!=='home'&&this.journey?.hasCheckpoint()&&this.characterReady()){
+      const visible=!this.hidden&&!this.needsResume&&this.stable!=='level';
+      this.world.setLayers(visible?ISLAND:NONE);this.world.setRoomLightWeight?.(0);this.world.setExteriorKey?.(0);
+      this.journey.restore(this.character!,this.world,visible);this.world.assertStaticWorld();return;
+    }
+    /* reveal-restore (Mac dedf8853 f646 fr831: 2.6 m snap to cameraIsland right after the push-in ended): with the board up (stable 'level')
+     * the world camera keeps the enter-level push-in end pose; the next owner (exit / region lens) starts from that pose. */
+    if(this.stable!=='level'){(globalThis as any).__qfCamTag?.t('WorldFlowCore:restore')/* camTrace writer name (CamTraceLog; no-op when off); pure core: no import */;this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);}
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
     this.world.setRoomLightWeight?.(this.stable==='home'?1:0);
     this.world.setExteriorKey?.(0); // R3: no keyed sun outside a walk
-    if(this.characterReady())this.character!.cancelAndReset(this.pose());this.character?.setVisible(this.characterReady()&&!this.hidden&&!this.needsResume&&this.stable!=='level'&&this.stable!=='skycity');this.world.assertStaticWorld();
+    if(this.characterReady()&&!(this.character as any).__qfWalkTail)this.character!.cancelAndReset(this.pose())/* b15: a walk tail owns her */;this.character?.setVisible(this.characterReady()&&!this.hidden&&!this.needsResume&&this.stable!=='level'&&this.stable!=='skycity');this.world.assertStaticWorld();
     if(this.visit){if(this.stable==='skycity'&&!this.hidden&&!this.needsResume)this.visit.show();else this.visit.hide();}
   }
-  private invalidate():void {const old=this.current;this.current=null;old?.cancel();this.world?.cancelTransient();}
+  private invalidate():void {this.seatedFrozen=false;this.frozen=false;const old=this.current;this.current=null;old?.cancel();this.world?.cancelTransient();}
   private async operate(initial:State,body:(token:Cancellation)=>Promise<void>):Promise<Result> {
     const token=new Cancellation();this.current=token;this.error=null;this.change(initial);
     try {await body(token);token.check();return {ok:true};}
@@ -398,7 +424,13 @@ export class WorldFlow {
       this.change('walking-out');await this.walk(c.toDoor,c.cameraToDoor,t);
       // Sea backdrop is already on indoors. The island has to come on with the swing, or this second shows the sea through the open doorway.
       this.change('opening-door');this.world!.setLayers(BOTH);this.world!.setRoomLightWeight?.(1);
-      await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
+      const reach=this.character?.doorReachTiming?.();
+      if(reach&&this.character?.performDoorReach&&Number.isFinite(reach.durationSec)&&reach.durationSec>0&&Number.isFinite(reach.contactSec)){
+        // Touch-and-release: reach the closed handle before the leaf moves; no continuous hand pin after contact.
+        // Await both the door and the entire arm recovery before the first step.
+        const contact=Math.max(0,Math.min(reach.durationSec,reach.contactSec));
+        await t.wait(Promise.all([this.character.performDoorReach(t),(async()=>{if(this.world!.wait)await this.waitSeconds(contact,t);else if(contact>0)await t.wait(this.world!.animateDoor(0,0,contact,t));t.check();await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));})()]));
+      }else await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
       this.change('crossing-out');
       const crossOut=c.cameraCrossOut??[c.cameraInside,c.cameraOutside],toIsland=c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]);
       if(c.cameraTracks?.outbound){
@@ -418,7 +450,36 @@ export class WorldFlow {
       this.stable='island';this.restore();this.change('island');this.cameraEvent({kind:'settled',place:'island'});
     });
   }
+  /** Real scene preparation can run over a settled result. A failed load leaves its lease and rewards intact. */
+  async prepareRegion(target:JourneyRegion):Promise<Result>{
+    if(!this.journey)return {ok:false,reason:'journey-unavailable'};
+    if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
+    const expected=this.stable,fail=this.blocked(expected,true);if(fail)return fail;
+    if(!['island','meadow','skycity','lakeside','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
+    if(expected==='level'&&!this.level?.isSettledResult?.())return {ok:false,reason:'journey-requires-settled-result'};
+    return this.operate('region-loading',async token=>{
+      const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
+      await this.journey!.prepare(target,pose.controllerRoot,token);token.check();this.change(this.stable);
+    });
+  }
+  /** sail-blue: departure handoff (see RegionJourneyController.adoptLive). Level state only. */
+  adoptJourneyLive(root:Vec|null,yawRad?:number):boolean{if(this.state!=='level'||!this.journey)return false;return this.journey.adoptLive(root,yawRad);}
+  async travelRegion(target:JourneyRegion):Promise<Result>{
+    if(!this.journey)return {ok:false,reason:'journey-unavailable'};
+    if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
+    const fail=this.blocked(this.stable,true);if(fail)return fail;
+    if(!(this.stable==='island'||this.stable==='meadow'||this.stable==='skycity'))return {ok:false,reason:'journey-wrong-origin'};
+    return this.operate('region-loading',async token=>{
+      const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
+      (this.journey as any).bindWorld?.(this.world)/* transitions-continuous: the >3 s fallback cover */;
+      await this.journey!.prepare(target,pose.controllerRoot,token);token.check();
+      this.world!.setLayers(ISLAND);this.world!.setRoomLightWeight?.(0);this.character!.setVisible(true);
+      this.change('region-travel');await this.journey!.walk(this.character!,this.world!,token);token.check();
+      this.stable=target;this.restore();this.change(target);
+    });
+  }
   async enterSkycity():Promise<Result> {
+    if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
     const fail=this.blocked('island');if(fail)return fail;
     if(!this.skycity)return {ok:false,reason:'skycity-unavailable'};
     return this.operate('skycity-loading',async token=>{
@@ -429,11 +490,14 @@ export class WorldFlow {
     });
   }
   exitSkycity():Result {
+    if(this.journey?.snapshot().region==='skycity')return {ok:false,reason:'return-route-not-yet-available'};
     const fail=this.blocked('skycity');if(fail)return fail;
     const visit=this.visit;this.visit=null;visit?.dispose();this.stable='island';this.restore();this.change('island');return {ok:true};
   }
   async enterLevel(stageId:string):Promise<Result> {
-    const fail=this.blocked('island');if(fail)return fail;
+    const origin=this.journey?.snapshot().region??'island';
+    if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
+    const fail=this.blocked(origin);if(fail)return fail;
     if(!stageId.trim())return {ok:false,reason:'empty-stage'};
     return this.operate('level-loading',async t=>{
       const pending=this.levels.enter(stageId,t).then(lease=>{if(t.cancelled){lease.dispose();throw new Cancelled();}return lease;});
@@ -446,12 +510,12 @@ export class WorldFlow {
         if(lease.whenPlayable)await t.wait(lease.whenPlayable());
         t.check();await cover;t.check();
         lease.reveal?.();
-        this.level=lease;this.stable='level';this.restore();this.change('level');
+        this.level=lease;this.levelOrigin=origin;this.stable='level';this.restore();this.change('level');
       } catch(error) {
         if(lease&&this.level!==lease){try{lease.dispose();}catch(disposeError){console.warn('enter-level dispose failed',String(disposeError));}}
         // A hung board must not stay on screen with input frozen. The island is still the stable place.
         const notReady=!!error&&typeof (error as {message?:unknown}).message==='string'&&(error as {message:string}).message==='enter-level-not-ready';
-        if(notReady){console.warn('[enter-level] not ready; staying on the island');this.restore();this.change(this.stable);throw new Cancelled();}
+        if(notReady){t.cancel();console.warn('[enter-level] not ready; staying on the island');this.restore();this.change(this.stable);throw new Cancelled();}
         throw error;
       }
     });
@@ -469,12 +533,48 @@ export class WorldFlow {
       console.warn('enter-level shot skipped',String(err));await this.waitSeconds(ENTER_LEVEL_SHOT_S,token);
     }
   }
+  /** skyfix (no flicker): leave a settled board WITHOUT restore(). Used under the held sky finale: the region already renders
+   *  (RegionNodeStage owns camera, layers and her pose), so no camera / layer / character / door / wind write happens at all.
+   *  The state flips to the origin region at once (继续旅程 shows, selection accepted); the board UI fades out, then disposes. */
+  exitLevelInPlace(fadeS:number=BOARD_EXIT_FADE_S):Result {
+    const fail=this.blocked('level');if(fail)return fail;
+    const lease=this.level!,accepted=lease.requestExit();if(!accepted.ok){this.error=accepted.reason;this.emit(this.snapshot());return accepted;}
+    this.level=null;this.stable=this.levelOrigin;this.change(this.levelOrigin);
+    const done=()=>{try{lease.dispose();}catch(error){console.warn('board dispose failed',String(error));}};
+    let p:Promise<void>|undefined;try{p=lease.fadeOut?.(fadeS);}catch{p=undefined;}
+    if(p&&typeof p.then==='function')void p.then(done,done);else done();
+    return {ok:true};
+  }
   exitLevel():Result {
     const fail=this.blocked('level');if(fail)return fail;
     const accepted=this.level!.requestExit();if(!accepted.ok){this.error=accepted.reason;this.emit(this.snapshot());return accepted;}
-    this.level?.dispose();this.level=null;this.stable='island';this.restore();this.change('island');return {ok:true};
+    this.level?.dispose();this.level=null;this.stable=this.levelOrigin;this.restore();this.change(this.levelOrigin);return {ok:true};
+  }
+  /** 「主页」 must work wherever she stands. From an arrived meadow/skycity journey region (no walk-back route exists) or a
+   *  paused/failed journey she is first set back on the island (journey scenes released, campaign save untouched), then
+   *  walks home as usual. A journey that is actively running stays busy; the region-visit skycity keeps exitSkycity. */
+  private leaveJourneyForIsland():Result|null {
+    const j=this.journey;if(!j||this.current||this.visit||this.hidden||this.needsResume)return null;
+    if(!['island','meadow','skycity','lakeside'].includes(this.state))return null;
+    if(j.snapshot().region==='island'&&!j.isInTransit())return null;
+    try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
+    // Mac re-check 2607de6: walking island→home from a region took 44-48 s (day) / >127 s (night, frame-dt
+    // capped at 0.1 s while fps<10). From a journey region the host covers the screen with a fade, so place
+    // her straight at home (seated pose, home camera/layers) instead of replaying the walk.
+    this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});return {ok:true};
+  }
+  /** build05-next (风铃湖畔 fallback, toast 「湖畔暂时没准备好，先回小岛吧」): after a failed island→lakeside journey or a failed
+   *  lakeside board, drop the lakeside journey scenes and stand her on the island (no retry state; saves untouched). */
+  abandonLakesideJourney():Result {
+    const j=this.journey;if(!j||this.state==='disposed')return {ok:false,reason:'journey-unavailable'};
+    if(this.current)return {ok:false,reason:'busy'};
+    const s=j.snapshot();if(s.target!=='lakeside'&&s.region!=='lakeside')return {ok:true};
+    try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
+    this.error=null;this.stable='island';this.restore();this.change('island');return {ok:true};
   }
   async returnHome():Promise<Result> {
+    const left=this.leaveJourneyForIsland();if(left)return left;
+    if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{
       this.doorShutSent=false; // this return may shut the leaf again
@@ -557,23 +657,46 @@ export class WorldFlow {
   }
   advance(seconds:number):void {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
-    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady())this.character!.advance(Math.min(seconds,.1));
+    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){try{(globalThis as any).__qfInstallPlayerAnim?.(this.character);}catch{}/* __QF_PLAYER_ANIM for QA (TransitionChain) */;this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world,Math.min(seconds,.1));}
   }
+  /** r4.1 (Grok Bot, Mac evidence C_show_snapback_strip): a background trip during the home exit or the walk home no
+   *  longer cancels it. V1 cancelled the transition (token + jobs), restore()d the stable pose (home = the seat) and on
+   *  show() restarted leaveHome() from the chair: she snapped back to the seat and replayed the whole exit (exit track
+   *  from 0, wind/waves hard-stopped by the 'standing' quiet). Now hide() FREEZES it: token, jobs, camera track, character
+   *  action and state are kept untouched; hidden+needsResume stop both clocks (advance() here, the job loop in
+   *  WorldFlowComponent.update), so position, clip time, camera progress, door angle, light ramps and wind hold exactly.
+   *  show() lifts the freeze by itself (no 继续): the same walk continues from the same frame. Seated home also
+   *  freezes in place; island, levels, journeys and sky visit keep the paused + resume() behaviour. */
+  private seatedFrozen=false;
+  private frozen=false;
+  private freezable():boolean {return !!this.current&&!!this.world&&(EXIT_STATES.indexOf(this.state)>=0||RETURN_STATES.indexOf(this.state)>=0);}
   hide():void {
-    if(this.state==='disposed'||this.hidden)return;this.hidden=true;this.needsResume=true;this.invalidate();
+    if(this.state==='disposed'||this.hidden)return;
+    // Only an already active seated home auto-resumes; cancelled transitions and errors keep their gate.
+    if(this.state==='home'&&!this.needsResume&&!this.current&&this.world){this.seatedFrozen=true;this.hidden=true;this.needsResume=true;this.emit(this.snapshot());return;}
+    if(this.freezable()){this.frozen=true;this.hidden=true;this.needsResume=true;this.emit(this.snapshot());return;}
+    if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
     this.level?.hide();this.visit?.hide();this.restore();this.change('paused');
   }
   /** Back from background: the place the player left is visible again, still paused until resume().
-   *  Does not move the camera or replay the sit/stand pose (hide() already restored the stable pose). */
+   *  Does not move the camera or replay the sit/stand pose (hide() already restored the stable pose).
+   *  A frozen seated home / exit / walk home resumes by itself, from the frame it was hidden on. */
   show():void {
-    if(this.state==='disposed'||!this.hidden)return;this.hidden=false;this.level?.showPaused();
+    if(this.state==='disposed'||!this.hidden)return;this.hidden=false;
+    if(this.seatedFrozen){this.seatedFrozen=false;this.needsResume=false;this.emit(this.snapshot());return;}
+    if(this.frozen){this.frozen=false;if(this.state!=='error'&&this.world){this.needsResume=false;if(!this.current)this.restore();this.emit(this.snapshot());return;}} // finished while hidden (last step resolved): land it visibly
+    this.level?.showPaused();
+    if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
+      this.needsResume=false;this.restore();this.change('level');return;
+    }
     if(this.state!=='error')this.presentPausedView();this.emit(this.snapshot());
   }
   /** Home/island layers and the character, or the sky visit. A level keeps world layers NONE; the board is the screen. */
   private presentPausedView():void {
     if(!this.world)return;
     const place=this.stable;
-    if(place==='home'||place==='island'){this.world.setLayers(place==='home'?HOME:ISLAND);if(this.characterReady())this.character?.setVisible(true);}
+    if(this.journey?.hasCheckpoint()&&place!=='home'&&place!=='level'){this.world.setLayers(ISLAND);this.journey.show(true);this.character?.setVisible(true);}
+    else if(place==='home'||place==='island'){this.world.setLayers(place==='home'?HOME:ISLAND);if(this.characterReady())this.character?.setVisible(true);}
     else if(place==='skycity')this.visit?.show();
   }
   resume():Result {
@@ -585,6 +708,7 @@ export class WorldFlow {
   }
   cancelTransition():Result {
     if(!this.current)return {ok:false,reason:'no-transition'};
+    if(this.character&&this.world)this.journey?.suspend(this.character,this.world);
     this.invalidate();this.restore();this.change(this.world?this.stable:'idle');return {ok:true};
   }
   fault(message:string):void {
@@ -592,6 +716,6 @@ export class WorldFlow {
   }
   dispose():void {
     if(this.state==='disposed')return;this.setWind(0);this.windListeners.clear();this.doorShutListeners.clear();this.invalidate();this.level?.dispose();this.level=null;this.visit?.dispose();this.visit=null;
-    this.character?.dispose();this.character=null;this.world?.dispose();this.world=null;this.change('disposed');
+    this.journey?.dispose();this.character?.dispose();this.character=null;this.world?.dispose();this.world=null;this.change('disposed');
   }
 }

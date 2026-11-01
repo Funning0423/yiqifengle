@@ -1,0 +1,1 @@
+PASS navigation-guard: home leave/target wait 60 s (was the 30 s default); other waits unchanged

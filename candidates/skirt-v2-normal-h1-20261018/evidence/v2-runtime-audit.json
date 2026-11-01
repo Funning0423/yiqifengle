@@ -1,0 +1,37 @@
+{
+  "scope": "Independent execution of exact current project TS using Node type transform. CPU and mock only; no Cocos/importer/GPU acceptance.",
+  "samples": 1800,
+  "checks": 416878,
+  "maxNativeWeightError": 2.964952228179385e-8,
+  "weightTolerance": 0.000002,
+  "oldCurvesIdenticalAcrossClipsAndFades": true,
+  "newCurvesZeroOutsideWalkWithoutFade": true,
+  "bindings": [
+    {
+      "mesh": "LOD0_G2_APRON",
+      "targetCounts": [
+        53
+      ],
+      "status": "ok"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "targetCounts": [
+        49
+      ],
+      "status": "ok"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "targetCounts": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "status": "ok"
+    }
+  ]
+}

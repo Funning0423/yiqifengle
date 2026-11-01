@@ -1,0 +1,142 @@
+{
+  "about": "Per-field allowlist for .meta changes vs the base commit. Every change not listed here fails. Edits to this file need Grok Bot's review (2026-10-29: meadow B+D+E only; character and island stay without Encode).",
+  "baseRef": "ggbot/full9c-final",
+  "files": {
+    "creator-build-project/assets/bundles/region_meadow/env_meadow.glb.meta": {
+      "uuid": "bb978abb-d907-5dba-be5a-14cc64f5e596",
+      "allow": [
+        {
+          "op": "replace",
+          "path": "/userData/meshCompress/encode",
+          "from": false,
+          "to": true
+        },
+        {
+          "op": "remove",
+          "path": "/subMetas/0e588"
+        },
+        {
+          "op": "removeArrayItem",
+          "path": "/userData/imageMetas",
+          "item": {
+            "name": "meadow_ground_detail_v0_8_512",
+            "uri": "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588"
+          },
+          "why": "Grok Bot 2026-10-29: Creator drops the imageMetas entry together with subMetas/0e588"
+        }
+      ],
+      "mustEqualIfChanged": [
+        {
+          "path": "/userData/meshCompress",
+          "value": {
+            "enable": true,
+            "compress": true,
+            "encode": true,
+            "quantize": false
+          }
+        }
+      ]
+    },
+    "creator-build-project/assets/bundles/transport_sail/far_meadow_impostor.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
+    },
+    "creator-build-project/assets/bundles/transport_sail/sea_reef_cluster.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
+    },
+    "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "运镜bot b20 meadow-board-lens: new script MeadowStageLens.ts (per-stage meadow board lens); pending Grok Bot review"},
+    "creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "fullN 2026-10-30: Creator script meta for 运镜bot camera-owned file in 8c98bbfe (00-camera-owned-files); 8c98bbfe approved as-is by Grok Bot. Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/region/SkyRunLens.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "fullN 2026-10-30: Creator script meta for 运镜bot camera-owned file in 8c98bbfe (00-camera-owned-files); 8c98bbfe approved as-is by Grok Bot. Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/region/IslandStageLens.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 2026-10-30: Creator script meta for 运镜bot camera-owned file IslandStageLens.ts (方案 E island stage-04 lens, outbox 20261030-l04-lens-r2). Approved by Grok Bot 2026-10-30 (exact path, importer typescript)."
+    },
+    "creator-build-project/assets/bundles/board_art/popup/icon_vibrate.png.meta": {
+      "allowAdd": {
+        "importer": "image"
+      },
+      "why": "new-regions r4 2026-10-30: icon_vibrate.png.meta already committed by system-panels 103e9444/99872116 (from 6c629efc, UI设计部 review 'meta untouched'); it was outside the base so the gate flagged it. Needs Grok Bot review per this file's rule.",
+      "source": "103e9444 (system-panels; first added the file per git log --diff-filter=A); informational only, the gate does not read it"
+    },
+    "creator-build-project/assets/scripts/ui/JourneyCore.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/JourneyUi.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/PopupMotion.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/PublicationInfo.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/ui/UpdatePromptCore.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "new-regions r4 2026-10-30: Creator script meta (界面验收部 Mac import of d4f25246 generated it; not in the repo yet, must be committed exactly as Creator writes it). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/journey_ui.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "new-regions r4 2026-10-30: Creator folder meta for the plain journey_ui folder inside board_art (Is Bundle stays off). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/popup/reward_seal_coast.png.meta": {
+      "allowAdd": {
+        "importer": "image"
+      },
+      "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as reward_seal_lake.png.meta). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/bundles/board_art/r2/region_coast.png.meta": {
+      "allowAdd": {
+        "importer": "image"
+      },
+      "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as region_lake.png.meta). Needs Grok Bot review per this file's rule."
+    }
+  },
+  "watchRefs": [
+    {
+      "ref": "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588",
+      "why": "meadow_ground_detail_v0_8_512, unused texture removed by plan D; any other .meta change that touches it needs Grok Bot's review"
+    }
+  ],
+  "forbidBuildRefs": [
+    "bb978abb-d907-5dba-be5a-14cc64f5e596@0e588"
+  ]
+}

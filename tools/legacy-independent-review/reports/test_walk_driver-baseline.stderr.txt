@@ -1,0 +1,5 @@
+TypeError: Cannot read properties of undefined (reading 'position')
+    at supportPose (evalmachine.<anonymous>:1321:26)
+    at FlowReferenceStandin.bindVisual (evalmachine.<anonymous>:109:62)
+    at /workspace/shared/legacy-audit-baseline-20261015/tools/walk-driver/test_walk_driver.cjs:144:65
+    at /workspace/shared/legacy-audit-baseline-20261015/tools/walk-driver/test_walk_driver.cjs:144:177

@@ -18,7 +18,7 @@ function bounds(n,w,h){const p=n.worldPosition,t=n.getComponent(UITransform),s=n
   tap(o.buttons[1]);assert(o.isOpen());assert.equal(o.dock.active,false);assert.equal(top(o),'JourneyPanel');for(const c of CHAPTERS)assert(node(o,'JourneyPanel','Chapter-'+c.id),'chapter sign '+c.id);assert(!node(o,'JourneyPanel','Continue-tide'),'no gameplay action on the chapter list');o.close();
   for(const page of ['journal','bag','settings','tide','meadow','sky','rest']){
    if(page==='rest')assert(o.openRest());else o.open(page);const p=o.popups.top();assert(p,'page '+page);settle(o);const b=bounds(p.body,w,h);
-   assert(b.left>=8-1e-6&&b.right<=w-8+1e-6,'panel x '+page+' '+JSON.stringify([w,h,b]));assert(b.top>=-1e-6&&b.bottom<=h+1e-6,'panel y '+page+' '+JSON.stringify([w,h,b]));assert.equal(p.width,680,'lite panel width 680');
+   assert(b.left>=8-1e-6&&b.right<=w-8+1e-6,'panel x '+page+' '+JSON.stringify([w,h,b]));assert(b.top>=-1e-6&&b.bottom<=h+1e-6,'panel y '+page+' '+JSON.stringify([w,h,b]));{const pw=['journal','tide','meadow','sky'].includes(page)?Math.min(330,Math.max(240,w-40))/Math.max(0.3,Math.min(w/750,h/1300,0.62)):680;assert(Math.abs(p.width-pw)<1e-6,'panel width '+page+' '+p.width+' (new-regions: journey/chapter min(330,W−40) pt; others 680)');}
    for(const n of p.body.children){if(n.name==='TitlePlank'||n.name==='Close'||n.name==='PanelFrame')continue;const lab=n.getComponent(Label);if(lab&&lab.overflow===Label.Overflow.NONE)continue;const r=n.getComponent(UITransform),x=n.position.x;assert(x-r.width*r.anchorX>=-p.width/2-1e-6&&x+r.width*(1-r.anchorX)<=p.width/2+1e-6,'child x '+page+'/'+n.name);}
    assert(p.root.getComponent(cc.BlockInputEvents),'popup blocks the island below');o.close();cases++;
   }
@@ -26,7 +26,7 @@ function bounds(n,w,h){const p=n.worldPosition,t=n.getComponent(UITransform),s=n
   if(w===390&&h===844){for(const n of ['tool_tidenet','tool_sunseed','tool_starshears'])assert(node(o,'BagPanel',n),'island bag '+n);assert(node(o,'BagPanel','ToolArt-windBell'),'island mainline stays on the atlas');assert(node(o,'BagPanel','ToolArt-tideBottle'));assert(!node(o,'BagPanel','tool_windbell'));}
   assert.equal(JSON.stringify(data),before);assert.equal(calls.length,0);o.dispose();o.dispose();
  }
- checks.push(cases+' lite popup pages fit 5 portrait/landscape viewports (width 680 design px, BlockInputEvents); bag reads actual counts without writes, no pearl');
+ checks.push(cases+' lite popup pages fit 5 portrait/landscape viewports (width 680 design px; journey/chapter min(330,W−40) pt, BlockInputEvents); bag reads actual counts without writes, no pearl');
  {
   const {o,calls,gates}=setup();tap(o.buttons[1]);tap(node(o,'JourneyPanel','Chapter-tide'));assert.equal(top(o),'ChapterPanel');tap(node(o,'ChapterPanel','Continue-tide'));assert.deepEqual(calls,['invoke','region:tide']);assert(!o.isOpen());assert.deepEqual(o.popups.names(),[]);
   tap(o.buttons[1]);tap(node(o,'JourneyPanel','Chapter-meadow'));tap(node(o,'ChapterPanel','Continue-meadow'));assert(o.isOpen());assert.equal(calls.length,2,'closed gate: no dispatch');
@@ -35,14 +35,15 @@ function bounds(n,w,h){const p=n.worldPosition,t=n.getComponent(UITransform),s=n
   o.open('sky');tap(node(o,'ChapterPanel','VisitSkycity'));assert.deepEqual(calls.slice(-2),['invoke','skycity']);o.open('tide');tap(node(o,'ChapterPanel','LegacyTide'));assert.deepEqual(calls.slice(-2),['invoke','r4']);
   gates.r4=[{unlocked:false}];o.open('tide');tap(node(o,'ChapterPanel','LegacyTide'));assert.equal(calls.length,8,'legacy tide locked');o.close();
   assert(o.openRest());assert.equal(top(o),'RestPanel');assert(!o.openRest(),'one page at a time');tap(node(o,'RestPanel','DayNight'));settle(o);assert.deepEqual(calls.slice(-2),['invoke','dayNight']);assert(!o.isOpen());
-  o.open('settings');assert.equal(top(o),'SettingsPanel');for(const n of ['MusicVolume','SfxToggle','Day','Night','ReducedMotion','AboutRow'])assert(node(o,'SettingsPanel',n),'full settings row '+n);assert(!node(o,'SettingsPanel','ReturnHome'),'settings no longer returns home (tap the lighthouse)');assert(!node(o,'SettingsPanel','DayNight'),'island rest moved to the cabin');o.dispose();
+  o.open('settings');assert.equal(top(o),'SettingsPanel');for(const n of ['MusicToggle','SfxToggle','VibrateToggle','NightToggle','ReducedMotion','AboutRow'])assert(node(o,'SettingsPanel',n),'full settings row '+n);assert(!node(o,'SettingsPanel','ReturnHome'),'settings no longer returns home (tap the lighthouse)');assert(!node(o,'SettingsPanel','DayNight'),'island rest moved to the cabin');o.dispose();
   assert(!calls.includes('invoke-while-open'),'every command closes the page before it runs');
   checks.push('journey book → chapter page → enter / gate recheck / back; skycity, legacy tide (locked when r4 closed), cabin rest day/night and full settings; each command closes the popup first');
  }
  {
-  const {o,calls}=setup();o.open('journal');settle(o);const p=o.popups.top(),text=p.root.getComponentsInChildren(Label).map(l=>l.string);assert(text.includes('12/12'),'tide stars x/12 '+text);assert(text.includes('挑战 2/4'),'challenge marks x/4');
+  const {o,calls}=setup();o.open('journal');settle(o);const p=o.popups.top(),text=p.root.getComponentsInChildren(Label).map(l=>l.string);assert(text.some(t=>/^旅程 \d+ \/ 18$/.test(t)),'journey total = Σ stages of regions with data (12+6, no coast data in this build) '+text);assert(text.includes('4/4 ✓'),'tide cell stage count '+text);
+  o.close();o.open('tide');{const tt=o.popups.top().root.getComponentsInChildren(Label).map(l=>l.string);assert(tt.includes('★ 12/12 · 挑战 2/4'),'region page keeps mainline stars x/12 and challenge marks x/4 '+tt);}o.close();
   assert.equal(CHAPTERS.find(c=>c.id==='tide').description,'听潮声，捡起海浪送来的贝壳。');o.open('tide');assert(o.popups.top().root.getComponentsInChildren(Label).some(l=>l.string==='听潮声，捡起海浪送来的贝壳。'));o.dispose();
-  checks.push('journey book counts mainline stars x/12 and challenge marks x/4; new tide-path description');
+  checks.push('journey book counts stages (Σ regions with data); region page keeps stars x/12 and challenge marks x/4; new tide-path description');
  }
  {
   const {o,calls}=setup();o.open('journal');const stale=node(o,'JourneyPanel','Chapter-sky');o.close();o.open('bag');tap(stale);assert.equal(top(o),'BagPanel');assert.equal(calls.length,0);

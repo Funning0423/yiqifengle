@@ -1,0 +1,21 @@
+'use strict';
+// v2.1 walk-lens search (VOID rule, run with SCENE_REF=b9ccb89c): after the start blend, ZERO void/through rays (full 27×58 grid, 390×844 + 768×1024), clearance, UI gap, LOS, accel < 2.9.
+// usage: node opt3b.cjs iters '{"walkLens":[...],"walkLensEnd":[...],"walkBlendInS":3.7}' [seed]
+const A=require('./audit.cjs');
+const iters=+(process.argv[2]||200),seed0={...A.KN,...JSON.parse(process.argv[3]||'{}')};let rs=+(process.argv[4]||1);const rnd=()=>{rs=(rs*16807)%2147483647;return rs/2147483647;};
+(async()=>{const G=await A.geometry(),from=A.startCamera(0),S2=[[390,844],[768,1024]],lands=S2.map(s=>A.landingFor(s)),bb0=A.balAt(G,A.LJ.toWorld(seed0.launchLocal));
+ function cost(kn,detail){let c=0;const d=[];
+  for(const [si,scr] of S2.entries()){const S=A.newShot(lands[si],kn),aspect=scr[0]/scr[1];
+   for(let t=0;t<S.cut-1e-6;t+=.2){if(S.cover(t)>=.999)continue;const pose=S.camera(t,from),g=S.girl(t);
+    const cl=Math.min(A.nearest(G.stat,pose.position).d,A.nearest(bb0,pose.position).d),ui=A.uiCheck(pose,g,scr),sb=(t<2.2&&!detail)?{bad:0}:A.voidRays(G,bb0,pose,aspect,detail?27:18,detail?58:39);
+    const hd=A.los(G,bb0,pose.position,[g[0],g[1]+1.55,g[2]]),ch=A.los(G,bb0,pose.position,[g[0],g[1]+1.2,g[2]]),n=sb.bad;
+    c+=300*Math.max(0,1.25-cl)+Math.max(0,22-ui.gap)*2+(hd?60:0)+(ch?60:0)+n*(t<2.2?.5:40)+(n&&t>=2.2?100:0);if(detail&&n)d.push(scr[0]+'@'+t.toFixed(1)+':'+n);if(detail&&(cl<1.1||ui.gap<13||hd||ch))d.push('BAD '+scr[0]+'@'+t.toFixed(1)+' cl'+cl.toFixed(2)+' gap'+ui.gap+' '+hd+' '+ch);}
+   if(si===0){const k=A.kinematics({camera:(t,f)=>S.camera(t,f),timing:S.timing,cut:S.cut},from);c+=5000*Math.max(0,k.linAccMax-2.9)+50*Math.max(0,k.angAccMax-110);if(detail)d.push('kin '+JSON.stringify(k));}}
+  return detail?{c,d}:c;}
+ const clone=kn=>({...kn,walkLens:kn.walkLens.slice(),walkLensEnd:kn.walkLensEnd.slice()});
+ let best=clone(seed0),bc=cost(best),step=.8;console.log('seed',bc.toFixed(1));
+ for(let it=0;it<iters;it++){const cand=clone(best);for(let n=0;n<(rnd()<.4?2:1);n++){const P=[0,1,2,3,4,6],r=Math.floor(rnd()*13),dv=(rnd()*2-1)*step;
+   if(r<6)cand.walkLens[P[r]]=+((cand.walkLens[P[r]]||0)+dv).toFixed(2);else if(r<12)cand.walkLensEnd[P[r-6]]=+((cand.walkLensEnd[P[r-6]]||0)+dv).toFixed(2);else cand.walkBlendInS=+Math.max(3,Math.min(7.5,cand.walkBlendInS+dv*.5)).toFixed(2);}
+  const c=cost(cand);if(c<bc){bc=c;best=cand;console.log(it,bc.toFixed(1),JSON.stringify({walkLens:best.walkLens,walkLensEnd:best.walkLensEnd,walkBlendInS:best.walkBlendInS}));}if(it%40===39)step=Math.max(.15,step*.85);}
+ const r=cost(best,true);console.log('BEST',JSON.stringify({walkLens:best.walkLens,walkLensEnd:best.walkLensEnd,walkBlendInS:best.walkBlendInS}),bc.toFixed(1));console.log(r.d.join('\n'));
+})();

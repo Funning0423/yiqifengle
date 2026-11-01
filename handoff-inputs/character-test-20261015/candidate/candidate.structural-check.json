@@ -1,0 +1,55 @@
+{
+  "meshPrimitiveArrayEquality": [
+    [
+      "LOD0_G2_APRON",
+      0,
+      "body"
+    ],
+    [
+      "LOD0_G2_BODY",
+      0,
+      "body"
+    ],
+    [
+      "LOD0_G2_BODY",
+      1,
+      "feet"
+    ],
+    [
+      "LOD0_G2_BODY",
+      2,
+      "feet"
+    ],
+    [
+      "LOD0_G2_BODY",
+      3,
+      "body"
+    ],
+    [
+      "LOD0_G2_BODY",
+      4,
+      "body"
+    ],
+    [
+      "LOD0_G2_BODY",
+      5,
+      "body"
+    ],
+    [
+      "LOD0_G2_BOW",
+      0,
+      "body"
+    ],
+    [
+      "LOD0_G2_DRESS",
+      0,
+      "body"
+    ]
+  ],
+  "bodyMorphsUnchangedExceptShoeZeroPadding": true,
+  "inverseBindsIdentical": true,
+  "sampledAnimationSemanticMaxDifference": 0,
+  "clipsTested": 14,
+  "samplesEach": 9,
+  "scope": "Structural merge correctness only; no collision, phase contact or visual acceptance implied."
+}

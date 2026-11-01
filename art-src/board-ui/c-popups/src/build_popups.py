@@ -135,7 +135,7 @@ def m_swirl():
     return join(P,'swirl',30)
 def tile(name,inner):
     P=coaster()+inner; return join(P,name,40)
-# coaster icons (pause panel: 重来 / 行囊 / 设置 ; 回到小岛 uses the lighthouse on the secondary button)
+# coaster icons (pause panel: 重来 / 行囊 / 设置 ; 离开棋盘 (was 回到小岛) uses the lighthouse on the secondary button)
 def place(o,z=0.18,s=1.0,rotz=0):
     o.data.transform(Matrix.Rotation(math.radians(rotz),4,'Z')); o.data.transform(Matrix.Scale(s,4)); o.data.transform(Matrix.Translation((0,0,z))); return o
 reg(tile('tile_restart',[place(m_swirl(),0.0,1.0)]),'tile')

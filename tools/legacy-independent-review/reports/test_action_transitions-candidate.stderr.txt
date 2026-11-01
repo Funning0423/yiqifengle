@@ -1,0 +1,4 @@
+AssertionError [ERR_ASSERTION]: sit 2.006046579344563,2.9713408754964563
+    at /workspace/shared/legacy-test-audit-20261015/tools/walk-driver/test_action_transitions.cjs:23:785
+    at async check (/workspace/shared/legacy-test-audit-20261015/tools/walk-driver/test_action_transitions.cjs:10:42)
+    at async /workspace/shared/legacy-test-audit-20261015/tools/walk-driver/test_action_transitions.cjs:23:2

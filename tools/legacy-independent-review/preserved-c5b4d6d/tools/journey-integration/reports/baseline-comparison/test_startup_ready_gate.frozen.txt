@@ -1,0 +1,13 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+2 !== 3
+
+    at reachMount (/tmp/qifengle-integration-frozen-baseline-d9l2s_sc/tools/test_startup_ready_gate.cjs:30:78)
+    at async /tmp/qifengle-integration-frozen-baseline-d9l2s_sc/tools/test_startup_ready_gate.cjs:33:168 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 3,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

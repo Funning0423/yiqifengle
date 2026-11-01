@@ -1,0 +1,100 @@
+{
+  "scope": "Offline asset/TS adapter tests. No Cocos, GPU, WeChat or phone acceptance.",
+  "sha256": "885cabb17a7ff8cae5629a9cc950545edde8c4cec5541bfdc4e0c7d9b98af332",
+  "structural": {
+    "rigInverseBindsMaterialsImagesTopologyUnchanged": true,
+    "finiteNormalizedWeights": true,
+    "TRSCacheFixRetained": true,
+    "duplicatedPositionSkinSeams": 279,
+    "morphSeamMismatch": []
+  },
+  "seat": {
+    "before": {
+      "sleeveLOD0_G2_APRON": 118,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 52,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 30,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 30,
+      "apronDress": 0
+    }
+  },
+  "stand": {
+    "entryTRSIdenticalToBaseline": true,
+    "before": {
+      "spine": 55.75867202500762,
+      "chest": 41.29522784553746,
+      "neck": 33.160387088143246,
+      "head": 31.803363624170824,
+      "worldAngularSpeedMaxDegS": {
+        "spine": 209.94430651512707,
+        "chest": 188.81265934529006,
+        "neck": 352.5666068940468,
+        "head": 677.8125365395989
+      }
+    },
+    "after": {
+      "spine": 33.80698266232161,
+      "chest": 25.344620134964043,
+      "neck": 10.796041993777933,
+      "head": 12.902465660026667,
+      "worldAngularSpeedMaxDegS": {
+        "spine": 87.51785836674239,
+        "chest": 81.58957446792658,
+        "neck": 53.17395797139707,
+        "head": 72.96338479033732
+      }
+    }
+  },
+  "shortStop": {
+    "before": {
+      "frame508": {
+        "foot.L": {
+          "pitchDeg": -3.724231542538521,
+          "minimumM": 0.04022062625673642
+        },
+        "foot.R": {
+          "pitchDeg": -0.00020671621195991906,
+          "minimumM": -1.6375789613221059e-15
+        }
+      },
+      "toeHeelPitchDeg508": -1.3773966820633485,
+      "minimum570Frames": {
+        "foot.L": -2.0024470256951865e-07,
+        "foot.R": -1.3441743429432051e-07
+      }
+    },
+    "after": {
+      "frame508": {
+        "foot.L": {
+          "pitchDeg": -15.999996870125972,
+          "minimumM": 0.0402206262567362
+        },
+        "foot.R": {
+          "pitchDeg": -0.00020671621195991906,
+          "minimumM": -1.6375789613221059e-15
+        }
+      },
+      "toeHeelPitchDeg508": -13.653161732416823,
+      "minimum570Frames": {
+        "foot.L": -2.0024470256951865e-07,
+        "foot.R": -1.3441743429432051e-07
+      }
+    }
+  },
+  "open": [
+    "30 seated leg/dress crossing pairs retained",
+    "Full all-angle wrist/heel silhouette and stand transition collision acceptance pending",
+    "Expanded distance/timestep gate fails (3m@30Hz), including control without relaxed swing",
+    "No game visual acceptance"
+  ]
+}

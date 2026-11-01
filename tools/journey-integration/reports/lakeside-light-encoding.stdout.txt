@@ -1,0 +1,1 @@
+lakeside light encoding OK (sun night/day 0.858, ambient 0.219)

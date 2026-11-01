@@ -1,0 +1,343 @@
+[
+ {
+  "i": 0,
+  "name": "sd30",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 0,
+   "R": 0
+  },
+  "hand_rest_support": 0.6,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 1,
+  "name": "sd31",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 11.0,
+   "R": 8.7
+  },
+  "hand_rest_support": 0.69,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 2,
+  "name": "sd32",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 7.8,
+   "R": 7.2
+  },
+  "hand_rest_support": 0.78,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 3,
+  "name": "sd33",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 8.9,
+   "R": 9.7
+  },
+  "hand_rest_support": 0.85,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 4,
+  "name": "sd34",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 2.4,
+   "R": 2.8
+  },
+  "hand_rest_support": 0.91,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 5,
+  "name": "sd35",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 3.7,
+   "R": 4.3
+  },
+  "hand_rest_support": 0.96,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 6,
+  "name": "sd36",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 4.5,
+   "R": 5.1
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 7,
+  "name": "xA00_fo1.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 0.0,
+   "R": 0.0
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 8,
+  "name": "xA01_fo0.83",
+  "handXcloth": 186,
+  "hand_step_mm": {
+   "L": 11.0,
+   "R": 8.8
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 9,
+  "name": "xA02_fo0.67",
+  "handXcloth": 371,
+  "hand_step_mm": {
+   "L": 9.4,
+   "R": 6.5
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 10,
+  "name": "xA03_fo0.50",
+  "handXcloth": 325,
+  "hand_step_mm": {
+   "L": 8.0,
+   "R": 5.4
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 11,
+  "name": "xA04_fo0.33",
+  "handXcloth": 294,
+  "hand_step_mm": {
+   "L": 6.8,
+   "R": 6.5
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 12,
+  "name": "xA05_fo0.17",
+  "handXcloth": 263,
+  "hand_step_mm": {
+   "L": 6.0,
+   "R": 8.8
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 13,
+  "name": "xA06_fo0.00",
+  "handXcloth": 12,
+  "hand_step_mm": {
+   "L": 5.8,
+   "R": 11.6
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 14,
+  "name": "xA07_fo0.00",
+  "handXcloth": 12,
+  "hand_step_mm": {
+   "L": 0.0,
+   "R": 0.0
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 15,
+  "name": "xA08_fo0.00",
+  "handXcloth": 12,
+  "hand_step_mm": {
+   "L": 0.0,
+   "R": 0.0
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 16,
+  "name": "xA09_fo0.00",
+  "handXcloth": 12,
+  "hand_step_mm": {
+   "L": 0.0,
+   "R": 0.0
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0
+ },
+ {
+  "i": 17,
+  "name": "xB00_fo1.00",
+  "handXcloth": 12,
+  "hand_step_mm": {
+   "L": 0.0,
+   "R": 0.0
+  },
+  "hand_rest_support": 1.0,
+  "cloth_waist_rise_seam": 0.0
+ },
+ {
+  "i": 18,
+  "name": "xB01_fo0.83",
+  "handXcloth": 199,
+  "hand_step_mm": {
+   "L": 22.4,
+   "R": 9.4
+  },
+  "hand_rest_support": 0.83,
+  "cloth_waist_rise_seam": 0.17
+ },
+ {
+  "i": 19,
+  "name": "xB02_fo0.67",
+  "handXcloth": 6,
+  "hand_step_mm": {
+   "L": 25.6,
+   "R": 13.9
+  },
+  "hand_rest_support": 0.67,
+  "cloth_waist_rise_seam": 0.33
+ },
+ {
+  "i": 20,
+  "name": "xB03_fo0.50",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 24.6,
+   "R": 23.8
+  },
+  "hand_rest_support": 0.5,
+  "cloth_waist_rise_seam": 0.5
+ },
+ {
+  "i": 21,
+  "name": "xB04_fo0.33",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 21.1,
+   "R": 23.4
+  },
+  "hand_rest_support": 0.33,
+  "cloth_waist_rise_seam": 0.67
+ },
+ {
+  "i": 22,
+  "name": "xB05_fo0.17",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 19.9,
+   "R": 29.0
+  },
+  "hand_rest_support": 0.17,
+  "cloth_waist_rise_seam": 0.8
+ },
+ {
+  "i": 23,
+  "name": "xB06_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 9.3,
+   "R": 3.1
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.91
+ },
+ {
+  "i": 24,
+  "name": "xB07_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 14.5,
+   "R": 21.5
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.86
+ },
+ {
+  "i": 25,
+  "name": "xB08_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 20.6,
+   "R": 26.7
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.82
+ },
+ {
+  "i": 26,
+  "name": "xB09_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 20.3,
+   "R": 25.7
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.77
+ },
+ {
+  "i": 27,
+  "name": "xB10_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 28.5,
+   "R": 30.1
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.73
+ },
+ {
+  "i": 28,
+  "name": "xB11_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 45.0,
+   "R": 42.1
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.68
+ },
+ {
+  "i": 29,
+  "name": "xB12_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 35.8,
+   "R": 37.2
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.64
+ },
+ {
+  "i": 30,
+  "name": "xB13_fo0.00",
+  "handXcloth": 0,
+  "hand_step_mm": {
+   "L": 28.7,
+   "R": 33.3
+  },
+  "hand_rest_support": 0.0,
+  "cloth_waist_rise_seam": 0.59
+ }
+]

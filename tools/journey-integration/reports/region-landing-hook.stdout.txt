@@ -1,0 +1,3 @@
+PASS hook residual / failure paths
+PASS wiring
+{"status":"PASS","passed":2,"total":2}

@@ -1,0 +1,163 @@
+{
+ "schema": "qfl-ui-timing-registry/v1",
+ "note": "Classifications for the U1 UI-timing audit (界面验收部). Matched by file + symbol name, not line. Entries here are not flagged for manual review. Approved by UI设计部 + Grok Bot 2026-10-29.",
+ "entries": [
+  {
+   "file": "assets/scripts/ui/RegionArrivalTitleCore.ts",
+   "symbol": "REGION_TITLE_TIMING",
+   "class": "ui-animation",
+   "enterS": 0.4,
+   "enterEase": "easeOutCubic",
+   "holdS": 1.35,
+   "exitS": 0.25,
+   "exitEase": "easeInQuad",
+   "totalS": 2.0
+  },
+  {
+   "file": "assets/scripts/region/LakesideArrivalCore.ts",
+   "symbol": "LAKESIDE_SIGN_SPEC",
+   "class": "ui-animation",
+   "enterS": 0.3,
+   "enterEase": "smoothstep",
+   "exitS": 0.2,
+   "exitEase": "easeInQuad",
+   "unchanged": [
+    "revealSignS 0.3"
+   ]
+  },
+  {
+   "file": "assets/scripts/ui/StartupLoadingLayout.ts",
+   "symbol": "OUTRO_FADE_S",
+   "class": "ui-animation",
+   "exitS": 0.45,
+   "exitEase": "easeInOutCubic",
+   "category": "full-screen transition",
+   "exemption": "full-screen-transition",
+   "pairedWith": null,
+   "capS": 0.6,
+   "reason": "intro fades the loading page in from black; outro is a full-screen crossfade into the 3D world — not the same element in/out, so not paired with INTRO_FADE_S; full-screen cap ≤600 ms"
+  },
+  {
+   "file": "assets/scripts/ManagedMobileBoardUI.ts",
+   "symbol": "toastFade",
+   "class": "ui-animation",
+   "enterS": 0.2,
+   "exitS": 0.15,
+   "exitSymbol": "TOAST_OUT_S"
+  },
+  {
+   "file": "assets/scripts/ManagedMobileBoardUI.ts",
+   "symbol": "say",
+   "class": "ui-animation",
+   "enterS": 0.2,
+   "exitS": 0.15,
+   "exitSymbol": "TOAST_OUT_S"
+  },
+  {
+   "file": "assets/scripts/ui/BoardPanels.ts",
+   "symbol": "SCORE_EASE_S",
+   "class": "ui-animation",
+   "enterS": 0.2,
+   "enterEase": "easeOutCubic"
+  },
+  {
+   "file": "assets/scripts/ui/PopupMotion.ts",
+   "symbol": "OPEN_S/CLOSE_S",
+   "class": "ui-animation",
+   "enterS": 0.32,
+   "enterEase": "cubic-bezier(0.05,0.7,0.1,1)",
+   "exitS": 0.18,
+   "exitEase": "cubic-bezier(0.3,0,0.8,0.15)",
+   "pressS": 0,
+   "releaseS": 0.12,
+   "releaseEase": "easeOutBack(1.4)"
+  },
+  {
+   "file": "assets/scripts/ManagedMobileBoardUI.ts",
+   "symbol": "block-swap tween (ProjectPieceArt shake, .05+.07+.07+.05)",
+   "class": "gameplay-animation",
+   "totalS": 0.24,
+   "exemptFrom": "U1",
+   "match": "ProjectPieceArt'); if (!n) continue; const p = n.position.clone(); Tween.stopAllByTarget(n); tween(n).to(.05"
+  },
+  {
+   "file": "assets/scripts/ui/BoardLayout.ts",
+   "symbol": "TOAST_S",
+   "class": "hold-duration",
+   "holdS": 2,
+   "skip": true,
+   "reason": "hold time, not an animation"
+  },
+  {
+   "file": "assets/scripts/ui/BoardPanels.ts",
+   "symbol": "CHEST_HANDOFF_MS",
+   "class": "ambient-sequence",
+   "totalS": 3,
+   "exemptFrom": "U1",
+   "reason": "ambient/narrative sequence total"
+  },
+  {
+   "file": "assets/scripts/ui/PopupMotion.ts",
+   "symbol": "OPEN_ALPHA_S",
+   "class": "popup-enter-subtrack",
+   "category": "popup enter sub-track",
+   "subTrackOf": "OPEN_S",
+   "parentS": 0.32,
+   "subS": 0.19,
+   "rule": "<= parent",
+   "reason": "alpha segment of the 320 ms popup enter (OPEN_S); the 250–400 ms enter rule applies to OPEN_S, this track only needs ≤ OPEN_S"
+  },
+  {
+   "file": "assets/scripts/ui/PopupMotion.ts",
+   "symbol": "TOGGLE_S",
+   "class": "ui-animation",
+   "category": "small control",
+   "pressS": 0.18,
+   "rule": "100–200 ms",
+   "reason": "switch knob/track slide: small control 100–200 ms (registered under pressS so check_ui_motion applies the 100–200 ms feedback rule)"
+  },
+  {
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
+   "symbol": "gridS",
+   "class": "popup-enter-subtrack",
+   "category": "popup enter sub-track",
+   "subTrackOf": "OPEN_S",
+   "parentS": 0.32,
+   "subS": 0.2,
+   "rule": "<= parent",
+   "reason": "journey.gridStagger (SPEC §13.7): grid cell appear 200 ms easeOutCubic, 20 ms step over 9 cells (last ends 0.36 s); content sub-track of the 320 ms popup enter (OPEN_S)"
+  },
+  {
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
+   "symbol": "gridStepS",
+   "class": "hold-duration",
+   "holdS": 0.02,
+   "skip": true,
+   "reason": "journey.gridStaggerStep (SPEC §13.7): 20 ms offset between grid cells, not an animation length"
+  },
+  {
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
+   "symbol": "barGrowS",
+   "class": "ambient-sequence",
+   "totalS": 0.6,
+   "exemptFrom": "U1",
+   "reason": "journey.progressFill (SPEC §13.7): progress bar fill 600 ms easeOutCubic, only when the total changed since last open (qfl.ui.journeySeenDone); within the ≤600 ms whole-screen rule"
+  },
+  {
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
+   "symbol": "sealDropS",
+   "class": "ambient-sequence",
+   "totalS": 0.24,
+   "exemptFrom": "U1",
+   "reason": "ending.sealDrop (SPEC §13.7): each ending seal drops in 240 ms easeOutCubic, 60 ms step over 9 seals (whole sequence 0.24 + 8×0.06 = 0.72 s): ending narrative sequence"
+  },
+  {
+   "file": "creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts",
+   "symbol": "sealStepS",
+   "class": "hold-duration",
+   "holdS": 0.06,
+   "skip": true,
+   "reason": "ending.sealDropStep (SPEC §13.7): 60 ms offset between ending seals, not an animation length"
+  }
+ ]
+}

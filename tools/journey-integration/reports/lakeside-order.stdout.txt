@@ -1,0 +1,9 @@
+PASS order = lakeside-levels-data ordinals 1..6, bridge = 刻名的桥
+PASS S4 not passed: every lakeside stage locked
+PASS S4 passed, nothing played: only L13 playable
+PASS each clear opens exactly the next one
+PASS bridge stays locked unless L13–L15 are all cleared (even if L16/L17 are)
+PASS old save: cleared stages stay passed even out of order; listed-open stays playable; nothing re-locks
+PASS mainline nodes unchanged by the lake records
+PASS journal: sequential, bridge needs L13–L15, recorded stage never re-locks
+test_lakeside_order 8 PASS

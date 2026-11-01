@@ -1,0 +1,892 @@
+{
+ "status": "FAIL",
+ "skipped": 2,
+ "failedKnownOnIntV1": 0,
+ "failedOther": 1,
+ "glb": "../../Users/shineanl/Documents/Codex/2026-10-14/task-13/character-fix/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "animMeta": true,
+ "flowRoot": "../../Users/shineanl/Documents/Codex/2026-10-14/task-13/character-fix",
+ "results": [
+  {
+   "name": "distance-driven phase: no foot slide at 0.45 / 0.7 / 1.0 m/s (vs old time-driven clock)",
+   "ok": null,
+   "skipped": true,
+   "info": {
+    "skipped": true,
+    "reason": "Current meta has no foot_flat/heel_off windows; use sole-vertex contact tests. Zero windows are not a pass."
+   }
+  },
+  {
+   "name": "full out-and-back: foot-flat ankle drift (world) with real routes, 60 fps (straight stance windows; corner windows reported)",
+   "ok": null,
+   "skipped": true,
+   "info": {
+    "skipped": true,
+    "reason": "Current meta has no foot_flat/heel_off windows; no ankle-stance coverage."
+   }
+  },
+  {
+   "name": "phase continuity across the continuous joins (outCrossing->toIsland, toThreshold->inCrossing[->toSeat on the follow return]): no reset, no leg swap",
+   "ok": true,
+   "info": {
+    "chains": [
+     [
+      "toDoor"
+     ],
+     [
+      "outCrossing",
+      "toIsland"
+     ],
+     [
+      "toThreshold",
+      "inCrossing",
+      "toSeat"
+     ]
+    ],
+    "joins": [
+     {
+      "t": 13.633,
+      "state": "crossing-out",
+      "gapFrames": 0,
+      "clips": "walk_loop",
+      "dAbs": 0.00699,
+      "expected": 0.00699
+     },
+     {
+      "t": 33.85,
+      "state": "crossing-in",
+      "gapFrames": 1,
+      "clips": "walk_loop",
+      "dAbs": 0.01452,
+      "expected": 0.01452
+     },
+     {
+      "t": 35.917,
+      "state": "walking-to-seat",
+      "gapFrames": 0,
+      "clips": "walk_loop",
+      "dAbs": 0.00844,
+      "expected": 0.00844
+     }
+    ]
+   }
+  },
+  {
+   "name": "yaw rate limit while walking <= WALK_YAW_MAX_DEG_S (corners), position stays on the path",
+   "ok": true,
+   "info": {
+    "maxDegS": 150,
+    "where": "crossing-in@33.93",
+    "limit": 150,
+    "snapsAtWalkStartFromRest": []
+   }
+  },
+  {
+   "name": "walkProgress per segment: 0..1 monotone, restarts at 0, null when not walking",
+   "ok": true,
+   "info": [
+    {
+     "state": "walking-out",
+     "first": 0,
+     "lastSeen": 0.9974
+    },
+    {
+     "state": "crossing-out",
+     "first": 0,
+     "lastSeen": 0.9975
+    },
+    {
+     "state": "crossing-out",
+     "first": 0,
+     "lastSeen": 0.9979
+    },
+    {
+     "state": "walking-home",
+     "first": 0,
+     "lastSeen": 0.9979
+    },
+    {
+     "state": "crossing-in",
+     "first": 0,
+     "lastSeen": 0.9959
+    },
+    {
+     "state": "walking-to-seat",
+     "first": 0,
+     "lastSeen": 0.9985
+    }
+   ]
+  },
+  {
+   "name": "onFoot: alternating body sides, bone<->body mapping, front foot planted at heel strike, cadence",
+   "ok": true,
+   "info": {
+    "events": 36,
+    "alternations": 34,
+    "expectedSteps": 41.9,
+    "first": [
+     {
+      "t": 5.017,
+      "event": "foot:L",
+      "body": "R",
+      "phase": 0.512,
+      "cycle": 0
+     },
+     {
+      "t": 5.65,
+      "event": "foot:R",
+      "body": "L",
+      "phase": 0,
+      "cycle": 1
+     },
+     {
+      "t": 6.317,
+      "event": "foot:L",
+      "body": "R",
+      "phase": 0.512,
+      "cycle": 1
+     }
+    ]
+   }
+  },
+  {
+   "name": "onFoot timing: the event bone leads (heel strike in front) on every step",
+   "ok": true,
+   "knownFailOnIntV1": true,
+   "info": {
+    "steps": 6,
+    "minLeadM": 0.421
+   }
+  },
+  {
+   "name": "apron_lift: one full emission on the exit walk, on the upward 0.95 crossing (real wind channel when present)",
+   "ok": true,
+   "info": {
+    "realWindChannel": true,
+    "t": 17.267,
+    "state": "crossing-out",
+    "windAtEmit": 0.952,
+    "durationSec": 1.6,
+    "threshold": 0.95
+   }
+  },
+  {
+   "name": "apron trigger: upward-only, dithering around the threshold does not refire, re-arms below 0.05",
+   "ok": true,
+   "info": {
+    "fires": [
+     3,
+     13
+    ]
+   }
+  },
+  {
+   "name": "wind_flutter_loop at max weight is ADDITIVE on the walk skirt pose and masked to skirt/apron/hair",
+   "ok": true,
+   "info": {
+    "frames": 172,
+    "skirtAngleVsWalkOnlyMaxDeg": 20,
+    "layerAmplitudeDeg": 20,
+    "additiveErrorMaxDeg": 0,
+    "nonMaskedMaxDeg": 0,
+    "note": "synthetic layer clip (no real wind clip yet); clipping must still be checked on the real mesh by 角色动画bot"
+   }
+  },
+  {
+   "name": "windToFlutter default: visible at 0.15, 1 at 1, 0 at 0; anim_meta override + threshold override parsed",
+   "ok": true,
+   "info": {
+    "w010": 0.289,
+    "w015": 0.38,
+    "w050": 0.7
+   }
+  },
+  {
+   "name": "apron_lift clip: restarted from frame 0 on the crossing, onApronLift at the lift frame with settle-lift seconds",
+   "ok": true,
+   "info": {
+    "t": 1.8833333333333333,
+    "s": "full",
+    "d": 1.0999999999999999
+   }
+  },
+  {
+   "name": "apronGust(soft): onApronLift(soft,d), flutter envelope, __voiceWind fallback only while WindAudio has no hook",
+   "ok": true,
+   "info": {
+    "peakFlutterWeight": 0.7
+   }
+  },
+  {
+   "name": "crossfade walk->idle (0.2 s) is continuous; CROSSFADE_S constant",
+   "ok": true,
+   "info": {
+    "fadeFrames": 183,
+    "crossfadeS": 0.2
+   }
+  },
+  {
+   "name": "blend mode: useBakedAnimation=false, states never played by the manager",
+   "ok": true,
+   "info": {
+    "blend": true
+   }
+  },
+  {
+   "name": "baked fallback (CHARACTER_POSE_BLEND=false): play+pause one clip, hard cut, foot events + walkProgress still work",
+   "ok": true,
+   "info": {
+    "plays": [
+     "sit_hold",
+     "idle_breathing_loop",
+     "walk_start",
+     "walk_loop",
+     "walk_stop_bodyR"
+    ],
+    "footEvents": 4,
+    "minFootEvents": 3
+   }
+  },
+  {
+   "name": "morph: crossfade continuity idle->walk->idle (curl follows the 0.2 s pose crossfade, no jump), exact 0 at the end",
+   "ok": true,
+   "info": {
+    "maxStepPerFrame": 0.0489,
+    "bound": 0.055,
+    "fadeFrames": 49,
+    "intermediate": 14,
+    "setWeightCalls": 179
+   }
+  },
+  {
+   "name": "morph: setWeight only when a weight changed by >1e-3 (steady idle = 0 calls; first frame establishes 0)",
+   "ok": true,
+   "info": {
+    "calls": 179,
+    "framesSimulated": 410,
+    "steadyIdleCalls": 0
+   }
+  },
+  {
+   "name": "morph: apron_lift curl curve on its layer timeline + flutter = max(flutter-layer curve, windToMorphFlutter), continuous",
+   "ok": true,
+   "info": {
+    "crossT": 1.583,
+    "curlPeakT": 1.95,
+    "curlMaxStep": 0.045,
+    "flutterMaxStep": 0.0134,
+    "flutterMax": 0.8,
+    "calls": 479
+   }
+  },
+  {
+   "name": "morph: missing mesh / no morph / 1 target (<2 needed) / enableMorph=false -> no setWeight, status in diagnostics, walk unaffected",
+   "ok": true,
+   "info": [
+    {
+     "want": "not-found",
+     "status": "not-found",
+     "reason": "no MeshRenderer on a node / mesh named LOD0_G2_APRON",
+     "calls": 0,
+     "feet": 3,
+     "targetCounts": []
+    },
+    {
+     "want": "no-morph",
+     "status": "no-morph",
+     "reason": "mesh has no morph targets",
+     "calls": 0,
+     "feet": 3,
+     "targetCounts": []
+    },
+    {
+     "want": "too-few-targets",
+     "status": "too-few-targets",
+     "reason": "need 2 targets, sub-meshes have 1",
+     "calls": 0,
+     "feet": 3,
+     "targetCounts": [
+      1
+     ]
+    },
+    {
+     "want": "morph-disabled",
+     "status": "morph-disabled",
+     "reason": "MeshRenderer.enableMorph=false",
+     "calls": 0,
+     "feet": 3,
+     "targetCounts": []
+    },
+    {
+     "want": "not-found",
+     "status": "not-found",
+     "reason": "no MeshRenderer on a node / mesh named LOD0_G2_APRON",
+     "calls": 0,
+     "feet": 3,
+     "targetCounts": []
+    }
+   ]
+  },
+  {
+   "name": "morph: no apron_lift clip -> curve-only timeline from the crossing (curl peak +0.37 s), onApronLift still immediate",
+   "ok": true,
+   "info": {
+    "emitT": 1.583,
+    "curlPeakT": 1.95
+   }
+  },
+  {
+   "name": "morph: morphTargets {curl:1,flutter:0} remaps shape indices; written to every sub-mesh with enough targets (counts 3,0,2 -> 0,2)",
+   "ok": true,
+   "knownFailOnIntV1": true,
+   "info": {
+    "subMeshes": [
+     0,
+     2
+    ],
+    "w": {
+     "0:1": 0.5999999999999999,
+     "2:1": 0.5999999999999999,
+     "0:0": 0,
+     "2:0": 0
+    }
+   }
+  },
+  {
+   "name": "morph: baked path (CHARACTER_POSE_BLEND=false) drives the same weights (curl during walk, fade back to 0)",
+   "ok": true,
+   "info": {
+    "maxStep": 0.0489,
+    "calls": 179
+   }
+  },
+  {
+   "name": "morph: anim_meta parsing (clip morph curves, windToMorphFlutter, morphTargets, morph.mesh) + defaults",
+   "ok": true,
+   "info": {
+    "ok": true
+   }
+  },
+  {
+   "name": "morph: morph.meshes drives several meshes from one weight set (apron curl:0 sit_drape:1, dress sit_drape:1 sit_drape_mid:0), missing mesh reported, others ok",
+   "ok": true,
+   "info": {
+    "apronMid": {
+     "0:0": 0.6,
+     "0:1": 0.39999999999999997
+    },
+    "dressMid": {
+     "0:1": 0.39999999999999997,
+     "0:0": 0
+    },
+    "meshes": [
+     "LOD0_G2_APRON:ok",
+     "LOD0_G2_DRESS:ok",
+     "LOD0_G2_NONE:not-found"
+    ]
+   }
+  },
+  {
+   "name": "morph: real anim_meta sit_drape: 1 while seated on apron + dress, stand_up -> 0, sit_down -> 1 (settle_time_s), continuous; settle_time_s + morph.meshes parsed",
+   "ok": true,
+   "info": {
+    "held": {
+     "ap": 1,
+     "dr": 1
+    },
+    "stood": {
+     "ap": 0,
+     "dr": 0
+    },
+    "sat": {
+     "ap": 1,
+     "dr": 1
+    },
+    "standMaxStep": 0.0284,
+    "sitMaxStep": 0.025,
+    "settleTime": 0.8667
+   }
+  },
+  {
+   "name": "loco: anim_meta locomotion-v1 parsing (root_motion curves, walk_loop string root_motion ignored, entry, entry_contact/type, handoff crossfade_s, turn_deg)",
+   "ok": true,
+   "info": {
+    "walkStartKeys": 59,
+    "stopForwardM": 0.500374,
+    "stopSettleS": 1.4667,
+    "stopLateralM": [
+     -0.01356,
+     0.020589
+    ],
+    "extraSecondsStartStop": 1.206
+   }
+  },
+  {
+   "name": "loco: planWalk synthetic curves (smoothstep start 1.5 s / 0.6 m, quadratic stop 0.25 m / 0.7 s): s(0)=0, s(D)=L, monotone, C0 + bounded speed steps, entry phase ON the heel strike",
+   "ok": true,
+   "info": {
+    "extraSeconds": 0.9762,
+    "sweep": [
+     {
+      "L": 3,
+      "stop": "walk_stop_bodyL",
+      "warp": 0.05,
+      "cruise": 0.7091,
+      "maxSpeedStepPer240Hz": 0.0265
+     },
+     {
+      "L": 3.2,
+      "stop": "walk_stop_bodyL",
+      "warp": -0.03448,
+      "cruise": 0.701,
+      "maxSpeedStepPer240Hz": 0.0194
+     },
+     {
+      "L": 3.4,
+      "stop": "walk_stop_bodyR",
+      "warp": 0.0463,
+      "cruise": 0.701,
+      "maxSpeedStepPer240Hz": 0.0327
+     },
+     {
+      "L": 4.198,
+      "stop": "walk_stop_bodyR",
+      "warp": 0.03376,
+      "cruise": 0.7007,
+      "maxSpeedStepPer240Hz": 0.0196
+     },
+     {
+      "L": 6,
+      "stop": "walk_stop_bodyR",
+      "warp": -0.02018,
+      "cruise": 0.7005,
+      "maxSpeedStepPer240Hz": 0.0194
+     }
+    ],
+    "shortWalkNotes": [
+     "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 1.1389 > 0.05 and stop scale 0.5022)",
+     "cruise too short (0.370 m / -0.071 s)",
+     "stop walk_stop_bodyL forward scaled x0.9778 (warp clamped)",
+     "stop walk_stop_bodyL forward scaled x0.9778 (warp clamped)",
+     "stop walk_stop_bodyL forward scaled x0.9778 (warp clamped)",
+     "stop walk_stop_bodyL forward scaled x0.9778 (warp clamped)",
+     "stop walk_stop_bodyL forward scaled x0.9778 (warp clamped)",
+     "cruise 1.288 m/s outside 0.75..1.3 x native"
+    ],
+    "tight": {
+     "startRate": 1.2,
+     "stopRate": 1.15,
+     "notes": [
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "stop walk_stop_bodyL forward scaled x0.9467 (warp clamped)",
+      "walk_start x1.20 (at rate 1: cruise 1.128 m/s outside 0.75..1.3 x native)",
+      "stop x1.15 (at rate 1: cruise 1.128 m/s outside 0.75..1.3 x native)"
+     ]
+    },
+    "tighterNotes": [
+     "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.1379 > 0.05 and stop scale 0.4578)",
+     "walk_start x1.05 (at rate 1: cruise 0.924 m/s outside 0.75..1.3 x native)"
+    ]
+   }
+  },
+  {
+   "name": "loco: chooseTurn 180 L/R: side by sign below 170 deg; >=170 the free foot steps first (last landed L -> bodyR); single walk_turn_180 kept with the controller yaw",
+   "ok": true,
+   "info": {
+    "p150": "180 by side",
+    "p175L": "free 180: last foot L -> first step R (other way round)",
+    "single161": "180: no variant for this side, walk_turn_180 used with the controller yaw"
+   }
+  },
+  {
+   "name": "loco: one contact = one footstep without the flag (stop clip contact at 0.01 s, same bone as the entry heel strike) -> dropped as same contact",
+   "ok": true,
+   "info": {
+    "stop": "walk_stop_bodyL",
+    "deduped": [
+     "same contact:walk_stop_bodyL:foot:R"
+    ]
+   }
+  },
+  {
+   "name": "loco: foot slide rest -> walk_start -> walk_loop -> stop -> idle on the real clips (4.198 m / 5.997 s = toDoor), root_motion curves vs the old constant 0.7 m/s root",
+   "ok": false,
+   "error": "AssertionError [ERR_ASSERTION]: old should slide clearly more 1.84\n    at /Users/shineanl/Documents/Codex/2026-10-14/task-13/character-fix/tools/walk-driver/test_locomotion.cjs:98:119\n    at check (/Users/shineanl/Documents/Codex/2026-10-14/task-13/character-fix/tools/walk-driver/test_walk_driver.cjs:27:126)\n    at Object.run (/Users/shineanl/Documents/Codex/2026-10-14/task-13/character-fix/tools/walk-driver/test_locomotion.cjs:96:3)\n    at async /Users/shineanl/Documents/Codex/2026-10-14/task-13/character-fix/tools/walk-driver/test_walk_driver.cjs:235:2"
+  },
+  {
+   "name": "loco: no double footstep at the stop entry (walk_loop heel strike once; stop clip t=0 entry_contact never emitted); settle:* step not a footstep, logged + lastFoot",
+   "ok": true,
+   "info": {
+    "entry": {
+     "t": 4.733,
+     "body": "L",
+     "phase": 0
+    },
+    "stopFeet": [
+     "foot:L:heel_strike@0.866667"
+    ],
+    "settle": "settle:R body L",
+    "footDeduped": 0
+   }
+  },
+  {
+   "name": "loco: stop variant = the walk_loop heel strike at the entry distance (bodyL at walk 0.0 s, bodyR at 0.567 s), both used over lengths 3.0..3.7 m, stride warp <= STOP_WARP_MAX, stop scale <= STOP_SCALE_MAX, slide <= rate-1 baseline + warp drift",
+   "ok": true,
+   "info": {
+    "baselineWalkLoopMm": 1.77,
+    "sweep": [
+     {
+      "L": 3,
+      "stop": null,
+      "warp": 1,
+      "stopScale": null,
+      "entryBody": null,
+      "entryPhase": null,
+      "slideMm": 4.64,
+      "allowMm": 3.77,
+      "byClip": {
+       "walk_start": 1.7,
+       "walk_loop": 4.64,
+       "walk_stop_bodyR": 3.38
+      },
+      "endMm": 0,
+      "notes": [
+       "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.1805 > 0.05 and stop scale 1.5439)"
+      ]
+     },
+     {
+      "L": 3.1,
+      "stop": null,
+      "warp": 1,
+      "stopScale": null,
+      "entryBody": null,
+      "entryPhase": null,
+      "slideMm": 4.57,
+      "allowMm": 3.77,
+      "byClip": {
+       "walk_start": 1.7,
+       "walk_loop": 4.57,
+       "walk_stop_bodyR": 3.1
+      },
+      "endMm": 0,
+      "notes": [
+       "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.2266 > 0.05 and stop scale 1.7796)"
+      ]
+     },
+     {
+      "L": 3.2,
+      "stop": "walk_stop_bodyL",
+      "warp": 1.03478,
+      "stopScale": 1,
+      "entryBody": "L",
+      "entryPhase": 0,
+      "slideMm": 1.83,
+      "allowMm": 13.64,
+      "byClip": {
+       "walk_start": 1.7,
+       "walk_loop": 1.83,
+       "walk_stop_bodyL": 1.07,
+       "idle_breathing_loop": 0.01
+      },
+      "endMm": 0,
+      "notes": []
+     },
+     {
+      "L": 3.3,
+      "stop": "walk_stop_bodyL",
+      "warp": 0.98043,
+      "stopScale": 1,
+      "entryBody": "L",
+      "entryPhase": 0,
+      "slideMm": 1.82,
+      "allowMm": 9.63,
+      "byClip": {
+       "walk_start": 1.7,
+       "walk_loop": 1.82,
+       "walk_stop_bodyL": 0.99
+      },
+      "endMm": 0,
+      "notes": []
+     },
+     {
+      "L": 3.4,
+      "stop": null,
+      "warp": 1,
+      "stopScale": null,
+      "entryBody": null,
+      "entryPhase": null,
+      "slideMm": 2.4,
+      "allowMm": 3.77,
+      "byClip": {
+       "walk_stop_bodyL": 2.4,
+       "walk_start": 0.86,
+       "walk_loop": 0.95,
+       "idle_breathing_loop": 0.01
+      },
+      "endMm": 0,
+      "notes": [
+       "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.1443 > 0.05 and stop scale 0.5600)"
+      ]
+     },
+     {
+      "L": 3.5,
+      "stop": null,
+      "warp": 1,
+      "stopScale": null,
+      "entryBody": null,
+      "entryPhase": null,
+      "slideMm": 2.43,
+      "allowMm": 3.77,
+      "byClip": {
+       "walk_start": 1.7,
+       "walk_loop": 2.23,
+       "walk_stop_bodyL": 2.43,
+       "idle_breathing_loop": 0.02
+      },
+      "endMm": 0,
+      "notes": [
+       "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.0918 > 0.05 and stop scale 0.7956)"
+      ]
+     },
+     {
+      "L": 3.6,
+      "stop": "walk_stop_bodyR",
+      "warp": 1.04389,
+      "stopScale": 1,
+      "entryBody": "R",
+      "entryPhase": 0.5116,
+      "slideMm": 1.73,
+      "allowMm": 16.11,
+      "byClip": {
+       "walk_start": 1.7,
+       "walk_loop": 1.73,
+       "walk_stop_bodyR": 1.25,
+       "idle_breathing_loop": 0.06
+      },
+      "endMm": 0,
+      "notes": []
+     },
+     {
+      "L": 3.7,
+      "stop": "walk_stop_bodyR",
+      "warp": 1.00003,
+      "stopScale": 1,
+      "entryBody": "R",
+      "entryPhase": 0.5116,
+      "slideMm": 1.74,
+      "allowMm": 3.78,
+      "byClip": {
+       "walk_start": 1.7,
+       "walk_loop": 1.74,
+       "walk_stop_bodyR": 1.34,
+       "idle_breathing_loop": 0.07
+      },
+      "endMm": 0,
+      "notes": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "loco: out-and-back flow (real WorldFlow + routes; rest chains from the routes: toDoor | outCrossing->toIsland | toThreshold->inCrossing->toSeat on the follow return, no stop at the entrance): a planned stop inside exactly the walks that end at rest, none at the continuous joins, no unplanned stop; ankle stance coverage reported separately",
+   "ok": true,
+   "info": {
+    "chains": [
+     [
+      "toDoor"
+     ],
+     [
+      "outCrossing",
+      "toIsland"
+     ],
+     [
+      "toThreshold",
+      "inCrossing",
+      "toSeat"
+     ]
+    ],
+    "stops": [
+     {
+      "walk": "toDoor",
+      "t": 7.517,
+      "clip": "walk_stop_bodyL",
+      "warp": 1.0243,
+      "cruiseMps": 0.9024,
+      "start": true,
+      "startRate": 1.15
+     },
+     {
+      "walk": "toIsland",
+      "t": 18.433,
+      "clip": "walk_stop_bodyL",
+      "warp": 0.9801,
+      "cruiseMps": 0.8233,
+      "start": false,
+      "startRate": null
+     },
+     {
+      "walk": "toSeat",
+      "t": 40.367,
+      "clip": "walk_stop_bodyR",
+      "warp": 1.02323,
+      "cruiseMps": 0.8643,
+      "start": false,
+      "startRate": null
+     }
+    ],
+    "joins": {
+     "inCrossingAheadM": 4.136,
+     "toThresholdAheadM": 5.577
+    },
+    "turns": [
+     {
+      "t": 1.283,
+      "state": "turning-out",
+      "clip": "walk_turn_90_bodyL",
+      "deg": 111.8,
+      "lastFoot": null,
+      "reason": "turn90 by side"
+     },
+     {
+      "t": 19.917,
+      "state": "crossing-out",
+      "clip": null,
+      "deg": -25.8,
+      "lastFoot": "L",
+      "reason": "folded into walk_stop_bodyL over 0.500 s"
+     },
+     {
+      "t": 25.3,
+      "state": "walking-home",
+      "clip": "walk_turn_180_bodyR",
+      "deg": -161.5,
+      "lastFoot": "L",
+      "reason": "180 by side"
+     },
+     {
+      "t": 41.85,
+      "state": "sitting",
+      "clip": "walk_turn_90_bodyL",
+      "deg": 96.5,
+      "lastFoot": "R",
+      "reason": "turn90 by side"
+     }
+    ],
+    "ankleStanceCoverage": "SKIPPED: missing foot_flat/heel_off metadata",
+    "walkLoopStanceMaxMm": null,
+    "cornerMaxMm": null
+   }
+  },
+  {
+   "name": "loco: island arrival: the < 45 deg turn after the toIsland stop is folded into the stop clip (yaw only changes while the stop clip plays, done by its end, then idle; never on idle, no turn clip)",
+   "ok": true,
+   "info": {
+    "stop": "walk_stop_bodyL",
+    "turnDeg": 25.67,
+    "reason": "folded into walk_stop_bodyL over 0.500 s",
+    "yawFrames": 29,
+    "turnFrames": 30,
+    "clips": [
+     "walk_stop_bodyL"
+    ],
+    "idleYawLeftDeg": 0,
+    "idleAt": 20.4,
+    "idleAction": null
+   }
+  },
+  {
+   "name": "loco: turn variants on the real clips: +-90 -> walk_turn_90_body{L,R}; return turn -161.5 -> walk_turn_180_bodyR, +161.5 -> walk_turn_180; >= 170 deg by the last foot (incl. settle); in the flow the return turn uses walk_turn_180_bodyR",
+   "ok": true,
+   "info": {
+    "p175L": "free 180: last foot L -> first step R",
+    "p-175R": "free 180: last foot R -> first step L",
+    "p175R": "free 180: last foot R -> first step L (other way round)",
+    "p-175L": "free 180: last foot L -> first step R (other way round)",
+    "flow": [
+     "turning-out:walk_turn_90_bodyL",
+     "walking-home:walk_turn_180_bodyR",
+     "sitting:walk_turn_90_bodyL"
+    ]
+   }
+  },
+  {
+   "name": "loco: unplanned walk end (stopAtEnd:false): stop clip tail from its settle time (root does not move: no slide / overshoot), then idle; a small turn right after it is folded into that tail (stop before the next task)",
+   "ok": true,
+   "info": {
+    "noTask": {
+     "tail": "walk_stop_bodyL",
+     "fromS": 1.4667,
+     "clips": [
+      "walk_loop",
+      "walk_stop_bodyL",
+      "idle_breathing_loop"
+     ],
+     "rootDriftM": 0
+    },
+    "turnReason": "folded into walk_stop_bodyL over 0.500 s",
+    "idleYawLeftDeg": 0,
+    "turn20": {
+     "tail": "walk_stop_bodyL",
+     "fromS": 1.4667,
+     "clips": [
+      "walk_loop",
+      "walk_stop_bodyL",
+      "idle_breathing_loop"
+     ],
+     "rootDriftM": 0
+    }
+   }
+  },
+  {
+   "name": "loco: walk_start sped up (<= START_RATE_MAX, cadence inside CRUISE_RATIO_MAX) when a walk from rest has no room at rate 1: outCrossing starts with walk_start; its stance drift <= the same clip at rate 1 (+1 mm) and < 15 mm",
+   "ok": true,
+   "info": {
+    "plan": {
+     "t": 10.8,
+     "state": "crossing-out",
+     "L": 1.9872,
+     "D": 2.8389,
+     "rest": false,
+     "aheadM": 4.384419623569857,
+     "start": true,
+     "startRate": 1.1,
+     "stop": null,
+     "stopRate": null,
+     "warp": 0.98012,
+     "stopScale": null,
+     "cruiseMps": 0.8818,
+     "notes": [
+      "steering phase to walk_stop_bodyL 4.384 m ahead",
+      "walk_start x1.10 (at rate 1: cruise 1.045 m/s outside 0.75..1.3 x native)"
+     ]
+    },
+    "walkStartSlideMm": {
+     "x1.1": 1.7,
+     "x1": 1.7
+    },
+    "sampleHz": 240
+   }
+  }
+ ]
+}

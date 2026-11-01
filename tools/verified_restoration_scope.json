@@ -1,4 +1,6 @@
 {
+  "status": "historical-review-record-2026-10-12",
+  "statusNote": "Frozen record of the 2026-10-12 review. NOT current pins and NOT a live gate: the production tree has changed since (e.g. regional-r05/runtime/regional-session.js after 6f66e2f1 on 10/17). Live hash pins: tools/journey-integration/frozen-production-inputs.json (gates: production-integrity, frozen-inputs-pins).",
   "description": "Exact reviewed Stage3 + reliability + original dynamic background + original tool patch composition. UI reverse-hunks only normalize approved tool changes so original protection assertions still execute. Any additional byte change needs review.",
   "uiBeforeSha256": "97c64909a0c11940b27bb342417cd1f824cc1341d32fc8269e3d30e22bc67f04",
   "uiAfterSha256": "cf1892f0f3487ca723f24e2e2869f5369af1c167cc8a9d8aa6524298f6b25288",

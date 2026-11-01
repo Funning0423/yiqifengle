@@ -7,7 +7,7 @@ import {ART,BACKDROP_RGB,BAR,PINWHEEL,HINT,DESIGN_W,DESIGN_H,LoadingTimeline,cov
  *    without it (web preview, or first-screen failed) assetManager.loadRemote loads the same file and the cream mask
  *    (BACKDROP_RGB, the picture's mean colour) covers the wait instead of a dark plate;
  *  - 'LoadingDynamic' (progress fill, pinwheel, hint text) fades in over INTRO_FADE_S after the first frame;
- *  - startOutro(): picture (UIOpacity) and cream mask (Graphics redrawn with alpha) fade out together over OUTRO_FADE_S (ease-out)
+ *  - startOutro(): picture (UIOpacity) and cream mask (Graphics redrawn with alpha) fade out together over OUTRO_FADE_S (easeInOutCubic)
  *    once the room is ready, after one held opaque frame; tick() reports done.
  * Boot keeps its loadingMask / loadingBackdrop fields pointing at mask / root (T0 BootProbe reads them). */
 const G:any=globalThis as any;

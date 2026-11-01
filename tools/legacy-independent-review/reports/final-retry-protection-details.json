@@ -1,0 +1,246 @@
+{
+  "scopeVersion": "r5-retry-readonly-exit-v1",
+  "startedAt": "2026-10-15T17:35:00.664Z",
+  "scope": "Pure Node actual unchanged runtime + pure managed session seam; isolated synchronous Map storage. No Cocos/browser/device/disk save acceptance.",
+  "checks": [
+    {
+      "name": "mainline 12 actual replay wins, duplicate commit/visual/finish, chest and region claims, cold restore",
+      "status": "PASS",
+      "actions": 190,
+      "stages": 12,
+      "receipts": 12,
+      "inventory": {
+        "tools": {
+          "windBell": 4,
+          "tideBottle": 4,
+          "tideNet": 1,
+          "sunSeed": 1,
+          "starShears": 1
+        },
+        "charms": [
+          "seaRibbon",
+          "paperPlane",
+          "pairedBells",
+          "cloudCrown",
+          "starBrooch"
+        ]
+      }
+    },
+    {
+      "name": "mainline active-save failure blocks exit/new input then explicit retry commits exactly once",
+      "status": "PASS",
+      "failure": {
+        "ok": false,
+        "reason": "save-failed",
+        "saved": false,
+        "newlyGrantedRewards": []
+      },
+      "retryActions": 1
+    },
+    {
+      "name": "mainline winning-journal failure blocks exit, cold restore records once",
+      "status": "PASS",
+      "failure": {
+        "ok": false,
+        "reason": "save-failed",
+        "saved": false,
+        "newlyGrantedRewards": []
+      },
+      "coldState": "result.saved"
+    },
+    {
+      "name": "mainline after-write throw readback accepted and stale parallel writer protected",
+      "status": "PASS",
+      "staleError": {
+        "code": "concurrent-write",
+        "key": "forest-mainline-cocos-r1-active",
+        "retryable": false
+      }
+    },
+    {
+      "name": "R5 uses actually earned mainline gate; all 12 wins, duplicate commits/visual/finish and memento claims",
+      "status": "PASS",
+      "stages": 12,
+      "actions": 100,
+      "receipts": 12
+    },
+    {
+      "name": "R5 4 persistence fault boundaries and cold recovery",
+      "status": "PASS",
+      "cases": [
+        {
+          "mode": "intent",
+          "hits": 2,
+          "failure": {
+            "ok": false,
+            "reason": "save-failed"
+          },
+          "coldState": "result.saved"
+        },
+        {
+          "mode": "stable",
+          "hits": 1,
+          "failure": {
+            "ok": true,
+            "saved": false,
+            "reason": "save-failed"
+          },
+          "coldState": "result.saved"
+        },
+        {
+          "mode": "journal",
+          "hits": 1,
+          "failure": {
+            "ok": true,
+            "saved": false,
+            "reason": "save-failed"
+          },
+          "coldState": "result.saved"
+        },
+        {
+          "mode": "ack",
+          "hits": 1,
+          "failure": {
+            "ok": true,
+            "saved": false,
+            "reason": "save-failed"
+          },
+          "coldState": "result.saved"
+        }
+      ]
+    },
+    {
+      "name": "R5 saved loss can retry directly and via island re-entry; command scope and durable identity preserved",
+      "status": "PASS",
+      "lossActions": 6,
+      "oldAttempt": "r5a-000000000001",
+      "directRetry": "r5a-000000000002",
+      "reentryAttempt": "r5a-000000000003",
+      "wonAttempt": "r5a-000000000003",
+      "progressAndRewardsPreserved": true
+    },
+    {
+      "name": "R5 retry save failure retains loss and recovers one reserved new attempt without free rewards",
+      "status": "PASS",
+      "oldAttempt": "r5a-000000000001",
+      "newAttempt": "r5a-000000000002"
+    },
+    {
+      "name": "mainline earned-tool active/charge/cleanup faults recover with exactly one inventory debit",
+      "status": "PASS",
+      "cases": [
+        {
+          "mode": "active",
+          "hits": 1,
+          "tool": "windBell",
+          "target": 0,
+          "inventoryBefore": 4,
+          "inventoryAfter": 3,
+          "actions": 1,
+          "coldState": "run.paused"
+        },
+        {
+          "mode": "charge",
+          "hits": 1,
+          "tool": "windBell",
+          "target": 0,
+          "inventoryBefore": 4,
+          "inventoryAfter": 3,
+          "actions": 1,
+          "coldState": "run.paused"
+        },
+        {
+          "mode": "cleanup",
+          "hits": 1,
+          "tool": "windBell",
+          "target": 0,
+          "inventoryBefore": 4,
+          "inventoryAfter": 3,
+          "actions": 1,
+          "coldState": "run.paused"
+        }
+      ]
+    },
+    {
+      "name": "R5 memento save failure then retry grants once and cold re-claim grants zero",
+      "status": "PASS",
+      "failed": {
+        "ok": false,
+        "reason": "save-failed",
+        "newlyGranted": []
+      },
+      "retry": {
+        "ok": true,
+        "newlyGranted": [
+          {
+            "kind": "challenge-memento",
+            "id": "tide-regional-r05-complete",
+            "count": 1
+          }
+        ]
+      },
+      "duplicate": {
+        "ok": true,
+        "claimed": true,
+        "duplicate": true,
+        "newlyGranted": []
+      }
+    },
+    {
+      "name": "mainline and R5 protected records support no-write exit and clean reader after transient read recovery",
+      "status": "PASS",
+      "cases": [
+        {
+          "kind": "mainline",
+          "hits": 1,
+          "action": {
+            "ok": false,
+            "reason": "unverifiable-storage",
+            "saved": false,
+            "newlyGrantedRewards": []
+          },
+          "stateAfterStorageRecovers": "error.readonly",
+          "exit": {
+            "ok": true,
+            "readOnly": true,
+            "preserved": true
+          },
+          "retry": {
+            "ok": false,
+            "reason": "nothing-retryable"
+          },
+          "coldState": "run.paused",
+          "persistedBytesUnchanged": true
+        },
+        {
+          "kind": "r5",
+          "hits": 1,
+          "action": {
+            "ok": false,
+            "reason": "unverifiable-storage"
+          },
+          "stateAfterStorageRecovers": "error.readonly",
+          "exit": {
+            "ok": true,
+            "readOnly": true,
+            "preserved": true
+          },
+          "retry": {
+            "ok": false,
+            "reason": "nothing-retryable"
+          },
+          "coldState": "run.paused",
+          "persistedBytesUnchanged": true
+        }
+      ]
+    }
+  ],
+  "findings": [],
+  "finishedAt": "2026-10-15T17:35:44.843Z",
+  "runtimeSha256": {
+    "mainline-r1/runtime/mainline-controller.js": "57ea81f302b4f5b44d014da999d57b0ac91920b2ae8c44bb5e113d3b7819e305",
+    "regional-r05/runtime/board-session-provider.js": "bbb3485c7bde4b21bfbab1b19af87b2de6d9673e37a7a232e26f7902211c65b7",
+    "world-r2/ManagedBoardSession.ts": "c01e058acbdc4101c7f6a047f85884d5385aa56b7bbbe5cbd0652669d2e90e6c",
+    "ManagedMobileBoardUI.ts": "b6a26440209898d3e58e0574daed30e3e2123654d31aa226e7247aeb06cf107c"
+  }
+}

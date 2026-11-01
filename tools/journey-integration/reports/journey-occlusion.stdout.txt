@@ -1,0 +1,37 @@
+{
+ "status": "PASS",
+ "checks": [
+  {
+   "id": "O1/O2 04-05 character visible + lens ≥1 m every 0.05 m",
+   "status": "PASS"
+  },
+  {
+   "id": "O1/O2 08-09 character visible + lens ≥1 m every 0.05 m",
+   "status": "PASS"
+  },
+  {
+   "id": "O3 08-09 foot above env_sky_static_palette top on bridge+deck",
+   "status": "PASS"
+  },
+  {
+   "id": "O3 04-05 bridge corridor 2.1 m wide, 0.35–2.0 m above deck, is free",
+   "status": "PASS"
+  },
+  {
+   "id": "O3 08-09 bridge corridor 2.1 m wide, 0.35–2.0 m above deck, is free",
+   "status": "PASS"
+  },
+  {
+   "id": "O5 08-09 extra walk time vs Build05 ≤ 3 s at the unchanged speed",
+   "status": "PASS"
+  },
+  {
+   "id": "O5 08-09 final frame: city centre centred (|x|≤0.1, -0.1≤y≤0.45); character in frame over the final 3 m (390×844)",
+   "status": "PASS"
+  },
+  {
+   "id": "O4 09 board background pose unchanged and plaza in frame",
+   "status": "PASS"
+  }
+ ]
+}

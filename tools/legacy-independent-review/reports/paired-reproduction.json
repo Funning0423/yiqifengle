@@ -1,0 +1,98 @@
+[
+  {
+    "suite": "tools/test_character_action_clock.cjs",
+    "baseline": {
+      "tree": "baseline",
+      "exitCode": 1,
+      "stdout": "test_character_action_clock-baseline.stdout.txt",
+      "stderr": "test_character_action_clock-baseline.stderr.txt"
+    },
+    "candidate": {
+      "tree": "candidate",
+      "exitCode": 0,
+      "stdout": "test_character_action_clock-candidate.stdout.txt",
+      "stderr": "test_character_action_clock-candidate.stderr.txt"
+    },
+    "pathNormalizedOutputExactMatch": false
+  },
+  {
+    "suite": "tools/board-ui/test_board_ui_pure.cjs",
+    "baseline": {
+      "tree": "baseline",
+      "exitCode": 1,
+      "stdout": "test_board_ui_pure-baseline.stdout.txt",
+      "stderr": "test_board_ui_pure-baseline.stderr.txt"
+    },
+    "candidate": {
+      "tree": "candidate",
+      "exitCode": 0,
+      "stdout": "test_board_ui_pure-candidate.stdout.txt",
+      "stderr": "test_board_ui_pure-candidate.stderr.txt"
+    },
+    "pathNormalizedOutputExactMatch": false
+  },
+  {
+    "suite": "tools/test_startup_ready_gate.cjs",
+    "baseline": {
+      "tree": "baseline",
+      "exitCode": 1,
+      "stdout": "test_startup_ready_gate-baseline.stdout.txt",
+      "stderr": "test_startup_ready_gate-baseline.stderr.txt"
+    },
+    "candidate": {
+      "tree": "candidate",
+      "exitCode": 0,
+      "stdout": "test_startup_ready_gate-candidate.stdout.txt",
+      "stderr": "test_startup_ready_gate-candidate.stderr.txt"
+    },
+    "pathNormalizedOutputExactMatch": false
+  },
+  {
+    "suite": "tools/walk-driver/test_action_transitions.cjs",
+    "baseline": {
+      "tree": "baseline",
+      "exitCode": 1,
+      "stdout": "test_action_transitions-baseline.stdout.txt",
+      "stderr": "test_action_transitions-baseline.stderr.txt"
+    },
+    "candidate": {
+      "tree": "candidate",
+      "exitCode": 1,
+      "stdout": "test_action_transitions-candidate.stdout.txt",
+      "stderr": "test_action_transitions-candidate.stderr.txt"
+    },
+    "pathNormalizedOutputExactMatch": true
+  },
+  {
+    "suite": "tools/walk-driver/test_walk_driver.cjs",
+    "baseline": {
+      "tree": "baseline",
+      "exitCode": 1,
+      "stdout": "test_walk_driver-baseline.stdout.txt",
+      "stderr": "test_walk_driver-baseline.stderr.txt"
+    },
+    "candidate": {
+      "tree": "candidate",
+      "exitCode": 1,
+      "stdout": "test_walk_driver-candidate.stdout.txt",
+      "stderr": "test_walk_driver-candidate.stderr.txt"
+    },
+    "pathNormalizedOutputExactMatch": true
+  },
+  {
+    "suite": "tools/walk-driver/test_anim_eval_order.cjs",
+    "baseline": {
+      "tree": "baseline",
+      "exitCode": 0,
+      "stdout": "test_anim_eval_order-baseline.stdout.txt",
+      "stderr": "test_anim_eval_order-baseline.stderr.txt"
+    },
+    "candidate": {
+      "tree": "candidate",
+      "exitCode": 0,
+      "stdout": "test_anim_eval_order-candidate.stdout.txt",
+      "stderr": "test_anim_eval_order-candidate.stderr.txt"
+    },
+    "pathNormalizedOutputExactMatch": true
+  }
+]

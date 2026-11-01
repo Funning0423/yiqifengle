@@ -1,0 +1,30 @@
+{
+  "subpackages": [
+    "internal",
+    "resources",
+    "main",
+    "audio_bgm_island",
+    "board_art",
+    "region_island",
+    "region_meadow",
+    "region_skycity",
+    "static_seat_preview"
+  ],
+  "subpackageBytes": {
+    "subpackages/internal": 297535,
+    "subpackages/resources": 433034,
+    "subpackages/main": 986382,
+    "subpackages/audio_bgm_island": 502421,
+    "subpackages/board_art": 2675272,
+    "subpackages/region_island": 2867281,
+    "subpackages/region_meadow": 437368,
+    "subpackages/region_skycity": 7492206,
+    "subpackages/static_seat_preview": 11204770
+  },
+  "mainBytes": 1861856,
+  "totalBytes": 28758125,
+  "missing": []
+}
+{"buildSha": "dev"}
+WARN: BuildInfo.ts not stamped; run node tools/write_build_info.cjs before the build
+PASS

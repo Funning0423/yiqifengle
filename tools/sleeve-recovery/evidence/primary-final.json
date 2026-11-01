@@ -1,0 +1,169 @@
+{
+  "status": "PASS_PRIMARY_60HZ_AND_30HZ_CPU_NOT_GPU",
+  "results": [
+    {
+      "limitMm": 12,
+      "off": {
+        "L": 4.198,
+        "hz": 60,
+        "solver": false,
+        "slide": {
+          "byClip": {
+            "walk_start": 11.33,
+            "walk_loop": 25.05,
+            "walk_stop_bodyL": 8.48
+          },
+          "foot.L": {
+            "worstMm": 11.42,
+            "where": "walk_loop@1.93",
+            "windows": 498
+          },
+          "foot.R": {
+            "worstMm": 25.05,
+            "where": "walk_loop@4.72",
+            "windows": 672
+          }
+        },
+        "endMm": 0.000023157593974213827,
+        "minimumSoleHeightMm": -1.8154526942099902,
+        "maximumIkCorrectionMm": 0,
+        "unreachableSolves": 0
+      },
+      "on": {
+        "L": 4.198,
+        "hz": 60,
+        "solver": true,
+        "slide": {
+          "byClip": {
+            "walk_start": 1.69,
+            "walk_loop": 1.84,
+            "walk_stop_bodyL": 1.19
+          },
+          "foot.L": {
+            "worstMm": 1.72,
+            "where": "walk_loop@4.10",
+            "windows": 498
+          },
+          "foot.R": {
+            "worstMm": 1.84,
+            "where": "walk_loop@4.70",
+            "windows": 669
+          }
+        },
+        "endMm": 0.000023157593974213827,
+        "minimumSoleHeightMm": -1.8154526942099902,
+        "maximumIkCorrectionMm": 37.21148951408336,
+        "unreachableSolves": 12
+      }
+    },
+    {
+      "limitMm": 16.47,
+      "off": {
+        "L": 3.2,
+        "hz": 60,
+        "solver": false,
+        "slide": {
+          "byClip": {
+            "walk_start": 12.6,
+            "walk_loop": 26.05,
+            "walk_stop_bodyL": 6.59,
+            "idle_breathing_loop": 0.82
+          },
+          "foot.L": {
+            "worstMm": 15.88,
+            "where": "walk_loop@2.23",
+            "windows": 414
+          },
+          "foot.R": {
+            "worstMm": 26.05,
+            "where": "walk_loop@4.30",
+            "windows": 393
+          }
+        },
+        "endMm": 0.000023157594251255577,
+        "minimumSoleHeightMm": -2.214528804955998,
+        "maximumIkCorrectionMm": 0,
+        "unreachableSolves": 0
+      },
+      "on": {
+        "L": 3.2,
+        "hz": 60,
+        "solver": true,
+        "slide": {
+          "byClip": {
+            "walk_start": 1.7,
+            "walk_loop": 1.83,
+            "walk_stop_bodyL": 1.07,
+            "idle_breathing_loop": 0.01
+          },
+          "foot.L": {
+            "worstMm": 1.7,
+            "where": "walk_start@0.62",
+            "windows": 414
+          },
+          "foot.R": {
+            "worstMm": 1.83,
+            "where": "walk_loop@4.30",
+            "windows": 384
+          }
+        },
+        "endMm": 0.000023157594251255577,
+        "minimumSoleHeightMm": -2.2145288049563447,
+        "maximumIkCorrectionMm": 42.9614337869013,
+        "unreachableSolves": 9
+      }
+    }
+  ],
+  "thirtyFps": {
+    "L": 4.198,
+    "hz": 30,
+    "solver": true,
+    "slide": {
+      "byClip": {
+        "walk_start": 1.69,
+        "walk_loop": 1.82,
+        "walk_stop_bodyL": 1.57
+      },
+      "foot.L": {
+        "worstMm": 1.72,
+        "where": "walk_loop@4.10",
+        "windows": 378
+      },
+      "foot.R": {
+        "worstMm": 1.82,
+        "where": "walk_loop@4.70",
+        "windows": 672
+      }
+    },
+    "endMm": 0.000023157593974213827,
+    "minimumSoleHeightMm": -1.6036561950081574,
+    "maximumIkCorrectionMm": 37.21148951408336,
+    "unreachableSolves": 12
+  },
+  "thirtyFpsOff": {
+    "L": 4.198,
+    "hz": 30,
+    "solver": false,
+    "slide": {
+      "byClip": {
+        "walk_start": 8.97,
+        "walk_loop": 24.92,
+        "walk_stop_bodyL": 8.48
+      },
+      "foot.L": {
+        "worstMm": 11.3,
+        "where": "walk_loop@3.03",
+        "windows": 378
+      },
+      "foot.R": {
+        "worstMm": 24.92,
+        "where": "walk_loop@4.70",
+        "windows": 675
+      }
+    },
+    "endMm": 0.000023157593974213827,
+    "minimumSoleHeightMm": -1.6036561950082544,
+    "maximumIkCorrectionMm": 0,
+    "unreachableSolves": 0
+  }
+}

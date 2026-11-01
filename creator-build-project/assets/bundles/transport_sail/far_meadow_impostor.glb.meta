@@ -1,0 +1,93 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "f3f1a530-7823-4d95-888f-9a64f7546e91",
+  "files": [],
+  "subMetas": {
+    "1abe7": {
+      "importer": "gltf-mesh",
+      "uuid": "f3f1a530-7823-4d95-888f-9a64f7546e91@1abe7",
+      "displayName": "",
+      "id": "1abe7",
+      "name": "far_meadow_impostor.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 701
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b62c6": {
+      "importer": "gltf-material",
+      "uuid": "f3f1a530-7823-4d95-888f-9a64f7546e91@b62c6",
+      "displayName": "",
+      "id": "b62c6",
+      "name": "M_far_impostor_vc.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2bbeb": {
+      "importer": "gltf-scene",
+      "uuid": "f3f1a530-7823-4d95-888f-9a64f7546e91@2bbeb",
+      "displayName": "",
+      "id": "2bbeb",
+      "name": "far_meadow_impostor.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "f3f1a530-7823-4d95-888f-9a64f7546e91@1abe7"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "f3f1a530-7823-4d95-888f-9a64f7546e91@b62c6"
+      ],
+      "scenes": [
+        "f3f1a530-7823-4d95-888f-9a64f7546e91@2bbeb"
+      ]
+    }
+  }
+}

@@ -4,6 +4,8 @@
 // board background cover fit, beaconRoute in the R4 / mainline snapshots, art inventory and removed assets.
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm'), assert = require('node:assert/strict');
 const { stripTypeScriptTypes } = require('node:module');
+// Needs node:module.stripTypeScriptTypes (Node >=22.6). Older Node: report the reason and exit 78 (run-suite: BLOCKED_NODE); never a pass.
+if (typeof stripTypeScriptTypes !== 'function') { console.error('BLOCKED_NODE: legacy-board-ui-pure requires Node >=22.6 (node:module.stripTypeScriptTypes), found ' + process.version); process.exit(78); }
 const { createHarness, pngSize, SCRIPTS, BUNDLES, ROOT } = require('./harness.cjs');
 const checks = []; const ok = (name, fn) => { fn(); checks.push(name); console.log('PASS', name); };
 const H = createHarness(), store = H.cc.sys.localStorage;
@@ -33,7 +35,7 @@ ok('UI flags live in localStorage under qfl.ui.* (seenTools JSON list, cabinHint
 });
 ok('GameAudio sfxMuted: qfl.audio.sfxMuted persists, mutes every SFX (UI clicks included) but not music; restored on next load', () => {
   const src = read('audio/GameAudio.ts'); assert(src.includes("const SFX_MUTE_KEY = 'qfl.audio.sfxMuted'"));
-  assert.equal((src.match(/this\.muted \|\| this\.sfxMuted \|\| this\.reasons\.size > 0/g) || []).length, 2, 'both SFX gates check sfxMuted');
+  assert.equal((src.match(/this\.muted \|\| this\.sfxMuted \|\| this\.reasons\.size > 0/g) || []).length, 3, 'all three SFX gates (play, playCheer, exit cine) check sfxMuted');
   const plain = src.replace(/^import .* from 'cc';\n/m, '').replace(/^@ccclass\('GameAudio'\)\n/m, '').replace(/export /g, '');
   const code = stripTypeScriptTypes(plain, { mode: 'transform' }) + '\nglobalThis.AudioClass = GameAudio;';
   const make = data => {
@@ -84,6 +86,15 @@ ok('tool bar choice: in-stock only, 星光 > 风语铃 > 潮汐瓶 > regional, m
   const s = { provider: 'mainline-v33', active: { level: 0, bombs: 1 }, journey: { inventory: { tools: { pearl: 4, windBell: 1, tideBottle: 1 } }, regionRewards: [{ region: 0, claimed: true }] } };
   assert.deepEqual(managedTools(s).map(x => x.kind), ['bomb', 'windBell', 'tideBottle', 'tideNet']);
 });
+ok('QA qaTools=3 forces 3 tools only outside the player build; ignored without the guard (MINIGAME) or the param', () => {
+  const { qaForcedToolBar } = H.load('ui/BoardLayout');
+  assert.deepEqual(qaForcedToolBar('?qa=1&qaTools=3', false), ['bomb', 'windBell', 'tideBottle']);
+  assert.equal(qaForcedToolBar('?qa=1&qaTools=3', true), null, 'MINIGAME guard: ignored in the player build');
+  assert.equal(qaForcedToolBar('?qa=1', false), null); assert.equal(qaForcedToolBar(null, false), null); assert.equal(qaForcedToolBar('?qaTools=9', false), null);
+  const ui = read('ManagedMobileBoardUI.ts');
+  assert.match(ui, /private qaTools\(\): string\[\] \| null \{ if \(MINIGAME\) return null;/, 'UI reads qaTools only behind MINIGAME');
+  assert.match(ui, /import \{ MINIGAME \} from 'cc\/env';/);
+});
 ok('idle hint clock: first hint after 5 s idle, then every 8 s; input or inactive restarts; frame spikes clamp to 0.25 s', () => {
   const { IdleHintClock, HINT_FIRST_S, HINT_REPEAT_S, TOAST_S } = H.load('ui/BoardLayout'); assert.deepEqual([HINT_FIRST_S, HINT_REPEAT_S, TOAST_S], [5, 8, 2]);
   const c = new IdleHintClock(), fire = []; for (let i = 1; i <= 176; i++) if (c.tick(0.125, true)) fire.push(i * 0.125); assert.deepEqual(fire, [5, 13, 21]);
@@ -107,13 +118,14 @@ ok('cabin hint curve: 0.4 s in to 0.25, 3 × (0.7 s up to 1, 0.9 s down to 0.25)
   for (let t = 0; t < 6; t += 0.05) { const v = f(t); assert(v >= 0 && v <= 1); }
   const r = C.cabinSpotRect(390, 844, C.CABIN_SPOTS[0].box), k = Math.max(390 / 750, 844 / 1624); assert(Math.abs(r.x - (447 - 375) * k) < 1e-9 && Math.abs(r.y - (812 - 664) * k) < 1e-9 && r.size > 0, 'design px → canvas, cover-fit like the island view');
 });
-ok('journey book summary: mainline stars per chapter x/12, lock until the previous chapter is open, challenge marks x/4', () => {
+ok('journey book summary: mainline stars per chapter x/12, challenge lock until the same chapter milestone 04/08/12 is cleared, challenge marks x/4', () => {
   const { chapterSummary, CHAPTERS } = H.load('ui/IslandPanels');
-  assert.deepEqual(CHAPTERS.map(c => c.id), ['tide', 'meadow', 'sky']); assert.equal(CHAPTERS[0].description, '听潮声，捡起海浪送来的贝壳。');
+  assert.deepEqual(CHAPTERS.map(c => c.id), ['tide', 'meadow', 'sky', 'lake', 'coast', 'snow', 'rail', 'cloud', 'spring']); assert.equal(CHAPTERS[0].description, '听潮声，捡起海浪送来的贝壳。');
   const journey = { unlocked: 5, records: Array.from({ length: 12 }, (_, i) => ({ bestStars: i < 4 ? 3 : i === 4 ? 2 : 0 })) };
   const a = chapterSummary(journey, { tide: 3 }, 0), b = chapterSummary(journey, null, 1), c = chapterSummary(journey, {}, 2);
-  assert.equal(a.stars, 12); assert.equal(a.locked, false); assert.equal(a.challenges, 3); assert.equal(b.stars, 2); assert.equal(b.locked, false); assert.equal(b.challenges, 0); assert.equal(c.locked, true);
+  assert.equal(a.stars, 12); assert.equal(a.locked, false); assert.equal(a.challenges, 3); assert.equal(b.stars, 2); assert.equal(b.locked, true, 'mainline 05 open is not mainline 08 completed'); assert.equal(b.challenges, 0); assert.equal(c.locked, true);
   assert.equal(chapterSummary(null, null, 0).stars, 0);
+  assert.equal(chapterSummary(null, null, 0).locked, true, 'new players have not cleared mainline 04');
 });
 function jpegSize(file) {
   const b = fs.readFileSync(file); let i = 2;
@@ -138,16 +150,16 @@ ok('board background: island jpg stays the default; 天空回声 (r05-sky) reads
   assert.deepEqual(Art.boardBackgroundFor({ provider: 'r5', stageId: 'r05-sky-04', seed: 1 }), Art.SKY_BOARD_BACKGROUND);
   const meadow = { provider: 'r5', stageId: 'r05-meadow-01', seed: 1 };
   assert.equal(Art.boardChapter(meadow), 'meadow');
-  assert.deepEqual(Art.boardBackgroundFor(meadow), Art.BOARD_BACKGROUND, 'no env_meadow.glb: meadow keeps the island picture');
+  assert.throws(()=>Art.boardBackgroundFor(meadow), /meadow-requires-live-3d-background/, 'meadow must use its real 3D lease');
   assert.deepEqual(Art.boardBackgroundFor({ provider: 'r5', stageId: 'r05-tide-03', seed: 1 }), Art.BOARD_BACKGROUND);
   assert.deepEqual(Art.boardBackgroundFor({ provider: 'r4', stageId: 'tide-c01-001', seed: 1 }), Art.BOARD_BACKGROUND);
-  assert.equal(Art.boardChapter({ provider: 'mainline', stageId: 'mainline-09', seed: 1 }), '');
-  assert.deepEqual(Art.boardBackgroundFor({ provider: 'mainline', stageId: 'mainline-12', seed: 1 }), Art.BOARD_BACKGROUND, '月影古树 is not the 天空回声 board');
+  assert.equal(Art.boardChapter({ provider: 'mainline', stageId: 'mainline-09', seed: 1 }), 'sky');
+  assert.deepEqual(Art.boardBackgroundFor({ provider: 'mainline', stageId: 'mainline-12', seed: 1 }), Art.SKY_BOARD_BACKGROUND, 'sky-city mainline must never resolve island art');
   const islandJpg = path.join(BUNDLES, 'region_island/board/bg_island_board.jpg');
   const skyJpg = path.join(BUNDLES, 'region_skycity/board/bg_skycity_board.jpg');
   assert(fs.existsSync(islandJpg)); assert.deepEqual(jpegSize(islandJpg), { width: 750, height: 1624 });
   assert(fs.existsSync(skyJpg)); assert.deepEqual(jpegSize(skyJpg), { width: 750, height: 1624 });
-  assert(!fs.existsSync(path.join(BUNDLES, 'region_meadow/env_meadow.glb')), 'meadow bundle is BGM only');
+  assert(fs.existsSync(path.join(BUNDLES, 'region_meadow/env_meadow.glb')), 'real meadow scene is shipped');
   assert(fs.existsSync(path.join(BUNDLES, 'region_meadow/audio/bgm_meadow.mp3')));
   assert(!fs.existsSync(path.join(BUNDLES, 'region_skycity/board/bg_skycity_night.jpg')));
   const bgSrc = read('world-r2/IslandBoardBackground.ts');
@@ -216,15 +228,11 @@ async function mountBackground(selection) {
   assert.equal(sky.sprite.spriteFrame.texture.image.path, 'board/bg_skycity_board');
   sky.lease.dispose();
   delete globalThis.__worldDayNight; N.resetUiNightWeight();
-  const meadow = await mountBackground({ provider: 'r5', stageId: 'r05-meadow-02', seed: 1 });
-  assert.equal(meadow.d.chapter, 'meadow'); assert.equal(meadow.d.bundle, 'region_island'); assert.equal(meadow.d.path, 'board/bg_island_board');
-  assert.equal(meadow.d.night, 0); assert.deepEqual([meadow.sprite.color.r, meadow.sprite.color.g, meadow.sprite.color.b], [255, 255, 255]);
-  assert.equal(meadow.sprite.spriteFrame.texture.image.path, 'board/bg_island_board');
-  meadow.lease.dispose();
+  await assert.rejects(mountBackground({ provider: 'r5', stageId: 'r05-meadow-02', seed: 1 }), /meadow-requires-live-3d-background/);
   const forest = await mountBackground({ provider: 'mainline', stageId: 'mainline-09', seed: 1 });
-  assert.equal(forest.d.chapter, ''); assert.equal(forest.d.path, 'board/bg_island_board');
+  assert.equal(forest.d.chapter, 'sky'); assert.equal(forest.d.path, 'board/bg_skycity_board');
   forest.lease.dispose();
-  checks.push('mounted 天空回声 loads the sky-city jpg and night-multiplies it; meadow and 月影古树 stay on the island jpg');
+  checks.push('static art identity respects sky-city mainline; meadow rejects image fallback (composition uses real regional 3D leases)');
   console.log('PASS', checks[checks.length - 1]);
   console.log(JSON.stringify({ status: 'PASS', checks: checks.length }));
 })().catch(error => { console.error(error); process.exitCode = 1; });

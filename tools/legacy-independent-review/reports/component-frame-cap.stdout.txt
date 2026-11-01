@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "actualEntry": "WorldFlowComponent.update",
+  "recordedFlowSeconds": [
+    0.1,
+    0.0125
+  ],
+  "recordedAnimationJobProgress": [
+    0.1,
+    0.1125
+  ],
+  "capSeconds": 0.1,
+  "invalidFramesIgnored": true,
+  "needsResumeBlocksBothClocks": true,
+  "disposedBlocked": true,
+  "scope": "Actual TS component; Cocos identity node and downstream flow recording doubles. Full real WorldFlow + actor clock exercised separately."
+}

@@ -1,0 +1,18 @@
+{
+  "referenceRemoteBranch": "cursor/task21-web-ui",
+  "referenceRemoteCommit": "c9be589c108a3c79361197bcbb49f447ef453f11",
+  "inputAuthority": "source-after-final-manifest.json",
+  "manifestSHA256": "9183915105c982a82389633ceca4ea30cf4cfefc0f8369e694002814af74484c",
+  "filesVerified": 2244,
+  "mismatches": [],
+  "scope": "Supplied cloud integrated-source snapshot. Local git initialized from these exact bytes; referenceRemoteCommit is not asserted as the local git parent. Historical text/assets manifests are not the current authority.",
+  "node": "v24.19.0",
+  "typescript": "5.9.3",
+  "unchangedFrozenRuntimeSHA256": {
+    "creator-build-project/assets/scripts/mainline-r1/runtime/vendor/engine.js": "2c229b3fac7e775da4928ac6fb5e365db27b9b196a82c9a6603949c94502afe9",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/vendor/progression.js": "a05de888f017cfd81c9a1649946cba94aef06f3040215e29bf87f1ee5abb868f",
+    "creator-build-project/assets/scripts/regional-r05/runtime/catalog-data.js": "c3936a749a05a89b77a03b8924d1543f9b1919af08e3702b98f441ec4f5a2167",
+    "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js": "bbb3485c7bde4b21bfbab1b19af87b2de6d9673e37a7a232e26f7902211c65b7",
+    "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js": "77a6228d96557a93112cfb6aa9a2611c4efe28093849a63bb3cccbf212e4cc09"
+  }
+}

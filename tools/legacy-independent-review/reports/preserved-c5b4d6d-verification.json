@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "commit": "c5b4d6d503eeccf4fb7c9ed8dd9a94b3707b536b",
+  "files": 99,
+  "scope": "All original journey-integration tests, report and raw evidence copied byte-for-byte from immutable git commit."
+}

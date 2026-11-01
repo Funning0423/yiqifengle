@@ -1,4 +1,6 @@
 {
+  "status": "historical-review-record-2026-10-12",
+  "statusNote": "Frozen record of the 2026-10-12 review. NOT current pins and NOT a live gate: the production tree has changed since (e.g. regional-r05/runtime/regional-session.js after 6f66e2f1 on 10/17). Live hash pins: tools/journey-integration/frozen-production-inputs.json (gates: production-integrity, frozen-inputs-pins).",
   "description": "Only synchronous first-UI gesture forwarding. Reverse exact approved hunks before the existing 3D and restoration audits. All pre-existing GameAudio asynchronous/lifecycle bytes retained.",
   "sourceChanges": {
     "creator-build-project/assets/scripts/audio/GameAudio.ts": {

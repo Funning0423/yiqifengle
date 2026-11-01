@@ -1,0 +1,34 @@
+┌─────────┬────────────────────────────┬────────────┬───────┬─────────┬──────────┬────────┬────────────────────────────┐
+│ (index) │ shot                       │ scr        │ poses │ clrFail │ enclosed │ inAabb │ tags                       │
+├─────────┼────────────────────────────┼────────────┼───────┼─────────┼──────────┼────────┼────────────────────────────┤
+│ 0       │ 'sail island→meadow'       │ '390x844'  │ 170   │ 0       │ 0        │ 74     │ 'aabb:meadow_trees_merged' │
+│ 1       │ 'balloon meadow→skycity'   │ '390x844'  │ 145   │ 0       │ 0        │ 34     │ 'aabb:meadow_trees_merged' │
+│ 2       │ 'balloon skycity→lakeside' │ '390x844'  │ 137   │ 0       │ 0        │ 0      │ ''                         │
+│ 3       │ 'windmill-balloon'         │ '390x844'  │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
+│ 4       │ 'sail island→meadow'       │ '414x896'  │ 170   │ 0       │ 0        │ 74     │ 'aabb:meadow_trees_merged' │
+│ 5       │ 'balloon meadow→skycity'   │ '414x896'  │ 145   │ 0       │ 0        │ 34     │ 'aabb:meadow_trees_merged' │
+│ 6       │ 'balloon skycity→lakeside' │ '414x896'  │ 137   │ 0       │ 0        │ 0      │ ''                         │
+│ 7       │ 'windmill-balloon'         │ '414x896'  │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
+│ 8       │ 'sail island→meadow'       │ '360x780'  │ 170   │ 0       │ 0        │ 74     │ 'aabb:meadow_trees_merged' │
+│ 9       │ 'balloon meadow→skycity'   │ '360x780'  │ 145   │ 0       │ 0        │ 34     │ 'aabb:meadow_trees_merged' │
+│ 10      │ 'balloon skycity→lakeside' │ '360x780'  │ 137   │ 0       │ 0        │ 0      │ ''                         │
+│ 11      │ 'windmill-balloon'         │ '360x780'  │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
+│ 12      │ 'sail island→meadow'       │ '375x667'  │ 170   │ 0       │ 0        │ 74     │ 'aabb:meadow_trees_merged' │
+│ 13      │ 'balloon meadow→skycity'   │ '375x667'  │ 145   │ 0       │ 0        │ 34     │ 'aabb:meadow_trees_merged' │
+│ 14      │ 'balloon skycity→lakeside' │ '375x667'  │ 137   │ 0       │ 0        │ 0      │ ''                         │
+│ 15      │ 'windmill-balloon'         │ '375x667'  │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
+│ 16      │ 'sail island→meadow'       │ '320x568'  │ 170   │ 0       │ 0        │ 74     │ 'aabb:meadow_trees_merged' │
+│ 17      │ 'balloon meadow→skycity'   │ '320x568'  │ 145   │ 0       │ 0        │ 34     │ 'aabb:meadow_trees_merged' │
+│ 18      │ 'balloon skycity→lakeside' │ '320x568'  │ 137   │ 0       │ 0        │ 0      │ ''                         │
+│ 19      │ 'windmill-balloon'         │ '320x568'  │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
+│ 20      │ 'sail island→meadow'       │ '390x520'  │ 170   │ 0       │ 0        │ 74     │ 'aabb:meadow_trees_merged' │
+│ 21      │ 'balloon meadow→skycity'   │ '390x520'  │ 145   │ 0       │ 0        │ 34     │ 'aabb:meadow_trees_merged' │
+│ 22      │ 'balloon skycity→lakeside' │ '390x520'  │ 137   │ 0       │ 0        │ 0      │ ''                         │
+│ 23      │ 'windmill-balloon'         │ '390x520'  │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
+│ 24      │ 'sail island→meadow'       │ '768x1024' │ 170   │ 0       │ 0        │ 74     │ 'aabb:meadow_trees_merged' │
+│ 25      │ 'balloon meadow→skycity'   │ '768x1024' │ 145   │ 0       │ 0        │ 34     │ 'aabb:meadow_trees_merged' │
+│ 26      │ 'balloon skycity→lakeside' │ '768x1024' │ 137   │ 0       │ 0        │ 0      │ ''                         │
+│ 27      │ 'windmill-balloon'         │ '768x1024' │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
+└─────────┴────────────────────────────┴────────────┴───────┴─────────┴──────────┴────────┴────────────────────────────┘
+repro {"ctr":[-3.3634998917579715,11.448515892028809,82.03140003681183],"rIn":{"clr":"meadow:windmill_static_merged","enc":true,"inBox":["meadow_trees_merged","windmill_static_merged"]},"wall":[-9.21349967718125,8.448515892028809,82.03140003681183],"rWall":{"clr":"meadow:windmill_static_merged","enc":false,"inBox":["meadow_trees_merged"]}}
+{"test":"camera-collision","mode":"report-only","clrM":1.1,"rows":28,"windmillBalloonRows":7,"violatingRows":0,"repro":{"insideCaught":true,"nearWallCaught":true},"status":"PASS"}

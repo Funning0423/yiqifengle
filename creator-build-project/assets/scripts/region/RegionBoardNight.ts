@@ -1,0 +1,40 @@
+/** r4.2 item 9 (Mac r4 2153a65: meadow and sky-city boards showed a daytime background at night). Pure helpers shared by the
+ *  meadow and sky-city board leases: the board sky (camera clear colour) eases from its day colour to the night sky the region
+ *  journey shows just before the swap, by the same UI night weight (uiNightWeight, 0.5 s approach) the rest of the board follows.
+ *  REGION_BOARD_NIGHT_CLEAR = the r4 Mac journey night sky sampled above the horizon on swap/lk4_{sky,meadow}_night_ml.jpg
+ *  (sRGB ~0,10-13,63-74). No cc import. */
+export const REGION_BOARD_NIGHT_CLEAR:readonly [number,number,number]=[0,12,68];
+export function regionBoardClear(day:readonly number[],nightWeight:number):[number,number,number]{
+ const t=Number.isFinite(nightWeight)?Math.max(0,Math.min(1,nightWeight)):0,N=REGION_BOARD_NIGHT_CLEAR;
+ return [0,1,2].map(i=>Math.round(day[i]+(N[i]-day[i])*t)) as [number,number,number];}
+export function hexToRgb(hex:string):[number,number,number]{const h=String(hex).replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+/** World day/night mode right now (WorldFlowComponent's __worldDayNight); day when there is no world. */
+export function regionNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
+/** Writes the eased clear colour onto a camera-like {clearColor} only when it changes (no per-frame allocation when steady). */
+export function writeRegionBoardClear(camera:{clearColor:{r:number;g:number;b:number;a:number}}|null,day:readonly number[],nightWeight:number,make:(r:number,g:number,b:number)=>any):boolean{
+ if(!camera)return false;const c=regionBoardClear(day,nightWeight),o=camera.clearColor;if(o&&o.r===c[0]&&o.g===c[1]&&o.b===c[2])return false;camera.clearColor=make(c[0],c[1],c[2]);return true;}
+/** b16-fix P2（build05 全流程测试 P2-2：夜间天空城棋盘背景仍是白天光照）：天空城棋盘背景自带一盏暖色补光 SphereLight
+ *  (#fff3da, luminance x12)，夜间也不变，所以只有天空（clear 色）变夜、草坪和白塔仍是白天亮度。夜间按世界主光同一口径处理：
+ *  亮度 x DayNightContract.lightScale(night)=0.35，颜色 x lightColor(night)=180/198/232（偏蓝月光），按 nightWeight 线性过渡。纯函数，无 cc 依赖。 */
+export const REGION_BOARD_KEY_NIGHT_SCALE=0.35;
+export const REGION_BOARD_KEY_NIGHT_COLOR:readonly [number,number,number]=[180,198,232];
+export function regionBoardKeyLight(dayColor:readonly number[],dayLuminance:number,nightWeight:number):{color:[number,number,number];luminance:number}{
+ const t=Number.isFinite(nightWeight)?Math.max(0,Math.min(1,nightWeight)):0,K=REGION_BOARD_KEY_NIGHT_COLOR;
+ const color=[0,1,2].map(i=>Math.round(dayColor[i]*(1+(K[i]/255-1)*t))) as [number,number,number];
+ return {color,luminance:dayLuminance*(1+(REGION_BOARD_KEY_NIGHT_SCALE-1)*t)};}
+/** b16 真机复核 ②（天空城夜间棋盘下半屏均值 123，岛屿夜间约 57）：夜间除了补光，场景环境光（ambient.skyIllum）和主光
+ *  （Main Light illuminance，世界已按 0.35 压过）也在天空城棋盘显示期间一起压暗，目标棋盘下半屏均值约 60–75。
+ *  倍率按 nightWeight 线性过渡；显示期间写入、隐藏/释放时还原。真机未复测，倍率是按 d58c1012 实测（123 → 目标 ~67）估的。 */
+export const REGION_BOARD_AMBIENT_NIGHT_SCALE=0.3,REGION_BOARD_MAIN_NIGHT_SCALE=0.6;
+export function regionBoardSceneLightScale(nightWeight:number):{ambient:number;main:number}{
+ const t=Number.isFinite(nightWeight)?Math.max(0,Math.min(1,nightWeight)):0;
+ return {ambient:1+(REGION_BOARD_AMBIENT_NIGHT_SCALE-1)*t,main:1+(REGION_BOARD_MAIN_NIGHT_SCALE-1)*t};}
+/** 补光/环境光/主光的日夜切换渐变：每帧向目标靠近 dt/REGION_BOARD_LIGHT_FADE_S，不再一帧跳变。 */
+export const REGION_BOARD_LIGHT_FADE_S=0.6;
+export function easeRegionBoardLight(current:number,target:number,dt:number):number{
+ if(!Number.isFinite(current))return target;const step=Math.max(0,Math.min(dt,.1))/REGION_BOARD_LIGHT_FADE_S;
+ return current<target?Math.min(target,current+step):Math.max(target,current-step);}
+/** b16 复核3 ②：显示期间日夜切换的平滑曲线（smoothstep，最大斜率 1.5 → 任意 100 ms ≤ 25%），终点跟随实时目标。 */
+export function smoothRegionBoardLight(from:number,to:number,p:number):number{const t=Math.max(0,Math.min(1,p));return from+(to-from)*t*t*(3-2*t);}
+/** Director.EVENT_AFTER_UPDATE 的值（cc 3.8），每帧一次。 */
+export const REGION_BOARD_TICK_EVENT='director_after_update';

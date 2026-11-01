@@ -1,0 +1,4070 @@
+{
+ "frames": [
+  {
+   "f": 0.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 25.4,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 25.4,
+   "clear_leg_apron_mm": 45.0,
+   "clear_arm_cloth_mm": 4.9,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 0.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 26.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 27.3,
+   "clear_leg_apron_mm": 44.4,
+   "clear_arm_cloth_mm": 5.8,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 1.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 27.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 29.6,
+   "clear_leg_apron_mm": 43.5,
+   "clear_arm_cloth_mm": 7.5,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 1.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 28.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.1,
+   "clear_leg_apron_mm": 47.1,
+   "clear_arm_cloth_mm": 7.9,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 2.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 28.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.7,
+   "clear_leg_apron_mm": 50.0,
+   "clear_arm_cloth_mm": 9.5,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 2.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 28.2,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.9,
+   "clear_leg_apron_mm": 51.3,
+   "clear_arm_cloth_mm": 11.9,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 3.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 28.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.9,
+   "clear_leg_apron_mm": 52.5,
+   "clear_arm_cloth_mm": 14.2,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 3.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 27.4,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.1,
+   "clear_leg_apron_mm": 52.9,
+   "clear_arm_cloth_mm": 16.5,
+   "clear_arm_torso_mm": 0.7
+  },
+  {
+   "f": 4.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 26.8,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 29.4,
+   "clear_leg_apron_mm": 53.4,
+   "clear_arm_cloth_mm": 18.5,
+   "clear_arm_torso_mm": 0.6
+  },
+  {
+   "f": 4.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 26.2,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 28.9,
+   "clear_leg_apron_mm": 52.6,
+   "clear_arm_cloth_mm": 16.7,
+   "clear_arm_torso_mm": 0.5
+  },
+  {
+   "f": 5.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 1,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 25.6,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 28.4,
+   "clear_leg_apron_mm": 51.8,
+   "clear_arm_cloth_mm": 13.6,
+   "clear_arm_torso_mm": 0.5
+  },
+  {
+   "f": 5.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 2,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 24.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 28.2,
+   "clear_leg_apron_mm": 49.7,
+   "clear_arm_cloth_mm": 15.5,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 6.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 2,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 24.3,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 28.0,
+   "clear_leg_apron_mm": 47.7,
+   "clear_arm_cloth_mm": 13.0,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 6.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 2,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 24.4,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.3,
+   "clear_leg_apron_mm": 46.7,
+   "clear_arm_cloth_mm": 11.2,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 7.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 2,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 24.6,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 31.4,
+   "clear_leg_apron_mm": 45.9,
+   "clear_arm_cloth_mm": 9.4,
+   "clear_arm_torso_mm": 0.3
+  },
+  {
+   "f": 7.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 2,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 25.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 35.8,
+   "clear_leg_apron_mm": 48.4,
+   "clear_arm_cloth_mm": 9.9,
+   "clear_arm_torso_mm": 0.3
+  },
+  {
+   "f": 8.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 27.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 37.9,
+   "clear_leg_apron_mm": 51.0,
+   "clear_arm_cloth_mm": 10.2,
+   "clear_arm_torso_mm": 0.3
+  },
+  {
+   "f": 8.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 28.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 40.1,
+   "clear_leg_apron_mm": 56.2,
+   "clear_arm_cloth_mm": 10.2,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 9.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 30.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 43.1,
+   "clear_leg_apron_mm": 61.3,
+   "clear_arm_cloth_mm": 12.2,
+   "clear_arm_torso_mm": 0.5
+  },
+  {
+   "f": 9.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.6,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 41.4,
+   "clear_leg_apron_mm": 67.8,
+   "clear_arm_cloth_mm": 13.5,
+   "clear_arm_torso_mm": 0.6
+  },
+  {
+   "f": 10.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 34.6,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 39.9,
+   "clear_leg_apron_mm": 73.9,
+   "clear_arm_cloth_mm": 15.7,
+   "clear_arm_torso_mm": 0.7
+  },
+  {
+   "f": 10.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 36.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 42.4,
+   "clear_leg_apron_mm": 79.6,
+   "clear_arm_cloth_mm": 17.5,
+   "clear_arm_torso_mm": 0.8
+  },
+  {
+   "f": 11.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 38.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 46.1,
+   "clear_leg_apron_mm": 85.3,
+   "clear_arm_cloth_mm": 20.0,
+   "clear_arm_torso_mm": 0.8
+  },
+  {
+   "f": 11.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 41.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 50.4,
+   "clear_leg_apron_mm": 89.6,
+   "clear_arm_cloth_mm": 21.9,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 12.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 43.2,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 52.2,
+   "clear_leg_apron_mm": 91.6,
+   "clear_arm_cloth_mm": 24.4,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 12.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 45.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 54.3,
+   "clear_leg_apron_mm": 78.5,
+   "clear_arm_cloth_mm": 25.9,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 13.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 52.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 50.0,
+   "clear_leg_apron_mm": 65.5,
+   "clear_arm_cloth_mm": 27.2,
+   "clear_arm_torso_mm": 1.0
+  },
+  {
+   "f": 13.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 54.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 45.9,
+   "clear_leg_apron_mm": 60.1,
+   "clear_arm_cloth_mm": 29.5,
+   "clear_arm_torso_mm": 1.0
+  },
+  {
+   "f": 14.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 54.4,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 41.5,
+   "clear_leg_apron_mm": 55.2,
+   "clear_arm_cloth_mm": 31.7,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 14.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 53.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 38.6,
+   "clear_leg_apron_mm": 51.7,
+   "clear_arm_cloth_mm": 30.6,
+   "clear_arm_torso_mm": 1.2
+  },
+  {
+   "f": 15.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 53.4,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 36.6,
+   "clear_leg_apron_mm": 48.4,
+   "clear_arm_cloth_mm": 29.7,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 15.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 52.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 34.3,
+   "clear_leg_apron_mm": 44.6,
+   "clear_arm_cloth_mm": 31.7,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 16.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 52.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.8,
+   "clear_leg_apron_mm": 40.9,
+   "clear_arm_cloth_mm": 33.3,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 16.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 51.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 28.0,
+   "clear_leg_apron_mm": 37.7,
+   "clear_arm_cloth_mm": 34.1,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 17.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 51.2,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 24.9,
+   "clear_leg_apron_mm": 34.7,
+   "clear_arm_cloth_mm": 34.9,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 17.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 50.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 22.0,
+   "clear_leg_apron_mm": 32.2,
+   "clear_arm_cloth_mm": 35.2,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 18.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 50.2,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 19.4,
+   "clear_leg_apron_mm": 30.3,
+   "clear_arm_cloth_mm": 35.5,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 18.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 49.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 18.0,
+   "clear_leg_apron_mm": 28.9,
+   "clear_arm_cloth_mm": 35.5,
+   "clear_arm_torso_mm": 1.2
+  },
+  {
+   "f": 19.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 48.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 16.8,
+   "clear_leg_apron_mm": 27.5,
+   "clear_arm_cloth_mm": 35.5,
+   "clear_arm_torso_mm": 1.2
+  },
+  {
+   "f": 19.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 48.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 14.8,
+   "clear_leg_apron_mm": 26.2,
+   "clear_arm_cloth_mm": 35.1,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 20.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 23,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 47.3,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 13.1,
+   "clear_leg_apron_mm": 25.2,
+   "clear_arm_cloth_mm": 34.7,
+   "clear_arm_torso_mm": 1.0
+  },
+  {
+   "f": 20.5,
+   "tri_leg_dress": 15,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 45,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 46.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 12.0,
+   "clear_leg_apron_mm": 23.8,
+   "clear_arm_cloth_mm": 34.2,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 21.0,
+   "tri_leg_dress": 34,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 50,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 45.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 10.9,
+   "clear_leg_apron_mm": 22.3,
+   "clear_arm_cloth_mm": 33.8,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 21.5,
+   "tri_leg_dress": 45,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 51,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 45.3,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 9.5,
+   "clear_leg_apron_mm": 21.0,
+   "clear_arm_cloth_mm": 33.5,
+   "clear_arm_torso_mm": 0.8
+  },
+  {
+   "f": 22.0,
+   "tri_leg_dress": 52,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 53,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 44.8,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 8.6,
+   "clear_leg_apron_mm": 19.8,
+   "clear_arm_cloth_mm": 31.0,
+   "clear_arm_torso_mm": 0.7
+  },
+  {
+   "f": 22.5,
+   "tri_leg_dress": 49,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 54,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 44.3,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 8.7,
+   "clear_leg_apron_mm": 20.8,
+   "clear_arm_cloth_mm": 27.0,
+   "clear_arm_torso_mm": 0.7
+  },
+  {
+   "f": 23.0,
+   "tri_leg_dress": 45,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 52,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 43.8,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 8.7,
+   "clear_leg_apron_mm": 21.4,
+   "clear_arm_cloth_mm": 22.9,
+   "clear_arm_torso_mm": 0.6
+  },
+  {
+   "f": 23.5,
+   "tri_leg_dress": 38,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 48,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 43.3,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 9.0,
+   "clear_leg_apron_mm": 22.3,
+   "clear_arm_cloth_mm": 20.9,
+   "clear_arm_torso_mm": 0.5
+  },
+  {
+   "f": 24.0,
+   "tri_leg_dress": 21,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 48,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 42.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 9.2,
+   "clear_leg_apron_mm": 23.2,
+   "clear_arm_cloth_mm": 19.0,
+   "clear_arm_torso_mm": 0.5
+  },
+  {
+   "f": 24.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 9,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 42.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 12.7,
+   "clear_leg_apron_mm": 26.0,
+   "clear_arm_cloth_mm": 16.7,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 25.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 41.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 16.4,
+   "clear_leg_apron_mm": 28.3,
+   "clear_arm_cloth_mm": 14.5,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 25.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 40.8,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 20.3,
+   "clear_leg_apron_mm": 31.0,
+   "clear_arm_cloth_mm": 11.8,
+   "clear_arm_torso_mm": 0.3
+  },
+  {
+   "f": 26.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 40.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 23.6,
+   "clear_leg_apron_mm": 34.1,
+   "clear_arm_cloth_mm": 9.2,
+   "clear_arm_torso_mm": 0.3
+  },
+  {
+   "f": 26.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 39.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 21.4,
+   "clear_leg_apron_mm": 32.7,
+   "clear_arm_cloth_mm": 7.0,
+   "clear_arm_torso_mm": 0.2
+  },
+  {
+   "f": 27.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 38.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 18.6,
+   "clear_leg_apron_mm": 31.4,
+   "clear_arm_cloth_mm": 4.6,
+   "clear_arm_torso_mm": 0.2
+  },
+  {
+   "f": 27.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 38.4,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 21.4,
+   "clear_leg_apron_mm": 32.7,
+   "clear_arm_cloth_mm": 7.2,
+   "clear_arm_torso_mm": 0.3
+  },
+  {
+   "f": 28.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 38.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 23.7,
+   "clear_leg_apron_mm": 33.9,
+   "clear_arm_cloth_mm": 9.9,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 28.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 39.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 27.4,
+   "clear_leg_apron_mm": 37.2,
+   "clear_arm_cloth_mm": 16.1,
+   "clear_arm_torso_mm": 0.5
+  },
+  {
+   "f": 29.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 41.3,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 30.8,
+   "clear_leg_apron_mm": 40.7,
+   "clear_arm_cloth_mm": 22.5,
+   "clear_arm_torso_mm": 0.6
+  },
+  {
+   "f": 29.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 45.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 31.2,
+   "clear_leg_apron_mm": 41.1,
+   "clear_arm_cloth_mm": 29.5,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 30.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 48.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 31.6,
+   "clear_leg_apron_mm": 41.5,
+   "clear_arm_cloth_mm": 30.5,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 30.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 52.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 31.6,
+   "clear_leg_apron_mm": 41.6,
+   "clear_arm_cloth_mm": 34.3,
+   "clear_arm_torso_mm": 1.7
+  },
+  {
+   "f": 31.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 55.6,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 31.5,
+   "clear_leg_apron_mm": 41.6,
+   "clear_arm_cloth_mm": 37.9,
+   "clear_arm_torso_mm": 2.1
+  },
+  {
+   "f": 31.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 59.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 32.8,
+   "clear_leg_apron_mm": 42.9,
+   "clear_arm_cloth_mm": 41.4,
+   "clear_arm_torso_mm": 2.5
+  },
+  {
+   "f": 32.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 61.3,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 34.0,
+   "clear_leg_apron_mm": 44.1,
+   "clear_arm_cloth_mm": 44.8,
+   "clear_arm_torso_mm": 2.5
+  },
+  {
+   "f": 32.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 60.4,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 37.2,
+   "clear_leg_apron_mm": 47.3,
+   "clear_arm_cloth_mm": 48.1,
+   "clear_arm_torso_mm": 2.6
+  },
+  {
+   "f": 33.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 59.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 40.4,
+   "clear_leg_apron_mm": 50.5,
+   "clear_arm_cloth_mm": 50.2,
+   "clear_arm_torso_mm": 2.6
+  },
+  {
+   "f": 33.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 54.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 34.9,
+   "clear_leg_apron_mm": 53.1,
+   "clear_arm_cloth_mm": 51.1,
+   "clear_arm_torso_mm": 2.6
+  },
+  {
+   "f": 34.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 52.8,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 26.1,
+   "clear_leg_apron_mm": 47.5,
+   "clear_arm_cloth_mm": 52.1,
+   "clear_arm_torso_mm": 2.7
+  },
+  {
+   "f": 34.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 51.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 27.0,
+   "clear_leg_apron_mm": 48.5,
+   "clear_arm_cloth_mm": 51.1,
+   "clear_arm_torso_mm": 2.6
+  },
+  {
+   "f": 35.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 49.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 28.9,
+   "clear_leg_apron_mm": 49.9,
+   "clear_arm_cloth_mm": 49.7,
+   "clear_arm_torso_mm": 2.6
+  },
+  {
+   "f": 35.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 47.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 35.5,
+   "clear_leg_apron_mm": 53.8,
+   "clear_arm_cloth_mm": 48.6,
+   "clear_arm_torso_mm": 2.5
+  },
+  {
+   "f": 36.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 46.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 40.8,
+   "clear_leg_apron_mm": 57.7,
+   "clear_arm_cloth_mm": 47.6,
+   "clear_arm_torso_mm": 2.5
+  },
+  {
+   "f": 36.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 44.7,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 49.7,
+   "clear_leg_apron_mm": 61.0,
+   "clear_arm_cloth_mm": 46.7,
+   "clear_arm_torso_mm": 2.2
+  },
+  {
+   "f": 37.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 43.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 54.9,
+   "clear_leg_apron_mm": 65.1,
+   "clear_arm_cloth_mm": 42.8,
+   "clear_arm_torso_mm": 1.9
+  },
+  {
+   "f": 37.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 42.8,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 59.2,
+   "clear_leg_apron_mm": 72.0,
+   "clear_arm_cloth_mm": 38.8,
+   "clear_arm_torso_mm": 1.6
+  },
+  {
+   "f": 38.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 42.2,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 62.8,
+   "clear_leg_apron_mm": 79.3,
+   "clear_arm_cloth_mm": 34.9,
+   "clear_arm_torso_mm": 1.3
+  },
+  {
+   "f": 38.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 40.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 61.7,
+   "clear_leg_apron_mm": 86.4,
+   "clear_arm_cloth_mm": 31.3,
+   "clear_arm_torso_mm": 1.1
+  },
+  {
+   "f": 39.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 37.8,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 58.6,
+   "clear_leg_apron_mm": 89.6,
+   "clear_arm_cloth_mm": 27.4,
+   "clear_arm_torso_mm": 1.0
+  },
+  {
+   "f": 39.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 35.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 57.4,
+   "clear_leg_apron_mm": 90.9,
+   "clear_arm_cloth_mm": 23.5,
+   "clear_arm_torso_mm": 0.9
+  },
+  {
+   "f": 40.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 33.9,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 51.7,
+   "clear_leg_apron_mm": 92.3,
+   "clear_arm_cloth_mm": 19.6,
+   "clear_arm_torso_mm": 0.7
+  },
+  {
+   "f": 40.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 33.5,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 50.2,
+   "clear_leg_apron_mm": 93.0,
+   "clear_arm_cloth_mm": 17.7,
+   "clear_arm_torso_mm": 0.6
+  },
+  {
+   "f": 41.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 33.2,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 48.7,
+   "clear_leg_apron_mm": 93.7,
+   "clear_arm_cloth_mm": 15.7,
+   "clear_arm_torso_mm": 0.4
+  },
+  {
+   "f": 41.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 0,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.6,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 47.2,
+   "clear_leg_apron_mm": 92.3,
+   "clear_arm_cloth_mm": 13.8,
+   "clear_arm_torso_mm": 0.3
+  },
+  {
+   "f": 42.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 1,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 45.7,
+   "clear_leg_apron_mm": 90.9,
+   "clear_arm_cloth_mm": 11.7,
+   "clear_arm_torso_mm": 0.2
+  },
+  {
+   "f": 42.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 1,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 46.4,
+   "clear_leg_apron_mm": 88.2,
+   "clear_arm_cloth_mm": 11.3,
+   "clear_arm_torso_mm": 0.2
+  },
+  {
+   "f": 43.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 1,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.1,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 47.0,
+   "clear_leg_apron_mm": 85.6,
+   "clear_arm_cloth_mm": 10.8,
+   "clear_arm_torso_mm": 0.1
+  },
+  {
+   "f": 43.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 1,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 46.8,
+   "clear_leg_apron_mm": 84.9,
+   "clear_arm_cloth_mm": 10.3,
+   "clear_arm_torso_mm": 0.1
+  },
+  {
+   "f": 44.0,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 1,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 46.5,
+   "clear_leg_apron_mm": 84.2,
+   "clear_arm_cloth_mm": 9.8,
+   "clear_arm_torso_mm": 0.1
+  },
+  {
+   "f": 44.5,
+   "tri_leg_dress": 0,
+   "tri_leg_apron": 0,
+   "tri_dress_apron_new": 0,
+   "tri_arm_any": 1,
+   "tri_leg_dress_margin": 0,
+   "tri_leg_apron_margin": 0,
+   "tri_leg_back_panel": 0,
+   "tri_leg_back_panel_margin": 0,
+   "clear_legfoot_back_mm": 32.0,
+   "leg_out_dress": [
+    0,
+    0
+   ],
+   "leg_out_apron": [
+    0,
+    0
+   ],
+   "dress_out_apron": [
+    0,
+    0
+   ],
+   "apron_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_dress": [
+    0,
+    0
+   ],
+   "arm_in_apron": [
+    0,
+    0
+   ],
+   "arm_in_torso": [
+    0,
+    0
+   ],
+   "clear_leg_dress_mm": 46.5,
+   "clear_leg_apron_mm": 84.2,
+   "clear_arm_cloth_mm": 9.8,
+   "clear_arm_torso_mm": 0.1
+  }
+ ],
+ "method": "horizontal ray to/away from body axis; depth = distance outside",
+ "tol_mm": 1.0,
+ "total_vertex_hits": {
+  "leg_out_dress": 0,
+  "leg_out_apron": 0,
+  "dress_out_apron": 0,
+  "apron_in_dress": 0,
+  "arm_in_dress": 0,
+  "arm_in_apron": 0,
+  "arm_in_torso": 0
+ },
+ "max_depth_mm": {
+  "leg_out_dress": 0,
+  "leg_out_apron": 0,
+  "dress_out_apron": 0,
+  "apron_in_dress": 0,
+  "arm_in_dress": 0,
+  "arm_in_apron": 0,
+  "arm_in_torso": 0
+ },
+ "min_clearance": {
+  "clear_leg_dress_mm": {
+   "min": 8.6,
+   "frame": 22.0
+  },
+  "clear_leg_apron_mm": {
+   "min": 19.8,
+   "frame": 22.0
+  },
+  "clear_arm_cloth_mm": {
+   "min": 4.6,
+   "frame": 27.0
+  },
+  "clear_arm_torso_mm": {
+   "min": 0.1,
+   "frame": 43.0
+  },
+  "clear_legfoot_back_mm": {
+   "min": 24.3,
+   "frame": 6.0
+  }
+ },
+ "worst_frame": {
+  "leg_out_dress": 0.0,
+  "leg_out_apron": 0.0,
+  "dress_out_apron": 0.0,
+  "apron_in_dress": 0.0,
+  "arm_in_dress": 0.0,
+  "arm_in_apron": 0.0,
+  "arm_in_torso": 0.0
+ },
+ "tri_overlap_total": {
+  "tri_leg_dress": 299,
+  "tri_leg_apron": 0,
+  "tri_dress_apron_new": 0,
+  "tri_arm_any": 17,
+  "tri_leg_dress_margin": 433,
+  "tri_leg_apron_margin": 0,
+  "tri_leg_back_panel": 0,
+  "tri_leg_back_panel_margin": 0
+ },
+ "tri_overlap_frames": {
+  "tri_arm_any": [
+   5.0,
+   5.5,
+   6.0,
+   6.5,
+   7.0,
+   7.5,
+   42.0,
+   42.5,
+   43.0,
+   43.5,
+   44.0,
+   44.5
+  ],
+  "tri_leg_dress_margin": [
+   20.0,
+   20.5,
+   21.0,
+   21.5,
+   22.0,
+   22.5,
+   23.0,
+   23.5,
+   24.0,
+   24.5
+  ],
+  "tri_leg_dress": [
+   20.5,
+   21.0,
+   21.5,
+   22.0,
+   22.5,
+   23.0,
+   23.5,
+   24.0
+  ]
+ },
+ "rest_dress_apron_pairs": 0,
+ "tri_margin_mm": 3.0,
+ "n_test_verts": {
+  "leg": 800,
+  "arm": 1613,
+  "dress": 5721
+ }
+}

@@ -1,0 +1,7 @@
+{
+  "status": "NOT_EXECUTED_HELPER",
+  "file": "tools/walk-driver/test_locomotion.cjs",
+  "standaloneExitCode": 0,
+  "standaloneStdoutBytes": 0,
+  "reason": "This file exports install/run; direct node does not execute its test suite. Its test_walk_driver host aborts on a pre-existing missing-hips fixture, so no locomotion-suite pass is claimed."
+}

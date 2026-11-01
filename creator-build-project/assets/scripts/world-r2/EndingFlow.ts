@@ -1,0 +1,89 @@
+/** L18 「刻名的桥」 (r04-lake-06) → ending (TR9) and 回小岛 (pure; no cc imports). The last lakeside challenge's registered win shows 「继续」 on the
+ *  result page; it runs a WindWipe (vehicle: 3D 风铃) under which the EndingScreen (v2 lake view) is built. 回小岛 runs another
+ *  WindWipe under which the board exits normally (saves already written at result.saved) and she is stood on the island. */
+export const LAKE_STAGE_COUNT=4;
+/** Result-page gate: a registered (saved) regional-r05 win of the last lake stage with all four lake records. */
+export function endingAvailable(world:{state?:string;needsResume?:boolean}|null|undefined,b:any):boolean{
+  if(!world||world.state!=='level'||world.needsResume||!b)return false;
+  if(b.provider!=='regional-r05'||b.state!=='result.saved'||!b.result?.completionRecorded||b.nextStageId)return false;
+  if(b.active?.region!=='lake')return false;
+  const ids=Object.keys(b.progress?.records||{}).filter(id=>/-lake-/.test(id));return ids.length>=LAKE_STAGE_COUNT;
+}
+/** Ending v2 art (UI设计部 ui/post-island-ui 94b821fd SPEC §3): layered Blender renders of the real lakeside scene
+ *  (lakeside_r5h3.blend, camera on the south shore looking north, 20 mm), day and night lit separately. Source frames are
+ *  rendered at 1170×2532 px (3×) = 390×844 pt; boxes below are in those source points (top-left origin). The board on the chime post is
+ *  removed in the bg render; the chime is a live low-poly 3D layer built in code (EndingChimeGeometry), swung around its hang point. */
+export const ENDING_ART=Object.freeze({
+  dir:'ending/',srcW:390,srcH:844,
+  chime:{x0:134,y0:159,x1:215,y1:359},   // LK_windchime ×1.25 hanging from the LK_chime_post arm; hang point = top centre
+  girl:{x0:220.5,y0:546.5,x1:258.5,y1:681.5},
+  swayDeg:4,swayPeriodS:3.2,
+  nightGlow:{r:150,color:[0xff,0xce,0x82],alpha:.42},
+  shade:{day:{rgb:[0x28,0x1a,0x0a],a:.24},night:{rgb:[0x05,0x08,0x14],a:.39},from:.70},
+});
+/** Chime swing angle (degrees, + = counter-clockwise) at time t: ±4°, 3.2 s sine, starts centred. */
+export function endingSwayDeg(t:number){return ENDING_ART.swayDeg*Math.sin(2*Math.PI*t/ENDING_ART.swayPeriodS);}
+/** Ending layout (SPEC §3 v2) in visible-size points, TOP-LEFT origin, y down (EndingScreen converts). safeBottom/safeTop
+ *  default to the notch heuristic of the design (H/W>1.9: 47/34, else 20/0). Button: width min(240,W−48), 62 high, bottom
+ *  24 above safe. Seals: SPEC §13.5 two rows; her head stays ≥8 pt below row 2. */
+/** SPEC §13.5 seal rows (seal art 115×128 → height = d·aspect; row-2 end droop 2.25 pt in `bottom`). Girl top = bottom + 14
+ *  (design nine/src/endfix.py), head check ≥ 8. Deviations (reported): the SPEC's compact set (Ø30/36/32, row 1 at plank+49)
+ *  is used for every H<700 (not only H≤600), and H≤600 uses Ø28/34/26 at plank+44 with the girl 8 pt (not 16) above the
+ *  button, because otherwise her 48 pt minimum height puts her head into row 2 at 320×568. */
+// SPEC §13.5 + UI设计部 r3 cascade (c+b). Per screen, stop at the first step that lets the girl be full size:
+// ① girl top margin 14 → 8, ② head-to-seal gap 8 → 6 (design value), ③ two rows Ø32 → 30 → 28 (pitch 44·d/36, row gap 40·d/36),
+// ④ one row of 9: gap 0.25·d, d = min(28, floor((W−40)/11)), centred (20 pt side margins), ⑤ only when H < 700: plank clearance 15 → 10,
+// ⑥ only then shrink the girl (never below 48 pt). Head-to-seal gap ≥ 6 pt everywhere.
+export const ENDING_SEALS={count:9,d:36,sp:44,gap:40,aspect:128/115,girlTop:14,girlTopMin:8,headGap:6,plankClear:15,plankClearShort:10,minGirl:48,rowSpacing:.25} as const;
+export type EndingCascadeStep='none'|'margin'|'gap'|'d32'|'d30'|'d28'|'row1'|'clear10'|'shrink';
+export function endingSingleRowD(w:number){return Math.min(28,Math.floor((w-40)/11));}
+export function endingLayout(w:number,h:number,safeBottom:number=0,safeTop?:number){
+  const notch=h/w>1.9,top=safeTop??(notch?47:20),bot=safeBottom>0?safeBottom:(notch?34:0);
+  const buttonW=Math.min(240,w-48),buttonH=62,buttonTop=h-bot-24-buttonH,usable=buttonTop-top;
+  const chimeCy=top+usable*.36,chimeSize=Math.min(w*.62,usable*.42),plankCy=chimeCy+chimeSize*.5+44;
+  const A=ENDING_ART,k=Math.max(w/A.srcW,h/A.srcH),bgW=A.srcW*k,bgH=A.srcH*k;
+  const srcChimeCy=(A.chime.y0+A.chime.y1)/2*k,bgX=-(bgW-w)/2,bgY=-Math.max(0,Math.min(bgH-h,srcChimeCy-chimeCy));
+  const chime={x0:bgX+A.chime.x0*k,y0:bgY+A.chime.y0*k,x1:bgX+A.chime.x1*k,y1:bgY+A.chime.y1*k};
+  const gNative=(A.girl.y1-A.girl.y0)*k,gBottom=buttonTop-(h<=600?8:16),S=ENDING_SEALS;
+  const sealsAt=(d:number,rows:1|2,clear:number)=>{const sp=rows===1?d*(1+S.rowSpacing):S.sp*d/S.d,gap=rows===1?0:S.gap*d/S.d,half=d*S.aspect/2,y=plankCy+29+clear+half;
+    return {d,sp,gap,rows,clear,y,bottom:y+(rows===1?0:gap+2.25)+half};};
+  const d1=endingSingleRowD(w),C=S.plankClear;
+  const tries:[EndingCascadeStep,number,1|2,number,number][]=[['none',36,2,S.girlTop,C],['margin',36,2,S.girlTopMin,C],['gap',36,2,S.headGap,C],['d32',32,2,S.headGap,C],['d30',30,2,S.headGap,C],['d28',28,2,S.headGap,C],['row1',d1,1,S.headGap,C]];
+  if(h<700)tries.push(['clear10',d1,1,S.headGap,S.plankClearShort]);
+  const last=tries[tries.length-1];let step:EndingCascadeStep='shrink',seals=sealsAt(last[1],last[2],last[4]),headGap:number=S.headGap;
+  const tried:EndingCascadeStep[]=[];for(const [st,d,rows,m,cl] of tries){tried.push(st);const sl=sealsAt(d,rows,cl);if(gBottom-sl.bottom-m>=gNative-1e-6){step=st;seals=sl;headGap=m;break;}}
+  const sealsCy=seals.y,gTop=seals.bottom+headGap,gh=Math.max(S.minGirl,Math.min(gNative,gBottom-gTop));
+  const gw=gh*(A.girl.x1-A.girl.x0)/(A.girl.y1-A.girl.y0),gcx=w*.64;
+  const girl={x0:gcx-gw/2,y0:gBottom-gh,x1:gcx+gw/2,y1:gBottom};
+  return {top,bot,buttonW,buttonH,buttonTop,buttonCy:buttonTop+buttonH/2,edgeInset:(w-buttonW)/2,
+    titleCy:plankCy,sealsCy,seals,chimeCy,bg:{x:bgX,y:bgY,w:bgW,h:bgH,k},chime,hang:{x:(chime.x0+chime.x1)/2,y:chime.y0},girl,girlNative:gNative,cascade:step,cascadeTried:tried,headGap,
+    glowR:A.nightGlow.r*k};
+}
+/** Layout checks of the design's 7-size sheet (src/ending_sheets.py), pure: used by tests and __qfEnding.layoutCheck. */
+
+export function endingLayoutChecks(w:number,h:number,safeBottom:number=0){
+  const L=endingLayout(w,h,safeBottom),g=L.girl,sealBottom=L.seals.bottom,plank={x0:w/2-98,y0:L.titleCy-29,x1:w/2+98,y1:L.titleCy+29};
+  const btn={x0:L.edgeInset,y0:L.buttonTop,x1:w-L.edgeInset,y1:L.buttonTop+L.buttonH};
+  const hit=(a:any,b:any)=>!(a.x1<=b.x0||b.x1<=a.x0||a.y1<=b.y0||b.y1<=a.y0);
+  return {buttonEdge:L.edgeInset>=16,buttonInSafe:btn.y1<=h-L.bot,girlInFrame:g.x0>=0&&g.x1<=w&&g.y0>=0&&g.y1<=h,
+    girlClear:!hit(g,btn)&&!hit(g,plank),headBelowSeals:g.y0-sealBottom>=ENDING_SEALS.headGap-1e-6 /* UI设计部 r3: 6 pt spec value */,
+    chimeClear:L.chime.y0>=L.top-1e-6&&L.chime.y1<=plank.y0+1e-6&&L.chime.x0>=0&&L.chime.x1<=w,
+    // SPEC §13.5: the 5-seal top row (4 pitches + Ø) leaves ≥ 20 pt each side.
+    sealsFit:(L.seals.rows===1?8:4)*L.seals.sp+L.seals.d<=w-40+1e-6};
+}
+export interface EndingHost{
+  wipe(o:{kind:string;content:{vehicle:'chime'|null;sign:string|null}|null;work:()=>Promise<{ok:boolean;reason?:string}>;ready:()=>boolean}):Promise<{ok:boolean;reason?:string}>;
+  showEnding():void;hideEnding():void;endingShown():boolean;
+  exitLevel():{ok:boolean;reason?:string};toIsland():{ok:boolean;reason?:string};state():string;islandMusic():void;
+  markComplete?():void;
+}
+export async function playEnding(h:EndingHost){
+  return h.wipe({kind:'ending',content:{vehicle:'chime',sign:null},ready:()=>h.endingShown(),
+    work:async()=>{h.showEnding();try{h.markComplete?.();}catch{}return {ok:true};}});
+}
+export async function endingToIsland(h:EndingHost){
+  return h.wipe({kind:'ending-home',content:null,ready:()=>h.state()==='island',work:async()=>{
+    h.hideEnding();const ex=h.exitLevel();if(!ex.ok&&h.state()==='level')return ex;
+    if(h.state()!=='island'){const r=h.toIsland();if(!r.ok)return r;}
+    return h.state()==='island'?{ok:true}:{ok:false,reason:'ending-home-wrong-state:'+h.state()};}});
+}

@@ -1,0 +1,66 @@
+[
+ {
+  "file": "obstacle_lily_full.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 9780,
+  "note": "160²，与格子同比例、同中心；显示时 ×1.06"
+ },
+ {
+  "file": "obstacle_lily_hit.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 9284,
+  "note": "160²，与格子同比例、同中心；显示时 ×1.06"
+ },
+ {
+  "file": "obstacle_lily_clear.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 6069,
+  "note": "160²，与格子同比例、同中心；显示时 ×1.06"
+ },
+ {
+  "file": "tile_a_lake.png",
+  "group": "格子底座",
+  "w": 160,
+  "h": 160,
+  "bytes": 5555,
+  "note": "160²"
+ },
+ {
+  "file": "tile_b_lake.png",
+  "group": "格子底座",
+  "w": 160,
+  "h": 160,
+  "bytes": 6311,
+  "note": "160²"
+ },
+ {
+  "file": "tray_frame_lake.png",
+  "group": "托盘",
+  "w": 681,
+  "h": 723,
+  "bytes": 69074,
+  "note": "同 tray_frame：750 设计宽 1:1"
+ },
+ {
+  "file": "bg_lakeside_board.jpg",
+  "group": "背景(后备)",
+  "w": 750,
+  "h": 1624,
+  "bytes": 15603,
+  "note": "白天；运行时湖畔棋盘背景是实时 3D，这张只做离线预览/后备；r6-fix 起由 tools/lake_bg.py 按引擎场景配色生成"
+ },
+ {
+  "file": "bg_lakeside_board_night.jpg",
+  "group": "背景(后备)",
+  "w": 750,
+  "h": 1624,
+  "bytes": 13842,
+  "note": "夜间，同上；r6-fix 起由 tools/lake_bg.py 按引擎场景配色生成"
+ }
+]

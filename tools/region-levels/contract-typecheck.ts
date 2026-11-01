@@ -1,0 +1,10 @@
+import Campaign, { JourneyView, RegionId, TransitionReply } from '../../creator-build-project/assets/scripts/mainline-r1/runtime/region-campaign';
+import Controller from '../../creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller';
+declare const journey: JourneyView;
+declare const controller: Controller;
+const to: RegionId = 'meadow';
+const gate: {ok: boolean; reason?: string} = Campaign.canEnterRegion(journey, to);
+const transition: TransitionReply = Campaign.transition(journey, 'mainline-04', 'mainline-05');
+const summary = Campaign.inspect(journey);
+const snapshot = controller.snapshot();
+void [gate, transition, summary.regions, snapshot.campaign, snapshot.rewardHandoff];

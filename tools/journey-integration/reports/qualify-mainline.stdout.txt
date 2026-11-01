@@ -1,0 +1,1 @@
+PASS 36 shipped mainline seeds, zero inventory tools/bombs

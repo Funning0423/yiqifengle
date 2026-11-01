@@ -1,0 +1,1 @@
+{"sunCamRelMaxDegPerFrame":0.096,"domeCamRelMaxDegPerFrame":0.11,"worldLightSeamJumpDeg":86.3,"note":"world jump cancels: camera/content re-base by the same yaw"}

@@ -1,0 +1,26 @@
+{
+  "runId": "legacy-audit-final-20261015",
+  "startedAt": "2026-10-15T17:32:22.951Z",
+  "status": "PLAN_ONLY",
+  "hostPlatform": "linux",
+  "engineBuild": "NOT_RUN",
+  "runtimeSmoke": "NOT_RUN",
+  "visualAcceptance": "NOT_RUN",
+  "sourceSha256": "7264d8503207721c827525aa84c605fbb74fc1817c804a5fbf8a6c1ca0e9db04",
+  "toolingSha256": "d278713ac7d49fa534476aa128c9cd3f0bacf91051192c1b12073ea6ca47b71f",
+  "command": {
+    "executable": null,
+    "args": [
+      "--project",
+      "/workspace/shared/game-integration-20261015/creator-build-project",
+      "--build",
+      "configPath=/workspace/shared/game-integration-20261015/output/cloud-web-build/legacy-audit-final-20261015/resolved-build-options.json;logDest=/workspace/shared/game-integration-20261015/output/cloud-web-build/legacy-audit-final-20261015/creator.log"
+    ],
+    "shell": false
+  },
+  "artifactPath": "/workspace/shared/game-integration-20261015/output/cloud-web-build/legacy-audit-final-20261015/artifacts/world-r5",
+  "blockers": [
+    "Official Creator 3.8 editor installation/CLI support is documented for Windows/macOS, not this linux host.",
+    "An explicitly verified official Cocos Creator 3.8.8 executable is required."
+  ]
+}

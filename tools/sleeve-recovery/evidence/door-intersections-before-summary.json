@@ -1,0 +1,302 @@
+[
+  {
+    "frame": 528,
+    "elbow": 0,
+    "shoulder": 21
+  },
+  {
+    "frame": 530,
+    "elbow": 0,
+    "shoulder": 21
+  },
+  {
+    "frame": 532,
+    "elbow": 0,
+    "shoulder": 23
+  },
+  {
+    "frame": 534,
+    "elbow": 0,
+    "shoulder": 25
+  },
+  {
+    "frame": 536,
+    "elbow": 0,
+    "shoulder": 19
+  },
+  {
+    "frame": 538,
+    "elbow": 0,
+    "shoulder": 19
+  },
+  {
+    "frame": 540,
+    "elbow": 0,
+    "shoulder": 21
+  },
+  {
+    "frame": 542,
+    "elbow": 0,
+    "shoulder": 21
+  },
+  {
+    "frame": 544,
+    "elbow": 0,
+    "shoulder": 19
+  },
+  {
+    "frame": 546,
+    "elbow": 0,
+    "shoulder": 21
+  },
+  {
+    "frame": 548,
+    "elbow": 15,
+    "shoulder": 15
+  },
+  {
+    "frame": 550,
+    "elbow": 15,
+    "shoulder": 17
+  },
+  {
+    "frame": 552,
+    "elbow": 15,
+    "shoulder": 13
+  },
+  {
+    "frame": 554,
+    "elbow": 15,
+    "shoulder": 3
+  },
+  {
+    "frame": 556,
+    "elbow": 17,
+    "shoulder": 0
+  },
+  {
+    "frame": 558,
+    "elbow": 21,
+    "shoulder": 0
+  },
+  {
+    "frame": 560,
+    "elbow": 23,
+    "shoulder": 0
+  },
+  {
+    "frame": 562,
+    "elbow": 22,
+    "shoulder": 0
+  },
+  {
+    "frame": 564,
+    "elbow": 21,
+    "shoulder": 0
+  },
+  {
+    "frame": 566,
+    "elbow": 24,
+    "shoulder": 0
+  },
+  {
+    "frame": 568,
+    "elbow": 27,
+    "shoulder": 0
+  },
+  {
+    "frame": 570,
+    "elbow": 26,
+    "shoulder": 0
+  },
+  {
+    "frame": 572,
+    "elbow": 26,
+    "shoulder": 0
+  },
+  {
+    "frame": 574,
+    "elbow": 28,
+    "shoulder": 0
+  },
+  {
+    "frame": 576,
+    "elbow": 28,
+    "shoulder": 0
+  },
+  {
+    "frame": 578,
+    "elbow": 26,
+    "shoulder": 0
+  },
+  {
+    "frame": 580,
+    "elbow": 25,
+    "shoulder": 0
+  },
+  {
+    "frame": 582,
+    "elbow": 14,
+    "shoulder": 0
+  },
+  {
+    "frame": 584,
+    "elbow": 0,
+    "shoulder": 0
+  },
+  {
+    "frame": 586,
+    "elbow": 0,
+    "shoulder": 8
+  },
+  {
+    "frame": 588,
+    "elbow": 0,
+    "shoulder": 14
+  },
+  {
+    "frame": 590,
+    "elbow": 0,
+    "shoulder": 12
+  },
+  {
+    "frame": 592,
+    "elbow": 0,
+    "shoulder": 16
+  },
+  {
+    "frame": 594,
+    "elbow": 0,
+    "shoulder": 10
+  },
+  {
+    "frame": 596,
+    "elbow": 0,
+    "shoulder": 8
+  },
+  {
+    "frame": 598,
+    "elbow": 0,
+    "shoulder": 0
+  },
+  {
+    "frame": 600,
+    "elbow": 0,
+    "shoulder": 0
+  },
+  {
+    "frame": 602,
+    "elbow": 0,
+    "shoulder": 0
+  },
+  {
+    "frame": 604,
+    "elbow": 9,
+    "shoulder": 0
+  },
+  {
+    "frame": 606,
+    "elbow": 23,
+    "shoulder": 0
+  },
+  {
+    "frame": 608,
+    "elbow": 25,
+    "shoulder": 0
+  },
+  {
+    "frame": 610,
+    "elbow": 31,
+    "shoulder": 0
+  },
+  {
+    "frame": 612,
+    "elbow": 31,
+    "shoulder": 0
+  },
+  {
+    "frame": 614,
+    "elbow": 33,
+    "shoulder": 0
+  },
+  {
+    "frame": 616,
+    "elbow": 33,
+    "shoulder": 0
+  },
+  {
+    "frame": 618,
+    "elbow": 31,
+    "shoulder": 0
+  },
+  {
+    "frame": 620,
+    "elbow": 33,
+    "shoulder": 0
+  },
+  {
+    "frame": 622,
+    "elbow": 31,
+    "shoulder": 0
+  },
+  {
+    "frame": 624,
+    "elbow": 29,
+    "shoulder": 0
+  },
+  {
+    "frame": 626,
+    "elbow": 20,
+    "shoulder": 4
+  },
+  {
+    "frame": 628,
+    "elbow": 21,
+    "shoulder": 13
+  },
+  {
+    "frame": 630,
+    "elbow": 15,
+    "shoulder": 19
+  },
+  {
+    "frame": 632,
+    "elbow": 9,
+    "shoulder": 19
+  },
+  {
+    "frame": 634,
+    "elbow": 0,
+    "shoulder": 15
+  },
+  {
+    "frame": 636,
+    "elbow": 0,
+    "shoulder": 17
+  },
+  {
+    "frame": 638,
+    "elbow": 0,
+    "shoulder": 19
+  },
+  {
+    "frame": 640,
+    "elbow": 0,
+    "shoulder": 25
+  },
+  {
+    "frame": 642,
+    "elbow": 0,
+    "shoulder": 23
+  },
+  {
+    "frame": 644,
+    "elbow": 0,
+    "shoulder": 23
+  },
+  {
+    "frame": 646,
+    "elbow": 0,
+    "shoulder": 23
+  }
+]

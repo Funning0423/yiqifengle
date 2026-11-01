@@ -97,7 +97,7 @@ export function sampleLookAtPath(path: readonly LookAtPose[], progress: readonly
  * - easeIn / easeOut: fraction of the track time used to accelerate from / decelerate to zero speed. C2 time remap
  *   (velocity AND acceleration continuous at the joins); the end pose is still reached exactly at p=1.
  */
-export type TrackOptions = Readonly<{ interpolation?: 'linear' | 'pchip'; easeIn?: number; easeOut?: number }>;
+export type TrackOptions = Readonly<{ interpolation?: 'linear' | 'pchip'; easeIn?: number; easeOut?: number; /** createProgressFollower tau (s) for distance-driven progress; default 0.25 */ followTauSeconds?: number }>;
 /** C2 ease-in / linear / ease-out remap of [0,1] onto [0,1], f(0)=0, f(1)=1, f'(0)=0 if easeIn>0, f'(1)=0 if easeOut>0. */
 export function remapProgress(p: number, o?: TrackOptions): number {
   const x = Math.max(0, Math.min(1, p)); if (!o) return x;
@@ -227,14 +227,24 @@ export type CameraNodeLike = { setWorldPosition(x: number, y: number, z: number)
 export type CameraLike = { node: CameraNodeLike; fov: number };
 export type CameraWriteLog = { writes: number; last: CameraPose | null; lastSource: string; rejected: number; trackAborts: number; lastAbort: string };
 export const cameraWriteLog: CameraWriteLog = { writes: 0, last: null, lastSource: '', rejected: 0, trackAborts: 0, lastAbort: '' };
+/** Test-only ?camTrace=1 (region/CamTrace.ts sets it); null = off. */
+export const cameraWriteHook: { trace: ((source: string) => void) | null; log: ((camera: any, pose: CameraPose, source: string) => void) | null } = { trace: null, log: null };
+let wfr = -1, wcam: unknown = null;
 /** THE single writer: position, rotation, then fov. Invalid poses are rejected (logged, camera untouched). */
 export function applyCameraPose(camera: CameraLike, pose: CameraPose, source: string, opts?: { allowRoll?: boolean }): boolean {
   let bad = validateCameraPose(pose); if (bad === 'roll-not-zero' && opts?.allowRoll) bad = null;
   if (bad) { cameraWriteLog.rejected++; console.warn('applyCameraPose rejected', source, bad, pose); return false; }
+  // onewriter: a 2nd write in the same engine frame matching the 1st (≤1 cm, ≤~0.5°, ≤0.05° fov) is merged, not re-applied.
+  let fr = -1; try { fr = (globalThis as any).cc.director.getTotalFrames(); } catch { }
+  const l = cameraWriteLog.last, q = pose.position, r = pose.rotation;
+  if (fr >= 0 && fr === wfr && camera === wcam && l && (q[0] - l.position[0]) ** 2 + (q[1] - l.position[1]) ** 2 + (q[2] - l.position[2]) ** 2 <= 1e-4 && Math.abs(r[0] * l.rotation[0] + r[1] * l.rotation[1] + r[2] * l.rotation[2] + r[3] * l.rotation[3]) >= 0.99999 && Math.abs(pose.fovVerticalDeg - l.fovVerticalDeg) <= 0.05) return true;
+  wfr = fr; wcam = camera;
   camera.node.setWorldPosition(pose.position[0], pose.position[1], pose.position[2]);
   camera.node.setWorldRotation(pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]);
   camera.fov = pose.fovVerticalDeg;
   cameraWriteLog.writes++; cameraWriteLog.last = pose; cameraWriteLog.lastSource = source;
+  if (cameraWriteHook.trace) cameraWriteHook.trace(source);
+  if (cameraWriteHook.log) cameraWriteHook.log(camera, pose, source); // region/CamTraceLog (?camTrace=1 / __QF_CAM_TRACE)
   return true;
 }
 
@@ -263,7 +273,7 @@ export function createCameraTrack(camera: CameraLike, path: readonly LookAtPose[
   const tick = (p: number): number => {
     if (status.aborted) return -1;
     if (fallbackFov === undefined) fallbackFov = camera.fov; // legacy waypoints without fov inherit the start fov
-    status.samples++;
+    if (!status.samples++ && p < 1) return -1; // onewriter: run() ticks 0 in the frame of the previous write (hold / last track end); start next frame
     let pose: CameraPose;
     try { pose = sample(p, fallbackFov); }
     catch (e) { abort(p, 'sample: ' + String(e)); return -1; }

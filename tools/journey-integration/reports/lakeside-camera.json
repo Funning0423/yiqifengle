@@ -1,0 +1,4385 @@
+{
+ "status": "PASS",
+ "route": {
+  "totalM": 39.204,
+  "bridgeStart": 3.2984845004941277,
+  "bridgeEnd": 27.704256678831825,
+  "landing": {
+   "arrivalBackM": 6.8,
+   "arrivalSideM": 1.1,
+   "arrivalUpM": 3,
+   "arrivalPitchDeg": -2.507461,
+   "arrivalFovDeg": 57.35256,
+   "arrivalLiftM": 0,
+   "arrivalHermite": 0,
+   "anchorSmoothM": 1.5
+  },
+  "focus": [
+   -0.11350005865097343,
+   -0.27999999999999997,
+   56.48140020370484
+  ]
+ },
+ "finals": {
+  "390x844": {
+   "herX": 0.892,
+   "feetAboveBottom": 0.066,
+   "headBelowTop": 0.77,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.408,
+    0.59
+   ],
+   "cam": [
+    -2.114,
+    5.42,
+    35.481
+   ],
+   "target": [
+    -1.732,
+    4.073,
+    43.358
+   ],
+   "fov": 56
+  },
+  "414x896": {
+   "herX": 0.892,
+   "feetAboveBottom": 0.066,
+   "headBelowTop": 0.77,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.408,
+    0.59
+   ],
+   "cam": [
+    -2.114,
+    5.42,
+    35.481
+   ],
+   "target": [
+    -1.732,
+    4.073,
+    43.358
+   ],
+   "fov": 56.0033
+  },
+  "360x780": {
+   "herX": 0.892,
+   "feetAboveBottom": 0.067,
+   "headBelowTop": 0.77,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.408,
+    0.59
+   ],
+   "cam": [
+    -2.114,
+    5.42,
+    35.481
+   ],
+   "target": [
+    -1.732,
+    4.073,
+    43.358
+   ],
+   "fov": 56.0563
+  },
+  "375x667": {
+   "herX": 0.877,
+   "feetAboveBottom": 0.058,
+   "headBelowTop": 0.778,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.529,
+    0.577
+   ],
+   "cam": [
+    -2.614,
+    5.92,
+    34.481
+   ],
+   "target": [
+    -1.608,
+    4.32,
+    42.255
+   ],
+   "fov": 50
+  },
+  "390x520": {
+   "herX": 0.782,
+   "feetAboveBottom": 0.058,
+   "headBelowTop": 0.778,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.521,
+    0.577
+   ],
+   "cam": [
+    -2.614,
+    5.92,
+    34.481
+   ],
+   "target": [
+    -1.608,
+    4.32,
+    42.255
+   ],
+   "fov": 50
+  }
+ },
+ "results": [
+  {
+   "id": "K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged",
+   "status": "PASS",
+   "totalM": 39.204,
+   "durationS": 17,
+   "timing": {
+    "durationS": 17,
+    "easeInS": 4,
+    "easeOutS": 4
+   },
+   "peaks": {
+    "speed": 3.015712052217833,
+    "accel": 1.413615024477109,
+    "jerk": 1.088201353216478
+   },
+   "bridgeStart": 3.298,
+   "bridgeEnd": 27.704,
+   "walkOnBankM": 11.5,
+   "footVsBankM": [
+    -0.011,
+    0.009
+   ],
+   "root": [
+    -0.114,
+    -0.58,
+    68.481
+   ],
+   "yawDeg": 180
+  },
+  {
+   "id": "K2 face/head/chest visible + lens ≥ 1.1 m every 0.05 m (island + lakeside)",
+   "status": "PASS",
+   "samples": 785,
+   "minLensM": 1.367,
+   "minLensAt": 14.35,
+   "minLensObj": "island:env_prop_palm_lean_01",
+   "setOffLegsOnlyExempted": [
+    {
+     "d": 0,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.05,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.1,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.15,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.2,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.25,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.3,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.35,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.4,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.45,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.5,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.55,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.6,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.65,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.7,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.75,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.8,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.85,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 0.9,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ],
+      "0.5": [
+       "island:env_island_props_merged"
+      ]
+     }
+    }
+   ],
+   "partialGrazes": [
+    {
+     "d": 0.95,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.05,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.1,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.15,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.2,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.25,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 1.3,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 2.75,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 2.8,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    },
+    {
+     "d": 2.85,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "K3 lens on her right for the whole leg",
+   "status": "PASS",
+   "minRightM": 1.745,
+   "at": 38.05,
+   "finalRightM": 1.745
+  },
+  {
+   "id": "K4 final landing frame 390x844 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
+   "status": "PASS",
+   "herX": 0.892,
+   "feetAboveBottom": 0.066,
+   "headBelowTop": 0.77,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.408,
+    0.59
+   ],
+   "cam": [
+    -2.114,
+    5.42,
+    35.481
+   ],
+   "target": [
+    -1.732,
+    4.073,
+    43.358
+   ],
+   "fov": 56
+  },
+  {
+   "id": "K4 final landing frame 414x896 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
+   "status": "PASS",
+   "herX": 0.892,
+   "feetAboveBottom": 0.066,
+   "headBelowTop": 0.77,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.408,
+    0.59
+   ],
+   "cam": [
+    -2.114,
+    5.42,
+    35.481
+   ],
+   "target": [
+    -1.732,
+    4.073,
+    43.358
+   ],
+   "fov": 56.0033
+  },
+  {
+   "id": "K4 final landing frame 360x780 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
+   "status": "PASS",
+   "herX": 0.892,
+   "feetAboveBottom": 0.067,
+   "headBelowTop": 0.77,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.408,
+    0.59
+   ],
+   "cam": [
+    -2.114,
+    5.42,
+    35.481
+   ],
+   "target": [
+    -1.732,
+    4.073,
+    43.358
+   ],
+   "fov": 56.0563
+  },
+  {
+   "id": "K4 final landing frame 375x667 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
+   "status": "PASS",
+   "herX": 0.877,
+   "feetAboveBottom": 0.058,
+   "headBelowTop": 0.778,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.529,
+    0.577
+   ],
+   "cam": [
+    -2.614,
+    5.92,
+    34.481
+   ],
+   "target": [
+    -1.608,
+    4.32,
+    42.255
+   ],
+   "fov": 50
+  },
+  {
+   "id": "K4 final landing frame 390x520 (this screen's route landing): whole body, feet ≥5% above bottom, her x 10–95% / feet ≥2.5% (b18b B″: she stands in the bottom-right corner clear of the tool row), whole body below the board tray (b18), readable height, board centre in frame",
+   "status": "PASS",
+   "herX": 0.782,
+   "feetAboveBottom": 0.058,
+   "headBelowTop": 0.778,
+   "herHeight": 0.163,
+   "boardCentre": [
+    0.521,
+    0.577
+   ],
+   "cam": [
+    -2.614,
+    5.92,
+    34.481
+   ],
+   "target": [
+    -1.608,
+    4.32,
+    42.255
+   ],
+   "fov": 50
+  },
+  {
+   "id": "K5 view turn ≤ 20°/s on the 17 s profile (base + every screen landing); no crane-up over the arrival (lens height above her never rises)",
+   "status": "PASS",
+   "maxTurnDegS": 5.92,
+   "atS": 12.55,
+   "arrivalWorldMaxClimbPerStepM": 0,
+   "arrivalRelativeUpStepsSumM": 0.045,
+   "arrivalLensAboveHerM": [
+    3.398,
+    3
+   ],
+   "arrivalLensWorldY": [
+    4.082,
+    3
+   ],
+   "maxLensAboveHerM": 3.463
+  },
+  {
+   "id": "K7 timing 17 s (16–18): her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the set-off fade, at rest when she stops",
+   "status": "PASS",
+   "new": {
+    "durationS": 17,
+    "her": {
+     "peakSpeed": {
+      "v": 3.0157,
+      "t": 12.6167
+     },
+     "peakAccel": {
+      "v": 1.4136,
+      "t": 15
+     },
+     "peakJerk": {
+      "v": 1.0881,
+      "t": 3.1667
+     }
+    },
+    "peakSpeed": {
+     "v": 3.0163,
+     "t": 10.7
+    },
+    "peakAccel": {
+     "v": 1.9489,
+     "t": 3.0833
+    },
+    "peakJerk": {
+     "v": 4.8671,
+     "t": 3.4833
+    },
+    "last05sMaxSpeed": 0.0462,
+    "speedAfterStop": 0
+   },
+   "previousC375304At1_2": {
+    "durationS": 32.6702,
+    "her": {
+     "peakSpeed": {
+      "v": 1.2,
+      "t": 13.3333
+     },
+     "peakAccel": {
+      "v": 56.676,
+      "t": 32.6667
+     },
+     "peakJerk": {
+      "v": 3400.5574,
+      "t": 32.6667
+     }
+    },
+    "peakSpeed": {
+     "v": 1.2002,
+     "t": 21.8667
+    },
+    "peakAccel": {
+     "v": 56.6752,
+     "t": 32.6667
+    },
+    "peakJerk": {
+     "v": 3400.4865,
+     "t": 32.6667
+    },
+    "last05sMaxSpeed": 1.2,
+    "speedAfterStop": 0
+   },
+   "fallbackDefaultAt1_2": {
+    "durationS": 32.6702,
+    "her": {
+     "peakSpeed": {
+      "v": 1.2,
+      "t": 13.3333
+     },
+     "peakAccel": {
+      "v": 56.676,
+      "t": 32.6667
+     },
+     "peakJerk": {
+      "v": 3400.5574,
+      "t": 32.6667
+     }
+    },
+    "peakSpeed": {
+     "v": 1.2,
+     "t": 27.2167
+    },
+    "peakAccel": {
+     "v": 56.676,
+     "t": 32.6667
+    },
+    "peakJerk": {
+     "v": 3400.5574,
+     "t": 32.6667
+    },
+    "last05sMaxSpeed": 1.2,
+    "speedAfterStop": 0
+   }
+  },
+  {
+   "id": "K6 board framing: 3D lake grid under the 2D board (centre + scale exact; tray inset asserted on landscape, reported on portrait), scene above the tray, lens clear",
+   "status": "PASS",
+   "layouts": {
+    "360x780 (0.46)": {
+     "pose": {
+      "position": [
+       2,
+       6,
+       33
+      ],
+      "target": [
+       0.5,
+       0.7,
+       2
+      ],
+      "fovVerticalDeg": 56.0563
+     },
+     "grid2d": {
+      "x": 180,
+      "y": 364.7,
+      "size": 288.3,
+      "pitch": 41.18
+     },
+     "trayTopFrac": 0.235,
+     "centreErrPx": 110.025,
+     "widthErrPx": 30.117,
+     "gridInsideTrayMinPx": -31.4,
+     "cornerErrCells": 5.513,
+     "cellCentreErrCells": 5.082,
+     "decorVisibleOutsideTray": 4,
+     "topEdgeGroundZ": "sky",
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "390x844 notch+capsule": {
+     "pose": {
+      "position": [
+       2,
+       6,
+       33
+      ],
+      "target": [
+       0.5,
+       0.7,
+       2
+      ],
+      "fovVerticalDeg": 56
+     },
+     "grid2d": {
+      "x": 195,
+      "y": 399.8,
+      "size": 298.2,
+      "pitch": 42.6
+     },
+     "trayTopFrac": 0.251,
+     "centreErrPx": 114.214,
+     "widthErrPx": 18.54,
+     "gridInsideTrayMinPx": -42.4,
+     "cornerErrCells": 5.454,
+     "cellCentreErrCells": 5.031,
+     "decorVisibleOutsideTray": 5,
+     "topEdgeGroundZ": "sky",
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "375x667 (0.56)": {
+     "pose": {
+      "position": [
+       2.5,
+       6.5,
+       34
+      ],
+      "target": [
+       -1.9,
+       -0.5,
+       0
+      ],
+      "fovVerticalDeg": 50
+     },
+     "grid2d": {
+      "x": 187.5,
+      "y": 349,
+      "size": 276.3,
+      "pitch": 39.47
+     },
+     "trayTopFrac": 0.262,
+     "centreErrPx": 46.097,
+     "widthErrPx": 38.186,
+     "gridInsideTrayMinPx": 19.8,
+     "cornerErrCells": 4.114,
+     "cellCentreErrCells": 3.661,
+     "decorVisibleOutsideTray": 7,
+     "topEdgeGroundZ": "sky",
+     "lensClearM": 3,
+     "fallbackRectErrPx": 21.918
+    },
+    "414x896": {
+     "pose": {
+      "position": [
+       2,
+       6,
+       33
+      ],
+      "target": [
+       0.5,
+       0.7,
+       2
+      ],
+      "fovVerticalDeg": 56.0033
+     },
+     "grid2d": {
+      "x": 207,
+      "y": 411.8,
+      "size": 316.6,
+      "pitch": 45.22
+     },
+     "trayTopFrac": 0.237,
+     "centreErrPx": 133.295,
+     "widthErrPx": 19.681,
+     "gridInsideTrayMinPx": -45,
+     "cornerErrCells": 5.726,
+     "cellCentreErrCells": 5.304,
+     "decorVisibleOutsideTray": 5,
+     "topEdgeGroundZ": "sky",
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "330x770 (0.43)": {
+     "pose": {
+      "position": [
+       2,
+       6,
+       33
+      ],
+      "target": [
+       0.5,
+       0.7,
+       2
+      ],
+      "fovVerticalDeg": 59.6503
+     },
+     "grid2d": {
+      "x": 165,
+      "y": 344,
+      "size": 263,
+      "pitch": 37.57
+     },
+     "trayTopFrac": 0.232,
+     "centreErrPx": 117.94,
+     "widthErrPx": 26.343,
+     "gridInsideTrayMinPx": -29.6,
+     "cornerErrCells": 5.979,
+     "cellCentreErrCells": 5.549,
+     "decorVisibleOutsideTray": 4,
+     "topEdgeGroundZ": "sky",
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "390x520 (0.75)": {
+     "pose": {
+      "position": [
+       2.5,
+       6.5,
+       34
+      ],
+      "target": [
+       -1.9,
+       -0.5,
+       0
+      ],
+      "fovVerticalDeg": 50
+     },
+     "grid2d": {
+      "x": 195,
+      "y": 274.5,
+      "size": 161.2,
+      "pitch": 23.02
+     },
+     "trayTopFrac": 0.333,
+     "centreErrPx": 33.592,
+     "widthErrPx": 24.458,
+     "gridInsideTrayMinPx": -16.7,
+     "cornerErrCells": 4.124,
+     "cellCentreErrCells": 3.742,
+     "decorVisibleOutsideTray": 53,
+     "topEdgeGroundZ": "sky",
+     "lensClearM": 3,
+     "fallbackRectErrPx": 137.035
+    },
+    "768x1024 tablet (0.75)": {
+     "pose": {
+      "position": [
+       2.5,
+       6.5,
+       34
+      ],
+      "target": [
+       -1.9,
+       -0.5,
+       0
+      ],
+      "fovVerticalDeg": 50
+     },
+     "grid2d": {
+      "x": 384,
+      "y": 445.9,
+      "size": 387.7,
+      "pitch": 55.38
+     },
+     "trayTopFrac": 0.197,
+     "centreErrPx": 159.534,
+     "widthErrPx": 22.127,
+     "gridInsideTrayMinPx": 8.8,
+     "cornerErrCells": 5.656,
+     "cellCentreErrCells": 5.247,
+     "decorVisibleOutsideTray": 21,
+     "topEdgeGroundZ": "sky",
+     "lensClearM": 3,
+     "fallbackRectErrPx": 0
+    },
+    "844x390 landscape": {
+     "pose": {
+      "position": [
+       -3.4984,
+       14.6858,
+       16.0675
+      ],
+      "target": [
+       -3.4984,
+       -0.0331,
+       12.1236
+      ],
+      "fovVerticalDeg": 40
+     },
+     "grid2d": {
+      "x": 545,
+      "y": 190.5,
+      "size": 270.7,
+      "pitch": 38.67
+     },
+     "trayTopFrac": 0.051,
+     "centreErrPx": 0.001,
+     "widthErrPx": 0,
+     "gridInsideTrayMinPx": 6.7,
+     "cornerErrCells": 0.529,
+     "cellCentreErrCells": 0.42,
+     "decorVisibleOutsideTray": 32,
+     "topEdgeGroundZ": 5.8,
+     "lensClearM": 3
+    }
+   }
+  },
+  {
+   "id": "K8 landing→board blend 1 s @60 Hz: exact ends, landing lens at rest, zero velocity at both ends, monotonic (no overshoot) distance/view/FOV, single-peak speed and turn rate (no spikes), lens ≥ 1.1 m, her face/head/chest never hidden, lens on her right while behind her",
+   "status": "PASS",
+   "landingLensAtStop": {
+    "speedMps": 0,
+    "turnDegS": 0
+   },
+   "landingToBoardGap": {
+    "390x844 (boardSafeInsets)": {
+     "endToBoard": {
+      "positionM": 8.88e-16,
+      "viewDeg": 0,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 6.3372,
+      "fovDeg": -1.3526
+     },
+     "screenLanding": {
+      "arrivalYawDeg": -2.6701,
+      "arrivalPitchDeg": 5.4298,
+      "arrivalFovDeg": 56
+     }
+    },
+    "414x896 (boardSafeInsets)": {
+     "endToBoard": {
+      "positionM": 8.88e-16,
+      "viewDeg": 0,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 6.3372,
+      "fovDeg": -1.3493
+     },
+     "screenLanding": {
+      "arrivalYawDeg": -2.6701,
+      "arrivalPitchDeg": 5.4298,
+      "arrivalFovDeg": 56.0033
+     }
+    },
+    "360x780 (boardSafeInsets)": {
+     "endToBoard": {
+      "positionM": 8.88e-16,
+      "viewDeg": 0,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 6.3372,
+      "fovDeg": -1.2963
+     },
+     "screenLanding": {
+      "arrivalYawDeg": -2.6701,
+      "arrivalPitchDeg": 5.4298,
+      "arrivalFovDeg": 56.0563
+     }
+    },
+    "375x667 (boardSafeInsets)": {
+     "endToBoard": {
+      "positionM": 2.22e-15,
+      "viewDeg": 0.00000121,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 1.4497,
+      "fovDeg": -7.3526
+     },
+     "screenLanding": {
+      "arrivalYawDeg": 0.8907,
+      "arrivalPitchDeg": 4.1031,
+      "arrivalFovDeg": 50
+     }
+    },
+    "390x520 (boardSafeInsets)": {
+     "endToBoard": {
+      "positionM": 2.22e-15,
+      "viewDeg": 0.00000121,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 1.4497,
+      "fovDeg": -7.3526
+     },
+     "screenLanding": {
+      "arrivalYawDeg": 0.8907,
+      "arrivalPitchDeg": 4.1031,
+      "arrivalFovDeg": 50
+     }
+    },
+    "360x780 (0.46)": {
+     "endToBoard": {
+      "positionM": 8.88e-16,
+      "viewDeg": 0,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 6.3372,
+      "fovDeg": -1.2963
+     },
+     "screenLanding": {
+      "arrivalYawDeg": -2.6701,
+      "arrivalPitchDeg": 5.4298,
+      "arrivalFovDeg": 56.0563
+     }
+    },
+    "390x844 notch+capsule": {
+     "endToBoard": {
+      "positionM": 8.88e-16,
+      "viewDeg": 0,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 6.3372,
+      "fovDeg": -1.3526
+     },
+     "screenLanding": {
+      "arrivalYawDeg": -2.6701,
+      "arrivalPitchDeg": 5.4298,
+      "arrivalFovDeg": 56
+     }
+    },
+    "375x667 (0.56)": {
+     "endToBoard": {
+      "positionM": 2.22e-15,
+      "viewDeg": 0.00000121,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 1.4497,
+      "fovDeg": -7.3526
+     },
+     "screenLanding": {
+      "arrivalYawDeg": 0.8907,
+      "arrivalPitchDeg": 4.1031,
+      "arrivalFovDeg": 50
+     }
+    },
+    "414x896": {
+     "endToBoard": {
+      "positionM": 8.88e-16,
+      "viewDeg": 0,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 6.3372,
+      "fovDeg": -1.3493
+     },
+     "screenLanding": {
+      "arrivalYawDeg": -2.6701,
+      "arrivalPitchDeg": 5.4298,
+      "arrivalFovDeg": 56.0033
+     }
+    },
+    "330x770 (0.43)": {
+     "endToBoard": {
+      "positionM": 8.88e-16,
+      "viewDeg": 0,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 6.3372,
+      "fovDeg": 2.2977
+     },
+     "screenLanding": {
+      "arrivalYawDeg": -2.6701,
+      "arrivalPitchDeg": 5.4298,
+      "arrivalFovDeg": 59.6503
+     }
+    },
+    "390x520 (0.75)": {
+     "endToBoard": {
+      "positionM": 2.22e-15,
+      "viewDeg": 0.00000121,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 1.4497,
+      "fovDeg": -7.3526
+     },
+     "screenLanding": {
+      "arrivalYawDeg": 0.8907,
+      "arrivalPitchDeg": 4.1031,
+      "arrivalFovDeg": 50
+     }
+    },
+    "768x1024 tablet (0.75)": {
+     "endToBoard": {
+      "positionM": 2.22e-15,
+      "viewDeg": 0.00000121,
+      "fovDeg": 0
+     },
+     "baseEndToBoard": {
+      "viewDeg": 1.4497,
+      "fovDeg": -7.3526
+     },
+     "screenLanding": {
+      "arrivalYawDeg": 0.8907,
+      "arrivalPitchDeg": 4.1031,
+      "arrivalFovDeg": 50
+     }
+    }
+   },
+   "blends": {
+    "360x780": {
+     "seconds": 1,
+     "frames": 61,
+     "from": {
+      "position": [
+       -3.058,
+       3,
+       37.318
+      ],
+      "fov": 57.353
+     },
+     "to": {
+      "position": [
+       -2.114,
+       5.42,
+       35.481
+      ],
+      "fov": 56.056
+     },
+     "moveM": 3.181,
+     "turnDeg": 6.337,
+     "fovChangeDeg": -1.296,
+     "minLensM": 2.992,
+     "minLensObj": "lakeside:LK_terrain_i",
+     "minRightWhileBehindM": 0.8,
+     "passesHerAtS": null,
+     "peakSpeedMps": 5.961,
+     "peakTurnDegS": 11.873,
+     "peakTurnAtS": 0.5,
+     "peakTurnAccelDegS2": 36.539,
+     "peakFovRateDegS": 2.429,
+     "endRates": {
+      "firstFrameTurnDegS": 0.017,
+      "lastFrameTurnDegS": 0.017,
+      "firstFrameFovDegS": 0.004,
+      "lastFrameFovDegS": 0.004
+     },
+     "perFrame": [
+      {
+       "t": 0,
+       "dispM": 0,
+       "angFromStartDeg": 0,
+       "angToEndDeg": 6.33719,
+       "fov": 57.35256,
+       "speedMps": 0,
+       "angVelDegS": 0,
+       "fovRateDegS": 0
+      },
+      {
+       "t": 0.0167,
+       "dispM": 0.00014,
+       "angFromStartDeg": 0.00029,
+       "angToEndDeg": 6.3369,
+       "fov": 57.3525,
+       "speedMps": 0.00862,
+       "angVelDegS": 0.01717,
+       "fovRateDegS": -0.00351
+      },
+      {
+       "t": 0.0333,
+       "dispM": 0.00112,
+       "angFromStartDeg": 0.00223,
+       "angToEndDeg": 6.33496,
+       "fov": 57.3521,
+       "speedMps": 0.05859,
+       "angVelDegS": 0.11671,
+       "fovRateDegS": -0.02387
+      },
+      {
+       "t": 0.05,
+       "dispM": 0.00368,
+       "angFromStartDeg": 0.00734,
+       "angToEndDeg": 6.32985,
+       "fov": 57.35106,
+       "speedMps": 0.15385,
+       "angVelDegS": 0.30648,
+       "fovRateDegS": -0.06269
+      },
+      {
+       "t": 0.0667,
+       "dispM": 0.00851,
+       "angFromStartDeg": 0.01695,
+       "angToEndDeg": 6.32024,
+       "fov": 57.34909,
+       "speedMps": 0.28946,
+       "angVelDegS": 0.5766,
+       "fovRateDegS": -0.11794
+      },
+      {
+       "t": 0.0833,
+       "dispM": 0.01619,
+       "angFromStartDeg": 0.03224,
+       "angToEndDeg": 6.30495,
+       "fov": 57.34596,
+       "speedMps": 0.46063,
+       "angVelDegS": 0.91757,
+       "fovRateDegS": -0.18769
+      },
+      {
+       "t": 0.1,
+       "dispM": 0.02723,
+       "angFromStartDeg": 0.05425,
+       "angToEndDeg": 6.28294,
+       "fov": 57.34146,
+       "speedMps": 0.66278,
+       "angVelDegS": 1.32025,
+       "fovRateDegS": -0.27005
+      },
+      {
+       "t": 0.1167,
+       "dispM": 0.04209,
+       "angFromStartDeg": 0.08384,
+       "angToEndDeg": 6.25334,
+       "fov": 57.33541,
+       "speedMps": 0.89148,
+       "angVelDegS": 1.77582,
+       "fovRateDegS": -0.36324
+      },
+      {
+       "t": 0.1333,
+       "dispM": 0.06113,
+       "angFromStartDeg": 0.12177,
+       "angToEndDeg": 6.21541,
+       "fov": 57.32765,
+       "speedMps": 1.14249,
+       "angVelDegS": 2.27585,
+       "fovRateDegS": -0.46552
+      },
+      {
+       "t": 0.15,
+       "dispM": 0.08466,
+       "angFromStartDeg": 0.16864,
+       "angToEndDeg": 6.16854,
+       "fov": 57.31806,
+       "speedMps": 1.41175,
+       "angVelDegS": 2.81222,
+       "fovRateDegS": -0.57523
+      },
+      {
+       "t": 0.1667,
+       "dispM": 0.11292,
+       "angFromStartDeg": 0.22493,
+       "angToEndDeg": 6.11226,
+       "fov": 57.30655,
+       "speedMps": 1.69538,
+       "angVelDegS": 3.3772,
+       "fovRateDegS": -0.6908
+      },
+      {
+       "t": 0.1833,
+       "dispM": 0.14608,
+       "angFromStartDeg": 0.29099,
+       "angToEndDeg": 6.0462,
+       "fov": 57.29304,
+       "speedMps": 1.98965,
+       "angVelDegS": 3.96339,
+       "fovRateDegS": -0.8107
+      },
+      {
+       "t": 0.2,
+       "dispM": 0.18426,
+       "angFromStartDeg": 0.36705,
+       "angToEndDeg": 5.97014,
+       "fov": 57.27748,
+       "speedMps": 2.29103,
+       "angVelDegS": 4.56375,
+       "fovRateDegS": -0.93351
+      },
+      {
+       "t": 0.2167,
+       "dispM": 0.22753,
+       "angFromStartDeg": 0.45324,
+       "angToEndDeg": 5.88394,
+       "fov": 57.25985,
+       "speedMps": 2.59618,
+       "angVelDegS": 5.17159,
+       "fovRateDegS": -1.05784
+      },
+      {
+       "t": 0.2333,
+       "dispM": 0.2759,
+       "angFromStartDeg": 0.54959,
+       "angToEndDeg": 5.7876,
+       "fov": 57.24014,
+       "speedMps": 2.90189,
+       "angVelDegS": 5.78057,
+       "fovRateDegS": -1.18241
+      },
+      {
+       "t": 0.25,
+       "dispM": 0.32932,
+       "angFromStartDeg": 0.656,
+       "angToEndDeg": 5.68119,
+       "fov": 57.21838,
+       "speedMps": 3.20518,
+       "angVelDegS": 6.38472,
+       "fovRateDegS": -1.30598
+      },
+      {
+       "t": 0.2667,
+       "dispM": 0.3877,
+       "angFromStartDeg": 0.7723,
+       "angToEndDeg": 5.56488,
+       "fov": 57.19459,
+       "speedMps": 3.5032,
+       "angVelDegS": 6.97839,
+       "fovRateDegS": -1.42742
+      },
+      {
+       "t": 0.2833,
+       "dispM": 0.45092,
+       "angFromStartDeg": 0.89824,
+       "angToEndDeg": 5.43894,
+       "fov": 57.16883,
+       "speedMps": 3.79332,
+       "angVelDegS": 7.55631,
+       "fovRateDegS": -1.54563
+      },
+      {
+       "t": 0.3,
+       "dispM": 0.51881,
+       "angFromStartDeg": 1.03347,
+       "angToEndDeg": 5.30372,
+       "fov": 57.14117,
+       "speedMps": 4.07306,
+       "angVelDegS": 8.11354,
+       "fovRateDegS": -1.65961
+      },
+      {
+       "t": 0.3167,
+       "dispM": 0.59114,
+       "angFromStartDeg": 1.17756,
+       "angToEndDeg": 5.15963,
+       "fov": 57.11169,
+       "speedMps": 4.34011,
+       "angVelDegS": 8.64551,
+       "fovRateDegS": -1.76842
+      },
+      {
+       "t": 0.3333,
+       "dispM": 0.66768,
+       "angFromStartDeg": 1.33003,
+       "angToEndDeg": 5.00716,
+       "fov": 57.08051,
+       "speedMps": 4.59236,
+       "angVelDegS": 9.148,
+       "fovRateDegS": -1.87121
+      },
+      {
+       "t": 0.35,
+       "dispM": 0.74815,
+       "angFromStartDeg": 1.49031,
+       "angToEndDeg": 4.84688,
+       "fov": 57.04772,
+       "speedMps": 4.82787,
+       "angVelDegS": 9.61713,
+       "fovRateDegS": -1.96717
+      },
+      {
+       "t": 0.3667,
+       "dispM": 0.83223,
+       "angFromStartDeg": 1.6578,
+       "angToEndDeg": 4.67939,
+       "fov": 57.01346,
+       "speedMps": 5.04486,
+       "angVelDegS": 10.04937,
+       "fovRateDegS": -2.05558
+      },
+      {
+       "t": 0.3833,
+       "dispM": 0.91959,
+       "angFromStartDeg": 1.83183,
+       "angToEndDeg": 4.50536,
+       "fov": 56.97786,
+       "speedMps": 5.24175,
+       "angVelDegS": 10.44158,
+       "fovRateDegS": -2.1358
+      },
+      {
+       "t": 0.4,
+       "dispM": 1.00988,
+       "angFromStartDeg": 2.01168,
+       "angToEndDeg": 4.32551,
+       "fov": 56.94108,
+       "speedMps": 5.41712,
+       "angVelDegS": 10.79091,
+       "fovRateDegS": -2.20726
+      },
+      {
+       "t": 0.4167,
+       "dispM": 1.10271,
+       "angFromStartDeg": 2.19659,
+       "angToEndDeg": 4.1406,
+       "fov": 56.90325,
+       "speedMps": 5.56973,
+       "angVelDegS": 11.09492,
+       "fovRateDegS": -2.26945
+      },
+      {
+       "t": 0.4333,
+       "dispM": 1.19768,
+       "angFromStartDeg": 2.38578,
+       "angToEndDeg": 3.9514,
+       "fov": 56.86455,
+       "speedMps": 5.69853,
+       "angVelDegS": 11.35149,
+       "fovRateDegS": -2.32193
+      },
+      {
+       "t": 0.45,
+       "dispM": 1.29439,
+       "angFromStartDeg": 2.57843,
+       "angToEndDeg": 3.75876,
+       "fov": 56.82515,
+       "speedMps": 5.80263,
+       "angVelDegS": 11.55886,
+       "fovRateDegS": -2.36434
+      },
+      {
+       "t": 0.4667,
+       "dispM": 1.39241,
+       "angFromStartDeg": 2.77369,
+       "angToEndDeg": 3.5635,
+       "fov": 56.78521,
+       "speedMps": 5.88133,
+       "angVelDegS": 11.71561,
+       "fovRateDegS": -2.39641
+      },
+      {
+       "t": 0.4833,
+       "dispM": 1.49132,
+       "angFromStartDeg": 2.9707,
+       "angToEndDeg": 3.36648,
+       "fov": 56.74491,
+       "speedMps": 5.93408,
+       "angVelDegS": 11.82071,
+       "fovRateDegS": -2.4179
+      },
+      {
+       "t": 0.5,
+       "dispM": 1.59066,
+       "angFromStartDeg": 3.16859,
+       "angToEndDeg": 3.16859,
+       "fov": 56.70443,
+       "speedMps": 5.96055,
+       "angVelDegS": 11.87343,
+       "fovRateDegS": -2.42869
+      },
+      {
+       "t": 0.5167,
+       "dispM": 1.69,
+       "angFromStartDeg": 3.36648,
+       "angToEndDeg": 2.9707,
+       "fov": 56.66395,
+       "speedMps": 5.96055,
+       "angVelDegS": 11.87343,
+       "fovRateDegS": -2.42869
+      },
+      {
+       "t": 0.5333,
+       "dispM": 1.7889,
+       "angFromStartDeg": 3.5635,
+       "angToEndDeg": 2.77369,
+       "fov": 56.62365,
+       "speedMps": 5.93408,
+       "angVelDegS": 11.82071,
+       "fovRateDegS": -2.4179
+      },
+      {
+       "t": 0.55,
+       "dispM": 1.88692,
+       "angFromStartDeg": 3.75876,
+       "angToEndDeg": 2.57843,
+       "fov": 56.58371,
+       "speedMps": 5.88133,
+       "angVelDegS": 11.71561,
+       "fovRateDegS": -2.39641
+      },
+      {
+       "t": 0.5667,
+       "dispM": 1.98363,
+       "angFromStartDeg": 3.9514,
+       "angToEndDeg": 2.38578,
+       "fov": 56.54431,
+       "speedMps": 5.80263,
+       "angVelDegS": 11.55886,
+       "fovRateDegS": -2.36434
+      },
+      {
+       "t": 0.5833,
+       "dispM": 2.07861,
+       "angFromStartDeg": 4.1406,
+       "angToEndDeg": 2.19659,
+       "fov": 56.50561,
+       "speedMps": 5.69853,
+       "angVelDegS": 11.35149,
+       "fovRateDegS": -2.32193
+      },
+      {
+       "t": 0.6,
+       "dispM": 2.17144,
+       "angFromStartDeg": 4.32551,
+       "angToEndDeg": 2.01168,
+       "fov": 56.46778,
+       "speedMps": 5.56973,
+       "angVelDegS": 11.09492,
+       "fovRateDegS": -2.26945
+      },
+      {
+       "t": 0.6167,
+       "dispM": 2.26172,
+       "angFromStartDeg": 4.50536,
+       "angToEndDeg": 1.83183,
+       "fov": 56.431,
+       "speedMps": 5.41712,
+       "angVelDegS": 10.79091,
+       "fovRateDegS": -2.20726
+      },
+      {
+       "t": 0.6333,
+       "dispM": 2.34909,
+       "angFromStartDeg": 4.67939,
+       "angToEndDeg": 1.6578,
+       "fov": 56.3954,
+       "speedMps": 5.24175,
+       "angVelDegS": 10.44158,
+       "fovRateDegS": -2.1358
+      },
+      {
+       "t": 0.65,
+       "dispM": 2.43317,
+       "angFromStartDeg": 4.84688,
+       "angToEndDeg": 1.49031,
+       "fov": 56.36114,
+       "speedMps": 5.04486,
+       "angVelDegS": 10.04937,
+       "fovRateDegS": -2.05558
+      },
+      {
+       "t": 0.6667,
+       "dispM": 2.51363,
+       "angFromStartDeg": 5.00716,
+       "angToEndDeg": 1.33003,
+       "fov": 56.32835,
+       "speedMps": 4.82787,
+       "angVelDegS": 9.61713,
+       "fovRateDegS": -1.96717
+      },
+      {
+       "t": 0.6833,
+       "dispM": 2.59017,
+       "angFromStartDeg": 5.15963,
+       "angToEndDeg": 1.17756,
+       "fov": 56.29717,
+       "speedMps": 4.59236,
+       "angVelDegS": 9.148,
+       "fovRateDegS": -1.87121
+      },
+      {
+       "t": 0.7,
+       "dispM": 2.66251,
+       "angFromStartDeg": 5.30372,
+       "angToEndDeg": 1.03347,
+       "fov": 56.26769,
+       "speedMps": 4.34011,
+       "angVelDegS": 8.64551,
+       "fovRateDegS": -1.76842
+      },
+      {
+       "t": 0.7167,
+       "dispM": 2.73039,
+       "angFromStartDeg": 5.43894,
+       "angToEndDeg": 0.89824,
+       "fov": 56.24003,
+       "speedMps": 4.07306,
+       "angVelDegS": 8.11354,
+       "fovRateDegS": -1.65961
+      },
+      {
+       "t": 0.7333,
+       "dispM": 2.79361,
+       "angFromStartDeg": 5.56488,
+       "angToEndDeg": 0.7723,
+       "fov": 56.21427,
+       "speedMps": 3.79332,
+       "angVelDegS": 7.55631,
+       "fovRateDegS": -1.54563
+      },
+      {
+       "t": 0.75,
+       "dispM": 2.852,
+       "angFromStartDeg": 5.68119,
+       "angToEndDeg": 0.656,
+       "fov": 56.19048,
+       "speedMps": 3.5032,
+       "angVelDegS": 6.97839,
+       "fovRateDegS": -1.42742
+      },
+      {
+       "t": 0.7667,
+       "dispM": 2.90542,
+       "angFromStartDeg": 5.7876,
+       "angToEndDeg": 0.54959,
+       "fov": 56.16872,
+       "speedMps": 3.20518,
+       "angVelDegS": 6.38472,
+       "fovRateDegS": -1.30598
+      },
+      {
+       "t": 0.7833,
+       "dispM": 2.95378,
+       "angFromStartDeg": 5.88394,
+       "angToEndDeg": 0.45324,
+       "fov": 56.14901,
+       "speedMps": 2.90189,
+       "angVelDegS": 5.78057,
+       "fovRateDegS": -1.18241
+      },
+      {
+       "t": 0.8,
+       "dispM": 2.99705,
+       "angFromStartDeg": 5.97014,
+       "angToEndDeg": 0.36705,
+       "fov": 56.13138,
+       "speedMps": 2.59618,
+       "angVelDegS": 5.17159,
+       "fovRateDegS": -1.05784
+      },
+      {
+       "t": 0.8167,
+       "dispM": 3.03524,
+       "angFromStartDeg": 6.0462,
+       "angToEndDeg": 0.29099,
+       "fov": 56.11582,
+       "speedMps": 2.29103,
+       "angVelDegS": 4.56375,
+       "fovRateDegS": -0.93351
+      },
+      {
+       "t": 0.8333,
+       "dispM": 3.0684,
+       "angFromStartDeg": 6.11226,
+       "angToEndDeg": 0.22493,
+       "fov": 56.10231,
+       "speedMps": 1.98965,
+       "angVelDegS": 3.96339,
+       "fovRateDegS": -0.8107
+      },
+      {
+       "t": 0.85,
+       "dispM": 3.09665,
+       "angFromStartDeg": 6.16854,
+       "angToEndDeg": 0.16864,
+       "fov": 56.0908,
+       "speedMps": 1.69538,
+       "angVelDegS": 3.3772,
+       "fovRateDegS": -0.6908
+      },
+      {
+       "t": 0.8667,
+       "dispM": 3.12018,
+       "angFromStartDeg": 6.21541,
+       "angToEndDeg": 0.12177,
+       "fov": 56.08121,
+       "speedMps": 1.41175,
+       "angVelDegS": 2.81222,
+       "fovRateDegS": -0.57523
+      },
+      {
+       "t": 0.8833,
+       "dispM": 3.13923,
+       "angFromStartDeg": 6.25334,
+       "angToEndDeg": 0.08384,
+       "fov": 56.07345,
+       "speedMps": 1.14249,
+       "angVelDegS": 2.27585,
+       "fovRateDegS": -0.46552
+      },
+      {
+       "t": 0.9,
+       "dispM": 3.15408,
+       "angFromStartDeg": 6.28294,
+       "angToEndDeg": 0.05425,
+       "fov": 56.0674,
+       "speedMps": 0.89148,
+       "angVelDegS": 1.77582,
+       "fovRateDegS": -0.36324
+      },
+      {
+       "t": 0.9167,
+       "dispM": 3.16513,
+       "angFromStartDeg": 6.30495,
+       "angToEndDeg": 0.03224,
+       "fov": 56.0629,
+       "speedMps": 0.66278,
+       "angVelDegS": 1.32025,
+       "fovRateDegS": -0.27005
+      },
+      {
+       "t": 0.9333,
+       "dispM": 3.17281,
+       "angFromStartDeg": 6.32024,
+       "angToEndDeg": 0.01695,
+       "fov": 56.05977,
+       "speedMps": 0.46063,
+       "angVelDegS": 0.91757,
+       "fovRateDegS": -0.18769
+      },
+      {
+       "t": 0.95,
+       "dispM": 3.17763,
+       "angFromStartDeg": 6.32985,
+       "angToEndDeg": 0.00734,
+       "fov": 56.0578,
+       "speedMps": 0.28946,
+       "angVelDegS": 0.5766,
+       "fovRateDegS": -0.11794
+      },
+      {
+       "t": 0.9667,
+       "dispM": 3.1802,
+       "angFromStartDeg": 6.33496,
+       "angToEndDeg": 0.00223,
+       "fov": 56.05676,
+       "speedMps": 0.15385,
+       "angVelDegS": 0.30648,
+       "fovRateDegS": -0.06269
+      },
+      {
+       "t": 0.9833,
+       "dispM": 3.18117,
+       "angFromStartDeg": 6.3369,
+       "angToEndDeg": 0.00029,
+       "fov": 56.05636,
+       "speedMps": 0.05859,
+       "angVelDegS": 0.11671,
+       "fovRateDegS": -0.02387
+      },
+      {
+       "t": 1,
+       "dispM": 3.18132,
+       "angFromStartDeg": 6.33719,
+       "angToEndDeg": 0,
+       "fov": 56.0563,
+       "speedMps": 0.00862,
+       "angVelDegS": 0.01717,
+       "fovRateDegS": -0.00351
+      }
+     ]
+    },
+    "390x520": {
+     "seconds": 1,
+     "frames": 61,
+     "from": {
+      "position": [
+       -3.058,
+       3,
+       37.318
+      ],
+      "fov": 57.353
+     },
+     "to": {
+      "position": [
+       -2.614,
+       5.92,
+       34.481
+      ],
+      "fov": 50
+     },
+     "moveM": 4.095,
+     "turnDeg": 1.45,
+     "fovChangeDeg": -7.353,
+     "minLensM": 2.992,
+     "minLensObj": "lakeside:LK_terrain_i",
+     "minRightWhileBehindM": 1.3,
+     "passesHerAtS": null,
+     "peakSpeedMps": 7.672,
+     "peakTurnDegS": 2.716,
+     "peakTurnAtS": 0.517,
+     "peakTurnAccelDegS2": 8.359,
+     "peakFovRateDegS": 13.776,
+     "endRates": {
+      "firstFrameTurnDegS": 0.004,
+      "lastFrameTurnDegS": 0.004,
+      "firstFrameFovDegS": 0.02,
+      "lastFrameFovDegS": 0.02
+     },
+     "perFrame": [
+      {
+       "t": 0,
+       "dispM": 0,
+       "angFromStartDeg": 0,
+       "angToEndDeg": 1.44974,
+       "fov": 57.35256,
+       "speedMps": 0,
+       "angVelDegS": 0,
+       "fovRateDegS": 0
+      },
+      {
+       "t": 0.0167,
+       "dispM": 0.00018,
+       "angFromStartDeg": 0.00007,
+       "angToEndDeg": 1.44967,
+       "fov": 57.35223,
+       "speedMps": 0.01109,
+       "angVelDegS": 0.00393,
+       "fovRateDegS": -0.01992
+      },
+      {
+       "t": 0.0333,
+       "dispM": 0.00144,
+       "angFromStartDeg": 0.00051,
+       "angToEndDeg": 1.44923,
+       "fov": 57.34997,
+       "speedMps": 0.07542,
+       "angVelDegS": 0.0267,
+       "fovRateDegS": -0.13541
+      },
+      {
+       "t": 0.05,
+       "dispM": 0.00474,
+       "angFromStartDeg": 0.00168,
+       "angToEndDeg": 1.44806,
+       "fov": 57.34404,
+       "speedMps": 0.19804,
+       "angVelDegS": 0.07011,
+       "fovRateDegS": -0.35558
+      },
+      {
+       "t": 0.0667,
+       "dispM": 0.01095,
+       "angFromStartDeg": 0.00388,
+       "angToEndDeg": 1.44586,
+       "fov": 57.3329,
+       "speedMps": 0.37258,
+       "angVelDegS": 0.13191,
+       "fovRateDegS": -0.66898
+      },
+      {
+       "t": 0.0833,
+       "dispM": 0.02083,
+       "angFromStartDeg": 0.00738,
+       "angToEndDeg": 1.44236,
+       "fov": 57.31515,
+       "speedMps": 0.59291,
+       "angVelDegS": 0.20991,
+       "fovRateDegS": -1.06459
+      },
+      {
+       "t": 0.1,
+       "dispM": 0.03505,
+       "angFromStartDeg": 0.01241,
+       "angToEndDeg": 1.43733,
+       "fov": 57.28962,
+       "speedMps": 0.85311,
+       "angVelDegS": 0.30203,
+       "fovRateDegS": -1.53179
+      },
+      {
+       "t": 0.1167,
+       "dispM": 0.05418,
+       "angFromStartDeg": 0.01918,
+       "angToEndDeg": 1.43056,
+       "fov": 57.25528,
+       "speedMps": 1.14749,
+       "angVelDegS": 0.40625,
+       "fovRateDegS": -2.06035
+      },
+      {
+       "t": 0.1333,
+       "dispM": 0.07869,
+       "angFromStartDeg": 0.02786,
+       "angToEndDeg": 1.42188,
+       "fov": 57.21127,
+       "speedMps": 1.47059,
+       "angVelDegS": 0.52064,
+       "fovRateDegS": -2.64049
+      },
+      {
+       "t": 0.15,
+       "dispM": 0.10897,
+       "angFromStartDeg": 0.03858,
+       "angToEndDeg": 1.41116,
+       "fov": 57.15689,
+       "speedMps": 1.81718,
+       "angVelDegS": 0.64334,
+       "fovRateDegS": -3.2628
+      },
+      {
+       "t": 0.1667,
+       "dispM": 0.14534,
+       "angFromStartDeg": 0.05146,
+       "angToEndDeg": 1.39828,
+       "fov": 57.09159,
+       "speedMps": 2.18226,
+       "angVelDegS": 0.77259,
+       "fovRateDegS": -3.91831
+      },
+      {
+       "t": 0.1833,
+       "dispM": 0.18803,
+       "angFromStartDeg": 0.06657,
+       "angToEndDeg": 1.38317,
+       "fov": 57.01495,
+       "speedMps": 2.56104,
+       "angVelDegS": 0.90669,
+       "fovRateDegS": -4.59842
+      },
+      {
+       "t": 0.2,
+       "dispM": 0.23718,
+       "angFromStartDeg": 0.08397,
+       "angToEndDeg": 1.36577,
+       "fov": 56.9267,
+       "speedMps": 2.94898,
+       "angVelDegS": 1.04403,
+       "fovRateDegS": -5.29497
+      },
+      {
+       "t": 0.2167,
+       "dispM": 0.29287,
+       "angFromStartDeg": 0.10369,
+       "angToEndDeg": 1.34605,
+       "fov": 56.8267,
+       "speedMps": 3.34175,
+       "angVelDegS": 1.18309,
+       "fovRateDegS": -6.0002
+      },
+      {
+       "t": 0.2333,
+       "dispM": 0.35513,
+       "angFromStartDeg": 0.12573,
+       "angToEndDeg": 1.32401,
+       "fov": 56.71492,
+       "speedMps": 3.73526,
+       "angVelDegS": 1.3224,
+       "fovRateDegS": -6.70676
+      },
+      {
+       "t": 0.25,
+       "dispM": 0.42389,
+       "angFromStartDeg": 0.15007,
+       "angToEndDeg": 1.29967,
+       "fov": 56.59146,
+       "speedMps": 4.12565,
+       "angVelDegS": 1.46061,
+       "fovRateDegS": -7.40771
+      },
+      {
+       "t": 0.2667,
+       "dispM": 0.49904,
+       "angFromStartDeg": 0.17668,
+       "angToEndDeg": 1.27306,
+       "fov": 56.45651,
+       "speedMps": 4.50926,
+       "angVelDegS": 1.59643,
+       "fovRateDegS": -8.0965
+      },
+      {
+       "t": 0.2833,
+       "dispM": 0.58042,
+       "angFromStartDeg": 0.20549,
+       "angToEndDeg": 1.24425,
+       "fov": 56.3104,
+       "speedMps": 4.8827,
+       "angVelDegS": 1.72863,
+       "fovRateDegS": -8.76701
+      },
+      {
+       "t": 0.3,
+       "dispM": 0.6678,
+       "angFromStartDeg": 0.23642,
+       "angToEndDeg": 1.21332,
+       "fov": 56.1535,
+       "speedMps": 5.24277,
+       "angVelDegS": 1.85611,
+       "fovRateDegS": -9.41353
+      },
+      {
+       "t": 0.3167,
+       "dispM": 0.76091,
+       "angFromStartDeg": 0.26939,
+       "angToEndDeg": 1.18035,
+       "fov": 55.98633,
+       "speedMps": 5.58651,
+       "angVelDegS": 1.97781,
+       "fovRateDegS": -10.03073
+      },
+      {
+       "t": 0.3333,
+       "dispM": 0.85943,
+       "angFromStartDeg": 0.30427,
+       "angToEndDeg": 1.14547,
+       "fov": 55.80943,
+       "speedMps": 5.91121,
+       "angVelDegS": 2.09276,
+       "fovRateDegS": -10.61373
+      },
+      {
+       "t": 0.35,
+       "dispM": 0.963,
+       "angFromStartDeg": 0.34093,
+       "angToEndDeg": 1.1088,
+       "fov": 55.62346,
+       "speedMps": 6.21434,
+       "angVelDegS": 2.20008,
+       "fovRateDegS": -11.15802
+      },
+      {
+       "t": 0.3667,
+       "dispM": 1.07123,
+       "angFromStartDeg": 0.37925,
+       "angToEndDeg": 1.07049,
+       "fov": 55.42914,
+       "speedMps": 6.49365,
+       "angVelDegS": 2.29896,
+       "fovRateDegS": -11.65953
+      },
+      {
+       "t": 0.3833,
+       "dispM": 1.18368,
+       "angFromStartDeg": 0.41906,
+       "angToEndDeg": 1.03068,
+       "fov": 55.22723,
+       "speedMps": 6.74708,
+       "angVelDegS": 2.38869,
+       "fovRateDegS": -12.11457
+      },
+      {
+       "t": 0.4,
+       "dispM": 1.2999,
+       "angFromStartDeg": 0.46021,
+       "angToEndDeg": 0.98953,
+       "fov": 55.01856,
+       "speedMps": 6.97282,
+       "angVelDegS": 2.4686,
+       "fovRateDegS": -12.51988
+      },
+      {
+       "t": 0.4167,
+       "dispM": 1.41938,
+       "angFromStartDeg": 0.50251,
+       "angToEndDeg": 0.94723,
+       "fov": 54.80402,
+       "speedMps": 7.16926,
+       "angVelDegS": 2.53815,
+       "fovRateDegS": -12.8726
+      },
+      {
+       "t": 0.4333,
+       "dispM": 1.54163,
+       "angFromStartDeg": 0.54579,
+       "angToEndDeg": 0.90395,
+       "fov": 54.58452,
+       "speedMps": 7.33505,
+       "angVelDegS": 2.59685,
+       "fovRateDegS": -13.17028
+      },
+      {
+       "t": 0.45,
+       "dispM": 1.66612,
+       "angFromStartDeg": 0.58986,
+       "angToEndDeg": 0.85988,
+       "fov": 54.361,
+       "speedMps": 7.46904,
+       "angVelDegS": 2.64428,
+       "fovRateDegS": -13.41087
+      },
+      {
+       "t": 0.4667,
+       "dispM": 1.79229,
+       "angFromStartDeg": 0.63453,
+       "angToEndDeg": 0.81521,
+       "fov": 54.13446,
+       "speedMps": 7.57034,
+       "angVelDegS": 2.68015,
+       "fovRateDegS": -13.59274
+      },
+      {
+       "t": 0.4833,
+       "dispM": 1.91959,
+       "angFromStartDeg": 0.6796,
+       "angToEndDeg": 0.77014,
+       "fov": 53.90588,
+       "speedMps": 7.63824,
+       "angVelDegS": 2.70419,
+       "fovRateDegS": -13.71467
+      },
+      {
+       "t": 0.5,
+       "dispM": 2.04747,
+       "angFromStartDeg": 0.72487,
+       "angToEndDeg": 0.72487,
+       "fov": 53.67628,
+       "speedMps": 7.67231,
+       "angVelDegS": 2.71625,
+       "fovRateDegS": -13.77584
+      },
+      {
+       "t": 0.5167,
+       "dispM": 2.17534,
+       "angFromStartDeg": 0.77014,
+       "angToEndDeg": 0.6796,
+       "fov": 53.44668,
+       "speedMps": 7.67231,
+       "angVelDegS": 2.71625,
+       "fovRateDegS": -13.77584
+      },
+      {
+       "t": 0.5333,
+       "dispM": 2.30264,
+       "angFromStartDeg": 0.81521,
+       "angToEndDeg": 0.63453,
+       "fov": 53.2181,
+       "speedMps": 7.63824,
+       "angVelDegS": 2.70419,
+       "fovRateDegS": -13.71467
+      },
+      {
+       "t": 0.55,
+       "dispM": 2.42881,
+       "angFromStartDeg": 0.85988,
+       "angToEndDeg": 0.58986,
+       "fov": 52.99156,
+       "speedMps": 7.57034,
+       "angVelDegS": 2.68015,
+       "fovRateDegS": -13.59274
+      },
+      {
+       "t": 0.5667,
+       "dispM": 2.5533,
+       "angFromStartDeg": 0.90395,
+       "angToEndDeg": 0.54579,
+       "fov": 52.76804,
+       "speedMps": 7.46904,
+       "angVelDegS": 2.64428,
+       "fovRateDegS": -13.41087
+      },
+      {
+       "t": 0.5833,
+       "dispM": 2.67555,
+       "angFromStartDeg": 0.94723,
+       "angToEndDeg": 0.50251,
+       "fov": 52.54854,
+       "speedMps": 7.33505,
+       "angVelDegS": 2.59685,
+       "fovRateDegS": -13.17028
+      },
+      {
+       "t": 0.6,
+       "dispM": 2.79504,
+       "angFromStartDeg": 0.98953,
+       "angToEndDeg": 0.46021,
+       "fov": 52.334,
+       "speedMps": 7.16926,
+       "angVelDegS": 2.53815,
+       "fovRateDegS": -12.8726
+      },
+      {
+       "t": 0.6167,
+       "dispM": 2.91125,
+       "angFromStartDeg": 1.03068,
+       "angToEndDeg": 0.41906,
+       "fov": 52.12533,
+       "speedMps": 6.97282,
+       "angVelDegS": 2.4686,
+       "fovRateDegS": -12.51988
+      },
+      {
+       "t": 0.6333,
+       "dispM": 3.0237,
+       "angFromStartDeg": 1.07049,
+       "angToEndDeg": 0.37925,
+       "fov": 51.92342,
+       "speedMps": 6.74708,
+       "angVelDegS": 2.38869,
+       "fovRateDegS": -12.11457
+      },
+      {
+       "t": 0.65,
+       "dispM": 3.13193,
+       "angFromStartDeg": 1.1088,
+       "angToEndDeg": 0.34093,
+       "fov": 51.7291,
+       "speedMps": 6.49365,
+       "angVelDegS": 2.29896,
+       "fovRateDegS": -11.65953
+      },
+      {
+       "t": 0.6667,
+       "dispM": 3.2355,
+       "angFromStartDeg": 1.14547,
+       "angToEndDeg": 0.30427,
+       "fov": 51.54313,
+       "speedMps": 6.21434,
+       "angVelDegS": 2.20008,
+       "fovRateDegS": -11.15802
+      },
+      {
+       "t": 0.6833,
+       "dispM": 3.33402,
+       "angFromStartDeg": 1.18035,
+       "angToEndDeg": 0.26939,
+       "fov": 51.36623,
+       "speedMps": 5.91121,
+       "angVelDegS": 2.09276,
+       "fovRateDegS": -10.61373
+      },
+      {
+       "t": 0.7,
+       "dispM": 3.42713,
+       "angFromStartDeg": 1.21332,
+       "angToEndDeg": 0.23642,
+       "fov": 51.19906,
+       "speedMps": 5.58651,
+       "angVelDegS": 1.97781,
+       "fovRateDegS": -10.03073
+      },
+      {
+       "t": 0.7167,
+       "dispM": 3.51451,
+       "angFromStartDeg": 1.24425,
+       "angToEndDeg": 0.20549,
+       "fov": 51.04216,
+       "speedMps": 5.24277,
+       "angVelDegS": 1.85611,
+       "fovRateDegS": -9.41353
+      },
+      {
+       "t": 0.7333,
+       "dispM": 3.59589,
+       "angFromStartDeg": 1.27306,
+       "angToEndDeg": 0.17668,
+       "fov": 50.89605,
+       "speedMps": 4.8827,
+       "angVelDegS": 1.72863,
+       "fovRateDegS": -8.76701
+      },
+      {
+       "t": 0.75,
+       "dispM": 3.67104,
+       "angFromStartDeg": 1.29967,
+       "angToEndDeg": 0.15007,
+       "fov": 50.7611,
+       "speedMps": 4.50926,
+       "angVelDegS": 1.59643,
+       "fovRateDegS": -8.0965
+      },
+      {
+       "t": 0.7667,
+       "dispM": 3.7398,
+       "angFromStartDeg": 1.32401,
+       "angToEndDeg": 0.12573,
+       "fov": 50.63764,
+       "speedMps": 4.12565,
+       "angVelDegS": 1.46061,
+       "fovRateDegS": -7.40771
+      },
+      {
+       "t": 0.7833,
+       "dispM": 3.80206,
+       "angFromStartDeg": 1.34605,
+       "angToEndDeg": 0.10369,
+       "fov": 50.52586,
+       "speedMps": 3.73526,
+       "angVelDegS": 1.3224,
+       "fovRateDegS": -6.70676
+      },
+      {
+       "t": 0.8,
+       "dispM": 3.85775,
+       "angFromStartDeg": 1.36577,
+       "angToEndDeg": 0.08397,
+       "fov": 50.42586,
+       "speedMps": 3.34175,
+       "angVelDegS": 1.18309,
+       "fovRateDegS": -6.0002
+      },
+      {
+       "t": 0.8167,
+       "dispM": 3.9069,
+       "angFromStartDeg": 1.38317,
+       "angToEndDeg": 0.06657,
+       "fov": 50.33761,
+       "speedMps": 2.94898,
+       "angVelDegS": 1.04403,
+       "fovRateDegS": -5.29497
+      },
+      {
+       "t": 0.8333,
+       "dispM": 3.94959,
+       "angFromStartDeg": 1.39828,
+       "angToEndDeg": 0.05146,
+       "fov": 50.26097,
+       "speedMps": 2.56104,
+       "angVelDegS": 0.90669,
+       "fovRateDegS": -4.59842
+      },
+      {
+       "t": 0.85,
+       "dispM": 3.98596,
+       "angFromStartDeg": 1.41116,
+       "angToEndDeg": 0.03858,
+       "fov": 50.19567,
+       "speedMps": 2.18226,
+       "angVelDegS": 0.77259,
+       "fovRateDegS": -3.91831
+      },
+      {
+       "t": 0.8667,
+       "dispM": 4.01624,
+       "angFromStartDeg": 1.42188,
+       "angToEndDeg": 0.02786,
+       "fov": 50.14129,
+       "speedMps": 1.81718,
+       "angVelDegS": 0.64334,
+       "fovRateDegS": -3.2628
+      },
+      {
+       "t": 0.8833,
+       "dispM": 4.04075,
+       "angFromStartDeg": 1.43056,
+       "angToEndDeg": 0.01918,
+       "fov": 50.09728,
+       "speedMps": 1.47059,
+       "angVelDegS": 0.52064,
+       "fovRateDegS": -2.64049
+      },
+      {
+       "t": 0.9,
+       "dispM": 4.05988,
+       "angFromStartDeg": 1.43733,
+       "angToEndDeg": 0.01241,
+       "fov": 50.06294,
+       "speedMps": 1.14749,
+       "angVelDegS": 0.40625,
+       "fovRateDegS": -2.06035
+      },
+      {
+       "t": 0.9167,
+       "dispM": 4.0741,
+       "angFromStartDeg": 1.44236,
+       "angToEndDeg": 0.00738,
+       "fov": 50.03741,
+       "speedMps": 0.85311,
+       "angVelDegS": 0.30203,
+       "fovRateDegS": -1.53179
+      },
+      {
+       "t": 0.9333,
+       "dispM": 4.08398,
+       "angFromStartDeg": 1.44586,
+       "angToEndDeg": 0.00388,
+       "fov": 50.01966,
+       "speedMps": 0.59291,
+       "angVelDegS": 0.20991,
+       "fovRateDegS": -1.06459
+      },
+      {
+       "t": 0.95,
+       "dispM": 4.09019,
+       "angFromStartDeg": 1.44806,
+       "angToEndDeg": 0.00168,
+       "fov": 50.00852,
+       "speedMps": 0.37258,
+       "angVelDegS": 0.13191,
+       "fovRateDegS": -0.66898
+      },
+      {
+       "t": 0.9667,
+       "dispM": 4.09349,
+       "angFromStartDeg": 1.44923,
+       "angToEndDeg": 0.00051,
+       "fov": 50.00259,
+       "speedMps": 0.19804,
+       "angVelDegS": 0.07011,
+       "fovRateDegS": -0.35558
+      },
+      {
+       "t": 0.9833,
+       "dispM": 4.09475,
+       "angFromStartDeg": 1.44967,
+       "angToEndDeg": 0.00007,
+       "fov": 50.00033,
+       "speedMps": 0.07542,
+       "angVelDegS": 0.0267,
+       "fovRateDegS": -0.13541
+      },
+      {
+       "t": 1,
+       "dispM": 4.09493,
+       "angFromStartDeg": 1.44974,
+       "angToEndDeg": 0,
+       "fov": 50,
+       "speedMps": 0.01109,
+       "angVelDegS": 0.00393,
+       "fovRateDegS": -0.01992
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "profile": [
+  {
+   "d": 0,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -5.556,
+    3.4,
+    -0.84
+   ],
+   "target": [
+    -2.016,
+    2.427,
+    6.268
+   ],
+   "fov": 48,
+   "root": [
+    -2.114,
+    0,
+    5.281
+   ]
+  },
+  {
+   "d": 0.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -5.345,
+    3.4,
+    -0.404
+   ],
+   "target": [
+    -1.909,
+    2.427,
+    6.755
+   ],
+   "fov": 48,
+   "root": [
+    -1.992,
+    0,
+    5.766
+   ]
+  },
+  {
+   "d": 1,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -5.148,
+    3.4,
+    0.04
+   ],
+   "target": [
+    -1.8,
+    2.427,
+    7.241
+   ],
+   "fov": 48,
+   "root": [
+    -1.871,
+    0,
+    6.252
+   ]
+  },
+  {
+   "d": 1.5,
+   "lens": 2.839,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -4.962,
+    3.4,
+    0.491
+   ],
+   "target": [
+    -1.689,
+    2.427,
+    7.726
+   ],
+   "fov": 48,
+   "root": [
+    -1.75,
+    0,
+    6.737
+   ]
+  },
+  {
+   "d": 2,
+   "lens": 2.438,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.4,
+   "cam": [
+    -4.784,
+    3.4,
+    0.948
+   ],
+   "target": [
+    -1.577,
+    2.427,
+    8.212
+   ],
+   "fov": 48,
+   "root": [
+    -1.628,
+    0,
+    7.222
+   ]
+  },
+  {
+   "d": 2.5,
+   "lens": 2.081,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.406,
+   "behind": 6.601,
+   "up": 3.406,
+   "cam": [
+    -4.62,
+    3.406,
+    1.408
+   ],
+   "target": [
+    -1.47,
+    2.433,
+    8.697
+   ],
+   "fov": 48,
+   "root": [
+    -1.507,
+    0,
+    7.707
+   ]
+  },
+  {
+   "d": 3,
+   "lens": 1.795,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.431,
+   "behind": 6.604,
+   "up": 3.432,
+   "cam": [
+    -4.481,
+    3.432,
+    1.872
+   ],
+   "target": [
+    -1.38,
+    2.459,
+    9.182
+   ],
+   "fov": 48,
+   "root": [
+    -1.386,
+    0,
+    8.192
+   ]
+  },
+  {
+   "d": 3.5,
+   "lens": 1.607,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.439,
+   "behind": 6.604,
+   "up": 3.441,
+   "cam": [
+    -4.378,
+    3.492,
+    2.338
+   ],
+   "target": [
+    -1.322,
+    2.519,
+    9.667
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.051,
+    8.676
+   ]
+  },
+  {
+   "d": 4,
+   "lens": 1.563,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.408,
+   "behind": 6.601,
+   "up": 3.409,
+   "cam": [
+    -4.313,
+    3.586,
+    2.806
+   ],
+   "target": [
+    -1.297,
+    2.613,
+    10.151
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.177,
+    9.16
+   ]
+  },
+  {
+   "d": 4.5,
+   "lens": 1.666,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.39,
+   "behind": 6.604,
+   "up": 3.4,
+   "cam": [
+    -4.264,
+    3.703,
+    3.271
+   ],
+   "target": [
+    -1.295,
+    2.73,
+    10.636
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.303,
+    9.644
+   ]
+  },
+  {
+   "d": 5,
+   "lens": 1.882,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.368,
+   "behind": 6.611,
+   "up": 3.399,
+   "cam": [
+    -4.216,
+    3.826,
+    3.734
+   ],
+   "target": [
+    -1.302,
+    2.853,
+    11.12
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.427,
+    10.128
+   ]
+  },
+  {
+   "d": 5.5,
+   "lens": 2.151,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.389,
+   "behind": 6.604,
+   "up": 3.398,
+   "cam": [
+    -4.156,
+    3.949,
+    4.192
+   ],
+   "target": [
+    -1.311,
+    2.976,
+    11.605
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.551,
+    10.613
+   ]
+  },
+  {
+   "d": 6,
+   "lens": 2.48,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.398,
+   "behind": 6.6,
+   "up": 3.398,
+   "cam": [
+    -4.085,
+    4.069,
+    4.646
+   ],
+   "target": [
+    -1.322,
+    3.096,
+    12.09
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.671,
+    11.098
+   ]
+  },
+  {
+   "d": 6.5,
+   "lens": 2.847,
+   "lensObj": "island:env_island_props_merged",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.398,
+   "cam": [
+    -4.006,
+    4.187,
+    5.098
+   ],
+   "target": [
+    -1.334,
+    3.214,
+    12.576
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.79,
+    11.584
+   ]
+  },
+  {
+   "d": 7,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.397,
+   "cam": [
+    -3.925,
+    4.302,
+    5.552
+   ],
+   "target": [
+    -1.346,
+    3.329,
+    13.062
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.905,
+    12.071
+   ]
+  },
+  {
+   "d": 7.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.404,
+   "behind": 6.598,
+   "up": 3.397,
+   "cam": [
+    -3.848,
+    4.414,
+    6.009
+   ],
+   "target": [
+    -1.358,
+    3.441,
+    13.549
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.016,
+    12.558
+   ]
+  },
+  {
+   "d": 8,
+   "lens": 2.976,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.421,
+   "behind": 6.592,
+   "up": 3.396,
+   "cam": [
+    -3.783,
+    4.521,
+    6.473
+   ],
+   "target": [
+    -1.368,
+    3.548,
+    14.037
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.125,
+    13.046
+   ]
+  },
+  {
+   "d": 8.5,
+   "lens": 2.726,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.426,
+   "behind": 6.59,
+   "up": 3.397,
+   "cam": [
+    -3.74,
+    4.624,
+    6.946
+   ],
+   "target": [
+    -1.374,
+    3.651,
+    14.526
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.228,
+    13.535
+   ]
+  },
+  {
+   "d": 9,
+   "lens": 2.538,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.406,
+   "behind": 6.597,
+   "up": 3.397,
+   "cam": [
+    -3.72,
+    4.722,
+    7.428
+   ],
+   "target": [
+    -1.377,
+    3.749,
+    15.016
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.326,
+    14.026
+   ]
+  },
+  {
+   "d": 9.5,
+   "lens": 2.432,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    4.815,
+    7.918
+   ],
+   "target": [
+    -1.378,
+    3.842,
+    15.507
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.42,
+    14.517
+   ]
+  },
+  {
+   "d": 10,
+   "lens": 2.413,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.903,
+    8.41
+   ],
+   "target": [
+    -1.378,
+    3.93,
+    15.999
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.507,
+    15.009
+   ]
+  },
+  {
+   "d": 10.5,
+   "lens": 2.367,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.984,
+    8.903
+   ],
+   "target": [
+    -1.378,
+    4.011,
+    16.492
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.588,
+    15.502
+   ]
+  },
+  {
+   "d": 11,
+   "lens": 2.385,
+   "lensObj": "beach_palm_tall:beach_palm_tall",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.059,
+    9.397
+   ],
+   "target": [
+    -1.378,
+    4.086,
+    16.987
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.665,
+    15.996
+   ]
+  },
+  {
+   "d": 11.5,
+   "lens": 2.344,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.127,
+    9.893
+   ],
+   "target": [
+    -1.378,
+    4.154,
+    17.482
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.732,
+    16.492
+   ]
+  },
+  {
+   "d": 12,
+   "lens": 2.02,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.187,
+    10.389
+   ],
+   "target": [
+    -1.378,
+    4.214,
+    17.978
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.793,
+    16.988
+   ]
+  },
+  {
+   "d": 12.5,
+   "lens": 1.75,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.599,
+   "up": 3.393,
+   "cam": [
+    -3.714,
+    5.241,
+    10.886
+   ],
+   "target": [
+    -1.378,
+    4.268,
+    18.475
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.848,
+    17.485
+   ]
+  },
+  {
+   "d": 13,
+   "lens": 1.548,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.286,
+    11.384
+   ],
+   "target": [
+    -1.378,
+    4.313,
+    18.973
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.892,
+    17.983
+   ]
+  },
+  {
+   "d": 13.5,
+   "lens": 1.408,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.324,
+    11.882
+   ],
+   "target": [
+    -1.378,
+    4.351,
+    19.472
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.93,
+    18.482
+   ]
+  },
+  {
+   "d": 14,
+   "lens": 1.377,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.392,
+   "cam": [
+    -3.714,
+    5.354,
+    12.381
+   ],
+   "target": [
+    -1.378,
+    4.381,
+    19.971
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.962,
+    18.981
+   ]
+  },
+  {
+   "d": 14.5,
+   "lens": 1.373,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.375,
+    12.88
+   ],
+   "target": [
+    -1.378,
+    4.402,
+    20.47
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.981,
+    19.48
+   ]
+  },
+  {
+   "d": 15,
+   "lens": 1.483,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.388,
+    13.38
+   ],
+   "target": [
+    -1.378,
+    4.415,
+    20.97
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.994,
+    19.98
+   ]
+  },
+  {
+   "d": 15.5,
+   "lens": 1.613,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.392,
+   "cam": [
+    -3.714,
+    5.392,
+    13.88
+   ],
+   "target": [
+    -1.378,
+    4.419,
+    21.469
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    2,
+    20.48
+   ]
+  },
+  {
+   "d": 16,
+   "lens": 1.822,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.388,
+    14.38
+   ],
+   "target": [
+    -1.378,
+    4.415,
+    21.969
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.994,
+    20.98
+   ]
+  },
+  {
+   "d": 16.5,
+   "lens": 2.091,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.375,
+    14.88
+   ],
+   "target": [
+    -1.378,
+    4.402,
+    22.469
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.981,
+    21.48
+   ]
+  },
+  {
+   "d": 17,
+   "lens": 2.416,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.392,
+   "cam": [
+    -3.714,
+    5.354,
+    15.379
+   ],
+   "target": [
+    -1.378,
+    4.381,
+    22.968
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.962,
+    21.979
+   ]
+  },
+  {
+   "d": 17.5,
+   "lens": 2.747,
+   "lensObj": "island:env_prop_palm_lean_01",
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.324,
+    15.878
+   ],
+   "target": [
+    -1.378,
+    4.351,
+    23.467
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.93,
+    22.478
+   ]
+  },
+  {
+   "d": 18,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.287,
+    16.376
+   ],
+   "target": [
+    -1.378,
+    4.314,
+    23.966
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.892,
+    22.977
+   ]
+  },
+  {
+   "d": 18.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.393,
+   "cam": [
+    -3.714,
+    5.241,
+    16.874
+   ],
+   "target": [
+    -1.378,
+    4.268,
+    24.464
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.848,
+    23.475
+   ]
+  },
+  {
+   "d": 19,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.188,
+    17.371
+   ],
+   "target": [
+    -1.378,
+    4.215,
+    24.961
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.793,
+    23.972
+   ]
+  },
+  {
+   "d": 19.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    5.127,
+    17.868
+   ],
+   "target": [
+    -1.378,
+    4.154,
+    25.457
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.732,
+    24.468
+   ]
+  },
+  {
+   "d": 20,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.394,
+   "cam": [
+    -3.714,
+    5.059,
+    18.363
+   ],
+   "target": [
+    -1.378,
+    4.086,
+    25.952
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.665,
+    24.964
+   ]
+  },
+  {
+   "d": 20.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.984,
+    18.857
+   ],
+   "target": [
+    -1.378,
+    4.011,
+    26.447
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.589,
+    25.458
+   ]
+  },
+  {
+   "d": 21,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.903,
+    19.35
+   ],
+   "target": [
+    -1.378,
+    3.93,
+    26.94
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.507,
+    25.951
+   ]
+  },
+  {
+   "d": 21.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.395,
+   "cam": [
+    -3.714,
+    4.816,
+    19.843
+   ],
+   "target": [
+    -1.378,
+    3.843,
+    27.432
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.421,
+    26.444
+   ]
+  },
+  {
+   "d": 22,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.397,
+   "cam": [
+    -3.714,
+    4.723,
+    20.334
+   ],
+   "target": [
+    -1.378,
+    3.75,
+    27.923
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.326,
+    26.935
+   ]
+  },
+  {
+   "d": 22.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.625,
+    20.824
+   ],
+   "target": [
+    -1.378,
+    3.652,
+    28.414
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.228,
+    27.425
+   ]
+  },
+  {
+   "d": 23,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.396,
+   "cam": [
+    -3.714,
+    4.522,
+    21.313
+   ],
+   "target": [
+    -1.378,
+    3.549,
+    28.903
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.125,
+    27.914
+   ]
+  },
+  {
+   "d": 23.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.397,
+   "cam": [
+    -3.714,
+    4.414,
+    21.802
+   ],
+   "target": [
+    -1.378,
+    3.441,
+    29.391
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    1.017,
+    28.402
+   ]
+  },
+  {
+   "d": 24,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.397,
+   "cam": [
+    -3.714,
+    4.303,
+    22.289
+   ],
+   "target": [
+    -1.378,
+    3.33,
+    29.878
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.905,
+    28.89
+   ]
+  },
+  {
+   "d": 24.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.601,
+   "up": 3.398,
+   "cam": [
+    -3.714,
+    4.188,
+    22.776
+   ],
+   "target": [
+    -1.378,
+    3.215,
+    30.365
+   ],
+   "fov": 48,
+   "root": [
+    -1.314,
+    0.79,
+    29.376
+   ]
+  },
+  {
+   "d": 25,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.398,
+   "cam": [
+    -3.713,
+    4.07,
+    23.261
+   ],
+   "target": [
+    -1.378,
+    3.097,
+    30.851
+   ],
+   "fov": 48.000030909220264,
+   "root": [
+    -1.314,
+    0.672,
+    29.862
+   ]
+  },
+  {
+   "d": 25.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.4,
+   "behind": 6.6,
+   "up": 3.398,
+   "cam": [
+    -3.713,
+    3.949,
+    23.747
+   ],
+   "target": [
+    -1.379,
+    2.976,
+    31.336
+   ],
+   "fov": 48.007045555706334,
+   "root": [
+    -1.314,
+    0.551,
+    30.347
+   ]
+  },
+  {
+   "d": 26,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.397,
+   "behind": 6.601,
+   "up": 3.397,
+   "cam": [
+    -3.711,
+    3.825,
+    24.231
+   ],
+   "target": [
+    -1.38,
+    2.849,
+    31.822
+   ],
+   "fov": 48.041419616028975,
+   "root": [
+    -1.314,
+    0.428,
+    30.832
+   ]
+  },
+  {
+   "d": 26.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.392,
+   "behind": 6.601,
+   "up": 3.395,
+   "cam": [
+    -3.705,
+    3.698,
+    24.715
+   ],
+   "target": [
+    -1.383,
+    2.717,
+    32.307
+   ],
+   "fov": 48.12068306263337,
+   "root": [
+    -1.314,
+    0.304,
+    31.316
+   ]
+  },
+  {
+   "d": 27,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.382,
+   "behind": 6.602,
+   "up": 3.398,
+   "cam": [
+    -3.695,
+    3.576,
+    25.199
+   ],
+   "target": [
+    -1.387,
+    2.586,
+    32.794
+   ],
+   "fov": 48.25748503219704,
+   "root": [
+    -1.314,
+    0.178,
+    31.8
+   ]
+  },
+  {
+   "d": 27.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.368,
+   "behind": 6.599,
+   "up": 3.421,
+   "cam": [
+    -3.681,
+    3.473,
+    25.684
+   ],
+   "target": [
+    -1.395,
+    2.469,
+    33.285
+   ],
+   "fov": 48.46001427875911,
+   "root": [
+    -1.314,
+    0.052,
+    32.284
+   ]
+  },
+  {
+   "d": 28,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.348,
+   "behind": 6.603,
+   "up": 3.401,
+   "cam": [
+    -3.662,
+    3.401,
+    26.174
+   ],
+   "target": [
+    -1.405,
+    2.379,
+    33.781
+   ],
+   "fov": 48.73241962684965,
+   "root": [
+    -1.314,
+    0,
+    32.777
+   ]
+  },
+  {
+   "d": 28.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.324,
+   "behind": 6.61,
+   "up": 3.361,
+   "cam": [
+    -3.638,
+    3.361,
+    26.667
+   ],
+   "target": [
+    -1.418,
+    2.315,
+    34.282
+   ],
+   "fov": 49.07523042461889,
+   "root": [
+    -1.314,
+    0,
+    33.277
+   ]
+  },
+  {
+   "d": 29,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.296,
+   "behind": 6.614,
+   "up": 3.337,
+   "cam": [
+    -3.609,
+    3.337,
+    27.163
+   ],
+   "target": [
+    -1.434,
+    2.262,
+    34.786
+   ],
+   "fov": 49.4857769969666,
+   "root": [
+    -1.314,
+    0,
+    33.777
+   ]
+  },
+  {
+   "d": 29.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.262,
+   "behind": 6.618,
+   "up": 3.316,
+   "cam": [
+    -3.576,
+    3.316,
+    27.659
+   ],
+   "target": [
+    -1.454,
+    2.209,
+    35.292
+   ],
+   "fov": 49.95861109867132,
+   "root": [
+    -1.314,
+    0,
+    34.277
+   ]
+  },
+  {
+   "d": 30,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.225,
+   "behind": 6.623,
+   "up": 3.294,
+   "cam": [
+    -3.539,
+    3.294,
+    28.154
+   ],
+   "target": [
+    -1.476,
+    2.149,
+    35.798
+   ],
+   "fov": 50.485926367519696,
+   "root": [
+    -1.314,
+    0,
+    34.777
+   ]
+  },
+  {
+   "d": 30.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.185,
+   "behind": 6.628,
+   "up": 3.269,
+   "cam": [
+    -3.499,
+    3.269,
+    28.649
+   ],
+   "target": [
+    -1.502,
+    2.083,
+    36.305
+   ],
+   "fov": 51.057978777435736,
+   "root": [
+    -1.314,
+    0,
+    35.277
+   ]
+  },
+  {
+   "d": 31,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.143,
+   "behind": 6.632,
+   "up": 3.243,
+   "cam": [
+    -3.456,
+    3.243,
+    29.145
+   ],
+   "target": [
+    -1.531,
+    2.013,
+    36.812
+   ],
+   "fov": 51.66350709161012,
+   "root": [
+    -1.314,
+    0,
+    35.777
+   ]
+  },
+  {
+   "d": 31.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.099,
+   "behind": 6.637,
+   "up": 3.217,
+   "cam": [
+    -3.412,
+    3.217,
+    29.64
+   ],
+   "target": [
+    -1.562,
+    1.94,
+    37.318
+   ],
+   "fov": 52.29015331562952,
+   "root": [
+    -1.314,
+    0,
+    36.277
+   ]
+  },
+  {
+   "d": 32,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.054,
+   "behind": 6.641,
+   "up": 3.189,
+   "cam": [
+    -3.368,
+    3.189,
+    30.136
+   ],
+   "target": [
+    -1.595,
+    1.865,
+    37.824
+   ],
+   "fov": 52.92488315060584,
+   "root": [
+    -1.314,
+    0,
+    36.777
+   ]
+  },
+  {
+   "d": 32.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 2.01,
+   "behind": 6.645,
+   "up": 3.162,
+   "cam": [
+    -3.324,
+    3.162,
+    30.632
+   ],
+   "target": [
+    -1.629,
+    1.79,
+    38.329
+   ],
+   "fov": 53.55440644630555,
+   "root": [
+    -1.314,
+    0,
+    37.277
+   ]
+  },
+  {
+   "d": 33,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.967,
+   "behind": 6.649,
+   "up": 3.136,
+   "cam": [
+    -3.281,
+    3.136,
+    31.128
+   ],
+   "target": [
+    -1.664,
+    1.716,
+    38.833
+   ],
+   "fov": 54.165597654278955,
+   "root": [
+    -1.314,
+    0,
+    37.777
+   ]
+  },
+  {
+   "d": 33.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.927,
+   "behind": 6.652,
+   "up": 3.111,
+   "cam": [
+    -3.24,
+    3.111,
+    31.625
+   ],
+   "target": [
+    -1.698,
+    1.646,
+    39.337
+   ],
+   "fov": 54.74591628098953,
+   "root": [
+    -1.314,
+    0,
+    38.277
+   ]
+  },
+  {
+   "d": 34,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.889,
+   "behind": 6.655,
+   "up": 3.088,
+   "cam": [
+    -3.203,
+    3.088,
+    32.122
+   ],
+   "target": [
+    -1.731,
+    1.58,
+    39.84
+   ],
+   "fov": 55.283827340943155,
+   "root": [
+    -1.314,
+    0,
+    38.777
+   ]
+  },
+  {
+   "d": 34.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.855,
+   "behind": 6.657,
+   "up": 3.068,
+   "cam": [
+    -3.169,
+    3.068,
+    32.62
+   ],
+   "target": [
+    -1.762,
+    1.52,
+    40.342
+   ],
+   "fov": 55.769221809817445,
+   "root": [
+    -1.314,
+    0,
+    39.277
+   ]
+  },
+  {
+   "d": 35,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.826,
+   "behind": 6.659,
+   "up": 3.05,
+   "cam": [
+    -3.139,
+    3.05,
+    33.118
+   ],
+   "target": [
+    -1.79,
+    1.467,
+    40.843
+   ],
+   "fov": 56.193837077591034,
+   "root": [
+    -1.314,
+    0,
+    39.777
+   ]
+  },
+  {
+   "d": 35.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.801,
+   "behind": 6.661,
+   "up": 3.034,
+   "cam": [
+    -3.114,
+    3.034,
+    33.616
+   ],
+   "target": [
+    -1.814,
+    1.423,
+    41.344
+   ],
+   "fov": 56.551677401672876,
+   "root": [
+    -1.314,
+    0,
+    40.277
+   ]
+  },
+  {
+   "d": 36,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.781,
+   "behind": 6.662,
+   "up": 3.022,
+   "cam": [
+    -3.094,
+    3.022,
+    34.115
+   ],
+   "target": [
+    -1.834,
+    1.387,
+    41.844
+   ],
+   "fov": 56.83943436003153,
+   "root": [
+    -1.314,
+    0,
+    40.777
+   ]
+  },
+  {
+   "d": 36.5,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.765,
+   "behind": 6.663,
+   "up": 3.013,
+   "cam": [
+    -3.079,
+    3.013,
+    34.614
+   ],
+   "target": [
+    -1.849,
+    1.359,
+    42.345
+   ],
+   "fov": 57.056907304324454,
+   "root": [
+    -1.314,
+    0,
+    41.277
+   ]
+  },
+  {
+   "d": 37,
+   "lens": 3,
+   "lensObj": null,
+   "side": 1.755,
+   "behind": 6.663,
+   "up": 3.006,
+   "cam": [
+    -3.068,
+    3.006,
+    35.114
+   ],
+   "target": [
+    -1.86,
+    1.34,
+    42.845
+   ],
+   "fov": 57.207423813027305,
+   "root": [
+    -1.314,
+    0,
+    41.777
+   ]
+  },
+  {
+   "d": 37.5,
+   "lens": 2.996,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.749,
+   "behind": 6.664,
+   "up": 3.002,
+   "cam": [
+    -3.062,
+    3.002,
+    35.614
+   ],
+   "target": [
+    -1.866,
+    1.329,
+    43.345
+   ],
+   "fov": 57.298260144563194,
+   "root": [
+    -1.314,
+    0,
+    42.277
+   ]
+  },
+  {
+   "d": 38,
+   "lens": 2.993,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.746,
+   "behind": 6.664,
+   "up": 3,
+   "cam": [
+    -3.059,
+    3,
+    36.113
+   ],
+   "target": [
+    -1.869,
+    1.323,
+    43.845
+   ],
+   "fov": 57.3410616904321,
+   "root": [
+    -1.314,
+    0,
+    42.777
+   ]
+  },
+  {
+   "d": 38.5,
+   "lens": 2.993,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.745,
+   "behind": 6.664,
+   "up": 3,
+   "cam": [
+    -3.058,
+    3,
+    36.613
+   ],
+   "target": [
+    -1.87,
+    1.322,
+    44.345
+   ],
+   "fov": 57.35226342833994,
+   "root": [
+    -1.314,
+    0,
+    43.277
+   ]
+  },
+  {
+   "d": 39,
+   "lens": 2.992,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.745,
+   "behind": 6.664,
+   "up": 3,
+   "cam": [
+    -3.058,
+    3,
+    37.113
+   ],
+   "target": [
+    -1.87,
+    1.322,
+    44.845
+   ],
+   "fov": 57.35256,
+   "root": [
+    -1.314,
+    0,
+    43.777
+   ]
+  },
+  {
+   "d": 39.2,
+   "lens": 2.992,
+   "lensObj": "lakeside:LK_terrain_i",
+   "side": 1.745,
+   "behind": 6.664,
+   "up": 3,
+   "cam": [
+    -3.058,
+    3,
+    37.313
+   ],
+   "target": [
+    -1.87,
+    1.322,
+    45.045
+   ],
+   "fov": 57.35256,
+   "root": [
+    -1.314,
+    0,
+    43.977
+   ]
+  }
+ ]
+}

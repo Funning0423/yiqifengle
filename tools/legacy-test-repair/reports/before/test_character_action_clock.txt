@@ -1,0 +1,14 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 0.9999999999999984
+- 1
+
+    at /workspace/shared/legacy-test-repair-20261015/tools/test_character_action_clock.cjs:12:694 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 0.9999999999999984,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

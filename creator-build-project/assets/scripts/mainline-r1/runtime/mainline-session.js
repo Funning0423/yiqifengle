@@ -2,7 +2,7 @@
 
 // Deterministic orchestration of the frozen original engine, not a new ruleset.
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-var Engine = require('./vendor/engine');
+var Engine = require('./vendor/engine'), Campaign = require('./region-campaign');
 var ENGINE_REVISION = 'a1f89a0deb942268bfdbed931a3ab28f85970f4b9186f344bba9a937c7b6bd1b';
 var serial = 0;
 var EARNED_TOOLS = ['windBell', 'tideBottle', 'tideNet', 'sunSeed', 'starShears'];
@@ -86,13 +86,18 @@ function beaconTarget(e) {
 }
 Session.prototype.snapshot = function () {
   var e = this.engine,
-    s = this.state();
+    s = this.state(), campaignStage = Campaign.stage(stageId(this.level));
   return freeze(Object.assign(s, {
     level: this.level,
     stageId: stageId(this.level),
     seed: this.seed,
     theme: ['seaBeach', 'orchard', 'autumn'][Math.floor(this.level / 4)],
-    name: e.config.name,
+    name: campaignStage.name,
+    region: campaignStage.region,
+    regionId: campaignStage.regionId,
+    chapterName: campaignStage.chapterName,
+    description: campaignStage.description,
+    learningBeat: campaignStage.learningBeat,
     initialGoals: copy(e.initialGoals),
     goalOrder: Array.from(e.goalOrder),
     actions: copy(this.actions),

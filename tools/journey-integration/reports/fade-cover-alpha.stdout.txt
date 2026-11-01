@@ -1,0 +1,1 @@
+PASS WindWipe cover repaints per tick on foreground time; 0.45 s OUT sweep has 15 positions

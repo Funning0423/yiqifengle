@@ -1,0 +1,22 @@
+PASS normal first swap drains on component clock even with all timers withheld
+PASS first-render fault pauses without fake OS hide, preserves saved bytes, explicit resume
+PASS completion-render fault pauses without fake OS hide, preserves saved bytes, explicit resume
+PASS animate-start fault pauses without fake OS hide, preserves saved bytes, explicit resume
+PASS presentation failure allows explicit Home without another gameplay action
+PASS persistent board-paint fault still exposes Home and does not auto-retry gameplay
+PASS save failure uses RetrySave protection, never silently resumes or starts another attempt
+PASS real OS hide/show stays paused and late visual callback does not consume another action
+PASS R5 first-render fault through real managed presenter preserves actions and explicit resume
+PASS R5 completion-render fault through real managed presenter preserves actions and explicit resume
+PASS R5 animate-start fault through real managed presenter preserves actions and explicit resume
+PASS legacy R4 first-render error reaches explicit recovery
+PASS legacy R4 completion-render error reaches explicit recovery
+PASS legacy R4 animate-start error reaches explicit recovery
+PASS required board art failure rejects readiness, explicit reload can recover
+PASS failed whole bundle is not permanently cached across an explicit retry
+PASS missing any required piece rejects 8s readiness deadline
+[enter-level] cover fixed true
+[enter-level] cover fixed true
+PASS Native adapter hung background expires; WorldFlow returns island; late lease disposed; retry succeeds
+PASS all 12 mainline wins through actual UI tap and component visual clocks
+{"status":"PASS","checks":19,"failed":[]}

@@ -1,0 +1,230 @@
+[
+  {
+    "name": "05_city",
+    "ok": true,
+    "fps": 11,
+    "info": {
+      "b": {
+        "t": 24.071333333273746,
+        "total": 36,
+        "beat": "B-d",
+        "alt": 12.118448632101494,
+        "wind": 0.35,
+        "night": false,
+        "meadow": false,
+        "city": true,
+        "dc": 42,
+        "dcWorst": 42,
+        "dcAt": 0.1,
+        "frames": 279,
+        "hold": true,
+        "seam": true,
+        "far": true,
+        "seaPlan": "B"
+      },
+      "h": {
+        "t": 24.071333333273746,
+        "coverT": 35.9,
+        "fade": 0,
+        "seaRestored": false,
+        "backdropRestored": false,
+        "seaPlan": "B",
+        "farOn": false,
+        "meadowOn": false,
+        "cityOn": true,
+        "showIsland": true
+      },
+      "dc": 42
+    }
+  },
+  {
+    "name": "handoff_after",
+    "ok": true,
+    "fps": 15,
+    "info": {
+      "b": {
+        "t": 36,
+        "total": 36,
+        "beat": "board",
+        "alt": 13.352545965576173,
+        "wind": 0.35,
+        "night": false,
+        "meadow": false,
+        "city": true,
+        "dc": 31,
+        "dcWorst": 45,
+        "dcAt": 0.0845,
+        "frames": 453,
+        "hold": true,
+        "seam": true,
+        "far": true,
+        "seaPlan": "B"
+      },
+      "h": {
+        "t": 36,
+        "coverT": 35.9,
+        "fade": 1,
+        "seaRestored": true,
+        "backdropRestored": true,
+        "seaPlan": "B",
+        "farOn": false,
+        "meadowOn": false,
+        "cityOn": true,
+        "showIsland": false
+      },
+      "dc": 31
+    }
+  },
+  {
+    "name": "light_10_7",
+    "ok": true,
+    "fps": 7,
+    "info": {
+      "b": {
+        "t": 10.743366666714346,
+        "total": 36,
+        "beat": "B-d",
+        "alt": 18.342141722273496,
+        "wind": 0.35,
+        "night": false,
+        "meadow": true,
+        "city": false,
+        "dc": 27,
+        "dcWorst": 43,
+        "dcAt": 2.4478666667143507,
+        "frames": 129,
+        "hold": true,
+        "seam": false,
+        "far": false,
+        "seaPlan": "B"
+      },
+      "h": {
+        "t": 10.743366666714346,
+        "coverT": 35.9,
+        "fade": 0,
+        "seaRestored": false,
+        "backdropRestored": false,
+        "seaPlan": "B",
+        "farOn": false,
+        "meadowOn": true,
+        "cityOn": false,
+        "showIsland": false
+      },
+      "dc": 27
+    }
+  },
+  {
+    "name": "light_11_0",
+    "ok": true,
+    "fps": 11,
+    "info": {
+      "b": {
+        "t": 11.057566666642815,
+        "total": 36,
+        "beat": "B-d",
+        "alt": 19.26382485539791,
+        "wind": 0.35,
+        "night": false,
+        "meadow": true,
+        "city": false,
+        "dc": 27,
+        "dcWorst": 43,
+        "dcAt": 1.4632666666905088,
+        "frames": 139,
+        "hold": true,
+        "seam": false,
+        "far": false,
+        "seaPlan": "B"
+      },
+      "h": {
+        "t": 11.057566666642815,
+        "coverT": 35.9,
+        "fade": 0,
+        "seaRestored": false,
+        "backdropRestored": false,
+        "seaPlan": "B",
+        "farOn": false,
+        "meadowOn": true,
+        "cityOn": false,
+        "showIsland": false
+      },
+      "dc": 27
+    }
+  },
+  {
+    "name": "light_11_3",
+    "ok": true,
+    "fps": 8,
+    "info": {
+      "b": {
+        "t": 11.365566666463994,
+        "total": 36,
+        "beat": "B-d",
+        "alt": 20.19000895485283,
+        "wind": 0.35,
+        "night": false,
+        "meadow": false,
+        "city": false,
+        "dc": 19,
+        "dcWorst": 42,
+        "dcAt": 0.093,
+        "frames": 128,
+        "hold": true,
+        "seam": false,
+        "far": true,
+        "seaPlan": "B"
+      },
+      "h": {
+        "t": 11.365566666463994,
+        "coverT": 35.9,
+        "fade": 0,
+        "seaRestored": false,
+        "backdropRestored": false,
+        "seaPlan": "B",
+        "farOn": true,
+        "meadowOn": false,
+        "cityOn": false,
+        "showIsland": false
+      },
+      "dc": 19
+    }
+  },
+  {
+    "name": "light_11_4",
+    "ok": true,
+    "fps": 11,
+    "info": {
+      "b": {
+        "t": 11.43006666676203,
+        "total": 36,
+        "beat": "B-d",
+        "alt": -27.741550034132015,
+        "wind": 0.35,
+        "night": false,
+        "meadow": false,
+        "city": false,
+        "dc": 19,
+        "dcWorst": 45,
+        "dcAt": 0.08219999998807907,
+        "frames": 148,
+        "hold": true,
+        "seam": true,
+        "far": true,
+        "seaPlan": "B"
+      },
+      "h": {
+        "t": 11.43006666676203,
+        "coverT": 35.9,
+        "fade": 0,
+        "seaRestored": false,
+        "backdropRestored": false,
+        "seaPlan": "B",
+        "farOn": true,
+        "meadowOn": false,
+        "cityOn": false,
+        "showIsland": false
+      },
+      "dc": 19
+    }
+  }
+]

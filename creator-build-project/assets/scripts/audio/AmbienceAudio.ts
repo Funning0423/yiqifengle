@@ -15,14 +15,35 @@
 //   方位 yawWorldDeg 由这里选定，声像每帧按当前镜头朝向重算（L/R 两个声源等功率声像）。夜里随机海鸥稀一些、轻一些。
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
 import { GameAudio, SfxName } from './GameAudio';
+/** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
+function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 const { ccclass } = _decorator;
+/** A1c: wind/sea used to be multiplied by the raw music slider (default 0.4 → ×0.4, −8 dB) on top of their own curves,
+ *  while the bgm sits at the same 0.4 → about 12 dB under the bgm outdoors. The slider is now normalised to its default
+ *  (0.4 → 1, 0 → silent, capped at 1), times the 「主页」 transition fade. Mute / background still gate via canPlayAmbience(). */
+export const AMBIENCE_BED_REF = 0.4;
+export function ambienceBedGain(slider: number, transition = 1): number {
+  const v = Number.isFinite(slider) ? Math.max(0, Math.min(1, slider)) : 1, t = Number.isFinite(transition) ? Math.max(0, Math.min(1, transition)) : 1;
+  return Math.min(1, v / AMBIENCE_BED_REF) * t;
+}
 
 /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
 function musicBed(): number {
   const audio: any = GameAudio.instance;
   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
-  const value = Number(audio.getMusicVolume());
-  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1;
+  return ambienceBedGain(Number(audio.getMusicVolume()), typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1);
+}
+
+function musicSlider(): number {
+  const audio: any = GameAudio.instance;
+  return audio && typeof audio.getMusicVolume === 'function' ? Number(audio.getMusicVolume()) : 1;
+}
+
+/** SceneMusic 发布的层开关。没发布过就保持旧行为（海浪 / 海鸥开着），免得单测先挂一张表。 */
+function sceneBed(): { waves: boolean; gulls: boolean } {
+  const g = (globalThis as any).__sceneAudioBed;
+  if (!g || typeof g !== 'object') return { waves: true, gulls: true };
+  return { waves: g.waves !== false, gulls: g.gulls !== false };
 }
 
 const WAVES_PATH = 'audio_amb/amb_waves_loop';
@@ -170,6 +191,8 @@ export class AmbienceAudio extends Component {
 
   /** WindAudio 每帧调用：平滑后的 getWindStrength()（被静音/看不见世界时传 0） */
   static windExit = 0;
+  /** 风铃湖畔（LakeAmbience 每帧写）：湖声在放时海浪和随机海鸥让路（按"看不见世界"处理，海浪平滑淡出、离开湖畔再淡回）。 */
+  static lakeActive = false;
   private static nearRequests = 0;
   private static inst: AmbienceAudio | null = null;
   private static listeners: GullCallListener[] = [];
@@ -202,6 +225,8 @@ export class AmbienceAudio extends Component {
     const a = AmbienceAudio.inst; return a && a.alive ? a.request(dist, yawWorldDeg) : null;
   }
 
+  private lastGate = '';
+  private levelLogIn = 0;
   static ensure() {
     try {
       const a = GameAudio.ensure();
@@ -215,8 +240,8 @@ export class AmbienceAudio extends Component {
     this.src.playOnAwake = false; this.src.loop = true; this.src.volume = 0;
     resources.load(WAVES_PATH, AudioClip, (err, clip) => {
       if (!this.alive || !isValid(this.node, true)) return;
-      if (err || !clip) { console.warn('[AmbienceAudio] waves load failed', err); return; }
-      clip.addRef(); this.clip = clip; if (this.src) this.src.clip = clip;
+      if (err || !clip) { console.warn('[AmbienceAudio] waves load failed', err); qfAudioLog('waves-load-failed', { err: String(err) }); return; }
+      clip.addRef(); this.clip = clip; qfAudioLog('waves-loaded', {}); if (this.src) this.src.clip = clip;
     });
     // 声像用的 L/R 版本（缺了就退回 GameAudio.play 居中播放）
     for (let i = 0; i < GULLS.length; i++) {
@@ -404,6 +429,10 @@ export class AmbienceAudio extends Component {
 
   private static smoothstep(a: number, b: number, x: number) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
 
+  private sliderPaused = false;   // A3b: paused only because the music slider is at 0
+  private startArmed = false;     // A3b: vol was zeroed for this start; play once it ramps audible
+  /** V1 follow-up: drop the smoothed waves bed at once (GameAudio.quietAmbience); it fades back in from 0 if still outdoors. */
+  quiet() { this.vol = 0; const src = this.src; if (!src) return; try { src.volume = 0; if (src.playing) src.pause(); } catch { /* ignore */ } }
   update(dt: number) {
     const src = this.src; if (!src) return;
     this.clock += dt;
@@ -412,25 +441,41 @@ export class AmbienceAudio extends Component {
     const canSound = !!audio && audio.canPlayAmbience();
     this.canSoundNow = canSound;
     const allowed = canSound && !!this.clip;
-    const outdoor = this.outdoorAmount(dt);
-    this.lastOutdoor = outdoor;
+    const outdoorRaw = this.outdoorAmount(dt);
+    const outdoor = AmbienceAudio.lakeActive ? -1 : outdoorRaw;
+    const bed = sceneBed();
+    // 离开海边（草原 / 湖畔 / 天空之城 / 室内）后表里把海鸥和海浪关掉。小岛室外亮度不再单独决定它们。
+    const waveOutdoor = bed.waves ? outdoor : -1;
+    const gullOutdoor = bed.gulls ? outdoor : -1;
+    this.lastOutdoor = gullOutdoor;
     this.trackCamera(dt);
-    const wind = outdoor >= 0 ? AmbienceAudio.windExit : 0;
+    const wind = gullOutdoor >= 0 ? AmbienceAudio.windExit : 0;
+    const waveWind = waveOutdoor >= 0 ? AmbienceAudio.windExit : 0;
     const E = EXIT_AUDIO, G = GULL_EVENTS;
-    const floor = E.waveWindFloor * AmbienceAudio.smoothstep(E.waveFloorFrom, E.waveFloorTo, wind);
-    const duck = 1 - E.waveWindDuck * AmbienceAudio.smoothstep(0.3, 1.0, wind);
-    const target = allowed && outdoor >= 0 ? Math.max(outdoor * WAVES_MAX_VOL, floor) * duck : 0;
+    const floor = E.waveWindFloor * AmbienceAudio.smoothstep(E.waveFloorFrom, E.waveFloorTo, waveWind);
+    const duck = 1 - E.waveWindDuck * AmbienceAudio.smoothstep(0.3, 1.0, waveWind);
+    const target = allowed && waveOutdoor >= 0 ? Math.max(waveOutdoor * WAVES_MAX_VOL, floor) * duck : 0;
     const k = Math.min(1, dt * SMOOTH_PER_S);
     this.vol += (target - this.vol) * k;
-    if (!allowed) this.vol = 0;
+    if (!allowed || !bed.waves) this.vol = 0;
     // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
     const heard = this.vol * musicBed();
+    { const g = !audio ? 'no-gameaudio' : !canSound ? 'gameaudio:' + ((audio as any).ambienceGate?.() ?? '?') : !this.clip ? 'no-clip' : AmbienceAudio.lakeActive ? 'lakeside' : !bed.waves ? 'scene-bed' : outdoor < 0 ? 'no-world' : 'ok';
+      if (g !== this.lastGate) { this.lastGate = g; qfAudioLog('waves-gate', { gate: g, outdoor: +waveOutdoor.toFixed(3), wind: +waveWind.toFixed(3) }); } }
     if (!allowed || heard < 0.002) {
       try { src.volume = 0; } catch { /* ignore */ }
       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
+      // A3b: remember whether only the music slider at 0 silenced it (that resume stays immediate); a stale level disarms the 0-start.
+      this.sliderPaused = allowed && musicSlider() <= 0.001;
+      if (this.vol > 0.05) this.startArmed = false;
+    } else if (!src.playing && !this.sliderPaused && !this.startArmed) {
+      // A3b: every (re)start of the bed fades in from 0, whatever stopped it (self-pause in a transition, scene change, hide).
+      this.vol = 0; this.startArmed = true;
+      try { src.volume = 0; } catch { /* ignore */ }
     } else {
       src.volume = heard;
-      if (!src.playing) { try { src.play(); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+      this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('waves-level', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); }
+      if (!src.playing) { try { src.play(); qfAudioLog('waves-start', { vol: +heard.toFixed(3), from: this.sliderPaused ? 'slider' : 'zero' }); this.startArmed = false; this.sliderPaused = false; qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
     }
     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
     if (wind < E.exitOn) { this.exitActive = false; this.distantDone = []; }
@@ -440,11 +485,11 @@ export class AmbienceAudio extends Component {
         const d = E.distant[i]; if (this.distantDone[i]) continue;
         if (wind < d.at) continue;
         this.distantDone[i] = true;
-        if (canSound && outdoor >= 0) this.planGull('distant', 'far', this.clock + G.distantDelayS, d.clip, d.vol, d.maxLateS, undefined, d.at - G.distantCancelBelow, i);
+        if (canSound && gullOutdoor >= 0) this.planGull('distant', 'far', this.clock + G.distantDelayS, d.clip, d.vol, d.maxLateS, undefined, d.at - G.distantCancelBelow, i);
       }
     }
     // 随机海鸥在出门风声段、室内时不放：已排的取消
-    const randomOk = allowed && !this.exitActive && outdoor * WAVES_MAX_VOL > WAVES_MAX_VOL * 0.8;
+    const randomOk = allowed && !this.exitActive && gullOutdoor * WAVES_MAX_VOL > WAVES_MAX_VOL * 0.8;
     while (AmbienceAudio.nearRequests > 0) {
       AmbienceAudio.nearRequests--;
       if (canSound) this.planGull('near', 'near', this.clock + E.nearDelayS, E.nearClip, E.nearVol, E.nearMaxLateS);
@@ -454,7 +499,7 @@ export class AmbienceAudio extends Component {
       const list = this.pending.slice();
       for (let i = 0; i < list.length; i++) {
         const c = list[i];
-        if (!canSound || outdoor < 0 || (c.kind === 'random' && !randomOk)) { this.cancelGull(c); continue; }
+        if (!canSound || !bed.gulls || gullOutdoor < 0 || (c.kind === 'random' && !randomOk)) { this.cancelGull(c); continue; }
         if (this.clock + 1e-9 < c.at) continue;
         if (c.minWind >= 0 && wind < c.minWind) { this.cancelGull(c); continue; }
         this.startCall(audio!, c);
@@ -474,9 +519,11 @@ export class AmbienceAudio extends Component {
     // 声像：每帧按当前镜头朝向重算；到时间的声源收回；不能出声时立即停
     for (let i = 0; i < this.voices.length; i++) {
       const v = this.voices[i]; if (!v.call) continue;
-      if (!canSound || this.clock >= v.end || (v.fadeAt >= 0 && this.clock - v.fadeAt >= YIELD_FADE_S)) this.stopVoice(v); else this.applyPan(v);
+      if (!bed.gulls || !canSound || this.clock >= v.end || (v.fadeAt >= 0 && this.clock - v.fadeAt >= YIELD_FADE_S)) this.stopVoice(v); else this.applyPan(v);
     }
   }
 }
 
 director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AmbienceAudio.ensure());
+(GameAudio as any).ambienceMounters?.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio
+(GameAudio as any).ambienceQuieters?.push(() => (AmbienceAudio as any).inst?.quiet());

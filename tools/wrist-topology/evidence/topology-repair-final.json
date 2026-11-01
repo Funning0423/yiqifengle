@@ -1,0 +1,124 @@
+{
+  "inputSHA256": "8294a71c2fb1ec441f2a0a187620da293c7a0a5d1435273c073304f018797e53",
+  "outputSHA256": "245e923f668a4e570d1021ef58aacd871305129b152c30a08e6ea9ffc4969e72",
+  "repairs": [
+    {
+      "side": "L",
+      "removedProximalFanTriangles": 14,
+      "proximalCap": 2842,
+      "cuffVertices": [
+        2022,
+        2004,
+        2003,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021
+      ],
+      "palmRootVertices": [
+        2779,
+        2777,
+        2775,
+        2773,
+        2771,
+        2769,
+        2767,
+        2765,
+        2763,
+        2761,
+        2758,
+        2785,
+        2783,
+        2781
+      ],
+      "bridgeTriangles": 34,
+      "elbowRingWeightSpreadsBefore": [
+        6.556510925292969e-07,
+        0.11180520057678223,
+        0.2656956613063812,
+        9.387731552124023e-07,
+        4.6938657760620117e-07
+      ],
+      "elbowRingWeightSpreadsAfter": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "side": "R",
+      "removedProximalFanTriangles": 14,
+      "proximalCap": 3078,
+      "cuffVertices": [
+        2535,
+        2536,
+        2537,
+        2538,
+        2539,
+        2540,
+        2541,
+        2542,
+        2524,
+        2523,
+        2525,
+        2526,
+        2527,
+        2528,
+        2529,
+        2530,
+        2531,
+        2532,
+        2533,
+        2534
+      ],
+      "palmRootVertices": [
+        3004,
+        3006,
+        3008,
+        3010,
+        3012,
+        3014,
+        3016,
+        3018,
+        3020,
+        2994,
+        2995,
+        2998,
+        3000,
+        3002
+      ],
+      "bridgeTriangles": 34,
+      "elbowRingWeightSpreadsBefore": [
+        7.152557373046875e-07,
+        0.1118159294128418,
+        0.25950008630752563,
+        9.685754776000977e-07,
+        5.513429641723633e-07
+      ],
+      "elbowRingWeightSpreadsAfter": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "animationNodesSkinMaterialsUnchanged": true,
+  "appearanceAcceptance": "requires rendered verification"
+}

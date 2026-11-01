@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "scope": "Real UI TS plus node/event doubles, no Cocos rendering",
+  "checks": [
+    "mainline-v33 saved loss offers scoped retry",
+    "regional-r05 saved loss offers scoped retry",
+    "run.unsaved keeps retry unavailable",
+    "result.unsaved keeps retry unavailable",
+    "error.readonly keeps retry unavailable",
+    "won keeps receipt and has no loss retry"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+ "record": "legacy-not-judged",
+ "follow": 56,
+ "map": 126,
+ "legacy": {
+  "recordOnly": true,
+  "judged": false,
+  "source": "docs/r5/audit audit-day.txt / audit-night.txt (f569ff0 geometry audit)",
+  "A1": "08→09 sky rock under the meadow, about 7–11% of sky hits. Recorded, not failed.",
+  "A2": "08→09 underside 10–14% near the end. Recorded, not failed.",
+  "A3": "08→09 night two sky domes. Recorded, not failed.",
+  "A4": "08→09 end clearance 1.9 m foliage cards. Recorded, not failed.",
+  "A5": "04→05 clearance 1.38 m palm. Recorded, not failed.",
+  "A6": "Neither leg shows a near-plane hit, a backface, or a void. Recorded, not failed.",
+  "dayBytes": 19063,
+  "nightBytes": 23978
+ }
+}

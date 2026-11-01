@@ -1,0 +1,2253 @@
+{
+ "390x844": {
+  "fallbackSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "portrait": true,
+   "capsule": {
+    "top": 51,
+    "bottom": 83,
+    "left": 297,
+    "right": 384
+   }
+  },
+  "realSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "capsule": {
+    "top": 50,
+    "bottom": 82,
+    "left": 297,
+    "right": 384
+   }
+  },
+  "board_fb": {
+   "width": 390,
+   "height": 844,
+   "pitch": 42.6,
+   "k": 1,
+   "pause": {
+    "x": 38,
+    "y": 67,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 195,
+    "y": 126,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 195,
+    "y": 399.8036585365853,
+    "width": 353.7878048780488,
+    "height": 375.6073170731707
+   },
+   "grid": {
+    "x": 195,
+    "y": 399.8036585365853,
+    "size": 298.2
+   },
+   "tools": {
+    "x": 195,
+    "y": 730,
+    "step": 82,
+    "hit": 64,
+    "size": 75
+   },
+   "toast": {
+    "x": 195,
+    "y": 184,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 253,
+    "top": 51,
+    "bottom": 83
+   }
+  },
+  "result_win_fb": {
+   "panel": {
+    "cx": 195,
+    "cy": 446.5,
+    "w": 350,
+    "h": 537
+   },
+   "plank": {
+    "cx": 195,
+    "cy": 201,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 123,
+    "cy": 642,
+    "w": 128,
+    "h": 56
+   },
+   "home": {
+    "cx": 267,
+    "cy": 642,
+    "w": 128,
+    "h": 56
+   },
+   "retry": null,
+   "chest": {
+    "cx": 195,
+    "cy": 476,
+    "w": 220,
+    "h": 220
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_fb": {
+   "panel": {
+    "cx": 195,
+    "cy": 446.5,
+    "w": 350,
+    "h": 287
+   },
+   "plank": {
+    "cx": 195,
+    "cy": 326,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 267,
+    "cy": 517,
+    "w": 128,
+    "h": 56
+   },
+   "retry": {
+    "cx": 123,
+    "cy": 517,
+    "w": 128,
+    "h": 56
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "board_real": {
+   "width": 390,
+   "height": 844,
+   "pitch": 42.6,
+   "k": 1,
+   "pause": {
+    "x": 38,
+    "y": 66,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 195,
+    "y": 125,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 195,
+    "y": 398.8036585365853,
+    "width": 353.7878048780488,
+    "height": 375.6073170731707
+   },
+   "grid": {
+    "x": 195,
+    "y": 398.8036585365853,
+    "size": 298.2
+   },
+   "tools": {
+    "x": 195,
+    "y": 730,
+    "step": 82,
+    "hit": 64,
+    "size": 75
+   },
+   "toast": {
+    "x": 195,
+    "y": 183,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 253,
+    "top": 50,
+    "bottom": 82
+   }
+  },
+  "result_win_real": {
+   "panel": {
+    "cx": 195,
+    "cy": 446,
+    "w": 350,
+    "h": 537
+   },
+   "plank": {
+    "cx": 195,
+    "cy": 200.5,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 123,
+    "cy": 641.5,
+    "w": 128,
+    "h": 56
+   },
+   "home": {
+    "cx": 267,
+    "cy": 641.5,
+    "w": 128,
+    "h": 56
+   },
+   "retry": null,
+   "chest": {
+    "cx": 195,
+    "cy": 475.5,
+    "w": 220,
+    "h": 220
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_real": {
+   "panel": {
+    "cx": 195,
+    "cy": 446,
+    "w": 350,
+    "h": 287
+   },
+   "plank": {
+    "cx": 195,
+    "cy": 325.5,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 267,
+    "cy": 516.5,
+    "w": 128,
+    "h": 56
+   },
+   "retry": {
+    "cx": 123,
+    "cy": 516.5,
+    "w": 128,
+    "h": 56
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "props": {
+   "portrait": true,
+   "slots": [
+    {
+     "role": "bag",
+     "prop": {
+      "x": -117,
+      "bottom": -354.44000000000005,
+      "height": 59
+     },
+     "tag": {
+      "x": -117,
+      "y": -372.94000000000005,
+      "width": 46,
+      "height": 25,
+      "fontSize": 13
+     },
+     "hit": {
+      "x": -117,
+      "y": -340.44000000000005,
+      "width": 68,
+      "height": 94
+     }
+    },
+    {
+     "role": "journal",
+     "prop": {
+      "x": 0,
+      "bottom": -354.44000000000005,
+      "height": 59
+     },
+     "tag": {
+      "x": 0,
+      "y": -372.94000000000005,
+      "width": 59,
+      "height": 25,
+      "fontSize": 13
+     },
+     "hit": {
+      "x": 0,
+      "y": -340.44000000000005,
+      "width": 68,
+      "height": 94
+     }
+    },
+    {
+     "role": "settings",
+     "prop": {
+      "x": 117,
+      "bottom": -354.44000000000005,
+      "height": 59
+     },
+     "tag": {
+      "x": 117,
+      "y": -372.94000000000005,
+      "width": 46,
+      "height": 25,
+      "fontSize": 13
+     },
+     "hit": {
+      "x": 117,
+      "y": -340.44000000000005,
+      "width": 68,
+      "height": 94
+     }
+    }
+   ]
+  }
+ },
+ "414x896": {
+  "fallbackSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "portrait": true,
+   "capsule": {
+    "top": 51,
+    "bottom": 83,
+    "left": 321,
+    "right": 408
+   }
+  },
+  "realSafe": {
+   "top": 48,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "capsule": {
+    "top": 56,
+    "bottom": 88,
+    "left": 321,
+    "right": 408
+   }
+  },
+  "board_fb": {
+   "width": 414,
+   "height": 896,
+   "pitch": 45.221538461538465,
+   "k": 1.0615384615384615,
+   "pause": {
+    "x": 38,
+    "y": 67,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 207,
+    "y": 126,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 207,
+    "y": 414.8069606003752,
+    "width": 375.55936210131335,
+    "height": 398.7216135084428
+   },
+   "grid": {
+    "x": 207,
+    "y": 414.8069606003752,
+    "size": 316.5507692307693
+   },
+   "tools": {
+    "x": 207,
+    "y": 782,
+    "step": 87.04615384615384,
+    "hit": 64,
+    "size": 79.61538461538461
+   },
+   "toast": {
+    "x": 207,
+    "y": 185.72307692307692,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 277,
+    "top": 51,
+    "bottom": 83
+   }
+  },
+  "result_win_fb": {
+   "panel": {
+    "cx": 207,
+    "cy": 472.5,
+    "w": 350,
+    "h": 537
+   },
+   "plank": {
+    "cx": 207,
+    "cy": 227,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 135,
+    "cy": 668,
+    "w": 128,
+    "h": 56
+   },
+   "home": {
+    "cx": 279,
+    "cy": 668,
+    "w": 128,
+    "h": 56
+   },
+   "retry": null,
+   "chest": {
+    "cx": 207,
+    "cy": 502,
+    "w": 220,
+    "h": 220
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_fb": {
+   "panel": {
+    "cx": 207,
+    "cy": 472.5,
+    "w": 350,
+    "h": 287
+   },
+   "plank": {
+    "cx": 207,
+    "cy": 352,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 279,
+    "cy": 543,
+    "w": 128,
+    "h": 56
+   },
+   "retry": {
+    "cx": 135,
+    "cy": 543,
+    "w": 128,
+    "h": 56
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "board_real": {
+   "width": 414,
+   "height": 896,
+   "pitch": 45.221538461538465,
+   "k": 1.0615384615384615,
+   "pause": {
+    "x": 38,
+    "y": 72,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 207,
+    "y": 131,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 207,
+    "y": 419.8069606003752,
+    "width": 375.55936210131335,
+    "height": 398.7216135084428
+   },
+   "grid": {
+    "x": 207,
+    "y": 419.8069606003752,
+    "size": 316.5507692307693
+   },
+   "tools": {
+    "x": 207,
+    "y": 782,
+    "step": 87.04615384615384,
+    "hit": 64,
+    "size": 79.61538461538461
+   },
+   "toast": {
+    "x": 207,
+    "y": 190.72307692307692,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 277,
+    "top": 56,
+    "bottom": 88
+   }
+  },
+  "result_win_real": {
+   "panel": {
+    "cx": 207,
+    "cy": 475,
+    "w": 350,
+    "h": 537
+   },
+   "plank": {
+    "cx": 207,
+    "cy": 229.5,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 135,
+    "cy": 670.5,
+    "w": 128,
+    "h": 56
+   },
+   "home": {
+    "cx": 279,
+    "cy": 670.5,
+    "w": 128,
+    "h": 56
+   },
+   "retry": null,
+   "chest": {
+    "cx": 207,
+    "cy": 504.5,
+    "w": 220,
+    "h": 220
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_real": {
+   "panel": {
+    "cx": 207,
+    "cy": 475,
+    "w": 350,
+    "h": 287
+   },
+   "plank": {
+    "cx": 207,
+    "cy": 354.5,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 279,
+    "cy": 545.5,
+    "w": 128,
+    "h": 56
+   },
+   "retry": {
+    "cx": 135,
+    "cy": 545.5,
+    "w": 128,
+    "h": 56
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "props": {
+   "portrait": true,
+   "slots": [
+    {
+     "role": "bag",
+     "prop": {
+      "x": -124.19999999999999,
+      "bottom": -376.46000000000004,
+      "height": 63
+     },
+     "tag": {
+      "x": -124.19999999999999,
+      "y": -395.46000000000004,
+      "width": 49,
+      "height": 26,
+      "fontSize": 14
+     },
+     "hit": {
+      "x": -124.19999999999999,
+      "y": -360.96000000000004,
+      "width": 72,
+      "height": 99
+     }
+    },
+    {
+     "role": "journal",
+     "prop": {
+      "x": 0,
+      "bottom": -376.46000000000004,
+      "height": 63
+     },
+     "tag": {
+      "x": 0,
+      "y": -395.46000000000004,
+      "width": 63,
+      "height": 26,
+      "fontSize": 14
+     },
+     "hit": {
+      "x": 0,
+      "y": -360.96000000000004,
+      "width": 72,
+      "height": 99
+     }
+    },
+    {
+     "role": "settings",
+     "prop": {
+      "x": 124.19999999999999,
+      "bottom": -376.46000000000004,
+      "height": 63
+     },
+     "tag": {
+      "x": 124.19999999999999,
+      "y": -395.46000000000004,
+      "width": 49,
+      "height": 26,
+      "fontSize": 14
+     },
+     "hit": {
+      "x": 124.19999999999999,
+      "y": -360.96000000000004,
+      "width": 72,
+      "height": 99
+     }
+    }
+   ]
+  }
+ },
+ "360x780": {
+  "fallbackSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "portrait": true,
+   "capsule": {
+    "top": 51,
+    "bottom": 83,
+    "left": 267,
+    "right": 354
+   }
+  },
+  "realSafe": {
+   "top": 36,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "capsule": {
+    "top": 42,
+    "bottom": 74,
+    "left": 267,
+    "right": 354
+   }
+  },
+  "board_fb": {
+   "width": 360,
+   "height": 780,
+   "pitch": 41.180616740088105,
+   "k": 0.9666811441335236,
+   "pause": {
+    "x": 38,
+    "y": 67,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 180,
+    "y": 126,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 180,
+    "y": 391.68039957808526,
+    "width": 342,
+    "height": 363.0925110132158
+   },
+   "grid": {
+    "x": 180,
+    "y": 391.68039957808526,
+    "size": 288.26431718061673
+   },
+   "tools": {
+    "x": 180,
+    "y": 666,
+    "step": 79.26785381894894,
+    "hit": 64,
+    "size": 72.50108581001427
+   },
+   "toast": {
+    "x": 180,
+    "y": 183.06707203573868,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 223,
+    "top": 51,
+    "bottom": 83
+   }
+  },
+  "result_win_fb": {
+   "panel": {
+    "cx": 180,
+    "cy": 414.5,
+    "w": 320,
+    "h": 537
+   },
+   "plank": {
+    "cx": 180,
+    "cy": 169,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 115.5,
+    "cy": 610,
+    "w": 113,
+    "h": 56
+   },
+   "home": {
+    "cx": 244.5,
+    "cy": 610,
+    "w": 113,
+    "h": 56
+   },
+   "retry": null,
+   "chest": {
+    "cx": 180,
+    "cy": 444,
+    "w": 220,
+    "h": 220
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_fb": {
+   "panel": {
+    "cx": 180,
+    "cy": 414.5,
+    "w": 320,
+    "h": 287
+   },
+   "plank": {
+    "cx": 180,
+    "cy": 294,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 244.5,
+    "cy": 485,
+    "w": 113,
+    "h": 56
+   },
+   "retry": {
+    "cx": 115.5,
+    "cy": 485,
+    "w": 113,
+    "h": 56
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "board_real": {
+   "width": 360,
+   "height": 780,
+   "pitch": 41.180616740088105,
+   "k": 0.9666811441335236,
+   "pause": {
+    "x": 38,
+    "y": 58,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 180,
+    "y": 117,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 180,
+    "y": 382.68039957808526,
+    "width": 342,
+    "height": 363.0925110132158
+   },
+   "grid": {
+    "x": 180,
+    "y": 382.68039957808526,
+    "size": 288.26431718061673
+   },
+   "tools": {
+    "x": 180,
+    "y": 666,
+    "step": 79.26785381894894,
+    "hit": 64,
+    "size": 72.50108581001427
+   },
+   "toast": {
+    "x": 180,
+    "y": 174.06707203573868,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 223,
+    "top": 42,
+    "bottom": 74
+   }
+  },
+  "result_win_real": {
+   "panel": {
+    "cx": 180,
+    "cy": 410,
+    "w": 320,
+    "h": 537
+   },
+   "plank": {
+    "cx": 180,
+    "cy": 164.5,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 115.5,
+    "cy": 605.5,
+    "w": 113,
+    "h": 56
+   },
+   "home": {
+    "cx": 244.5,
+    "cy": 605.5,
+    "w": 113,
+    "h": 56
+   },
+   "retry": null,
+   "chest": {
+    "cx": 180,
+    "cy": 439.5,
+    "w": 220,
+    "h": 220
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_real": {
+   "panel": {
+    "cx": 180,
+    "cy": 410,
+    "w": 320,
+    "h": 287
+   },
+   "plank": {
+    "cx": 180,
+    "cy": 289.5,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 244.5,
+    "cy": 480.5,
+    "w": 113,
+    "h": 56
+   },
+   "retry": {
+    "cx": 115.5,
+    "cy": 480.5,
+    "w": 113,
+    "h": 56
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "props": {
+   "portrait": true,
+   "slots": [
+    {
+     "role": "bag",
+     "prop": {
+      "x": -108,
+      "bottom": -327.79999999999995,
+      "height": 55
+     },
+     "tag": {
+      "x": -108,
+      "y": -345.79999999999995,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": -108,
+      "y": -315.29999999999995,
+      "width": 64,
+      "height": 89
+     }
+    },
+    {
+     "role": "journal",
+     "prop": {
+      "x": 0,
+      "bottom": -327.79999999999995,
+      "height": 55
+     },
+     "tag": {
+      "x": 0,
+      "y": -345.79999999999995,
+      "width": 54,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 0,
+      "y": -315.29999999999995,
+      "width": 64,
+      "height": 89
+     }
+    },
+    {
+     "role": "settings",
+     "prop": {
+      "x": 108,
+      "bottom": -327.79999999999995,
+      "height": 55
+     },
+     "tag": {
+      "x": 108,
+      "y": -345.79999999999995,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 108,
+      "y": -315.29999999999995,
+      "width": 64,
+      "height": 89
+     }
+    }
+   ]
+  }
+ },
+ "375x667": {
+  "fallbackSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "portrait": true,
+   "capsule": {
+    "top": 51,
+    "bottom": 83,
+    "left": 282,
+    "right": 369
+   }
+  },
+  "realSafe": {
+   "top": 20,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "capsule": {
+    "top": 26,
+    "bottom": 58,
+    "left": 282,
+    "right": 369
+   }
+  },
+  "board_fb": {
+   "width": 375,
+   "height": 667,
+   "pitch": 34.138312586445366,
+   "k": 0.8013688400574029,
+   "pause": {
+    "x": 38,
+    "y": 67,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 187.5,
+    "y": 126,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 187.5,
+    "y": 350.5,
+    "width": 283.51452282157675,
+    "height": 301
+   },
+   "grid": {
+    "x": 187.5,
+    "y": 350.5,
+    "size": 238.96818810511758
+   },
+   "tools": {
+    "x": 187.5,
+    "y": 553,
+    "step": 65.71224488470705,
+    "hit": 64,
+    "size": 60.10266300430522
+   },
+   "toast": {
+    "x": 187.5,
+    "y": 178,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 238,
+    "top": 51,
+    "bottom": 83
+   }
+  },
+  "result_win_fb": {
+   "panel": {
+    "cx": 187.5,
+    "cy": 358,
+    "w": 335,
+    "h": 419
+   },
+   "plank": {
+    "cx": 187.5,
+    "cy": 171.5,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 119.3,
+    "cy": 496.5,
+    "w": 120.5,
+    "h": 52
+   },
+   "home": {
+    "cx": 255.8,
+    "cy": 496.5,
+    "w": 120.5,
+    "h": 52
+   },
+   "retry": null,
+   "chest": {
+    "cx": 187.5,
+    "cy": 378.5,
+    "w": 160,
+    "h": 160
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_fb": {
+   "panel": {
+    "cx": 187.5,
+    "cy": 358,
+    "w": 335,
+    "h": 234
+   },
+   "plank": {
+    "cx": 187.5,
+    "cy": 264,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 255.8,
+    "cy": 404,
+    "w": 120.5,
+    "h": 52
+   },
+   "retry": {
+    "cx": 119.3,
+    "cy": 404,
+    "w": 120.5,
+    "h": 52
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "board_real": {
+   "width": 375,
+   "height": 667,
+   "pitch": 36.973720608575384,
+   "k": 0.8679277138163235,
+   "pause": {
+    "x": 38,
+    "y": 42,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 187.5,
+    "y": 101,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 187.5,
+    "y": 338,
+    "width": 307.0622406639004,
+    "height": 326
+   },
+   "grid": {
+    "x": 187.5,
+    "y": 338,
+    "size": 258.8160442600277
+   },
+   "tools": {
+    "x": 187.5,
+    "y": 553,
+    "step": 71.17007253293853,
+    "hit": 64,
+    "size": 65.09457853622426
+   },
+   "toast": {
+    "x": 187.5,
+    "y": 153,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 238,
+    "top": 26,
+    "bottom": 58
+   }
+  },
+  "result_win_real": {
+   "panel": {
+    "cx": 187.5,
+    "cy": 345.5,
+    "w": 335,
+    "h": 419
+   },
+   "plank": {
+    "cx": 187.5,
+    "cy": 159,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 119.3,
+    "cy": 484,
+    "w": 120.5,
+    "h": 52
+   },
+   "home": {
+    "cx": 255.8,
+    "cy": 484,
+    "w": 120.5,
+    "h": 52
+   },
+   "retry": null,
+   "chest": {
+    "cx": 187.5,
+    "cy": 366,
+    "w": 160,
+    "h": 160
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_real": {
+   "panel": {
+    "cx": 187.5,
+    "cy": 345.5,
+    "w": 335,
+    "h": 234
+   },
+   "plank": {
+    "cx": 187.5,
+    "cy": 251.5,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 255.8,
+    "cy": 391.5,
+    "w": 120.5,
+    "h": 52
+   },
+   "retry": {
+    "cx": 119.3,
+    "cy": 391.5,
+    "w": 120.5,
+    "h": 52
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "props": {
+   "portrait": true,
+   "slots": [
+    {
+     "role": "bag",
+     "prop": {
+      "x": -112.5,
+      "bottom": -271.5,
+      "height": 48
+     },
+     "tag": {
+      "x": -112.5,
+      "y": -289.5,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": -112.5,
+      "y": -262.5,
+      "width": 64,
+      "height": 82
+     }
+    },
+    {
+     "role": "journal",
+     "prop": {
+      "x": 0,
+      "bottom": -271.5,
+      "height": 48
+     },
+     "tag": {
+      "x": 0,
+      "y": -289.5,
+      "width": 54,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 0,
+      "y": -262.5,
+      "width": 64,
+      "height": 82
+     }
+    },
+    {
+     "role": "settings",
+     "prop": {
+      "x": 112.5,
+      "bottom": -271.5,
+      "height": 48
+     },
+     "tag": {
+      "x": 112.5,
+      "y": -289.5,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 112.5,
+      "y": -262.5,
+      "width": 64,
+      "height": 82
+     }
+    }
+   ]
+  }
+ },
+ "390x520": {
+  "fallbackSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "portrait": true,
+   "capsule": {
+    "top": 51,
+    "bottom": 83,
+    "left": 297,
+    "right": 384
+   }
+  },
+  "realSafe": null,
+  "board_fb": {
+   "width": 390,
+   "height": 520,
+   "pitch": 20,
+   "k": 0.4694835680751174,
+   "pause": {
+    "x": 38,
+    "y": 67,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 195,
+    "y": 126,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 195,
+    "y": 265.82926829268297,
+    "width": 166.09756097560975,
+    "height": 176.34146341463412
+   },
+   "grid": {
+    "x": 195,
+    "y": 265.82926829268297,
+    "size": 140
+   },
+   "tools": {
+    "x": 195,
+    "y": 406,
+    "step": 65.60000000000001,
+    "hit": 64,
+    "size": 60
+   },
+   "toast": {
+    "x": 195,
+    "y": 155.6585365853659,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 253,
+    "top": 51,
+    "bottom": 83
+   }
+  },
+  "result_win_fb": {
+   "panel": {
+    "cx": 195,
+    "cy": 284.5,
+    "w": 350,
+    "h": 379
+   },
+   "plank": {
+    "cx": 195,
+    "cy": 118,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 123,
+    "cy": 403,
+    "w": 128,
+    "h": 52
+   },
+   "home": {
+    "cx": 267,
+    "cy": 403,
+    "w": 128,
+    "h": 52
+   },
+   "retry": null,
+   "chest": {
+    "cx": 195,
+    "cy": 305,
+    "w": 120,
+    "h": 120
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_fb": {
+   "panel": {
+    "cx": 195,
+    "cy": 284.5,
+    "w": 350,
+    "h": 234
+   },
+   "plank": {
+    "cx": 195,
+    "cy": 190.5,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 267,
+    "cy": 330.5,
+    "w": 128,
+    "h": 52
+   },
+   "retry": {
+    "cx": 123,
+    "cy": 330.5,
+    "w": 128,
+    "h": 52
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "props": {
+   "portrait": true,
+   "slots": [
+    {
+     "role": "bag",
+     "prop": {
+      "x": -117,
+      "bottom": -198,
+      "height": 48
+     },
+     "tag": {
+      "x": -117,
+      "y": -216,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": -117,
+      "y": -189,
+      "width": 64,
+      "height": 82
+     }
+    },
+    {
+     "role": "journal",
+     "prop": {
+      "x": 0,
+      "bottom": -198,
+      "height": 48
+     },
+     "tag": {
+      "x": 0,
+      "y": -216,
+      "width": 54,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 0,
+      "y": -189,
+      "width": 64,
+      "height": 82
+     }
+    },
+    {
+     "role": "settings",
+     "prop": {
+      "x": 117,
+      "bottom": -198,
+      "height": 48
+     },
+     "tag": {
+      "x": 117,
+      "y": -216,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 117,
+      "y": -189,
+      "width": 64,
+      "height": 82
+     }
+    }
+   ]
+  }
+ },
+ "320x568": {
+  "fallbackSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "portrait": true,
+   "capsule": {
+    "top": 51,
+    "bottom": 83,
+    "left": 227,
+    "right": 314
+   }
+  },
+  "realSafe": {
+   "top": 20,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "capsule": {
+    "top": 24,
+    "bottom": 56,
+    "left": 227,
+    "right": 314
+   }
+  },
+  "board_fb": {
+   "width": 320,
+   "height": 568,
+   "pitch": 22.910096818810512,
+   "k": 0.5377956999720778,
+   "pause": {
+    "x": 38,
+    "y": 67,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 160,
+    "y": 126,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 160,
+    "y": 301,
+    "width": 190.2655601659751,
+    "height": 202
+   },
+   "grid": {
+    "x": 160,
+    "y": 301,
+    "size": 160.3706777316736
+   },
+   "tools": {
+    "x": 160,
+    "y": 454,
+    "step": 65.60000000000001,
+    "hit": 64,
+    "size": 60
+   },
+   "toast": {
+    "x": 160,
+    "y": 178,
+    "maxWidth": 296,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 183,
+    "top": 51,
+    "bottom": 83
+   }
+  },
+  "result_win_fb": {
+   "panel": {
+    "cx": 160,
+    "cy": 308.5,
+    "w": 296,
+    "h": 427
+   },
+   "plank": {
+    "cx": 160,
+    "cy": 118,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 101.5,
+    "cy": 451,
+    "w": 101,
+    "h": 52
+   },
+   "home": {
+    "cx": 218.5,
+    "cy": 451,
+    "w": 101,
+    "h": 52
+   },
+   "retry": null,
+   "chest": {
+    "cx": 160,
+    "cy": 337,
+    "w": 152,
+    "h": 152
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_fb": {
+   "panel": {
+    "cx": 160,
+    "cy": 308.5,
+    "w": 296,
+    "h": 283
+   },
+   "plank": {
+    "cx": 160,
+    "cy": 190,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 218.5,
+    "cy": 379,
+    "w": 101,
+    "h": 52
+   },
+   "retry": {
+    "cx": 101.5,
+    "cy": 379,
+    "w": 101,
+    "h": 52
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "board_real": {
+   "width": 320,
+   "height": 568,
+   "pitch": 25.972337482710927,
+   "k": 0.6096792836317119,
+   "pause": {
+    "x": 38,
+    "y": 40,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 160,
+    "y": 99,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 160,
+    "y": 287.5,
+    "width": 215.69709543568464,
+    "height": 228.99999999999997
+   },
+   "grid": {
+    "x": 160,
+    "y": 287.5,
+    "size": 181.80636237897647
+   },
+   "tools": {
+    "x": 160,
+    "y": 454,
+    "step": 65.60000000000001,
+    "hit": 64,
+    "size": 60
+   },
+   "toast": {
+    "x": 160,
+    "y": 151,
+    "maxWidth": 296,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 183,
+    "top": 24,
+    "bottom": 56
+   }
+  },
+  "result_win_real": {
+   "panel": {
+    "cx": 160,
+    "cy": 295,
+    "w": 296,
+    "h": 454
+   },
+   "plank": {
+    "cx": 160,
+    "cy": 91,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 101.5,
+    "cy": 451,
+    "w": 101,
+    "h": 52
+   },
+   "home": {
+    "cx": 218.5,
+    "cy": 451,
+    "w": 101,
+    "h": 52
+   },
+   "retry": null,
+   "chest": {
+    "cx": 160,
+    "cy": 323.5,
+    "w": 160,
+    "h": 160
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_real": {
+   "panel": {
+    "cx": 160,
+    "cy": 295,
+    "w": 296,
+    "h": 283
+   },
+   "plank": {
+    "cx": 160,
+    "cy": 176.5,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 218.5,
+    "cy": 365.5,
+    "w": 101,
+    "h": 52
+   },
+   "retry": {
+    "cx": 101.5,
+    "cy": 365.5,
+    "w": 101,
+    "h": 52
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 52,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "props": {
+   "portrait": true,
+   "slots": [
+    {
+     "role": "bag",
+     "prop": {
+      "x": -96,
+      "bottom": -222,
+      "height": 48
+     },
+     "tag": {
+      "x": -96,
+      "y": -240,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": -96,
+      "y": -213,
+      "width": 64,
+      "height": 82
+     }
+    },
+    {
+     "role": "journal",
+     "prop": {
+      "x": 0,
+      "bottom": -222,
+      "height": 48
+     },
+     "tag": {
+      "x": 0,
+      "y": -240,
+      "width": 54,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 0,
+      "y": -213,
+      "width": 64,
+      "height": 82
+     }
+    },
+    {
+     "role": "settings",
+     "prop": {
+      "x": 96,
+      "bottom": -222,
+      "height": 48
+     },
+     "tag": {
+      "x": 96,
+      "y": -240,
+      "width": 42,
+      "height": 24,
+      "fontSize": 12
+     },
+     "hit": {
+      "x": 96,
+      "y": -213,
+      "width": 64,
+      "height": 82
+     }
+    }
+   ]
+  }
+ },
+ "768x1024": {
+  "fallbackSafe": {
+   "top": 47,
+   "bottom": 34,
+   "left": 0,
+   "right": 0,
+   "portrait": true,
+   "capsule": {
+    "top": 51,
+    "bottom": 83,
+    "left": 675,
+    "right": 762
+   }
+  },
+  "realSafe": null,
+  "board_fb": {
+   "width": 768,
+   "height": 1024,
+   "pitch": 55.38,
+   "k": 1.3,
+   "pause": {
+    "x": 38,
+    "y": 67,
+    "size": 41,
+    "hit": 44
+   },
+   "plate": {
+    "x": 384,
+    "y": 126,
+    "width": 214,
+    "height": 60
+   },
+   "tray": {
+    "x": 384,
+    "y": 472.94475609756097,
+    "width": 459.9241463414634,
+    "height": 488.2895121951219
+   },
+   "grid": {
+    "x": 384,
+    "y": 472.94475609756097,
+    "size": 387.66
+   },
+   "tools": {
+    "x": 384,
+    "y": 910,
+    "step": 98.39999999999999,
+    "hit": 64,
+    "size": 90
+   },
+   "toast": {
+    "x": 384,
+    "y": 192.4,
+    "maxWidth": 330,
+    "height": 32
+   },
+   "capsuleAvoid": {
+    "left": 631,
+    "top": 51,
+    "bottom": 83
+   }
+  },
+  "result_win_fb": {
+   "panel": {
+    "cx": 384,
+    "cy": 536.5,
+    "w": 350,
+    "h": 537
+   },
+   "plank": {
+    "cx": 384,
+    "cy": 291,
+    "w": 126,
+    "h": 44.1
+   },
+   "next": {
+    "cx": 312,
+    "cy": 732,
+    "w": 128,
+    "h": 56
+   },
+   "home": {
+    "cx": 456,
+    "cy": 732,
+    "w": 128,
+    "h": 56
+   },
+   "retry": null,
+   "chest": {
+    "cx": 384,
+    "cy": 566,
+    "w": 220,
+    "h": 220
+   },
+   "labels": [
+    "下一关@16",
+    "回小岛@16",
+    "630 分@34"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "result_lose_fb": {
+   "panel": {
+    "cx": 384,
+    "cy": 536.5,
+    "w": 350,
+    "h": 287
+   },
+   "plank": {
+    "cx": 384,
+    "cy": 416,
+    "w": 141.1,
+    "h": 44.1
+   },
+   "next": null,
+   "home": {
+    "cx": 456,
+    "cy": 607,
+    "w": 128,
+    "h": 56
+   },
+   "retry": {
+    "cx": 312,
+    "cy": 607,
+    "w": 128,
+    "h": 56
+   },
+   "chest": null,
+   "labels": [
+    "再试一次@16",
+    "回小岛@16",
+    "步数用完了，换个顺序试试？@16"
+   ],
+   "diag": {
+    "height": 56,
+    "artScale": 0.6,
+    "shadow": 6,
+    "side": 39,
+    "gap": 16,
+    "bottom": 39
+   }
+  },
+  "props": {
+   "portrait": true,
+   "slots": [
+    {
+     "role": "bag",
+     "prop": {
+      "x": -140,
+      "bottom": -430.24,
+      "height": 72
+     },
+     "tag": {
+      "x": -140,
+      "y": -449.74,
+      "width": 53,
+      "height": 27,
+      "fontSize": 15
+     },
+     "hit": {
+      "x": -140,
+      "y": -410.74,
+      "width": 83,
+      "height": 109
+     }
+    },
+    {
+     "role": "journal",
+     "prop": {
+      "x": 0,
+      "bottom": -430.24,
+      "height": 72
+     },
+     "tag": {
+      "x": 0,
+      "y": -449.74,
+      "width": 68,
+      "height": 27,
+      "fontSize": 15
+     },
+     "hit": {
+      "x": 0,
+      "y": -410.74,
+      "width": 83,
+      "height": 109
+     }
+    },
+    {
+     "role": "settings",
+     "prop": {
+      "x": 140,
+      "bottom": -430.24,
+      "height": 72
+     },
+     "tag": {
+      "x": 140,
+      "y": -449.74,
+      "width": 53,
+      "height": 27,
+      "fontSize": 15
+     },
+     "hit": {
+      "x": 140,
+      "y": -410.74,
+      "width": 83,
+      "height": 109
+     }
+    }
+   ]
+  }
+ }
+}

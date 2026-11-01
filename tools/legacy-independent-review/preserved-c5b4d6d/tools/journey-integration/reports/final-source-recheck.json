@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-15T17:09:13.659Z",
+  "sourceSHA256": "68c89eb32269be70dec669855fee04f80bbb6fd9a18d535c9000abfab5ff3d07",
+  "files": 619,
+  "sourceUnchangedDuringIntegratedSuite": true,
+  "logicSuitesPassed": 28,
+  "browserSuitesBlocked": 1,
+  "newFailuresInExecutedSuite": 0,
+  "historicalFailuresReproducedSeparately": 3,
+  "formalCocosWebBuild": "NOT_PRODUCED",
+  "renderedAcceptance": "BLOCKED_NOT_RUN"
+}

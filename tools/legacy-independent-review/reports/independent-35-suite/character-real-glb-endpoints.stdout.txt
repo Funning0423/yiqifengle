@@ -1,0 +1,78 @@
+{
+  "status": "PASS_REAL_GLB_NODE_FK_NOT_COCOS_OR_RENDER",
+  "checks": [
+    {
+      "kind": "stand",
+      "fps": 30,
+      "clipDuration": 1.2666670083999634,
+      "frames": 38,
+      "exactRoot": [
+        -0.016162758009872102,
+        0,
+        -4.413050709661525
+      ],
+      "completions": 1
+    },
+    {
+      "kind": "stand",
+      "fps": 60,
+      "clipDuration": 1.2666670083999634,
+      "frames": 76,
+      "exactRoot": [
+        -0.016162758009872102,
+        0,
+        -4.413050709661525
+      ],
+      "completions": 1
+    },
+    {
+      "kind": "stand",
+      "fps": 120,
+      "clipDuration": 1.2666670083999634,
+      "frames": 152,
+      "exactRoot": [
+        -0.016162758009872102,
+        0,
+        -4.413050709661525
+      ],
+      "completions": 1
+    },
+    {
+      "kind": "sit",
+      "fps": 30,
+      "clipDuration": 1.2000000476837158,
+      "frames": 36,
+      "exactRoot": [
+        0.4327299768730942,
+        0,
+        -4.207611558444886
+      ],
+      "completions": 1
+    },
+    {
+      "kind": "sit",
+      "fps": 60,
+      "clipDuration": 1.2000000476837158,
+      "frames": 72,
+      "exactRoot": [
+        0.4327299768730942,
+        0,
+        -4.207611558444886
+      ],
+      "completions": 1
+    },
+    {
+      "kind": "sit",
+      "fps": 120,
+      "clipDuration": 1.2000000476837158,
+      "frames": 144,
+      "exactRoot": [
+        0.4327299768730942,
+        0,
+        -4.207611558444886
+      ],
+      "completions": 1
+    }
+  ],
+  "scope": "Actual shipped GLB and anim_meta evaluated with real controller/AnimRig and JS FK. Strict controller root only; skeletal contact, imported Cocos rendering and visual quality not accepted."
+}

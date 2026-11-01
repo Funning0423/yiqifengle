@@ -1,0 +1,1498 @@
+{
+  "status": "PASS_UNCHANGED_PRIOR_GATES_CPU_NOT_GPU",
+  "frozenPriorRateOneBaselineMm": 4.32,
+  "results": [
+    {
+      "L": 3,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3,
+        "D": 5.4913,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5521,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.1805 > 0.05 and stop scale 1.5439)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 63.127277225160064,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.499999999999983,
+      "integratedSeconds": 7.500000000000158,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.72,
+          "walk_loop": 4.45,
+          "walk_stop_bodyR": 2.81
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_start@0.63",
+          "windows": 366
+        },
+        "foot.R": {
+          "worstMm": 4.45,
+          "where": "walk_loop@5.07",
+          "windows": 339
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -2.4853904927909785,
+      "maximumIkCorrectionMm": 63.74002903154626,
+      "unreachableSolves": 226,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.1,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3.1,
+        "D": 5.6342,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5578,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.2266 > 0.05 and stop scale 1.7796)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 62.41913467868859,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.666666666666649,
+      "integratedSeconds": 7.666666666666815,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.72,
+          "walk_loop": 4.22,
+          "walk_stop_bodyR": 2.06,
+          "idle_breathing_loop": 0.04
+        },
+        "foot.L": {
+          "worstMm": 1.75,
+          "where": "walk_loop@4.13",
+          "windows": 369
+        },
+        "foot.R": {
+          "worstMm": 4.22,
+          "where": "walk_loop@5.03",
+          "windows": 339
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -2.4144544394162915,
+      "maximumIkCorrectionMm": 132.2847070331349,
+      "unreachableSolves": 240,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.2,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3.2,
+        "D": 5.777,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1,
+        "warp": 1.03478,
+        "stopScale": 1,
+        "cruiseMps": 0.7219,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.54830450777608,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.799999999999982,
+      "integratedSeconds": 7.800000000000141,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.72,
+          "walk_loop": 1.8,
+          "walk_stop_bodyL": 1.04,
+          "idle_breathing_loop": 0.04
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_start@0.63",
+          "windows": 354
+        },
+        "foot.R": {
+          "worstMm": 1.8,
+          "where": "walk_loop@4.30",
+          "windows": 381
+        }
+      },
+      "endMm": 0.000023157594251255577,
+      "minimumSoleHeightMm": -2.2145288049563447,
+      "maximumIkCorrectionMm": 42.9614337869013,
+      "unreachableSolves": 9,
+      "limitMm": 16.185948637062957,
+      "passes": true
+    },
+    {
+      "L": 3.3,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3.3,
+        "D": 5.9199,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1,
+        "warp": 0.98043,
+        "stopScale": 1,
+        "cruiseMps": 0.7207,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.35402668837308,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.933333333333315,
+      "integratedSeconds": 7.933333333333467,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.72,
+          "walk_loop": 1.81,
+          "walk_stop_bodyL": 1.56,
+          "idle_breathing_loop": 0.03
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_start@0.63",
+          "windows": 363
+        },
+        "foot.R": {
+          "worstMm": 1.81,
+          "where": "walk_loop@4.43",
+          "windows": 378
+        }
+      },
+      "endMm": 0.000023157594251255577,
+      "minimumSoleHeightMm": -2.4568172835097712,
+      "maximumIkCorrectionMm": 41.53376287033994,
+      "unreachableSolves": 30,
+      "limitMm": 12.179108395081759,
+      "passes": true
+    },
+    {
+      "L": 3.4,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3.4,
+        "D": 6.0627,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5725,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.1443 > 0.05 and stop scale 0.5600)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 63.942297397762665,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.066666666666649,
+      "integratedSeconds": 8.066666666666793,
+      "slide": {
+        "byClip": {
+          "walk_stop_bodyL": 2.14,
+          "walk_start": 0.85,
+          "walk_loop": 0.79
+        },
+        "foot.L": {
+          "worstMm": 2.14,
+          "where": "walk_stop_bodyL@6.20",
+          "windows": 30
+        },
+        "foot.R": {
+          "worstMm": 0.85,
+          "where": "walk_start@0.03",
+          "windows": 519
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -6.744214807132318,
+      "maximumIkCorrectionMm": 132.38732099778653,
+      "unreachableSolves": 31,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.5,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3.5,
+        "D": 6.2056,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5768,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.0918 > 0.05 and stop scale 0.7956)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 64.50520963164156,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.233333333333315,
+      "integratedSeconds": 8.23333333333345,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 2.14,
+          "walk_stop_bodyL": 2.43
+        },
+        "foot.L": {
+          "worstMm": 2.43,
+          "where": "walk_stop_bodyL@6.33",
+          "windows": 183
+        },
+        "foot.R": {
+          "worstMm": 0.9,
+          "where": "walk_loop@3.20",
+          "windows": 519
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -3.904078389597887,
+      "maximumIkCorrectionMm": 53.4250139651039,
+      "unreachableSolves": 32,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.6,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3.6,
+        "D": 6.3485,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyR",
+        "stopRate": 1,
+        "warp": 1.04389,
+        "stopScale": 1,
+        "cruiseMps": 0.7496,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 89.16884836211398,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.366666666666648,
+      "integratedSeconds": 8.366666666666775,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.72,
+          "walk_loop": 1.69,
+          "walk_stop_bodyR": 1.14,
+          "idle_breathing_loop": 0.04
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_start@0.63",
+          "windows": 390
+        },
+        "foot.R": {
+          "worstMm": 0.98,
+          "where": "walk_stop_bodyR@5.73",
+          "windows": 522
+        }
+      },
+      "endMm": 0.000021455174961583115,
+      "minimumSoleHeightMm": -0.9111304839851814,
+      "maximumIkCorrectionMm": 24.364734770582142,
+      "unreachableSolves": 6,
+      "limitMm": 18.661505532987185,
+      "passes": true
+    },
+    {
+      "L": 3.7,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 3.7,
+        "D": 6.4913,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyR",
+        "stopRate": 1,
+        "warp": 1.00003,
+        "stopScale": 1,
+        "cruiseMps": 0.7472,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 88.4908319075192,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.49999999999998,
+      "integratedSeconds": 8.500000000000101,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.72,
+          "walk_loop": 1.66,
+          "walk_stop_bodyR": 1.33,
+          "idle_breathing_loop": 0.03
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_start@0.63",
+          "windows": 393
+        },
+        "foot.R": {
+          "worstMm": 0.85,
+          "where": "walk_start@0.03",
+          "windows": 522
+        }
+      },
+      "endMm": 0.000021455174961583115,
+      "minimumSoleHeightMm": -0.9111304839851814,
+      "maximumIkCorrectionMm": 23.845002293088594,
+      "unreachableSolves": 30,
+      "limitMm": 6.328805733238,
+      "passes": true
+    },
+    {
+      "L": 4.198,
+      "hz": 30,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.03333333333333333
+      ],
+      "plan": {
+        "L": 4.198,
+        "D": 5.9971,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1.15,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1.15,
+        "warp": 1.0243,
+        "stopScale": 1,
+        "cruiseMps": 0.9024,
+        "notes": [
+          "walk_start x1.15 (at rate 1: cruise 1.074 m/s outside 0.75..1.3 x native)",
+          "stop x1.15 (at rate 1: cruise 1.074 m/s outside 0.75..1.3 x native)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.71350168030936,
+        "foot.R": 105.88496960777191
+      },
+      "elapsedSeconds": 7.999999999999981,
+      "integratedSeconds": 8.00000000000013,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 1.82,
+          "walk_stop_bodyL": 1.57
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_loop@4.10",
+          "windows": 378
+        },
+        "foot.R": {
+          "worstMm": 1.82,
+          "where": "walk_loop@4.70",
+          "windows": 672
+        }
+      },
+      "endMm": 0.000023157593974213827,
+      "minimumSoleHeightMm": -1.6036561950081574,
+      "maximumIkCorrectionMm": 37.21148951408336,
+      "unreachableSolves": 12,
+      "limitMm": 12,
+      "passes": true
+    },
+    {
+      "L": 3,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3,
+        "D": 5.4913,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5521,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.1805 > 0.05 and stop scale 1.5439)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 63.15702646092584,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.499999999999979,
+      "integratedSeconds": 7.500000000000158,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.7,
+          "walk_loop": 4.64,
+          "walk_stop_bodyR": 3.38
+        },
+        "foot.L": {
+          "worstMm": 1.7,
+          "where": "walk_start@0.62",
+          "windows": 423
+        },
+        "foot.R": {
+          "worstMm": 4.64,
+          "where": "walk_loop@5.05",
+          "windows": 345
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -2.4858715186384384,
+      "maximumIkCorrectionMm": 63.74002903154626,
+      "unreachableSolves": 226,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.1,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3.1,
+        "D": 5.6342,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5578,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.2266 > 0.05 and stop scale 1.7796)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 63.89655209857993,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.649999999999978,
+      "integratedSeconds": 7.65000000000015,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.7,
+          "walk_loop": 4.57,
+          "walk_stop_bodyR": 3.1
+        },
+        "foot.L": {
+          "worstMm": 1.75,
+          "where": "walk_loop@4.13",
+          "windows": 420
+        },
+        "foot.R": {
+          "worstMm": 4.57,
+          "where": "walk_loop@5.02",
+          "windows": 345
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -2.4144544394162915,
+      "maximumIkCorrectionMm": 132.2847070331349,
+      "unreachableSolves": 238,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.2,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3.2,
+        "D": 5.777,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1,
+        "warp": 1.03478,
+        "stopScale": 1,
+        "cruiseMps": 0.7219,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.73316772689363,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.783333333333311,
+      "integratedSeconds": 7.783333333333475,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.7,
+          "walk_loop": 1.83,
+          "walk_stop_bodyL": 1.07,
+          "idle_breathing_loop": 0.01
+        },
+        "foot.L": {
+          "worstMm": 1.7,
+          "where": "walk_start@0.62",
+          "windows": 414
+        },
+        "foot.R": {
+          "worstMm": 1.83,
+          "where": "walk_loop@4.30",
+          "windows": 384
+        }
+      },
+      "endMm": 0.000023157594251255577,
+      "minimumSoleHeightMm": -2.2145288049563447,
+      "maximumIkCorrectionMm": 42.9614337869013,
+      "unreachableSolves": 9,
+      "limitMm": 16.185948637062957,
+      "passes": true
+    },
+    {
+      "L": 3.3,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3.3,
+        "D": 5.9199,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1,
+        "warp": 0.98043,
+        "stopScale": 1,
+        "cruiseMps": 0.7207,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.95461839408772,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 7.9333333333333105,
+      "integratedSeconds": 7.933333333333467,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.7,
+          "walk_loop": 1.82,
+          "walk_stop_bodyL": 0.99
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_loop@2.25",
+          "windows": 414
+        },
+        "foot.R": {
+          "worstMm": 1.82,
+          "where": "walk_loop@4.43",
+          "windows": 378
+        }
+      },
+      "endMm": 0.000023157594251255577,
+      "minimumSoleHeightMm": -2.4568172835097712,
+      "maximumIkCorrectionMm": 41.53376287033994,
+      "unreachableSolves": 30,
+      "limitMm": 12.179108395081759,
+      "passes": true
+    },
+    {
+      "L": 3.4,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3.4,
+        "D": 6.0627,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5725,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.1443 > 0.05 and stop scale 0.5600)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 64.23867418873468,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.066666666666647,
+      "integratedSeconds": 8.066666666666793,
+      "slide": {
+        "byClip": {
+          "walk_stop_bodyL": 2.4,
+          "walk_start": 0.85,
+          "walk_loop": 0.95,
+          "idle_breathing_loop": 0.05
+        },
+        "foot.L": {
+          "worstMm": 2.4,
+          "where": "walk_stop_bodyL@6.20",
+          "windows": 42
+        },
+        "foot.R": {
+          "worstMm": 0.95,
+          "where": "walk_loop@3.18",
+          "windows": 531
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -6.744214807132318,
+      "maximumIkCorrectionMm": 132.38732099778653,
+      "unreachableSolves": 31,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.5,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3.5,
+        "D": 6.2056,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5768,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.0918 > 0.05 and stop scale 0.7956)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 64.50520963164156,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.216666666666654,
+      "integratedSeconds": 8.216666666666784,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.7,
+          "walk_loop": 2.23,
+          "walk_stop_bodyL": 2.43,
+          "idle_breathing_loop": 0.04
+        },
+        "foot.L": {
+          "worstMm": 2.43,
+          "where": "walk_stop_bodyL@6.33",
+          "windows": 237
+        },
+        "foot.R": {
+          "worstMm": 0.89,
+          "where": "walk_loop@3.17",
+          "windows": 531
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -3.904078389597887,
+      "maximumIkCorrectionMm": 53.4250139651039,
+      "unreachableSolves": 32,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.6,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3.6,
+        "D": 6.3485,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyR",
+        "stopRate": 1,
+        "warp": 1.04389,
+        "stopScale": 1,
+        "cruiseMps": 0.7496,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 90.18472811911151,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.349999999999994,
+      "integratedSeconds": 8.35000000000011,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.7,
+          "walk_loop": 1.73,
+          "walk_stop_bodyR": 1.25,
+          "idle_breathing_loop": 0.06
+        },
+        "foot.L": {
+          "worstMm": 1.73,
+          "where": "walk_loop@2.22",
+          "windows": 456
+        },
+        "foot.R": {
+          "worstMm": 0.98,
+          "where": "walk_stop_bodyR@5.73",
+          "windows": 534
+        }
+      },
+      "endMm": 0.000021455174961583115,
+      "minimumSoleHeightMm": -1.0830968494499327,
+      "maximumIkCorrectionMm": 24.364734770582142,
+      "unreachableSolves": 6,
+      "limitMm": 18.661505532987185,
+      "passes": true
+    },
+    {
+      "L": 3.7,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 3.7,
+        "D": 6.4913,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyR",
+        "stopRate": 1,
+        "warp": 1.00003,
+        "stopScale": 1,
+        "cruiseMps": 0.7472,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 89.80805049945265,
+        "foot.R": 106.77609548730771
+      },
+      "elapsedSeconds": 8.500000000000002,
+      "integratedSeconds": 8.500000000000101,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.7,
+          "walk_loop": 1.74,
+          "walk_stop_bodyR": 1.34,
+          "idle_breathing_loop": 0.06
+        },
+        "foot.L": {
+          "worstMm": 1.74,
+          "where": "walk_loop@3.58",
+          "windows": 459
+        },
+        "foot.R": {
+          "worstMm": 0.94,
+          "where": "walk_stop_bodyR@5.88",
+          "windows": 534
+        }
+      },
+      "endMm": 0.000021455174961583115,
+      "minimumSoleHeightMm": -1.0830968494499327,
+      "maximumIkCorrectionMm": 23.845002293088594,
+      "unreachableSolves": 30,
+      "limitMm": 6.328805733238,
+      "passes": true
+    },
+    {
+      "L": 4.198,
+      "hz": 60,
+      "solver": true,
+      "jitter": false,
+      "timeSteps": [
+        0.016666666666666666
+      ],
+      "plan": {
+        "L": 4.198,
+        "D": 5.9971,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1.15,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1.15,
+        "warp": 1.0243,
+        "stopScale": 1,
+        "cruiseMps": 0.9024,
+        "notes": [
+          "walk_start x1.15 (at rate 1: cruise 1.074 m/s outside 0.75..1.3 x native)",
+          "stop x1.15 (at rate 1: cruise 1.074 m/s outside 0.75..1.3 x native)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.71350168030936,
+        "foot.R": 105.91336428771372
+      },
+      "elapsedSeconds": 7.999999999999977,
+      "integratedSeconds": 8.00000000000013,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 1.84,
+          "walk_stop_bodyL": 1.19
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_loop@4.10",
+          "windows": 498
+        },
+        "foot.R": {
+          "worstMm": 1.84,
+          "where": "walk_loop@4.70",
+          "windows": 669
+        }
+      },
+      "endMm": 0.000023157593974213827,
+      "minimumSoleHeightMm": -1.8154526942099902,
+      "maximumIkCorrectionMm": 37.21148951408336,
+      "unreachableSolves": 12,
+      "limitMm": 12,
+      "passes": true
+    },
+    {
+      "L": 3,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3,
+        "D": 5.4913,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5521,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.1805 > 0.05 and stop scale 1.5439)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 64.7780411455249,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 7.513611111111113,
+      "integratedSeconds": 7.51361111111126,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 4.44,
+          "walk_stop_bodyR": 2.53
+        },
+        "foot.L": {
+          "worstMm": 1.69,
+          "where": "walk_start@0.61",
+          "windows": 375
+        },
+        "foot.R": {
+          "worstMm": 4.44,
+          "where": "walk_loop@5.06",
+          "windows": 339
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -2.4364850055260123,
+      "maximumIkCorrectionMm": 63.652278843997266,
+      "unreachableSolves": 233,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.1,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3.1,
+        "D": 5.6342,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5578,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp -0.2266 > 0.05 and stop scale 1.7796)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 62.04306913946081,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 7.6605555555555584,
+      "integratedSeconds": 7.660555555555696,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 4.53,
+          "walk_stop_bodyR": 1.61
+        },
+        "foot.L": {
+          "worstMm": 1.69,
+          "where": "walk_start@0.61",
+          "windows": 375
+        },
+        "foot.R": {
+          "worstMm": 4.53,
+          "where": "walk_loop@5.02",
+          "windows": 339
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -2.3408156559081847,
+      "maximumIkCorrectionMm": 130.30067548398972,
+      "unreachableSolves": 245,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.2,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3.2,
+        "D": 5.777,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1,
+        "warp": 1.03478,
+        "stopScale": 1,
+        "cruiseMps": 0.7219,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.07801737668598,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 7.803888888888891,
+      "integratedSeconds": 7.803888888889022,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 1.83,
+          "walk_stop_bodyL": 1.06
+        },
+        "foot.L": {
+          "worstMm": 1.69,
+          "where": "walk_start@0.61",
+          "windows": 390
+        },
+        "foot.R": {
+          "worstMm": 1.83,
+          "where": "walk_loop@4.31",
+          "windows": 378
+        }
+      },
+      "endMm": 0.000023157594251255577,
+      "minimumSoleHeightMm": -2.24577554459196,
+      "maximumIkCorrectionMm": 39.35279583463943,
+      "unreachableSolves": 6,
+      "limitMm": 16.185948637062957,
+      "passes": true
+    },
+    {
+      "L": 3.3,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3.3,
+        "D": 5.9199,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1,
+        "warp": 0.98043,
+        "stopScale": 1,
+        "cruiseMps": 0.7207,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.57192428125775,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 8.00416666666667,
+      "integratedSeconds": 8.004166666666789,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 1.72,
+          "walk_stop_bodyL": 1.91
+        },
+        "foot.L": {
+          "worstMm": 1.72,
+          "where": "walk_loop@2.25",
+          "windows": 366
+        },
+        "foot.R": {
+          "worstMm": 1.91,
+          "where": "walk_stop_bodyL@4.46",
+          "windows": 543
+        }
+      },
+      "endMm": 0.000023157594251255577,
+      "minimumSoleHeightMm": -0.42425204661684923,
+      "maximumIkCorrectionMm": 39.393492384308814,
+      "unreachableSolves": 27,
+      "limitMm": 12.179108395081759,
+      "passes": true
+    },
+    {
+      "L": 3.4,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3.4,
+        "D": 6.0627,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5725,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.1443 > 0.05 and stop scale 0.5600)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 62.15837756610326,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 8.081111111111113,
+      "integratedSeconds": 8.08111111111123,
+      "slide": {
+        "byClip": {
+          "walk_stop_bodyL": 1.95,
+          "walk_start": 0.61,
+          "walk_loop": 1.03
+        },
+        "foot.L": {
+          "worstMm": 1.95,
+          "where": "walk_stop_bodyL@6.20",
+          "windows": 33
+        },
+        "foot.R": {
+          "worstMm": 1.03,
+          "where": "walk_loop@3.20",
+          "windows": 519
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -6.740697620321812,
+      "maximumIkCorrectionMm": 132.28088530346645,
+      "unreachableSolves": 33,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.5,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3.5,
+        "D": 6.2056,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": null,
+        "stopRate": null,
+        "warp": 1,
+        "stopScale": null,
+        "cruiseMps": 0.5768,
+        "notes": [
+          "stop: stride warp + stop scale out of budget (walk_stop_bodyR warp 0.0918 > 0.05 and stop scale 0.7956)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 62.61503540571291,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 8.21138888888889,
+      "integratedSeconds": 8.211388888889001,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 2.24,
+          "walk_stop_bodyL": 1.9
+        },
+        "foot.L": {
+          "worstMm": 2.24,
+          "where": "walk_loop@5.81",
+          "windows": 180
+        },
+        "foot.R": {
+          "worstMm": 0.76,
+          "where": "walk_loop@3.20",
+          "windows": 519
+        }
+      },
+      "endMm": 0,
+      "minimumSoleHeightMm": -3.927975299110348,
+      "maximumIkCorrectionMm": 53.55160210819495,
+      "unreachableSolves": 31,
+      "limitMm": 6.32,
+      "passes": true
+    },
+    {
+      "L": 3.6,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3.6,
+        "D": 6.3485,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyR",
+        "stopRate": 1,
+        "warp": 1.04389,
+        "stopScale": 1,
+        "cruiseMps": 0.7496,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 90.18472811911161,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 8.404722222222222,
+      "integratedSeconds": 8.404722222222324,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 1.68,
+          "walk_stop_bodyR": 1.14
+        },
+        "foot.L": {
+          "worstMm": 1.69,
+          "where": "walk_start@0.61",
+          "windows": 405
+        },
+        "foot.R": {
+          "worstMm": 0.63,
+          "where": "walk_stop_bodyR@5.80",
+          "windows": 522
+        }
+      },
+      "endMm": 0.000021455174961583115,
+      "minimumSoleHeightMm": -0.42425204661684923,
+      "maximumIkCorrectionMm": 26.160896100362628,
+      "unreachableSolves": 6,
+      "limitMm": 18.661505532987185,
+      "passes": true
+    },
+    {
+      "L": 3.7,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 3.7,
+        "D": 6.4913,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1,
+        "stop": "walk_stop_bodyR",
+        "stopRate": 1,
+        "warp": 1.00003,
+        "stopScale": 1,
+        "cruiseMps": 0.7472,
+        "notes": []
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 82.93879102380795,
+        "foot.R": 106.55986707235243
+      },
+      "elapsedSeconds": 8.514999999999999,
+      "integratedSeconds": 8.515000000000096,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.69,
+          "walk_loop": 1.58,
+          "walk_stop_bodyR": 0.97
+        },
+        "foot.L": {
+          "worstMm": 1.69,
+          "where": "walk_start@0.61",
+          "windows": 411
+        },
+        "foot.R": {
+          "worstMm": 0.97,
+          "where": "walk_stop_bodyR@5.88",
+          "windows": 522
+        }
+      },
+      "endMm": 0.000021455174961583115,
+      "minimumSoleHeightMm": -0.42425204661684923,
+      "maximumIkCorrectionMm": 25.99559911113732,
+      "unreachableSolves": 30,
+      "limitMm": 6.328805733238,
+      "passes": true
+    },
+    {
+      "L": 4.198,
+      "hz": 60,
+      "solver": true,
+      "jitter": true,
+      "timeSteps": [
+        0.008333333333333333,
+        0.041666666666666664,
+        0.02,
+        0.03333333333333333,
+        0.09,
+        0.006944444444444444
+      ],
+      "plan": {
+        "L": 4.198,
+        "D": 5.9971,
+        "rest": true,
+        "aheadM": 0,
+        "start": true,
+        "startRate": 1.15,
+        "stop": "walk_stop_bodyL",
+        "stopRate": 1.15,
+        "warp": 1.0243,
+        "stopScale": 1,
+        "cruiseMps": 0.9024,
+        "notes": [
+          "walk_start x1.15 (at rate 1: cruise 1.074 m/s outside 0.75..1.3 x native)",
+          "stop x1.15 (at rate 1: cruise 1.074 m/s outside 0.75..1.3 x native)"
+        ]
+      },
+      "swingFloorHeightMm": {
+        "foot.L": 104.18049854425603,
+        "foot.R": 105.76424452066463
+      },
+      "elapsedSeconds": 8.00416666666667,
+      "integratedSeconds": 8.004166666666789,
+      "slide": {
+        "byClip": {
+          "walk_start": 1.68,
+          "walk_loop": 1.74,
+          "walk_stop_bodyL": 0.95
+        },
+        "foot.L": {
+          "worstMm": 1.7,
+          "where": "walk_loop@3.01",
+          "windows": 399
+        },
+        "foot.R": {
+          "worstMm": 1.74,
+          "where": "walk_loop@4.71",
+          "windows": 696
+        }
+      },
+      "endMm": 0.000023157593974213827,
+      "minimumSoleHeightMm": -0.7297986154682357,
+      "maximumIkCorrectionMm": 41.53447806005455,
+      "unreachableSolves": 10,
+      "limitMm": 12,
+      "passes": true
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "codeCommit": "19d719d",
+  "asset": {
+    "driveFileId": "1s_bhYyYdOgmebqVlmll13aLd2Qz8WT-l",
+    "name": "GROKBOT-MEADOW-v0.8.0.zip",
+    "size": 11615967,
+    "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
+    "createdTime": "2026-10-08T23:55:29.625Z",
+    "modifiedTime": "2026-10-08T23:55:29.625Z",
+    "revisionCount": 1,
+    "inspectedFolder": "1ZJNxenCtGzqNZgMJvbmmdVhp-iE0O-Sl",
+    "latestScope": "No later meadow scene ZIP in the complete inspected 14-item folder; later night-sky PNG exists. Broader searches did not establish a newer model. This is verified v0.8 scene candidate, not final visual approval.",
+    "allPackageHashesVerified": true,
+    "localOriginalZip": "../inputs/meadow-audit/GROKBOT-MEADOW-v0.8.0.zip",
+    "localSourceRoot": "../inputs/meadow-audit/extracted/meadow_v0_8",
+    "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
+    "derivative": {
+      "status": "PASS",
+      "sha256": "f46850e64c8367663129c0cc2a7dcd1439e4fb26c829fc82e7e788350e14ecba",
+      "bytes": 6409332,
+      "nodes": 67,
+      "meshes": 23,
+      "triangles": 78492,
+      "allAccessorsFiniteAndWithinBuffer": true,
+      "allTriangleIndicesWithinVertexRange": true,
+      "gpuInstanceExtensionRemoved": true,
+      "sourceInstanceCounts": {
+        "grass": 1000,
+        "flowers": 150
+      },
+      "scope": "Offline GLB structural checks, no Creator import/GPU validation"
+    }
+  },
+  "implementation": {
+    "regionLoader": {
+      "bundle": "region_meadow",
+      "prefabName": "env_meadow",
+      "uuidPolicy": "Parent GLB stable meta UUID; Creator generates scene subasset on the queued import. Runtime loads exact name/sole scene and validates mandatory anchors/renderers; no fabricated prefab subasset UUID."
+    },
+    "liveRenderer": {
+      "priority": 44,
+      "layerBit": 20,
+      "portraitCamera": "CAM_map_portrait",
+      "landscapeCamera": "CAM_hero",
+      "windmillSeconds": 8,
+      "grassSeconds": 4,
+      "islandPictureUsed": false
+    },
+    "entryPaths": [
+      "mainline-05 through mainline-08",
+      "r05-meadow stages"
+    ],
+    "preflight": "12s bounded prefab/shader/model validation before advancing out of saved win; failures retain saved result and visible retry notice",
+    "debugEntry": "capsule entire band reserved in host-to-frame units; finite one/two-column checkpoint controls",
+    "inspect": "R5_KEYS read through checkpoint r5Platform inside newly created namespace; zero writes by inspection",
+    "music": "mainline05–08 as well as meadow challenges map to region_meadow BGM"
+  },
+  "checks": {
+    "glb": {
+      "status": "PASS",
+      "sha256": "f46850e64c8367663129c0cc2a7dcd1439e4fb26c829fc82e7e788350e14ecba",
+      "bytes": 6409332,
+      "nodes": 67,
+      "meshes": 23,
+      "triangles": 78492,
+      "allAccessorsFiniteAndWithinBuffer": true,
+      "allTriangleIndicesWithinVertexRange": true,
+      "gpuInstanceExtensionRemoved": true,
+      "sourceInstanceCounts": {
+        "grass": 1000,
+        "flowers": 150
+      },
+      "scope": "Offline GLB structural checks, no Creator import/GPU validation"
+    },
+    "transpile": {
+      "status": "PASS",
+      "files": 11,
+      "scope": "Changed TS syntax and loose ES5 transpilation only; engine semantic checking and effect shader compilation queued. TypeScript 6.0 option deprecations acknowledged with ignoreDeprecations, no project compiler config changed."
+    },
+    "safeArea": {
+      "status": "PASS",
+      "supportedSamples": 10033,
+      "supportedFailures": 0,
+      "checks": 7660
+    },
+    "meadowScene": "PASS: actual TS provider/loader, current GLB-node doubles, pause/dispose/late cancel/owner loss/preflight paths",
+    "capsule": "PASS: 12 portrait/landscape/host-scale samples",
+    "r5Ports": "PASS: isolated inspection and normal-port restoration with zero restoration IO",
+    "regionFlowUI": "PASS: checkpoint04/08/12 save and rewards with lifecycle cycles",
+    "bgm": "PASS: 114 mapping/audio/bundle checks"
+  },
+  "remaining": [
+    "Creator 3.8.8 import generates actual prefab subassets and confirms names/UUIDs",
+    "Shader compile and GPU rendering; preview and Node doubles cannot certify them",
+    "Actual mainline04 ->05 3D reveal, grass/windmill motion, result-card icon readability and reward close/return",
+    "Day/night scene appearance, true phone lockscreen lifecycle, portrait/landscape composition",
+    "Package/memory/frame performance: derivative 6,409,332 bytes exceeds source GLB <=2MB target; 78,492 triangles and 23 mesh primitives retained",
+    "No freeze until current code is combined and actually accepted by parent/test owner"
+  ],
+  "defectStates": {
+    "UI-SCALE": "OPEN",
+    "REGION-MEADOW": "OPEN",
+    "CHARACTER-FEET": "OPEN",
+    "CHARACTER-SITTING": "OPEN"
+  },
+  "protection": "No character edits, IDE, browser, build service, shared source/package, formal save, credentials/permissions or Drive writes. Original source and ZIP preserved. Download completed; no pending approval."
+}

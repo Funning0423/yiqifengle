@@ -1,0 +1,22 @@
+{
+  "schema": "qfl-reviewed-controller-change/v1",
+  "baseCommit": "c5b4d6d503eeccf4fb7c9ed8dd9a94b3707b536b",
+  "reason": "An action resolved inside the existing 1e-6 s tolerance while leaving its root at an incomplete interpolation. Normalize elapsed before the final root, and copy sit/stand targets exactly. Full-frame 120 Hz substeps remain unchanged.",
+  "reviewStatus": "Implementation scoped by parent; independent QA required before integration.",
+  "baselineSectionSHA256": "171b4e16d91ae0a95bdcad27ae084796ca109e6e329141f2d975692e4abb6342",
+  "candidateSectionSHA256": "c73a4dec47cda188a9aa672c74bd592e912661215b17827d8d72a26df443010f",
+  "replacements": [
+    {
+      "before": "if(j){const before=j.elapsed;j.elapsed=Math.min(j.duration,j.elapsed+step);let p=j.elapsed/j.duration;",
+      "after": "if(j){const before=j.elapsed;j.elapsed=Math.min(j.duration,j.elapsed+step);\n   // Use the existing completion tolerance before evaluating the final root, so a resolved action\n   // cannot retain a nearly-complete interpolation. Keep 120 Hz substeps and the full frame duration.\n   if(j.elapsed+1e-6>=j.duration)j.elapsed=j.duration;let p=j.elapsed/j.duration;"
+    },
+    {
+      "before": "this.node.setWorldPosition(...j.from.map((v:number,i:number)=>v+(target[i]-v)*p));",
+      "after": "this.node.setWorldPosition(...(p===1?target:j.from.map((v:number,i:number)=>v+(target[i]-v)*p)));"
+    },
+    {
+      "before": "if(j&&j.elapsed+1e-6>=j.duration){",
+      "after": "if(j&&j.elapsed===j.duration){"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "modelSHA": "6e4342028c11b43f2bf1834825e40e70cc3d6176052c95894f88b715e76495a8",
+  "clipSHA": "9bbad014be8ce21c76d521d967dfb16da6e8d609eb27cd46474b5f87207448f1",
+  "libraryPackageTestCloneIdentical": true,
+  "rows": [
+    {
+      "node": "upper_arm.L",
+      "keys": 100,
+      "timesMaxDifference": 0.0,
+      "quaternionMaxComponentDifference": 5.960464477539063e-08
+    },
+    {
+      "node": "forearm.L",
+      "keys": 122,
+      "timesMaxDifference": 0.0,
+      "quaternionMaxComponentDifference": 0.0
+    },
+    {
+      "node": "hand.L",
+      "keys": 122,
+      "timesMaxDifference": 0.0,
+      "quaternionMaxComponentDifference": 0.0
+    }
+  ]
+}

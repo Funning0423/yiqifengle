@@ -1,0 +1,33 @@
+{
+  "updated_at": "2026-10-14T18:38:00Z",
+  "priority": "user-reported defects take precedence over later test summaries",
+  "issues": [
+    {
+      "id": "USER-FOOT-001",
+      "status": "open",
+      "report": "人物脚部一直没修过来",
+      "acceptance": [
+        "自然脚踝",
+        "停步与转身自然",
+        "完整场景视觉检查",
+        "不得仅由脚本通过关闭"
+      ],
+      "candidate": "source/handoffs/foot-component35",
+      "integrated": false
+    },
+    {
+      "id": "USER-POSTURE-001",
+      "status": "open",
+      "report": "坐姿没有修复",
+      "acceptance": [
+        "坐姿自然",
+        "裙、腿、椅、手腕袖口不穿模",
+        "坐下、起身完整连续动作视觉检查",
+        "不得仅由局部脚本通过关闭"
+      ],
+      "candidate": "posture-work/posture105",
+      "latest_failed_trial": "posture-work/posture110: iteration52 dressSelf6 seatPairs98"
+    }
+  ],
+  "closure_rule": "Later reports may append evidence but may not remove, supersede, or close these issues without explicit per-issue visual verification. User acceptance remains pending."
+}

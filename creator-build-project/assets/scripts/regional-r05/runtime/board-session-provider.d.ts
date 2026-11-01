@@ -19,6 +19,6 @@ declare class BoardSessionProvider {
  snapshot():ProviderSnapshot;
  startStage(id:string,options?:{seed?:number}):Outcome;
  previewAction(action:Action):Outcome; cancelPreview(token:string):Outcome; commitAction(token:string):Outcome; finishVisualStep(token:string):Outcome;
- pause():Outcome;onHide():Outcome;onShow():Outcome;resume():Outcome;requestExit():Outcome;retrySave():Outcome;finish():Outcome;discardActive():Outcome;claimMemento(region:'tide'|'meadow'|'sky'):Outcome;
+ pause():Outcome;onHide():Outcome;onShow():Outcome;resume():Outcome;requestExit():Outcome;retrySave():Outcome;finish():Outcome;discardActive():Outcome;claimMemento(region:'tide'|'meadow'|'sky'|'lake'):Outcome;
 }
 export = BoardSessionProvider;

@@ -1,0 +1,32 @@
+{
+  "status": "SAMPLED_SOURCE_GEOMETRY_NOT_VISUAL_ACCEPTANCE",
+  "meadowSHA256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db",
+  "sampledMeshes": [
+    "meadow_terrain",
+    "meadow_river",
+    "meadow_river_bank"
+  ],
+  "islandFootprintSamples": 5395,
+  "maximumTargetGroundYUnderIslandFootprintM": -1.1781830506125128,
+  "islandSeaY": -0.918544590473175,
+  "bridgeSamples": 513,
+  "minimumBridgeCentrelineClearanceM": -1.0742162714905135e-10,
+  "bridgeEndToleranceM": 1e-05,
+  "sourceAndTargetScale": 1,
+  "meadowRigidOffsetFromBridgeStart": [
+    0,
+    0,
+    24
+  ],
+  "candidateSeconds": {
+    "islandToMeadow": 26.971700175001327,
+    "meadowToSkyEntry": 35.72114778231451
+  },
+  "limitations": [
+    "Sampled original GLB positions; no Cocos imported-mesh test",
+    "Not continuous triangle proof",
+    "No sky-city rock/terrain overlap audit",
+    "No camera occlusion or visual approval",
+    "No final character contact/foot sliding approval"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+ "sourceSha256": "adf4d494cc013a00e4fd869e499cbb352a5c0259a01e27c8e201c3080ab13cb9",
+ "box": [
+  -40,
+  -30,
+  40,
+  52
+ ],
+ "c": 0.4,
+ "W": 200,
+ "H": 205,
+ "walkableCells": 11038,
+ "walkableM2": 1766.1,
+ "farShoreCells": 3402,
+ "nearShoreCells": 7636,
+ "waterCellsInBox": 8167,
+ "start": [
+  3.2531,
+  0.5714,
+  25.0904
+ ]
+}

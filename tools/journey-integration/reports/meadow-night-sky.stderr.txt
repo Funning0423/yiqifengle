@@ -1,0 +1,3 @@
+SkyNightTexture: 没有指定 skyRenderer，不加载夜空图
+SkyNightTexture: 没有指定 skyRenderer，不加载夜空图
+SkyNightTexture: 没有指定 skyRenderer，不加载夜空图

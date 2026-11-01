@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {createHarness}=require('../board-ui/harness.cjs');
+const H=createHarness();
+const M=H.load('region/MeadowBoardBackground');
+const shared={passes:[{defines:{USE_VERTEX_COLOR:true}}]}, changed=[];
+const renderer=(name,color)=>({node:{name},mesh:{struct:{vertexBundles:[{attributes:color?[{name:'a_color'}]:[{name:'a_position'}]}]}},sharedMaterials:[shared],getMaterialInstance(){return {recompileShaders(defines){changed.push({name,defines});}};}});
+const rows=[renderer('meadow_path',false),renderer('meadow_flower_instances.0',true),renderer('windmill_sails',false)];
+assert.deepEqual(M.configureMeadowVertexColors({getComponentsInChildren:()=>rows}),['meadow_path','windmill_sails']);
+assert.deepEqual(changed.map(x=>x.name),['meadow_path','windmill_sails']);
+assert(changed.every(x=>x.defines.USE_VERTEX_COLOR===false));assert(shared.passes[0].defines.USE_VERTEX_COLOR);
+console.log('PASS: colourless renderer variants omit the black multiplier; coloured flowers and shared material remain intact');

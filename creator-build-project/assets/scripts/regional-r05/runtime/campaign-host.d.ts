@@ -5,4 +5,4 @@ interface Persistence {platform:Platform;journey:JourneyView;inspect():Array<[st
 export function createStorage(storage:StorageLike):Platform;
 export function createPersistence(storage:StorageLike,journey:JourneyView):Persistence;
 export function inspectSelection(persistence:Persistence,selection:{stageId:string;seed:number}):{ok:boolean;reason?:string;resume?:boolean;detail?:string};
-export function resultPresentation(snapshot:any):{uiResultTitle?:string;uiResultCaption?:string;uiStatus?:string};
+export function resultPresentation(snapshot:any):{uiResultTitle?:string;uiResultCaption?:string;uiStatus?:string;uiFailHint?:string};

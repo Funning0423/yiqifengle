@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),vm=require('node:vm');
+const ts=require(process.env.QF_TYPESCRIPT_MODULE||require('../qf-env.cjs').typescript());
+const S=path.resolve(__dirname,'../../creator-build-project/assets/scripts');
+function load(rel,sandboxRequire){
+ const file=path.join(S,rel);
+ const js=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+ const m={exports:{}};
+ vm.runInNewContext(js,{module:m,exports:m.exports,require:sandboxRequire,console}, {filename:file});
+ return m.exports;
+}
+const layout=load('region/RegionJourneyLayout.ts',()=>({}));
+const landing=load('region/SailLanding.ts',()=>({}));
+const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:spec.includes('SailLanding')?landing:spec.includes('WorldFlowCore')?{}:{});
+const route=leg.sailRoute();
+const tl=leg.sailBeats(route.length);
+const shore=leg.shoreWalkM();
+// b20 meadow-walk-fixes (Grok Bot, option a): M1 moved 4.9 m up the path (505ceb63), then 0.4 m onto the path surface (93ac386e); M0→M1 chord 5.96 → 10.488 m (was ≤6.4)
+// Cap source: final design chord |SAIL_M0_LOCAL[0.2,1.4,17]→SAIL_M1_LOCAL[2.2,2.803,6.8]| = 10.488 m + ~0.23 m tolerance = 10.72 (Grok Bot 2026-10-30; replaces 10.8 = 10.567 + 0.23 from 505ceb63)
+assert(shore<=10.72,'shore walk '+shore);
+assert(tl.build05S<=30.5,'build05 '+tl.build05S);
+assert(tl.arrivalS<=12+1e-6,'arrival '+tl.arrivalS);
+assert(tl.speed.cruiseS>=6,'cruise');
+assert(Math.abs(tl.speed.v-3.6)<1e-9,'design cruise speed '+tl.speed.v);
+// A shorter real-time budget after boarding must not speed up the hull.
+const sc=tl.beats.find(b=>b.id==='S-c'),sd=tl.beats.find(b=>b.id==='S-d'),se=tl.beats.find(b=>b.id==='S-e');
+const departAt=sc.t0+3,dt=0.01;
+const presented=real=>leg.sailPresentationT(real,departAt,sc.t0,se.t1,tl.build05S,4);
+const cruiseReal=departAt+(sd.t0+sd.t1)/2-sc.t0;
+const before=leg.sailVehicle(tl,route.samples,presented(cruiseReal));
+const after=leg.sailVehicle(tl,route.samples,presented(cruiseReal+dt));
+assert(Math.abs((after.distance-before.distance)/dt-3.6)<1e-8,'real-time cruise speed');
+for(let t=0;t<tl.speed.motionS;t+=dt){
+ assert(leg.sailSpeedAt(tl.speed,t)<=3.6+1e-9,'speed cap throughout motion');
+}
+assert(Math.abs(leg.sailDistanceAt(tl.speed,tl.speed.motionS)-route.length)<1e-9,'full route covered');
+assert(Math.abs(presented(departAt+tl.speed.motionS)-se.t1)<1e-9,'arrival after full motion duration');
+// The original 52 m route also extends its cruise rather than exceeding 3.6 m/s.
+assert(Math.abs(leg.sailSpeed(52).v-3.6)<1e-9,'long-route cruise cap');
+assert(leg.sailMaxAccel(tl.speed)<=2.7+1e-6,'accel '+tl.speed.aAcc+' '+tl.speed.aDec);
+assert(tl.speed.aDec<=2.5+1e-6,'decel');
+assert(route.minRadius>=25,'radius '+route.minRadius);
+const yaw=leg.sailMaxYawRateDeg(tl,route.samples);
+assert(yaw<=20,'yaw '+yaw);
+const chord=leg.chordM();
+assert(Math.abs(chord-52)<0.05,'chord '+chord);
+const last=route.samples.slice(-Math.ceil(10/0.5));
+const dx=Math.max(...last.map(p=>Math.abs(p[0]-last[last.length-1][0])));
+assert(dx<0.35,'berth approach not straight '+dx);
+assert(leg.parentingErrorM(50)<=0.01,'parent');
+const killed=leg.sailResumeAfterKill(4);
+assert.equal(killed.atSea,false);assert.equal(killed.board,'mainline-05');
+console.log(JSON.stringify({status:'PASS',build05S:+tl.build05S.toFixed(3),arrivalS:+tl.arrivalS.toFixed(3),routeM:+route.length.toFixed(2),shoreM:+shore.toFixed(3),v:+tl.speed.v.toFixed(3),aAcc:+tl.speed.aAcc.toFixed(3),aDec:+tl.speed.aDec.toFixed(3),yaw:+yaw.toFixed(2),radius:+route.minRadius.toFixed(1),chord}));

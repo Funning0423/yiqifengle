@@ -1,0 +1,25 @@
+{
+ "defaults": [
+  "island:I1",
+  "island:I2",
+  "island:I3",
+  "island:I4",
+  "island:I5",
+  "island:I6",
+  "meadow:M0",
+  "meadow:M1",
+  "meadow:M2",
+  "meadow:M3",
+  "meadow:M4",
+  "meadow:M5",
+  "meadow:M6",
+  "skycity:S0",
+  "skycity:S1",
+  "skycity:S2",
+  "skycity:S3",
+  "skycity:S4",
+  "skycity:S5",
+  "skycity:S6"
+ ],
+ "note": "F6 allows default. Island stays on the 2D board. Meadow and skycity mainline nodes stay on the regional camera until a per-node pose clears 99.5% coverage."
+}

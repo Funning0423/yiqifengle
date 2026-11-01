@@ -416,10 +416,10 @@ function drag(b, slot, target, o = {}) {
       const { H, u, controller, seen } = await level(0, 1);
       try {
         seen.length = 0;
-        layoutDrag(H, u, from, to, 60 + from, { hold: true });
+        const held = layoutDrag(H, u, from, to, 60 + from, { hold: true });
         assert.equal(seen.length, 0);
         assert.equal(controller.snapshot().active.moves, 22);
-        layoutDrag(H, u, from, to, 61 + from);
+        held.n.emit(E(held.n).TOUCH_END, H.event(held.end, 60 + from));
         assert.deepEqual(seen[0], ['swap', from, to]);
         expectClear(u, controller, from, to, OPENING, 22);
         if (from === 23 && to === 24) assert.equal(u.snapshot.active.goals.type0, 12);
@@ -517,10 +517,10 @@ function drag(b, slot, target, o = {}) {
       assert.equal(u.snapshot.active.name, '浆果野餐');
       const opening = piecesOf(u.snapshot), moves = u.snapshot.active.moves;
       const [from, to] = controller.session.engine.possibleMoves()[0];
-      layoutDrag(H, u, from, to, 120, { hold: true });
+      const held = layoutDrag(H, u, from, to, 120, { hold: true });
       assert.equal(seen.length, 0);
       assert.equal(u.moves.string, String(moves));
-      layoutDrag(H, u, from, to, 121);
+      held.n.emit(E(held.n).TOUCH_END, H.event(held.end, 120));
       assert.deepEqual(seen[0], ['swap', from, to]);
       expectClear(u, controller, from, to, opening, moves);
     } finally { u.onDestroy(); }
@@ -528,7 +528,7 @@ function drag(b, slot, target, o = {}) {
   function splitEvent(ui, screen, id) {
     return { getLocation: () => ({ x: screen.x, y: screen.y }), getUILocation: () => ({ x: ui.x, y: ui.y }), getID: () => id, windowId: 0, getEventCode: () => undefined, propagationStopped: false };
   }
-  await ok('a stale screen hit and a live finger pulled back to the press still swap the cell the move reached', async () => {
+  await ok('a stale screen channel never overrides a newer owner live sample returning to the press', async () => {
     for (const [from, to] of [[23, 24], [16, 23], [24, 31]]) {
       const { H, u, controller, seen } = await level(0, 1);
       try {
@@ -544,8 +544,9 @@ function drag(b, slot, target, o = {}) {
         assert.equal(seen.length, 0, 'a live sample back on the press does not swap');
         H.cc.input.getAllTouches = () => [];
         n.emit(E(n).TOUCH_END, splitEvent(startL, startS, id));
-        assert.deepEqual(seen[0], ['swap', from, to]);
-        expectClear(u, controller, from, to, OPENING, 22);
+        assert.deepEqual(seen, [], 'latest owner return cancels, despite the previously crossed cell');
+        assert.equal(controller.snapshot().active.moves, 22);
+        assert.equal(controller.snapshot().active.actions.length, 0);
       } finally { u.onDestroy(); H.cc.input.getAllTouches = undefined; }
     }
   });
@@ -564,14 +565,14 @@ function drag(b, slot, target, o = {}) {
       assert.equal(u.dragStart, null);
     } finally { u.onDestroy(); }
   });
-  await ok('a bomb drop uses the cell the finger reached when the release point falls back to the tray', async () => {
+  await ok('known layout-alias END rollback to the tray preserves PR52 when no newer owner sample returns', async () => {
     for (const [x, y, index] of [[67, 265, 0], [110, 265, 1], [152, 265, 2]]) {
       const { H, u, controller, seen } = await level(0, 1);
       try {
         const n = u.tools[0], id = 220 + index, point = { x, y }, slot = u.measureLayout().targets.bomb;
         n.emit(E(n).TOUCH_START, H.event(slot, id));
         n.emit(E(n).TOUCH_MOVE, H.event(point, id));
-        H.cc.input.getAllTouches = () => [{ getID: () => id, getUILocation: () => ({ x: slot.x, y: slot.y }) }];
+        H.cc.input.getAllTouches = () => []; // No contradictory owner move/live sample: only END rolls back.
         u.update(1 / 60);
         assert.equal(seen.length, 0, 'holding the bomb does not use it');
         assert.equal(controller.snapshot().active.bombs, 2);

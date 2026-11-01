@@ -1,0 +1,4 @@
+PASS schedule: island props fully shown until w=0.6, gone from w=0.95 (before the landing at w=1), monotonic, no pop at 60 Hz
+PASS dome: fade<1 switches only this instance to alpha blend (no depth write, cull kept); alpha follows; fade 1 restores the shared states exactly
+PASS night: toggling inside the fade keeps the alpha; cloud layer behaves the same; sea foam ignores follow
+PASS wiring: journey lighting sends islandSkyFade(w); skyFollow fans the fade to the gulls; leave sends fade 1; gulls scale/hide

@@ -1,0 +1,12 @@
+PASS single source: day = LAKESIDE_DIR_LIGHT_PARAMS.landFill*, night its own, both via lakesideModeLighting
+PASS land = the landform GLBs only (principled list), every other GLB in the bundle is not land
+PASS instancing: land copies carry the day fill, water / bridge / everything else the plain copy (no emissive at all)
+PASS day/night writer: night values on land only; water material and bridge untouched; journey and board use it
+PASS r5 weight: emissiveScale = class fill x clamp(weight); 0 = no fill, the board (no weight) = full
+PASS r5 per-part mask: 16x16 RGBA, byte = round(255 sqrt(w)) per palette swatch; roofs / door frames / trunks / cliffs off by day
+PASS night land fill is cool and small (no brown)
+PASS skyDomeColor = the clear colour per mode (not the reflected-sky inputs)
+PASS night prop fill is cool (red lowest, never brown) and dimmer than day
+  background ~12 draws, total ~55 (merge groups 11)
+PASS draw calls: each fill class is its own merge group; lakeside background + board/UI stays <= 60
+lakeside land fill OK

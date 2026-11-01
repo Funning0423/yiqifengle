@@ -1,0 +1,4 @@
+PASS R4 stable-save failure without presentation error
+PASS R4 stable-save failure with presentation error
+PASS R4 external journal conflict exposes readonly panel and preserves external bytes
+{"status":"PASS","checks":3}

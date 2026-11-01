@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "scope": "Production Cocos components with node doubles; not native/phone",
+  "checks": [
+    {
+      "checkpoint": 4,
+      "finalAction": [
+        "swap",
+        23,
+        30
+      ],
+      "actualComponentEventRoute": true,
+      "registered": true,
+      "hint": "主线 05 与潮汐挑战已开放；前往风车草甸",
+      "backgroundCycles": 3,
+      "native": false
+    },
+    {
+      "checkpoint": 8,
+      "finalAction": [
+        "swap",
+        9,
+        10
+      ],
+      "actualComponentEventRoute": true,
+      "registered": true,
+      "hint": "主线 09 与草甸挑战已开放；天空挑战需通关主线 12",
+      "backgroundCycles": 3,
+      "native": false
+    },
+    {
+      "checkpoint": 12,
+      "finalAction": [
+        "swap",
+        16,
+        17
+      ],
+      "actualComponentEventRoute": true,
+      "registered": true,
+      "hint": "天空挑战已开放；天空城另有 3D 场景入口",
+      "backgroundCycles": 3,
+      "native": false
+    }
+  ]
+}

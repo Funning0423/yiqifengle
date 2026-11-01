@@ -1,0 +1,625 @@
+{
+ "status": "PASS",
+ "timeUTC": "2026-10-26T10:32:49.711Z",
+ "fps": 30,
+ "F4_boardEnd": {
+  "status": "PASS",
+  "tail": [
+   "PASS runtime: the Toast node sits on BoardLayout.toast above the tray; the longest ManagedTools hint fills ≤ maxWidth and its text scales to stay inside",
+   "FOOTPRINT [{\"screen\":\"390x844\",\"banner\":{\"x\":[30,360],\"y\":[168,200],\"maxWidth\":330},\"tray\":{\"x\":[18.1,371.9],\"y\":[212,587.6]},\"plateBottom\":156,\"capsuleBottom\":83,\"lakesideGirl\":{\"x\":[314.6,384.4],\"y\":[630.7,811.1]}},{\"screen\":\"375x667\",\"banner\":{\"x\":[22.5,352.5],\"y\":[162,194],\"maxWidth\":330},\"tray\":{\"x\":[45.7,329.3],\"y\":[200,501]},\"plateBottom\":156,\"capsuleBottom\":83,\"lakesideGirl\":{\"x\":[303.3,356.9],\"y\":[502.7,646.9]}},{\"screen\":\"414x896\",\"banner\":{\"x\":[42,372],\"y\":[169.7,201.7],\"maxWidth\":330},\"tray\":{\"x\":[19.2,394.8],\"y\":[215.4,614.2]},\"plateBottom\":156,\"capsuleBottom\":83,\"lakesideGirl\":{\"x\":[333.9,408.1],\"y\":[669.6,861]}},{\"screen\":\"320x568\",\"banner\":{\"x\":[12,308],\"y\":[162,194],\"maxWidth\":296},\"tray\":{\"x\":[64.9,255.1],\"y\":[200,402]},\"plateBottom\":156,\"capsuleBottom\":83,\"lakesideGirl\":{\"x\":[258.6,304.3],\"y\":[428.1,550.9]}},{\"screen\":\"360x780\",\"banner\":{\"x\":[15,345],\"y\":[167.1,199.1],\"maxWidth\":330},\"tray\":{\"x\":[9,351],\"y\":[210.1,573.2]},\"plateBottom\":156,\"capsuleBottom\":83,\"lakesideGirl\":{\"x\":[290.4,354.8],\"y\":[582.7,749.1]}},{\"screen\":\"768x1024\",\"banner\":{\"x\":[219,549],\"y\":[176.4,208.4],\"maxWidth\":330},\"tray\":{\"x\":[154,614],\"y\":[228.8,717.1]},\"plateBottom\":156,\"capsuleBottom\":83,\"lakesideGirl\":{\"x\":[561.7,644.1],\"y\":[771.8,993.1]}},{\"screen\":\"1024x768 landscape\",\"placement\":\"above tray\",\"banner\":{\"x\":[470,800],\"y\":[91.4,123.4],\"maxWidth\":330},\"tray\":{\"x\":[405,865],\"y\":[135.4,623.6]}},{\"screen\":\"1280x800 landscape\",\"placement\":\"above tray\",\"banner\":{\"x\":[598,928],\"y\":[107.4,139.4],\"maxWidth\":330},\"tray\":{\"x\":[533,993],\"y\":[151.4,639.6]}},{\"screen\":\"1440x900 landscape\",\"placement\":\"above tray\",\"banner\":{\"x\":[678,1008],\"y\":[157.4,189.4],\"maxWidth\":330},\"tray\":{\"x\":[613,1073],\"y\":[201.4,689.6]}},{\"screen\":\"1280x720 landscape\",\"placement\":\"above tray\",\"banner\":{\"x\":[598,928],\"y\":[67.4,99.4],\"maxWidth\":330},\"tray\":{\"x\":[533,993],\"y\":[111.4,599.6]}},{\"screen\":\"844x390 landscape\",\"placement\":\"left column\",\"banner\":{\"x\":[56,372.4],\"y\":[229,261],\"maxWidth\":316.4},\"tray\":{\"x\":[384.4,705.6],\"y\":[20,361]}}]",
+   "{\"status\":\"PASS\",\"checks\":9,\"scope\":\"BoardLayout hint banner geometry + real ManagedMobileBoardUI on the board-ui harness; no rendering / device\"}"
+  ]
+ },
+ "scope": "Projected body box on real TS cameras; journey UI = safe area + capsule; board-end UI = board-hint-above-tray. Not a render.",
+ "results": [
+  {
+   "leg": "sail island→meadow",
+   "screen": "390x844",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 77,
+    "atS": 14.87
+   },
+   "ui": {
+    "minGapPt": 50,
+    "atS": 24.77,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.304,
+   "minHeightFrac": 0.0612
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "414x896",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 77,
+    "atS": 14.87
+   },
+   "ui": {
+    "minGapPt": 53.1,
+    "atS": 24.77,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.304,
+   "minHeightFrac": 0.0612
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "360x780",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 77,
+    "atS": 14.87
+   },
+   "ui": {
+    "minGapPt": 46,
+    "atS": 24.77,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.305,
+   "minHeightFrac": 0.0612
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "375x667",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 72.2,
+    "atS": 14.87
+   },
+   "ui": {
+    "minGapPt": 43.6,
+    "atS": 36.63,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.25,
+   "minHeightFrac": 0.0612
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "320x568",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 72.1,
+    "atS": 14.87
+   },
+   "ui": {
+    "minGapPt": 32.1,
+    "atS": 36.63,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.25,
+   "minHeightFrac": 0.0612
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "390x520",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 66.6,
+    "atS": 14.87
+   },
+   "ui": {
+    "minGapPt": 26.5,
+    "atS": 36.63,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.188,
+   "minHeightFrac": 0.0612
+  },
+  {
+   "leg": "sail island→meadow",
+   "screen": "768x1024",
+   "frames": 1270,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 66.6,
+    "atS": 14.87
+   },
+   "ui": {
+    "minGapPt": 85.1,
+    "atS": 36.63,
+    "phase": "shore-walk",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.188,
+   "minHeightFrac": 0.0612
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "390x844",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 73.1,
+    "atS": 10
+   },
+   "ui": {
+    "minGapPt": 11.5,
+    "atS": 11.3,
+    "phase": "B-d",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 20
+   },
+   "maxWidthFrac": 0.156,
+   "minHeightFrac": 0.0244
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "414x896",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 73.1,
+    "atS": 10
+   },
+   "ui": {
+    "minGapPt": 14.3,
+    "atS": 11.3,
+    "phase": "B-d",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.156,
+   "minHeightFrac": 0.0244
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "360x780",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 73.2,
+    "atS": 10
+   },
+   "ui": {
+    "minGapPt": 8,
+    "atS": 11.3,
+    "phase": "B-d",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 38
+   },
+   "maxWidthFrac": 0.156,
+   "minHeightFrac": 0.0244
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "375x667",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 69,
+    "atS": 10
+   },
+   "ui": {
+    "minGapPt": 8,
+    "atS": 11.3,
+    "phase": "B-d",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 55
+   },
+   "maxWidthFrac": 0.128,
+   "minHeightFrac": 0.0244
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "320x568",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 69,
+    "atS": 10
+   },
+   "ui": {
+    "minGapPt": 1.7,
+    "atS": 11.3,
+    "phase": "B-d",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 102
+   },
+   "maxWidthFrac": 0.127,
+   "minHeightFrac": 0.0244
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "390x520",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 64.3,
+    "atS": 10
+   },
+   "ui": {
+    "minGapPt": 2.7,
+    "atS": 10.13,
+    "phase": "B-d",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 115
+   },
+   "maxWidthFrac": 0.095,
+   "minHeightFrac": 0.0244
+  },
+  {
+   "leg": "balloon meadow→skycity",
+   "screen": "768x1024",
+   "frames": 1078,
+   "herNotModelledFrames": 0,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 64.3,
+    "atS": 10
+   },
+   "ui": {
+    "minGapPt": 38.4,
+    "atS": 10.13,
+    "phase": "B-d",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.095,
+   "minHeightFrac": 0.0244
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "390x844",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 79.1,
+    "atS": 31.6
+   },
+   "ui": {
+    "minGapPt": 23.6,
+    "atS": 27.23,
+    "phase": "door→board blend",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.286,
+   "minHeightFrac": 0.0662
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "414x896",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 79.1,
+    "atS": 31.6
+   },
+   "ui": {
+    "minGapPt": 25.1,
+    "atS": 27.23,
+    "phase": "door→board blend",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.286,
+   "minHeightFrac": 0.0662
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "360x780",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 79.1,
+    "atS": 31.6
+   },
+   "ui": {
+    "minGapPt": 21.6,
+    "atS": 27.23,
+    "phase": "door→board blend",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.286,
+   "minHeightFrac": 0.0662
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "375x667",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 78.9,
+    "atS": 31.6
+   },
+   "ui": {
+    "minGapPt": 24.3,
+    "atS": 31.6,
+    "phase": "door→board blend",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.235,
+   "minHeightFrac": 0.066
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "320x568",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 78.8,
+    "atS": 31.6
+   },
+   "ui": {
+    "minGapPt": 15.6,
+    "atS": 31.6,
+    "phase": "door→board blend",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.235,
+   "minHeightFrac": 0.066
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "390x520",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 72.2,
+    "atS": 31.6
+   },
+   "ui": {
+    "minGapPt": 12.8,
+    "atS": 31.6,
+    "phase": "door→board blend",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 1
+   },
+   "maxWidthFrac": 0.176,
+   "minHeightFrac": 0.0662
+  },
+  {
+   "leg": "balloon skycity→lakeside",
+   "screen": "768x1024",
+   "frames": 949,
+   "herNotModelledFrames": 75,
+   "F1": "PASS",
+   "F2": "PASS",
+   "F3": "PASS",
+   "outOfFrame": {
+    "frames": 0,
+    "spans": []
+   },
+   "rightOf80pct": {
+    "frames": 0,
+    "spans": [],
+    "maxRightEdgePctOfWidth": 72.3,
+    "atS": 31.6
+   },
+   "ui": {
+    "minGapPt": 50.7,
+    "atS": 31.6,
+    "phase": "door→board blend",
+    "overlapFrames": 0,
+    "spans": [],
+    "framesUnder13pt": 0
+   },
+   "maxWidthFrac": 0.176,
+   "minHeightFrac": 0.0662
+  }
+ ]
+}

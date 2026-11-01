@@ -49,13 +49,19 @@
 //   d) “音乐真正开始”的时刻：GameAudio.onMusicStart(cb) / globalThis.__gameAudioMusic.onMusicStart(cb)，
 //      loopSource 第一次确认 playing 时发一次（每次 setMusic 一次；切后台回来的恢复记 first=false）。
 import { _decorator, Component, Node, AudioSource, AudioClip, resources, assetManager, director, game, Game, sys, isValid, input, Input } from 'cc';
+/** A1b: [QF_AUDIO] acceptance log, only with globalThis.__worldFlowLog (no cost otherwise). */
+export function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
   | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear'
   | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable'
   | 'sfx_amb_gull_1' | 'sfx_amb_gull_2' | 'sfx_amb_gull_3'
-  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back';
+  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back'
+  // r4 exit footsteps (FootstepAudio / FootstepCore): region_island/audio_steps, 4 pitch-baked variants per surface
+  | 'step_wood_1' | 'step_wood_2' | 'step_wood_3' | 'step_wood_4' | 'step_rug_1' | 'step_rug_2' | 'step_rug_3' | 'step_rug_4'
+  | 'step_stone_1' | 'step_stone_2' | 'step_stone_3' | 'step_stone_4' | 'step_path_1' | 'step_path_2' | 'step_path_3' | 'step_path_4'
+  | 'step_grass_1' | 'step_grass_2' | 'step_grass_3' | 'step_grass_4';
 
 /** A2（Voice bot）：连击鼓励音，第 2/3/4/5+ 波各一档，配合文字飘字。同一时间只保留一条，更高档顶掉正在播的低档。 */
 const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_cheer_3_amazing', 'sfx_cheer_4_unbelievable'];
@@ -71,6 +77,11 @@ const UI_PRESS: Record<UiTapTarget, SfxName> = {
   bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_click', signpost: 'sfx_ui_signpost',
 };
 const UI_TAP_VOLUME = 1;
+/** A3b (Mac readme-v2-a3): the generic click stacked on the meadow wind hit full scale ~50 ms after 「主页/回家」. -2.5 dB in code, asset untouched. */
+export const UI_CLICK_VOLUME = Math.pow(10, -2.5 / 20);   // ≈ 0.750
+/** A3b: on 回家 from a region the bed (region bgm + wind + live sfx) first dips to 0.6x over 80 ms, then continues the normal fade-out. */
+export const HOME_DUCK = { gain: 0.6, seconds: 0.08 } as const;
+const tapVol = (name: string) => name === 'sfx_ui_click' ? UI_CLICK_VOLUME : UI_TAP_VOLUME;
 const UI_CONFIRM_AFTER_PRESS_MS = 150;
 
 /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
@@ -110,6 +121,16 @@ const WIND_DUCK_FROM = 0.2;
 const WIND_DUCK_TO = 1.0;
 /** currentTime 在小游戏里可能按 ~250 ms 更新；外推最多超前这么多 */
 const POS_EXTRAPOLATE_MAX_S = 0.35;
+
+/** B5.5 exit (出门) track, Voice Bot 8b22546: 20 s, t=0 = the doorway key (state 'crossing-out'), in the region_island
+ *  subpackage (A1: 32 kHz 56k mono). Preloaded when she stands up; played on 'crossing-out'; stopped when the flow leaves
+ *  the exit (anything but crossing-out / island). r4 exit footsteps: the baked footsteps are gone from this file (they
+ *  ran on a fixed 0.56 s grid from the doorway on, never in the room, and were the loudest thing in it); it now carries
+ *  the camera whoosh + a near-silent air bed and is kept because its start also proves audio for wind/waves.
+ *  Steps are live, one per animation foot plant: FootstepAudio (played through play(), so mute / sfx mute / background apply). */
+export const EXIT_CINE = { bundle: 'region_island', path: 'audio_cine/sfx_exit_outbound', volume: 1, maxLateS: 1.5 } as const;
+/** States from stand-up to the doorway: preload only. */
+const EXIT_PRELOAD_STATES = ['standing', 'turning-out', 'walking-out', 'opening-door'];
 
 type SfxVoice = { source: AudioSource; name: SfxName; requestedAt: number; started: boolean };
 
@@ -173,9 +194,23 @@ export class GameAudio extends Component {
   private windDuckAt = -1;      // 上次平滑的 GameAudio.now()（ms）
   private musicGeneration = 0;
   private musicVolume = 0.4;
+  /** Screen-transition gain (「主页」 fade, Mac re-check 2607de6): ramps music, wind/waves beds and live sfx_* together. */
+  private transFrom = 1; private transTo = 1; private transAt: number | null = null; private transS = 0;
+  private sfxBase = new Map<AudioSource, number>();
   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   private musicError: string | null = null;
   private gestureSeen = false;
+  private audioProven = false; // A1b: an sfx actually started (exit track) — ambience may follow it
+  /** A1b: WindAudio/AmbienceAudio register their ensure() here (they import GameAudio, not the other way round). */
+  static ambienceMounters: Array<() => void> = [];
+  /** V1 follow-up: wind/waves register a hard-stop here. Called when the exit restarts after a background trip (and on
+   *  every 'standing'), so the bed left over from the cancelled exit does not linger ~1 s into the new one. */
+  static ambienceQuieters: Array<() => void> = [];
+  static quietAmbience(reason: string) { for (const f of GameAudio.ambienceQuieters) { try { f(); } catch { } } qfAudioLog('ambience-quiet', { reason, quieters: GameAudio.ambienceQuieters.length }); }
+  private lastWorldState = '';
+  static ensureAmbience(state: string) { for (const f of GameAudio.ambienceMounters) { try { f(); } catch { } } qfAudioLog('ensure-ambience', { state, mounters: GameAudio.ambienceMounters.length, gate: GameAudio.instance?.ambienceGate() ?? 'no-gameaudio' }); }
+  /** Why ambience is (not) allowed right now — for [QF_AUDIO] logs. */
+  ambienceGate(): string { return !GameAudio.usable(this) ? 'unusable' : GameAudio.instance !== this ? 'not-instance' : this.muted ? 'muted' : this.reasons.size ? 'suspended:' + Array.from(this.reasons).join(',') : !(this.gestureSeen || this.audioProven) ? 'no-gesture' : 'ok'; }
   private loopRequested = false;
   private loopPendingSince: number | null = null;
   private loopNeedsReplacement = false;
@@ -346,6 +381,7 @@ export class GameAudio extends Component {
     this.retireMusicExtras();
     this.detachLoopSource();
     this.musicClip?.decRef(); this.musicClip = null;
+    this.exitCineClip?.decRef(); this.exitCineClip = null; this.exitCineSource = null;
     // loose ES5：Map 不能 for-of，先转数组
     const owned = Array.from(this.clips.values());
     for (let i = 0; i < owned.length; i++) owned[i].decRef();
@@ -357,11 +393,27 @@ export class GameAudio extends Component {
   update() {
     if (!GameAudio.usable(this)) return;
     this.observeSfxVoices();
+    if (this.transAt !== null || this.transTo < 1) this.applyTransition();
     if (this.reasons.size > 0 || this.muted || !this.gestureSeen || this.musicVolume === 0) {
       if (this.loopRequested || this.loopSource?.playing) this.pauseLoop();
       if (this.loopPartner || this.fadeOutSource) this.retireMusicExtras();
     } else { this.observeLoopRequest(); this.tickMusic(); }
   }
+
+  /** r4 exit footsteps: take ownership of extra one-shot clips loaded elsewhere (FootstepAudio loads region_island/audio_steps).
+   *  Same ref-counting as the audio_sfx clips; released in onDestroy. Returns how many are now playable by name. */
+  adoptClips(list: AudioClip[]): number {
+    if (!GameAudio.usable(this) || GameAudio.instance !== this || !Array.isArray(list)) return 0;
+    let n = 0;
+    for (let i = 0; i < list.length; i++) {
+      const c = list[i]; if (!c || !c.name) continue;
+      const previous = this.clips.get(c.name); n++;
+      if (previous === c) continue;
+      c.addRef(); this.clips.set(c.name, c); previous?.decRef();
+    }
+    return n;
+  }
+  hasClip(name: string): boolean { return this.clips.has(name); }
 
   // ---------- 通用 ----------
   play(name: SfxName, volume = 1) {
@@ -404,6 +456,7 @@ export class GameAudio extends Component {
   }
   private retireSfx(source: AudioSource) {
     // Remove ownership first: synchronous and late native events must not affect a new voice.
+    this.sfxBase.delete(source);
     if (!this.sfxVoices.delete(source)) return;
     try { source.volume = 0; } catch (e) { console.warn('[GameAudio] sfx silence failed', e); }
     try { source.stop(); } catch (e) { console.warn('[GameAudio] sfx stop failed', e); }
@@ -467,6 +520,43 @@ export class GameAudio extends Component {
   }
   isSfxMuted() { return this.sfxMuted; }
   getMusicVolume() { return this.musicVolume; }
+  /** 0..1 transition gain; WindAudio / AmbienceAudio multiply their bed by it (the slider value stays untouched). */
+  transitionGain() {
+    if (this.transAt === null) return this.transTo;
+    const t = this.transS > 0 ? (GameAudio.now() - this.transAt) / (this.transS * 1000) : 1;
+    if (t >= 1) { this.transAt = null; this.transFrom = this.transTo; return this.transTo; }
+    return this.transFrom + (this.transTo - this.transFrom) * Math.max(0, t);
+  }
+  /** Ramp music + beds + live sfx to `to` over `seconds` (existing music gain path; no new assets). */
+  fadeTransition(to: number, seconds: number) {
+    const from = this.transitionGain(), v = Math.max(0, Math.min(1, Number(to)));
+    this.transFrom = from; this.transTo = v; this.transS = Math.max(0, Number(seconds) || 0); this.transAt = this.transS > 0 ? GameAudio.now() : null;
+    if (this.transAt === null) this.transFrom = v;
+    this.applyTransition();
+  }
+  /** A3b: 回家 fade-out with a quick 80 ms duck to 0.6x first (click + meadow wind headroom), then down to 0 over the rest of `seconds`. */
+  homeDuckOut(seconds: number, wait: (s: number) => Promise<void>): Promise<void> {
+    const d = HOME_DUCK; this.fadeTransition(d.gain, d.seconds);
+    qfAudioLog('home-duck', { gain: d.gain, s: d.seconds, outS: seconds });
+    return wait(d.seconds).then(() => { if (this.transTo === d.gain) this.fadeTransition(0, Math.max(0, seconds - d.seconds)); });
+  }
+  /** End of the fade-out: stop the region bed and sfx (already silent), restore the gain and fade the next track in. */
+  switchTrackAfterTransition(path: string, bundle: string | null) {
+    this.stopAllSfx();
+    this.setMusic(null);
+    this.transFrom = this.transTo = 1; this.transAt = null;
+    this.setMusic(path, bundle, { fadeIn: true });
+    this.applyTransition();
+  }
+  private applyTransition() {
+    this.applyMusicGains();
+    const g = this.transitionGain();
+    this.sfxVoices.forEach((_v, source) => {
+      let base = this.sfxBase.get(source);
+      if (base === undefined) { try { base = Number(source.volume); } catch (e) { base = 1; } this.sfxBase.set(source, base); }
+      try { source.volume = base * g; } catch (e) { /* ignore */ }
+    });
+  }
 
   /** 只读：当前是否挂起，以及原因（给日志/验收用，AudioBridge 不需要） */
   isSuspended() { return this.reasons.size > 0; }
@@ -479,11 +569,11 @@ export class GameAudio extends Component {
     if (!GameAudio.usable(this) || this.reasons.has(reason)) return;               // 幂等：重复事件不重复处理
     const wasActive = this.reasons.size === 0;
     this.reasons.add(reason);
-    if (wasActive) { this.stopAllSfx(); this.pauseLoop(); }
+    if (wasActive) { this.holdExitCine(reason); this.stopAllSfx(); this.pauseLoop(); }
   }
   private resume(reason: SuspendReason) {
     if (!this.alive || !this.reasons.delete(reason)) return;           // 幂等：没有这个原因就什么都不做
-    if (this.reasons.size === 0) this.resumeLoopIfAllowed();
+    if (this.reasons.size === 0) { this.resumeLoopIfAllowed(); this.resumeExitCine(); }
   }
   private createLoopSource() {
     const source = this.node.addComponent(AudioSource);
@@ -566,7 +656,7 @@ export class GameAudio extends Component {
   /** Explicit path without extension, relative to `bundle` (null/omitted = resources, the original behaviour).
    * null path intentionally stops music. A missing asset is an observable error, never a successful silent fallback.
    * v0.4: while the current track is audibly playing, a different track crossfades in (SCENE_XFADE_S) once it is confirmed playing. */
-  setMusic(path: string | null, bundle?: string | null, opts?: { fadeIn?: boolean } | null) {
+  setMusic(path: string | null, bundle?: string | null, opts?: { fadeIn?: boolean; xfadeS?: number } | null) {
     if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
     const bundleName = bundle ? String(bundle) : null;
     if (path === this.musicPath && bundleName === this.musicBundle && (this.musicStatus === 'loading' || this.musicStatus === 'ready')) {
@@ -599,9 +689,11 @@ export class GameAudio extends Component {
     this.startPending = false;
     this.musicRequestedAt = GameAudio.now(); this.musicLoadedAt = null;
     // v0.5 进房淡入：只在没有旧曲在播（不是切场景交叉）时生效；第一次确认在播后开始 ROOM_FADE_IN_S 的等功率淡入。
+    // 区域过渡可传 opts.xfadeS（SceneAudioTable.SCENE_AUDIO_CROSSFADE_S = 2）；不传仍是 SCENE_XFADE_S（1.5）。
+    const requestedFade = opts && Number.isFinite(Number(opts.xfadeS)) ? Math.max(0.2, Math.min(4, Number(opts.xfadeS))) : SCENE_XFADE_S;
     this.musicFadeInRequested = !!(path && opts && opts.fadeIn && !crossfade);
     if (this.musicFadeInRequested) { this.sceneFadeIn = true; this.sceneFadeAt = null; this.sceneFadeS = ROOM_FADE_IN_S; }
-    else if (crossfade) this.sceneFadeS = SCENE_XFADE_S;
+    else if (crossfade) this.sceneFadeS = requestedFade;
     else { this.sceneFadeIn = false; this.sceneFadeAt = null; this.sceneFadeS = SCENE_XFADE_S; }
     this.applyMusicGains();
     if (!path) return;
@@ -662,14 +754,15 @@ export class GameAudio extends Component {
    *  The wind duck stays a ratio on the player's level (up to -4 dB); it does not replace the slider.
    *  Waves and wind read getMusicVolume() and scale their own design curves by it. */
   private applyMusicGains() {
-    const v = this.musicVolume * this.windDuckGain();
+    const tg = this.transitionGain();
+    const v = this.musicVolume * this.windDuckGain() * tg;
     const scene = this.sceneFadeIn ? GameAudio.eqIn(this.sceneT()) : 1;
     const loopOut = this.loopPartner && this.loopXfadeAt !== null ? GameAudio.eqOut(this.loopT()) : 1;
     const loopIn = this.loopPartner ? (this.loopXfadeAt !== null ? GameAudio.eqIn(this.loopT()) : 0) : 0;
     const musicScale = this.fadeOutAtVolume > 1e-4 ? this.musicVolume / this.fadeOutAtVolume : 1;
     try { if (this.loopSource) this.loopSource.volume = v * scene * loopOut; } catch (e) { /* native getter/setter may fail */ }
     try { if (this.loopPartner) this.loopPartner.volume = v * scene * loopIn; } catch (e) { /* ignore */ }
-    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * musicScale * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
+    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * musicScale * tg * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
   }
   private retireMusicSource(source: AudioSource | null) {
     if (!source) return;
@@ -831,11 +924,12 @@ export class GameAudio extends Component {
     if (this.activeGen !== 0) { this.staleGen = this.activeGen; this.staleSince = GameAudio.now(); this.activeGen = 0; this.reasons.delete('interrupted'); }
     else this.staleGen = 0;
     GameAudio.applyInnerAudioOption();                    // 之前失败过就在回前台时重试
+    if (this.exitCineHeldS !== null && this.exitCineShowAt === null) this.exitCineShowAt = GameAudio.now();
     this.resume('hidden');
   }
 
   // R6 的 Cocos 事件入口（保留名字）
-  private onHide() { this.suspend('hidden'); }
+  private onHide() { GameAudio.quietAmbience('hide'); this.suspend('hidden'); }   // V1r: wind/waves volume 0 at once (no ~50 ms stale-buffer tail on return)
   private onShow() { this.onShowEvent(); }
 
   private registerWx(onName: string, offName: string, cb: (...a: any[]) => void) {
@@ -901,6 +995,113 @@ export class GameAudio extends Component {
   /** 地区首通 claimR5FirstClear() 和四关全通纪念物 claimRegisteredMemento()：r.ok && !r.duplicate 才播（审稿 D）。 */
   onClaimResult(r: any) { if (r?.ok && !r.duplicate) this.play('sfx_chest_open'); }
 
+  // ---------- B5.5 出门音轨 ----------
+  private exitCineClip: AudioClip | null = null;
+  private exitCineLoading = false;
+  private exitCineSource: AudioSource | null = null;
+  /** Wall time (GameAudio.now) of 'crossing-out'; null = no exit segment running. */
+  private exitCineAt: number | null = null;
+  private exitCineLog: Array<{ event: string; at: number; offsetS?: number }> = [];
+  private exitCineMark(event: string, offsetS?: number) {
+    const e = offsetS === undefined ? { event, at: GameAudio.now() } : { event, at: GameAudio.now(), offsetS };
+    this.exitCineLog.push(e); if (this.exitCineLog.length > 20) this.exitCineLog.shift();
+    try { if ((globalThis as any).__worldFlowLog) console.info('[GameAudio] exit-cine ' + JSON.stringify(e)); } catch { /* ignore */ }
+  }
+  /** World flow state feed (WorldIntegrationBoot, once per change). */
+  onWorldState(state: string) {
+    if (!GameAudio.usable(this)) return;
+    const prev = this.lastWorldState; this.lastWorldState = state;
+    if (state === 'standing' || (prev === 'paused' && state !== 'paused')) GameAudio.quietAmbience(prev === 'paused' ? 'resume:' + state : state);
+    if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { GameAudio.ensureAmbience(state); this.stopExitCine('restart'); this.loadExitCine(); return; }
+    if (state === 'crossing-out' || EXIT_PRELOAD_STATES.indexOf(state) >= 0) GameAudio.ensureAmbience(state); // A1b: wind + waves mounted before the outdoor segment
+    if (state === 'crossing-out') { this.exitCineAt = GameAudio.now(); this.exitCineMark('segment-start'); this.loadExitCine(); this.startExitCine(); return; }
+    if (state === 'island') return;   // 20 s track runs out on its own over the settle
+    this.stopExitCine('left-exit');
+  }
+  private loadExitCine() {
+    if (this.exitCineClip || this.exitCineLoading) return;
+    this.exitCineLoading = true;
+    const done = (err: any, clip: AudioClip | null) => {
+      this.exitCineLoading = false;
+      if (!this.alive) return;
+      if (err || !clip) { this.exitCineMark('load-failed'); console.warn('[GameAudio] exit track unavailable', String(err)); return; }
+      clip.addRef(); this.exitCineClip = clip; this.exitCineMark('loaded');
+      if (this.exitCineAt !== null && !this.exitCineSource) this.startExitCine();
+    };
+    try {
+      const b = assetManager.getBundle(EXIT_CINE.bundle);
+      if (b) { b.load(EXIT_CINE.path, AudioClip, done as any); return; }
+      assetManager.loadBundle(EXIT_CINE.bundle, (err: any, bundle: any) => {
+        if (err || !bundle) { done(err || new Error('bundle ' + EXIT_CINE.bundle + ' unavailable'), null); return; }
+        bundle.load(EXIT_CINE.path, AudioClip, done);
+      });
+    } catch (e) { done(e, null); }
+  }
+  /** r4.1: track offset (s) held when a background trip began during 'crossing-out' (the flow freezes the exit there, see
+   *  WorldFlowCore.hide); null = nothing held. exitCineShowAt: wall time of the return (wx.onShow / EVENT_SHOW). */
+  private exitCineHeldS: number | null = null;
+  private exitCineShowAt: number | null = null;
+  /** Called by suspend() before the sfx voices are retired. Only a background trip holds (an interruption keeps the old
+   *  rule: the voice ends), and only on 'crossing-out' (the island tail goes paused in the flow and stays cut). */
+  private holdExitCine(reason: SuspendReason) {
+    this.exitCineHeldS = null; this.exitCineShowAt = null;
+    if (reason !== 'hidden' || this.exitCineAt === null || this.lastWorldState !== 'crossing-out') return;
+    // Segment clock (wall time since 'crossing-out'; the track starts there or seeks by its lateness): exact, whereas a
+    // mini-game currentTime may lag ~250 ms.
+    const pos = (GameAudio.now() - this.exitCineAt) / 1000;
+    this.exitCineHeldS = Math.max(0, pos); this.exitCineMark('hold', this.exitCineHeldS);
+  }
+  /** Audio fully back (reasons empty): the exit track continues from the held offset (+ the time since the return, if a
+   *  later reason kept it silent), never from 0 and never a second voice. */
+  private resumeExitCine() {
+    const held = this.exitCineHeldS, shownAt = this.exitCineShowAt;
+    this.exitCineHeldS = null; this.exitCineShowAt = null;
+    if (held === null || this.exitCineAt === null || this.lastWorldState !== 'crossing-out') return;
+    if (this.exitCineSource && this.sfxVoices.has(this.exitCineSource)) return;
+    const offset = held + (shownAt === null ? 0 : Math.max(0, GameAudio.now() - shownAt) / 1000);
+    this.exitCineAt = GameAudio.now() - offset * 1000;        // the segment clock skips the frozen (hidden) time
+    this.exitCineMark('resume', offset);
+    this.startExitCine(offset);
+  }
+  /** Starts (or joins late, seeking by the lateness) once the segment has begun and the clip is ready.
+   *  resumeAt (r4.1): continue a held track at that offset (no maxLateS drop; past the clip end = nothing to play). */
+  private startExitCine(resumeAt?: number) {
+    if (this.exitCineSource && !this.sfxVoices.has(this.exitCineSource)) this.exitCineSource = null;
+    if (this.exitCineAt === null || this.exitCineSource || !this.exitCineClip) return;
+    if (resumeAt === undefined && this.exitCineHeldS !== null) return;   // r4.1b: clip landed while held (hidden): resumeExitCine starts it at the held offset
+    const late = resumeAt !== undefined ? resumeAt : (GameAudio.now() - this.exitCineAt) / 1000;
+    if (resumeAt === undefined && late > EXIT_CINE.maxLateS) { this.exitCineMark('dropped-late', late); this.exitCineAt = null; return; }
+    if (resumeAt !== undefined) { let d = NaN; try { d = Number((this.exitCineClip as any).getDuration?.()); } catch { d = NaN; } if (d > 0 && late >= d) { this.exitCineMark('resume-past-end', late); return; } }
+    if (this.muted || this.sfxMuted || this.reasons.size > 0) { this.exitCineMark('skipped-muted'); this.exitCineAt = null; return; }
+    let source: AudioSource | null = null;
+    try {
+      source = this.node.addComponent(AudioSource);
+      this.sfxVoices.set(source, { source, name: 'sfx_exit_outbound' as SfxName, requestedAt: GameAudio.now(), started: false });
+      source.playOnAwake = false; source.loop = false; source.volume = EXIT_CINE.volume;
+      source.clip = this.exitCineClip;
+      source.play();
+      if (late > 0.05) { try { source.currentTime = late; } catch { /* seek optional */ } }
+      this.exitCineSource = source; this.exitCineMark('play', Math.max(0, late));
+      // A1b: the exit track starting proves the platform let audio play; the wind/sea beds (which replaced the baked-in
+      // wind and sea) must not stay gated on a UI-button gesture the outdoor segment may never have seen.
+      if (!this.gestureSeen) { this.audioProven = true; qfAudioLog('gesture-proven-by-exit-track', {}); }
+    } catch (e) {
+      if (source) this.retireSfx(source);
+      console.warn('[GameAudio] exit track playback failed', e);
+    }
+  }
+  private stopExitCine(reason: string) {
+    const src = this.exitCineSource, running = this.exitCineAt !== null;
+    this.exitCineAt = null; this.exitCineSource = null; this.exitCineHeldS = null; this.exitCineShowAt = null;
+    if (src && this.sfxVoices.has(src)) { this.retireSfx(src); this.exitCineMark('stop:' + reason); }
+    else if (running) this.exitCineMark('cancel:' + reason);
+  }
+  /** Read-only, for tests / acceptance logs. */
+  exitCineDiagnostics() {
+    let playing = false; try { playing = !!this.exitCineSource?.playing; } catch { playing = false; }
+    return { loaded: !!this.exitCineClip, loading: this.exitCineLoading, active: !!this.exitCineSource, playing, segmentAt: this.exitCineAt, log: this.exitCineLog.slice() };
+  }
+
   /** 飘字等视觉反馈订阅：level 0..3 = Great / Excellent / Amazing / Unbelievable；visual 是触发这一档的那一帧 kind==='clear'
    *  原始 visual 对象（和 onBoardFrame 收到的同一个），消除格子的位置从里面取。返回取消订阅函数。
    *  在连击判定的同一处触发，与鼓励音档位一致；静音、切后台时声音不播，但事件照发。 */
@@ -928,10 +1129,10 @@ export class GameAudio extends Component {
 
   /** A4：环境声（AmbienceAudio）用来判断现在能不能出声：未静音、无挂起、已有过用户手势 */
   canPlayAmbience(): boolean {
-    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && this.gestureSeen;
+    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && (this.gestureSeen || this.audioProven);
   }
 
-  onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
+  onButton() { this.play('sfx_ui_click', UI_CLICK_VOLUME); }
   /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。
    *  按下音已经播出时，同一目标 150 ms 内的 confirm 丢掉（点一次道具不再叠两声）。没播成按下音、已满 150 ms，
    *  或另一个目标，confirm 照播。 */
@@ -941,7 +1142,7 @@ export class GameAudio extends Component {
       const name = UI_PRESS[target];
       if (!name) return;
       const t = GameAudio.now();
-      this.play(name, UI_TAP_VOLUME);
+      this.play(name, tapVol(name));
       if (this.lastPlay.get(name) === t) { this.uiPressTarget = target; this.uiPressAt = t; }
     } else if (phase === 'confirm') {
       if (this.uiPressTarget === target && GameAudio.now() - this.uiPressAt < UI_CONFIRM_AFTER_PRESS_MS) return;
@@ -951,7 +1152,7 @@ export class GameAudio extends Component {
   /** A5：关闭面板 / 返回上一页（目前是岛上旅程册弹层的 × 和“返回章节”，由 AudioBridge 按节点名接入） */
   onUiBack() { this.play('sfx_ui_back', UI_TAP_VOLUME); }
   /** 道具槽只点不拖时：挂在 endToolDrag() 里 !d.moved 的分支（审稿 E） */
-  onToolTap() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
+  onToolTap() { this.play('sfx_ui_click', UI_CLICK_VOLUME); }
 }
 
 declare const wx: any;
