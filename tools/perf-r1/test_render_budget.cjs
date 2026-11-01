@@ -10,8 +10,8 @@ const js=ts.transpileModule(body.replace(/export /g,''),{compilerOptions:{target
 const M=eval(js);
 function verify(M){
   assert.equal(M.RENDER_BUDGET.frameRate,60,'target 60 fps');assert.ok(M.RENDER_BUDGET.maxDpr<=2,'effective DPR ≤2');
-  assert.equal(M.budgetShadingScale(3),0.667);assert.equal(M.budgetShadingScale(2),1);assert.equal(M.budgetShadingScale(1),1);assert.equal(M.budgetShadingScale(NaN),1);
-  const st=M.budgetPipelineSettings(0.667);for(const k of ['msaa','bloom','toneMapping','colorGrading','fsr','fxaa'])assert.ok(st[k],'settings.'+k);
+  assert.equal(M.budgetShadingScale(3),0.666);assert.equal(M.budgetShadingScale(2),1);assert.equal(M.budgetShadingScale(1),1);assert.equal(M.budgetShadingScale(NaN),1);
+  const st=M.budgetPipelineSettings(0.666);for(const k of ['msaa','bloom','toneMapping','colorGrading','fsr','fxaa'])assert.ok(st[k],'settings.'+k);
   for(const k of ['msaa','bloom','colorGrading','fsr','fxaa'])assert.equal(st[k].enabled,false,k+' stays off (no art change)');
   const win={},rt={},DEF=1<<30,UI=1<<25;
   const cams=[{visibility:DEF|UI,window:win},{visibility:UI,window:win},{visibility:DEF,window:rt},{visibility:DEF,window:win,pipelineSettings:{own:1}}];
@@ -30,4 +30,4 @@ for(const [name,m] of neg){let failed=false;try{verify(m);}catch{failed=true;}as
 const inst=src.slice(src.indexOf('export function installRenderBudget'));
 assert.ok(!/wx\.|Sync\(|localStorage/.test(inst),'install: no direct host API (flags via cached debugSearch)');
 assert.match(src,/\ninstallRenderBudget\(\);/,'installed at import');
-console.log('PASS render-budget frameRate=60 maxDpr=2 scale@dpr3=0.667 negatives=4');
+console.log('PASS render-budget frameRate=60 maxDpr=2 scale@dpr3=0.666 negatives=4');

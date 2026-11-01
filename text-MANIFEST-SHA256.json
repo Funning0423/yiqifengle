@@ -2821,8 +2821,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
-    "bytes": 48965,
-    "sha256": "42af9da0a68fca47c7a1ef8202fc86ce27ea567033de60521b29e2ef822742bc"
+    "bytes": 49051,
+    "sha256": "7604f85bd818bcc81a38c61a227719900b68d7762b6e951162ce14cbbf26e516"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
@@ -3191,8 +3191,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 66046,
-    "sha256": "7b467cb39f5346381dcec091b6c3a690070f58089604fdbc3cfe94f96c8efab5"
+    "bytes": 66101,
+    "sha256": "741b5580f46e9cc128d3db68ac93f258f70df4a804ca749d53717b3332d0268b"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3211,8 +3211,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 8680,
-    "sha256": "0659428a7cd78f80d378e952811f1919e8b3acb21af21ad9a219935d12cc0f0a"
+    "bytes": 9846,
+    "sha256": "4ffe63db531e24c36b7a7aa9f8b951b7550d8dd02547307e5ce94451cca5bd2c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -4206,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts",
-    "bytes": 12013,
-    "sha256": "ff69e235aaf9b9d9d6bb7cfe47db952f1463ceea89e16cfb3951cadfa9934c59"
+    "bytes": 13711,
+    "sha256": "1822c1f30dacb356f6f66f8898a5894f57d28e58e33d936e76b260e82de8c31d"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta",
@@ -4996,8 +4996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 58928,
-    "sha256": "0fefb9d734a54eb3c2d1cac54c80f33a2cd8aa9e7f644cdcf9558ee5ff706956"
+    "bytes": 59263,
+    "sha256": "f26b130e70d96cc3294d02f33110db55c1dfda830a996d0ae4a411f6ae5ea4d9"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",

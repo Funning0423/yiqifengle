@@ -1,4 +1,4 @@
-import { Node, UITransform, Label, Color, Layers, isValid, director, Director, view, game, screen } from 'cc';
+import { Node, UITransform, Label, Color, Layers, isValid, director, Director, view, game, screen, rendering } from 'cc';
 import { debugSearch } from '../region/DebugQuery';
 import { DEBUG } from 'cc/env';
 import { boardSafeInsets } from './BoardLayout';
@@ -95,7 +95,7 @@ export const RENDER_BUDGET = { frameRate: 60, maxDpr: 2, scanFrames: 30 } as con
 const LAYER_DEFAULT = 1 << 30;
 /** Pure: shadingScale for a device pixel ratio (1 = untouched). */
 export function budgetShadingScale(dpr: number, maxDpr: number = RENDER_BUDGET.maxDpr): number {
-  if (!(dpr > maxDpr) || !(maxDpr > 0)) return 1; return Math.round((maxDpr / dpr) * 1000) / 1000;
+  if (!(dpr > maxDpr) || !(maxDpr > 0)) return 1; return Math.floor((maxDpr / dpr) * 1000) / 1000; // floor: effective DPR never above maxDpr
 }
 /** Pure: complete builtin-pipeline settings (mirrors makePipelineSettings in Cocos 3.8.8 internal pipeline-settings: the pipeline reads
  *  settings.bloom/fxaa/fsr/colorGrading/toneMapping/msaa directly, so a partial object would throw). Every effect stays OFF. */
@@ -119,16 +119,33 @@ export function applyRenderBudgetToCameras(root: any, scale: number): number {
   return n;
 }
 export function fullResRequested(search: string): boolean { return /(?:^\?|&)fullres=1(?:&|$)/.test(search || ''); }
-/** P0 (Mac 3e5be7f5, 160 per-frame errors from boot: visitResource→_getOrCreateDeviceTex 'reading t' + Error 16329 in buildLightBuffer):
- *  Cocos 3.8.8's builtin custom pipeline declares its per-camera render-graph resources (ScaledRadiance/depth for
- *  enableShadingScale) when a camera's pipeline configuration is set up, not when camera.pipelineSettings is swapped at runtime.
- *  Writing pipelineSettings from a scene-launch/frame hook made the graph reference undeclared resources every frame.
- *  So the runtime NEVER touches camera.pipelineSettings: only the 60 fps cap stays. The DPR≤2 budget is reported
- *  (__qfRenderBudgetScale) and stays OPEN until it can be authored on the camera/pipeline asset in the editor. */
+/** P0 (Mac 3e5be7f5, 160 per-frame errors from boot: visitResource→_getOrCreateDeviceTex 'reading t' + Error 16329 in buildLightBuffer).
+ *  Read from the 3.8.8 builds (cocos-js/cc.js + subpackages/internal/game.js builtin-pipeline): every frame
+ *  buildRenderPipeline() runs rendering.dispatchResizeEvents() then builder.setup(). Per-window graph resources
+ *  (ScaledRadiance0_/1_, ScaledSceneDepth_, ScaledLdrColor0_/1_ <windowId>) are declared ONLY in builder.windowResize(), which
+ *  dispatchResizeEvents calls only when the window resized or after rendering.forceResizeAllWindows(). setup() reads each
+ *  camera's pipelineSettings every frame. 56c06a5a swapped pipelineSettings with no forced resize → setup referenced Scaled*
+ *  resources that were never declared, every frame. Fix: the settings object is fixed (one per scale, never mutated); a camera
+ *  is given it once, the frame it first appears (scene launch / scan in BEFORE_UPDATE, before that frame's render), and the
+ *  same call requests forceResizeAllWindows() so that frame's dispatchResizeEvents declares the Scaled* resources before
+ *  setup. No forced resize when nothing new was assigned. */
+let budgetSettings: any = null;
+export function applyRenderBudgetOnce(root: any, scale: number, forceResize: () => void): number {
+  if (!root || !(scale < 1)) return 0; if (!budgetSettings || budgetSettings.__qfBudget !== scale) budgetSettings = budgetPipelineSettings(scale);
+  let n = 0; const list: any[] = root.cameraList || [];
+  for (let i = 0; i < list.length; i++) { const c = list[i]; if (!budgetCamera(c, root.mainWindow)) continue; const ps = c.pipelineSettings;
+    if (ps === budgetSettings) continue; if (ps && !ps.__qfBudget) continue; c.pipelineSettings = budgetSettings; n++; }
+  if (n) forceResize(); return n;
+}
 export function installRenderBudget(): void {
   const g = globalThis as any; if (g.__qfRenderBudget) return; g.__qfRenderBudget = true;
   try { game.frameRate = RENDER_BUDGET.frameRate; } catch { }
   let scale = 1; try { scale = fullResRequested(debugSearch()) ? 1 : budgetShadingScale(screen.devicePixelRatio || 1); } catch { }
-  g.__qfRenderBudgetScale = scale; g.__qfRenderBudgetApplied = false;
+  g.__qfRenderBudgetScale = scale; g.__qfRenderBudgetApplied = false; if (scale >= 1) return;
+  const force = () => { (rendering as any).forceResizeAllWindows(); };
+  if (typeof (rendering as any)?.forceResizeAllWindows !== 'function') return; // no safe resize hook → never touch cameras
+  let frame = 0; const scan = () => { try { if (applyRenderBudgetOnce((director as any).root, scale, force) > 0) g.__qfRenderBudgetApplied = true; } catch { } };
+  try { director.on(Director.EVENT_AFTER_SCENE_LAUNCH, scan);
+    director.on(Director.EVENT_BEFORE_UPDATE, () => { if (++frame % RENDER_BUDGET.scanFrames === 1) scan(); }); } catch { }
 }
 installRenderBudget();

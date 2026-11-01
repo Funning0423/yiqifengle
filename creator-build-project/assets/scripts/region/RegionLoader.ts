@@ -58,7 +58,7 @@ export async function loadRegionPrefab(def:RegionDef,progress?:(fraction:number)
 }
 /** Instantiates a loaded region prefab under parent and starts its ambient loops. */
 export function mountRegion(def:RegionDef,prefab:Prefab,parent:Node):Node{
-  const model=instantiate(prefab);
+  const model=instantiate(prefab);registerRegionRoot(def.bundle,model)/* perf-r1 #3: live roots block release of their bundle */;
   if(def.ambientClips?.length||def.ambientClipUuids?.length||def.gestureClips?.length){const a=model.addComponent(RegionAmbientAnimation);a.clipNames=def.ambientClips||[];a.clipUuids=def.ambientClipUuids||[];a.gestureNames=def.gestureClips||[];if(def.gestureClips?.length)model.addComponent(SkycityRobotInteract);}
   if(def.bundle==='region_skycity')model.addComponent(SkycityPennantWind); // R5 S3: pennants follow GlobalWind
   if(isValid(parent,true))parent.addChild(model);
@@ -99,11 +99,20 @@ export const REGION_RELEASE_BUNDLES: Readonly<Record<string, readonly string[]>>
   meadow: ['region_meadow'], skycity: ['region_skycity'], lakeside: ['region_lakeside'],
 };
 export interface ReleaseHost { getBundle(name: string): { releaseAll(): void } | null | undefined; removeBundle(b: any): void }
-export interface ReleaseOptions { keep: readonly string[]; mounted: (region: string) => boolean; host?: ReleaseHost }
+export interface ReleaseOptions { keep: readonly string[]; mounted?: (region: string) => boolean; host?: ReleaseHost }
+/** perf-r1 #3 (Grok Bot a): one key space. 'region_meadow' | 'meadow' | 'Meadow' → 'meadow'; unknown → ''. */
+export function regionKey(x:string):string{const k=String(x||'').toLowerCase().replace(/^region_/,'');return Object.prototype.hasOwnProperty.call(REGION_RELEASE_BUNDLES,k)?k:'';}
+/** perf-r1 #3 (Grok Bot b): registry of live region roots (mountRegion models + lakeside rigs). A root counts as mounted until it is
+ *  destroyed (inactive/hidden roots still hold the bundle's meshes/materials). No name search, no new component. */
+const liveRoots=new Set<{key:string;node:Node}>();
+export function registerRegionRoot(region:string,node:Node):void{const key=regionKey(region);if(key&&node)liveRoots.add({key,node});}
+export function regionMounted(region:string,valid:(n:any)=>boolean=(n)=>isValid(n,true)):boolean{
+  const key=regionKey(region);let hit=false;for(const e of [...liveRoots]){if(!valid(e.node)){liveRoots.delete(e);continue;}if(e.key===key)hit=true;}return hit;}
 /** Pure plan: which regions' bundles may go now. */
-export function planRegionRelease(target: string, opts: { keep?: readonly string[]; mounted: (region: string) => boolean }): string[] {
-  const keep = new Set([target, ...(opts.keep || [])]);
-  return Object.keys(REGION_RELEASE_BUNDLES).filter(r => !keep.has(r) && !opts.mounted(r));
+export function planRegionRelease(target: string, opts: { keep?: readonly string[]; mounted?: (region: string) => boolean }): string[] {
+  const mounted = opts.mounted || ((r: string) => regionMounted(r));
+  const keep = new Set([target, ...(opts.keep || [])].map(regionKey));
+  return Object.keys(REGION_RELEASE_BUNDLES).filter(r => !keep.has(r) && !mounted(r));
 }
 /** Releases the planned regions' bundles. Returns the bundles actually released. Never throws (a failed release only logs). */
 export function releaseRegionsExcept(target: string, opts: ReleaseOptions): string[] {
