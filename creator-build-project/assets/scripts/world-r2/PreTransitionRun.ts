@@ -8,6 +8,11 @@ import {armSkycityWarmOnSailRide} from '../region/TransitionPreload';
 import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
 import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
 import { director, Director, game, UITransform, Canvas, Vec3 } from 'cc';
+/*QF_PROBE_BEGIN*//** [QF_SYNC] qa allow (B23 B414: 1014 localStorage get/set, 368 in frame 3705, key dot-region-flow-test-…:mainline:…):
+ *  the journal-sky-* hooks seed the ISOLATED test profile (finishPausedMainlineWin / seedSkyChallengeWins) in one synchronous call,
+ *  like preTransitionProfile, but ran outside its qa scope. Same reason, same scoping: set for this call only, previous value restored. */
+function qaSyncScope<T>(reason:string,f:()=>T):T{const g:any=globalThis,prev=g.__qfSyncAllow;g.__qfSyncAllow=reason;try{return f();}finally{g.__qfSyncAllow=prev;}}
+/*QF_PROBE_END*/
 /*QF_PROBE_BEGIN*/import { seedSkyChallengeWins, finishPausedMainlineWin } from './RegionFlowTest';/*QF_PROBE_END*/
 import { warmJourneyUi } from '../ui/JourneyUi';
 import { setLastRegion } from '../ui/UiPrefs';
@@ -94,8 +99,8 @@ export class PreTransitionRunner{
     try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;}
     if(!prof.ok)return prof;}
    if(spec.place==='island'){
-    /*QF_PROBE_BEGIN*/if(spec.justWon){try{finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true});}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
-    if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true});}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
+    /*QF_PROBE_BEGIN*/if(spec.justWon){try{qaSyncScope('pre-transition-just-won',()=>finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true}));}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
+    if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)qaSyncScope('pre-transition-sky-seed',()=>seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true}));}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
     if(spec.key==='skycity-visit')return await this.openPanel('sky',['ChapterPanel','VisitSkycity']);
     return {ok:true};
    }
