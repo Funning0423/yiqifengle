@@ -20,7 +20,7 @@ function sourceGates(keys,run){const errs=[];
   if(!/export function preTransitionEnabled\([^\n]*\{\n let on=false;\n \/\*QF_TRIAL_BEGIN\*\/if\(qaSkipAllowed\(host\)\)\{/.test(keys))errs.push('preTransitionEnabled lost its release gate');
   if(!/export function installPreTransition\(deps:PreDeps\):boolean\{\n if\(!qaSkipAllowed\(\)\)return false;/.test(run))errs.push('installer lost its release gate');
   if(!/async run\(key:string[^\n]*\n  if\(key==='enable'\)\{if\(!qaSkipAllowed\(\)\)return[^\n]*\n  if\(!preTransitionEnabled\(\)\)return/.test(run))errs.push('run() lost its gate');
-  const i=run.indexOf('if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)seedSkyChallengeWins('),s=run.indexOf('private async setup'),e=run.indexOf('private scale');
+  const i=run.indexOf("if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)qaSyncScope('pre-transition-sky-seed',()=>seedSkyChallengeWins(")/* B23: seeding runs inside its [QF_SYNC] qa scope */,s=run.indexOf('private async setup'),e=run.indexOf('private scale');
   if(i<s||i>e)errs.push('journal-sky seeding outside the gated runner setup');
   const outside=(run.slice(0,s)+run.slice(e)).split('\n').filter(l=>!/^(\/\*QF_PROBE_BEGIN\*\/)?import /.test(l)).join('\n');
   if(/skyChallenges|seedSkyChallengeWins\(/.test(outside))errs.push('journal-sky seeding referenced outside setup');
