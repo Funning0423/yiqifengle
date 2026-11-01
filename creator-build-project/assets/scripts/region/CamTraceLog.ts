@@ -195,17 +195,18 @@ export function storageProbeWanted(q:string,on:boolean):boolean{return on||/(?:^
  *  globalThis.__qfSyncStats() feeds the harness result.json (steadyCalls > 0 fails the run). */
 export const SYNC_BOOT_FRAMES=300,SYNC_VIEW=['getWindowInfo','getMenuButtonBoundingClientRect','getDeviceInfo','getAppBaseInfo','getSystemSetting'];
 export const syncProbe={frame:0,cur:0,curSteady:0,calls:0,steadyCalls:0,maxPerFrame:0,maxSteadyPerFrame:0,byApi:{} as Record<string,number>,allow:{} as Record<string,number>,
- steadySamples:[] as any[],lastTap:-1e9,lastHideShow:-1e9,depth:0,installed:false,trFrame:-1,tr:false,out:(s:string)=>camLog.out(s)};
+ steadySamples:[] as any[],allowCur:{} as Record<string,number>,allowMax:{} as Record<string,number>,lastTap:-1e9,lastHideShow:-1e9,depth:0,installed:false,trFrame:-1,tr:false,out:(s:string)=>camLog.out(s)};
 function syncTransition(g:any):boolean{const P=syncProbe;if(P.trFrame===P.frame)return P.tr;P.trFrame=P.frame;let t=false;
  try{const w=g.__qfWindWipe;if(w&&w.mode)t=true;const s=g.__worldIntegration?.snapshot?.(),j=s?.journey||s?.world?.journey;if(j&&(j.target||(j.phase&&j.phase!=='arrived'&&j.phase!=='idle')))t=true;}catch{}
  P.tr=t;return t;}
 export function syncReason(g:any):string|null{const P=syncProbe,f=P.frame;if(f<SYNC_BOOT_FRAMES)return 'boot';if(f-P.lastTap<=3)return 'tap';if(f-P.lastHideShow<=30)return 'hide-show';
  if(syncTransition(g))return 'transition';const q=g.__qfSyncAllow;return typeof q==='string'&&q?'qa:'+q:null;}
-export function syncStats(){const P=syncProbe;return {frames:P.frame,calls:P.calls,steadyCalls:P.steadyCalls,maxPerFrame:P.maxPerFrame,maxSteadyPerFrame:P.maxSteadyPerFrame,allow:{...P.allow},byApi:{...P.byApi},steadySamples:P.steadySamples.slice(0,20),verdict:P.steadyCalls?'FAIL':'PASS'};}
-function syncSummary(){const s=syncStats();syncProbe.out('[QF_SYNC] frames='+s.frames+' calls='+s.calls+' steadyCalls='+s.steadyCalls+' maxPerFrame='+s.maxPerFrame+' maxSteadyPerFrame='+s.maxSteadyPerFrame+' allow='+JSON.stringify(s.allow)+' byApi='+JSON.stringify(s.byApi)+' verdict='+s.verdict);}
-export function syncFrameEnd():void{const P=syncProbe;if(P.cur>P.maxPerFrame)P.maxPerFrame=P.cur;if(P.curSteady>P.maxSteadyPerFrame)P.maxSteadyPerFrame=P.curSteady;P.cur=0;P.curSteady=0;P.frame++;if(P.frame%600===0)syncSummary();}
+export function syncStats(){const P=syncProbe;return {frames:P.frame,calls:P.calls,steadyCalls:P.steadyCalls,maxPerFrame:P.maxPerFrame,maxSteadyPerFrame:P.maxSteadyPerFrame,allow:{...P.allow},allowMaxPerFrame:{...P.allowMax},byApi:{...P.byApi},steadySamples:P.steadySamples.slice(0,20),verdict:P.steadyCalls?'FAIL':'PASS'};}
+function syncSummary(){const s=syncStats();syncProbe.out('[QF_SYNC] frames='+s.frames+' calls='+s.calls+' steadyCalls='+s.steadyCalls+' maxPerFrame='+s.maxPerFrame+' maxSteadyPerFrame='+s.maxSteadyPerFrame+' allow='+JSON.stringify(s.allow)+' byApi='+JSON.stringify(s.byApi)+' allowMaxPerFrame='+JSON.stringify(s.allowMaxPerFrame)+' verdict='+s.verdict);}
+export function syncFrameEnd():void{const P=syncProbe;if(P.cur>P.maxPerFrame)P.maxPerFrame=P.cur;if(P.curSteady>P.maxSteadyPerFrame)P.maxSteadyPerFrame=P.curSteady;for(const k in P.allowCur){if(P.allowCur[k]>(P.allowMax[k]||0))P.allowMax[k]=P.allowCur[k];}P.allowCur={};P.cur=0;P.curSteady=0;P.frame++;if(P.frame%600===0)syncSummary();}
 function syncNote(g:any,api:string,key:string):void{const P=syncProbe;P.calls++;P.cur++;P.byApi[api]=(P.byApi[api]||0)+1;const r=syncReason(g);
- if(r){P.allow[r]=(P.allow[r]||0)+1;return;}P.steadyCalls++;P.curSteady++;
+ try{gpuProbe.frSync++;}catch{}
+ if(r){P.allow[r]=(P.allow[r]||0)+1;P.allowCur[r]=(P.allowCur[r]||0)+1;return;}P.steadyCalls++;P.curSteady++;
  if(P.steadySamples.length<20){let caller='';try{caller=String(new Error().stack||'').split('\n').slice(3,9).map(x=>x.trim().replace(/^at /,'')).join(' < ');}catch{}
   const smp={frame:P.frame,api,key,caller};P.steadySamples.push(smp);P.out('[QF_SYNC] STEADY frame='+smp.frame+' api='+api+(key?' key='+key:'')+' caller='+caller);}}
 function syncWrap(obj:any,name:string,label:string,g:any,keyed:boolean):void{const orig=obj&&obj[name];if(typeof orig!=='function'||orig.__qfSync)return;
@@ -231,8 +232,12 @@ export function installSyncProbe(g:any,store:any,wxObj:any,sysObj:any,hooks?:{on
  *  - The last per-second line before a freeze is the evidence: rising tex/uploads → upload hypothesis; shader burst → compile storm;
  *    dc/tri spike → draw loop; raf long with flat counters → rAF throttling / compositor; texMB with 2+ regions → GPU memory.
  *  All lines go through the buffered camTrace sink (camLog.out). */
-export const GPU_PROBE=Object.freeze({texMinBytes:256*1024,maxDetail:60,regionsEveryS:5});
-export const gpuProbe={installed:false,sec:-1,fr:0,dcMax:0,dcSum:0,triMax:0,instMax:0,n:0,last:-1,rafMax:0,rafs:[] as number[],long:0,uploads:0,upBytes:0,shaders:0,detail:0,
+/* p0-meadow-ab B (fin r6 6fb9181b: 69 shaders at sail set-off, only 28 had lines — the detail cap was shared with TEX lines):
+ * SHADER lines have their OWN cap (shaderMaxTotal per session; TEX detail keeps maxDetail) and carry the engine frame number;
+ * any frame longer than longFrameMs logs `[QF_GPU] LONG frame= ms= shaders= sync= scene=-` (shaders created and sync host calls in
+ * that frame). */
+export const GPU_PROBE=Object.freeze({texMinBytes:256*1024,maxDetail:60,regionsEveryS:5,shaderMaxTotal:3000,longFrameMs:100,longMaxTotal:600});
+export const gpuProbe={installed:false,sec:-1,fr:0,dcMax:0,dcSum:0,triMax:0,instMax:0,n:0,last:-1,rafMax:0,rafs:[] as number[],long:0,uploads:0,upBytes:0,shaders:0,detail:0,shTotal:0,shDropped:0,frShaders:0,frSync:0,longLines:0,
  regions:'' as string,regionsAt:-1e9,lens:'',out:(s:string)=>camLog.out(s),
  live:new Map<object,number>(),liveBytes:0,creates:0,destroys:0,churn:new Map<string,number>(),
  /** Render-graph resource name of a device texture (custom pipeline executor deviceTextures), '' when unknown. Overridable in tests. */
@@ -243,6 +248,7 @@ export function gpuResName(tex:any):string{try{const m=(director as any).root?.p
  let out='';m.forEach((v:any,k:string)=>{if(!out&&(v?.texture===tex||v?._texture===tex))out=String(k);});return out;}catch{return '';}}
 const pn=()=>typeof performance!=='undefined'?performance.now():Date.now();
 function texBytes(info:any):number{try{const w=info?.width|0,h=info?.height|0,d=Math.max(1,info?.depth|0),l=Math.max(1,info?.layerCount|0);return w*h*d*l*4;}catch{return 0;}}
+function gpuShaderLine(s:string){const G=gpuProbe;if(G.shTotal<GPU_PROBE.shaderMaxTotal){G.shTotal++;G.out(s);}else G.shDropped++;}
 function gpuDetail(s:string){const G=gpuProbe;if(G.detail<GPU_PROBE.maxDetail){G.detail++;G.out(s);}}
 /** r3 (fin r6: 48 destroys/s named '?'): creation site of every texture >= texMinBytes: the first GPU_PROBE_SRC.frames game-script
  *  frames of the create call stack (engine cc.js / probe frames skipped), e.g. `WarmButtonSkin.render<ensure`. Only for big textures. */
@@ -262,13 +268,15 @@ export function gpuWrapDevice(dev:any):boolean{if(!dev||dev.__qfGpu)return false
  const up=(op:string)=>(a:any[],ms:number)=>{const tex=a[1];const regs=a[2]||[];let b=0;for(const r of regs)b+=Math.max(1,r?.texExtent?.width|0)*Math.max(1,r?.texExtent?.height|0)*4;if(!b)b=texBytes(tex?.info||tex);
   if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op='+op+' '+(tex?.width|0)+'x'+(tex?.height|0)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' w='+G.lens);}};
  wrap('copyBuffersToTexture',up('upload'));wrap('copyTexImagesToTexture',up('image'));
- wrap('createShader',(a,ms)=>{G.shaders++;gpuDetail('[QF_GPU] SHADER n='+G.shaders+' name='+String(a[0]?.name||'?')+' ms='+ms.toFixed(1)+' w='+G.lens);});
+ wrap('createShader',(a,ms)=>{G.shaders++;G.frShaders++;gpuShaderLine('[QF_GPU] SHADER n='+G.shaders+' frame='+(G.fr+1)+' name='+String(a[0]?.name||'?')+' ms='+ms.toFixed(1)+' w='+G.lens);});
  dev.__qfGpu=true;return true;}
 export function gpuRegions(am:any):string{const out:Record<string,number>={};try{const ids:string[]=[];am.assets.forEach((_a:any,uuid:string)=>{ids.push(uuid);});
  am.bundles.forEach((b:any,name:string)=>{if(name==='internal'||name==='main'||name==='resources')return;let n=0;for(const id of ids)if(b.getAssetInfo?.(id))n++;if(n)out[name]=n;});out.total=ids.length;}catch{}return JSON.stringify(out);}
 function gpuChurn(m:Map<string,number>):string{const a:string[]=[];m.forEach((n,k)=>{if(a.length<6)a.push(k+':'+n);});return a.length?a.join(','):'-';}
 export function gpuFrame(dev:any,am:any,now:number=pn()):void{const G=gpuProbe;G.fr++;
- if(G.last>=0){const d=now-G.last;if(d>G.rafMax)G.rafMax=d;if(d>100)G.long++;if(G.rafs.length<240)G.rafs.push(d);}G.last=now;
+ if(G.last>=0){const d=now-G.last;if(d>G.rafMax)G.rafMax=d;if(d>100)G.long++;if(G.rafs.length<240)G.rafs.push(d);
+  if(d>GPU_PROBE.longFrameMs&&G.longLines<GPU_PROBE.longMaxTotal){G.longLines++;G.out('[QF_GPU] LONG frame='+G.fr+' ms='+d.toFixed(1)+' shaders='+G.frShaders+' sync='+G.frSync+' scene=- w='+G.lens);}}
+ G.last=now;G.frShaders=0;G.frSync=0;
  const dc=dev?.numDrawCalls|0,tri=dev?.numTris|0,inst=dev?.numInstances|0;G.n++;G.dcSum+=dc;if(dc>G.dcMax)G.dcMax=dc;if(tri>G.triMax)G.triMax=tri;if(inst>G.instMax)G.instMax=inst;
  const sec=Math.floor(now/1000);if(G.sec<0){G.sec=sec;return;}if(sec===G.sec)return;
  if(now-G.regionsAt>=GPU_PROBE.regionsEveryS*1000&&am){G.regions=gpuRegions(am);G.regionsAt=now;}

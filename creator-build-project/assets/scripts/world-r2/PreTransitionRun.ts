@@ -8,6 +8,7 @@ import {armSkycityWarmOnSailRide} from '../region/TransitionPreload';
 import {prewarmLakesideAssets} from '../region/LakesideBoardBackground';
 import {LAKESIDE_L12_HOLD_MS} from '../region/TransitionPreload';
 import { director, Director, game, UITransform, Canvas, Vec3 } from 'cc';
+import { deferNextCheckpointWrites, takeCheckpointFlush, CHECKPOINT_FLUSH_PER_FRAME } from './RegionFlowTest';
 /*QF_PROBE_BEGIN*//** [QF_SYNC] qa allow (B23 B414: 1014 localStorage get/set, 368 in frame 3705, key dot-region-flow-test-…:mainline:…):
  *  the journal-sky-* hooks seed the ISOLATED test profile (finishPausedMainlineWin / seedSkyChallengeWins) in one synchronous call,
  *  like preTransitionProfile, but ran outside its qa scope. Same reason, same scoping: set for this call only, previous value restored. */
@@ -32,6 +33,15 @@ function nodePoint(n:Node,frame:{width:number;height:number}){
 }
 /** cocos getLocation space (canvas px, y up) -> top-left CSS px */
 function locToCss(x:number,y:number,frame:{width:number;height:number}){const cw=game.canvas?.width||frame.width,ch=game.canvas?.height||frame.height;return {x:Math.round(x*frame.width/cw),y:Math.round(frame.height-y*frame.height/ch)};}
+const engineFrame=()=>new Promise<void>(r=>{try{director.once(Director.EVENT_AFTER_DRAW,()=>r());}catch{setTimeout(r,16);}});
+/** Writes a deferred QA profile one step per frame under the scoped qa:pre-transition-profile reason. Exported for the gate. */
+export async function flushOverFrames(fl:any,nextFrame:()=>Promise<void>=engineFrame,perFrame=CHECKPOINT_FLUSH_PER_FRAME):Promise<R>{
+ const g:any=globalThis;let guard=0;
+ do{await nextFrame();const prev=g.__qfSyncAllow;g.__qfSyncAllow='pre-transition-profile';
+  try{fl.flushStep(perFrame);}catch(e){return {ok:false,reason:'profile-flush: '+String((e as Error).message||e)};}finally{g.__qfSyncAllow=prev;}
+  if(++guard>4096)return {ok:false,reason:'profile-flush: no progress'};}while(fl.pendingWrites()>0);
+ try{fl.endDefer();}catch(e){return {ok:false,reason:'profile-flush: '+String((e as Error).message||e)};}
+ await nextFrame();return {ok:true};}
 export class PreTransitionRunner{
  private last:{spec:PreSpec}|null=null;private running=false;
  constructor(private d:PreDeps){}
@@ -96,8 +106,13 @@ export class PreTransitionRunner{
      * read once (write-through cache, test_region_flow_checkpoint_reads: ≤ distinct keys + writes), but its writes are sync by nature.
      * This QA hook never runs in release (preTransitionEnabled = false) and the reason is scoped to this one call (finally restores). */
     const g:any=globalThis,prev=g.__qfSyncAllow;g.__qfSyncAllow='pre-transition-profile';
-    try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;}
-    if(!prof.ok)return prof;}
+    /* p0-meadow-ab A: the profile is built in memory (0 sync calls in this frame) and written out below, ≤ CHECKPOINT_FLUSH_PER_FRAME
+     * sync calls per frame, before any world move (the sail no longer starts in the frame that built the profile). */
+    deferNextCheckpointWrites(true);
+    try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;deferNextCheckpointWrites(false);}
+    const fl=takeCheckpointFlush();
+    if(!prof.ok)return prof;
+    if(fl){const fr=await flushOverFrames(fl,this.d.nextFrame);if(!fr.ok)return fr;}}
    if(spec.place==='island'){
     /*QF_PROBE_BEGIN*/if(spec.justWon){try{qaSyncScope('pre-transition-just-won',()=>finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true}));}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
     if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)qaSyncScope('pre-transition-sky-seed',()=>seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true}));}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
@@ -166,6 +181,7 @@ export type PreDeps={
  composition:any;board:()=>any;control:(id:string)=>Node|undefined;call:(fn:()=>any)=>Promise<any>;idle:()=>boolean;
  islandJourney:()=>any;glassSign:()=>any;roomExplore:()=>any;frame:()=>{width:number;height:number};signRect:()=>{x:number;y:number;width:number;height:number}|null;
  leave:()=>void;enterMainline:()=>void;returnHome:()=>void;
+ nextFrame?:()=>Promise<void>;/* tests; default: next EVENT_AFTER_DRAW */
 };
 /*QF_TRIAL_BEGIN*//** Boot wiring: registers the globals only when the gate is open; auto-runs ?qfPre=<key>. Returns whether it registered. *//*QF_TRIAL_END*/
 /** Boot hook (WorldIntegrationBoot): returns whether a test entry was registered. */

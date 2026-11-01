@@ -2691,8 +2691,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 40727,
-    "sha256": "26f15eeed94e5234922fe1f9b69c6c998af8c1c82979ca9f858b198437aedda6"
+    "bytes": 41974,
+    "sha256": "7d0b71e5b350635202d3521df6ee8b4b3d11ebd3789a990e565e2f5b1c0b461e"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -4896,8 +4896,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts",
-    "bytes": 16849,
-    "sha256": "8ec9715e9a97f90ec877e4fd0c629254cbe613fe669bd6b1725f2cfe963283a0"
+    "bytes": 18390,
+    "sha256": "b2b27d861151e5c84320810ce4f563284e66163cfa566f8ad56167dfba118015"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts.meta",
@@ -4926,8 +4926,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts",
-    "bytes": 10639,
-    "sha256": "3430d3b6a812474d496aa83e586623145e0ec8cc732d6ce4c72bc90eeca2acb7"
+    "bytes": 13439,
+    "sha256": "64a716df2662e64782bc992f58bd116f54f8f22b856b5495060f658cf3ec0ccc"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 34617,
-    "sha256": "dc8acd326087b865965c890bad99eedb6e12299259ef67e6b609c94065963c24"
+    "bytes": 34780,
+    "sha256": "ebff55a3ab3230d91aad55c72f2da2f5d81c541e9c8186e7a312721506c59637"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
