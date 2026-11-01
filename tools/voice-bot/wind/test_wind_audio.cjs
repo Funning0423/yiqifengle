@@ -8,6 +8,12 @@ const VN = process.env.VB_TS || process.env.QF_TYPESCRIPT_MODULE || '/workspace/
 const ts = require(VN);
 const tr = (f) => ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true } }).outputText;
 const js = tr(SRC), ambJs = tr(AMB);
+/* b23 (wind-audio FAIL in the b20 ad3bd76c full suite, 'crane gull re-arms the random timer (8..20 s) 7.98'): not load. AmbienceAudio.rnd was
+ * Math.random, and the check read gullIn AFTER run(1.6) had already counted down the time since the crane gull re-armed it, so
+ * rnd < ~0.002 put it under 8. Reproduced at about 1 in 190 runs; rnd=()=>0 reproduces it every time (negative case below). Fix: seeded rnd
+ * (mulberry32, QF_WIND_SEED overrides) and the check reads the value at the re-arm moment (gullIn + clock - lastGullAt + the start frame's dt). */
+const SEED = Number(process.env.QF_WIND_SEED || 0x5eed);
+function seeded(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 let fail = 0; const ok = (c, m, d) => { console.log((c ? 'PASS ' : 'FAIL ') + m + (d === undefined ? '' : ' ' + JSON.stringify(d))); if (!c) fail++; };
 const near = (a, b, e = 1e-3) => Math.abs(a - b) <= e;
 
@@ -41,6 +47,7 @@ function env(opts = {}) {
   amb.AmbienceAudio.onGullCall(e => { if (e.phase === 'start') gulls.push({ t: +now.toFixed(3), n: e.clip, v: e.vol }); });
   const mod = load(SRC, js, { './AmbienceAudio': amb });
   amb.AmbienceAudio.windExit = 0;
+  amb.AmbienceAudio.rnd = opts.rnd || seeded(SEED);   // b23: deterministic (was Math.random: ~1/190 runs failed the crane re-arm check)
   if (!opts.withAmbience) onceCbs.splice(0, 1);       // only WindAudio unless asked
   onceCbs.forEach(cb => cb());
   const w = audioNode.getComponent(mod.WindAudio), a = audioNode.getComponent(amb.AmbienceAudio);
@@ -205,7 +212,16 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
 { const e = env({ withAmbience: true }); e.flow.w = 0; e.run(0.5); e.gulls.length = 0;
   e.a.lastGullAt = e.a.clock - 1; const tLast = e.now() - 1; e.a.gullIn = 0.1; e.run(5);
   ok(e.gulls.length === 1 && e.gulls[0].t - tLast >= 2.5 - 1e-6 && near(e.gulls[0].v, 0.6), 'random gull due 1.1 s after the last gull -> postponed past the 2.5 s gap, vol 0.6', { since: e.gulls[0] && +(e.gulls[0].t - tLast).toFixed(2) });
-  e.flow.cranes[0]({}); e.run(1.6); ok(e.gulls.length === 2 && e.a.gullIn >= 8 - 1e-6, 'crane gull re-arms the random timer (8..20 s)', +e.a.gullIn.toFixed(2));
+  e.flow.cranes[0]({}); e.run(1.6); const rearm = e.a.gullIn + (e.a.clock - e.a.lastGullAt) + 1 / 60;   // start frame also counts down (startCall re-arms, then gullIn -= dt)
+  ok(e.gulls.length === 2 && rearm >= 8 - 1e-6 && rearm <= 20 + 1e-6, 'crane gull re-arms the random timer (8..20 s)', +rearm.toFixed(2));
+}
+// b23 negative/edge: rnd at its extremes. rnd=()=>0 re-arms to exactly 8; the OLD check (gullIn after the run) fails there, the new one passes.
+for (const [r, lo] of [[() => 0, 8], [() => 0.999999, 20]]) {
+  const e = env({ withAmbience: true, rnd: r }); e.flow.w = 0; e.run(0.5); e.gulls.length = 0;
+  e.a.lastGullAt = e.a.clock - 1; e.a.gullIn = 0.1; e.run(5); e.flow.cranes[0]({}); e.run(1.6);
+  const rearm = e.a.gullIn + (e.a.clock - e.a.lastGullAt) + 1 / 60, oldCheck = e.a.gullIn >= 8 - 1e-6;
+  ok(e.gulls.length === 2 && near(rearm, lo === 8 ? 8 : 8 + 0.999999 * 12, 1e-6), 'rnd extreme re-arm = ' + lo + ' s', +rearm.toFixed(3));
+  if (lo === 8) ok(!oldCheck, 'negative: old post-run check fails at rnd=0 (the b23 flake)', +e.a.gullIn.toFixed(3));
 }
 // gated: muted -> no exit gulls, no waves floor; invisible world -> no waves floor
 { const e = env({ withAmbience: true }); e.GameAudio.instance.can = false; ramp(e, 0, 1, 3); e.flow.listeners[0]('full', 1); e.run(1);
