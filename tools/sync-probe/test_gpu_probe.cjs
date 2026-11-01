@@ -48,7 +48,7 @@ step(1000);
 const last=lines.filter(l=>/^\[QF_GPU\] s=/.test(l)).at(-1);
 assert.ok(/ cre=11 des=11 churn=ShadowMap1:6,ShadowDepth1:5 /.test(last),'churn second: '+last);
 assert.ok(new RegExp(' live='+liveBase+' liveMB=').test(last),'live count flat after create+destroy: '+last+' base '+liveBase);
-assert.ok(lines.some(l=>/^\[QF_GPU\] TEX op=destroy 1024x1024 fmt=55 MB=4\.00 name=ShadowDepth1 scene=standing\|island>- /.test(l)),'named destroy line');
+assert.ok(lines.some(l=>/^\[QF_GPU\] TEX op=destroy 1024x1024 fmt=55 MB=4\.00 name=ShadowDepth1 src=\S+ scene=standing\|island>- /.test(l)),'named destroy line');
 // negative: a texture created and never destroyed is live (a leak shows as rising live/liveMB)
 dev.createTexture({width:1024,height:1024,format:35});step(1000);
 const leak=lines.filter(l=>/^\[QF_GPU\] s=/.test(l)).at(-1);
