@@ -4896,8 +4896,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts",
-    "bytes": 16167,
-    "sha256": "3c9194926e5dc6b2af7d51d2b19a58157a61f6fac488a6d276c945827d005105"
+    "bytes": 16849,
+    "sha256": "8ec9715e9a97f90ec877e4fd0c629254cbe613fe669bd6b1725f2cfe963283a0"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 34557,
-    "sha256": "bca02510284f2571942fe3c86cf4514193be2532f32ec5294c65ca0a90b91075"
+    "bytes": 34617,
+    "sha256": "dc8acd326087b865965c890bad99eedb6e12299259ef67e6b609c94065963c24"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
