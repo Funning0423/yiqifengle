@@ -18,7 +18,7 @@ dev.createTexture({width:2048,height:2048,format:35});dev.createShader({name:'bu
 step(2000);step(17);
 const sec=lines.filter(l=>/^\[QF_GPU\] s=/.test(l));assert.ok(sec.length>=2,'per-second lines '+lines.join('\n'));
 assert.ok(lines.some(l=>/\[QF_GPU\] TEX op=create 2048x2048 .*MB=16\.00/.test(l)),'tex upload detail');
-assert.ok(lines.some(l=>/\[QF_GPU\] SHADER n=1 name=builtin-standard\|lake/.test(l)),'shader detail');
+assert.ok(lines.some(l=>/\[QF_GPU\] SHADER n=1 frame=\d+ name=builtin-standard\|lake/.test(l)),'shader detail');
 const stall=sec.find(l=>/ raf=2000\//.test(l));assert.ok(stall&&/ long=1 /.test(stall)&&/uploads=1\/16\.0/.test(stall)&&/shaders=1/.test(stall),'stall second: '+sec.join('\n'));
 assert.ok(sec.some(l=>/regions=\{"region_skycity":1,"region_lakeside":1,"total":2\}/.test(l)),'regions resident');
 assert.ok(/texMB=300\.0 bufMB=50\.0/.test(sec[0]),'memoryStatus');
