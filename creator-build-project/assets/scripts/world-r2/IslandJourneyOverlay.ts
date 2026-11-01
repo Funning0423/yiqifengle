@@ -10,7 +10,7 @@ import { regionRow } from '../ui/JourneyCore';
 import { setLastRegion } from '../ui/UiPrefs';
 import { warmButton } from '../WarmButton';
 import { boardSafeInsets } from '../ui/BoardLayout';
-/*QF_PROBE_BEGIN*/import { uiNode, artSprite, pressable } from '../ui/PopupKit';import { QF_DEVICE_PREVIEW } from './PreTransitionKeys';import { tintRgb } from '../ui/NightTint';import { markRegionSeen } from '../ui/UiPrefs';/*QF_PROBE_END*/
+/*QF_PROBE_BEGIN*/import { uiNode, artSprite, pressable } from '../ui/PopupKit';import { QF_DEVICE_PREVIEW } from './PreTransitionKeys';import { tintRgb } from '../ui/NightTint';import { markRegionSeen } from '../ui/UiPrefs';const PREVIEW_ICON_BASE:Record<string,number[]>={moon:[146,120,115],sun:[139,126,126]};/*QF_PROBE_END*/
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
 import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
 import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type PropButtonSlot } from './IslandPropsLayout';
@@ -93,6 +93,10 @@ export class IslandJourneyOverlay {
   *  top-left frame corner (mirrors the × on the top-right corner, same art kit: panel-face disc + popup/icon_sun|moon), so the
   *  journal can be checked in day and night on a phone. Toggles the world day/night without closing the book. Stripped from
   *  every release build (probe region). */
+ /* r6e (界面验收部 495af2f6: icon on the disc only ~1.85:1): the shared, pinned icon PNGs are NOT touched; the toggle multiplies its own
+  * sprite colour so the icon's mean opaque colour lands a touch darker than the × glyph brown (126,91,52 median of btn_close glyph pixels; ×0.88 so night clears 3:1):
+  * base = 0.88 × 255 × brown / icon mean (moon mean 194,169,101; sun 203,162,93). Shading inside the icon is kept (multiply). Same 'ui'
+  * night tint as the disc → ≥3:1 day and night (gate device-preview-r6). */
  private previewDayNight(p:any){if(!p?.body)return;
   /* r6c (界面验收部 8dc998a8): looks like the × — the SAME popup/btn_close sprite (wooden ring + disc, same 80 px face, same 'ui'
    * tint), its centre covered with the disc's own flat colour (sampled 217,222,214; flat out to r ≥ 0.65) and the sun/moon icon on
@@ -101,7 +105,7 @@ export class IslandJourneyOverlay {
   const fs=artSprite(n,'popup/btn_close',0,0,80,undefined,'Face');p.tint.sprite(fs,'ui');const face=fs.node;
   const cover=uiNode('Disc',face,52,52),g=cover.addComponent(Graphics);
   p.tint.shape(g,(gg:Graphics,nw:number,a:number)=>{const c=tintRgb('ui',nw,[217,222,214]);gg.fillColor=new Color(c[0],c[1],c[2],Math.round(255*a));gg.circle(0,0,25);gg.fill();});
-  let icon:any=null;const paint=()=>{if(icon&&isValid(icon.node))icon.node.destroy();icon=artSprite(face,night()?'popup/icon_sun':'popup/icon_moon',0,0,36,undefined,'Icon');p.tint.sprite(icon,'ui');};paint();
+  let icon:any=null;const paint=()=>{if(icon&&isValid(icon.node))icon.node.destroy();const k=night()?'sun':'moon';icon=artSprite(face,'popup/icon_'+k,0,0,36,undefined,'Icon');p.tint.sprite(icon,'ui',PREVIEW_ICON_BASE[k]);};paint();
   /* r6c P2: call the toggle DIRECTLY. options.invoke is the host's WorldIntegrationBoot.invoke(), which returns early while
    * islandJourney.isOpen() — i.e. always here, the book is open (frozen file, not edited). */
   pressable(n,face,()=>{if(!this.enabled||this.dead)return;try{this.options.toggleDayNight();}catch(e){console.warn('[QF_PREVIEW] toggle',String(e));}paint();},{sound:'button'});}
