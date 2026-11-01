@@ -4896,8 +4896,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts",
-    "bytes": 18390,
-    "sha256": "b2b27d861151e5c84320810ce4f563284e66163cfa566f8ad56167dfba118015"
+    "bytes": 18582,
+    "sha256": "f3663e455dce91fc90fee7b3b0e3100f544ad4e42044aae93b0f1ad8bb602ff5"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts.meta",
@@ -4926,8 +4926,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts",
-    "bytes": 13453,
-    "sha256": "e1d033a7a4cabccdddd684f0982ff1ff660decfd14d34787da507cefd302bab8"
+    "bytes": 13674,
+    "sha256": "56b2167d60e962b206863ee4bd31cf1509e2127d5ad622e3d1fa98fded3ca583"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionFlowTest.ts.meta",

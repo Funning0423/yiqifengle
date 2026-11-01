@@ -18,9 +18,9 @@ export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:bo
   * finishVisualStep/snapshot) re-loaded the journey via load → localStorage.getItem → wx.getStorageSync. This fresh namespace has
   * exactly one writer (this profile's ports), so each lane is served by the same write-through cache as PersistentMainlinePort:
   * each key is read from storage once per profile, and every write re-reads that one key (dropped/failed writes read back as storage). */
- const lanes=new Map<string,any>(),defer=deferNext;deferNext=false;
+ const lanes=new Map<string,any>();let defer=false;/*QF_PROBE_BEGIN*/defer=deferNext;deferNext=false;/*QF_PROBE_END*/
  const raw=(lane:string)=>({getItem:(key:string)=>sys.localStorage.getItem(namespace+lane+':'+key),setItem:(key:string,value:string)=>sys.localStorage.setItem(namespace+lane+':'+key,value)});
- const storage=(lane:string)=>{let c=lanes.get(lane);if(!c){c=defer?deferredStorage(raw(lane)):writeThroughStorage(raw(lane));lanes.set(lane,c);}return c;};
+ const storage=(lane:string)=>{let c=lanes.get(lane);if(!c){c=/*QF_PROBE_BEGIN*/defer?deferredStorage(raw(lane)):/*QF_PROBE_END*/writeThroughStorage(raw(lane));lanes.set(lane,c);}return c;};
  const mainStorage=storage('mainline'),mainline=Object.assign(MainlinePort.createPort(mainStorage),{namespace:namespace+'mainline:',inspect:()=>['forest-mainline-cocos-r1-active','forest-v33-journey','forest-v3-progress','forest-v3-completed'].map(k=>[k,mainStorage.getItem(k)])});
  const controller=mainline.createController();
  const requireOK=(reply:any)=>{if(!reply?.ok)throw Error('checkpoint-save-or-replay-failed: '+(reply?.reason||'unknown'));};
@@ -38,13 +38,13 @@ export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:bo
  const r5Platform=R4Port.createSynchronousStorage(storage('r5'));
  const r5={platform:r5Platform,journey:mainline.journey,namespace:namespace+'r5:',inspect:()=>R5_KEYS.map(key=>[key,r5Platform.load(key)])};
  const out:any={namespace,mainline,r4,r5,stageId:stage.stageId,seed:stage.seed,lastAction:stage.actions[stage.actions.length-1],completed};
- if(defer){const all=()=>Array.from(lanes.values());out.pendingWrites=()=>all().reduce((n,c)=>n+c.pending(),0);
+ /*QF_PROBE_BEGIN*/if(defer){const all=()=>Array.from(lanes.values());out.pendingWrites=()=>all().reduce((n,c)=>n+c.pending(),0);
   /** writes the buffered keys, at most `perFrame` sync storage calls per step (write + verify re-read = 2 per key) */
   out.flushStep=(perFrame:number=CHECKPOINT_FLUSH_PER_FRAME)=>{let budget=Math.max(2,perFrame|0);for(const c of all()){budget=c.flushSome(budget);if(budget<2)break;}return out.pendingWrites();};
-  out.endDefer=()=>{for(const c of all())c.endDefer();};pendingFlush=out;}
+  out.endDefer=()=>{for(const c of all())c.endDefer();};pendingFlush=out;}/*QF_PROBE_END*/
  return out;
 }
-/** p0-meadow-ab A (fin r6 6fb9181b: 472 sync calls under qa:pre-transition-profile in the sail set-off frame). TEST ONLY.
+/*QF_PROBE_BEGIN*//** p0-meadow-ab A — TEST ONLY, stripped from release with the probes (STRIP_PROBES) (fin r6 6fb9181b: 472 sync calls under qa:pre-transition-profile in the sail set-off frame). TEST ONLY.
  *  Max sync storage calls per frame while the deferred QA profile is written out. 16 = 8 keys × (setItem + verify getItem):
  *  above the boot frame's real max (7) yet ≈ 1/30 of the old 472-call frame; at the ~0.1–0.25 ms a WeChat sync storage call
  *  costs on device this keeps the flush inside the 4 ms/frame budget Grok Bot set for set-off work. Gate: pre-transition-sync-frames. */
@@ -69,6 +69,7 @@ export function deferredStorage(store:{getItem(k:string):any;setItem(k:string,v:
   size(){return cache.size;},
  };
 }
+/*QF_PROBE_END*/
 /*QF_TRIAL_BEGIN*//** Test build only (__qfPreTransition lake-* keys). On a finish=true checkpoint-12 profile, clear every lakeside stage before
  *  `stageId` in order (sequential unlock; L18 bridge therefore also has L13–L15) by replaying 场景设计部's verified wins through
  *  the real R5 provider (preview/commit/finishVisualStep), then start `stageId` and stop ONE move short: mode 'win' = recorded

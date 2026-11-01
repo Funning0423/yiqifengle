@@ -67,5 +67,19 @@ function nsValues(written,ns,ls){const out={};for(const k of written.keys())if(k
  console.log('negative (pre-fix code on this branch) skycity-finale cp12: buildFrame='+neg.buildFrame+' max/frame='+neg.max+' N='+N+' '+(neg.pass?'PASS':'FAIL'));
  assert.equal(neg.fl,null,'negative must run the old code');
  assert.ok(!neg.pass&&neg.max>N,'self-test: the old one-frame profile was not caught');
+ // Release (STRIP_PROBES): A is inside QF_PROBE markers in both files — stripped text has none of it, still compiles, and the
+ // stripped RegionFlowTest builds the old write-through profile (release never runs it: preTransitionEnabled()=false there).
+ {const {stripText}=require('../build-guard/strip-probes.cjs'),{probeFree}=require('../build-guard/release-gates.cjs');
+  const PTR=path.join(ROOT,'creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts');
+  const relR=stripText(fs.readFileSync(RFT,'utf8'),'RFT').out,relP=stripText(fs.readFileSync(PTR,'utf8'),'PTR').out;
+  for(const w of ['deferNextCheckpointWrites','takeCheckpointFlush','flushOverFrames','deferredStorage','CHECKPOINT_FLUSH_PER_FRAME','flushStep'])
+   assert.ok(!relR.includes(w)&&!relP.includes(w),'release still has '+w);
+  const AS=['deferNextCheckpointWrites','takeCheckpointFlush','flushOverFrames','deferredStorage','CHECKPOINT_FLUSH_PER_FRAME'];/* (a pre-existing [QF_SYNC] source comment in PreTransitionRun is not A's; minified build output has no comments) */
+  assert.equal(probeFree([{name:'RegionFlowTest.ts',text:relR},{name:'PreTransitionRun.ts',text:relP}]).hits.filter(h=>AS.includes(h.rule)).length,0,'stripped A probe-free');
+  assert.ok(probeFree([{name:'RegionFlowTest.ts',text:fs.readFileSync(RFT,'utf8')}]).hits.some(h=>AS.includes(h.rule)),'probe-free flags unstripped A');
+  const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');for(const [n,t] of [['R',relR],['P',relP]]){const d=ts.transpileModule(t,{reportDiagnostics:true,compilerOptions:{module:ts.ModuleKind.CommonJS}}).diagnostics||[];assert.equal(d.length,0,n+' stripped syntax');}
+  const rf2=fs.readFileSync;fs.readFileSync=function(q,...a){if(path.resolve(String(q))===RFT)return a.length?relR:Buffer.from(relR);return rf2.call(fs,q,...a);};
+  let rr;try{rr=await runCase(cases[0],N);}finally{fs.readFileSync=rf2;}
+  assert.equal(rr.fl,null,'stripped build has no deferred path');console.log('release-stripped: A absent, write-through profile ok (buildFrame='+rr.buildFrame+')');}
  console.log('PASS pre-transition-sync-frames');
 })().catch(e=>{console.error(e);process.exit(1);});
