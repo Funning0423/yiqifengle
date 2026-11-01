@@ -6,7 +6,9 @@ const src=fs.readFileSync(path.join(__dirname,'../../creator-build-project/asset
 const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
 const body=src.slice(src.indexOf('export const PERF_OVERLAY_FLAG'),src.indexOf('export class PerfOverlay'));
 const js=ts.transpileModule(body.replace(/export /g,''),{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText+';({perfOverlayOn,perfWindow,perfEnvOn})';
-const debugSearch=()=>'';const wx=undefined;const M=eval(js);
+const debugSearch=()=>'';const q=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/world-r2/QaSkip.ts'),'utf8');
+const qjs=ts.transpileModule(q.slice(q.indexOf('const envCache'),q.indexOf('function wxLaunchQuery')).replace(/export /g,''),{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText;
+const wxQaEnv=eval(qjs+';wxQaEnv');const M=eval(js);
 assert.equal(M.perfOverlayOn(''),false,'off by default');assert.equal(M.perfOverlayOn('?perf=1'),true);assert.equal(M.perfOverlayOn('?camTrace=1&perf=1'),true);
 assert.equal(M.perfOverlayOn('?perf=0'),false);assert.equal(M.perfOverlayOn('?superperf=1'),false);
 const W=v=>({getAccountInfoSync:()=>({miniProgram:{envVersion:v}})});

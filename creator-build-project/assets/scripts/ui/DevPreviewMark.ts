@@ -32,9 +32,9 @@ export function devPreviewMarkRect(width: number, height: number, safe = boardSa
  *  devPreviewBuild() — a formal release (envVersion 'release', DEBUG off) never creates it, and debugSearch never reads a wx query
  *  there. No wx.login / wx.authorize, no storage, no sync host API per frame (performance.now + device.memoryStatus only). */
 export const PERF_OVERLAY_FLAG = 'perf';
-/** Auto-on in 开发版/体验版: envVersion 'develop' | 'trial' only; 'release', missing wx, or any throw -> off. Read once at construction, never per frame. */
-export function perfEnvOn(w: any = (typeof wx !== 'undefined' ? (wx as any) : undefined)): boolean {
-  try { if (!w || typeof w.getAccountInfoSync !== 'function') return false; const v = w.getAccountInfoSync()?.miniProgram?.envVersion; return v === 'trial' || v === 'develop'; } catch { return false; }
+/** Auto-on in 开发版/体验版: envVersion 'develop' | 'trial' only; 'release', missing wx, or any throw -> off. Read through QaSkip.wxQaEnv (one cached host read per wx object), never per frame. */
+export function perfEnvOn(w: any = (globalThis as any).wx): boolean {
+  try { if (!w) return false; return wxQaEnv(w); } catch { return false; }
 }
 export function perfOverlayOn(search: string = debugSearch(), w?: any): boolean { return /(?:^\?|&)perf=1(?:&|$)/.test(search || '') || (arguments.length >= 2 ? perfEnvOn(w) : perfEnvOn()); }
 /** Pure: summary of one window of frame intervals (ms). */

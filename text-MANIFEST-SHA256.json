@@ -3211,8 +3211,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 6154,
-    "sha256": "b27278a454200818f155de2edfb2962fc330a1ecae644645811bde953cc6090a"
+    "bytes": 8680,
+    "sha256": "0659428a7cd78f80d378e952811f1919e8b3acb21af21ad9a219935d12cc0f0a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -4206,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts",
-    "bytes": 11690,
-    "sha256": "6eecfa0469bcaf639a4fe17269d934a73319319f45fa8398a441f4df2953c138"
+    "bytes": 11571,
+    "sha256": "fdfda1c690dbb4d2604ea95745680c8bb380f6df06941d400f88933750c16536"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta",

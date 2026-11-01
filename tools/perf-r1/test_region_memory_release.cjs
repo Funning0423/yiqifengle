@@ -4,9 +4,9 @@
  *  negative case (no release) shows memory growing past the bound. Mock host models bundle cache + GPU bytes. */
 const assert=require('node:assert/strict'),fs=require('fs'),path=require('path');
 const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
-const src=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/RegionAssetRelease.ts'),'utf8');
+const full=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/RegionLoader.ts'),'utf8');const src=full.slice(full.indexOf('/* ===== perf-r1 #3 region asset release ===== */'));
 assert.ok(!/unlink|rmSync|removeSync|deleteFile|fs\./.test(src),'never deletes content files');
-const js=ts.transpileModule(src.replace(/^import .*$/m,'const assetManager=null;'),{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
+const js=ts.transpileModule('const assetManager=null;'+src,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText;
 const m={exports:{}};new Function('module','exports','console',js)(m,m.exports,{log(){},warn(){}});const R=m.exports;
 const SIZE={region_meadow:40,region_skycity:30,region_lakeside:25};
 function host(){const cache=new Map();let mem=0;return{get mem(){return mem},cache,
