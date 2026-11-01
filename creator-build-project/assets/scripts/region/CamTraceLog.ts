@@ -236,7 +236,7 @@ export const gpuProbe={installed:false,sec:-1,fr:0,dcMax:0,dcSum:0,triMax:0,inst
  regions:'' as string,regionsAt:-1e9,lens:'',out:(s:string)=>camLog.out(s),
  live:new Map<object,number>(),liveBytes:0,creates:0,destroys:0,churn:new Map<string,number>(),
  /** Render-graph resource name of a device texture (custom pipeline executor deviceTextures), '' when unknown. Overridable in tests. */
- nameOf:(tex:any):string=>gpuResName(tex)};
+ nameOf:(tex:any):string=>gpuResName(tex),srcOf:new WeakMap<object,string>()};
 /** p0-shadow-churn: name lookup for TEX op=destroy. Read-only scan of the custom pipeline executor's managed textures (ShadowMap<id>,
  *  ShadowDepth<id>, …). J5.release() destroys the texture while it is still in the map, so destroy can be named. */
 export function gpuResName(tex:any):string{try{const m=(director as any).root?.pipeline?._executor?._context?.deviceTextures;if(!m||!tex)return '';
@@ -244,15 +244,21 @@ export function gpuResName(tex:any):string{try{const m=(director as any).root?.p
 const pn=()=>typeof performance!=='undefined'?performance.now():Date.now();
 function texBytes(info:any):number{try{const w=info?.width|0,h=info?.height|0,d=Math.max(1,info?.depth|0),l=Math.max(1,info?.layerCount|0);return w*h*d*l*4;}catch{return 0;}}
 function gpuDetail(s:string){const G=gpuProbe;if(G.detail<GPU_PROBE.maxDetail){G.detail++;G.out(s);}}
+/** r3 (fin r6: 48 destroys/s named '?'): creation site of every texture >= texMinBytes: the first GPU_PROBE_SRC.frames game-script
+ *  frames of the create call stack (engine cc.js / probe frames skipped), e.g. `WarmButtonSkin.render<ensure`. Only for big textures. */
+export const GPU_PROBE_SRC=Object.freeze({frames:3});
+export function gpuCaller(stack?:string):string{try{const st=stack!==undefined?stack:String(new Error().stack||'');const out:string[]=[];
+ for(const l of st.split('\n').slice(1)){if(/cc\.js|CamTraceLog|gpuWrap|gpuCaller|node:internal/.test(l))continue;const m=/at (?:new )?([\w$.<>]+) \(/.exec(l)||/^\s*([\w$.<>]+)@/.exec(l);if(!m)continue;
+  out.push(m[1].replace(/^Object\./,''));if(out.length>=GPU_PROBE_SRC.frames)break;}return out.join('<')||'?';}catch{return '?';}}
 export function gpuWrapDevice(dev:any):boolean{if(!dev||dev.__qfGpu)return false;const G=gpuProbe;
  const wrap=(name:string,f:(a:any[],ms:number,r:any)=>void)=>{const o=dev[name];if(typeof o!=='function')return;dev[name]=function(this:any,...a:any[]){const t=pn();const r=o.apply(this,a);try{f(a,pn()-t,r);}catch{}return r;};};
- wrap('createTexture',(a,ms,r)=>{const b=texBytes(a[0]);
+ wrap('createTexture',(a,ms,r)=>{const b=texBytes(a[0]);const src=b>=GPU_PROBE.texMinBytes?gpuCaller():'';if(src&&r&&typeof r==='object')G.srcOf.set(r,src);
   // live accounting for every device texture; destroy wrapped per instance (p0-shadow-churn)
   if(r&&typeof r==='object'&&!G.live.has(r)){G.live.set(r,b);G.liveBytes+=b;G.creates++;const od=r.destroy;if(typeof od==='function'){const info=a[0];r.destroy=function(this:any,...x:any[]){
    if(G.live.has(r)){const bb=G.live.get(r)||0;G.live.delete(r);G.liveBytes-=bb;G.destroys++;let name='';if(bb>=GPU_PROBE.texMinBytes){try{name=G.nameOf(r);}catch{}const k=name||'?';G.churn.set(k,(G.churn.get(k)||0)+1);
-    gpuDetail('[QF_GPU] TEX op=destroy '+(info?.width|0)+'x'+(info?.height|0)+' fmt='+(info?.format)+' MB='+(bb/1048576).toFixed(2)+' name='+(name||'?'));}}
+    gpuDetail('[QF_GPU] TEX op=destroy '+(info?.width|0)+'x'+(info?.height|0)+' fmt='+(info?.format)+' MB='+(bb/1048576).toFixed(2)+' name='+(name||'?')+' src='+(G.srcOf.get(r)||'?'));}}
    return od.apply(this,x);};}}
-  if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op=create '+(a[0]?.width|0)+'x'+(a[0]?.height|0)+' fmt='+(a[0]?.format)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' w='+G.lens);}});
+  if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op=create '+(a[0]?.width|0)+'x'+(a[0]?.height|0)+' fmt='+(a[0]?.format)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' src='+(src||'?')+' w='+G.lens);}});
  const up=(op:string)=>(a:any[],ms:number)=>{const tex=a[1];const regs=a[2]||[];let b=0;for(const r of regs)b+=Math.max(1,r?.texExtent?.width|0)*Math.max(1,r?.texExtent?.height|0)*4;if(!b)b=texBytes(tex?.info||tex);
   if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op='+op+' '+(tex?.width|0)+'x'+(tex?.height|0)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' w='+G.lens);}};
  wrap('copyBuffersToTexture',up('upload'));wrap('copyTexImagesToTexture',up('image'));
