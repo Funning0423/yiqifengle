@@ -4206,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts",
-    "bytes": 3840,
-    "sha256": "1c35f947e8c6a11855cc613aae0f135a8afa955bc084f9384a36efd5d7638bb0"
+    "bytes": 7321,
+    "sha256": "ee2b5b271a20cb1a7e9e07c5ece85c5b03460e022576aa6e7c59cb0ce8e86c55"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta",
@@ -4436,8 +4436,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WarmButtonSkin.ts",
-    "bytes": 12385,
-    "sha256": "1d94a30e61c3750e92ff1f944c10cf0e60a00dc2b798b7ced08da9054f4017c9"
+    "bytes": 14610,
+    "sha256": "272346fc66e4bbdc2ef931e25efb255816419a44b0489449593b1b7395cf7a1a"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WarmButtonSkin.ts.meta",
@@ -5126,8 +5126,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 34780,
-    "sha256": "ebff55a3ab3230d91aad55c72f2da2f5d81c541e9c8186e7a312721506c59637"
+    "bytes": 34908,
+    "sha256": "6ca1be159b17c35679a2b6f0cb413150f984f1b1dcdf2cd19cf5fcb60aadf37b"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
