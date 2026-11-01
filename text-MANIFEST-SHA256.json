@@ -2071,8 +2071,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/SharedBundles.ts",
-    "bytes": 6746,
-    "sha256": "8bfcd3a06677686d6d592bd57d60c9cd37624d0e948def653d16f158ea9ce98d"
+    "bytes": 2840,
+    "sha256": "b68fa8d61eb8ebf306aa6df06c539d1253f33b852481200733cf7cf9b861c26c"
   },
   {
     "path": "creator-build-project/assets/scripts/SharedBundles.ts.meta",
@@ -4206,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts",
-    "bytes": 7321,
-    "sha256": "ee2b5b271a20cb1a7e9e07c5ece85c5b03460e022576aa6e7c59cb0ce8e86c55"
+    "bytes": 11156,
+    "sha256": "7ea60d92a00e4e74ccf777445d347e0ec29b20c18d65887180afe968d03a48ec"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/DevPreviewMark.ts.meta",

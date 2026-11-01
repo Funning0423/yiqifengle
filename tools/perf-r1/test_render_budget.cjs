@@ -3,7 +3,7 @@
  *  full settings object (pipeline reads bloom/fxaa/... directly), RT/UI-only cameras untouched, fullres=1 kill switch, no host API.
  *  Negative cases: partial settings object, DPR 3 left unscaled, frameRate 30, RT camera scaled → must be rejected. */
 const assert=require('node:assert/strict'),fs=require('fs'),path=require('path');
-const src=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/SharedBundles.ts'),'utf8');
+const src=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/ui/DevPreviewMark.ts'),'utf8');
 const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
 const body=src.slice(src.indexOf('export const RENDER_BUDGET'),src.indexOf('export function installRenderBudget'));
 const js=ts.transpileModule(body.replace(/export /g,''),{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText+';({RENDER_BUDGET,budgetShadingScale,budgetCamera,applyRenderBudgetToCameras,budgetPipelineSettings,fullResRequested})';
