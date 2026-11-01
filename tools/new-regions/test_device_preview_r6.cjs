@@ -100,15 +100,21 @@ try{const sh=(cmd,env,cwd)=>cp.spawnSync('bash',['-c',cmd],{cwd,env:{...process.
  const FC=path.join(T,'fake-creator');fs.writeFileSync(FC,`#!/usr/bin/env bash
 P=""; C=""; while [ $# -gt 0 ]; do case "$1" in --project) P=$2; shift;; --build) C=\${2#configPath=}; shift;; esac; shift; done
 out=$(sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\\([^"]*\\)".*/\\1/p' "$C" | head -1); mkdir -p "$P/build/$out/subpackages/main"
-sed -e 's#/\\*QF_PREVIEW_FLAG\\*/##' "$P/assets/scripts/world-r2/PreTransitionKeys.ts" | tr -d ':' | sed 's/boolean//' > "$P/build/$out/game.js"; head -c 16000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
+sed -e 's#/\\*QF_PREVIEW_FLAG\\*/##' "$P/assets/scripts/world-r2/PreTransitionKeys.ts" | tr -d ':' | sed 's/boolean//' | sed -E 's/export const (QF_DEVICE_PREVIEW) ?= ?true/t("\\1",!0)/; s/export const (QF_DEVICE_PREVIEW) ?= ?false/t("\\1",!1)/' > "$P/build/$out/game.js"; head -c 16000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
 `);fs.chmodSync(FC,0o755);
  assert.equal(sh('git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -qm init',{},R).status,0);
  const r=sh('bash tools/build-guard/build-wechat-guarded.sh wechat',{QF_PREVIEW:'1',STRIP_PROBES:'0',CREATOR:FC,SKIP_CREATOR_CHECK:'1',MAX_TRIES:'1',PRELOAD_GATE:'0',QF_STAGE_ROOT:path.join(T,'stage'),META_ALLOWLIST_BASE:'HEAD'},R);
  assert.equal(r.status,0,r.stdout+r.stderr);assert(/DEVICE PREVIEW test build/.test(r.stdout)&&/PASS preview-flavor check/.test(r.stdout),r.stdout);
- const pj=fs.readFileSync(path.join(R,'creator-build-project/build/wechat-release-preview/game.js'),'utf8');assert(/QF_DEVICE_PREVIEW\s*=\s*true/.test(pj),'preview output has flag=true: '+pj);
+ const pj=fs.readFileSync(path.join(R,'creator-build-project/build/wechat-release-preview/game.js'),'utf8');assert(/t\("QF_DEVICE_PREVIEW",!0\)/.test(pj),'preview output has flag=true in the real Cocos exporter shape (J7): '+pj);
  assert(!fs.existsSync(path.join(R,'creator-build-project/build/wechat-release')),'normal output path not written by the preview build');
  assert.equal(sh('git status --porcelain --untracked-files=no',{},R).stdout.trim(),'','repo untouched (flag flipped only in the stage)');
  assert(fs.readFileSync(path.join(S,'PreTransitionKeys.ts'),'utf8').includes(PF.OFF),'repo flag still false');
+ {// J7 negative at guard level: a builder whose output keeps the flag off (exporter !1) must fail the guard, output kept
+  const src=fs.readFileSync(FC,'utf8');fs.writeFileSync(FC,src.replace('> "$P/build/$out/game.js";','| sed \'s/"QF_DEVICE_PREVIEW",!0/"QF_DEVICE_PREVIEW",!1/\' > "$P/build/$out/game.js";'));
+  const n=sh('bash tools/build-guard/build-wechat-guarded.sh wechat',{QF_PREVIEW:'1',STRIP_PROBES:'0',CREATOR:FC,SKIP_CREATOR_CHECK:'1',MAX_TRIES:'1',PRELOAD_GATE:'0',QF_STAGE_ROOT:path.join(T,'stage'),META_ALLOWLIST_BASE:'HEAD'},R);
+  assert.equal(n.status,2,n.stdout+n.stderr);assert(/FAIL preview-flavor check files=-/.test(n.stdout)&&/BUILD GUARD FAILED: \[wechat-release\] DEVICE PREVIEW: flag not in the output \(kept for inspection/.test(n.stdout),n.stdout);
+  const kept=fs.readFileSync(path.join(R,'creator-build-project/build/wechat-release-preview-FAILED','game.js'),'utf8');assert(/t\("QF_DEVICE_PREVIEW",!1\)/.test(kept),'failed output kept: '+kept);
+  assert(fs.existsSync(path.join(T,'stage')),'stage kept');fs.writeFileSync(FC,src);}
  out.push('scripts: QF_PREVIEW refused with STRIP_PROBES=1 / FORMAL_RELEASE=1 / production upload; fake-Creator preview build → build/wechat-release-preview with flag=true, repo clean');
 }finally{fs.rmSync(T,{recursive:true,force:true});}
 console.log(out.join('\n'));console.log('PASS device-preview-r6');process.exit(0);

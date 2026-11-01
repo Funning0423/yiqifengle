@@ -120,7 +120,7 @@ build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
         rm -rf "$BP/library" "$BP/temp"; echo "   release copied to creator-build-project/build/$out (stage kept: $SP_ROOT)"
       fi
       if [ "$pv" = 1 ]; then
-        "$NODE" "$HERE/preview-flavor.cjs" --check "$dest" || die "[$out] DEVICE PREVIEW: flag not in the output"
+        "$NODE" "$HERE/preview-flavor.cjs" --check "$dest" || { kept="$P/build/$out-preview-FAILED"; rm -rf "$kept"; cp -R "$dest" "$kept" 2>/dev/null; die "[$out] DEVICE PREVIEW: flag not in the output (kept for inspection: output $kept, stage $SP_ROOT)"; }
         mkdir -p "$P/build"; rm -rf "$P/build/$out-preview"; cp -R "$dest" "$P/build/$out-preview" || die "copy preview to $P/build/$out-preview"
         rm -rf "$BP/library" "$BP/temp"; echo "   DEVICE PREVIEW copied to creator-build-project/build/$out-preview (stage kept: $SP_ROOT)"
       fi
