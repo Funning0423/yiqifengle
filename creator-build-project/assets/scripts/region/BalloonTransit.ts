@@ -31,7 +31,7 @@ import {M6_LOCAL} from './BalloonFlight'/* full8: one basket-anchor M6 (was a se
 import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe,camActorPose} from './CamTraceLog';
 import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
-import {noteTransitionHeavyFrames} from './TransitionShaderWarm';
+import {noteTransitionHeavyFrames,holdTransitionShaders} from './TransitionShaderWarm';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -370,7 +370,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let restoreSailLeft=()=>{};
   let landRopeOn=false;
   const cityNightDimmed:CityNightCache=new Map()/* full8: before release() so abort/teardown can restore */;
-  const release=()=>{if(dead)return;dead=true;try{restoreCityNight(cityNightDimmed);}catch{}if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  const release=()=>{if(dead)return;dead=true;try{restoreCityNight(cityNightDimmed);}catch{}if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);try{holdTransitionShaders(false);}catch{/* warm optional */}(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
@@ -690,7 +690,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];gapPh('lensSolid');
     const b1Ground=(w:Vec):number|null=>{if(!b1Solid)return null;const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+b1Y0;};
     let b1=0,inAt=1e9,b1On=true,b1Hold:Pose|null=null;const b1Draw=()=>{if(dead||!b1On)return;
-     if(!b1Drawn){gapPh('firstDraw-wait');b1Hold=b1Hold||liveWorldPose();if(b1Hold){camTag('BalloonTransit:B1-hold');world.setCamera(b1Hold);}return;}/* hold the real previous frame, single writer (before-draw) */b1Hold=b1Hold||liveWorldPose();const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');try{noteTransitionHeavyFrames(4);}catch{/* warm optional */}world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
+     if(!b1Drawn){gapPh('firstDraw-wait');b1Hold=b1Hold||liveWorldPose();if(b1Hold){camTag('BalloonTransit:B1-hold');world.setCamera(b1Hold);}return;}/* hold the real previous frame, single writer (before-draw) */b1Hold=b1Hold||liveWorldPose();const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');try{noteTransitionHeavyFrames(8);}catch{/* warm optional */}world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);gapPh('b1Register');
@@ -749,7 +749,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     return t;
    };
    let flightMarked=!contChain,settleMarked=!contChain;
-   beforeDraw=()=>{if(!dead){apply();if(inflateT<INFLATE.durationS)applyInflate();}};
+   try{holdTransitionShaders(true);noteTransitionHeavyFrames(8);}catch{/* warm optional */}
+   beforeDraw=()=>{if(!dead){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}apply();if(inflateT<INFLATE.durationS)applyInflate();}};
    director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
    await new Promise<void>((ok,bad)=>{
     const off=rideToken.onCancel(()=>bad(Error('cancelled')));
@@ -766,7 +767,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      frames++;if(dc>dcWorst){dcWorst=dc;dcAt=t;}
      const beat=plan.beats.find(b=>t>=b.t0&&t<b.t1)?.id??'board';
      (globalThis as any).__QF_BALLOON={t,rideT:clock.t,rideTotal:RIDE_DURATION,total:plan.total,beat,alt:plan.vehicle(t).pos[1]-plan.launch[1],wind:0.35,night,meadow:t<MEADOW_OFF_T,city:t>=CITY_ON_T,dc,dcWorst,dcAt,frames,hold:hold!=null&&t>=(hold??0)-1e-3,seam:t>=SEAM_T,far:t>=FAR_CARD_ON_T&&t<MEADOW_OFF_T?false:t>=FAR_CARD_ON_T,seaPlan:SEA_PLAN};
-     if(t>=plan.total&&hold==null){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);driver.step=()=>{};ok();}
+     if(t>=plan.total&&hold==null){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);try{holdTransitionShaders(false);noteTransitionHeavyFrames(4);}catch{/* warm optional */}driver.step=()=>{};ok();}
     };
    });
    rideToken.check();
@@ -790,7 +791,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
     try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
     const b5Lens=():Pose|null=>{if(land)return landPose(camEnd,RIDE_DURATION-land.c0+b5Cam);if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
-    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
+    let b5=0,b5On=true;try{holdTransitionShaders(true);noteTransitionHeavyFrames(6);}catch{/* warm optional */}const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
      const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);
@@ -806,7 +807,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      await walkTo([here,W(B.thresholdB),W(B.doorOutB),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
      await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
      s0End=city(K.s0New);(lease as any).tail=true/* she ends on spawn_girl (FX tip): board pose frames her on the deck, not soft-sea rim */;
-    }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);}
+    }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);try{holdTransitionShaders(false);noteTransitionHeavyFrames(6);}catch{/* warm optional */}}
    }else if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:s0End||plan.s0,yawRad:s0End?TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?worldYawDeg(model)*Math.PI/180:0):plan.vehicle(LAND_T).yaw});
    arrived=true;

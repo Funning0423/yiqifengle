@@ -1,22 +1,24 @@
-# Mac 81c841d4 转场长帧根因与修法
+# Mac e32f04bf 转场长帧根因与修法（主线程）
 
-## Evidence（integrate tip `81c841d4` / warm tip `0f5c84b6`）
+## Evidence（integrate tip `e32f04bf` / warm tip `3be0a1c0`）
 
-- `world.setCamera` fr=5976 **446ms / 12 shaders**：12 条全是 `builtin-unlit` + skin + morph（53/16/3/73±PRECOMPUTED），**不是** standard/PCF2 风暴。
-- `skycity.board-background` **490ms / 0**、206ms/0：shaders=0，uploads=2；同秒 `criticalPending` 飙到 684，并刷屏 `Invalid program … reflect-map-fs`。
-- warm 在 ready 时 `criticalPending≈300–430`，cached≈248–350；残余 SHADOW_TYPE2=0/12（这批 unlit 本就不该带 TYPE2 → OK）。
+- `world.setCamera` max **177ms / 0 shaders**（曾 446/12）；残余 164…109，均在 `BalloonTransit:flight`，伴随 JUMP~2m 连锁。
+- `skycity.board-background` max **105ms / 0**（曾 490）；首帧 dc 36→280、uploads=4。
+- animateCamera PASS；RT PASS；ready 时 pending=0 criticalPending=0 cached=341。
+- warm 在 flight 中途再次 absorb：pending 飙到 346 / criticalPending 242；board 前再次 152/115。
 
-## 根因
+## 根因（已非 first-compile）
 
-1. **setCamera 446ms**：departure shadow bag 暖的是 standard+PCF；真正首编的是 **unlit/planar + morph** 的 live 宏（FOG4+HDR，planar 无 FOG）。morph 73 还带 `CC_MORPH_PRECOMPUTED1`。
-2. **board-bg 490ms + 慢放**：非 RT thrash。`criticalPending` 把 `reflect-map-fs` / fwd / pipe 算进门闩；设备上这些 family 永远 Invalid，`tries` 又不耗尽 → 每帧继续啃 Invalid，reveal 首帧与 board 激活叠在一起。
+1. **setCamera 177ms**：flight 全程仍跑 after_draw warm（B1 只 skip 4 帧）。中途 absorb 新材质 → critical 编译与 `apply()`/`setCamera` 叠在同一墙钟帧；一帧变长 → 大 JUMP → 更重帧。
+2. **board-bg 105ms**：reveal 同帧 `root.active` + `rig.active`（整棵 skycity GLB 首次启用）+ `presentForPlay`，再叠 warm criticalPending≈115。board-bg 相机首写吃到这坨同步工作。
 
 ## 修法（本 tip）
 
-1. `LIVE_UNLIT_MACROS`（FOG4+HDR）暖 unlit；planar 走 live；hot unlit 另暖 PRECOMPUTED morph。
-2. `CRITICAL_CACHE_NEEDLES` 去掉 reflect/fwd/pipe；`tries>12` 或 reflect 一 miss → `exhausted`，不再计入 `criticalPending`。
-3. `noteTransitionHeavyFrames(n)`：B1 / board reveal / `presentForPlay` 跳过若干 after_draw warm。
-4. 不改 RT / fidelity / mask / walk-speed / cine-fx；不上传微信。
+1. `holdTransitionShaders` 改为引用计数；flight / B5 全程 hold，结束再放。
+2. flight `beforeDraw` / B5 每帧 `noteTransitionHeavyFrames(2)`；B1 note 提到 8。
+3. `SkycityBoardBackground.primeScene`：reveal 前先把 GLB `active=true`、相机仍关，摊掉激活成本。
+4. reveal / `setVisible` / board `frame` / `presentForPlay` 扩大 heavy + hold 窗口。
+5. 不改 RT / fidelity / mask / walk-speed / cine-fx；不 hold 镜头；不上传微信。
 
 ## 验收（加严）
 

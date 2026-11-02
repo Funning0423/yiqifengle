@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac 81c841d4: also warm unlit+morph live FOG/HDR (setCamera residual), exhaust Invalid reflect/fwd/pipe, skip warm on board reveal/B1 heavy frames. criticalPending uses CRITICAL_CACHE_NEEDLES (no reflect). Cameras not awaited/held."
+  "note": "Mac e32f04bf: hold warm for flight/B5 + board reveal (refcount); primeScene activates skycity GLB early; expand noteTransitionHeavyFrames. LONGs are main-thread not first-compile. Cameras not awaited; RT/fidelity untouched."
 }

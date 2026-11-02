@@ -7,13 +7,14 @@ import {skycityVisitPose} from './SkycityVisitPose';
 import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import {createSceneFade} from './BoardBackgroundFade';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+import {noteTransitionHeavyFrames,holdTransitionShaders} from './TransitionShaderWarm';
 const SKY_BOARD_LAYER=1<<20; // Dedicated level-background layer, shared with the mutually exclusive meadow lease.
 function setLayer(n:Node){n.layer=SKY_BOARD_LAYER;for(const child of n.children)setLayer(child);}
 function find(n:Node,name:string):Node|null{if(n.name===name)return n;for(const child of n.children){const result=find(child,name);if(result)return result;}return null;}
 /** Actual sky-city GLB behind mainline 09–12 and sky challenges. Own camera; never writes the world lens. */
 export const createSkycityBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
- let rig:Node|null=null,prefab:Prefab|null=null,camera:Camera|null=null,ambient:RegionAmbientAnimation|null=null,visible=false,paused=true,dead=false,held=false,off=()=>{};
- const dispose=()=>{if(dead)return;dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}if(held)prefab?.decRef();rig=null;camera=null;ambient=null;};
+ let rig:Node|null=null,prefab:Prefab|null=null,camera:Camera|null=null,ambient:RegionAmbientAnimation|null=null,visible=false,paused=true,dead=false,held=false,primed=false,off=()=>{},holdLeft=0,holdOff:(()=>void)|null=null;
+ const dispose=()=>{if(dead)return;dead=true;off();try{holdOff?.();}catch{}try{holdTransitionShaders(false);}catch{}if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}if(held)prefab?.decRef();rig=null;camera=null;ambient=null;};
  off=token.onCancel(dispose);
  try{
   token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('skycity-background-owner-missing');
@@ -26,12 +27,15 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async({parent,t
   const lightNode=new Node('SkycityBackgroundKey');lightNode.layer=SKY_BOARD_LAYER;rig.addChild(lightNode);lightNode.setPosition(-25,80,25);const light=lightNode.addComponent(SphereLight);light.visibility=SKY_BOARD_LAYER;light.color=new Color('#fff3da');light.range=260;light.size=30;light.luminance*=12;
   const node=new Node('SkycityBackgroundCamera');node.layer=SKY_BOARD_LAYER;rig.addChild(node);camera=node.addComponent(Camera);camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=.1;camera.far=1200;camera.visibility=SKY_BOARD_LAYER;camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color('#9ccadf');camera.enabled=false;
   const fade=createSceneFade(()=>rig,()=>camera,'skycity');
+  const armHold=(n:number)=>{try{holdTransitionShaders(true);noteTransitionHeavyFrames(n);holdLeft=Math.max(holdLeft,n|0);if(!holdOff){const tick=()=>{if(holdLeft>0)holdLeft--;if(holdLeft<=0){const f=holdOff;holdOff=null;try{director.off('director_after_draw' as any,tick);}catch{}try{holdTransitionShaders(false);}catch{}try{f&&f();}catch{}}};holdOff=()=>{try{director.off('director_after_draw' as any,tick);}catch{};holdOff=null;};try{director.on('director_after_draw' as any,tick);}catch{holdOff=null;holdTransitionShaders(false);}};}catch{/* warm optional */}};
   return {
    setFade:a=>{if(!dead)fade(a);},
-   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('skycity-background-layout-missing');const av=a.worldPosition,bv=b.worldPosition,pose=skycityVisitPose([av.x,av.y,av.z],[bv.x,bv.y,bv.z],layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'skycity.board-background'))throw Error('skycity-background-camera-rejected');},
-   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;bgCamWant(camera!,value);ambient?.setHostPaused(paused||!visible);},
+   /** Activate the skycity GLB early (camera still off) so reveal/board-bg first frame is not the first node enable. */
+   primeScene:()=>{if(dead||primed||visible||!rig||!isValid(rig,true))return;primed=true;armHold(10);rig.active=true;ambient?.setHostPaused(true);},
+   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('skycity-background-layout-missing');try{if(visible)noteTransitionHeavyFrames(3);}catch{/* warm optional */}const av=a.worldPosition,bv=b.worldPosition,pose=skycityVisitPose([av.x,av.y,av.z],[bv.x,bv.y,bv.z],layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'skycity.board-background'))throw Error('skycity-background-camera-rejected');},
+   setVisible:value=>{if(dead)return;if(value){armHold(12);primed=true;}visible=value;rig!.active=value;bgCamWant(camera!,value);ambient?.setHostPaused(paused||!visible);},
    setPaused:value=>{if(dead)return;paused=value;ambient?.setHostPaused(paused||!visible);},
-   diagnostics:()=>({renderer:'region-live-3d',region:'skycity',bundle:REGIONS.skycity.bundle,visible,paused,layer:SKY_BOARD_LAYER,cameraPriority:44,dynamicTextureUploads:0}),dispose,
+   diagnostics:()=>({renderer:'region-live-3d',region:'skycity',bundle:REGIONS.skycity.bundle,visible,paused,primed,layer:SKY_BOARD_LAYER,cameraPriority:44,dynamicTextureUploads:0}),dispose,
   };
  }catch(error){dispose();throw error;}
 };

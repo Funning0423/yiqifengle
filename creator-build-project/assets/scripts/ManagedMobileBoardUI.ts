@@ -304,7 +304,7 @@ export class ManagedMobileBoardUI extends Component {
   /** Called once the enter shot has finished and whenInteractive has resolved. The camera stays dark until this turn. */
   presentForPlay() {
     if (this.entryReleased || this.disposing) return;
-    try{noteTransitionHeavyFrames(6);}catch{/* warm optional */}
+    try{noteTransitionHeavyFrames(10);}catch{/* warm optional */}
     this.presented = true; this.finishPrewarm(); this.releaseBoardCamera();
     if (this.node && isValid(this.node, true)) this.node.active = true;
     // r4.2 items 10/11: a finished hidden pre-activation already laid out this frame size; the swap frame only toggles visibility.
