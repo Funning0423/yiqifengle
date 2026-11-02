@@ -7,9 +7,9 @@
   "blocked": ["navigation-guard"],
   "blockedReason": "BLOCKED_BROWSER",
   "node": "v22.23.3",
-  "codeHead": "6c11ebd0bd7d0cfa387ae2f1cee280a4e9c47981",
-  "suiteRecordedHead": "6c11ebd0bd7d0cfa387ae2f1cee280a4e9c47981",
-  "startedAt": "2026-11-02T07:11:23.161Z",
-  "finishedAt": "2026-11-02T07:41:24.076Z",
-  "note": "Suite ran on the view-pool commit. 369 checks, 368 PASS, 0 FAIL. The only blocked check is navigation-guard (browser launch). Runner exit is non-zero when any check is BLOCKED. No FAIL. The docs commit that records this file is after the suite, so git HEAD at suite start is the code commit."
+  "codeHead": "2179dd9953b6db16ef08b861a3c9308ef6a564e6",
+  "suiteRecordedHead": "2179dd9953b6db16ef08b861a3c9308ef6a564e6",
+  "startedAt": "2026-11-02T10:27:00.822Z",
+  "finishedAt": "2026-11-02T10:55:50.238Z",
+  "note": "Suite ran on the board-label resize commit. 369 checks, 368 PASS, 0 FAIL. The only blocked check is navigation-guard (browser launch). Runner exit is non-zero when any check is BLOCKED. No FAIL. The docs commit that records this file is after the suite, so git HEAD at suite start is the code commit."
 }

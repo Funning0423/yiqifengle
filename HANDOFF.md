@@ -54,7 +54,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 ## Evidence (box paths, not on GitHub)
 - simfail: /workspace/qifengle/test-reports/20261101_simfail-evidence/E-table.md, startedByCLI-grep.txt
 - meadow/lake: team/ggbot/outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md
-- Meadow warm-up C passed on Mac `ced9972f`. Mac `606f434e` passed `skycity.board-background` (zero fraction 0.988) and still failed `skycity.landing-board` (from sample 2, cre/des median 114/s, uploads 0, no ≥256KB TEX line, live 384). `6c11ebd0` pools texture views, resizes a free sub-256KB texture when `resize` exists, and drops a view after its base is resized. The per-second GPU line carries `smallN=` / `small=`. See `docs/r5/b20-hotfix/INTEGRATE.md`. Mac remeasures landing from sample 2 (cre and des median ≤ 2/s). Do not upload.
+- Meadow warm-up C passed on Mac `ced9972f`. Integrate tip `ac9a0aeb` passed `skycity.landing-board` from sample 2 (cre/des/uploads median 0/0/0) and failed `skycity.board-background` (zero fraction 0.964, two seconds of `f35` texture views, strips about 1×1 to 1367×175). `2179dd99` resizes same-family textures under 2MB and resizes the pooled view in place. See `docs/r5/b20-hotfix/INTEGRATE.md`. Mac remeasures both bars. Do not upload.
 
 ## Next steps 下一步
 1. R1 six-launch verification
