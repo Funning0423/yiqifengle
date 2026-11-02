@@ -1,12 +1,13 @@
 {
   "model": "journey-integration-suite",
   "status": "BLOCKED",
-  "total": 368,
-  "passed": 367,
+  "total": 369,
+  "passed": 368,
   "failed": 0,
   "blocked": ["navigation-guard"],
   "blockedReason": "BLOCKED_BROWSER",
   "node": "v22.23.3",
-  "codeHead": "fd68032656d0d5942a7a99e7609d16dde12578ed",
-  "note": "Runner exit is non-zero when any check is BLOCKED. The only blocked check is navigation-guard (browser launch). No FAIL."
+  "codeHead": "b45315eae7a0c49763a6afb4f974b88816c1d560",
+  "suiteRecordedHead": "ced9972fb7917119baa7220c783f4dab40019ab5",
+  "note": "Suite ran on the landing-pool working tree. The runner recorded git HEAD ced9972 because this docs commit had not been made. Script contents match b45315ea. Runner exit is non-zero when any check is BLOCKED. The only blocked check is navigation-guard (browser launch). No FAIL."
 }
