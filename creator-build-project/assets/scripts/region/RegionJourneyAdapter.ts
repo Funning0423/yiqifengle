@@ -61,6 +61,7 @@ import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_
 import {createSailDriver,playSailBeats} from './SailRide';
 import {mountSailArt,type SailArt} from './SailArt';
 import {meadowSplitLoad,takeSailWarm} from './SailPreload';
+import {beginMeadowSailWarm, noteMeadowSailFrame} from './MeadowSailWarm';
 import {mountBalloonLease} from './BalloonRide';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
@@ -109,15 +110,25 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     if(to==='meadow'){
      mountYardBalloon(model)/* full9c: deflated balloon waits in the yard (not awaited) */;
      for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
-     const grass=validateModel(model);configureMeadowVertexColors(model);
+     const grass=validateModel(model);
+     const warm=beginMeadowSailWarm(model);noteMeadowSailFrame(model);
+     if(!warm)configureMeadowVertexColors(model);
      // These local backdrops enclose the source island when both scenes coexist. Reuse the world's existing sky.
-     for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(backdrop)for(const r of backdrop.getComponentsInChildren(MeshRenderer))r.enabled=false;}
+     // __qfSailWant: 0 stays off after warm-up; 1 (night dome) comes back when its variant is compiled.
+     for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(backdrop)for(const r of backdrop.getComponentsInChildren(MeshRenderer)){r.enabled=false;(r as any).__qfSailWant=0;}}
      // N1 (e2a03ec audit): at night the reused island sky reads as day out here. Keep the meadow dome as a night-only sky
      // with SkyNightTexture (night picture on demand, gradient until it lands); WorldFlowComponent.applyDayNight drives
      // nightBlend and the dome's visibility on every day/night change. Day keeps the old path (dome off).
      mountMeadowNightSky(model);
-     effect=await waitRegionAsset(loadWindEffect(),token);token.check();effect.addRef();
-     const material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('journey-meadow-wind-material-missing');owned.push(material);
+     {const dome=find(model,'meadow_sky_dome');if(dome)for(const r of dome.getComponentsInChildren(MeshRenderer))if(r.enabled){(r as any).__qfSailWant=1;const st=warm&&warm.stats();if(!st||!st.done)r.enabled=false;}}
+     if(warm&&!warm.material)await warm.whenReady();
+     token.check();
+     if(!(warm&&warm.effect)){effect=await waitRegionAsset(loadWindEffect(),token);token.check();effect.addRef();}
+     else{effect=warm.effect;effect.addRef();}
+     let material:Material;
+     if(warm&&warm.material){material=warm.material;warm.adopt();}
+     else{material=new Material();material.initialize({effectAsset:effect});if(warm)warm.bindWind(effect,material);}
+     if(!material.passes.length)throw Error('journey-meadow-wind-material-missing');owned.push(material);
      for(const r of grass)for(let i=0;i<r.sharedMaterials.length;i++)r.setSharedMaterial(material,i);
      motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');
      // N2: grass + topmost cloud follow the journey's night grade.

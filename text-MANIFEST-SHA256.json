@@ -3100,6 +3100,16 @@
     "sha256": "70b6b04f2bdb9488248ad0ec2123d1ac73cc60dd6a25a13ae8d6baa7ab25fd7f"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/MeadowSailWarm.ts",
+    "bytes": 14314,
+    "sha256": "1887bed8a738bd983e86d70e674dcb0f6776fe9bf375234f6fa944a9a95ff647"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/MeadowSailWarm.ts.meta",
+    "bytes": 171,
+    "sha256": "b05abd3ec96b7b01b394471decf3248dbfaa427610db91183dd91a3cf4383c08"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/MeadowSceneData.ts",
     "bytes": 1551,
     "sha256": "cf2035b9eebcefb38d5aa33f3128cad710cd7fd9e93d25dc486f1c214d963725"
@@ -3191,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 66046,
-    "sha256": "7b467cb39f5346381dcec091b6c3a690070f58089604fdbc3cfe94f96c8efab5"
+    "bytes": 66843,
+    "sha256": "c53f4fac5cc84fc385e6d7573af82968570fc2d3c6a009081d2c6b706d8dc407"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3341,8 +3351,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailPreload.ts",
-    "bytes": 4207,
-    "sha256": "d38ff256a8a908f551bdd103280ff4efe8b0561162230a383918adcdd6a3f919"
+    "bytes": 4288,
+    "sha256": "bcae30433bcf7a52b206e883eba3b5043a5ab64766e230f24ee5e97830428d1a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailPreload.ts.meta",
@@ -3601,8 +3611,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts",
-    "bytes": 6959,
-    "sha256": "7d78650d2151c7506466af96d69a19266c1fb766b2e9387a2c215566be05f392"
+    "bytes": 6955,
+    "sha256": "1d3780481228fc79187ad31755f2af05a41f42dc028a3c5f96cd71ceb8bd5bad"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityCloudsea.ts.meta",
@@ -4046,8 +4056,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
-    "bytes": 44443,
-    "sha256": "6fab81fbb18741f87f53b1f854b721a7c92841c89c47b95f2a5b2b388e017fa7"
+    "bytes": 45929,
+    "sha256": "d720d3975a352cc0d703881d2f0da54e68456daf002e79e73896472430d8bcd7"
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts.meta",
@@ -5126,8 +5136,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 34780,
-    "sha256": "ebff55a3ab3230d91aad55c72f2da2f5d81c541e9c8186e7a312721506c59637"
+    "bytes": 35014,
+    "sha256": "74399606b01acb8eb6ccc521cae3cf20d3f82706b9cb0eab4863dcf2b553fd08"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
