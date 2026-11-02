@@ -19,6 +19,10 @@
     "CC_DIR_SHADOW_PCF_TYPE=2",
     "CC_SHADOW_TYPE=2"
   ],
+  "setcamMacros": [
+    "CC_DIR_SHADOW_PCF_TYPE=2",
+    "no CC_SHADOW_TYPE"
+  ],
   "extraFamilies": [
     "CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS",
     "CC_PIPELINE_TYPE",
@@ -26,11 +30,11 @@
   ],
   "maxKicksPerFrame": 1,
   "maxCompilesPerFrame": 1,
-  "runtimeCompilesPerFrame": 4,
+  "runtimeCompilesPerFrame": 6,
   "maxFrameMs": 0.75,
   "sailSkips": 1,
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "criticalPending is 0 only when the live program cache has the Mac createShader names (FOG4/cascaded/HDR/SHADOWMAP_FORMAT/LINEAR_DEPTH/PCF2/SHADOW_TYPE2 plus morph/skin/vertex-color/forward-add/reflect/pipeline). Object.assign is wrapped during compile so getProgramVariant keys that bag. Uncached critical jobs keep compiling. animateCamera is not awaited and the stepper is not held."
+  "note": "Warm both bags: TYPE2 (animateCamera) and no-TYPE2 (setCamera B1). critical=skin/morph+vertex-color+second-UV only; non-critical yields while criticalPending>0. criticalPending=0 when live cache has the shared PCF2 needles. Cameras not awaited/held."
 }
