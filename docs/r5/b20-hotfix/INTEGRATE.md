@@ -222,3 +222,7 @@ waive 条没有放宽，本轮也不是 waive：`world.animateCamera` 没有 ≥
 ## setCamera dual-bag tip (post-2672b080)
 
 Experience `1.0.202611021436` felt slow-mo. Residual `world.setCamera` B1 lacked `CC_SHADOW_TYPE2` in createShader names while warm forced TYPE=2. Tip warms both bags and narrows critical so pending no longer eats every frame. Mac: animateCamera LONG still 0; setCamera should not spike ≥100ms with 100+ first-time shaders; landing/board-bg RT hold. No upload until PASS.
+
+## main-thread hold / primeScene tip (post-e32f04bf)
+
+Mac `e32f04bf`（源 tip `3be0a1c0`）setCamera 177ms/0、board-bg 105ms/0：已非 first-compile。功能 `eaa5d83fb6bd8e3daf88ba6b4d312e5949d9e5e3`：flight/B5 `holdTransitionShaders`（引用计数）、`primeScene` 提前激活 skycity GLB、扩大 reveal/board heavy 窗口。详见 `SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
