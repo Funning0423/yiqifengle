@@ -17,3 +17,5 @@ RT pool / fidelity / walk speed / cine-fx unchanged. No WeChat upload from this 
 ## Mac 81c841d4 follow-up
 
 Residual setCamera was unlit+morph (not PCF). board-bg LONGs were Invalid reflect warm + reveal sync, not RT. See `SETCAM-BOARD-LONG.md`.
+
+Post-e32f04bf: hold warm (refcount) during balloon flight/B5 and board reveal; skycity `primeScene` activates GLB before camera-on. RT pool / fidelity / walk speed / cine-fx unchanged. No WeChat upload.

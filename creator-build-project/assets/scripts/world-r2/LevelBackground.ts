@@ -7,6 +7,8 @@ export type LevelBackgroundFrame=Readonly<{width:number;height:number;boardTop:n
 export interface LevelBackgroundLease {
   frame(portrait:boolean,layout?:LevelBackgroundFrame):void;
   setVisible(visible:boolean):void;
+  /** Optional: activate heavy 3D scene early while the board camera stays off (spreads reveal cost). */
+  primeScene?():void;
   /** Presentation clock only. Pausing must not hide the last rendered scenery. */
   setPaused?(paused:boolean):void;
   diagnostics?():Readonly<Record<string,unknown>>;
@@ -61,6 +63,7 @@ export class LevelBackgroundBinding {
   private framed='';
   frame=(portrait:boolean,layout?:LevelBackgroundFrame):void=>{if(this.disposed)return;this.portrait=portrait;this.layout=layout;if(!this.lease)return;const k=frameKey(portrait,layout);if(k===this.framed)return;this.framed=k;this.lease.frame(portrait,layout);};
   setVisible(visible:boolean):void{if(this.disposed)return;this.lease?.setVisible(visible);}
+  primeScene():void{if(this.disposed)return;this.lease?.primeScene?.();}
   setPaused(paused:boolean):void{if(this.disposed)return;this.paused=paused;this.lease?.setPaused?.(paused);}
   /** cand8: fade the background out over `seconds` (default 0.3 s) on the caller's frame clock, then dispose it.
    *  tick(dt) is called once per drawn frame; resolves after the frame on which alpha reached 0. Never a blank frame:
