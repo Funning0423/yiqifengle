@@ -258,12 +258,17 @@ export function gpuCaller(stack?:string):string{try{const st=stack!==undefined?s
   out.push(m[1].replace(/^Object\./,''));if(out.length>=GPU_PROBE_SRC.frames)break;}return out.join('<')||'?';}catch{return '?';}}
 export function gpuWrapDevice(dev:any):boolean{if(!dev||dev.__qfGpu)return false;const G=gpuProbe;
  const wrap=(name:string,f:(a:any[],ms:number,r:any)=>void)=>{const o=dev[name];if(typeof o!=='function')return;dev[name]=function(this:any,...a:any[]){const t=pn();const r=o.apply(this,a);try{f(a,pn()-t,r);}catch{}return r;};};
- wrap('createTexture',(a,ms,r)=>{const b=texBytes(a[0]);const src=b>=GPU_PROBE.texMinBytes?gpuCaller():'';if(src&&r&&typeof r==='object')G.srcOf.set(r,src);
-  // live accounting for every device texture; destroy wrapped per instance (p0-shadow-churn)
-  if(r&&typeof r==='object'&&!G.live.has(r)){G.live.set(r,b);G.liveBytes+=b;G.creates++;const od=r.destroy;if(typeof od==='function'){const info=a[0];r.destroy=function(this:any,...x:any[]){
-   if(G.live.has(r)){const bb=G.live.get(r)||0;G.live.delete(r);G.liveBytes-=bb;G.destroys++;let name='';if(bb>=GPU_PROBE.texMinBytes){try{name=G.nameOf(r);}catch{}const k=name||'?';G.churn.set(k,(G.churn.get(k)||0)+1);
-    gpuDetail('[QF_GPU] TEX op=destroy '+(info?.width|0)+'x'+(info?.height|0)+' fmt='+(info?.format)+' MB='+(bb/1048576).toFixed(2)+' name='+(name||'?')+' src='+(G.srcOf.get(r)||'?'));}}
-   return od.apply(this,x);};}}
+ wrap('createTexture',(a,ms,r)=>{
+  // b20 landing pool sits outside this probe. A hit sets __qfRtReuse and must not count as create/upload.
+  // __qfRtPool means RoomLightingRig already replaced destroy with a recycle; do not put the probe wrapper back.
+  if(r&&r.__qfRtReuse){r.__qfRtReuse=0;if(!G.live.has(r)){const b0=texBytes(a[0]);G.live.set(r,b0);G.liveBytes+=b0;}return;}
+  const b=texBytes(a[0]);const src=b>=GPU_PROBE.texMinBytes?gpuCaller():'';if(src&&r&&typeof r==='object')G.srcOf.set(r,src);
+  if(r&&typeof r==='object'&&!G.live.has(r)){G.live.set(r,b);G.liveBytes+=b;G.creates++;
+   if(!r.__qfRtPool){const od=r.destroy;if(typeof od==='function'){const info=a[0];r.destroy=function(this:any,...x:any[]){
+    if(r.__qfRtPool){if(G.live.has(r)){G.liveBytes-=(G.live.get(r)||0);G.live.delete(r);}return od.apply(this,x);}
+    if(G.live.has(r)){const bb=G.live.get(r)||0;G.live.delete(r);G.liveBytes-=bb;G.destroys++;let name='';if(bb>=GPU_PROBE.texMinBytes){try{name=G.nameOf(r);}catch{}const k=name||'?';G.churn.set(k,(G.churn.get(k)||0)+1);
+     gpuDetail('[QF_GPU] TEX op=destroy '+(info?.width|0)+'x'+(info?.height|0)+' fmt='+(info?.format)+' MB='+(bb/1048576).toFixed(2)+' name='+(name||'?')+' src='+(G.srcOf.get(r)||'?'));}}
+    return od.apply(this,x);};}}}
   if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op=create '+(a[0]?.width|0)+'x'+(a[0]?.height|0)+' fmt='+(a[0]?.format)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' src='+(src||'?')+' w='+G.lens);}});
  const up=(op:string)=>(a:any[],ms:number)=>{const tex=a[1];const regs=a[2]||[];let b=0;for(const r of regs)b+=Math.max(1,r?.texExtent?.width|0)*Math.max(1,r?.texExtent?.height|0)*4;if(!b)b=texBytes(tex?.info||tex);
   if(b>=GPU_PROBE.texMinBytes){G.uploads++;G.upBytes+=b;gpuDetail('[QF_GPU] TEX op='+op+' '+(tex?.width|0)+'x'+(tex?.height|0)+' MB='+(b/1048576).toFixed(2)+' ms='+ms.toFixed(1)+' w='+G.lens);}};

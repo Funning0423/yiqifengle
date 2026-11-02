@@ -678,6 +678,7 @@ export function shadowResidencyStats() { return { installed: state.installed, pi
  *  Re-pins every frame: windowResize does not reset an existing vertex, but a once-only pin misses new MANAGED names at a
  *  stable vertex count and any residency that is put back to MANAGED before execute. */
 export function shadowResidencyBeforeExecute(pipeline: any): void {
+  try { ensureRtPool(root()?.device); } catch { /* device not up */ }
   const rg = pipeline?.resourceGraph; if (!rg) return;
   const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
   state.seen = n; state.pinned += pinShadowResidency(rg);
@@ -705,3 +706,111 @@ export function installShadowResidency(): boolean {
   return true;
 }
 installShadowResidency();
+
+/* ===== b20 landing attachment pool ===== */
+
+/**
+ * Mac ced9972f skycity.landing-board: cre/des 308–399/s (avg 389.4, 16/16 samples), uploads ~83/s,
+ * anonymous `?:N`. Named SceneDepth/Radiance/LdrColor/UiColor were absent (rt_named_rows=0). The per-frame
+ * pin above keeps those graph resources, and skycity.board-background is already ~0. The landing storm is
+ * device.createTexture + Texture.destroy of attachments that are not in deviceTextures when they die
+ * (RenderWindow-owned color/depth, and any graph texture released before the probe can name it).
+ * Pool COLOR_ATTACHMENT (0x10) / DEPTH_STENCIL_ATTACHMENT (0x20) textures of the same size and format.
+ * Sampled image textures and external textures are not pooled. Cap 32; a full pool evicts the oldest with
+ * the original destroy. Re-installed every BEFORE_DRAW so a later GPU-probe wrap cannot sit outside the pool
+ * and count a cache hit as a create.
+ */
+export const RT_POOL_CAP = 32;
+/** Byte ceiling for retained attachments (w*h*4). A single larger texture is destroyed for real. */
+export const RT_POOL_BYTES = 48 * 1024 * 1024;
+const rtFree: any[] = [];
+function rtBytes(tex: any): number {
+  const w = tex?.width | 0, h = tex?.height | 0;
+  return w > 0 && h > 0 ? w * h * 4 : 0;
+}
+function rtFreeBytes(): number {
+  let n = 0;
+  for (let i = 0; i < rtFree.length; i++) n += rtBytes(rtFree[i]);
+  return n;
+}
+
+/** '' when this descriptor must hit the real device (sampled images, external, empty size). */
+export function rtPoolKey(info: any): string {
+  if (!info) return '';
+  const u = info.usage | 0;
+  if ((u & 0x30) === 0) return '';
+  const w = info.width | 0, h = info.height | 0;
+  if (w < 1 || h < 1) return '';
+  const flags = info.flags | 0;
+  if ((flags & 0xc) !== 0 || info.externalRes) return '';
+  const samples = info.samples == null ? 1 : (info.samples | 0);
+  const depth = info.depth == null ? 1 : (info.depth | 0);
+  const layers = info.layerCount == null ? 1 : (info.layerCount | 0);
+  const levels = info.levelCount == null ? 1 : (info.levelCount | 0);
+  return [u, info.format | 0, w, h, samples, info.type | 0, flags, depth, layers, levels].join(':');
+}
+export function rtPoolOccupancy(): number { return rtFree.length; }
+
+function rtEvict(tex: any): void {
+  if (!tex || tex.__qfRtDead) return;
+  tex.__qfRtDead = true; tex.__qfRtHeld = false; tex.__qfRtEvict = true;
+  const d = tex.__qfRtOrigDestroy;
+  if (typeof d === 'function') { try { d.call(tex); } catch { /* native destroy already ran */ } }
+}
+function armRt(tex: any): void {
+  if (tex.__qfRtDead) return;
+  if (tex.destroy && tex.destroy.__qfRtRecycle) { tex.__qfRtHeld = false; return; }
+  if (!tex.__qfRtOrigDestroy && typeof tex.destroy === 'function') tex.__qfRtOrigDestroy = tex.destroy;
+  const recycle = function (this: any) {
+    if (tex.__qfRtDead) return;
+    if (tex.__qfRtEvict) {
+      tex.__qfRtEvict = false; tex.__qfRtDead = true;
+      const d = tex.__qfRtOrigDestroy;
+      if (typeof d === 'function' && d !== recycle) { try { d.call(tex); } catch { /* native destroy */ } }
+      return;
+    }
+    if (tex.__qfRtHeld) return;
+    tex.__qfRtHeld = true;
+    const need = rtBytes(tex);
+    if (need > RT_POOL_BYTES) { rtEvict(tex); return; }
+    while (rtFree.length >= RT_POOL_CAP || (rtFree.length > 0 && rtFreeBytes() + need > RT_POOL_BYTES)) {
+      const old = rtFree.shift(); if (old && old !== tex) rtEvict(old);
+    }
+    if (rtFree.length < RT_POOL_CAP && rtFreeBytes() + need <= RT_POOL_BYTES) rtFree.push(tex); else rtEvict(tex);
+  };
+  recycle.__qfRtRecycle = true;
+  tex.destroy = recycle;
+  tex.__qfRtPool = true;
+  tex.__qfRtHeld = false;
+}
+function rtTake(key: string): any {
+  for (let i = 0; i < rtFree.length; i++) {
+    const t = rtFree[i];
+    if (t && !t.__qfRtDead && t.__qfRtKey === key) { rtFree.splice(i, 1); return t; }
+  }
+  return null;
+}
+/** Keep this wrapper outermost on device.createTexture. Returns false when there is nothing to wrap. */
+export function ensureRtPool(device: any): boolean {
+  if (!device || typeof device.createTexture !== 'function') return false;
+  if (device.createTexture.__qfRtOuter) return true;
+  const inner = device.createTexture;
+  const createTexture = function (this: any, info: any) {
+    const key = rtPoolKey(info);
+    if (key) {
+      const hit = rtTake(key);
+      if (hit) { hit.__qfRtReuse = 1; hit.__qfRtHeld = false; armRt(hit); return hit; }
+    }
+    const tex = inner.call(device, info);
+    if (tex && key) { tex.__qfRtKey = key; armRt(tex); }
+    return tex;
+  };
+  createTexture.__qfRtOuter = true;
+  device.createTexture = createTexture;
+  return true;
+}
+function installRtPool(): void {
+  const tick = () => { try { ensureRtPool(root()?.device); } catch { /* device not up */ } };
+  try { director.on(Director.EVENT_BEFORE_DRAW, tick); } catch { /* headless */ }
+}
+installRtPool();

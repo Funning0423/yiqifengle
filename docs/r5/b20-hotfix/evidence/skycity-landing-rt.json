@@ -1,0 +1,31 @@
+{
+  "model": "skycity-landing-rt-pool",
+  "frames": 40,
+  "cap": 32,
+  "byteCap": 50331648,
+  "nativeCreatesForDepthAndColor": 2,
+  "nativeDestroysWhileHot": 0,
+  "probeCreates": 2,
+  "probeDestroys": 0,
+  "probeUploads": 2,
+  "sampledNotPooled": 10,
+  "macBefore": {
+    "commit": "ced9972fb7917119baa7220c783f4dab40019ab5",
+    "phase": "skycity.landing-board",
+    "samples": 16,
+    "creMin": 308,
+    "creMax": 399,
+    "creAvg": 389.4,
+    "zeroFrac": 0,
+    "uploadsAvg": 83.4,
+    "uploadsMax": 87,
+    "uploadMBMax": 34.5,
+    "depthStencilChurnRows": 16,
+    "namedSceneColorRows": 0,
+    "steadyPhase": "skycity.board-background",
+    "steadySamples": 73,
+    "steadyZeroFrac": 0.986,
+    "steadyCreAvg": 1.1
+  },
+  "note": "Pool keeps COLOR_ATTACHMENT and DEPTH_STENCIL_ATTACHMENT textures. The probe is re-wrapped so a cache hit is not a create or an upload. Sampled images and external textures still allocate. Mac must re-measure skycity.landing-board and skycity.board-background: cre, des, and create-driven uploads near 0 after the first sample. Copy uploads of existing textures can remain."
+}

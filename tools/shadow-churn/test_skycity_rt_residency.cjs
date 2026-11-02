@@ -67,7 +67,7 @@ const evidence={model:'skycity-rt-residency',frames:N,warmFrames:WARM,names:FULL
   fixedSteadyCreates:f.steady,fixedDepthStencilCreates:f.by.DepthStencil0||0,fixedSceneDepthCreates:f.by.SceneDepth_0||0,
   baselineCommit:'b3394140',baselineSteadyCreates:o.steady,baselineDepthStencilCreates:o.by.DepthStencil0,
   baselineCreatesPerSecondAt60:FULL.length*60,
-  note:'Hostile test puts every full-pipeline residency back to MANAGED before execute, with resourceUses empty. Fixed code re-pins every frame, so steady creates are 0. b3394140 pin-once of DepthStencil/shadow only fails. The phone ~400 DepthStencil ops/s is the same class (lower fps, probe name cap). Mac confirms cre/des after skycity arrival.'};
+  note:'Hostile test puts every full-pipeline residency back to MANAGED before execute, with resourceUses empty. Fixed code re-pins every frame, so steady creates are 0. b3394140 pin-once of DepthStencil/shadow only fails. Mac ced9972f: skycity.board-background is ~0, but skycity.landing-board is still anonymous cre/des ~389/s. That window is the attachment pool (skycity-landing-rt.json), not this pin gate.'};
 const evDir=path.join(ROOT,'docs/r5/b20-hotfix/evidence');fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'skycity-rt.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS skycity-rt-residency N='+N+' fixed steady='+f.steady+' baseline steady='+o.steady+' (FAIL as expected)');
