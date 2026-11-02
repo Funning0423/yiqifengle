@@ -2691,8 +2691,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts",
-    "bytes": 42432,
-    "sha256": "358862fb16a9b90de216f6b94200748b63fd05def627b02b0347bd292a6948c4"
+    "bytes": 44214,
+    "sha256": "a24e64a99e8a44720e75f8560806afcf53b82c476440772889dc88acb3dfe260"
   },
   {
     "path": "creator-build-project/assets/scripts/region/CamTraceLog.ts.meta",
@@ -4056,8 +4056,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
-    "bytes": 50822,
-    "sha256": "f70f1885ecfe9c674e8d0289e7627cd49912cb6ea6504529061bf7a06f5ecbb6"
+    "bytes": 56566,
+    "sha256": "034f9452cc461db7840c0f9089ed3a4525fa742aeda418099354102832ceeda2"
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts.meta",

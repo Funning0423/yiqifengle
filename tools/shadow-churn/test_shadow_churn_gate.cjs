@@ -62,7 +62,7 @@ assert.equal(old.r.creates,2*N,'old: one colour+depth pair per frame');
 {const {E,tick}=fixed;E.pipeline.shadow.size=2048;const c0=E.dev.creates;for(let i=0;i<N;i++)tick();
  assert.equal(E.dev.creates-c0,2,'resize: one pair re-created');assert.equal(E.dev.byW[2048],2,'at 2048');
  for(const t of E.dev.live)assert.equal(t.width,2048,'live textures at the new size');assert.equal(E.dev.live.size,2);}
-// only shadow resources are pinned (swapchain/other managed resources untouched)
+// Bloom0 stays MANAGED. Every other MANAGED vertex is pinned, including names outside the old shadow list.
 {const rg={x:[0,1,2],numVertices:()=>3,vertexName:v=>['ShadowMap3','Bloom0','SpotShadowDepth0'][v],getTraits:v=>T[v]};const T=[{residency:0},{residency:0},{residency:0}];
  assert.equal(fixed.M.pinShadowResidency(rg),2);assert.deepEqual(T.map(t=>t.residency),[2,0,2]);}
 console.log('PASS shadow-churn-gate N='+N+' fixed creates='+fixed.r.creates+' live '+fixed.r.liveBefore+'->'+fixed.r.liveAfter+' MB '+fixed.r.mbBefore+'->'+fixed.r.mbAfter+' | old creates='+old.r.creates+' (FAIL as expected)');

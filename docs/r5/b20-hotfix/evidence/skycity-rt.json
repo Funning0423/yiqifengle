@@ -21,5 +21,5 @@
   "baselineSteadyCreates": 6000,
   "baselineDepthStencilCreates": 600,
   "baselineCreatesPerSecondAt60": 600,
-  "note": "Hostile test puts every full-pipeline residency back to MANAGED before execute, with resourceUses empty. Fixed code re-pins every frame, so steady creates are 0. b3394140 pin-once of DepthStencil/shadow only fails. Mac 186b34e7: board-background zero_frac 0.975, landing from2 cre/des median 112/s with uploads 0. That remainder is the texture pool in skycity-landing-rt.json, not this pin gate."
+  "note": "Hostile test puts every full-pipeline residency back to MANAGED before execute, with resourceUses empty. Fixed code re-pins every MANAGED vertex each frame (Bloom0 stays MANAGED), so steady creates are 0. b3394140 pin-once of DepthStencil/shadow only fails. Mac 606f434e board-background zero_frac 0.988. Landing from2 cre/des median 114/s is the texture pool in skycity-landing-rt.json, not this pin gate."
 }

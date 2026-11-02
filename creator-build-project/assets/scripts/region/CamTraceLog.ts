@@ -227,6 +227,9 @@ export function installSyncProbe(g:any,store:any,wxObj:any,sysObj:any,hooks?:{on
  *  - Each GPU texture creation ≥ 256 KB or upload ≥ 256 KB: `[QF_GPU] TEX op= w×h fmt= MB ms=` (≤ 60 lines, then counted only).
  *  - Each texture ≥ 256 KB destroyed: `[QF_GPU] TEX op=destroy w×h fmt= MB= name=<render-graph resource, e.g. ShadowMap1|?>` (same caps).
  *  - Per-second line also: `live=<device textures alive> liveMB= cre=<creates this s> des=<destroys this s> churn=<name:destroys,…|->`.
+ *  - Sub-256KB creates stay off the TEX detail list (a view's TextureViewInfo has no width, so it is 0 bytes here). They are
+ *    counted on that same per-second line: `smallN=<creates> small=<family=count@w x h,…>` with format, usage, flags, samples,
+ *    type (-1 if omitted), v=1 for a texture view, e=1 for external. Width/height fall back to the base texture. No stack walk.
  *  - Each shader program creation: `[QF_GPU] SHADER n= name= ms=` (≤ 60 lines) — a compile storm shows as many in one second.
  *  - Every 5 s: resident assets per loaded bundle (`regions=` field, count of loaded assets whose uuid the bundle owns).
  *  - The last per-second line before a freeze is the evidence: rising tex/uploads → upload hypothesis; shader burst → compile storm;
@@ -240,6 +243,7 @@ export const GPU_PROBE=Object.freeze({texMinBytes:256*1024,maxDetail:60,regionsE
 export const gpuProbe={installed:false,sec:-1,fr:0,dcMax:0,dcSum:0,triMax:0,instMax:0,n:0,last:-1,rafMax:0,rafs:[] as number[],long:0,uploads:0,upBytes:0,shaders:0,detail:0,shTotal:0,shDropped:0,frShaders:0,frSync:0,longLines:0,
  regions:'' as string,regionsAt:-1e9,lens:'',out:(s:string)=>camLog.out(s),
  live:new Map<object,number>(),liveBytes:0,creates:0,destroys:0,churn:new Map<string,number>(),
+ smallN:0,smallMore:0,smallF:[] as {k:string,n:number,w0:number,w1:number,h0:number,h1:number}[],
  /** Render-graph resource name of a device texture (custom pipeline executor deviceTextures), '' when unknown. Overridable in tests. */
  nameOf:(tex:any):string=>gpuResName(tex),srcOf:new WeakMap<object,string>()};
 /** p0-shadow-churn: name lookup for TEX op=destroy. Read-only scan of the custom pipeline executor's managed textures (ShadowMap<id>,
@@ -250,6 +254,18 @@ const pn=()=>typeof performance!=='undefined'?performance.now():Date.now();
 function texBytes(info:any):number{try{const w=info?.width|0,h=info?.height|0,d=Math.max(1,info?.depth|0),l=Math.max(1,info?.layerCount|0);return w*h*d*l*4;}catch{return 0;}}
 function gpuShaderLine(s:string){const G=gpuProbe;if(G.shTotal<GPU_PROBE.shaderMaxTotal){G.shTotal++;G.out(s);}else G.shDropped++;}
 function gpuDetail(s:string){const G=gpuProbe;if(G.detail<GPU_PROBE.maxDetail){G.detail++;G.out(s);}}
+/** Sub-256KB create, including a view (no width on the descriptor). Family only: no Error().stack. */
+function gpuNoteSmall(info:any):void{const G=gpuProbe;G.smallN++;
+ const base=info&&info.texture,w=(info?.width|0)||(base?.width|0)||0,h=(info?.height|0)||(base?.height|0)||0;
+ const flags=info?.flags|0,view=base?1:0,ext=(info&&(info.externalRes||(flags&0xc)))?1:0;
+ const k='f'+(info?.format|0)+':u'+(info?.usage|0)+':g'+flags+':s'+(info?.samples|0)+':t'+(info&&info.type!=null?(info.type|0):-1)+':v'+view+':e'+ext;
+ const a=G.smallF;for(let i=0;i<a.length;i++){const s=a[i];if(s.k!==k)continue;s.n++;if(w<s.w0)s.w0=w;if(w>s.w1)s.w1=w;if(h<s.h0)s.h0=h;if(h>s.h1)s.h1=h;return;}
+ if(a.length<6)a.push({k,n:1,w0:w,w1:w,h0:h,h1:h});else G.smallMore++;}
+function gpuSmallText():string{const G=gpuProbe;if(!G.smallN)return 'smallN=0 small=-';
+ const a=G.smallF.slice().sort((x,y)=>y.n-x.n||(x.k<y.k?-1:x.k>y.k?1:0));let s='';
+ for(let i=0;i<a.length&&i<4;i++){const e=a[i];const wr=e.w0===e.w1?String(e.w0):e.w0+'-'+e.w1,hr=e.h0===e.h1?String(e.h0):e.h0+'-'+e.h1;
+  s+=(s?',':'')+e.k+'='+e.n+'@'+wr+'x'+hr;}
+ return 'smallN='+G.smallN+' small='+s+(G.smallMore?' smallMore='+G.smallMore:'');}
 /** r3 (fin r6: 48 destroys/s named '?'): creation site of every texture >= texMinBytes: the first GPU_PROBE_SRC.frames game-script
  *  frames of the create call stack (engine cc.js / probe frames skipped), e.g. `WarmButtonSkin.render<ensure`. Only for big textures. */
 export const GPU_PROBE_SRC=Object.freeze({frames:3});
@@ -264,7 +280,7 @@ export function gpuWrapDevice(dev:any):boolean{if(!dev||dev.__qfGpu)return false
   if(r&&r.__qfRtReuse){r.__qfRtReuse=0;if(!G.live.has(r)){const b0=texBytes(a[0]);G.live.set(r,b0);G.liveBytes+=b0;}return;}
   if(r&&r.__qfRtPool&&G.live.has(r)){r.__qfRtReuse=0;return;}
   const b=texBytes(a[0]);const src=b>=GPU_PROBE.texMinBytes?gpuCaller():'';if(src&&r&&typeof r==='object')G.srcOf.set(r,src);
-  if(r&&typeof r==='object'&&!G.live.has(r)){G.live.set(r,b);G.liveBytes+=b;G.creates++;
+  if(r&&typeof r==='object'&&!G.live.has(r)){G.live.set(r,b);G.liveBytes+=b;G.creates++;if(b<GPU_PROBE.texMinBytes)gpuNoteSmall(a[0]);
    if(!r.__qfRtPool){const od=r.destroy;if(typeof od==='function'){const info=a[0];r.destroy=function(this:any,...x:any[]){
     if(r.__qfRtPool){if(G.live.has(r)){G.liveBytes-=(G.live.get(r)||0);G.live.delete(r);}return od.apply(this,x);}
     if(G.live.has(r)){const bb=G.live.get(r)||0;G.live.delete(r);G.liveBytes-=bb;G.destroys++;let name='';if(bb>=GPU_PROBE.texMinBytes){try{name=G.nameOf(r);}catch{}const k=name||'?';G.churn.set(k,(G.churn.get(k)||0)+1);
@@ -288,8 +304,8 @@ export function gpuFrame(dev:any,am:any,now:number=pn()):void{const G=gpuProbe;G
  if(now-G.regionsAt>=GPU_PROBE.regionsEveryS*1000&&am){G.regions=gpuRegions(am);G.regionsAt=now;}
  const r=G.rafs.slice().sort((x,y)=>x-y),p95=r.length?r[Math.min(r.length-1,Math.floor(r.length*0.95))]:0,avg=r.length?r.reduce((x,y)=>x+y,0)/r.length:0,ms=dev?.memoryStatus||{};
  G.out('[QF_GPU] s='+sec+' fr='+G.fr+' dc='+G.dcMax+'/'+(G.n?(G.dcSum/G.n).toFixed(0):0)+' tri='+G.triMax+' inst='+G.instMax+' texMB='+((ms.textureSize|0)/1048576).toFixed(1)+' bufMB='+((ms.bufferSize|0)/1048576).toFixed(1)
-  +' raf='+G.rafMax.toFixed(0)+'/'+p95.toFixed(0)+'/'+avg.toFixed(1)+' long='+G.long+' uploads='+G.uploads+'/'+(G.upBytes/1048576).toFixed(1)+' shaders='+G.shaders+' live='+G.live.size+' liveMB='+(G.liveBytes/1048576).toFixed(1)+' cre='+G.creates+' des='+G.destroys+' churn='+gpuChurn(G.churn)+' regions='+G.regions+' w='+G.lens);
- G.sec=sec;G.dcMax=0;G.dcSum=0;G.n=0;G.triMax=0;G.instMax=0;G.rafMax=0;G.rafs.length=0;G.long=0;G.uploads=0;G.upBytes=0;G.shaders=0;G.creates=0;G.destroys=0;G.churn.clear();}
+  +' raf='+G.rafMax.toFixed(0)+'/'+p95.toFixed(0)+'/'+avg.toFixed(1)+' long='+G.long+' uploads='+G.uploads+'/'+(G.upBytes/1048576).toFixed(1)+' shaders='+G.shaders+' live='+G.live.size+' liveMB='+(G.liveBytes/1048576).toFixed(1)+' cre='+G.creates+' des='+G.destroys+' churn='+gpuChurn(G.churn)+' '+gpuSmallText()+' regions='+G.regions+' w='+G.lens);
+ G.sec=sec;G.dcMax=0;G.dcSum=0;G.n=0;G.triMax=0;G.instMax=0;G.rafMax=0;G.rafs.length=0;G.long=0;G.uploads=0;G.upBytes=0;G.shaders=0;G.creates=0;G.destroys=0;G.churn.clear();G.smallN=0;G.smallMore=0;G.smallF.length=0;}
 export function installGpuProbe(dev:any,am:any,onFrameEnd?:(f:()=>void)=>void):boolean{const G=gpuProbe;if(G.installed||!dev)return false;G.installed=true;gpuWrapDevice(dev);
  const h=onFrameEnd||((f:()=>void)=>director.on(Director.EVENT_AFTER_DRAW,f));try{h(()=>gpuFrame(dev,am));}catch{}return true;}
 /** r2 (B360 481c599c NOPROBE): camTrace / GPU probe must never be silently off in a TEST build.

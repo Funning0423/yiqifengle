@@ -67,7 +67,7 @@ const evidence={model:'skycity-rt-residency',frames:N,warmFrames:WARM,names:FULL
   fixedSteadyCreates:f.steady,fixedDepthStencilCreates:f.by.DepthStencil0||0,fixedSceneDepthCreates:f.by.SceneDepth_0||0,
   baselineCommit:'b3394140',baselineSteadyCreates:o.steady,baselineDepthStencilCreates:o.by.DepthStencil0,
   baselineCreatesPerSecondAt60:FULL.length*60,
-  note:'Hostile test puts every full-pipeline residency back to MANAGED before execute, with resourceUses empty. Fixed code re-pins every frame, so steady creates are 0. b3394140 pin-once of DepthStencil/shadow only fails. Mac 186b34e7: board-background zero_frac 0.975, landing from2 cre/des median 112/s with uploads 0. That remainder is the texture pool in skycity-landing-rt.json, not this pin gate.'};
+  note:'Hostile test puts every full-pipeline residency back to MANAGED before execute, with resourceUses empty. Fixed code re-pins every MANAGED vertex each frame (Bloom0 stays MANAGED), so steady creates are 0. b3394140 pin-once of DepthStencil/shadow only fails. Mac 606f434e board-background zero_frac 0.988. Landing from2 cre/des median 114/s is the texture pool in skycity-landing-rt.json, not this pin gate.'};
 const evDir=path.join(ROOT,'docs/r5/b20-hotfix/evidence');fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'skycity-rt.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS skycity-rt-residency N='+N+' fixed steady='+f.steady+' baseline steady='+o.steady+' (FAIL as expected)');

@@ -8,7 +8,11 @@
  *  Gate: depth + color, a sampled image, a 16×16 usage-none image, and a 0×0 pass dummy, each destroyed
  *  and created for many frames, stay at one native create and 0 native destroys. The GPU probe is wrapped
  *  outside the pool and then the pool re-installs outside it; probe cre/des stay at the first real
- *  allocate. External images and texture views still hit the device. Do not loosen the N=600 residency gate. */
+ *  allocate. External images still hit the device.
+ *  Mac 606f434e: exact keys still left sample2+ at cre/des median 114/s (uploads 0, no ≥256KB TEX line, live 384).
+ *  A texture view (info.texture set, no width) and a sub-256KB image whose size changes every frame must also
+ *  stay at one native create. A size change with no Texture.resize stays a real allocate. Do not loosen the
+ *  N=600 residency gate. */
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const ts = require(process.env.QF_TYPESCRIPT_MODULE || 'typescript');
 const ROOT = path.join(__dirname, '../..');
@@ -22,7 +26,9 @@ function load() {
   const device = {
     createTexture(info) {
       native++;
-      return { width: info.width | 0, height: info.height | 0, dead: false, destroy() { this.dead = true; realDestroys++; } };
+      const tex = { width: info.width | 0, height: info.height | 0, dead: false, destroy() { this.dead = true; realDestroys++; } };
+      if (!info.__noResize) tex.resize = function (w, h) { this.width = w | 0; this.height = h | 0; };
+      return tex;
     },
   };
   const director = {
@@ -151,10 +157,81 @@ assert.equal(Rig.rtPoolKey({ samples: 0, width: 4, height: 4 }), Rig.rtPoolKey({
 assert.equal(Rig.rtPoolKey({ type: 1, width: 4, height: 4 }), Rig.rtPoolKey({ width: 4, height: 4 }), 'TEX2D matches omitted type');
 assert.notEqual(Rig.rtPoolKey({ type: 0, width: 4, height: 4 }), Rig.rtPoolKey({ width: 4, height: 4 }), 'explicit TEX1D stays distinct');
 assert.notEqual(Rig.rtPoolKey({}), '', 'empty descriptor (0x0 pass dummy) is pooled');
-assert.equal(Rig.rtPoolKey({ texture: {}, usage: 0x10, width: 8, height: 8 }), '', 'texture view is not pooled');
+assert.equal(Rig.rtPoolKey({ texture: {}, usage: 0x10, width: 8, height: 8 }), '', 'texture view is not an image key');
+{ const baseKey = {};
+  assert.notEqual(Rig.rtViewKey({ texture: baseKey, format: 35 }), '', 'texture view has its own key');
+  assert.equal(
+    Rig.rtViewKey({ texture: baseKey, format: 35 }),
+    Rig.rtViewKey({ texture: baseKey, format: 35, type: 1, baseLevel: 0, levelCount: 1, baseLayer: 0, layerCount: 1, basePlane: 0, planeCount: 1 }),
+    'omitted view range matches the engine defaults',
+  ); }
+{ const b1 = {}, b2 = {}; assert.notEqual(Rig.rtViewKey({ texture: b1, format: 35 }), Rig.rtViewKey({ texture: b2, format: 35 }), 'two bases do not share a view'); }
 assert.notEqual(Rig.rtPoolKey(DEPTH), '', 'depth attachment key is pooled');
 assert.equal(Rig.rtPoolKey({ usage: 0x10, width: 8, height: 8, flags: 0x4 }), '', 'external flag is not pooled');
 assert.equal(Rig.pinShadowResidency({ numVertices: () => 1, vertexName: () => 'Bloom0', getTraits: () => ({ residency: 0 }) }), 0);
+{ const traits = [{ residency: 0 }, { residency: 0 }];
+  assert.equal(Rig.pinShadowResidency({ numVertices: () => 2, vertexName: (v) => ['CopyColor', 'Bloom0'][v], getTraits: (v) => traits[v] }), 1);
+  assert.deepEqual(traits.map((t) => t.residency), [2, 0], 'unnamed MANAGED vertex is pinned; Bloom0 stays MANAGED'); }
+{ let released = 0; const dt = new Map([['Gone', { release() { released++; } }], ['Null', { release() { released++; } }], ['Keep', { release() {} }]]);
+  assert.equal(Rig.releaseOrphans({ find: (n) => n === 'Keep' ? 1 : n === 'Null' ? null : 4294967295 }, dt), 2);
+  assert.equal(released, 2); assert.equal(dt.has('Gone'), false); assert.equal(dt.has('Null'), false); assert.equal(dt.has('Keep'), true); }
+
+const base = device.createTexture({ usage: 0x4, format: 35, width: 32, height: 32, flags: 0 });
+const nView = native(), dView = destroyed(), gView = G.creates, gdView = G.destroys;
+let view = null;
+for (let i = 0; i < FRAMES; i++) {
+  const v = device.createTexture({ texture: base, type: 1, format: 35, baseLevel: 0, levelCount: 1 });
+  if (!view) view = v; else assert.strictEqual(v, view, 'same view range is the cached object');
+  v.destroy();
+  assert.equal(v.dead, false, 'pooled view is not destroyed');
+}
+assert.equal(native() - nView, 1, 'one native view across ' + FRAMES + ' frames');
+assert.equal(destroyed() - dView, 0, 'view recycle is not a native destroy');
+assert.equal(G.creates - gView, 1, 'probe counts the view once');
+assert.equal(G.destroys - gdView, 0, 'probe does not count a view recycle');
+const liveA = device.createTexture({ texture: base, format: 35, baseLevel: 0, levelCount: 1 });
+const liveB = device.createTexture({ texture: base, format: 35, baseLevel: 0, levelCount: 1 });
+assert.notStrictEqual(liveA, liveB, 'two live views of one range do not alias');
+liveA.destroy(); liveB.destroy();
+const mip = device.createTexture({ texture: base, format: 35, baseLevel: 1, levelCount: 1 });
+assert.notStrictEqual(mip, liveA, 'a different mip is a different view');
+mip.destroy();
+const capped = [];
+for (let i = 0; i < Rig.RT_VIEW_CAP + 1; i++) capped.push(device.createTexture({ texture: base, format: 35, baseLevel: 100 + i, levelCount: 1 }));
+for (let i = 0; i < capped.length; i++) capped[i].destroy();
+assert.equal(capped[0].dead, true, 'oldest view is evicted at the view cap');
+assert.equal(capped[capped.length - 1].dead, false, 'newest view stays pooled');
+
+const nLoose = native(), dLoose = destroyed(), gLoose = G.creates, gdLoose = G.destroys;
+let loose = null;
+for (let i = 0; i < FRAMES; i++) {
+  const w = 16 + (i % 5);
+  const t = device.createTexture({ usage: 0x4, format: 35, width: w, height: 8, flags: 0 });
+  if (!loose) loose = t; else assert.strictEqual(t, loose, 'sub-256KB size change resizes the cached object');
+  assert.equal(t.width, w, 'resize reports the requested width');
+  t.destroy();
+  assert.equal(t.dead, false, 'resized image stays pooled');
+}
+assert.equal(native() - nLoose, 1, 'a changing sub-256KB size is one native create');
+assert.equal(destroyed() - dLoose, 0, 'resize is not a native destroy');
+assert.equal(G.creates - gLoose, 1, 'probe counts the resized image once');
+assert.equal(G.destroys - gdLoose, 0, 'probe does not count a resize recycle');
+const bigA = device.createTexture({ usage: 0x10, format: 35, width: 1024, height: 512, flags: 0 });
+bigA.destroy();
+const nBig = native();
+const bigB = device.createTexture({ usage: 0x10, format: 35, width: 1024, height: 256, flags: 0 });
+assert.notStrictEqual(bigB, bigA, 'a size change at or above 256KB is not loose-resized');
+assert.equal(native() - nBig, 1);
+bigB.destroy();
+const nBare = native();
+const bare1 = device.createTexture({ usage: 0x4, format: 99, width: 12, height: 12, flags: 0, __noResize: 1 });
+bare1.destroy();
+const bare2 = device.createTexture({ usage: 0x4, format: 99, width: 13, height: 12, flags: 0, __noResize: 1 });
+assert.notStrictEqual(bare2, bare1, 'without Texture.resize a size change allocates');
+assert.equal(bare1.width, 12, 'a texture with no resize keeps its size');
+assert.equal(bare2.dead, false);
+assert.equal(native() - nBare, 2);
+bare2.destroy();
 
 const evidence = {
   model: 'skycity-landing-rt-pool',
@@ -168,6 +245,22 @@ const evidence = {
   probeUploads: 2,
   sampledNativeCreates: 1,
   smallNativeCreates: 2,
+  viewNativeCreates: 1,
+  looseNativeCreates: 1,
+  mac606f434e: {
+    commit: '606f434eb6289aa03585165ee9f76aff775fa504',
+    feature: '968ab266c4e401e0cac35c5e3efb9b1aab33def2',
+    phase: 'skycity.landing-board',
+    from2: { n: 15, creAvg: 112.8, creMedian: 114, desMedian: 114, zeroFrac: 0, uploadsMedian: 0, uploadsMax: 0 },
+    all: { n: 16, creAvg: 112.1, creMedian: 114, desMedian: 114, zeroFrac: 0, uploadsMedian: 0, uploadsMax: 0 },
+    live: 384,
+    texDetailDuringLanding: 0,
+    steadyPhase: 'skycity.board-background',
+    steadySamples: 85,
+    steadyZeroFrac: 0.988,
+    steadyCreAvg: 0.4,
+    packageProbeKept: { total: 23600616, main: 1874614 },
+  },
   macBefore: {
     commit: 'ced9972fb7917119baa7220c783f4dab40019ab5',
     phase: 'skycity.landing-board',
@@ -199,7 +292,7 @@ const evidence = {
     steadyCreMax: 78,
     packageProbeKept: { total: 23600600, main: 1874614 },
   },
-  note: 'Pool keeps every non-external texture of the same usage/format/size, including sampled images and the 0x0 pass dummy. A hit returns the same object and the probe does not count it as create or destroy. External images and texture views still allocate. Mac 186b34e7 still failed the landing gate (from2 cre/des median 112, uploads 0). Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and board-background zero_frac >= 0.98.',
+  note: 'Exact-key pool plus texture views (base id + subresource) plus sub-256KB resize when Texture.resize exists. A hit returns the same object and the probe does not count it. External images and a size change with no resize still allocate. Mac 606f434e still failed landing (from2 cre/des median 114, uploads 0, TEX lines 0, live 384). Board-background zero_frac was 0.988. Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and the per-second small= histogram if any remainder is left.',
 };
 const evDir = path.join(ROOT, 'docs/r5/b20-hotfix/evidence');
 fs.mkdirSync(evDir, { recursive: true });

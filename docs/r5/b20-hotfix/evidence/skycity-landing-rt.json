@@ -10,6 +10,41 @@
   "probeUploads": 2,
   "sampledNativeCreates": 1,
   "smallNativeCreates": 2,
+  "viewNativeCreates": 1,
+  "looseNativeCreates": 1,
+  "mac606f434e": {
+    "commit": "606f434eb6289aa03585165ee9f76aff775fa504",
+    "feature": "968ab266c4e401e0cac35c5e3efb9b1aab33def2",
+    "phase": "skycity.landing-board",
+    "from2": {
+      "n": 15,
+      "creAvg": 112.8,
+      "creMedian": 114,
+      "desMedian": 114,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 0
+    },
+    "all": {
+      "n": 16,
+      "creAvg": 112.1,
+      "creMedian": 114,
+      "desMedian": 114,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 0
+    },
+    "live": 384,
+    "texDetailDuringLanding": 0,
+    "steadyPhase": "skycity.board-background",
+    "steadySamples": 85,
+    "steadyZeroFrac": 0.988,
+    "steadyCreAvg": 0.4,
+    "packageProbeKept": {
+      "total": 23600616,
+      "main": 1874614
+    }
+  },
   "macBefore": {
     "commit": "ced9972fb7917119baa7220c783f4dab40019ab5",
     "phase": "skycity.landing-board",
@@ -64,5 +99,5 @@
       "main": 1874614
     }
   },
-  "note": "Pool keeps every non-external texture of the same usage/format/size, including sampled images and the 0x0 pass dummy. A hit returns the same object and the probe does not count it as create or destroy. External images and texture views still allocate. Mac 186b34e7 still failed the landing gate (from2 cre/des median 112, uploads 0). Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and board-background zero_frac >= 0.98."
+  "note": "Exact-key pool plus texture views (base id + subresource) plus sub-256KB resize when Texture.resize exists. A hit returns the same object and the probe does not count it. External images and a size change with no resize still allocate. Mac 606f434e still failed landing (from2 cre/des median 114, uploads 0, TEX lines 0, live 384). Board-background zero_frac was 0.988. Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and the per-second small= histogram if any remainder is left."
 }
