@@ -226,3 +226,7 @@ Experience `1.0.202611021436` felt slow-mo. Residual `world.setCamera` B1 lacked
 ## main-thread hold / primeScene tip (post-e32f04bf)
 
 Mac `e32f04bf`（源 tip `3be0a1c0`）setCamera 177ms/0、board-bg 105ms/0：已非 first-compile。功能 `eaa5d83fb6bd8e3daf88ba6b4d312e5949d9e5e3`：flight/B5 `holdTransitionShaders`（引用计数）、`primeScene` 提前激活 skycity GLB、扩大 reveal/board heavy 窗口。详见 `SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
+
+## tip（本轮）
+
+- feature `508b5a18703af3b9b8f11c1d72b300434d9ac11c`：paint/setCamera 拆帧 + armTransitionHold B5→board + primeScene board-cam warm draw + reveal≠present 同帧。验收：过渡窗口 setCamera/board-bg LONG 均 <100ms；不上传微信。
