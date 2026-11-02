@@ -216,3 +216,7 @@ Mac 在 `186b34e7` 上量过探针包（`STRIP_PROBES=0`）：TOTAL 23,600,600�
 通过之前不要上传。上传仍只走 `FORMAL_RELEASE=1 tools/build-guard/build-production-upload.sh`，脚本本身不上传。
 
 waive 条没有放宽，本轮也不是 waive：`world.animateCamera` 没有 ≥100 ms 的 LONG；`skycity.board-background` 的 zero 比例 ≥ 0.98；`skycity.landing-board` 从第 2 个样本起 cre 与 des 的中位数 ≤ 2/s、uploads ≤ 1/s。`0421cfff` 的两道 RT 门已过（落地 0/0/0，棋盘背景 zero 比例 1.0），不能退。
+
+## setCamera dual-bag tip (post-2672b080)
+
+Experience `1.0.202611021436` felt slow-mo. Residual `world.setCamera` B1 lacked `CC_SHADOW_TYPE2` in createShader names while warm forced TYPE=2. Tip warms both bags and narrows critical so pending no longer eats every frame. Mac: animateCamera LONG still 0; setCamera should not spike ≥100ms with 100+ first-time shaders; landing/board-bg RT hold. No upload until PASS.
