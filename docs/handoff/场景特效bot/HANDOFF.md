@@ -2,7 +2,7 @@
 
 **Bot:** 场景特效bot  
 **分支:** `fx/r5-black-landing-fix`  
-**修复 SHA:**   
+**修复 SHA:** `2af136607945861b34b4ed8bdba4849cc3d80121`  
 **基点:** `606f434eb6289aa03585165ee9f76aff775fa504`（`github/ggbot/b20-meadow-c-skycity-rt` / PR #65 tip）  
 **日期:** 2026-11-02（America/New_York）  
 **微信包:** 未上传（等 Grok 验收）
@@ -62,4 +62,6 @@
 
 ## 推送
 
-见交付回报（push 或 `bundles/push-20261102/`）。
+- `git push -u github fx/r5-black-landing-fix` → **403**（只试 1 次）
+- Bundle: `/workspace/yiqifengle/bundles/push-20261102/场景特效bot-fx-r5-black-landing-fix.bundle`
+
