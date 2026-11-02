@@ -11,7 +11,8 @@
   - `6c11ebd0bd7d0cfa387ae2f1cee280a4e9c47981` 底图 `resize` 之后丢掉尺寸已过期的 view
   - `2179dd9953b6db16ef08b861a3c9308ef6a564e6` 棋盘标签条（约 1 MB 以内）同族 `resize`，view 跟着底图改尺寸而不是新建
   - `a2168f383e351276ce794cd23ccd1e424c5f7a10` 转场 `world.animateCamera` 的首次 shader 按草甸 C 的节奏提前编译，镜头不等待
-  - `b95d85556fe9bd11208b07ec961f97cf3473f632` 出航阴影宏（`CC_DIR_SHADOW_PCF_TYPE=2`、`CC_SHADOW_TYPE=2`）提前一帧一个编译，meadow 目标仍挂帆船预热（本轮）
+  - `b95d85556fe9bd11208b07ec961f97cf3473f632` 出航阴影宏（`CC_DIR_SHADOW_PCF_TYPE=2`、`CC_SHADOW_TYPE=2`）提前一帧一个编译，meadow 目标仍挂帆船预热
+  - `de045cb6ddb4efe5dff021d8502f0e38263d496e` 角色蒙皮/形变和房间顶点色的 PCF2 族（含 forward-add / pipeline / reflect）在 `animateCamera` 之前编完，镜头仍不等待（本轮）
 - 交付头：本文件所在提交。完整 SHA 用 `git rev-parse HEAD`。
 - 没有跑微信上传，也没有跑 `cli upload`。
 
@@ -127,6 +128,10 @@ Mac 整合头 `46e2c3ff90022093710e1447c70e3eb50ec397b0`（`0421cfff` + `bdcb4b8
 
 `WorldNativeComposition.warmMeadowIfIsland` 的稳定回调：目标已经是 meadow（或人已经在 meadow）时返回 true，照常 `preloadMeadowForSail`。其它旅程目标，或地区既不是 island 也不是 meadow，仍然 `gone` → `left-island`。`mount:meadow-warm-rig` 那行等待字符串没改。这是冻结文件上的一处回调，只为了不再跳过帆船副本。
 
+Mac 整合头 `8571f6d100b714ee2d55e8df9eca1dd8f0384ea9`（`46e2c3ff` + `15887835`/`b95d8555`）上，`mount:meadow-warm-rig` 已经 `ok:true`，但挂上发生在 spike 之后。`[QF_SHADER_WARM] compiled=131→132 pending=0` 出现在 frame 132–486，这是假的做完：那 132 个要么是启动时的宏，要么 `getProgramVariant` 把 `programLib.pipeline.macros` 里当时的 0 盖回去了。frame 1826 的 `world.animateCamera` 仍是 LONG 611 ms、shaders=70，全是 `CC_DIR_SHADOW_PCF_TYPE2` + `CC_SHADOW_TYPE2`：房间顶点色 standard / forward-add / reflect / pipeline，以及角色蒙皮+形变 53/16/3。spike 之后预热才爬到 376…1213。
+
+本轮不再把「pending=0」当成出航族已经进缓存。`getShaderVariant` 和 `getProgramVariant` 之前，把 PCF=2、`CC_SHADOW_TYPE=2` 写到能找到的每一份 pipeline.macros 上（`director.root.pipeline`、`pass._root.pipeline`、`cc.rendering.programLib.pipeline`），也写到 pass 的 defines 上，并用 `setMacroInt`；调用结束立刻改回去。角色和房间顶点色的 `builtin-standard` 另外再编 spike 里那三组：`CC_FORWARD_ADD`+透明、`CC_PIPELINE_TYPE`、以及 `standard-fs`→`reflect-map-fs`。关键任务从场景加载就开始，每帧最多 3 个，不 kick 已经编过的 live GLSL。镜头轨道没有 await，步进器也没有按住。`WorldFlowComponent` 绑角色时多 watch 一次 `herAdapter.node`。
+
 ## 怎么验证
 
 ```
@@ -143,13 +148,15 @@ node tools/journey-integration/run-suite.cjs
 
 `b95d85556fe9bd11208b07ec961f97cf3473f632` 再跑了一次：仍是 370 项，369 PASS，0 FAIL，唯一 BLOCKED 是 `navigation-guard`（BLOCKED_BROWSER），退出码 1。启动 2026-11-02T14:08:36Z。
 
+`de045cb6ddb4efe5dff021d8502f0e38263d496e` 再跑了一次：仍是 370 项，369 PASS，0 FAIL，唯一 BLOCKED 是 `navigation-guard`（BLOCKED_BROWSER），退出码 1。启动 2026-11-02T15:44:58Z。`transition-shader-warm` 过了。
+
 单门：
 
 - `tools/meadow/test_meadow_sail_warm.cjs`：69 个变体，未修复出航帧 1601 ms；修复后每帧至多 1 kick + 1 compile，模型时间 ≤ 0.75 ms；第 5 帧提前起航的那一帧 0 kick、0 compile；全部编译次数仍是 69。
 - `tools/shadow-churn/test_skycity_rt_residency.cjs`：N=600，每帧把 residency 打回 MANAGED。修复后 steady creates = 0（DepthStencil0 与 SceneDepth_0 都是 0）。`b3394140` 的 RoomLightingRig 是 6000 次（10 个目标 × 600 帧）。没有放宽 N。
 - `tools/shadow-churn/test_skycity_landing_rt_pool.cjs`：1170×2532 的 depth + color 连续销毁/创建 40 帧，原生 create 停在 2，原生 destroy 为 0。探针先包在池外，再被 BEFORE_DRAW 把池装回最外层；探针 cre=2、des=0、uploads=2。同一张 64×64 采样贴图连续 10 帧，原生 create 停在 1。16×16 的 usage-none 贴图加一个空描述，40 帧原生 create 停在 2、destroy 为 0。同一张 view 连续 40 帧，原生 create 停在 1，探针 des=0；两张同时活着的 view 不是同一个对象。底图从 32 改到 40 且 view 有 `resize` 时，交回同一张 view，探针 cre 不增加。view 没有 `resize` 时，旧 view 销毁，新尺寸是一次原生 create。usage 22 的 1×1 与 1187×170 来回 40 帧，图像加 view 只各创建一次。300×158 再要 1367×175 也不再分配。16×8 的采样图宽在 16–20 之间变，有 `resize` 时原生 create 停在 1。1024×512 换成 1024×256 仍是两次原生 create（2 MB 不进 loose）。没有 `resize` 的 12×12 换成 13×12 也是两次。external 不进池。超过 48 MB 的附件真销毁。`Bloom0` 仍是 MANAGED，未具名的 MANAGED 顶点会被 pin。`find` 返回 null 的 device texture 会释放。
 - `tools/sync-probe/test_gpu_probe_src.cjs`：16×16 不产生 TEX 明细行。跨过 1 秒后，每秒行有 `smallN=2`，以及 `f35:…:v0:e0=1@16x16` 和 view 的 `v1` `@64x32`（宽高取自底图）。≥256KB 的 create/destroy 仍带 `src=`。
-- `tools/meadow/test_transition_shader_warm.cjs`：Mac 的形变 53/16/3、蒙皮、接收阴影、alpha-test、第二套 UV、unlit、`meadow-grass-wind` 都在键里，重复键合并。40 个变体每帧至多 1 kick + 1 compile，模型时间 ≤ 0.75 ms。运行时队列在管线宏仍是 PCF 0、阴影类型 1 时，把角色的 standard / forward-add / reflect 编成 PCF 2 + 阴影类型 2，每帧至多 1 次，编完把宏改回去，pass 的 defines 上不留下 PCF 2。按住的那一帧和随后的起航帧都是 0。`leaveHome` 仍然直接 `operate('standing')`，`animateCamera` 里没有 await，也没有 `holdTransitionShaders`。`mount:meadow-warm-rig` 的 `left-island` 字符串还在。meadow 目标会挂上副本，其它目标仍中止。
+- `tools/meadow/test_transition_shader_warm.cjs`：Mac 的形变 53/16/3、蒙皮、接收阴影、alpha-test、第二套 UV、unlit、`meadow-grass-wind` 都在键里。离线 40 个变体每帧至多 1 kick + 1 compile。运行时关键族每帧最多 3 个，在管线宏仍是 PCF 0 时编出 PCF 2 + `CC_SHADOW_TYPE` 2 的 standard / forward-add / pipeline / reflect。`pass._root.pipeline.macros` 这份隐藏袋也会被写成 2 再改回去。起航帧仍是 0。`leaveHome` 仍然直接 `operate('standing')`，`animateCamera` 里没有 await。meadow 目标会挂上副本。
 
 ## 包体增量
 
@@ -159,13 +166,13 @@ Mac 在 `186b34e7` 上量过探针包（`STRIP_PROBES=0`）：TOTAL 23,600,600�
 
 `2179dd99` 进包的是 `RoomLightingRig.ts`（相对 `606f434e` 的 50,822 为 58,419，未压缩 +7,597）。`CamTraceLog.ts` 的 +1,782 在 `QF_PROBE` 里，strip 后不进包。
 
-进包的是 `TransitionShaderWarm.ts`（本轮 17,306 字节；`a2168f38` 时是 12,011）和 `MeadowSailWarm.ts` 的 kick 导出（14,314 → 14,607，+293）。`WorldFlowComponent.ts`、`TransitionPreload.ts`、`SailPreload.ts`、`RegionJourneyAdapter.ts` 是挂钩。`WorldNativeComposition.ts` 只改了 meadow 目标的稳定回调。`.meta` 171 字节。海岸子包 0。相对 Mac `0421cfff` 探针包（TOTAL 23,604,997 / ROOT 1,874,614 / MAIN_SUB 2,454,710），未压缩脚本大约 +18,100 字节（12,600 再加上本轮预热文件约 5,300 和回调）。
+进包的是 `TransitionShaderWarm.ts`（本轮 21,235 字节；`b95d8555` 时是 17,306）和 `MeadowSailWarm.ts` 的 kick 导出。`WorldFlowComponent.ts` 多 watch 角色节点。其它挂钩和 meadow 回调没再改。海岸子包 0。相对 Mac `0421cfff` 探针包（TOTAL 23,604,997 / ROOT 1,874,614），未压缩脚本大约 +22,100 字节。`8571f6d1` 的包大约 23.62M。
 
 | 项 | 上界 |
 |---|---|
-| 相对 `0421cfff` 的进包源码 | 大约 +18,100 B（`TransitionShaderWarm.ts` 17,306 + 草甸 kick 293 + 挂钩和 meadow 回调）。探针脚本没改 |
-| 探针包 TOTAL（`STRIP_PROBES=0`） | ≤ 23,623,200（Mac `0421cfff` 已量 23,604,997，加上未压缩脚本约 18,100） |
-| 探针包 MAIN 根 | ≤ 1,892,800（1,874,614 + 18,100，增量若全在主包） |
+| 相对 `0421cfff` 的进包源码 | 大约 +22,100 B（`TransitionShaderWarm.ts` 21,235 + 草甸 kick + 挂钩）。探针脚本没改 |
+| 探针包 TOTAL（`STRIP_PROBES=0`） | ≤ 23,628,000（Mac `0421cfff` 已量 23,604,997，加上未压缩脚本约 22,100） |
+| 探针包 MAIN 根 | ≤ 1,896,800（1,874,614 + 22,100，增量若全在主包） |
 | 预算 | 总包 ≤ 24,641,536；主包 ≤ 4,000,000；海岸 ≤ 943,718 |
 
 绝对包体仍以 Mac 新构建为准。
@@ -180,7 +187,7 @@ Mac 在 `186b34e7` 上量过探针包（`STRIP_PROBES=0`）：TOTAL 23,600,600�
 
 ## 已测 / 未测
 
-已测：上面的离线门。`2179dd99` 的全套件是 369 项、368 PASS、0 FAIL，仅 navigation-guard BLOCKED_BROWSER。`a2168f38` 和 `b95d8555` 的全套件都是 370 项、369 PASS、0 FAIL，仍然只有 navigation-guard BLOCKED_BROWSER。草甸 warm-up C 和 `ced9972f` 包体已在 Mac 上通过。整合头 `0421cfff` 上落地从第 2 个样本起是 0/0/0，棋盘背景 zero 比例 1.0。整合头 `46e2c3ff` 这两道 RT 仍过（落地 0/0/0，棋盘背景 zero 比例 1.0），但 `world.animateCamera` frame 1839 是 613 ms / shaders=70。本轮的出航宏预热还没在 Mac 上复测。
+已测：上面的离线门。`2179dd99` 的全套件是 369 项、368 PASS、0 FAIL，仅 navigation-guard BLOCKED_BROWSER。`a2168f38`、`b95d8555` 和 `de045cb6` 的全套件都是 370 项、369 PASS、0 FAIL，仍然只有 navigation-guard BLOCKED_BROWSER。草甸 warm-up C 和 `ced9972f` 包体已在 Mac 上通过。整合头 `0421cfff` 上落地从第 2 个样本起是 0/0/0，棋盘背景 zero 比例 1.0。整合头 `8571f6d1` 这两道 RT 仍过（落地 0/0/0，棋盘背景 zero 比例 1.0），但 `world.animateCamera` frame 1826 是 611 ms / shaders=70，且 `pending=0` 出现在 spike 之前。本轮的关键族预热还没在 Mac 上复测。
 
 未在本机测：微信开发者工具、真机 GPU 探针、正式包。本轮没有上传。
 
@@ -188,12 +195,12 @@ Mac 在 `186b34e7` 上量过探针包（`STRIP_PROBES=0`）：TOTAL 23,600,600�
 
 同一条天空城自动播放（`?camTrace=1`，preTransition meadow→skycity，盖过 `skycity.landing-board` 和后面的 `skycity.board-background`）。构建用本交付头。通过标准：
 
-1. `world.animateCamera`（meadow→skycity，含家园出海）：没有 ≥100 ms 的 LONG。`46e2c3ff` 的 frame 1839（613 ms、shaders=70，带 `CC_DIR_SHADOW_PCF_TYPE2`）不应再出现。起航帧的 `createShader` 计数是 0。预热铺在更早的帧上，每帧至多一个，并且出航阴影宏（PCF 2 + `CC_SHADOW_TYPE` 2）在镜头之前就进了程序缓存。不要为了躲编译去加长或按住镜头。`mount:meadow-warm-rig` 在 `journey.target` 已经是 meadow 时不应再 `left-island`。
+1. meadow→skycity `world.animateCamera`：没有 ≥100 ms 的 LONG。`8571f6d1` 的 frame 1826（611 ms、70 个 `CC_DIR_SHADOW_PCF_TYPE2` 首次 createShader）不应再出现；那一帧上角色蒙皮/形变 53/16/3 和房间顶点色 standard/forward-add/reflect/pipeline 的 createShader 应是 0。不要为了躲编译去加长或按住镜头。`[QF_SHADER_WARM] pending=0` 出现在 spike 之前不算数，除非后面那一帧不再出现这 70 个名字。
 2. `skycity.landing-board` 从第 2 个样本起：cre 与 des 的中位数 ≤ 2/s，uploads 中位 ≤ 1/s。`0421cfff` 已是 0/0/0，这条不能退。
 3. `skycity.board-background`：zero 比例 ≥ 0.98。`0421cfff` 已是 1.0（n=55）。不能退。
 4. 落地 122 ms 和棋盘背景 101 ms（shaders=0，各一次）尽量接近 0。本轮没有改 RT 池，这两帧不是 shader 编译。
 5. 若 cre=des 已经是 0 但 uploads 仍高：那是标签像素的 copy，分开记，不挡 zero 比例。
-6. 重新打 trial 包。未压缩脚本相对 `0421cfff` 大约 +18,100 B。`46e2c3ff` 的包大约 23.61M，仍在预算内。总包、主包、海岸子包仍要落在预算内。
+6. 重新打 trial 包。未压缩脚本相对 `0421cfff` 大约 +22,100 B。`8571f6d1` 的包大约 23.62M，仍在预算内。总包、主包、海岸子包仍要落在预算内。
 
 磁盘 Avail 建议 ≥ 9 GiB 再开 Creator。第一次 `cli open` 若没有游戏目标，按 HANDOFF R1 关掉再开一次。
 

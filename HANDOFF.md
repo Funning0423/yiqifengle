@@ -54,7 +54,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 ## Evidence (box paths, not on GitHub)
 - simfail: /workspace/qifengle/test-reports/20261101_simfail-evidence/E-table.md, startedByCLI-grep.txt
 - meadow/lake: team/ggbot/outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md
-- Meadow warm-up C passed on Mac `ced9972f`. Integrate tip `0421cfff` passed landing from sample 2 at 0/0/0 and `skycity.board-background` zero fraction 1.0. Integrate tip `46e2c3ff` (`0421cfff` + `bdcb4b86` + cine/fx) kept those RT bars and still failed `world.animateCamera` frame 1839 at 613 ms / 70 shaders: the boot warm compiled morph 53/16/3 without `CC_DIR_SHADOW_PCF_TYPE2`, then the camera compiled that set with the macro. This tip compiles each pass one frame at a time under that departure macro pair and still mounts the meadow sail rig when `journey.target` is already meadow. The camera track is not awaited or held. See `docs/r5/b20-hotfix/INTEGRATE.md`. Do not upload.
+- Meadow warm-up C passed on Mac `ced9972f`. Integrate tips `0421cfff` / `46e2c3ff` / `8571f6d1` kept landing from2 0/0/0 and board-bg zero 1.0. `8571f6d1` still failed `world.animateCamera` frame 1826 at 611 ms / 70 shaders: warm logged pending=0 at ~132 compiles (wrong or incomplete set) and only reached 1213 after the spike. This tip forces PCF=2 and SHADOW_TYPE=2 on every pipeline bag `getProgramVariant` can read, queues the girl/room extra families, and compiles that critical subset up to 3 per frame from scene load. The camera track is not awaited or held. See `docs/r5/b20-hotfix/INTEGRATE.md`. Do not upload.
 
 ## Next steps 下一步
 1. R1 six-launch verification

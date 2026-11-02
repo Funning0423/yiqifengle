@@ -382,7 +382,7 @@ export class WorldFlowComponent extends Component {
   }
   bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok){this.herAdapter=adapter;this.armTransitionShaderWarm();}/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
   /** Spread character/island/meadow shader variants one per frame. Does not await, and does not hold animateCamera. */
-  private armTransitionShaderWarm():void{beginTransitionShaderWarm();const scene=director.getScene();if(scene)watchTransitionRoot(scene);if(this.ownedModel)watchTransitionRoot(this.ownedModel);}
+  private armTransitionShaderWarm():void{beginTransitionShaderWarm();const scene=director.getScene();if(scene)watchTransitionRoot(scene);if(this.ownedModel)watchTransitionRoot(this.ownedModel);const her=(this.herAdapter as any)&&((this.herAdapter as any).node||(this.herAdapter as any).root);if(her)watchTransitionRoot(her);}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
     token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);this.worldAmbient=ambient;ambient.clipUuids=REGIONS.island.ambientClipUuids!;this.ownedModel=model;this.node.addChild(model);
     try {
