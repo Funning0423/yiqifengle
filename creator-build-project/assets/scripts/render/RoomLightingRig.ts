@@ -598,16 +598,33 @@ export class RoomLightingRig {
  * destroyed and re-created EVERY frame while a shadow-casting main light is on (Mac: 112–116 creates/s, ~460 MB/s churn).
  * Fix without touching the engine: mark those resources PERSISTENT (residency !== MANAGED, so the executor keeps them). The executor
  * still re-creates a device texture when the descriptor size changes (createDeviceTex → checkTexture), so a shadow-size change is
- * honoured; same size, same format, same passes → no visual change. Scan is O(vertices) and only when the vertex count changes.
+ * honoured; same size, same format, same passes → no visual change.
+ * b20 skycity: the builtin forward pipeline (3.8.8) also registers, per window, MANAGED SceneDepth_<id> / Radiance*_<id> /
+ * LdrColor*_<id> / UiColor*_<id> (and BloomTex<id>_<i> when bloom is on). resourceUses is empty at _removeDeviceResource, so each
+ * of those is destroyed and created again every frame the world camera draws — the post-arrival DepthStencil / RT storm.
+ * A pin that runs only when the vertex count changes misses them (stable count) and misses a DepthStencil whose residency is put
+ * back to MANAGED. The scan is O(vertices) and runs every frame; dead windows are still released.
  */
 export const SHADOW_RESOURCE = /^(Spot)?Shadow(Map|Depth)\d+$/;
 /** r3 (fin r6 6fb9181b: DepthStencil893/896 1024² destroyed + re-created every frame while the result chest RenderTexture camera renders;
  *  same executor rule as the shadow maps): an off-screen window's DepthStencil<win> is MANAGED too (its Color<win> is the RenderTexture,
  *  external). Pinned like the shadow maps. Because every new RenderTexture gets a NEW window id (chest 893 → 896 → …), pinned textures of
- *  windows that no longer exist are released (releaseDeadWindows), so pinning never leaks. */
-export const PIN_RESOURCE = /^((Spot)?Shadow(Map|Depth)|DepthStencil)\d+$/;
-/** Per-window resources (trailing number = renderWindowId); SpotShadow* is per light, not per window. */
+ *  windows that no longer exist are released (releaseDeadWindows), so pinning never leaks.
+ *  b20: also the full-pipeline per-window targets (SceneDepth_, Radiance_, LdrColor_, UiColor_, BloomTex). */
+export const PIN_RESOURCE = /^(?:(?:Spot)?Shadow(?:Map|Depth)|DepthStencil|Msaa(?:Radiance|DepthStencil))\d+$|^(?:(?:Scaled)?(?:SceneDepth|Radiance\d+|LdrColor\d+|UiColor\d+))_\d+$|^BloomTex\d+_\d+$/;
+/** Per-window resources (captured number = renderWindowId); SpotShadow* is per light, not per window. */
 export const WINDOW_RESOURCE = /^(?:Shadow(?:Map|Depth)|DepthStencil)(\d+)$/;
+/** Window id of a pinned per-window resource, or null (SpotShadow* and anything we do not recognise). */
+export function windowIdOfPinned(name: string): number | null {
+  const s = String(name);
+  let m = /^(?:Shadow(?:Map|Depth)|DepthStencil|Msaa(?:Radiance|DepthStencil))(\d+)$/.exec(s);
+  if (m) return Number(m[1]);
+  m = /^(?:(?:Scaled)?(?:SceneDepth|Radiance\d+|LdrColor\d+|UiColor\d+))_(\d+)$/.exec(s);
+  if (m) return Number(m[1]);
+  m = /^BloomTex(\d+)_\d+$/.exec(s);
+  if (m) return Number(m[1]);
+  return null;
+}
 /** cc.rendering.ResourceResidency */
 export const RESIDENCY = Object.freeze({ MANAGED: 0, PERSISTENT: 2 });
 
@@ -644,7 +661,7 @@ export function releaseResized(rg: any, deviceTextures: any): number {
 export function releaseDeadWindows(deviceTextures: any, aliveIds: Set<number>): number {
   if (!deviceTextures || typeof deviceTextures.forEach !== 'function' || !aliveIds || !aliveIds.size) return 0;
   const drop: string[] = [];
-  deviceTextures.forEach((_res: any, name: string) => { const m = WINDOW_RESOURCE.exec(String(name)); if (m && !aliveIds.has(Number(m[1]))) drop.push(name); });
+  deviceTextures.forEach((_res: any, name: string) => { const id = windowIdOfPinned(String(name)); if (id !== null && !aliveIds.has(id)) drop.push(name); });
   for (const name of drop) { try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
   return drop.length;
 }
@@ -657,11 +674,13 @@ export function aliveWindowIds(root: any): Set<number> | null {
 const state = { installed: false, seen: -1, pinned: 0, resized: 0, dead: 0, winSig: -1 };
 export function shadowResidencyStats() { return { installed: state.installed, pinned: state.pinned, resized: state.resized, deadReleased: state.dead }; }
 
-/** Runs right before each render-graph execute (after windowResize + compile, so descriptors are final for this frame). */
+/** Runs right before each render-graph execute (after windowResize + compile, so descriptors are final for this frame).
+ *  Re-pins every frame: windowResize does not reset an existing vertex, but a once-only pin misses new MANAGED names at a
+ *  stable vertex count and any residency that is put back to MANAGED before execute. */
 export function shadowResidencyBeforeExecute(pipeline: any): void {
   const rg = pipeline?.resourceGraph; if (!rg) return;
   const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
-  if (n !== state.seen) { state.seen = n; state.pinned += pinShadowResidency(rg); }
+  state.seen = n; state.pinned += pinShadowResidency(rg);
   const dt = pipeline?._executor?._context?.deviceTextures;
   if (state.pinned) state.resized += releaseResized(rg, dt);
   if (state.pinned) { const sig = windowSig(root()); if (sig !== state.winSig) { state.winSig = sig; const ids = aliveWindowIds(root()); if (ids) state.dead += releaseDeadWindows(dt, ids); } }

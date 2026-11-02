@@ -89,7 +89,7 @@ export class SkycityCloudsea extends Component{
       seaOwners.add(this);
       if(!savedSeas.size){const sea=find(scene,'env_sea_surface');if(sea)savedSeas.set(sea,sea.active);}
       for(const sea of savedSeas.keys())if(isValid(sea,true))sea.active=false;
-      for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0)camera.far=Math.max(1200,camera.far);
+      for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0&&camera.far<1200)camera.far=1200;
     }
   };
   onEnable(){director.on(Director.EVENT_BEFORE_DRAW,this.sync);}
