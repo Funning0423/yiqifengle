@@ -82,3 +82,15 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 | ggbot/b20-sync-b23-r3 | 05c2d2ce |
 | ggbot/coast-sync-b23-r3 | 87ab6d0f |
 | ggbot/p0-shadow-churn-r3 | aa044e43 |
+
+---
+
+# Integrate tip — TransitionShaderWarm + cine + fx (stutter retest)
+
+- Tip: `ed7e6f5b64693f0062d541c32346d14ed8ca0654`
+- Branch: `gbt/r5-b20-integrate-landing-visual-bg2`
+- Base: `0421cfff` (RT board-bg2 + cine sea-landing + fx black-landing)
+- Merged: `bdcb4b86` / PR #65 TransitionShaderWarm (`a2168f38` + docs tip)
+- Conflict resolution: keep always `configureMeadowVertexColors` + add warm hooks
+- Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
+- Live trial stays `1.0.202611020627` until a later PASS upload
