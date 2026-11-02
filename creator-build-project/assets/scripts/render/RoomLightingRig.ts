@@ -868,6 +868,20 @@ function rtTake(key: string): any {
   }
   return null;
 }
+function rtViewSize(base: any): { w: number, h: number } | null {
+  if (!base || base.width == null || base.height == null) return null;
+  return { w: base.width | 0, h: base.height | 0 };
+}
+/** A pooled view copied the base size at create time. After Texture.resize the copy is wrong, so drop it. */
+function rtDropStaleViews(key: string, info: any): void {
+  const sz = rtViewSize(info && info.texture); if (!sz) return;
+  for (let i = rtViews.length - 1; i >= 0; i--) {
+    const v = rtViews[i];
+    if (!v || v.__qfRtDead || v.__qfRtKey !== key) continue;
+    if ((v.__qfRtBaseW | 0) === sz.w && (v.__qfRtBaseH | 0) === sz.h) continue;
+    rtViews.splice(i, 1); rtEvict(v);
+  }
+}
 function rtTakeView(key: string): any {
   for (let i = 0; i < rtViews.length; i++) {
     const t = rtViews[i];
@@ -897,10 +911,15 @@ export function ensureRtPool(device: any): boolean {
   const createTexture = function (this: any, info: any) {
     const viewKey = info && info.texture ? rtViewKey(info) : '';
     if (viewKey) {
+      rtDropStaleViews(viewKey, info);
       const hit = rtTakeView(viewKey);
       if (hit) { hit.__qfRtReuse = 1; hit.__qfRtHeld = false; armRt(hit, 'v'); return hit; }
       const view = inner.call(device, info);
-      if (view) { view.__qfRtKey = viewKey; view.__qfRtBase = info.texture.__qfRtId | 0; armRt(view, 'v'); }
+      if (view) {
+        view.__qfRtKey = viewKey; view.__qfRtBase = info.texture.__qfRtId | 0;
+        const sz = rtViewSize(info.texture); if (sz) { view.__qfRtBaseW = sz.w; view.__qfRtBaseH = sz.h; }
+        armRt(view, 'v');
+      }
       return view;
     }
     const key = rtPoolKey(info);

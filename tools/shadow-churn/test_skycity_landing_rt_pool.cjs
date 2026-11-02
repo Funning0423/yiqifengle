@@ -189,6 +189,14 @@ assert.equal(native() - nView, 1, 'one native view across ' + FRAMES + ' frames'
 assert.equal(destroyed() - dView, 0, 'view recycle is not a native destroy');
 assert.equal(G.creates - gView, 1, 'probe counts the view once');
 assert.equal(G.destroys - gdView, 0, 'probe does not count a view recycle');
+const nStale = native();
+base.resize(40, 32);
+const again = device.createTexture({ texture: base, type: 1, format: 35, baseLevel: 0, levelCount: 1 });
+assert.notStrictEqual(again, view, 'a view is not reused after the base size changes');
+assert.equal(view.dead, true, 'the stale view is destroyed');
+assert.equal(native() - nStale, 1, 'the new base size allocates one view');
+again.destroy();
+base.resize(32, 32);
 const liveA = device.createTexture({ texture: base, format: 35, baseLevel: 0, levelCount: 1 });
 const liveB = device.createTexture({ texture: base, format: 35, baseLevel: 0, levelCount: 1 });
 assert.notStrictEqual(liveA, liveB, 'two live views of one range do not alias');
