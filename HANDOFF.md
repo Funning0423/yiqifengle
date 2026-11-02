@@ -1,5 +1,12 @@
 # HANDOFF — 咦 起风了 (QIFENGLE) / release-b20
 
+## Mac LONG+RT integrate tip (2026-11-02 / Funning)
+
+- Integrate tip: `cbcad31a` = merge of ggbot tip `9cd4820a` / feature `04d62636` (Object.assign wrap + full spike bag) onto `gbt/r5-b20-integrate-landing-visual-bg2`.
+- Prior FAIL: `8e93c02b` animateCamera LONG 772ms / 70 shaders (pending=0 alone not enough).
+- Root cause fix: Pass.tryCompile/getShaderVariant keys via programLib.getProgramVariant after Object.assign(pipeline.macros); wrap so live programProxies get FOG4/cascaded/HDR/SHADOWMAP_*/PCF2/SHADOW_TYPE2; count cached only when shader name contains those tokens.
+- Mac retest: STRIP_PROBES=0 wechat-release, gates LONG+landing from2+board-bg; upload=no; live stays 1.0.202611020627.
+
 Release branch: `ggbot/release-b20` (= `ggbot/b20-meadow-ab` @ 93607a48 + this file). Suite on 93607a48: 365/366 PASS, the only miss is navigation-guard BLOCKED_BROWSER. journal-r6 (bc09aac1) was NOT merged: 13 conflicting files (JourneyPanels.ts, PreTransition*, run-suite.cjs, build-guard scripts, manifests...). It needs a separate merge.
 
 ## Build 构建
