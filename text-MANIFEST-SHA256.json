@@ -3771,8 +3771,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts",
-    "bytes": 12011,
-    "sha256": "e289fc59e1d6a3cf1d2431b4ef0f79cc6ce347d1eae70e2f3d695d76670e96dd"
+    "bytes": 17306,
+    "sha256": "fae1b4ac5ec8e19fbb364ef9d4ec8a6f69cf7193a68fe67bbadffb8862aa39f4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts.meta",
@@ -5016,8 +5016,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 58928,
-    "sha256": "0fefb9d734a54eb3c2d1cac54c80f33a2cd8aa9e7f644cdcf9558ee5ff706956"
+    "bytes": 59305,
+    "sha256": "4be8e7013a23a30625ccbaee8bac3d0426f012b7ace5e91b38b502a66e843b42"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",

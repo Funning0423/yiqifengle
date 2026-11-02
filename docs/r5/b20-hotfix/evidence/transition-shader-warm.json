@@ -5,23 +5,30 @@
       "ms": 606,
       "shaders": 70
     },
-    "animateCamera1938": {
-      "ms": 149,
-      "shaders": 31
+    "animateCamera1839": {
+      "ms": 613,
+      "shaders": 70,
+      "tip": "46e2c3ff"
     }
   },
   "budgetMs": 4,
-  "variants": 7,
+  "variants": 9,
   "morphCounts": [
     53,
     16,
     3
   ],
+  "departureMacros": [
+    "CC_DIR_SHADOW_PCF_TYPE=2",
+    "CC_SHADOW_TYPE=2"
+  ],
   "maxKicksPerFrame": 1,
   "maxCompilesPerFrame": 1,
+  "runtimeCompilesPerFrame": 1,
   "maxFrameMs": 0.75,
   "sailSkips": 1,
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
-  "note": "Offline schedule. device.createShader of the Mac variants happens one per frame from scene load. animateCamera is not awaited and the stepper is not held for the shot."
+  "meadowTargetMounts": true,
+  "note": "Offline schedule. Boot pipeline macros stay at PCF 0 / shadow type 1. Each pass is also compiled once under CC_DIR_SHADOW_PCF_TYPE=2 and CC_SHADOW_TYPE=2, one variant per frame, then those macros are restored. animateCamera is not awaited and the stepper is not held."
 }
