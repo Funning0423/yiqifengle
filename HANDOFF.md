@@ -54,7 +54,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 ## Evidence (box paths, not on GitHub)
 - simfail: /workspace/qifengle/test-reports/20261101_simfail-evidence/E-table.md, startedByCLI-grep.txt
 - meadow/lake: team/ggbot/outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md
-- Meadow warm-up C passed on Mac `ced9972f`. Integrate tips `0421cfff` / `46e2c3ff` / `8571f6d1` kept landing from2 0/0/0 and board-bg zero 1.0. `8571f6d1` still failed `world.animateCamera` frame 1826 at 611 ms / 70 shaders: warm logged pending=0 at ~132 compiles (wrong or incomplete set) and only reached 1213 after the spike. This tip forces PCF=2 and SHADOW_TYPE=2 on every pipeline bag `getProgramVariant` can read, queues the girl/room extra families, and compiles that critical subset up to 3 per frame from scene load. The camera track is not awaited or held. See `docs/r5/b20-hotfix/INTEGRATE.md`. Do not upload.
+- Meadow warm-up C passed on Mac `ced9972f`. Integrate tips through `8e93c02b` kept landing from2 0/0/0 and board-bg zero 1.0. `8e93c02b` still failed `world.animateCamera` frame 1803 at 772 ms / 70 shaders after warm logged compiled=764 pending=0 criticalPending=0. That counter was a queue empty, not a live-cache hit: `getProgramVariant` Object.assign's pipeline.macros and keys the draw cache. This tip wraps Object.assign during compile so those defines get the full spike bag (FOG4 / cascaded / HDR / SHADOWMAP_FORMAT / LINEAR_DEPTH / PCF2 / SHADOW_TYPE2). criticalPending stays up until those createShader names are cached. The camera track is not awaited or held. See `docs/r5/b20-hotfix/LIVE-CACHE.md`. Do not upload.
 
 ## Next steps 下一步
 1. R1 six-launch verification

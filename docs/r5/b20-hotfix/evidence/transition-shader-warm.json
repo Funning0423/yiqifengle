@@ -1,10 +1,10 @@
 {
   "model": "transition-shader-warm",
   "macFrames": {
-    "animateCamera1826": {
-      "ms": 611,
+    "animateCamera1803": {
+      "ms": 772,
       "shaders": 70,
-      "tip": "8571f6d1"
+      "tip": "8e93c02b"
     }
   },
   "budgetMs": 4,
@@ -26,11 +26,11 @@
   ],
   "maxKicksPerFrame": 1,
   "maxCompilesPerFrame": 1,
-  "runtimeCompilesPerFrame": 6,
+  "runtimeCompilesPerFrame": 4,
   "maxFrameMs": 0.75,
   "sailSkips": 1,
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Critical girl/room PCF2 families (standard, forward-add, pipeline, reflect) compile up to 3 per frame from scene load. getProgramVariant reads programLib.pipeline.macros; the warm writes PCF=2 and SHADOW_TYPE=2 on every pipeline bag including pass._root, then restores. animateCamera is not awaited and the stepper is not held."
+  "note": "criticalPending is 0 only when the live program cache has the Mac createShader names (FOG4/cascaded/HDR/SHADOWMAP_FORMAT/LINEAR_DEPTH/PCF2/SHADOW_TYPE2 plus morph/skin/vertex-color/forward-add/reflect/pipeline). Object.assign is wrapped during compile so getProgramVariant keys that bag. Uncached critical jobs keep compiling. animateCamera is not awaited and the stepper is not held."
 }

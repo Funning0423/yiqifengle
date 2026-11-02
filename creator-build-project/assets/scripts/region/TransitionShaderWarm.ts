@@ -1,19 +1,33 @@
 import {Node,director,isValid} from 'cc';
 import * as ccmod from 'cc';
 import {MEADOW_WARM_BUDGET_MS,kickCompiledPass,meadowWarmPlan} from './MeadowSailWarm';
-/** b20: Mac 8571f6d1 world.animateCamera frame 1826 still compiled 70 PCF2 variants in 611 ms after the previous
- *  tip logged pending=0 at ~132 compiles. Those 132 were the boot set (or a silent miss): getProgramVariant copies
- *  programLib.pipeline.macros over pass defines, so a patch cannot force CC_DIR_SHADOW_PCF_TYPE2, and a lib lookup
- *  that misses cc.rendering leaves the live 0 in the key. This forces those two macros on every pipeline bag we can
- *  reach (including pass._root and cc.rendering.programLib), writes them onto the pass defines for that call, and
- *  also queues the spike's extra families (forward-add, CC_PIPELINE_TYPE, reflect-map) for the girl and room
- *  vertex-color standards. Critical jobs compile up to CRITICAL_PER_FRAME times a frame from scene load. The camera
- *  track is not awaited and not held. */
+/** b20: Mac 8e93c02b world.animateCamera frame 1803 still compiled 70 PCF2 variants in 772 ms after the previous
+ *  tip logged compiled=764 pending=0 criticalPending=0. That counter only meant the queue was empty. Pass.tryCompile
+ *  / getShaderVariant call cclegacy.rendering.programLib.getProgramVariant, which Object.assign's pipeline.macros
+ *  over the pass defines and then keys the live cache. A write to some other macros bag, or a name-swapped
+ *  getProgramVariant on the wrong phase, does not create the GPU shader the draw path will request. This wraps
+ *  Object.assign for the duration of the compile so the same defines object the library keys from gets the full
+ *  spike pipeline bag (FOG4 / cascaded / HDR / SHADOWMAP_FORMAT / LINEAR_DEPTH / PCF2 / SHADOW_TYPE2). A job is
+ *  cached only when the returned shader name carries those tokens. Uncached critical jobs keep compiling. Real
+ *  material passes are compiled; the camera is not awaited or held. */
 export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3];
-/** Exact pipeline macros on the meadow→skycity animateCamera spike. 0 is omitted from the program key, so a boot compile at HARD/none does not hit SOFT_2X. */
+/** Exact pipeline macros on every Mac createShader name at meadow→skycity animateCamera frame 1803.
+ *  0 is omitted from the program key, so a boot compile that only writes PCF still misses SHADOWMAP_FORMAT / LINEAR_DEPTH. */
 export const DEPARTURE_SHADOW_MACROS:readonly {name:string;value:number}[]=[
+ {name:'CC_USE_FOG',value:4},
+ {name:'CC_SUPPORT_CASCADED_SHADOW_MAP',value:1},
+ {name:'CC_USE_HDR',value:1},
+ {name:'CC_SHADOWMAP_FORMAT',value:1},
+ {name:'CC_SHADOWMAP_USE_LINEAR_DEPTH',value:1},
  {name:'CC_DIR_SHADOW_PCF_TYPE',value:2},
  {name:'CC_SHADOW_TYPE',value:2},
+];
+/** Substrings on the Mac createShader names. criticalPending stays up until each has been seen on a cached shader. */
+export const SPIKE_NAME_NEEDLES:readonly string[]=[
+ 'CC_DIR_SHADOW_PCF_TYPE2','CC_SHADOW_TYPE2','CC_SHADOWMAP_FORMAT1','CC_SHADOWMAP_USE_LINEAR_DEPTH1',
+ 'CC_SUPPORT_CASCADED_SHADOW_MAP1','CC_USE_HDR1','CC_USE_FOG4',
+ 'CC_MORPH_TARGET_COUNT53','CC_MORPH_TARGET_COUNT16','CC_MORPH_TARGET_COUNT3',
+ 'CC_USE_SKINNING1','CC_RECEIVE_SHADOW1','USE_VERTEX_COLOR1','CC_FORWARD_ADD1','reflect-map-fs','CC_PIPELINE_TYPE1',
 ];
 const SEEN_CAP=4000;
 const SCAN_EVERY=10;
@@ -25,6 +39,27 @@ export function reflectProgramName(name:string):string{
  if(!name||name.indexOf('standard-fs')<0)return '';
  return name.replace('standard-fs','reflect-map-fs');
 }
+export function shaderShowsDeparture(name:string):boolean{
+ if(!name)return false;
+ return name.indexOf('CC_DIR_SHADOW_PCF_TYPE2')>=0&&name.indexOf('CC_SHADOW_TYPE2')>=0
+  &&name.indexOf('CC_SHADOWMAP_FORMAT1')>=0&&name.indexOf('CC_SHADOWMAP_USE_LINEAR_DEPTH1')>=0
+  &&name.indexOf('CC_SUPPORT_CASCADED_SHADOW_MAP1')>=0;}
+export function nameFromDefines(program:string,defines:Record<string,unknown>|null):string{
+ const parts:string[]=[program||''],src=defines||{},keys=Object.keys(src);
+ for(let i=0;i<keys.length;i++){const v=src[keys[i]];if(v===0||v===false||v==='0'||v===undefined)continue;
+  parts.push(keys[i]+(v===true||v===1?'1':String(v)));}
+ return parts.join('|');}
+/** getProgramVariant does Object.assign(defines, pipeline.macros) and then keys the live cache. Force the
+ *  full spike pipeline bag onto that same target after the copy, then restore Object.assign. */
+export function withAssignDeparture<T>(run:()=>T):T{
+ const oa=Object.assign;
+ const wrapped=function(target:any){const out=oa.apply(this,arguments);
+  if(out&&typeof out==='object'){let hit=false;for(let i=1;i<arguments.length;i++){const s=arguments[i];
+   if(s&&typeof s==='object'&&(s.CC_DIR_SHADOW_PCF_TYPE!==undefined||s.CC_SHADOW_TYPE!==undefined||s.CC_USE_HDR!==undefined||s.CC_USE_FOG!==undefined||s.CC_SUPPORT_CASCADED_SHADOW_MAP!==undefined||s.CC_SHADOWMAP_FORMAT!==undefined||s.CC_SHADOWMAP_USE_LINEAR_DEPTH!==undefined)){hit=true;break;}}
+   if(hit)for(let m=0;m<DEPARTURE_SHADOW_MACROS.length;m++)out[DEPARTURE_SHADOW_MACROS[m].name]=DEPARTURE_SHADOW_MACROS[m].value;}
+  return out;};
+ Object.assign=wrapped as typeof Object.assign;
+ try{return run();}finally{Object.assign=oa;}}
 export function withDepartureMacros<T>(macros:Record<string,unknown>|null,run:()=>T):T{
  if(!macros)return run();
  const saved:{name:string;had:boolean;value:unknown}[]=[];
@@ -44,7 +79,7 @@ function macroStamp():string{
   for(let i=0;i<comps.length;i++){const c=comps[i];if(c&&typeof c.shadowEnabled==='boolean')light=(c.shadowEnabled?'1':'0')+':'+String(c.shadowPcf);}
   return String(sh.type)+'/'+(sh.enabled?'1':'0')+'/'+light;}catch{return 'none';}}
 type Patch={name:string;value:boolean|number};
-type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean;depart:boolean;critical:boolean;program:string};
+type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean;depart:boolean;critical:boolean;program:string;cached:boolean;tries:number};
 export type TransitionWarmStats={frames:number;sailSkips:number;kicked:number;compiled:number;pending:number;criticalPending:number;maxFrameMs:number;done:boolean};
 export function isCriticalWarm(hot:boolean,defines:Record<string,unknown>|null,effect:string,passName:string):boolean{
  if(hot)return true;const d=defines||{};if(d.USE_VERTEX_COLOR)return true;
@@ -114,7 +149,7 @@ export function stageTransitionWarm(items:{key:string}[],hooks:{kick(key:string)
    if(plan.kicks&&kicked<items.length){hooks.kick(items[kicked].key);kicked++;}},
   stats:()=>({frames,sailSkips,kicked,compiled,pending:items.length-compiled,criticalPending:0,maxFrameMs,done:compiled>=items.length}),
   dispose(){dead=true;}};}
-const roots:Node[]=[];const jobs:Item[]=[];const seen:string[]=[];
+const roots:Node[]=[];const jobs:Item[]=[];const seen:string[]=[];const cachedNames:string[]=[];
 let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,held=false,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
 function remember(node:Node|null):void{if(!node||!isValid(node,true))return;if(roots.indexOf(node)>=0)return;roots.push(node);scanIn=0;}
 function pipelineOf(obj:any):any{return obj&&(obj.pipeline||obj._pipeline)||null;}
@@ -165,29 +200,43 @@ function restoreOwn(dst:any,snap:Record<string,unknown>|null):void{
 function writeDefines(d:any,patches:Patch[]|null):void{
  if(!d)return;if(patches)for(let i=0;i<patches.length;i++)d[patches[i].name]=patches[i].value;
  for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++)d[DEPARTURE_SHADOW_MACROS[i].name]=DEPARTURE_SHADOW_MACROS[i].value;}
+function shaderNameOf(sh:any):string{return String(sh&&(sh.name||sh._name||(sh.shader&&(sh.shader.name||sh.shader._name)))||'');}
+function rememberName(name:string):void{if(!name||cachedNames.indexOf(name)>=0)return;cachedNames.push(name);}
+function needlesMissing():number{let n=0;for(let i=0;i<SPIKE_NAME_NEEDLES.length;i++){const need=SPIKE_NAME_NEEDLES[i];let hit=false;
+ for(let k=0;k<cachedNames.length;k++)if(cachedNames[k].indexOf(need)>=0){hit=true;break;}if(!hit)n++;}return n;}
+function markCached(item:Item,name:string):void{
+ if(!shaderShowsDeparture(name))return;item.cached=true;rememberName(name);}
 function compileLive(item:Item):void{
  const pass=item.pass,patches=item.patches;
  if(!pass||typeof pass.getShaderVariant!=='function'){if(pass&&typeof pass.tryCompile==='function'){try{pass.tryCompile();}catch{/* miss */}}return;}
  try{pass.getShaderVariant(patches&&patches.length?patches:null);}catch{const d=pass.defines||pass._defines;if(d&&patches)for(let i=0;i<patches.length;i++){try{delete d[patches[i].name];}catch{/* leave */}}}}
-function compileViaLib(item:Item,name:string):void{
- const pass=item.pass,lib=programLib(pass);if(!lib||!name)return;
+function compileViaLib(item:Item,name:string):string{
+ const pass=item.pass,lib=programLib(pass);if(!lib||!name)return '';
  const phase=pass.phaseID!==undefined?pass.phaseID:pass._phaseID,device=pass.device||pass._device||((director as any).root&&(director as any).root.device);
- if(device==null||typeof phase!=='number'||phase===INVALID_PHASE)return;
+ if(device==null||typeof phase!=='number'||phase===INVALID_PHASE)return '';
  const defines=defineCopy(pass,item.patches);
- try{lib.getProgramVariant(device,phase,name,defines);}catch{/* miss */}}
+ try{const prog=lib.getProgramVariant(device,phase,name,defines);if(!prog)return '';return shaderNameOf(prog)||nameFromDefines(name,defines);}catch{return '';}}
+function departurePatches(item:Item):Patch[]{
+ const extra:Patch[]=[];for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++)extra.push({name:DEPARTURE_SHADOW_MACROS[i].name,value:DEPARTURE_SHADOW_MACROS[i].value});
+ return item.patches&&item.patches.length?mergePatches(item.patches,extra):extra;}
 function compileDeparture(item:Item):void{
  const pass=item.pass;if(!pass)return;
  const restore=forceDeparturePipes(pass),d=pass.defines||pass._defines,snap=snapshotOwn(d),shader=pass._shader;
- writeDefines(d,item.patches);
- try{compileLive(item);const name=item.program||pass.program||pass._programName;compileViaLib(item,name);
-  const alt=reflectProgramName(String(name||''));if(alt&&alt!==name)compileViaLib(item,alt);}
- finally{restoreOwn(d,snap);if(shader!==undefined)pass._shader=shader;else if(pass._shader)pass._shader=shader;restore();}}
+ withAssignDeparture(()=>{
+  writeDefines(d,item.patches);pass._shader=null;
+  try{const patches=departurePatches(item);let got='';
+   if(typeof pass.getShaderVariant==='function'){try{got=shaderNameOf(pass.getShaderVariant(patches));}catch{/* miss */}}
+   if(!shaderShowsDeparture(got)&&typeof pass.tryCompile==='function'){try{pass.tryCompile();got=shaderNameOf(pass._shader);}catch{/* miss */}}
+   const name=item.program||pass.program||pass._programName||pass.programName;const via=compileViaLib(item,String(name||''));
+   if(shaderShowsDeparture(via))got=via;
+   markCached(item,got);}
+  finally{restoreOwn(d,snap);pass._shader=shader;restore();}});}
 function compileItem(item:Item):void{if(item.depart)compileDeparture(item);else compileLive(item);}
 function enqueueAt(item:Item,front:boolean):void{
  if(seen.indexOf(item.key)>=0||seen.length>=SEEN_CAP)return;seen.push(item.key);
  if(!front){jobs.push(item);return;}
  const rest=jobs.splice(kicked);jobs.push(item);for(let i=0;i<rest.length;i++)jobs.push(rest[i]);}
-function criticalPending():number{let n=0;for(let i=compiled;i<jobs.length;i++)if(jobs[i].critical)n++;return n;}
+function criticalPending():number{let n=needlesMissing();for(let i=0;i<jobs.length;i++)if(jobs[i].critical&&!jobs[i].cached)n++;return n;}
 function absorb():void{
  for(let r=roots.length-1;r>=0;r--){const root=roots[r];if(!isValid(root,true)){roots.splice(r,1);continue;}
   const crit:Item[]=[],depart:Item[]=[],hot:Item[]=[],cold:Item[]=[];
@@ -195,7 +244,7 @@ function absorb():void{
    const patches=mergePatches(mergePatches(livePatches(renderer,sub),synthPatches(renderer,sub,force)),extra?extra as Patch[]:[]);
    const base=transitionPassKey(effectOf(mat),program||passName(pass,index),pass&&pass.defines||null,patches);
    const hotFlag=isHot(renderer,sub),critical=departFlag&&isCriticalWarm(hotFlag,pass&&pass.defines||null,effectOf(mat),program||passName(pass,index));
-   const item:Item={key:(departFlag?'depart~':'live~')+tag+base,pass,patches:patches.length?patches:null,hot:hotFlag,depart:departFlag,critical,program};
+   const item:Item={key:(departFlag?'depart~':'live~')+tag+base,pass,patches:patches.length?patches:null,hot:hotFlag,depart:departFlag,critical,program,cached:false,tries:0};
    if(critical)crit.push(item);else if(departFlag)depart.push(item);else if(hotFlag)hot.push(item);else cold.push(item);};
   const families=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean)=>{
    take(renderer,mat,pass,index,sub,force,false,null,'','');
@@ -224,15 +273,19 @@ function absorb():void{
 function onFrame():void{
  frames++;if(held)return;if(skipNext){skipNext=false;sailSkips++;return;}
  if(scanIn<=0){absorb();scanIn=criticalPending()?0:SCAN_EVERY;}else scanIn--;
- if(compiled>=jobs.length){if(jobs.length&&!logged){logged=true;try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending:0,criticalPending:0}));}catch{/* log only */}}return;}
+ const pending=Math.max(0,jobs.length-compiled),crit=criticalPending();
+ if(compiled>=jobs.length&&!crit){if(jobs.length&&!logged){logged=true;try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending:0,criticalPending:0,cached:cachedNames.length}));}catch{/* log only */}}return;}
  logged=false;const plan=meadowWarmPlan(jobs.length-kicked,kicked-compiled);if(plan.ms>maxFrameMs)maxFrameMs=plan.ms;
  let filled=0;
  if(plan.compiles&&compiled<kicked){compileItem(jobs[compiled]);compiled++;filled++;}
- while(filled<CRITICAL_PER_FRAME&&kicked<jobs.length&&jobs[kicked].critical){compileItem(jobs[kicked]);kicked++;compiled++;filled++;}
+ while(filled<CRITICAL_PER_FRAME&&kicked<jobs.length&&jobs[kicked].critical){const item=jobs[kicked];compileItem(item);item.tries++;
+  if(item.cached||item.tries>12){kicked++;compiled++;}filled++;}
  if(kicked<jobs.length&&!jobs[kicked].critical){const item=jobs[kicked];
   if(kickCompiledPass(item.pass))kicked++;
   else if(!filled){compileItem(item);kicked++;compiled++;}
-  else kicked++;}}
+  else kicked++;}
+ if(crit&&filled<CRITICAL_PER_FRAME){for(let i=0;i<jobs.length&&filled<CRITICAL_PER_FRAME;i++){if(!jobs[i].critical||jobs[i].cached)continue;compileItem(jobs[i]);jobs[i].tries++;filled++;}}
+ if(crit&&frames%60===0){try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending,criticalPending:crit,cached:cachedNames.length}));}catch{/* log only */}}}
 /** Idempotent. No frame clock → the sail path stays as it is. Never blocks the caller. */
 export function beginTransitionShaderWarm():void{
  if(listening)return;const d:any=director;if(!d||typeof d.on!=='function'||typeof d.off!=='function')return;listening=true;
@@ -240,7 +293,8 @@ export function beginTransitionShaderWarm():void{
 export function watchTransitionRoot(node:Node|null):void{beginTransitionShaderWarm();remember(node);absorb();}
 /** The next warm step (sail set-off) kicks and compiles nothing. */
 export function noteTransitionSailFrame():void{skipNext=true;}
-export function transitionWarmStats():TransitionWarmStats{return {frames,sailSkips,kicked,compiled,pending:Math.max(0,jobs.length-compiled),criticalPending:criticalPending(),maxFrameMs,done:jobs.length>0&&compiled>=jobs.length};}
+export function transitionWarmStats():TransitionWarmStats{return {frames,sailSkips,kicked,compiled,pending:Math.max(0,jobs.length-compiled),criticalPending:criticalPending(),maxFrameMs,done:jobs.length>0&&compiled>=jobs.length&&criticalPending()===0};}
 /** Test hook. Production does not call this from the camera. */
 export function holdTransitionShaders(on:boolean):void{held=on;}
-export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;held=false;scanIn=0;listening=false;logged=false;}
+export function cachedWarmNames():string[]{const out:string[]=[];for(let i=0;i<cachedNames.length;i++)out.push(cachedNames[i]);return out;}
+export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;held=false;scanIn=0;listening=false;logged=false;}
