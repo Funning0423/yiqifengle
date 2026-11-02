@@ -12,7 +12,7 @@
   - `2179dd9953b6db16ef08b861a3c9308ef6a564e6` 棋盘标签条（约 1 MB 以内）同族 `resize`，view 跟着底图改尺寸而不是新建
   - `a2168f383e351276ce794cd23ccd1e424c5f7a10` 转场 `world.animateCamera` 的首次 shader 按草甸 C 的节奏提前编译，镜头不等待
   - `b95d85556fe9bd11208b07ec961f97cf3473f632` 出航阴影宏（`CC_DIR_SHADOW_PCF_TYPE=2`、`CC_SHADOW_TYPE=2`）提前一帧一个编译，meadow 目标仍挂帆船预热
-  - 本轮：角色蒙皮/形变和房间顶点色的 PCF2 族（含 forward-add / pipeline / reflect）在 `animateCamera` 之前编完，镜头仍不等待
+  - `de045cb6ddb4efe5dff021d8502f0e38263d496e` 角色蒙皮/形变和房间顶点色的 PCF2 族（含 forward-add / pipeline / reflect）在 `animateCamera` 之前编完，镜头仍不等待（本轮）
 - 交付头：本文件所在提交。完整 SHA 用 `git rev-parse HEAD`。
 - 没有跑微信上传，也没有跑 `cli upload`。
 
@@ -148,6 +148,8 @@ node tools/journey-integration/run-suite.cjs
 
 `b95d85556fe9bd11208b07ec961f97cf3473f632` 再跑了一次：仍是 370 项，369 PASS，0 FAIL，唯一 BLOCKED 是 `navigation-guard`（BLOCKED_BROWSER），退出码 1。启动 2026-11-02T14:08:36Z。
 
+`de045cb6ddb4efe5dff021d8502f0e38263d496e` 再跑了一次：仍是 370 项，369 PASS，0 FAIL，唯一 BLOCKED 是 `navigation-guard`（BLOCKED_BROWSER），退出码 1。启动 2026-11-02T15:44:58Z。`transition-shader-warm` 过了。
+
 单门：
 
 - `tools/meadow/test_meadow_sail_warm.cjs`：69 个变体，未修复出航帧 1601 ms；修复后每帧至多 1 kick + 1 compile，模型时间 ≤ 0.75 ms；第 5 帧提前起航的那一帧 0 kick、0 compile；全部编译次数仍是 69。
@@ -185,7 +187,7 @@ Mac 在 `186b34e7` 上量过探针包（`STRIP_PROBES=0`）：TOTAL 23,600,600�
 
 ## 已测 / 未测
 
-已测：上面的离线门。`2179dd99` 的全套件是 369 项、368 PASS、0 FAIL，仅 navigation-guard BLOCKED_BROWSER。`a2168f38` 和 `b95d8555` 的全套件都是 370 项、369 PASS、0 FAIL，仍然只有 navigation-guard BLOCKED_BROWSER。草甸 warm-up C 和 `ced9972f` 包体已在 Mac 上通过。整合头 `0421cfff` 上落地从第 2 个样本起是 0/0/0，棋盘背景 zero 比例 1.0。整合头 `46e2c3ff` 这两道 RT 仍过（落地 0/0/0，棋盘背景 zero 比例 1.0），但 `world.animateCamera` frame 1839 是 613 ms / shaders=70。本轮的出航宏预热还没在 Mac 上复测。
+已测：上面的离线门。`2179dd99` 的全套件是 369 项、368 PASS、0 FAIL，仅 navigation-guard BLOCKED_BROWSER。`a2168f38`、`b95d8555` 和 `de045cb6` 的全套件都是 370 项、369 PASS、0 FAIL，仍然只有 navigation-guard BLOCKED_BROWSER。草甸 warm-up C 和 `ced9972f` 包体已在 Mac 上通过。整合头 `0421cfff` 上落地从第 2 个样本起是 0/0/0，棋盘背景 zero 比例 1.0。整合头 `8571f6d1` 这两道 RT 仍过（落地 0/0/0，棋盘背景 zero 比例 1.0），但 `world.animateCamera` frame 1826 是 611 ms / shaders=70，且 `pending=0` 出现在 spike 之前。本轮的关键族预热还没在 Mac 上复测。
 
 未在本机测：微信开发者工具、真机 GPU 探针、正式包。本轮没有上传。
 
