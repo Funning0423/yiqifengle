@@ -232,4 +232,4 @@ Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `b4c86cb0d
 ## paint-split / armHold / board-prime tip (post-e1974767)
 
 - feature `508b5a18703af3b9b8f11c1d72b300434d9ac11c`：paint/setCamera 拆帧 + armTransitionHold B5→board + primeScene board-cam warm draw + reveal≠present 同帧。验收：过渡窗口 setCamera/board-bg LONG 均 <100ms；不上传微信。
-- Integrate: feature merge (+ cine `K.s1` kept) → this tip record → text-MANIFEST rehash. Final tip SHA = `git rev-parse HEAD` after this note.
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `82c8220` (+ cine `K.s1` kept) → tip record `cd2333f` → manifest `cc7e3a6`. Final tip SHA = `git rev-parse HEAD` after this note.
