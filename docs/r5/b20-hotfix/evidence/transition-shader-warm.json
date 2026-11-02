@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac e32f04bf: hold warm for flight/B5 + board reveal (refcount); primeScene activates skycity GLB early; expand noteTransitionHeavyFrames. LONGs are main-thread not first-compile. Cameras not awaited; RT/fidelity untouched."
+  "note": "Mac e1974767: split paint/setCamera on threshold frames; absorb-while-held on quiet bridge; armTransitionHold B5→board; primeScene warm-draws board cam; reveal≠presentForPlay same frame. Target LONG<100. RT untouched."
 }

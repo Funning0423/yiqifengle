@@ -1,4 +1,4 @@
-import {bgCamWant} from './BgCamGate';
+import {bgCamWant,bgCamWarmOn} from './BgCamGate';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {Camera,Color,Node,Prefab,SphereLight,director,isValid} from 'cc';
 import {REGIONS,loadRegionPrefab,mountRegion} from './RegionLoader';
@@ -30,10 +30,11 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async({parent,t
   const armHold=(n:number)=>{try{holdTransitionShaders(true);noteTransitionHeavyFrames(n);holdLeft=Math.max(holdLeft,n|0);if(!holdOff){const tick=()=>{if(holdLeft>0)holdLeft--;if(holdLeft<=0){const f=holdOff;holdOff=null;try{director.off('director_after_draw' as any,tick);}catch{}try{holdTransitionShaders(false);}catch{}try{f&&f();}catch{}}};holdOff=()=>{try{director.off('director_after_draw' as any,tick);}catch{};holdOff=null;};try{director.on('director_after_draw' as any,tick);}catch{holdOff=null;holdTransitionShaders(false);}};}catch{/* warm optional */}};
   return {
    setFade:a=>{if(!dead)fade(a);},
-   /** Activate the skycity GLB early (camera still off) so reveal/board-bg first frame is not the first node enable. */
-   primeScene:()=>{if(dead||primed||visible||!rig||!isValid(rig,true))return;primed=true;armHold(10);rig.active=true;ambient?.setHostPaused(true);},
-   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('skycity-background-layout-missing');try{if(visible)noteTransitionHeavyFrames(3);}catch{/* warm optional */}const av=a.worldPosition,bv=b.worldPosition,pose=skycityVisitPose([av.x,av.y,av.z],[bv.x,bv.y,bv.z],layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'skycity.board-background'))throw Error('skycity-background-camera-rejected');},
-   setVisible:value=>{if(dead)return;if(value){armHold(12);primed=true;}visible=value;rig!.active=value;bgCamWant(camera!,value);ambient?.setHostPaused(paused||!visible);},
+   /** Activate GLB early and force 2 board-cam draws so uploads leave the reveal/board-bg window. */
+   primeScene:()=>{if(dead||primed||visible||!rig||!isValid(rig,true))return;primed=true;armHold(16);try{armTransitionHold(16);}catch{/* warm optional */}rig.active=true;ambient?.setHostPaused(true);
+    if(camera&&isValid(camera,true)){try{const av=a.worldPosition,bv=b.worldPosition,pose=skycityVisitPose([av.x,av.y,av.z],[bv.x,bv.y,bv.z],9/16);applyCameraPose(camera,fromLookAt(pose),'skycity.board-background');bgCamWarmOn(camera);let left=2;const tick=()=>{if(--left>0)return;try{director.off('director_after_draw' as any,tick);}catch{}if(!visible&&camera&&isValid(camera,true)){camera.enabled=false;bgCamWant(camera,false);}};try{director.on('director_after_draw' as any,tick);}catch{if(!visible&&camera&&isValid(camera,true)){camera.enabled=false;bgCamWant(camera,false);}}}catch{/* prime draw optional */}}},
+   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('skycity-background-layout-missing');try{if(visible)noteTransitionHeavyFrames(6);}catch{/* warm optional */}const av=a.worldPosition,bv=b.worldPosition,pose=skycityVisitPose([av.x,av.y,av.z],[bv.x,bv.y,bv.z],layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'skycity.board-background'))throw Error('skycity-background-camera-rejected');},
+   setVisible:value=>{if(dead)return;if(value){armHold(24);try{armTransitionHold(24);}catch{/* warm optional */}primed=true;}visible=value;rig!.active=value;bgCamWant(camera!,value);ambient?.setHostPaused(paused||!visible);},
    setPaused:value=>{if(dead)return;paused=value;ambient?.setHostPaused(paused||!visible);},
    diagnostics:()=>({renderer:'region-live-3d',region:'skycity',bundle:REGIONS.skycity.bundle,visible,paused,primed,layer:SKY_BOARD_LAYER,cameraPriority:44,dynamicTextureUploads:0}),dispose,
   };

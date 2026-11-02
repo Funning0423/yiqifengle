@@ -1,25 +1,26 @@
-# Mac e32f04bf 转场长帧根因与修法（主线程）
+# Mac e1974767 转场长帧根因与修法（主线程叠帧）
 
-## Evidence（integrate tip `e32f04bf` / warm tip `3be0a1c0`）
+## Evidence（integrate tip `e1974767` / warm tip `067c69f6`）
 
-- `world.setCamera` max **177ms / 0 shaders**（曾 446/12）；残余 164…109，均在 `BalloonTransit:flight`，伴随 JUMP~2m 连锁。
-- `skycity.board-background` max **105ms / 0**（曾 490）；首帧 dc 36→280、uploads=4。
-- animateCamera PASS；RT PASS；ready 时 pending=0 criticalPending=0 cached=341。
-- warm 在 flight 中途再次 absorb：pending 飙到 346 / criticalPending 242；board 前再次 152/115。
+- `world.setCamera` max **140ms / 0 shaders**（曾 177）；残余 140 / 111 / 139，均在 `BalloonTransit:flight`，伴随 JUMP 连锁。
+- `skycity.board-background` max **106ms / 0**（曾 105，基本持平）；首帧 uploads=2，dc 跳变。
+- animateCamera PASS；RT PASS；ready pending=0 criticalPending=0 cached=344。
+- warm **after** ready：pending=137 criticalPending=100（enter-level absorb 回灌，非 flight hold 失败）。
 
-## 根因（已非 first-compile）
+## 根因
 
-1. **setCamera 177ms**：flight 全程仍跑 after_draw warm（B1 只 skip 4 帧）。中途 absorb 新材质 → critical 编译与 `apply()`/`setCamera` 叠在同一墙钟帧；一帧变长 → 大 JUMP → 更重帧。
-2. **board-bg 105ms**：reveal 同帧 `root.active` + `rig.active`（整棵 skycity GLB 首次启用）+ `presentForPlay`，再叠 warm criticalPending≈115。board-bg 相机首写吃到这坨同步工作。
+1. **setCamera 140/139ms**：`apply` 同帧 `setCamera + paint`。paint 在 city 未激活时仍 `showNamed×8` 走整棵 skycity；cityOn/SEAM 阈值帧再叠 `noShadow`/foliage/meadow 树走。shaders=0 → 纯主线程。
+2. **board-bg 106ms**：`primeScene` 只开 rig、不开 board-cam → 首写才 uploads；reveal 同帧 `setVisible + presentForPlay`。
+3. **B5→board 空窗**：`hold(false)` 后到 reveal 之间 warm 可 compile，叠到 board 窗口。
 
 ## 修法（本 tip）
 
-1. `holdTransitionShaders` 改为引用计数；flight / B5 全程 hold，结束再放。
-2. flight `beforeDraw` / B5 每帧 `noteTransitionHeavyFrames(2)`；B1 note 提到 8。
-3. `SkycityBoardBackground.primeScene`：reveal 前先把 GLB `active=true`、相机仍关，摊掉激活成本。
-4. reveal / `setVisible` / board `frame` / `presentForPlay` 扩大 heavy + hold 窗口。
+1. TransitionShaderWarm：held 不 compile；安静 held 帧 absorb；`armTransitionHold(n)` 桥接 B5→board。
+2. BalloonTransit：city 未激活跳过树走；noShadow/foliage/meadow/hideGlow once；阈值帧 paintDebt 冻镜头；B1 去掉 setCamera 同帧 paint(0)；flight/B5 结束 armHold(180)。
+3. SkycityBoardBackground：primeScene 强制 2 帧 board-cam warm draw；setVisible armHold(24)。
+4. NativeWorldLevelAdapter：reveal 分帧（setVisible → 下一 after_draw presentForPlay）；hold/note(24)。
 5. 不改 RT / fidelity / mask / walk-speed / cine-fx；不 hold 镜头；不上传微信。
 
 ## 验收（加严）
 
-过渡窗口内任意 `world.setCamera` / `board-bg` 相关 LONG **均 &lt;100ms**，无慢放感；RT 门禁不回退。
+过渡窗口内任意 `world.setCamera` / `board-bg` 相关 LONG **均 &lt;100ms**（目标 ≤80），无慢放感；RT 门禁不回退。
