@@ -2631,8 +2631,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 76525,
-    "sha256": "b8d27b1a15b3aa262614c30fa9017aacc52fa39a6bd277c01e74920f5b249b88"
+    "bytes": 77257,
+    "sha256": "287e45d79a1dab11b26e4ba2cb9fe441bb5c6431cb02b58e3ebbdb40da750e78"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -3201,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 66843,
-    "sha256": "c53f4fac5cc84fc385e6d7573af82968570fc2d3c6a009081d2c6b706d8dc407"
+    "bytes": 67189,
+    "sha256": "15c5cfc4159c7306ecaefd4bf529715e901f588a6410e34322d71dc0c3199db7"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3351,8 +3351,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailPreload.ts",
-    "bytes": 4288,
-    "sha256": "bcae30433bcf7a52b206e883eba3b5043a5ab64766e230f24ee5e97830428d1a"
+    "bytes": 4392,
+    "sha256": "ea691582ef6e7c19524a15f842db378b463dee8bd07354b07f1c769be0a357c1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SailPreload.ts.meta",
