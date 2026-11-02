@@ -1,15 +1,14 @@
 {
   "model": "journey-integration-suite",
   "status": "BLOCKED",
-  "total": 369,
-  "passed": 368,
+  "total": 370,
+  "passed": 369,
   "failed": 0,
   "blocked": ["navigation-guard"],
   "blockedReason": "BLOCKED_BROWSER",
   "node": "v22.23.3",
-  "codeHead": "2179dd9953b6db16ef08b861a3c9308ef6a564e6",
-  "suiteRecordedHead": "2179dd9953b6db16ef08b861a3c9308ef6a564e6",
-  "startedAt": "2026-11-02T10:27:00.822Z",
-  "finishedAt": "2026-11-02T10:55:50.238Z",
-  "note": "Suite ran on the board-label resize commit. 369 checks, 368 PASS, 0 FAIL. The only blocked check is navigation-guard (browser launch). Runner exit is non-zero when any check is BLOCKED. No FAIL. The docs commit that records this file is after the suite, so git HEAD at suite start is the code commit."
+  "codeHead": "a2168f383e351276ce794cd23ccd1e424c5f7a10",
+  "suiteRecordedHead": "a2168f383e351276ce794cd23ccd1e424c5f7a10",
+  "startedAt": "2026-11-02T12:58:33.103Z",
+  "note": "Suite ran on the transition shader warm commit. 370 checks, 369 PASS, 0 FAIL. The only blocked check is navigation-guard (browser launch). Runner exit is non-zero when any check is BLOCKED. No FAIL. transition-shader-warm passed. The docs commit that records this file is after the suite, so git HEAD at suite start is the code commit."
 }
