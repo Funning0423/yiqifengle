@@ -13,7 +13,18 @@ function load(){
  const macros={CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:1,CC_USE_FOG:4};
  const engineMacros={CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:1,CC_USE_FOG:4};
  const programLib={pipeline:{macros:engineMacros},getProgramVariant(_d,_p,name,defines){
-  Object.assign(defines,engineMacros);const snap={name};const keys=Object.keys(defines);for(let i=0;i<keys.length;i++)snap[keys[i]]=defines[keys[i]];recorded.push(snap);return {shader:{}};
+  Object.assign(defines,engineMacros);const snap={name};const keys=Object.keys(defines);for(let i=0;i<keys.length;i++)snap[keys[i]]=defines[keys[i]];recorded.push(snap);
+  const parts=[name];
+  if(defines.CC_DIR_SHADOW_PCF_TYPE===2)parts.push('CC_DIR_SHADOW_PCF_TYPE2');
+  if(defines.CC_SHADOW_TYPE===2)parts.push('CC_SHADOW_TYPE2');
+  if(defines.CC_USE_SKINNING)parts.push('CC_USE_SKINNING1');
+  if(defines.CC_RECEIVE_SHADOW)parts.push('CC_RECEIVE_SHADOW1');
+  if(defines.CC_MORPH_TARGET_COUNT)parts.push('CC_MORPH_TARGET_COUNT'+defines.CC_MORPH_TARGET_COUNT);
+  if(defines.CC_FORWARD_ADD)parts.push('CC_FORWARD_ADD1');
+  if(defines.CC_PIPELINE_TYPE)parts.push('CC_PIPELINE_TYPE1');
+  if(defines.USE_VERTEX_COLOR)parts.push('USE_VERTEX_COLOR1');
+  if(String(name).indexOf('reflect-map-fs')>=0)parts.push('reflect-map-fs');
+  return {shader:{name:parts.join('|')}};
  }};
  const director={on(ev,f){listeners.push(f);},off(ev,f){for(let i=listeners.length-1;i>=0;i--)if(listeners[i]===f)listeners.splice(i,1);},root:{device:{id:1},pipeline:{macros,programLib}}};
  class Material{constructor(){this.passes=[];}}
@@ -25,9 +36,9 @@ function load(){
  const js=ts.transpileModule(src,opts).outputText;
  const board={loadWindEffect:()=>Promise.resolve({name:'meadow-grass-wind'})};
  const meadow={exports:{}};
- vm.runInNewContext(meadowJs,{module:meadow,exports:meadow.exports,console,Promise,performance,Date,globalThis:{},require:s=>s==='cc'?cc:s==='./MeadowBoardBackground'?board:{}},{filename:'MeadowSailWarm.js'});
+ vm.runInNewContext(meadowJs,{module:meadow,exports:meadow.exports,console,Promise,performance,Date,Object,globalThis:{},require:s=>s==='cc'?cc:s==='./MeadowBoardBackground'?board:{}},{filename:'MeadowSailWarm.js'});
  const m={exports:{}};
- vm.runInNewContext(js,{module:m,exports:m.exports,console,Promise,performance,Date,globalThis:{},require:s=>s==='cc'?cc:s==='./MeadowSailWarm'?meadow.exports:{}},{filename:'TransitionShaderWarm.js'});
+ vm.runInNewContext(js,{module:m,exports:m.exports,console,Promise,performance,Date,Object,globalThis:{},require:s=>s==='cc'?cc:s==='./MeadowSailWarm'?meadow.exports:{}},{filename:'TransitionShaderWarm.js'});
  return {api:m.exports,listeners,macros,engineMacros,recorded,director};
 }
 const L=load();
@@ -48,15 +59,16 @@ for(let i=0;i<counts.length;i++){
  n.components.push(renderer({struct:{morph:{subMeshMorphs:[{targets:new Array(counts[i]),attributes:['a_position']}]}}},[{effectName:'builtin-standard',passes}],{skeleton:{},receiveShadow:true}));
 }
 const alpha=node('foliage');add(girl,alpha);
-alpha.components.push(renderer(null,[{effectName:'builtin-standard',passes:[{programName:'builtin-standard|standard-vs|standard-fs',defines:{USE_ALBEDO_MAP:1,USE_ALPHA_TEST:1}}]}]));
+function stdPass(defines,program){return {program:program||'builtin-standard|standard-vs|standard-fs',programName:program||'builtin-standard|standard-vs|standard-fs',phaseID:7,device:{id:1},defines:defines,getShaderVariant(){}};}
+alpha.components.push(renderer(null,[{effectName:'builtin-standard',passes:[stdPass({USE_ALBEDO_MAP:1,USE_ALPHA_TEST:1})]}]));
 const uv=node('second');add(girl,uv);
-uv.components.push(renderer(null,[{effectName:'builtin-standard',passes:[{programName:'builtin-standard|standard-vs|standard-fs',defines:{HAS_SECOND_UV:1,USE_ALBEDO_MAP:1}}]}]));
+uv.components.push(renderer(null,[{effectName:'builtin-standard',passes:[stdPass({HAS_SECOND_UV:1,USE_ALBEDO_MAP:1})]}]));
 const unlit=node('card');add(girl,unlit);
-unlit.components.push(renderer(null,[{effectName:'builtin-unlit',passes:[{programName:'builtin-unlit|unlit-vs|unlit-fs',defines:{USE_VERTEX_COLOR:1,USE_TEXTURE:1}}]}]));
+unlit.components.push(renderer(null,[{effectName:'builtin-unlit',passes:[stdPass({USE_VERTEX_COLOR:1,USE_TEXTURE:1},'builtin-unlit|unlit-vs|unlit-fs')]}]));
 const grass=node('meadow_grass_instances.0');add(girl,grass);
-grass.components.push(renderer(null,[{effectName:'meadow-grass-wind',passes:[{programName:'meadow-grass-wind|meadow-grass-vs|meadow-grass-fs',defines:{}}]}]));
+grass.components.push(renderer(null,[{effectName:'meadow-grass-wind',passes:[stdPass({},'meadow-grass-wind|meadow-grass-vs|meadow-grass-fs')]}]));
 const dup=node('morph53b');add(girl,dup);
-dup.components.push(renderer({struct:{morph:{subMeshMorphs:[{targets:new Array(53),attributes:['a_position']}]}}},[{effectName:'builtin-standard',passes:[{programName:'builtin-standard|standard-vs|standard-fs',defines:{USE_VERTEX_COLOR:1,USE_ALBEDO_MAP:1}}]}],{skeleton:{},receiveShadow:true}));
+dup.components.push(renderer({struct:{morph:{subMeshMorphs:[{targets:new Array(53),attributes:['a_position']}]}}},[{effectName:'builtin-standard',passes:[stdPass({USE_VERTEX_COLOR:1,USE_ALBEDO_MAP:1})]}],{skeleton:{},receiveShadow:true}));
 const jobs=T.collectTransitionPasses(girl);
 assert.ok(T.transitionWarmCoversMac(jobs.map(j=>j.key)),'Mac 1841/1938 variants missing '+jobs.map(j=>j.key).join('\n'));
 const morph53=jobs.filter(j=>j.key.indexOf('CC_MORPH_TARGET_COUNT=53')>=0&&j.key.indexOf('standard-fs')>=0&&j.key.indexOf('CC_FORWARD_ADD')<0);
@@ -98,13 +110,17 @@ const restored=T.withDepartureMacros(L.macros,()=>{assert.equal(L.macros.CC_DIR_
 assert.equal(restored,1);assert.equal(L.macros.CC_DIR_SHADOW_PCF_TYPE,savedPcf);assert.equal(L.macros.CC_SHADOW_TYPE,savedType);
 assert.equal(T.CRITICAL_PER_FRAME,3);
 assert.equal(T.reflectProgramName('builtin-standard|standard-vs|standard-fs'),'builtin-standard|standard-vs|reflect-map-fs');
+assert.ok(T.shaderShowsDeparture('builtin-standard|standard-vs|standard-fs|CC_DIR_SHADOW_PCF_TYPE2|CC_SHADOW_TYPE2'));
+assert.equal(T.shaderShowsDeparture('builtin-standard|standard-vs|standard-fs|CC_DIR_SHADOW_PCF_TYPE0|CC_SHADOW_TYPE2'),false);
+const assigned=T.withAssignDeparture(()=>Object.assign({USE_VERTEX_COLOR:1},{CC_USE_HDR:1,CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:1}));
+assert.equal(assigned.CC_DIR_SHADOW_PCF_TYPE,2);assert.equal(assigned.CC_SHADOW_TYPE,2);assert.equal(assigned.CC_USE_HDR,1);
 assert.ok(T.isCriticalWarm(true,{},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{USE_VERTEX_COLOR:1},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{},'builtin-standard','standard-vs|standard-fs'));
 T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);assert.equal(L.listeners.length,1);
 const girlPass=girl.children[0].components[0].sharedMaterials[0].passes[0];
 let maxCompile=0;
-for(let i=0;i<24;i++){const n0=L.recorded.length;L.listeners[0]();const dn=L.recorded.length-n0;if(dn>maxCompile)maxCompile=dn;
+for(let i=0;i<80;i++){const n0=L.recorded.length;L.listeners[0]();const dn=L.recorded.length-n0;if(dn>maxCompile)maxCompile=dn;
  assert.ok(dn<=T.CRITICAL_PER_FRAME*2,'critical frame compiled too many '+dn);
  assert.equal(L.macros.CC_DIR_SHADOW_PCF_TYPE,0);assert.equal(L.engineMacros.CC_DIR_SHADOW_PCF_TYPE,0);assert.equal(L.engineMacros.CC_SHADOW_TYPE,1);
  assert.notEqual(girlPass.defines.CC_DIR_SHADOW_PCF_TYPE,2,'departure compile stuck PCF on the pass');}
@@ -116,16 +132,20 @@ assert.ok(pcf2.some(r=>r.CC_MORPH_TARGET_COUNT===53&&r.CC_USE_SKINNING===true&&r
 assert.ok(pcf2.some(r=>r.CC_FORWARD_ADD===1&&r.CC_IS_TRANSPARENCY_PASS===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>r.CC_PIPELINE_TYPE===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>String(r.name).indexOf('reflect-map-fs')>=0&&r.CC_MORPH_TARGET_COUNT===53));
-assert.ok(T.transitionWarmStats().criticalPending===0||T.transitionWarmStats().compiled>=6);
+assert.equal(T.transitionWarmStats().criticalPending,0,'criticalPending must wait for live cache names');
 const nSail=L.recorded.length;T.noteTransitionSailFrame();L.listeners[0]();assert.equal(L.recorded.length,nSail,'sail frame compiles nothing');
 const hidden={CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:1,CC_USE_FOG:4};
 const propDefines={USE_VERTEX_COLOR:1};
 let propShader={id:'live'};
 const prop=node('prop');
-const hiddenPass={defines:propDefines,_shader:propShader,_root:{pipeline:{macros:hidden,setMacroInt(n,v){hidden[n]=v;}}},getShaderVariant(patches){
+const hiddenPass={defines:propDefines,_shader:propShader,program:'builtin-standard|standard-vs|standard-fs',phaseID:7,device:{id:1},_root:{pipeline:{macros:hidden,setMacroInt(n,v){hidden[n]=v;}}},getShaderVariant(patches){
  const d=this.defines;if(patches)for(let i=0;i<patches.length;i++)d[patches[i].name]=patches[i].value;
  Object.assign(d,this._root.pipeline.macros);L.recorded.push(Object.assign({via:'hidden'},d));
- if(patches)for(let i=0;i<patches.length;i++)delete d[patches[i].name];this._shader={id:'depart'};
+ const nm=['builtin-standard|standard-vs|standard-fs'];
+ if(d.USE_VERTEX_COLOR)nm.push('USE_VERTEX_COLOR1');
+ if(d.CC_DIR_SHADOW_PCF_TYPE===2)nm.push('CC_DIR_SHADOW_PCF_TYPE2');
+ if(d.CC_SHADOW_TYPE===2)nm.push('CC_SHADOW_TYPE2');
+ if(patches)for(let i=0;i<patches.length;i++)delete d[patches[i].name];this._shader={id:'depart',name:nm.join('|')};return this._shader;
 }};
 prop.components.push(renderer(null,[{effectName:'builtin-standard',passes:[hiddenPass]}]));
 delete L.director.root.pipeline.programLib;
@@ -146,13 +166,13 @@ assert.doesNotMatch(src,/\bnew (Map|Set)\b/);assert.doesNotMatch(src,/for\s*\(\s
 assert.doesNotMatch(meadowSrc,/\bnew (Map|Set)\b/);assert.doesNotMatch(meadowSrc,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
 const es5opts={compilerOptions:{module:1,target:1,...(ts.version.startsWith('6.')?{ignoreDeprecations:'6.0'}:{})},reportDiagnostics:true};
 for(const file of [src,meadowSrc]){const es5=ts.transpileModule(file,es5opts);assert.equal((es5.diagnostics||[]).length,0,'ES5 transpile');}
-const evidence={model:'transition-shader-warm',macFrames:{animateCamera1826:{ms:611,shaders:70,tip:'8571f6d1'}},
+const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:772,shaders:70,tip:'8e93c02b'}},
  budgetMs:4,criticalPerFrame:T.CRITICAL_PER_FRAME,variants:jobs.length,morphCounts:[53,16,3],
  departureMacros:['CC_DIR_SHADOW_PCF_TYPE=2','CC_SHADOW_TYPE=2'],
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Critical girl/room PCF2 families (standard, forward-add, pipeline, reflect) compile up to 3 per frame from scene load. getProgramVariant reads programLib.pipeline.macros; the warm writes PCF=2 and SHADOW_TYPE=2 on every pipeline bag including pass._root, then restores. animateCamera is not awaited and the stepper is not held.'};
+ note:'criticalPending is 0 only when the live program cache has the Mac createShader names (PCF2 + SHADOW_TYPE2 plus morph/skin/vertex-color/forward-add/reflect/pipeline). Object.assign is wrapped during compile so getProgramVariant keys those macros. animateCamera is not awaited and the stepper is not held.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);
