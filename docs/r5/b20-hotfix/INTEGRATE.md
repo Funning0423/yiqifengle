@@ -138,6 +138,8 @@ Mac 整合头 `8e93c02b`（`66937792`/`de045cb6` 合入）上，预热在 spike 
 
 本轮在编译期间包住 `Object.assign`：源对象像管线宏时，把同一份 defines 写成 spike 上那一整袋（`CC_USE_FOG=4`、`CC_SUPPORT_CASCADED_SHADOW_MAP=1`、`CC_USE_HDR=1`、`CC_SHADOWMAP_FORMAT=1`、`CC_SHADOWMAP_USE_LINEAR_DEPTH=1`、`CC_DIR_SHADOW_PCF_TYPE=2`、`CC_SHADOW_TYPE=2`），这就是库用来算 key 的那份。编完读返回的 shader 名，必须带 PCF2、SHADOW_TYPE2、SHADOWMAP_FORMAT1、LINEAR_DEPTH 和 cascaded 才算 cached。`criticalPending` 是还没 cached 的关键任务，加上 Mac createShader 名里那些 needle 还没出现的个数；队列走完之后仍会重试没 cached 的关键任务。镜头轨道没有 await，步进器也没有按住。meadow-warm-rig 仍是草甸网格，不挡家园角色和房间的这份 cache。短说明见 `docs/r5/b20-hotfix/LIVE-CACHE.md`。
 
+`72310725`（功能 `72310725fa18bd4fa66b55c15259fe157900368d`）：Mac `81c841d4` 仍有 setCamera 446ms/12（全 unlit+morph）与 board-bg 490ms/0。本 tip 暖 unlit live FOG/HDR、耗尽 Invalid reflect/fwd/pipe、`CRITICAL_CACHE_NEEDLES` 不再把 reflect 算进 criticalPending，B1/board reveal/`presentForPlay` 调用 `noteTransitionHeavyFrames`。短说明见 `SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
+
 ## 怎么验证
 
 ```
