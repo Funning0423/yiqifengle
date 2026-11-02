@@ -6,8 +6,12 @@ import {MEADOW_WARM_BUDGET_MS,kickCompiledPass,meadowWarmPlan} from './MeadowSai
  *  (0/40). Warm that forced SHADOW_TYPE=2 filled a different live-cache key than the draw path. Also marking every
  *  builtin-standard as critical ballooned pending/criticalPending to 500–1200 and kept compiling every frame.
  *  Fix: warm BOTH bags (with TYPE2 for animateCamera, without for setCamera); mark cached on the shared PCF2 bag;
- *  critical = skin/morph + vertex-color + second-UV only; non-critical warm yields while criticalPending>0. */
-export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3];
+ *  critical = skin/morph + vertex-color + second-UV only; non-critical warm yields while criticalPending>0.
+ *  Mac 81c841d4: residual setCamera 446ms/12 was ALL builtin-unlit+morph (53/16/3/73±PRECOMPUTED), not standard/PCF2.
+ *  Departure shadow bags miss that key. Also tries>12 critical stayed !cached → criticalPending 300–680 forever and
+ *  every frame recompiled Invalid reflect-map during board-bg (490ms/0 shaders). Fix: warm unlit/planar live macros;
+ *  exhaust critical after tries; skip warm for a few heavy board/reveal frames. */
+export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3,73];
 /** Exact pipeline macros on every Mac createShader name at meadow→skycity animateCamera frame 1803.
  *  0 is omitted from the program key, so a boot compile that only writes PCF still misses SHADOWMAP_FORMAT / LINEAR_DEPTH. */
 export const DEPARTURE_SHADOW_MACROS:readonly {name:string;value:number}[]=[
@@ -28,12 +32,24 @@ export const SETCAM_SHADOW_MACROS:readonly {name:string;value:number}[]=[
  {name:'CC_SHADOWMAP_USE_LINEAR_DEPTH',value:1},
  {name:'CC_DIR_SHADOW_PCF_TYPE',value:2},
 ];
-/** Shared createShader needles. CC_SHADOW_TYPE2 is optional (animateCamera has it; setCamera does not). */
+/** Mac setCamera residual unlit names: FOG4+HDR only (no PCF/SHADOWMAP/TYPE). Planar-shadow passes omit these. */
+export const LIVE_UNLIT_MACROS:readonly {name:string;value:number}[]=[
+ {name:'CC_USE_FOG',value:4},
+ {name:'CC_USE_HDR',value:1},
+];
+/** Shared createShader needles (coverage / docs). CC_SHADOW_TYPE2 is optional. */
 export const SPIKE_NAME_NEEDLES:readonly string[]=[
  'CC_DIR_SHADOW_PCF_TYPE2','CC_SHADOWMAP_FORMAT1','CC_SHADOWMAP_USE_LINEAR_DEPTH1',
  'CC_SUPPORT_CASCADED_SHADOW_MAP1','CC_USE_HDR1','CC_USE_FOG4',
- 'CC_MORPH_TARGET_COUNT53','CC_MORPH_TARGET_COUNT16','CC_MORPH_TARGET_COUNT3',
+ 'CC_MORPH_TARGET_COUNT53','CC_MORPH_TARGET_COUNT16','CC_MORPH_TARGET_COUNT3','CC_MORPH_TARGET_COUNT73','CC_MORPH_PRECOMPUTED1',
  'CC_USE_SKINNING1','CC_RECEIVE_SHADOW1','USE_VERTEX_COLOR1','CC_FORWARD_ADD1','reflect-map-fs','CC_PIPELINE_TYPE1',
+];
+/** criticalPending only waits on needles the warm can actually land. reflect/fwd/pipe Invalid forever on device. */
+export const CRITICAL_CACHE_NEEDLES:readonly string[]=[
+ 'CC_DIR_SHADOW_PCF_TYPE2','CC_SHADOWMAP_FORMAT1','CC_SHADOWMAP_USE_LINEAR_DEPTH1',
+ 'CC_SUPPORT_CASCADED_SHADOW_MAP1','CC_USE_HDR1','CC_USE_FOG4',
+ 'CC_MORPH_TARGET_COUNT53','CC_MORPH_TARGET_COUNT16','CC_MORPH_TARGET_COUNT3','CC_MORPH_TARGET_COUNT73','CC_MORPH_PRECOMPUTED1',
+ 'CC_USE_SKINNING1','CC_RECEIVE_SHADOW1',
 ];
 const SEEN_CAP=4000;
 const SCAN_EVERY=10;
@@ -95,15 +111,22 @@ function macroStamp():string{
   for(let i=0;i<comps.length;i++){const c=comps[i];if(c&&typeof c.shadowEnabled==='boolean')light=(c.shadowEnabled?'1':'0')+':'+String(c.shadowPcf);}
   return String(sh.type)+'/'+(sh.enabled?'1':'0')+'/'+light;}catch{return 'none';}}
 type Patch={name:string;value:boolean|number};
-type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean;depart:boolean;critical:boolean;program:string;cached:boolean;tries:number};
+type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean;depart:boolean;critical:boolean;unlit:boolean;program:string;effect:string;cached:boolean;exhausted:boolean;tries:number};
 export type TransitionWarmStats={frames:number;sailSkips:number;kicked:number;compiled:number;pending:number;criticalPending:number;maxFrameMs:number;done:boolean};
 export function isCriticalWarm(hot:boolean,defines:Record<string,unknown>|null,_effect?:string,_passName?:string):boolean{
  if(hot)return true;const d=defines||{};
  // setCamera spike + girl: vertex-color / second-UV / skin-morph only — not every builtin-standard (that ballooned pending).
  return !!(d.USE_VERTEX_COLOR||d.HAS_SECOND_UV);}
-export function morphPatches(count:number,hasPosition:boolean):Patch[]{
+export function morphPatches(count:number,hasPosition:boolean,precomputed:boolean=false):Patch[]{
  const p:Patch[]=[{name:'CC_USE_MORPH',value:true},{name:'CC_MORPH_TARGET_COUNT',value:count}];
- if(hasPosition)p.push({name:'CC_MORPH_TARGET_HAS_POSITION',value:true});return p;}
+ if(hasPosition)p.push({name:'CC_MORPH_TARGET_HAS_POSITION',value:true});
+ if(precomputed)p.push({name:'CC_MORPH_PRECOMPUTED',value:true});return p;}
+export function effectLooksUnlit(effect:string,program:string):boolean{
+ const s=(effect||'')+'|'+(program||'');
+ return s.indexOf('builtin-unlit')>=0||s.indexOf('unlit-vs')>=0||s.indexOf('unlit-fs')>=0||s.indexOf('planar-shadow')>=0;}
+export function shaderShowsUnlitHot(name:string):boolean{
+ if(!name||name.indexOf('CC_USE_SKINNING1')<0||name.indexOf('CC_USE_MORPH1')<0)return false;
+ return name.indexOf('builtin-unlit')>=0||name.indexOf('unlit-vs')>=0||name.indexOf('planar-shadow')>=0;}
 export function transitionPassKey(effect:string,passName:string,defines:Record<string,unknown>|null,patches:readonly Patch[]):string{
  const src=defines||{},names=Object.keys(src).sort(),parts:string[]=[];
  for(let i=0;i<names.length;i++)parts.push(names[i]+'='+String(src[names[i]]));
@@ -123,7 +146,8 @@ function synthPatches(renderer:any,sub:number,forceReceive:boolean):Patch[]{
  if(renderer.skeleton||renderer.skinningRoot){out.push({name:'CC_USE_SKINNING',value:true});out.push({name:'CC_USE_REAL_TIME_JOINT_TEXTURE',value:false});}
  const morph=renderer.mesh&&renderer.mesh.struct&&renderer.mesh.struct.morph,sm=morph&&morph.subMeshMorphs&&morph.subMeshMorphs[sub];
  if(sm&&sm.targets&&sm.targets.length){const attrs=sm.attributes||[];const pos=attrHit(attrs,'position');
-  const m=morphPatches(sm.targets.length,pos);for(let i=0;i<m.length;i++)out.push(m[i]);
+  const pre=!!(morph&&(morph.precomputedWeights||morph.usePrecomputedWeights||sm.precomputedWeights||renderer.usePrecomputedMorph||renderer.precomputedMorph));
+  const m=morphPatches(sm.targets.length,pos,pre);for(let i=0;i<m.length;i++)out.push(m[i]);
   if(attrHit(attrs,'normal'))out.push({name:'CC_MORPH_TARGET_HAS_NORMAL',value:true});
   if(attrHit(attrs,'tangent'))out.push({name:'CC_MORPH_TARGET_HAS_TANGENT',value:true});}
  return out;}
@@ -167,7 +191,7 @@ export function stageTransitionWarm(items:{key:string}[],hooks:{kick(key:string)
   stats:()=>({frames,sailSkips,kicked,compiled,pending:items.length-compiled,criticalPending:0,maxFrameMs,done:compiled>=items.length}),
   dispose(){dead=true;}};}
 const roots:Node[]=[];const jobs:Item[]=[];const seen:string[]=[];const cachedNames:string[]=[];
-let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,held=false,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
+let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,skipLeft=0,held=false,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
 function remember(node:Node|null):void{if(!node||!isValid(node,true))return;if(roots.indexOf(node)>=0)return;roots.push(node);scanIn=0;}
 function pipelineOf(obj:any):any{return obj&&(obj.pipeline||obj._pipeline)||null;}
 function programLib(pass?:any):any{
@@ -228,14 +252,27 @@ function writeDefines(d:any,patches:Patch[]|null,bag:readonly {name:string;value
  for(let i=0;i<bag.length;i++)d[bag[i].name]=bag[i].value;}
 function shaderNameOf(sh:any):string{return String(sh&&(sh.name||sh._name||(sh.shader&&(sh.shader.name||sh.shader._name)))||'');}
 function rememberName(name:string):void{if(!name||cachedNames.indexOf(name)>=0)return;cachedNames.push(name);}
-function needlesMissing():number{let n=0;for(let i=0;i<SPIKE_NAME_NEEDLES.length;i++){const need=SPIKE_NAME_NEEDLES[i];let hit=false;
+function needlesMissing():number{let n=0;for(let i=0;i<CRITICAL_CACHE_NEEDLES.length;i++){const need=CRITICAL_CACHE_NEEDLES[i];let hit=false;
  for(let k=0;k<cachedNames.length;k++)if(cachedNames[k].indexOf(need)>=0){hit=true;break;}if(!hit)n++;}return n;}
 function markCached(item:Item,name:string):void{
- if(!shaderShowsDeparture(name))return;item.cached=true;rememberName(name);}
+ if(!shaderShowsDeparture(name)&&!shaderShowsUnlitHot(name))return;item.cached=true;rememberName(name);}
+function markDone(item:Item,name:string=''):void{
+ if(name)rememberName(name);item.cached=true;item.exhausted=false;}
 function compileLive(item:Item):void{
  const pass=item.pass,patches=item.patches;
  if(!pass||typeof pass.getShaderVariant!=='function'){if(pass&&typeof pass.tryCompile==='function'){try{pass.tryCompile();}catch{/* miss */}}return;}
- try{pass.getShaderVariant(patches&&patches.length?patches:null);}catch{const d=pass.defines||pass._defines;if(d&&patches)for(let i=0;i<patches.length;i++){try{delete d[patches[i].name];}catch{/* leave */}}}}
+ try{const sh=pass.getShaderVariant(patches&&patches.length?patches:null);const nm=shaderNameOf(sh);if(nm){rememberName(nm);if(shaderShowsUnlitHot(nm)||shaderShowsDeparture(nm))item.cached=true;}}
+ catch{const d=pass.defines||pass._defines;if(d&&patches)for(let i=0;i<patches.length;i++){try{delete d[patches[i].name];}catch{/* leave */}}}}
+function withAssignUnlit<T>(run:()=>T):T{return withAssignMacros(LIVE_UNLIT_MACROS,run);}
+function forceUnlitPipes(pass?:any):()=>void{return forceMacroPipes(LIVE_UNLIT_MACROS,pass);}
+function compileUnlitLive(item:Item):void{
+ const pass=item.pass;if(!pass)return;
+ const prog=String(item.program||pass.program||pass._programName||pass.programName||'');
+ const planar=prog.indexOf('planar-shadow')>=0||String(pass.programName||'').indexOf('planar-shadow')>=0;
+ if(planar){compileLive(item);return;}
+ const got=compileOneBag(item,LIVE_UNLIT_MACROS,withAssignUnlit,forceUnlitPipes);
+ if(got){rememberName(got);if(shaderShowsUnlitHot(got)||got.indexOf('CC_USE_MORPH')>=0||got.indexOf('USE_TEXTURE')>=0)markDone(item,got);}
+ else compileLive(item);}
 function compileViaLib(item:Item,name:string,bag:readonly {name:string;value:number}[]):string{
  const pass=item.pass,lib=programLib(pass);if(!lib||!name)return '';
  const phase=pass.phaseID!==undefined?pass.phaseID:pass._phaseID,device=pass.device||pass._device||((director as any).root&&(director as any).root.device);
@@ -253,9 +290,9 @@ function compileOneBag(item:Item,bag:readonly {name:string;value:number}[],assig
   writeDefines(d,item.patches,bag);pass._shader=null;
   try{const patches=bagPatches(item,bag);
    if(typeof pass.getShaderVariant==='function'){try{got=shaderNameOf(pass.getShaderVariant(patches));}catch{/* miss */}}
-   if(!shaderShowsDeparture(got)&&typeof pass.tryCompile==='function'){try{pass.tryCompile();got=shaderNameOf(pass._shader);}catch{/* miss */}}
+   if(!shaderShowsDeparture(got)&&!shaderShowsUnlitHot(got)&&typeof pass.tryCompile==='function'){try{pass.tryCompile();got=shaderNameOf(pass._shader);}catch{/* miss */}}
    const name=item.program||pass.program||pass._programName||pass.programName;const via=compileViaLib(item,String(name||''),bag);
-   if(shaderShowsDeparture(via))got=via;}
+   if(shaderShowsDeparture(via)||shaderShowsUnlitHot(via))got=via;}
   finally{restoreOwn(d,snap);pass._shader=shader;restore();}});
  return got;}
 function compileDeparture(item:Item):void{
@@ -264,25 +301,38 @@ function compileDeparture(item:Item):void{
  if(shaderShowsDeparture(a))markCached(item,a);
  const b=compileOneBag(item,SETCAM_SHADOW_MACROS,withAssignSetcam,forceSetcamPipes);
  if(shaderShowsDeparture(b))markCached(item,b);}
-function compileItem(item:Item):void{if(item.depart)compileDeparture(item);else compileLive(item);}
+function compileItem(item:Item):void{
+ if(item.unlit||effectLooksUnlit(item.effect,item.program)){compileUnlitLive(item);return;}
+ if(item.depart){compileDeparture(item);
+  // Mac board-bg: reflect-map-fs / fwd / pipe families log Invalid forever and never cache — one miss exhausts.
+  if(!item.cached&&(item.key.indexOf('reflect~')>=0||item.key.indexOf('fwd~')>=0||item.key.indexOf('pipe~')>=0))exhaustItem(item);
+  return;}
+ compileLive(item);}
 function enqueueAt(item:Item,front:boolean):void{
  if(seen.indexOf(item.key)>=0||seen.length>=SEEN_CAP)return;seen.push(item.key);
  if(!front){jobs.push(item);return;}
  const rest=jobs.splice(kicked);jobs.push(item);for(let i=0;i<rest.length;i++)jobs.push(rest[i]);}
-function criticalPending():number{let n=needlesMissing();for(let i=0;i<jobs.length;i++)if(jobs[i].critical&&!jobs[i].cached)n++;return n;}
+function criticalPending():number{let n=needlesMissing();for(let i=0;i<jobs.length;i++)if(jobs[i].critical&&!jobs[i].cached&&!jobs[i].exhausted)n++;return n;}
+function exhaustItem(item:Item):void{item.exhausted=true;item.tries=Math.max(item.tries,13);}
 function absorb():void{
  for(let r=roots.length-1;r>=0;r--){const root=roots[r];if(!isValid(root,true)){roots.splice(r,1);continue;}
   const crit:Item[]=[],depart:Item[]=[],hot:Item[]=[],cold:Item[]=[];
   const take=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean,departFlag:boolean,extra:readonly {name:string;value:number}[]|null,program:string,tag:string)=>{
+   const fx=effectOf(mat),prog=program||passName(pass,index);
    const patches=mergePatches(mergePatches(livePatches(renderer,sub),synthPatches(renderer,sub,force)),extra?extra as Patch[]:[]);
-   const base=transitionPassKey(effectOf(mat),program||passName(pass,index),pass&&pass.defines||null,patches);
-   const hotFlag=isHot(renderer,sub),critical=departFlag&&isCriticalWarm(hotFlag,pass&&pass.defines||null,effectOf(mat),program||passName(pass,index));
-   const item:Item={key:(departFlag?'depart~':'live~')+tag+base,pass,patches:patches.length?patches:null,hot:hotFlag,depart:departFlag,critical,program,cached:false,tries:0};
+   const base=transitionPassKey(fx,prog,pass&&pass.defines||null,patches);
+   const hotFlag=isHot(renderer,sub),unlit=effectLooksUnlit(fx,prog);
+   // Unlit hot must be critical on the LIVE path (draw macros), not only depart+shadow.
+   const critical=(unlit?(!departFlag&&hotFlag):departFlag)&&isCriticalWarm(hotFlag,pass&&pass.defines||null,fx,prog);
+   const item:Item={key:(departFlag?'depart~':'live~')+tag+base,pass,patches:patches.length?patches:null,hot:hotFlag,depart:departFlag,critical,unlit,program:prog,effect:fx,cached:false,exhausted:false,tries:0};
    if(critical)crit.push(item);else if(departFlag)depart.push(item);else if(hotFlag)hot.push(item);else cold.push(item);};
   const families=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean)=>{
+   const fx=effectOf(mat),pn=passName(pass,index),unlit=effectLooksUnlit(fx,pn),hotNow=isHot(renderer,sub);
    take(renderer,mat,pass,index,sub,force,false,null,'','');
-   take(renderer,mat,pass,index,sub,force,true,null,'','');
-   if(!isCriticalWarm(isHot(renderer,sub),pass&&pass.defines||null,effectOf(mat),passName(pass,index)))return;
+   // Mac residual setCamera: morph 73 drew with CC_MORPH_PRECOMPUTED1 — warm that key even if mesh flags omit it.
+   if(unlit&&hotNow)take(renderer,mat,pass,index,sub,force,false,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any],'','pre~');
+   if(!unlit)take(renderer,mat,pass,index,sub,force,true,null,'','');
+   if(unlit||!isCriticalWarm(hotNow,pass&&pass.defines||null,fx,pn))return;
    take(renderer,mat,pass,index,sub,force,true,FWD_PATCHES,'','fwd~');
    take(renderer,mat,pass,index,sub,force,true,PIPE_PATCHES,'','pipe~');
    const name=String(pass.program||pass._programName||pass.programName||'');const alt=reflectProgramName(name);
@@ -304,7 +354,7 @@ function absorb():void{
   for(let i=hot.length-1;i>=0;i--)enqueueAt(hot[i],true);
   for(let i=0;i<cold.length;i++)enqueueAt(cold[i],false);}}
 function onFrame():void{
- frames++;if(held)return;if(skipNext){skipNext=false;sailSkips++;return;}
+ frames++;if(held)return;if(skipNext||skipLeft>0){if(skipNext)skipNext=false;if(skipLeft>0)skipLeft--;sailSkips++;return;}
  if(scanIn<=0){absorb();scanIn=SCAN_EVERY;}else scanIn--;
  const pending=Math.max(0,jobs.length-compiled),crit=criticalPending();
  if(compiled>=jobs.length&&!crit){if(jobs.length&&!logged){logged=true;try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending:0,criticalPending:0,cached:cachedNames.length}));}catch{/* log only */}}return;}
@@ -312,14 +362,20 @@ function onFrame():void{
  let filled=0;
  // While critical work remains, only compile critical — non-critical thrash caused the slow-mo feel.
  if(plan.compiles&&compiled<kicked&&!(crit&&!jobs[compiled].critical)){compileItem(jobs[compiled]);compiled++;filled++;}
- while(filled<CRITICAL_PER_FRAME&&kicked<jobs.length&&jobs[kicked].critical){const item=jobs[kicked];compileItem(item);item.tries++;
-  if(item.cached||item.tries>12){kicked++;compiled++;}filled++;}
+ while(filled<CRITICAL_PER_FRAME&&kicked<jobs.length&&jobs[kicked].critical){const item=jobs[kicked];
+  if(item.cached||item.exhausted){kicked++;compiled++;continue;}
+  compileItem(item);item.tries++;
+  if(item.cached){kicked++;compiled++;}
+  else if(item.tries>12){exhaustItem(item);kicked++;compiled++;}
+  filled++;}
  if(!crit&&kicked<jobs.length&&!jobs[kicked].critical){const item=jobs[kicked];
   if(kickCompiledPass(item.pass))kicked++;
   else if(!filled){compileItem(item);kicked++;compiled++;}
   else kicked++;}
  else if(crit&&kicked<jobs.length&&!jobs[kicked].critical){kicked++;}
- if(crit&&filled<CRITICAL_PER_FRAME){for(let i=0;i<jobs.length&&filled<CRITICAL_PER_FRAME;i++){if(!jobs[i].critical||jobs[i].cached)continue;compileItem(jobs[i]);jobs[i].tries++;filled++;}}
+ if(crit&&filled<CRITICAL_PER_FRAME){for(let i=0;i<jobs.length&&filled<CRITICAL_PER_FRAME;i++){
+  if(!jobs[i].critical||jobs[i].cached||jobs[i].exhausted)continue;
+  compileItem(jobs[i]);jobs[i].tries++;if(jobs[i].tries>12&&!jobs[i].cached)exhaustItem(jobs[i]);filled++;}}
  if(crit&&frames%60===0){try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending,criticalPending:crit,cached:cachedNames.length}));}catch{/* log only */}}}
 /** Idempotent. No frame clock → the sail path stays as it is. Never blocks the caller. */
 export function beginTransitionShaderWarm():void{
@@ -328,8 +384,10 @@ export function beginTransitionShaderWarm():void{
 export function watchTransitionRoot(node:Node|null):void{beginTransitionShaderWarm();remember(node);absorb();}
 /** The next warm step (sail set-off) kicks and compiles nothing. */
 export function noteTransitionSailFrame():void{skipNext=true;}
+/** Skip warm compiles for the next n after_draw frames (board reveal / setCamera heavy window). */
+export function noteTransitionHeavyFrames(n:number=3):void{if(n>skipLeft)skipLeft=n|0;}
 export function transitionWarmStats():TransitionWarmStats{return {frames,sailSkips,kicked,compiled,pending:Math.max(0,jobs.length-compiled),criticalPending:criticalPending(),maxFrameMs,done:jobs.length>0&&compiled>=jobs.length&&criticalPending()===0};}
 /** Test hook. Production does not call this from the camera. */
 export function holdTransitionShaders(on:boolean):void{held=on;}
 export function cachedWarmNames():string[]{const out:string[]=[];for(let i=0;i<cachedNames.length;i++)out.push(cachedNames[i]);return out;}
-export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;held=false;scanIn=0;listening=false;logged=false;}
+export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;scanIn=0;listening=false;logged=false;}

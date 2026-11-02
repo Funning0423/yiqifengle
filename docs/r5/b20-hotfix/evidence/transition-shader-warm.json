@@ -9,11 +9,12 @@
   },
   "budgetMs": 4,
   "criticalPerFrame": 3,
-  "variants": 9,
+  "variants": 11,
   "morphCounts": [
     53,
     16,
-    3
+    3,
+    73
   ],
   "departureMacros": [
     "CC_DIR_SHADOW_PCF_TYPE=2",
@@ -36,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Warm both bags: TYPE2 (animateCamera) and no-TYPE2 (setCamera B1). critical=skin/morph+vertex-color+second-UV only; non-critical yields while criticalPending>0. criticalPending=0 when live cache has the shared PCF2 needles. Cameras not awaited/held."
+  "note": "Mac 81c841d4: also warm unlit+morph live FOG/HDR (setCamera residual), exhaust Invalid reflect/fwd/pipe, skip warm on board reveal/B1 heavy frames. criticalPending uses CRITICAL_CACHE_NEEDLES (no reflect). Cameras not awaited/held."
 }

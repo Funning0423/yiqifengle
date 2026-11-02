@@ -13,3 +13,7 @@ Warm now:
 5. Does not await or hold `animateCamera` / `setCamera`.
 
 RT pool / fidelity / walk speed / cine-fx unchanged. No WeChat upload from this tip.
+
+## Mac 81c841d4 follow-up
+
+Residual setCamera was unlit+morph (not PCF). board-bg LONGs were Invalid reflect warm + reveal sync, not RT. See `SETCAM-BOARD-LONG.md`.

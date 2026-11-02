@@ -10,6 +10,7 @@ import { boardFadeOpacity } from '../world-r1/WorldFlowCore';
 import { createManagedBoardSession } from './ManagedBoardSession';
 import type { Selection, DisposableStores } from './ManagedBoardSession';
 import { paintRegionalOverlay } from './RegionalOverlay';
+import {noteTransitionHeavyFrames} from '../region/TransitionShaderWarm';
 /** P2 full6: world boards resume a restored attempt on reveal (all regions). */
 export const WORLD_BOARD_RESUMES_RESTORED=true;
 /** Direct adapter to the ACTUAL NativeBoardUI with the managed-mode patch. No idealized boardFactory. */
@@ -87,7 +88,7 @@ export function createNativeWorldLevelAdapter(options:{
       // r4.2 items 10/11: while the cover plays, the UI switches itself on hidden (a slice per frame); reveal then only toggles visibility.
       const afterFrame=(go:()=>void)=>{let done=false;const run=()=>{if(done)return;done=true;if(!disposed&&!token.cancelled)go();};try{director.once('director_after_draw' as any,run);}catch{}};
       const prewarm=(ui as any).prewarmPresentation;if(typeof prewarm==='function')prewarm.call(ui,afterFrame);
-      const reveal=()=>{if(disposed)return;root.active=true;background.setVisible(true);const present=(ui as any).presentForPlay;if(typeof present==='function')present.call(ui);};
+      const reveal=()=>{if(disposed)return;try{noteTransitionHeavyFrames(6);}catch{/* warm optional */}root.active=true;background.setVisible(true);const present=(ui as any).presentForPlay;if(typeof present==='function')present.call(ui);};
       const lease:LevelLease={requestExit:()=>session!.requestExit() as Result,
         hide:()=>{root.active=false;background.setPaused(true);try{session!.hide();}finally{background.setVisible(false);}},showPaused:()=>{background.setPaused(true);try{session!.show();}finally{root.active=true;background.setVisible(true);}},
         resume:()=>session!.resume() as Result,dispose,
