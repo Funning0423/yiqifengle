@@ -14,6 +14,7 @@ import { RegionArrivalTitle } from './ui/RegionArrivalTitle';
 import { RegionTitleGate, markRegionTitleSeen, regionTitleFor } from './ui/RegionArrivalTitleCore';
 import Controller from './r4-cloud-compat/runtime/challenge-controller.js';
 import Port from './r4-cloud-compat/adapter/cocos-port.js';
+import {noteTransitionHeavyFrames} from './region/TransitionShaderWarm';
 const { ccclass } = _decorator;
 const { createSynchronousStorage, bindChallengeController } = Port;
 /** Result-page actions owned by the world host (WorldIntegrationBoot): availability is pushed every frame. */
@@ -303,6 +304,7 @@ export class ManagedMobileBoardUI extends Component {
   /** Called once the enter shot has finished and whenInteractive has resolved. The camera stays dark until this turn. */
   presentForPlay() {
     if (this.entryReleased || this.disposing) return;
+    try{noteTransitionHeavyFrames(6);}catch{/* warm optional */}
     this.presented = true; this.finishPrewarm(); this.releaseBoardCamera();
     if (this.node && isValid(this.node, true)) this.node.active = true;
     // r4.2 items 10/11: a finished hidden pre-activation already laid out this frame size; the swap frame only toggles visibility.
