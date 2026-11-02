@@ -31,8 +31,8 @@ import {M6_LOCAL} from './BalloonFlight'/* full8: one basket-anchor M6 (was a se
 import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe,camActorPose} from './CamTraceLog';
 import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
-import {
 import {noteTransitionHeavyFrames} from './TransitionShaderWarm';
+import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
  SEAM_T, STRATA_OFF_T, balloonIllumFactor, islandSeaShown, nightCityBlend, nightCloudColor, sailLeftoverShown, balloonLightYawOffset, balloonQuat, postSeamFrame, skycityRootWorldFrame, skyNodeAfterArrival, type FlightDoc, type Rigid,
