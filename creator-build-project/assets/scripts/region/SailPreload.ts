@@ -3,6 +3,7 @@ import {MEADOW_HEAVY_MESHES,splitNextBatch} from './TransitionChain';
 import {REGIONS,loadRegionPrefab,mountRegion} from './RegionLoader';
 import {awaitVehicle} from './TransportWait';
 import {beginMeadowSailWarm} from './MeadowSailWarm';
+import {watchTransitionRoot} from './TransitionShaderWarm';
 /** Meadow art warmed while mainline-04 is on screen. The rig stays inactive (0 DC) until the sail adopts it.
  * A slow or failed load retries on the sail. */
 let warm:Node|null=null;
@@ -19,7 +20,7 @@ export function preloadMeadowForSail(parent:Node):Promise<void>{
    await meadowSplitLoad();const prefab=await loadRegionPrefab(REGIONS.meadow);
    if(warm)return warm;
    const rig=new Node('SailWarm-meadow');rig.active=false;parent.addChild(rig);
-   const model=mountRegion(REGIONS.meadow,prefab,rig);model.active=true;warm=model;beginMeadowSailWarm(model);return model;
+   const model=mountRegion(REGIONS.meadow,prefab,rig);model.active=true;warm=model;beginMeadowSailWarm(model);watchTransitionRoot(model);return model;
   },
  }).then(()=>{},(error)=>{if(warming===job)warming=null;try{console.warn('[QF_SAIL] '+JSON.stringify({event:'preload-retry-exhausted',transport:'sail',reason:String((error as Error)?.message||error)}));}catch{/* ignore */}});
  warming=job;

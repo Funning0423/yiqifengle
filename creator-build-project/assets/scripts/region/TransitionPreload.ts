@@ -1,5 +1,6 @@
 import {Director,EffectAsset,JsonAsset,assetManager,director,type Node} from 'cc';
 import {meadowSplitLoad,preloadMeadowForSail} from './SailPreload';
+import {beginTransitionShaderWarm,watchTransitionRoot} from './TransitionShaderWarm';
 import {MEADOW_LEG_STAGES,PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
 import {REGIONS,loadRegionPrefab} from './RegionLoader';
 import {loadBundlePrefab} from './TransportVehicle';
@@ -65,6 +66,7 @@ export function warmSkycityLegStaged(gap=SKY_WARM_GAP_MS):Promise<boolean>{
  * (frameMaxMs) so the Mac run shows the island frame cost. Cached: repeated calls are free; a failed stage only logs. */
 let meadowStaged:Promise<boolean>|null=null;
 export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SKY_WARM_GAP_MS):Promise<boolean>{
+ beginTransitionShaderWarm();watchTransitionRoot(parent);
  if(meadowStaged)return meadowStaged;
  const wait=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
  const run:Record<string,()=>Promise<unknown>>={

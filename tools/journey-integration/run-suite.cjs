@@ -88,6 +88,7 @@ const tests=[
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['region-board-staging','tools/meadow/test_region_board_staging.cjs'],/* r5 G1: meadow / sky-city board work spread over level-loading */
  ['meadow-sail-warm','tools/meadow/test_meadow_sail_warm.cjs'],/* b20 warm-up C: sail env_meadow variants, ≤4 ms cost model, sail frame compiles nothing */
+ ['transition-shader-warm','tools/meadow/test_transition_shader_warm.cjs'],/* b20: morph/skin/shadow variants one per frame, sail frame 0, camera not delayed */
  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
  ['world-background-freeze','tools/journey-integration/test-world-background-freeze.cjs'],
  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],

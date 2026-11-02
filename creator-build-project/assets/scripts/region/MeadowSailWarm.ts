@@ -150,3 +150,5 @@ export function beginMeadowSailWarm(model:Node|null):MeadowSailWarm|null{
 export function meadowSailWarmOf(model:Node|null):MeadowSailWarm|null{const w=model&&(model as any)[MARK];return w||null;}
 /** The next warm step (the set-off draw) kicks and compiles nothing. */
 export function noteMeadowSailFrame(model:Node|null):void{const w=meadowSailWarmOf(model);if(w)w.noteSail();}
+/** Raw GL compile of one pass (not device.createShader). False when the pass has no GLSL yet, so the caller compiles the same frame. */
+export function kickCompiledPass(pass:any):boolean{const src=shaderSources(pass);if(!src)return false;kickGlsl(currentGl(),src.vert,src.frag);return true;}

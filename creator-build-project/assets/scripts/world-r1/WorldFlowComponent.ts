@@ -17,6 +17,7 @@ import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { preloadMeadowForSail } from '../region/SailPreload';
 import { warmTransition } from '../region/TransitionPreload';
+import { beginTransitionShaderWarm, watchTransitionRoot } from '../region/TransitionShaderWarm';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import { hasScreenCover, screenCover } from './ScreenCover';
@@ -379,7 +380,9 @@ export class WorldFlowComponent extends Component {
     catch(error){this.cancelRoomLook();if(error instanceof Cancelled)return {ok:false,reason:'cancelled'};throw error;}
     finally {if(this.roomLookToken===token)this.roomLookToken=null;}
   }
-  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok)this.herAdapter=adapter;/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
+  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok){this.herAdapter=adapter;this.armTransitionShaderWarm();}/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
+  /** Spread character/island/meadow shader variants one per frame. Does not await, and does not hold animateCamera. */
+  private armTransitionShaderWarm():void{beginTransitionShaderWarm();const scene=director.getScene();if(scene)watchTransitionRoot(scene);if(this.ownedModel)watchTransitionRoot(this.ownedModel);}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
     token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);this.worldAmbient=ambient;ambient.clipUuids=REGIONS.island.ambientClipUuids!;this.ownedModel=model;this.node.addChild(model);
     try {
@@ -459,7 +462,7 @@ export class WorldFlowComponent extends Component {
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
       token.check();
       const writeLayers=(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);this.room360?.syncLayers();};
-      this.nodeWalkLayers=writeLayers;
+      this.nodeWalkLayers=writeLayers;this.armTransitionShaderWarm();
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.

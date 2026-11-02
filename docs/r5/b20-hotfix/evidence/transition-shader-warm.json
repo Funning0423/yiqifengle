@@ -1,0 +1,27 @@
+{
+  "model": "transition-shader-warm",
+  "macFrames": {
+    "animateCamera1841": {
+      "ms": 606,
+      "shaders": 70
+    },
+    "animateCamera1938": {
+      "ms": 149,
+      "shaders": 31
+    }
+  },
+  "budgetMs": 4,
+  "variants": 7,
+  "morphCounts": [
+    53,
+    16,
+    3
+  ],
+  "maxKicksPerFrame": 1,
+  "maxCompilesPerFrame": 1,
+  "maxFrameMs": 0.75,
+  "sailSkips": 1,
+  "heldFrameCompiles": 0,
+  "cameraDelayed": false,
+  "note": "Offline schedule. device.createShader of the Mac variants happens one per frame from scene load. animateCamera is not awaited and the stepper is not held for the shot."
+}
