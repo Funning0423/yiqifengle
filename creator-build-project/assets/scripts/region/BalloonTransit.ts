@@ -527,7 +527,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const cover=t+1e-9>=HANDOFF_COVER_T;
    const handoff=arrived||cover;
    const meadowOn=!arrived&&t<plan.meadowOffAt,cityOn=arrived||t>=plan.cityActiveAt;
-   const showIsland=arrived||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
+   // Island body (lawn+rock) must stay on from LAND_T through B5. Old gate hid it at
+   // HANDOFF_COVER_T/STRATA_OFF_T until the arrived flag flipped *after* the walk-out, so she stood
+   // on restored cloudsea with only far floatingrocks visible (skycity-sea-landing).
+   const showIsland=arrived||t+1e-9>=LAND_T||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
    if(isValid(meadow,true))meadow.active=meadowOn;
    scanSeas(t);applySailLeft(sailLeftoverShown(t,arrived)&&meadowOn);
    // Shadows on for meadow gameplay match; off after unload for DC ≤53.
@@ -772,6 +775,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // B5 (after the B4 settle 29–30 s): the door opens (door_reach), she leaves stand_point over the sill and walks inland
     // to anchor_spawn_girl (TRANSITION_STAGING.skycity.s0New). Basket touchdown stays S0_LOCAL; board frames spawn+court.
     chainMark('balloon','B5-door-walk-out');
+    // Belt: ride beforeDraw already stopped; last paint may have been under cover. Force
+    // island floor (+ arrival lawn nodes) on before she steps out onto S0.
+    if(model){
+     showNamed(model,ISLAND_BODY,true);
+     showNamed(model,ISLAND_VINES,true);
+     eachNamed(model,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;});
+     try{model.getComponent(SkycityCloudsea)!.setFlightHidden(false);}catch{}
+    }
     const vp=vehicle.worldPosition,o:Vec=[vp.x,vp.y,vp.z],y=worldYawDeg(vehicle)/* full8: world yaw (yaw+roll quat; euler read-back can fold) */;
     // full2-cam E: exit close-up — from the ride's last pose, min-jerk (BASKET_CLOSE.blendS) onto a lens beside door B (her ≈30 %),
     // panning with her down the step to S0; the ride ends on it (RegionJourneyCore keeps a ride's last lens; D hands it to the board).

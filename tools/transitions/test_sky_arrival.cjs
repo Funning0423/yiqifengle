@@ -29,4 +29,14 @@ for(const name of Object.keys(active)){const want=F.skyNodeAfterArrival(name);if
 for(const name of lawn)assert.equal(active[name],true,name+' on after arrival');
 for(const name of farClouds)assert.equal(active[name],false,name+' replaced after arrival');
 for(const name of transitOff)assert.equal(active[name],false,name+' off after arrival');
+
+// b20 black-landing: island body stays visible from LAND_T (covers B5 walk-out under cover).
+assert.ok(transit.includes('t+1e-9>=LAND_T')||transit.includes('t>=LAND_T'),'showIsland keeps body from LAND_T');
+assert.ok(transit.includes("chainMark('balloon','B5-door-walk-out')"),'B5 mark present');
+const b5At=transit.indexOf("chainMark('balloon','B5-door-walk-out')");
+const b5=transit.slice(b5At,transit.indexOf('arrived=true',b5At));
+assert.ok(b5.includes('ISLAND_BODY'),'B5 forces island body before walk-out');
+assert.ok(b5.includes('skyNodeAfterArrival'),'B5 restores arrival lawn nodes');
+assert.equal(F.LAND_T,35);assert.equal(F.STRATA_OFF_T,36);
+assert.ok(F.LAND_T<F.STRATA_OFF_T,'LAND_T before strata off so touchdown floor is on');
 console.log(JSON.stringify({lawn:lawn.length,farClouds:farClouds.length,transitOff:transitOff.length}));
