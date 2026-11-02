@@ -37,7 +37,7 @@ const dBox=(p,b)=>{const lo=b.slice(0,3),hi=b.slice(3,6);let s=0,inside=true;for
     tail:()=>{const p=cam(end),q=cam0;return Math.max(...[0,1,2].map(i=>Math.abs(p.position[i]-q.position[i])));}});}
   {// B5
    const v=plan.vehicle(plan.total),o=v.pos,y=v.yaw*R2D,W=l=>TM.basketToWorld(o,y,l),camEnd=plan.camera(plan.total,{w,h}),sp=BC.basketCloseSpot(W(B.doorOutB),o,boxes,undefined,[camEnd]);
-   const seat=W([0,0,0]),st=D4.standUp+D4.pause,t1=st+D4.doorReach,t2=t1+D4.stepDown+1,p2=[city(K.stepDown),city(K.deckEdge),city(K.s0New)],l2=Math.hypot(p2[1][0]-p2[0][0],p2[1][2]-p2[0][2])+Math.hypot(p2[2][0]-p2[1][0],p2[2][2]-p2[1][2]);
+   const seat=W([0,0,0]),st=D4.standUp+D4.pause,t1=st+D4.doorReach,t2=t1+D4.stepDown+1,p2=[city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)],l2=0;for(let i=1;i<p2.length;i++)l2+=Math.hypot(p2[i][0]-p2[i-1][0],p2[i][2]-p2[i-1][2]);
    const end=t2+Math.min(D4.toPath,Math.max(1.5,l2/TS.TRANSITION_STAGING.walkMps));
    const feet=t=>t<t1?seat:t<t2?lerpPath([seat,W(B.thresholdB),W(B.doorOutB),city(K.stepDown)],(t-t1)/(t2-t1)):lerpPath(p2,(t-t2)/(end-t2));
    const cam=t=>TC.blendPose(camEnd,BC.basketClosePose(sp.position,feet(t)),TC.minJerk(t/(sp?BC.speedSafeS(camEnd.position,sp.position,BC.BASKET_CLOSE.blendOutS):BC.BASKET_CLOSE.blendOutS)));

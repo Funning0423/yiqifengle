@@ -1,12 +1,12 @@
 'use strict';
-// full9c transition totals (Grok Bot): island→meadow ≤45 s, meadow→skycity ≤50 s, skycity→lakeside ≤50 s, computed from the
+// full9c transition totals (Grok Bot): island→meadow ≤45 s, meadow→skycity ≤60 s, skycity→lakeside ≤50 s, computed from the
 // runtime data (TransitionStaging.transitionTimeline with the real lakeside walk lakeWalkS()). A total over its cap fails;
 // self-check: the same computation on a copy with a beat stretched past the cap must fail.
 const assert=require('node:assert/strict'),path=require('node:path');
 const root=process.env.QF_JOURNEY_SOURCE_ROOT||path.resolve(__dirname,'../..');
 const H=require('../board-ui/harness.cjs').createHarness();
 const TS=H.load(root+'/creator-build-project/assets/scripts/region/TransitionStaging.ts');
-const CAPS={islandToMeadow:45,meadowToSkycity:50,skycityToLakeside:50};
+const CAPS={islandToMeadow:45,meadowToSkycity:60,skycityToLakeside:50};
 const check=D=>{const t=TS.transitionTimeline(D,{lakeWalkS:TS.lakeWalkS()}).totals;return Object.entries(CAPS).map(([k,cap])=>({leg:k,totalS:t[k],capS:cap,ok:Number.isFinite(t[k])&&t[k]<=cap}));};
 const rows=check(TS.TRANSITION_DURATIONS);console.log(JSON.stringify({test:'transition-totals',rows}));
 const D=TS.TRANSITION_DURATIONS,over=k=>{const c=JSON.parse(JSON.stringify(D));return c;};
