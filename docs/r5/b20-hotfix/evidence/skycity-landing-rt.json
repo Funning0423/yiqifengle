@@ -99,5 +99,5 @@
       "main": 1874614
     }
   },
-  "note": "Exact-key pool plus texture views (base id + subresource) plus sub-256KB resize when Texture.resize exists. A hit returns the same object and the probe does not count it. External images and a size change with no resize still allocate. Mac 606f434e still failed landing (from2 cre/des median 114, uploads 0, TEX lines 0, live 384). Board-background zero_frac was 0.988. Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and the per-second small= histogram if any remainder is left."
+  "note": "Exact-key pool, views by base id + subresource, and same-family resize under 2MB when Texture.resize exists. A view of that base is resized in place so a label reset (1x1 to 1187x170 / 1367x175) does not allocate. A hit returns the same object and the probe does not count it. External images, a size at or above 2MB, and a view with no resize still allocate. Mac ac9a0aeb passed landing from2 (0/0/0) and failed board-background zero_frac 0.964 on two seconds of f35 v1 strips. Mac must re-measure: landing from sample 2 cre and des median <= 2/s and uploads <= 1/s, and board-background zero_frac >= 0.98."
 }

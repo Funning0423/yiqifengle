@@ -4056,8 +4056,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts",
-    "bytes": 57418,
-    "sha256": "5bb0e0462b9940cbac532fd89566d781febe1e087244fd4880cc138981b48146"
+    "bytes": 58419,
+    "sha256": "9e90dedcf19c19e832e62480ffc0b42f7112cc2f70f3b80e93283e5772ee2899"
   },
   {
     "path": "creator-build-project/assets/scripts/render/RoomLightingRig.ts.meta",

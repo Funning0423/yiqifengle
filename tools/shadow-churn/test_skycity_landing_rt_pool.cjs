@@ -10,9 +10,11 @@
  *  outside the pool and then the pool re-installs outside it; probe cre/des stay at the first real
  *  allocate. External images still hit the device.
  *  Mac 606f434e: exact keys still left sample2+ at cre/des median 114/s (uploads 0, no ≥256KB TEX line, live 384).
- *  A texture view (info.texture set, no width) and a sub-256KB image whose size changes every frame must also
- *  stay at one native create. A size change with no Texture.resize stays a real allocate. Do not loosen the
- *  N=600 residency gate. */
+ *  A texture view (info.texture set, no width) and an image under RT_LOOSE_BYTES whose size changes every
+ *  frame must also stay at one native create. Mac ac9a0aeb board-background: label resets (1×1 → ~1187×170
+ *  and ~1367×175, format 35 views) must not allocate again when resize exists. A size change with no
+ *  Texture.resize stays a real allocate. A view with no resize is dropped after the base size changes.
+ *  Do not loosen the N=600 residency gate. */
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const ts = require(process.env.QF_TYPESCRIPT_MODULE || 'typescript');
 const ROOT = path.join(__dirname, '../..');
@@ -189,13 +191,26 @@ assert.equal(native() - nView, 1, 'one native view across ' + FRAMES + ' frames'
 assert.equal(destroyed() - dView, 0, 'view recycle is not a native destroy');
 assert.equal(G.creates - gView, 1, 'probe counts the view once');
 assert.equal(G.destroys - gdView, 0, 'probe does not count a view recycle');
-const nStale = native();
+const nStale = native(), gStale = G.creates;
 base.resize(40, 32);
 const again = device.createTexture({ texture: base, type: 1, format: 35, baseLevel: 0, levelCount: 1 });
-assert.notStrictEqual(again, view, 'a view is not reused after the base size changes');
-assert.equal(view.dead, true, 'the stale view is destroyed');
-assert.equal(native() - nStale, 1, 'the new base size allocates one view');
+assert.strictEqual(again, view, 'a view with resize follows the base size');
+assert.equal(again.width, 40, 'refreshed view reports the new base width');
+assert.equal(again.height, 32, 'refreshed view reports the new base height');
+assert.equal(view.dead, false, 'the refreshed view is not destroyed');
+assert.equal(native() - nStale, 0, 'refreshed view is not a native create');
+assert.equal(G.creates - gStale, 0, 'probe does not count a refreshed view');
 again.destroy();
+const frozen = device.createTexture({ texture: base, type: 1, format: 35, baseLevel: 0, levelCount: 1 });
+frozen.destroy();
+delete frozen.resize;
+const nFrozen = native();
+base.resize(48, 32);
+const fresh = device.createTexture({ texture: base, type: 1, format: 35, baseLevel: 0, levelCount: 1 });
+assert.notStrictEqual(fresh, frozen, 'a view with no resize is not reused after the base size changes');
+assert.equal(frozen.dead, true, 'the stale view is destroyed');
+assert.equal(native() - nFrozen, 1, 'the new base size allocates one view');
+fresh.destroy();
 base.resize(32, 32);
 const liveA = device.createTexture({ texture: base, format: 35, baseLevel: 0, levelCount: 1 });
 const liveB = device.createTexture({ texture: base, format: 35, baseLevel: 0, levelCount: 1 });
@@ -231,6 +246,32 @@ const bigB = device.createTexture({ usage: 0x10, format: 35, width: 1024, height
 assert.notStrictEqual(bigB, bigA, 'a size change at or above 256KB is not loose-resized');
 assert.equal(native() - nBig, 1);
 bigB.destroy();
+const nLab = native(), gLab = G.creates;
+let labImg = null, labView = null;
+for (let i = 0; i < FRAMES; i++) {
+  const w = i % 2 === 0 ? 1 : 1187, h = i % 2 === 0 ? 1 : 170;
+  const t = device.createTexture({ usage: 0x16, format: 35, width: w, height: h, flags: 0 });
+  const v = device.createTexture({ texture: t, type: 1, format: 35 });
+  if (!labImg) labImg = t; else assert.strictEqual(t, labImg, 'label image reset reuses the pooled texture');
+  if (!labView) labView = v; else assert.strictEqual(v, labView, 'label view reset reuses the pooled view');
+  assert.equal(t.width, w, 'label image reports the requested width');
+  if (i > 0) { assert.equal(v.width, w, 'label view reports the base width'); assert.equal(v.height, h, 'label view reports the base height'); }
+  v.destroy(); t.destroy();
+}
+assert.equal(native() - nLab, 2, 'a 1x1 ↔ 1187x170 label reset is one image and one view');
+assert.equal(G.creates - gLab, 2, 'probe counts the label image and view once');
+const nWide = native(), gWide = G.creates;
+const wideA = device.createTexture({ usage: 0x16, format: 36, width: 300, height: 158, flags: 0 });
+const wideVA = device.createTexture({ texture: wideA, type: 1, format: 36 });
+wideVA.destroy(); wideA.destroy();
+const wideB = device.createTexture({ usage: 0x16, format: 36, width: 1367, height: 175, flags: 0 });
+const wideVB = device.createTexture({ texture: wideB, type: 1, format: 36 });
+assert.strictEqual(wideB, wideA, '1367x175 label image resizes the pooled strip');
+assert.strictEqual(wideVB, wideVA, '1367x175 label view is the same object');
+assert.equal(wideVB.width, 1367); assert.equal(wideVB.height, 175);
+assert.equal(native() - nWide, 2, 'the wider strip does not allocate');
+assert.equal(G.creates - gWide, 2, 'probe does not count the wider strip');
+wideVB.destroy(); wideB.destroy();
 const nBare = native();
 const bare1 = device.createTexture({ usage: 0x4, format: 99, width: 12, height: 12, flags: 0, __noResize: 1 });
 bare1.destroy();
@@ -300,7 +341,7 @@ const evidence = {
     steadyCreMax: 78,
     packageProbeKept: { total: 23600600, main: 1874614 },
   },
-  note: 'Exact-key pool plus texture views (base id + subresource) plus sub-256KB resize when Texture.resize exists. A hit returns the same object and the probe does not count it. External images and a size change with no resize still allocate. Mac 606f434e still failed landing (from2 cre/des median 114, uploads 0, TEX lines 0, live 384). Board-background zero_frac was 0.988. Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and the per-second small= histogram if any remainder is left.',
+  note: 'Exact-key pool, views by base id + subresource, and same-family resize under 2MB when Texture.resize exists. A view of that base is resized in place so a label reset (1x1 to 1187x170 / 1367x175) does not allocate. A hit returns the same object and the probe does not count it. External images, a size at or above 2MB, and a view with no resize still allocate. Mac ac9a0aeb passed landing from2 (0/0/0) and failed board-background zero_frac 0.964 on two seconds of f35 v1 strips. Mac must re-measure: landing from sample 2 cre and des median <= 2/s and uploads <= 1/s, and board-background zero_frac >= 0.98.',
 };
 const evDir = path.join(ROOT, 'docs/r5/b20-hotfix/evidence');
 fs.mkdirSync(evDir, { recursive: true });

@@ -738,17 +738,23 @@ installShadowResidency();
  * Mac 606f434e: that exact key still left landing sample2+ at cre/des median 114/s, uploads 0, live 384,
  * and zero TEX lines (the probe only prints ≥256KB). TextureViewInfo has no width, so a view is a counted
  * create/destroy under the line. A sub-256KB image whose size changes also misses the exact key. Views are
- * pooled by base id plus subresource range. A sub-256KB miss may resize a free texture of the same family
- * (usage/format/samples/type/flags/depth/layers, mip count collapsed to 1-or-many) when Texture.resize exists.
- * External images are not pooled. Caps: 32 textures / 48 MB, and 64 views. A full list evicts the oldest
- * with the original destroy. Re-installed every BEFORE_DRAW so a later GPU-probe wrap cannot sit outside
- * the pool and count a cache hit as a create.
+ * pooled by base id plus subresource range. A miss under RT_LOOSE_BYTES may resize a free texture of the
+ * same family (usage/format/samples/type/flags/depth/layers, mip count collapsed to 1-or-many) when
+ * Texture.resize exists. Mac ac9a0aeb skycity.board-background: the first two seconds are label resets
+ * (SimpleTexture destroys the image and its view, then creates both again). Strips run from 1×1 up to
+ * about 1367×175 (~1 MB), so a 256KB ceiling still allocated the image, and the view was allocated again
+ * because the pooled view still had the old base size. A view of the same base and range is resized in
+ * place when Texture.resize exists; the GL texture belongs to the base. Screen-sized targets stay
+ * exact-key. External images are not pooled. Caps: 32 textures / 48 MB, and 64 views. A full list evicts
+ * the oldest with the original destroy. Re-installed every BEFORE_DRAW so a later GPU-probe wrap cannot
+ * sit outside the pool and count a cache hit as a create.
  */
 export const RT_POOL_CAP = 32;
 /** Byte ceiling for retained attachments (w*h*4). A single larger texture is destroyed for real. */
 export const RT_POOL_BYTES = 48 * 1024 * 1024;
-/** Loose resize only below the probe's TEX line. Larger misses stay exact-key so a screen target is not resized away. */
-export const RT_LOOSE_BYTES = 256 * 1024;
+/** Loose resize ceiling (w*h*depth*layers*4). Label strips on the sky-city board are ~1 MB; a 1170×2532
+ *  screen target is ~12 MB and stays exact-key. The free texture must also be under this ceiling. */
+export const RT_LOOSE_BYTES = 2 * 1024 * 1024;
 export const RT_VIEW_CAP = 64;
 const rtFree: any[] = [];
 const rtViews: any[] = [];
@@ -872,20 +878,26 @@ function rtViewSize(base: any): { w: number, h: number } | null {
   if (!base || base.width == null || base.height == null) return null;
   return { w: base.width | 0, h: base.height | 0 };
 }
-/** A pooled view copied the base size at create time. After Texture.resize the copy is wrong, so drop it. */
-function rtDropStaleViews(key: string, info: any): void {
-  const sz = rtViewSize(info && info.texture); if (!sz) return;
-  for (let i = rtViews.length - 1; i >= 0; i--) {
-    const v = rtViews[i];
-    if (!v || v.__qfRtDead || v.__qfRtKey !== key) continue;
-    if ((v.__qfRtBaseW | 0) === sz.w && (v.__qfRtBaseH | 0) === sz.h) continue;
-    rtViews.splice(i, 1); rtEvict(v);
-  }
+/** A view copies the base size at initialize. WebGL stores that copy on the view and shares the base
+ *  GL texture, so Texture.resize on the view updates the copy and does not allocate. */
+function rtRefreshView(view: any, info: any): boolean {
+  const sz = rtViewSize(info && info.texture); if (!sz) return true;
+  if ((view.__qfRtBaseW | 0) === sz.w && (view.__qfRtBaseH | 0) === sz.h) return true;
+  if (typeof view.resize !== 'function') return false;
+  try { view.resize(sz.w, sz.h); } catch { return false; }
+  if ((view.width | 0) !== sz.w || (view.height | 0) !== sz.h) return false;
+  view.__qfRtBaseW = sz.w; view.__qfRtBaseH = sz.h;
+  return true;
 }
-function rtTakeView(key: string): any {
+/** Take a free view of this base and range. A size mismatch is refreshed in place; a view that cannot
+ *  resize is destroyed so it is not handed back at the old size. */
+function rtTakeFreshView(key: string, info: any): any {
   for (let i = 0; i < rtViews.length; i++) {
     const t = rtViews[i];
-    if (t && !t.__qfRtDead && t.__qfRtKey === key) { rtViews.splice(i, 1); return t; }
+    if (!t || t.__qfRtDead || t.__qfRtKey !== key) continue;
+    rtViews.splice(i, 1); i--;
+    if (rtRefreshView(t, info)) return t;
+    rtEvict(t);
   }
   return null;
 }
@@ -911,8 +923,7 @@ export function ensureRtPool(device: any): boolean {
   const createTexture = function (this: any, info: any) {
     const viewKey = info && info.texture ? rtViewKey(info) : '';
     if (viewKey) {
-      rtDropStaleViews(viewKey, info);
-      const hit = rtTakeView(viewKey);
+      const hit = rtTakeFreshView(viewKey, info);
       if (hit) { hit.__qfRtReuse = 1; hit.__qfRtHeld = false; armRt(hit, 'v'); return hit; }
       const view = inner.call(device, info);
       if (view) {
