@@ -191,7 +191,7 @@ export function stageTransitionWarm(items:{key:string}[],hooks:{kick(key:string)
   stats:()=>({frames,sailSkips,kicked,compiled,pending:items.length-compiled,criticalPending:0,maxFrameMs,done:compiled>=items.length}),
   dispose(){dead=true;}};}
 const roots:Node[]=[];const jobs:Item[]=[];const seen:string[]=[];const cachedNames:string[]=[];
-let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,skipLeft=0,held=false,holdDepth=0,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
+let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,skipLeft=0,held=false,holdDepth=0,armHoldLeft=0,armHoldArmed=false,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
 function remember(node:Node|null):void{if(!node||!isValid(node,true))return;if(roots.indexOf(node)>=0)return;roots.push(node);scanIn=0;}
 function pipelineOf(obj:any):any{return obj&&(obj.pipeline||obj._pipeline)||null;}
 function programLib(pass?:any):any{
@@ -354,7 +354,14 @@ function absorb():void{
   for(let i=hot.length-1;i>=0;i--)enqueueAt(hot[i],true);
   for(let i=0;i<cold.length;i++)enqueueAt(cold[i],false);}}
 function onFrame():void{
- frames++;if(held)return;if(skipNext||skipLeft>0){if(skipNext)skipNext=false;if(skipLeft>0)skipLeft--;sailSkips++;return;}
+ frames++;
+ // Bridge hold (B5→board / prime): countdown on after_draw; absorb still runs so city materials enqueue without compile.
+ if(armHoldArmed){if(armHoldLeft>0)armHoldLeft--;if(armHoldLeft<=0){armHoldArmed=false;holdTransitionShaders(false);}}
+ // While held: never compile. Still honor heavy-frame skips (flight/B1 note) so absorb cannot stack onto setCamera LONGs.
+ // Only absorb on quiet held frames (B5→board bridge) so city mats enqueue before reveal.
+ if(held){if(skipNext||skipLeft>0){if(skipNext)skipNext=false;if(skipLeft>0)skipLeft--;sailSkips++;return;}
+  if(scanIn<=0){absorb();scanIn=SCAN_EVERY;}else scanIn--;sailSkips++;return;}
+ if(skipNext||skipLeft>0){if(skipNext)skipNext=false;if(skipLeft>0)skipLeft--;sailSkips++;return;}
  if(scanIn<=0){absorb();scanIn=SCAN_EVERY;}else scanIn--;
  const pending=Math.max(0,jobs.length-compiled),crit=criticalPending();
  if(compiled>=jobs.length&&!crit){if(jobs.length&&!logged){logged=true;try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending:0,criticalPending:0,cached:cachedNames.length}));}catch{/* log only */}}return;}
@@ -389,5 +396,9 @@ export function noteTransitionHeavyFrames(n:number=3):void{if(n>skipLeft)skipLef
 export function transitionWarmStats():TransitionWarmStats{return {frames,sailSkips,kicked,compiled,pending:Math.max(0,jobs.length-compiled),criticalPending:criticalPending(),maxFrameMs,done:jobs.length>0&&compiled>=jobs.length&&criticalPending()===0};}
 /** Test hook. Production does not call this from the camera. */
 export function holdTransitionShaders(on:boolean):void{if(on)holdDepth++;else if(holdDepth>0)holdDepth--;held=holdDepth>0;}
+/** Hold warm compiles for n after_draw frames (refcount). Use to bridge B5→board without a compile window. */
+export function armTransitionHold(n:number=12):void{
+ const want=n|0;if(want<=0)return;if(want>armHoldLeft)armHoldLeft=want;
+ if(armHoldArmed)return;armHoldArmed=true;holdTransitionShaders(true);}
 export function cachedWarmNames():string[]{const out:string[]=[];for(let i=0;i<cachedNames.length;i++)out.push(cachedNames[i]);return out;}
-export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;holdDepth=0;scanIn=0;listening=false;logged=false;}
+export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;holdDepth=0;armHoldLeft=0;armHoldArmed=false;scanIn=0;listening=false;logged=false;}

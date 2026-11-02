@@ -201,12 +201,14 @@ assert.match(ad,/noteMeadowSailFrame\(model\);noteTransitionSailFrame\(\)/);
 const nwa=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts'),'utf8');
 const balloon=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/BalloonTransit.ts'),'utf8');
 const boardUi=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/ManagedMobileBoardUI.ts'),'utf8');
-assert.match(nwa,/noteTransitionHeavyFrames\(12\)/);
+assert.match(nwa,/noteTransitionHeavyFrames\(24\)/);
 assert.match(nwa,/holdTransitionShaders\(true\)/);
 assert.match(nwa,/primeScene/);
 assert.match(balloon,/noteTransitionHeavyFrames\(8\)/);
 assert.match(balloon,/holdTransitionShaders\(true\)/);
 assert.match(balloon,/holdTransitionShaders\(false\)/);
+assert.match(balloon,/armTransitionHold/);
+assert.equal(typeof T.armTransitionHold,'function');
 assert.match(boardUi,/noteTransitionHeavyFrames\(10\)/);
 const skyBg=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/SkycityBoardBackground.ts'),'utf8');
 assert.match(skyBg,/primeScene/);
@@ -227,7 +229,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Mac e32f04bf: hold warm for flight/B5 + board reveal (refcount); primeScene activates skycity GLB early; expand noteTransitionHeavyFrames. LONGs are main-thread not first-compile. Cameras not awaited; RT/fidelity untouched.'};
+ note:'Mac e1974767: split paint/setCamera on threshold frames; absorb-while-held on quiet bridge; armTransitionHold B5→board; primeScene warm-draws board cam; reveal≠presentForPlay same frame. Target LONG<100. RT untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);
