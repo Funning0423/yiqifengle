@@ -105,3 +105,14 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 - Merged: `15887835` / `b95d8555` (PCF2 shadow warm; character variants first)
 - Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
 - Live trial stays `1.0.202611020627` until a later PASS upload
+
+---
+
+# Integrate tip — animateCamera PCF2 program-cache fix (LONG retest)
+
+- Tip: `86705fbe4a9898722afbaac86b6ca7b873917168`
+- Branch: `gbt/r5-b20-integrate-landing-visual-bg2`
+- Base: `8571f6d1` (prior PCF2 tip that FAILED Mac 611ms/70)
+- Merged: `66937792` / `de045cb6` (pipeline-bag PCF write + girl/room families before camera; no animateCamera hold)
+- Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
+- Live trial stays `1.0.202611020627` until a later PASS upload
