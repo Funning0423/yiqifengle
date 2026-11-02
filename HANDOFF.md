@@ -94,3 +94,14 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 - Conflict resolution: keep always `configureMeadowVertexColors` + add warm hooks
 - Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
 - Live trial stays `1.0.202611020627` until a later PASS upload
+
+---
+
+# Integrate tip — PCF2 departure shadow warm (LONG retest)
+
+- Tip: `4b3b9a8070245acb6672a23a4b512282bdceb2a1`
+- Branch: `gbt/r5-b20-integrate-landing-visual-bg2`
+- Base: `46e2c3ff` (TransitionShaderWarm + cine + fx + RT)
+- Merged: `15887835` / `b95d8555` (PCF2 shadow warm; character variants first)
+- Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
+- Live trial stays `1.0.202611020627` until a later PASS upload
