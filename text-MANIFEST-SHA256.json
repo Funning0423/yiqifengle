@@ -2631,8 +2631,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts",
-    "bytes": 77991,
-    "sha256": "666f34f59f1335b2e6c059f6a98b7682b76557b7aebe13a9d36c567e2c3f95f3"
+    "bytes": 79276,
+    "sha256": "13dc11afb0e80a62ae420bc03f1c4199b00db87bc10e92e009022a87470716a1"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonTransit.ts.meta",
@@ -3591,8 +3591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
-    "bytes": 5448,
-    "sha256": "7060338cff4c2bc2242770f4b45350ff4d9a791ee0f663e347b4d9c31a57ac0b"
+    "bytes": 6162,
+    "sha256": "c5cc44b048f0a0f9e680f6df6fa855706d4d0c3f8d467e8047fd5ab6d83502c9"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -3771,8 +3771,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts",
-    "bytes": 33061,
-    "sha256": "8638f4b70af3d1a921d7597e6b2435dbeccf3d09202881b8757cdff40d473db8"
+    "bytes": 34070,
+    "sha256": "4110af700e7b060f57468dae35fa234af089ac78a9988f083682e6dc06221970"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts.meta",
@@ -4876,8 +4876,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 9649,
-    "sha256": "f65fb7f30ea88c3571be8383d928888ed913fa8d6debace09ecd1ef064474fd9"
+    "bytes": 10046,
+    "sha256": "0ea009343c55e46a3f9373c4a74440b89b3cdd4305fe8482cdc2fa103c1acd92"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
