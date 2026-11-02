@@ -62,6 +62,7 @@ import {createSailDriver,playSailBeats} from './SailRide';
 import {mountSailArt,type SailArt} from './SailArt';
 import {meadowSplitLoad,takeSailWarm} from './SailPreload';
 import {beginMeadowSailWarm, noteMeadowSailFrame} from './MeadowSailWarm';
+import {noteTransitionSailFrame} from './TransitionShaderWarm';
 import {mountBalloonLease} from './BalloonRide';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
@@ -111,7 +112,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      mountYardBalloon(model)/* full9c: deflated balloon waits in the yard (not awaited) */;
      for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
      const grass=validateModel(model);
-     const warm=beginMeadowSailWarm(model);noteMeadowSailFrame(model);
+     const warm=beginMeadowSailWarm(model);noteMeadowSailFrame(model);noteTransitionSailFrame();
      // Always sync-configure colourless palette slots (fence/path/windmill/…). Warm-up C
      // recompiles the same USE_VERTEX_COLOR=false variants over frames, but until then a
      // non-null warm used to skip this and the shared lit material multiplied missing
