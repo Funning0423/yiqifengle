@@ -2,12 +2,13 @@
 /** b20 skycity landing-board RT pool.
  *  Mac ced9972f: pin made skycity.board-background cre/des ~0, but skycity.landing-board (16 samples)
  *  stayed cre/des 308–399 (avg 389.4), DepthStencil on every sample, uploads avg 83.4/s, anonymous `?:N`.
- *  Named SceneDepth/Radiance/LdrColor/UiColor were not in the churn list (rt_named_rows=0).
- *  Those anonymous destroys are device textures that are not in the executor map (RenderWindow color/depth).
- *  Gate: one depth + one color attachment, destroyed and created for 40 frames, stay at 2 native creates
- *  and 0 native destroys. The GPU probe is wrapped outside the pool and then the pool re-installs outside
- *  it; probe cre/des/uploads stay at the first real allocate. Sampled-only and external textures still
- *  hit the device. Do not loosen the N=600 residency gate. */
+ *  Mac 186b34e7: the attachment-only pool dropped landing from sample 2 to uploads median 0 and named
+ *  DepthStencil churn 0, but cre/des stayed median 112/s (108–114, zero_frac 0). Those creates are under
+ *  the probe's 256KB line, so the old key (COLOR/DEPTH and size >= 1) never kept them.
+ *  Gate: depth + color, a sampled image, a 16×16 usage-none image, and a 0×0 pass dummy, each destroyed
+ *  and created for many frames, stay at one native create and 0 native destroys. The GPU probe is wrapped
+ *  outside the pool and then the pool re-installs outside it; probe cre/des stay at the first real
+ *  allocate. External images and texture views still hit the device. Do not loosen the N=600 residency gate. */
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const ts = require(process.env.QF_TYPESCRIPT_MODULE || 'typescript');
 const ROOT = path.join(__dirname, '../..');
@@ -80,15 +81,30 @@ assert.notStrictEqual(pairA, pairB, 'two live attachments of one key do not alia
 pairA.destroy(); pairB.destroy();
 
 const s0 = native(), sd0 = destroyed(), g0 = G.creates, gd0 = G.destroys;
+let sampled = null;
 for (let i = 0; i < 10; i++) {
   const t = device.createTexture({ usage: 0x4, format: 35, width: 64, height: 64, flags: 0 });
+  if (!sampled) sampled = t; else assert.strictEqual(t, sampled, 'same sampled size is the cached object');
   t.destroy();
-  assert.equal(t.dead, true, 'sampled image destroy still runs');
+  assert.equal(t.dead, false, 'sampled image is recycled');
 }
-assert.equal(native() - s0, 10, 'sampled textures are not pooled');
-assert.equal(destroyed() - sd0, 10);
-assert.equal(G.creates - g0, 10);
-assert.equal(G.destroys - gd0, 10);
+assert.equal(native() - s0, 1, 'sampled textures of one size are pooled');
+assert.equal(destroyed() - sd0, 0, 'sampled recycle is not a native destroy');
+assert.equal(G.creates - g0, 1, 'probe counts the sampled image once');
+assert.equal(G.destroys - gd0, 0, 'probe does not count a sampled recycle');
+
+const small0 = native(), smallD = destroyed(), gs = G.creates, gsd = G.destroys;
+for (let i = 0; i < FRAMES; i++) {
+  const img = device.createTexture({ width: 16, height: 16 });
+  const dummy = device.createTexture({});
+  img.destroy(); dummy.destroy();
+  assert.equal(img.dead, false, '16x16 usage-none image stays pooled');
+  assert.equal(dummy.dead, false, '0x0 pass dummy stays pooled');
+}
+assert.equal(native() - small0, 2, '16x16 + empty descriptor are two native creates, then hits');
+assert.equal(destroyed() - smallD, 0, 'small textures are not destroyed while hot');
+assert.equal(G.creates - gs, 2, 'probe counts each small texture once');
+assert.equal(G.destroys - gsd, 0, 'probe does not count small recycles');
 
 const ext = device.createTexture({ usage: 0x10, format: 35, width: 32, height: 32, flags: 0x8 });
 const nExt = native();
@@ -125,7 +141,17 @@ const huge2 = device.createTexture({ usage: 0x20, format: 55, width: 4000, heigh
 assert.notStrictEqual(huge2, huge, 'over-cap textures are not reused');
 huge2.destroy();
 
-assert.equal(Rig.rtPoolKey({ usage: 0x4, width: 1024, height: 1024, format: 35 }), '', 'sampled-only key is empty');
+assert.notEqual(Rig.rtPoolKey({ usage: 0x4, width: 1024, height: 1024, format: 35 }), '', 'sampled-only key is pooled');
+assert.equal(
+  Rig.rtPoolKey({ usage: 0x4, width: 64, height: 64, format: 35, flags: 0 }),
+  Rig.rtPoolKey({ usage: 0x4, width: 64, height: 64, format: 35, samples: 1, type: 1, depth: 1, layerCount: 1, levelCount: 1, flags: 0 }),
+  'omitted samples/type/mips match the engine defaults',
+);
+assert.equal(Rig.rtPoolKey({ samples: 0, width: 4, height: 4 }), Rig.rtPoolKey({ width: 4, height: 4 }), 'samples 0 matches omitted');
+assert.equal(Rig.rtPoolKey({ type: 1, width: 4, height: 4 }), Rig.rtPoolKey({ width: 4, height: 4 }), 'TEX2D matches omitted type');
+assert.notEqual(Rig.rtPoolKey({ type: 0, width: 4, height: 4 }), Rig.rtPoolKey({ width: 4, height: 4 }), 'explicit TEX1D stays distinct');
+assert.notEqual(Rig.rtPoolKey({}), '', 'empty descriptor (0x0 pass dummy) is pooled');
+assert.equal(Rig.rtPoolKey({ texture: {}, usage: 0x10, width: 8, height: 8 }), '', 'texture view is not pooled');
 assert.notEqual(Rig.rtPoolKey(DEPTH), '', 'depth attachment key is pooled');
 assert.equal(Rig.rtPoolKey({ usage: 0x10, width: 8, height: 8, flags: 0x4 }), '', 'external flag is not pooled');
 assert.equal(Rig.pinShadowResidency({ numVertices: () => 1, vertexName: () => 'Bloom0', getTraits: () => ({ residency: 0 }) }), 0);
@@ -140,7 +166,8 @@ const evidence = {
   probeCreates: 2,
   probeDestroys: 0,
   probeUploads: 2,
-  sampledNotPooled: 10,
+  sampledNativeCreates: 1,
+  smallNativeCreates: 2,
   macBefore: {
     commit: 'ced9972fb7917119baa7220c783f4dab40019ab5',
     phase: 'skycity.landing-board',
@@ -159,7 +186,20 @@ const evidence = {
     steadyZeroFrac: 0.986,
     steadyCreAvg: 1.1,
   },
-  note: 'Pool keeps COLOR_ATTACHMENT and DEPTH_STENCIL_ATTACHMENT textures. The probe is re-wrapped so a cache hit is not a create or an upload. Sampled images and external textures still allocate. Mac must re-measure skycity.landing-board and skycity.board-background: cre, des, and create-driven uploads near 0 after the first sample. Copy uploads of existing textures can remain.',
+  mac186b34e7: {
+    commit: '186b34e7f627c3f15ac31c3c5b2c5b30a5d7c015',
+    feature: 'b45315eae7a0c49763a6afb4f974b88816c1d560',
+    phase: 'skycity.landing-board',
+    from2: { n: 15, creMin: 108, creMax: 114, creAvg: 112.3, creMedian: 112, desMedian: 112, zeroFrac: 0, uploadsMedian: 0, uploadsMax: 0, depthStencilChurnRows: 0 },
+    all: { n: 16, creMin: 56, creAvg: 108.8, creMedian: 112, desMedian: 112, zeroFrac: 0, uploadsMedian: 0, uploadsMax: 3 },
+    steadyPhase: 'skycity.board-background',
+    steadySamples: 79,
+    steadyZeroFrac: 0.975,
+    steadyCreAvg: 1.1,
+    steadyCreMax: 78,
+    packageProbeKept: { total: 23600600, main: 1874614 },
+  },
+  note: 'Pool keeps every non-external texture of the same usage/format/size, including sampled images and the 0x0 pass dummy. A hit returns the same object and the probe does not count it as create or destroy. External images and texture views still allocate. Mac 186b34e7 still failed the landing gate (from2 cre/des median 112, uploads 0). Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and board-background zero_frac >= 0.98.',
 };
 const evDir = path.join(ROOT, 'docs/r5/b20-hotfix/evidence');
 fs.mkdirSync(evDir, { recursive: true });

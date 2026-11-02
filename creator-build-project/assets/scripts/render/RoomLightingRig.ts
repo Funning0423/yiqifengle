@@ -710,15 +710,15 @@ installShadowResidency();
 /* ===== b20 landing attachment pool ===== */
 
 /**
- * Mac ced9972f skycity.landing-board: cre/des 308–399/s (avg 389.4, 16/16 samples), uploads ~83/s,
- * anonymous `?:N`. Named SceneDepth/Radiance/LdrColor/UiColor were absent (rt_named_rows=0). The per-frame
- * pin above keeps those graph resources, and skycity.board-background is already ~0. The landing storm is
- * device.createTexture + Texture.destroy of attachments that are not in deviceTextures when they die
- * (RenderWindow-owned color/depth, and any graph texture released before the probe can name it).
- * Pool COLOR_ATTACHMENT (0x10) / DEPTH_STENCIL_ATTACHMENT (0x20) textures of the same size and format.
- * Sampled image textures and external textures are not pooled. Cap 32; a full pool evicts the oldest with
- * the original destroy. Re-installed every BEFORE_DRAW so a later GPU-probe wrap cannot sit outside the pool
- * and count a cache hit as a create.
+ * Mac ced9972f skycity.landing-board: cre/des ~389/s, uploads ~83/s, anonymous `?:N`.
+ * Mac 186b34e7: the attachment pool dropped uploads to 0 and named DepthStencil churn to 0, but
+ * cre/des stayed at ~112/s (median 112, 108–114, zero_frac 0) from sample 2. Those creates are under
+ * the probe's 256KB upload line, so they were never COLOR/DEPTH attachments of a stable screen size.
+ * The engine still calls createTexture + destroy every frame; a cache hit must return the same object
+ * without entering the probe. Pool every non-external texture of the same usage/format/size, including
+ * sampled images and the 0×0 pass dummy. Texture views and external images are not pooled. Cap 32 and
+ * 48 MB; a full pool evicts the oldest with the original destroy. Re-installed every BEFORE_DRAW so a
+ * later GPU-probe wrap cannot sit outside the pool and count a cache hit as a create.
  */
 export const RT_POOL_CAP = 32;
 /** Byte ceiling for retained attachments (w*h*4). A single larger texture is destroyed for real. */
@@ -734,20 +734,23 @@ function rtFreeBytes(): number {
   return n;
 }
 
-/** '' when this descriptor must hit the real device (sampled images, external, empty size). */
+function rtNorm(v: any, dflt: number): number {
+  if (v == null) return dflt;
+  const n = v | 0;
+  return n > 0 ? n : dflt;
+}
+/** '' for texture views and external images. Everything else, including sampled and 0×0, is reusable. */
 export function rtPoolKey(info: any): string {
-  if (!info) return '';
-  const u = info.usage | 0;
-  if ((u & 0x30) === 0) return '';
-  const w = info.width | 0, h = info.height | 0;
-  if (w < 1 || h < 1) return '';
+  if (!info || info.texture) return '';
   const flags = info.flags | 0;
   if ((flags & 0xc) !== 0 || info.externalRes) return '';
-  const samples = info.samples == null ? 1 : (info.samples | 0);
-  const depth = info.depth == null ? 1 : (info.depth | 0);
-  const layers = info.layerCount == null ? 1 : (info.layerCount | 0);
-  const levels = info.levelCount == null ? 1 : (info.levelCount | 0);
-  return [u, info.format | 0, w, h, samples, info.type | 0, flags, depth, layers, levels].join(':');
+  const w = info.width | 0, h = info.height | 0;
+  if (w < 0 || h < 0) return '';
+  return [
+    info.usage | 0, info.format | 0, w, h,
+    rtNorm(info.samples, 1), info.type == null ? 1 : (info.type | 0), flags,
+    rtNorm(info.depth, 1), rtNorm(info.layerCount, 1), rtNorm(info.levelCount, 1),
+  ].join(':');
 }
 export function rtPoolOccupancy(): number { return rtFree.length; }
 

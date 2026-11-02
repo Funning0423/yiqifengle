@@ -8,7 +8,8 @@
   "probeCreates": 2,
   "probeDestroys": 0,
   "probeUploads": 2,
-  "sampledNotPooled": 10,
+  "sampledNativeCreates": 1,
+  "smallNativeCreates": 2,
   "macBefore": {
     "commit": "ced9972fb7917119baa7220c783f4dab40019ab5",
     "phase": "skycity.landing-board",
@@ -27,5 +28,41 @@
     "steadyZeroFrac": 0.986,
     "steadyCreAvg": 1.1
   },
-  "note": "Pool keeps COLOR_ATTACHMENT and DEPTH_STENCIL_ATTACHMENT textures. The probe is re-wrapped so a cache hit is not a create or an upload. Sampled images and external textures still allocate. Mac must re-measure skycity.landing-board and skycity.board-background: cre, des, and create-driven uploads near 0 after the first sample. Copy uploads of existing textures can remain."
+  "mac186b34e7": {
+    "commit": "186b34e7f627c3f15ac31c3c5b2c5b30a5d7c015",
+    "feature": "b45315eae7a0c49763a6afb4f974b88816c1d560",
+    "phase": "skycity.landing-board",
+    "from2": {
+      "n": 15,
+      "creMin": 108,
+      "creMax": 114,
+      "creAvg": 112.3,
+      "creMedian": 112,
+      "desMedian": 112,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 0,
+      "depthStencilChurnRows": 0
+    },
+    "all": {
+      "n": 16,
+      "creMin": 56,
+      "creAvg": 108.8,
+      "creMedian": 112,
+      "desMedian": 112,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 3
+    },
+    "steadyPhase": "skycity.board-background",
+    "steadySamples": 79,
+    "steadyZeroFrac": 0.975,
+    "steadyCreAvg": 1.1,
+    "steadyCreMax": 78,
+    "packageProbeKept": {
+      "total": 23600600,
+      "main": 1874614
+    }
+  },
+  "note": "Pool keeps every non-external texture of the same usage/format/size, including sampled images and the 0x0 pass dummy. A hit returns the same object and the probe does not count it as create or destroy. External images and texture views still allocate. Mac 186b34e7 still failed the landing gate (from2 cre/des median 112, uploads 0). Mac must re-measure: landing from sample 2 cre and des median <= 2/s (ideally 0), and board-background zero_frac >= 0.98."
 }

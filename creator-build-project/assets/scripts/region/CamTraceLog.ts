@@ -262,6 +262,7 @@ export function gpuWrapDevice(dev:any):boolean{if(!dev||dev.__qfGpu)return false
   // b20 landing pool sits outside this probe. A hit sets __qfRtReuse and must not count as create/upload.
   // __qfRtPool means RoomLightingRig already replaced destroy with a recycle; do not put the probe wrapper back.
   if(r&&r.__qfRtReuse){r.__qfRtReuse=0;if(!G.live.has(r)){const b0=texBytes(a[0]);G.live.set(r,b0);G.liveBytes+=b0;}return;}
+  if(r&&r.__qfRtPool&&G.live.has(r)){r.__qfRtReuse=0;return;}
   const b=texBytes(a[0]);const src=b>=GPU_PROBE.texMinBytes?gpuCaller():'';if(src&&r&&typeof r==='object')G.srcOf.set(r,src);
   if(r&&typeof r==='object'&&!G.live.has(r)){G.live.set(r,b);G.liveBytes+=b;G.creates++;
    if(!r.__qfRtPool){const od=r.destroy;if(typeof od==='function'){const info=a[0];r.destroy=function(this:any,...x:any[]){
