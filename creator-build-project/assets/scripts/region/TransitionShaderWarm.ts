@@ -6,18 +6,27 @@ import {MEADOW_WARM_BUDGET_MS,kickCompiledPass,meadowWarmPlan} from './MeadowSai
  *  / getShaderVariant call cclegacy.rendering.programLib.getProgramVariant, which Object.assign's pipeline.macros
  *  over the pass defines and then keys the live cache. A write to some other macros bag, or a name-swapped
  *  getProgramVariant on the wrong phase, does not create the GPU shader the draw path will request. This wraps
- *  Object.assign for the duration of the compile so the same defines object the library keys from gets
- *  CC_DIR_SHADOW_PCF_TYPE=2 and CC_SHADOW_TYPE=2, then treats a job as cached only when the resulting shader name
- *  (or those defines) carries both tokens. Real material passes are compiled; the camera is not awaited or held. */
+ *  Object.assign for the duration of the compile so the same defines object the library keys from gets the full
+ *  spike pipeline bag (FOG4 / cascaded / HDR / SHADOWMAP_FORMAT / LINEAR_DEPTH / PCF2 / SHADOW_TYPE2). A job is
+ *  cached only when the returned shader name carries those tokens. Uncached critical jobs keep compiling. Real
+ *  material passes are compiled; the camera is not awaited or held. */
 export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3];
-/** Exact pipeline macros on the meadow→skycity animateCamera spike. 0 is omitted from the program key, so a boot compile at HARD/none does not hit SOFT_2X. */
+/** Exact pipeline macros on every Mac createShader name at meadow→skycity animateCamera frame 1803.
+ *  0 is omitted from the program key, so a boot compile that only writes PCF still misses SHADOWMAP_FORMAT / LINEAR_DEPTH. */
 export const DEPARTURE_SHADOW_MACROS:readonly {name:string;value:number}[]=[
+ {name:'CC_USE_FOG',value:4},
+ {name:'CC_SUPPORT_CASCADED_SHADOW_MAP',value:1},
+ {name:'CC_USE_HDR',value:1},
+ {name:'CC_SHADOWMAP_FORMAT',value:1},
+ {name:'CC_SHADOWMAP_USE_LINEAR_DEPTH',value:1},
  {name:'CC_DIR_SHADOW_PCF_TYPE',value:2},
  {name:'CC_SHADOW_TYPE',value:2},
 ];
 /** Substrings on the Mac createShader names. criticalPending stays up until each has been seen on a cached shader. */
 export const SPIKE_NAME_NEEDLES:readonly string[]=[
- 'CC_DIR_SHADOW_PCF_TYPE2','CC_SHADOW_TYPE2','CC_MORPH_TARGET_COUNT53','CC_MORPH_TARGET_COUNT16','CC_MORPH_TARGET_COUNT3',
+ 'CC_DIR_SHADOW_PCF_TYPE2','CC_SHADOW_TYPE2','CC_SHADOWMAP_FORMAT1','CC_SHADOWMAP_USE_LINEAR_DEPTH1',
+ 'CC_SUPPORT_CASCADED_SHADOW_MAP1','CC_USE_HDR1','CC_USE_FOG4',
+ 'CC_MORPH_TARGET_COUNT53','CC_MORPH_TARGET_COUNT16','CC_MORPH_TARGET_COUNT3',
  'CC_USE_SKINNING1','CC_RECEIVE_SHADOW1','USE_VERTEX_COLOR1','CC_FORWARD_ADD1','reflect-map-fs','CC_PIPELINE_TYPE1',
 ];
 const SEEN_CAP=4000;
@@ -31,20 +40,23 @@ export function reflectProgramName(name:string):string{
  return name.replace('standard-fs','reflect-map-fs');
 }
 export function shaderShowsDeparture(name:string):boolean{
- return !!name&&name.indexOf('CC_DIR_SHADOW_PCF_TYPE2')>=0&&name.indexOf('CC_SHADOW_TYPE2')>=0;}
+ if(!name)return false;
+ return name.indexOf('CC_DIR_SHADOW_PCF_TYPE2')>=0&&name.indexOf('CC_SHADOW_TYPE2')>=0
+  &&name.indexOf('CC_SHADOWMAP_FORMAT1')>=0&&name.indexOf('CC_SHADOWMAP_USE_LINEAR_DEPTH1')>=0
+  &&name.indexOf('CC_SUPPORT_CASCADED_SHADOW_MAP1')>=0;}
 export function nameFromDefines(program:string,defines:Record<string,unknown>|null):string{
  const parts:string[]=[program||''],src=defines||{},keys=Object.keys(src);
  for(let i=0;i<keys.length;i++){const v=src[keys[i]];if(v===0||v===false||v==='0'||v===undefined)continue;
   parts.push(keys[i]+(v===true||v===1?'1':String(v)));}
  return parts.join('|');}
 /** getProgramVariant does Object.assign(defines, pipeline.macros) and then keys the live cache. Force the
- *  departure pair onto that same target after the copy, then restore Object.assign. */
+ *  full spike pipeline bag onto that same target after the copy, then restore Object.assign. */
 export function withAssignDeparture<T>(run:()=>T):T{
  const oa=Object.assign;
  const wrapped=function(target:any){const out=oa.apply(this,arguments);
   if(out&&typeof out==='object'){let hit=false;for(let i=1;i<arguments.length;i++){const s=arguments[i];
-   if(s&&typeof s==='object'&&(s.CC_DIR_SHADOW_PCF_TYPE!==undefined||s.CC_SHADOW_TYPE!==undefined||s.CC_USE_HDR!==undefined||s.CC_USE_FOG!==undefined||s.CC_SUPPORT_CASCADED_SHADOW_MAP!==undefined)){hit=true;break;}}
-   if(hit){out.CC_DIR_SHADOW_PCF_TYPE=2;out.CC_SHADOW_TYPE=2;}}
+   if(s&&typeof s==='object'&&(s.CC_DIR_SHADOW_PCF_TYPE!==undefined||s.CC_SHADOW_TYPE!==undefined||s.CC_USE_HDR!==undefined||s.CC_USE_FOG!==undefined||s.CC_SUPPORT_CASCADED_SHADOW_MAP!==undefined||s.CC_SHADOWMAP_FORMAT!==undefined||s.CC_SHADOWMAP_USE_LINEAR_DEPTH!==undefined)){hit=true;break;}}
+   if(hit)for(let m=0;m<DEPARTURE_SHADOW_MACROS.length;m++)out[DEPARTURE_SHADOW_MACROS[m].name]=DEPARTURE_SHADOW_MACROS[m].value;}
   return out;};
  Object.assign=wrapped as typeof Object.assign;
  try{return run();}finally{Object.assign=oa;}}
@@ -205,7 +217,7 @@ function compileViaLib(item:Item,name:string):string{
  const defines=defineCopy(pass,item.patches);
  try{const prog=lib.getProgramVariant(device,phase,name,defines);if(!prog)return '';return shaderNameOf(prog)||nameFromDefines(name,defines);}catch{return '';}}
 function departurePatches(item:Item):Patch[]{
- const extra:Patch[]=[{name:'CC_DIR_SHADOW_PCF_TYPE',value:2},{name:'CC_SHADOW_TYPE',value:2}];
+ const extra:Patch[]=[];for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++)extra.push({name:DEPARTURE_SHADOW_MACROS[i].name,value:DEPARTURE_SHADOW_MACROS[i].value});
  return item.patches&&item.patches.length?mergePatches(item.patches,extra):extra;}
 function compileDeparture(item:Item):void{
  const pass=item.pass;if(!pass)return;
@@ -272,6 +284,7 @@ function onFrame():void{
   if(kickCompiledPass(item.pass))kicked++;
   else if(!filled){compileItem(item);kicked++;compiled++;}
   else kicked++;}
+ if(crit&&filled<CRITICAL_PER_FRAME){for(let i=0;i<jobs.length&&filled<CRITICAL_PER_FRAME;i++){if(!jobs[i].critical||jobs[i].cached)continue;compileItem(jobs[i]);jobs[i].tries++;filled++;}}
  if(crit&&frames%60===0){try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending,criticalPending:crit,cached:cachedNames.length}));}catch{/* log only */}}}
 /** Idempotent. No frame clock → the sail path stays as it is. Never blocks the caller. */
 export function beginTransitionShaderWarm():void{

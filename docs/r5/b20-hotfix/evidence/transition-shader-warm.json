@@ -26,11 +26,11 @@
   ],
   "maxKicksPerFrame": 1,
   "maxCompilesPerFrame": 1,
-  "runtimeCompilesPerFrame": 3,
+  "runtimeCompilesPerFrame": 4,
   "maxFrameMs": 0.75,
   "sailSkips": 1,
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "criticalPending is 0 only when the live program cache has the Mac createShader names (PCF2 + SHADOW_TYPE2 plus morph/skin/vertex-color/forward-add/reflect/pipeline). Object.assign is wrapped during compile so getProgramVariant keys those macros. animateCamera is not awaited and the stepper is not held."
+  "note": "criticalPending is 0 only when the live program cache has the Mac createShader names (FOG4/cascaded/HDR/SHADOWMAP_FORMAT/LINEAR_DEPTH/PCF2/SHADOW_TYPE2 plus morph/skin/vertex-color/forward-add/reflect/pipeline). Object.assign is wrapped during compile so getProgramVariant keys that bag. Uncached critical jobs keep compiling. animateCamera is not awaited and the stepper is not held."
 }

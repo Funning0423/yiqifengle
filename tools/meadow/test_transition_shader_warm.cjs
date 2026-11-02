@@ -15,6 +15,11 @@ function load(){
  const programLib={pipeline:{macros:engineMacros},getProgramVariant(_d,_p,name,defines){
   Object.assign(defines,engineMacros);const snap={name};const keys=Object.keys(defines);for(let i=0;i<keys.length;i++)snap[keys[i]]=defines[keys[i]];recorded.push(snap);
   const parts=[name];
+  if(defines.CC_USE_FOG===4)parts.push('CC_USE_FOG4');
+  if(defines.CC_SUPPORT_CASCADED_SHADOW_MAP===1)parts.push('CC_SUPPORT_CASCADED_SHADOW_MAP1');
+  if(defines.CC_USE_HDR===1)parts.push('CC_USE_HDR1');
+  if(defines.CC_SHADOWMAP_FORMAT===1)parts.push('CC_SHADOWMAP_FORMAT1');
+  if(defines.CC_SHADOWMAP_USE_LINEAR_DEPTH===1)parts.push('CC_SHADOWMAP_USE_LINEAR_DEPTH1');
   if(defines.CC_DIR_SHADOW_PCF_TYPE===2)parts.push('CC_DIR_SHADOW_PCF_TYPE2');
   if(defines.CC_SHADOW_TYPE===2)parts.push('CC_SHADOW_TYPE2');
   if(defines.CC_USE_SKINNING)parts.push('CC_USE_SKINNING1');
@@ -104,16 +109,19 @@ assert.ok(wnc.includes("target!=='meadow'")&&wnc.includes("target==='meadow'"),'
 assert.ok(!wnc.includes("!!s.journey?.target?'gone'"));
 assert.ok(src.includes('CC_DIR_SHADOW_PCF_TYPE')&&src.includes('CC_SHADOW_TYPE'));
 assert.equal(T.departureAlreadyLive({CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:2}),false);
-assert.equal(T.departureAlreadyLive({CC_DIR_SHADOW_PCF_TYPE:2,CC_SHADOW_TYPE:2}),true);
+assert.equal(T.departureAlreadyLive({CC_DIR_SHADOW_PCF_TYPE:2,CC_SHADOW_TYPE:2,CC_USE_FOG:4,CC_SUPPORT_CASCADED_SHADOW_MAP:1,CC_USE_HDR:1,CC_SHADOWMAP_FORMAT:1,CC_SHADOWMAP_USE_LINEAR_DEPTH:1}),true);
 const savedPcf=L.macros.CC_DIR_SHADOW_PCF_TYPE,savedType=L.macros.CC_SHADOW_TYPE;
 const restored=T.withDepartureMacros(L.macros,()=>{assert.equal(L.macros.CC_DIR_SHADOW_PCF_TYPE,2);assert.equal(L.macros.CC_SHADOW_TYPE,2);return 1;});
 assert.equal(restored,1);assert.equal(L.macros.CC_DIR_SHADOW_PCF_TYPE,savedPcf);assert.equal(L.macros.CC_SHADOW_TYPE,savedType);
 assert.equal(T.CRITICAL_PER_FRAME,3);
 assert.equal(T.reflectProgramName('builtin-standard|standard-vs|standard-fs'),'builtin-standard|standard-vs|reflect-map-fs');
-assert.ok(T.shaderShowsDeparture('builtin-standard|standard-vs|standard-fs|CC_DIR_SHADOW_PCF_TYPE2|CC_SHADOW_TYPE2'));
-assert.equal(T.shaderShowsDeparture('builtin-standard|standard-vs|standard-fs|CC_DIR_SHADOW_PCF_TYPE0|CC_SHADOW_TYPE2'),false);
+assert.ok(T.shaderShowsDeparture('builtin-standard|standard-vs|standard-fs|CC_DIR_SHADOW_PCF_TYPE2|CC_SHADOW_TYPE2|CC_SHADOWMAP_FORMAT1|CC_SHADOWMAP_USE_LINEAR_DEPTH1|CC_SUPPORT_CASCADED_SHADOW_MAP1'));
+assert.equal(T.shaderShowsDeparture('builtin-standard|standard-vs|standard-fs|CC_DIR_SHADOW_PCF_TYPE2|CC_SHADOW_TYPE2'),false);
+assert.equal(T.shaderShowsDeparture('builtin-standard|standard-vs|standard-fs|CC_DIR_SHADOW_PCF_TYPE0|CC_SHADOW_TYPE2|CC_SHADOWMAP_FORMAT1|CC_SHADOWMAP_USE_LINEAR_DEPTH1|CC_SUPPORT_CASCADED_SHADOW_MAP1'),false);
 const assigned=T.withAssignDeparture(()=>Object.assign({USE_VERTEX_COLOR:1},{CC_USE_HDR:1,CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:1}));
 assert.equal(assigned.CC_DIR_SHADOW_PCF_TYPE,2);assert.equal(assigned.CC_SHADOW_TYPE,2);assert.equal(assigned.CC_USE_HDR,1);
+assert.equal(assigned.CC_SHADOWMAP_FORMAT,1);assert.equal(assigned.CC_SHADOWMAP_USE_LINEAR_DEPTH,1);
+assert.equal(assigned.CC_SUPPORT_CASCADED_SHADOW_MAP,1);assert.equal(assigned.CC_USE_FOG,4);
 assert.ok(T.isCriticalWarm(true,{},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{USE_VERTEX_COLOR:1},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{},'builtin-standard','standard-vs|standard-fs'));
@@ -132,7 +140,9 @@ assert.ok(pcf2.some(r=>r.CC_MORPH_TARGET_COUNT===53&&r.CC_USE_SKINNING===true&&r
 assert.ok(pcf2.some(r=>r.CC_FORWARD_ADD===1&&r.CC_IS_TRANSPARENCY_PASS===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>r.CC_PIPELINE_TYPE===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>String(r.name).indexOf('reflect-map-fs')>=0&&r.CC_MORPH_TARGET_COUNT===53));
+assert.ok(pcf2.every(r=>r.CC_SHADOWMAP_FORMAT===1&&r.CC_SHADOWMAP_USE_LINEAR_DEPTH===1&&r.CC_SUPPORT_CASCADED_SHADOW_MAP===1&&r.CC_USE_HDR===1&&r.CC_USE_FOG===4));
 assert.equal(T.transitionWarmStats().criticalPending,0,'criticalPending must wait for live cache names');
+assert.ok(T.cachedWarmNames().some(n=>n.indexOf('CC_SHADOWMAP_FORMAT1')>=0&&n.indexOf('CC_DIR_SHADOW_PCF_TYPE2')>=0));
 const nSail=L.recorded.length;T.noteTransitionSailFrame();L.listeners[0]();assert.equal(L.recorded.length,nSail,'sail frame compiles nothing');
 const hidden={CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:1,CC_USE_FOG:4};
 const propDefines={USE_VERTEX_COLOR:1};
@@ -143,6 +153,11 @@ const hiddenPass={defines:propDefines,_shader:propShader,program:'builtin-standa
  Object.assign(d,this._root.pipeline.macros);L.recorded.push(Object.assign({via:'hidden'},d));
  const nm=['builtin-standard|standard-vs|standard-fs'];
  if(d.USE_VERTEX_COLOR)nm.push('USE_VERTEX_COLOR1');
+ if(d.CC_USE_FOG===4)nm.push('CC_USE_FOG4');
+ if(d.CC_SUPPORT_CASCADED_SHADOW_MAP===1)nm.push('CC_SUPPORT_CASCADED_SHADOW_MAP1');
+ if(d.CC_USE_HDR===1)nm.push('CC_USE_HDR1');
+ if(d.CC_SHADOWMAP_FORMAT===1)nm.push('CC_SHADOWMAP_FORMAT1');
+ if(d.CC_SHADOWMAP_USE_LINEAR_DEPTH===1)nm.push('CC_SHADOWMAP_USE_LINEAR_DEPTH1');
  if(d.CC_DIR_SHADOW_PCF_TYPE===2)nm.push('CC_DIR_SHADOW_PCF_TYPE2');
  if(d.CC_SHADOW_TYPE===2)nm.push('CC_SHADOW_TYPE2');
  if(patches)for(let i=0;i<patches.length;i++)delete d[patches[i].name];this._shader={id:'depart',name:nm.join('|')};return this._shader;
@@ -154,6 +169,7 @@ const before=L.recorded.length;L.listeners[0]();
 const hid=L.recorded.filter(r=>r.via==='hidden');
 assert.ok(hid.length>=1,'hidden pipeline bag was not compiled');
 assert.equal(hid[0].CC_DIR_SHADOW_PCF_TYPE,2);assert.equal(hid[0].CC_SHADOW_TYPE,2);
+assert.equal(hid[0].CC_SHADOWMAP_FORMAT,1);assert.equal(hid[0].CC_SHADOWMAP_USE_LINEAR_DEPTH,1);
 assert.equal(propDefines.CC_DIR_SHADOW_PCF_TYPE,undefined,'fallback left PCF on the pass');
 assert.equal(hidden.CC_DIR_SHADOW_PCF_TYPE,0);assert.equal(hidden.CC_SHADOW_TYPE,1);
 assert.equal(hiddenPass._shader.id,'live');
@@ -172,7 +188,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'criticalPending is 0 only when the live program cache has the Mac createShader names (PCF2 + SHADOW_TYPE2 plus morph/skin/vertex-color/forward-add/reflect/pipeline). Object.assign is wrapped during compile so getProgramVariant keys those macros. animateCamera is not awaited and the stepper is not held.'};
+ note:'criticalPending is 0 only when the live program cache has the Mac createShader names (FOG4/cascaded/HDR/SHADOWMAP_FORMAT/LINEAR_DEPTH/PCF2/SHADOW_TYPE2 plus morph/skin/vertex-color/forward-add/reflect/pipeline). Object.assign is wrapped during compile so getProgramVariant keys that bag. Uncached critical jobs keep compiling. animateCamera is not awaited and the stepper is not held.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);
