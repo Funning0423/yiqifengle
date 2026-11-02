@@ -7,8 +7,8 @@
   "blocked": ["navigation-guard"],
   "blockedReason": "BLOCKED_BROWSER",
   "node": "v22.23.3",
-  "codeHead": "a2168f383e351276ce794cd23ccd1e424c5f7a10",
-  "suiteRecordedHead": "a2168f383e351276ce794cd23ccd1e424c5f7a10",
-  "startedAt": "2026-11-02T12:58:33.103Z",
-  "note": "Suite ran on the transition shader warm commit. 370 checks, 369 PASS, 0 FAIL. The only blocked check is navigation-guard (browser launch). Runner exit is non-zero when any check is BLOCKED. No FAIL. transition-shader-warm passed. The docs commit that records this file is after the suite, so git HEAD at suite start is the code commit."
+  "codeHead": "b95d85556fe9bd11208b07ec961f97cf3473f632",
+  "suiteRecordedHead": "b95d85556fe9bd11208b07ec961f97cf3473f632",
+  "startedAt": "2026-11-02T14:08:36.122Z",
+  "note": "Suite ran on the departure shadow-macro warm. 370 checks, 369 PASS, 0 FAIL. The only blocked check is navigation-guard (browser launch). Runner exit is non-zero when any check is BLOCKED. No FAIL. transition-shader-warm passed. The docs commit that records this file is after the suite, so git HEAD at suite start is the code commit."
 }

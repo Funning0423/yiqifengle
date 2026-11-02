@@ -349,13 +349,15 @@ export class WorldNativeComposition extends Component {
       void warmSkycityLegStaged(SKY_WARM_GAP_FAST_MS);
     }catch{/* warm only */}
   }
-  /** P0 wipe: staged meadow warm while she is on the island side (home / island walk), for every entry that can sail. */
+  /** P0 wipe: staged meadow warm while she is on the island side (home / island walk), for every entry that can sail.
+   *  Mac 46e2c3ff: journey.target was already meadow, so mount aborted left-island and the sail rig never warmed.
+   *  A meadow target still mounts. Any other pending journey, or a region that is neither island nor meadow, still aborts. */
   warmMeadowIfIsland(_why:string,force=false):void{
     try{
       if(typeof warmMeadowLegStaged!=='function'||!this.world)return;const w=this.world,scene=director.getScene();if(!scene)return;
       if((w.commands().snapshot().journey?.region||'island')!=='island')return;
       if(!force&&!(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),'meadow')?.ok)return;
-      void warmMeadowLegStaged(scene,()=>{try{const s=w.commands().snapshot();return (s.journey?.region||'island')!=='island'||!!s.journey?.target?'gone':['home','island'].includes(s.state);}catch{return 'gone';}});
+      void warmMeadowLegStaged(scene,()=>{try{const s=w.commands().snapshot();const region=s.journey?.region||'island',target=s.journey?.target||'';if((region!=='island'&&region!=='meadow')||(target&&target!=='meadow'))return 'gone';if(target==='meadow'||region==='meadow')return true;return ['home','island'].includes(s.state);}catch{return 'gone';}});
     }catch{/* warm only */}
   }
   /** Web / QA only (`?balloonPreview=1`). WeChat release ignores it. No on-screen test banner. */

@@ -1,14 +1,33 @@
-import {MeshRenderer,Node,director,isValid} from 'cc';
+import {Node,director,isValid} from 'cc';
 import {MEADOW_WARM_BUDGET_MS,kickCompiledPass,meadowWarmPlan} from './MeadowSailWarm';
-/** b20: Mac 0421cfff world.animateCamera frame 1841 compiled 70 builtin-standard variants in 606 ms
- *  (USE_VERTEX_COLOR + CC_USE_SKINNING + CC_USE_MORPH 53/16/3 + receive-shadow + forward-add), then frame 1938
- *  compiled 31 more (alpha-test, second UV, unlit, planar/shadow-caster). meadow-warm-rig had already aborted
- *  left-island, and MeadowSailWarm never covered character skinning/morph. This schedules the same final patches
- *  one kick + one getShaderVariant per frame from the moment the scene exists, so the later pipeline flush is a
- *  cache hit. It does not wait on the camera and it does not change walk speed, fidelity, or which meshes draw. */
+/** b20: meadow→skycity world.animateCamera compiled ~70 builtin-standard variants in one frame
+ *  (Mac 46e2c3ff frame 1839, 613 ms). Boot warm had already compiled the girl (morph 53/16/3, skinning) without
+ *  CC_DIR_SHADOW_PCF_TYPE2; the camera frame was the first compile of that same set plus the room's vertex-color
+ *  standards under CC_DIR_SHADOW_PCF_TYPE2 and CC_SHADOW_TYPE2. getProgramVariant copies pipeline.macros over the
+ *  pass defines, so a patch cannot override a live 0. This schedules one variant per frame and, for each pass,
+ *  also compiles the departure macro set (those two forced on the pipeline for that one call only, then restored).
+ *  It does not wait on the camera and it does not change walk speed, fidelity, or which meshes draw. */
 export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3];
+/** Exact pipeline macros on the meadow→skycity animateCamera spike. 0 is omitted from the program key, so a boot compile at HARD/none does not hit SOFT_2X. */
+export const DEPARTURE_SHADOW_MACROS:readonly {name:string;value:number}[]=[
+ {name:'CC_DIR_SHADOW_PCF_TYPE',value:2},
+ {name:'CC_SHADOW_TYPE',value:2},
+];
 const SEEN_CAP=4000;
 const SCAN_EVERY=10;
+const INVALID_PHASE=0xFFFFFFFF;
+export function withDepartureMacros<T>(macros:Record<string,unknown>|null,run:()=>T):T{
+ if(!macros)return run();
+ const saved:{name:string;had:boolean;value:unknown}[]=[];
+ for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++){const n=DEPARTURE_SHADOW_MACROS[i].name;const had=Object.prototype.hasOwnProperty.call(macros,n);
+  saved.push({name:n,had,value:macros[n]});macros[n]=DEPARTURE_SHADOW_MACROS[i].value;}
+ try{return run();}finally{for(let i=0;i<saved.length;i++){const s=saved[i];if(s.had)macros[s.name]=s.value;else delete macros[s.name];}}
+}
+export function departureAlreadyLive(macros:Record<string,unknown>|null):boolean{
+ if(!macros)return false;
+ for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++){const n=DEPARTURE_SHADOW_MACROS[i].name;if(Number(macros[n])!==DEPARTURE_SHADOW_MACROS[i].value)return false;}
+ return true;
+}
 /** Pipeline macros are part of the program key. A shadow-type change compiles again, still one variant per frame. */
 function macroStamp():string{
  try{const scene:any=director.getScene();const sh=scene&&scene.globals&&scene.globals.shadows;if(!sh)return 'none';
@@ -16,7 +35,7 @@ function macroStamp():string{
   for(let i=0;i<comps.length;i++){const c=comps[i];if(c&&typeof c.shadowEnabled==='boolean')light=(c.shadowEnabled?'1':'0')+':'+String(c.shadowPcf);}
   return String(sh.type)+'/'+(sh.enabled?'1':'0')+'/'+light;}catch{return 'none';}}
 type Patch={name:string;value:boolean|number};
-type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean};
+type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean;depart:boolean};
 export type TransitionWarmStats={frames:number;sailSkips:number;kicked:number;compiled:number;pending:number;maxFrameMs:number;done:boolean};
 export function morphPatches(count:number,hasPosition:boolean):Patch[]{
  const p:Patch[]=[{name:'CC_USE_MORPH',value:true},{name:'CC_MORPH_TARGET_COUNT',value:count}];
@@ -86,28 +105,79 @@ export function stageTransitionWarm(items:{key:string}[],hooks:{kick(key:string)
 const roots:Node[]=[];const jobs:Item[]=[];const seen:string[]=[];
 let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,held=false,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
 function remember(node:Node|null):void{if(!node||!isValid(node,true))return;if(roots.indexOf(node)>=0)return;roots.push(node);scanIn=0;}
-function compileItem(item:Item):void{
+function pipelineMacros():Record<string,unknown>|null{const d:any=director,pipe=d&&d.root&&d.root.pipeline,m=pipe&&pipe.macros;return m&&typeof m==='object'?m:null;}
+function programLib():any{
+ const d:any=director,g:any=typeof globalThis==='undefined'?null:globalThis;
+ const bags=[d,d&&d.root,g,g&&g.cc,g&&g.CC,g&&g.cclegacy];
+ for(let i=0;i<bags.length;i++){const lib=bags[i]&&bags[i].rendering&&bags[i].rendering.programLib;if(lib&&typeof lib.getProgramVariant==='function')return lib;}
+ const pipe=d&&d.root&&d.root.pipeline,lib=pipe&&pipe.programLib;return lib&&typeof lib.getProgramVariant==='function'?lib:null;}
+function macroBags():Record<string,unknown>[]{
+ const out:Record<string,unknown>[]=[],add=(m:any)=>{if(m&&typeof m==='object'&&out.indexOf(m)<0)out.push(m);};
+ add(pipelineMacros());const lib=programLib();add(lib&&lib.pipeline&&lib.pipeline.macros);return out;}
+function underDeparture<T>(run:()=>T):T{
+ const bags=macroBags(),saved:{bag:Record<string,unknown>;name:string;had:boolean;value:unknown}[]=[];
+ for(let b=0;b<bags.length;b++)for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++){const n=DEPARTURE_SHADOW_MACROS[i].name,bag=bags[b],had=Object.prototype.hasOwnProperty.call(bag,n);
+  saved.push({bag,name:n,had,value:bag[n]});bag[n]=DEPARTURE_SHADOW_MACROS[i].value;}
+ try{return run();}finally{for(let i=0;i<saved.length;i++){const s=saved[i];if(s.had)s.bag[s.name]=s.value;else delete s.bag[s.name];}}
+}
+function passBlend(pass:any):boolean{const t=pass&&pass.blendState&&pass.blendState.targets;if(!t||!t.length)return false;for(let i=0;i<t.length;i++)if(t[i]&&t[i].blend)return true;return false;}
+function defineCopy(pass:any,patches:Patch[]|null):Record<string,unknown>{
+ const src=pass&&(pass.defines||pass._defines)||{},out:Record<string,unknown>={},keys=Object.keys(src);
+ for(let i=0;i<keys.length;i++)out[keys[i]]=src[keys[i]];
+ if(patches)for(let i=0;i<patches.length;i++)out[patches[i].name]=patches[i].value;
+ if(passBlend(pass))out.CC_IS_TRANSPARENCY_PASS=1;
+ for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++)out[DEPARTURE_SHADOW_MACROS[i].name]=DEPARTURE_SHADOW_MACROS[i].value;
+ return out;}
+function snapshotOwn(src:any):Record<string,unknown>|null{if(!src)return null;const out:Record<string,unknown>={},keys=Object.keys(src);for(let i=0;i<keys.length;i++)out[keys[i]]=src[keys[i]];return out;}
+function restoreOwn(dst:any,snap:Record<string,unknown>|null):void{
+ if(!dst||!snap)return;const now=Object.keys(dst);
+ for(let i=0;i<now.length;i++)if(!Object.prototype.hasOwnProperty.call(snap,now[i]))delete dst[now[i]];
+ const back=Object.keys(snap);for(let i=0;i<back.length;i++)dst[back[i]]=snap[back[i]];}
+function compileLive(item:Item):void{
  const pass=item.pass,patches=item.patches;
  if(!pass||typeof pass.getShaderVariant!=='function'){if(pass&&typeof pass.tryCompile==='function'){try{pass.tryCompile();}catch{/* miss */}}return;}
  try{pass.getShaderVariant(patches&&patches.length?patches:null);}catch{const d=pass.defines||pass._defines;if(d&&patches)for(let i=0;i<patches.length;i++){try{delete d[patches[i].name];}catch{/* leave */}}}}
-function enqueue(item:Item):void{
+function compileDeparture(item:Item):void{
+ const pass=item.pass;if(!pass)return;
+ const lib=programLib(),phase=pass.phaseID!==undefined?pass.phaseID:pass._phaseID,name=pass.program||pass._programName;
+ const device=pass.device||pass._device||((director as any).root&&(director as any).root.device);
+ if(lib&&name&&device!=null&&typeof phase==='number'&&phase!==INVALID_PHASE){
+  const defines=defineCopy(pass,item.patches);
+  underDeparture(()=>{try{lib.getProgramVariant(device,phase,name,defines);}catch{/* miss */}});return;}
+ const d=pass.defines||pass._defines,snap=snapshotOwn(d),shader=pass._shader;
+ underDeparture(()=>{compileLive(item);});restoreOwn(d,snap);if(shader!==undefined||pass._shader)pass._shader=shader;}
+function compileItem(item:Item):void{if(item.depart)compileDeparture(item);else compileLive(item);}
+function enqueueAt(item:Item,front:boolean):void{
  if(seen.indexOf(item.key)>=0||seen.length>=SEEN_CAP)return;seen.push(item.key);
- if(!item.hot){jobs.push(item);return;}
+ if(!front){jobs.push(item);return;}
  const rest=jobs.splice(kicked);jobs.push(item);for(let i=0;i<rest.length;i++)jobs.push(rest[i]);}
 function absorb():void{
+ const departLive=departureAlreadyLive(pipelineMacros());
  for(let r=roots.length-1;r>=0;r--){const root=roots[r];if(!isValid(root,true)){roots.splice(r,1);continue;}
-  const hot:Item[]=[],cold:Item[]=[];
-  const consider=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean)=>{
+  const hot:Item[]=[],cold:Item[]=[],departHot:Item[]=[],departCold:Item[]=[];
+  const take=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean,depart:boolean)=>{
    const patches=mergePatches(livePatches(renderer,sub),synthPatches(renderer,sub,force));
-   const key=macroStamp()+'~'+transitionPassKey(effectOf(mat),passName(pass,index),pass&&pass.defines||null,patches);
-   const item:Item={key,pass,patches:patches.length?patches:null,hot:isHot(renderer,sub)};if(item.hot)hot.push(item);else cold.push(item);};
+   const base=transitionPassKey(effectOf(mat),passName(pass,index),pass&&pass.defines||null,patches);
+   const key=(depart?'depart~':macroStamp()+'~')+base;
+   const item:Item={key,pass,patches:patches.length?patches:null,hot:isHot(renderer,sub),depart};
+   if(depart){if(item.hot)departHot.push(item);else departCold.push(item);}else if(item.hot)hot.push(item);else cold.push(item);};
   const walk=(node:any)=>{
-   if(!node)return;const comps=node.components||[];
-   for(let c=0;c<comps.length;c++){const rr=comps[c];if(!(rr instanceof MeshRenderer)||!rr.sharedMaterials)continue;
-    const mats=rr.sharedMaterials;for(let s=0;s<mats.length;s++){const mat=mats[s];if(!mat||!mat.passes)continue;
-     for(let p=0;p<mat.passes.length;p++){const pass=mat.passes[p];if(!pass)continue;consider(rr,mat,pass,p,s,false);if(isHot(rr,s))consider(rr,mat,pass,p,s,true);}}}
-   const kids=node.children||[];for(let i=0;i<kids.length;i++)walk(kids[i]);};
-  walk(root);for(let i=0;i<hot.length;i++)enqueue(hot[i]);for(let i=0;i<cold.length;i++)enqueue(cold[i]);}}
+   if(!node)return;
+   const comps=node.components||[];
+   for(let c=0;c<comps.length;c++){const rr=comps[c];if(!rr||!rr.sharedMaterials)continue;
+    const mats=rr.sharedMaterials;
+    for(let s=0;s<mats.length;s++){const mat=mats[s];if(!mat||!mat.passes)continue;
+     for(let p=0;p<mat.passes.length;p++){const pass=mat.passes[p];if(!pass)continue;
+      take(rr,mat,pass,p,s,false,false);if(isHot(rr,s))take(rr,mat,pass,p,s,true,false);
+      if(!departLive){take(rr,mat,pass,p,s,false,true);if(isHot(rr,s))take(rr,mat,pass,p,s,true,true);}}}}
+   const kids=node.children||[];
+   for(let i=0;i<kids.length;i++)walk(kids[i]);
+  };
+  walk(root);
+  for(let i=hot.length-1;i>=0;i--)enqueueAt(hot[i],true);
+  for(let i=departCold.length-1;i>=0;i--)enqueueAt(departCold[i],true);
+  for(let i=departHot.length-1;i>=0;i--)enqueueAt(departHot[i],true);
+  for(let i=0;i<cold.length;i++)enqueueAt(cold[i],false);}}
 function onFrame():void{
  frames++;if(held)return;if(skipNext){skipNext=false;sailSkips++;return;}
  if(scanIn<=0){absorb();scanIn=SCAN_EVERY;}else scanIn--;
