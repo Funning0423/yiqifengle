@@ -11,7 +11,7 @@ const fs=require('fs');const Jn=require('./journey-scene.cjs');const {rotY,add,s
 const RB=H.load(S+'region/RegionBoardLanding.ts'),TC=H.load(S+'region/TransitionCamera.ts');
 const SCREENS=[[390,844],[414,896],[360,780],[375,667],[320,568],[390,520],[768,1024]];
 const src={region:'skycity',map:{toJourney:p=>add(rotY(yaw,p),sOff),toBoard:p=>rotY(-yaw,sub(p,sOff))},anchors:{spawn:sA('anchor_spawn_girl'),court:sA('anchor_starcourt_center')}};
-const her=add(rotY(yaw,[5.25,-0.084,40.6]),sOff);
+const her=add(rotY(yaw,[-1.40009,-0.07002,32.59992]),sOff);/* B5 end = anchor_spawn_girl */
 const starts={exitLens:{position:add(her,[2.6,1.7,2.4]),target:add(her,[0,1.1,0]),fovVerticalDeg:48},
  cloudSea:{position:[18.6,20.4,99.2],target:[28,19.2,90],fovVerticalDeg:48},
  // full6-cam P1: Mac 45f601b1 L11 frame 810 = basket-door close-up (lens ~1.9 m off her, door height), entered as mainline-11

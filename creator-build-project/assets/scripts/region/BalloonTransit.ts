@@ -769,8 +769,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(setWind)setWind.call(actor,()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
    if(envHome&&envelope&&isValid(envelope,true)){envelope.setScale(envHome.s);envelope.setPosition(envHome.p);}
    if(contChain&&girl&&isValid(girl,true)){
-    // B5 (after the B4 settle 29–30 s): the door opens (door_reach), she leaves stand_point over the sill and walks to the first
-    // sky-city stop (plan.s0). No teleport: the actor is reset to where she stands, then walks.
+    // B5 (after the B4 settle 29–30 s): the door opens (door_reach), she leaves stand_point over the sill and walks inland
+    // to anchor_spawn_girl (TRANSITION_STAGING.skycity.s0New). Basket touchdown stays S0_LOCAL; board frames spawn+court.
     chainMark('balloon','B5-door-walk-out');
     const vp=vehicle.worldPosition,o:Vec=[vp.x,vp.y,vp.z],y=worldYawDeg(vehicle)/* full8: world yaw (yaw+roll quat; euler read-back can fold) */;
     // full2-cam E: exit close-up — from the ride's last pose, min-jerk (BASKET_CLOSE.blendS) onto a lens beside door B (her ≈30 %),
@@ -792,8 +792,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      guardBeforeWalk(anim,'B5 door reach');if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});
      rideToken.check();guardBeforeWalk(anim,'B5 walk out');
      await walkTo([here,W(B.thresholdB),W(B.doorOutB),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
-     await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
-     s0End=city(K.s0New);(lease as any).tail=true/* she ends on the b19 S0: the controller must not reset her to the old route end */;
+     await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
+     s0End=city(K.s0New);(lease as any).tail=true/* she ends on spawn_girl (FX tip): board pose frames her on the deck, not soft-sea rim */;
     }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);}
    }else if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:s0End||plan.s0,yawRad:s0End?TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?worldYawDeg(model)*Math.PI/180:0):plan.vehicle(LAND_T).yaw});

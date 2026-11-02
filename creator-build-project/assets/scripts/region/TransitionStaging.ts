@@ -29,8 +29,11 @@ export const TRANSITION_STAGING=Object.freeze({
   entryDoorNode:'basket_door',exitDoorNode:'basket_door_b',doorHingeB:[-0.4,0,-0.84] as Vec,thresholdB:[0,0,-0.84] as Vec,doorOutB:[0,0,-1.25] as Vec,stepdownEndB:[-0.03,0,-1.552] as Vec},
  /** Segment 3 (meadow frame): new launch point (old one clips wind_bell_frame / windmill sweep) — NOT applied, flight path is 运镜bot's. */
  meadow:{m4:[3,5.84,-16.4] as Vec,toBasket:[[3,6.322,-20.4],[2.6,6.341,-20.8],[2.74,6.37,-21.31]/* yard_in (door2) */] as Vec[],launch:[3.6,6.60,-23.4] as Vec,basketYawLocalDeg:-16/* world 164 (door2); flight key t=0 is 运镜bot's */,basketObstacleR:1.1},
- /** Segment 4 (skycity frame): mooring deck, step-down landing, deck front edge, new S0. Basket root y 0.01 (+0.12 m vs flight end key). */
- skycity:{stepDown:[5.192,-0.02,42.262] as Vec,deckEdge:[5.107,-0.02,41.519] as Vec,s0New:[5.25,-0.084,40.6] as Vec,s0YawDeg:177.6,s1:[5.4,-0.087,37.0] as Vec,basketRootY:0.01},
+ /** Segment 4 (skycity frame): mooring deck → inland stand. Basket still touches S0_LOCAL (BalloonFlight);
+  *  B5 walks off the rim onto anchor_spawn_girl so board handoff (skycityVisitPose spawn+court) frames her on the deck,
+  *  not on soft cloudsea at the balloon rim (Funning/PM sea-landing). tip ggbot/b20-meadow-c-skycity-rt@606f434e FX align.
+  *  Basket root y 0.01 (+0.12 m vs flight end key). */
+ skycity:{stepDown:[5.192,-0.02,42.262] as Vec,deckEdge:[5.107,-0.02,41.519] as Vec,s1:[1.9,-0.077,36.6] as Vec,s0New:[-1.40009,-0.07002,32.59992] as Vec,s0YawDeg:151.7,basketRootY:0.01},
  /** Segment 5a mooring — 场景设计部 FINAL (scene/b19-transition-spaces-on-59aa 3924dab4, transition-anchors.json): option C
   *  alternate point. World (100.191,18.908,122.960) yaw −66.19°; skycity-local (−14.8,0.09,−38.8) yaw 52.65°; gap 1.485 m.
   *  S6 → door-stand straight walk 16.97 m at her NATURAL speed (NodeWalker.WALK_SPEED_MPS); door-stand faces 101.4° (door opens
@@ -55,7 +58,7 @@ export const TRANSITION_STAGING=Object.freeze({
  *   lakeLiftS       screen seconds of T-03's 18 s hidden lift-off (was 6; 运镜bot sweep: 5 s → 66.9°/s on 390×844).
  *   lakeFlightS     T-03 visible flight, retimed from its 12 s with rate-1 ends (≥ 8 s, Grok Bot). */
 export const TRANSITION_RETIME=Object.freeze({meadowRideS:28.5/* Grok Bot 2026-10-25: keeps lens step ≤ 0.6 m/frame (0.582), yaw 46.1°/s */,meadowRideTailS:3,meadowRideRampS:3,lakeLiftS:5,lakeFlightS:8,lakeFlightMinS:8,
- caps:{islandToMeadow:45,meadowToSkycity:50,skycityToLakeside:50/* Grok Bot final: option C alt mooring, walk 0.9 m/s */}});
+ caps:{islandToMeadow:45,meadowToSkycity:60/* sea-landing: B5 walks rim→spawn_girl (~13 s); was 50 */ ,skycityToLakeside:50/* Grok Bot final: option C alt mooring, walk 0.9 m/s */}});
 export function skycityToLakesideCap(opt:'B'|'C'|'pending'=TRANSITION_STAGING.skyMooring5a.option):number|null{return opt==='pending'?null:TRANSITION_RETIME.caps.skycityToLakeside;}
 /** Her walk S6 → basket door for seg 5a, at her natural speed (never sped up to fit a cap). */
 export function lakeWalkS(m=TRANSITION_STAGING.skyMooring5a):number{return Math.round(m.walkPathM/m.walkMps*100)/100;}
@@ -68,7 +71,7 @@ export const TRANSITION_DURATIONS=Object.freeze({
  seg1:{nodeWalkI4toI6:7.473/* b20: = pinned walk:island:I4>I6 (b27fc82d route nudge, waypoint (4.2,4.95): 8.968 m polyline at WALK_SPEED_MPS 1.2, one continuous walk, measured NodeWalker plan; was 7.312 (9d2bdc6f 8.774 m), 6.84, 7.574, 15.6) */,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},
  seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:20.22/* b20 meadow (93ac386e final M1): 24.266 m at WALK_SPEED_MPS 1.2 (jetty 12.019 + to M0 1.759 + sail chord SAIL_M0_LOCAL→SAIL_M1_LOCAL 10.488), was 20.29 (505ceb63), 16.5 */},
  seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,turn180:0/* removed: two-door basket, no in-basket turn */,sitDown:1.2,inflate:3.0,flight:TRANSITION_RETIME.meadowRideS},
- seg4:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,toPath:7.5},
+ seg4:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,toPath:15/* deck→spawn_girl ~13 m @0.9; was 7.5 for rim S0 */},
  seg5a:{toBasket:0/* = lakeWalkS() */,doorReach:1.8,intoBasket:0/* = lakeBoardS() */,turn180:0/* removed (Grok Bot): she sits facing in */,sitDown:1.2,inflate:3.0,liftoff:TRANSITION_RETIME.lakeLiftS,flight:TRANSITION_RETIME.lakeFlightS},
  seg5b:{settle:1.5,standUp:1.27,pause:0,doorReach:1.8,stepDown:1.73,walkOut:7.7},
 });
@@ -76,8 +79,8 @@ export const TRANSITION_DURATIONS=Object.freeze({
 export function segmentTotals(D=TRANSITION_DURATIONS):Record<string,number>{const o:Record<string,number>={};
  for(const [k,v] of Object.entries(D))o[k]=Math.round(Object.values(v as Record<string,number>).reduce((a,b)=>a+b,0)*100)/100;
  o.meadowToSkycity=Math.round((o.seg3+o.seg4)*100)/100;o.skycityToLakeside=Math.round((o.seg5a+o.seg5b)*100)/100;return o;}
-/** B5 deck walk as BalloonTransit plays it: min(table, max(1.5, path / walkMps)) over stepDown → deckEdge → new S0. */
-export function b5ToPathS(cap:number=TRANSITION_DURATIONS.seg4.toPath):number{const K=TRANSITION_STAGING.skycity,p=[K.stepDown,K.deckEdge,K.s0New];let L=0;
+/** B5 deck walk as BalloonTransit plays it: min(table, max(1.5, path / walkMps)) over stepDown → deckEdge → s1 → spawn_girl. */
+export function b5ToPathS(cap:number=TRANSITION_DURATIONS.seg4.toPath):number{const K=TRANSITION_STAGING.skycity,p=[K.stepDown,K.deckEdge,K.s1,K.s0New];let L=0;
  for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return Math.min(cap,Math.max(1.5,L/TRANSITION_STAGING.walkMps));}
 export type Beat={id:string;t0:number;t1:number;overlapsWith?:string};
 const r2=(x:number)=>Math.round(x*100)/100;

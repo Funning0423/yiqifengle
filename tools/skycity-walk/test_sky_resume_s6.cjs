@@ -1,7 +1,7 @@
 'use strict';
 // full7b (Grok Bot): a player who finished L12 resumes near S6, also after a reload + the trip back to skycity. Replays the
 // runtime path: real WorldNativeComposition.ensureRegion (the cold-progress route every 继续旅程 / region entry takes) with the real
-// RegionCampaign gate, SkyLakePreWalk and RegionNodePlay.runSkyResumeToS6; the balloon "lands" her on the b19 S0 deck
+// RegionCampaign gate, SkyLakePreWalk and RegionNodePlay.runSkyResumeToS6; the balloon "lands" her on the spawn_girl stand (TRANSITION_STAGING.skycity.s0New)
 // (TRANSITION_STAGING.skycity.s0New). L12 done → she ends on S6; L11 → she stays on S0 (no change before L12).
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{stripTypeScriptTypes}=require('node:module');
 const root=path.resolve(__dirname,'../../creator-build-project/assets/scripts');

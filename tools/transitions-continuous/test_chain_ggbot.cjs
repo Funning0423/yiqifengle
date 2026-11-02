@@ -111,7 +111,7 @@ assert.deepEqual([...ST.TRANSITION_STAGING.basket.seat],[-0.032,0,0.099]);assert
  const b5=Object.fromEntries(TL.beats.seg5a.map(b=>[b.id,b]));assert.ok(b5.inflate.t0<b5.sitDown.t0&&b5.inflate.t1>=b5.sitDown.t1-1e-9&&b5.inflate.t1<=b5.liftoff.t0+1e-9,'lake ignition overlaps sit_down, full before liftoff');
  // her actions keep natural speed: action beats identical to 59aa0bbc (b19 seconds), walk speeds unchanged
  const OLD={seg1:{nodeWalkI4toI6:7.473/* walk, b20 island b27fc82d 8.968 m (was 7.312, 6.84, 7.574, 15.6) */,a1DockWalk:3.0,a2Gangway:2.3,sitDown:1.2},seg2:{dockSettle:2.0,standUp:1.27,offBoat:2.7,jettyToM1:20.22/* walk, b20 final M1 93ac386e (was 20.29, 16.5) */},
-  seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,sitDown:1.2,inflate:3.0},seg4:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,toPath:7.5},
+  seg3:{toBasket:5.7,doorReach:1.8,intoBasket:2.6,sitDown:1.2,inflate:3.0},seg4:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,toPath:15},
   seg5a:{doorReach:1.8,sitDown:1.2,inflate:3.0},seg5b:{settle:1.5,standUp:1.27,doorReach:1.8,stepDown:1.73,walkOut:7.7}};
  for(const [sg,v] of Object.entries(OLD))for(const [k,x] of Object.entries(v))assert.equal(D[sg][k],x,'action '+sg+'.'+k+' unchanged (clip speed 1.0×)');
  assert.equal(ST.TRANSITION_STAGING.walkMps,0.9);assert.equal(ST.TRANSITION_STAGING.basketWalkMps,0.8);
