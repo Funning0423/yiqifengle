@@ -227,4 +227,9 @@ Experience `1.0.202611021436` felt slow-mo. Residual `world.setCamera` B1 lacked
 
 Mac `e32f04bf`（源 tip `3be0a1c0`）setCamera 177ms/0、board-bg 105ms/0：已非 first-compile。功能 `eaa5d83fb6bd8e3daf88ba6b4d312e5949d9e5e3` / tip `067c69f62cda1c2cea0418e937529d99af468e9c`：flight/B5 `holdTransitionShaders`（引用计数）、`primeScene` 提前激活 skycity GLB、扩大 reveal/board heavy 窗口。详见 `SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
 
-Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `b4c86cb0d9732f6794b6c4c5e2698855f4bd9762` (+ cine `K.s1` walk kept) → tip record `b69c540de9e58e445db9e55341b9130856eec308` → manifest rehash `05a1331286e4553981ac5f80d2c25836335eec15`. Final tip SHA = `git rev-parse HEAD` after this note.
+Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `b4c86cb0d9732f6794b6c4c5e2698855f4bd9762` (+ cine `K.s1` walk kept) → tip record `b69c540de9e58e445db9e55341b9130856eec308` → manifest rehash `05a1331286e4553981ac5f80d2c25836335eec15`. Final tip SHA was `e1974767bc04d195b09e04da293a7d4f57e4048c` (Mac FAIL setCamera 140 / board-bg 106).
+
+## paint-split / armHold / board-prime tip (post-e1974767)
+
+- feature `508b5a18703af3b9b8f11c1d72b300434d9ac11c`：paint/setCamera 拆帧 + armTransitionHold B5→board + primeScene board-cam warm draw + reveal≠present 同帧。验收：过渡窗口 setCamera/board-bg LONG 均 <100ms；不上传微信。
+- Integrate: feature merge (+ cine `K.s1` kept) → this tip record → text-MANIFEST rehash. Final tip SHA = `git rev-parse HEAD` after this note.
