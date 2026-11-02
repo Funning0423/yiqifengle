@@ -1,0 +1,12 @@
+{
+  "model": "journey-integration-suite",
+  "status": "BLOCKED",
+  "total": 368,
+  "passed": 367,
+  "failed": 0,
+  "blocked": ["navigation-guard"],
+  "blockedReason": "BLOCKED_BROWSER",
+  "node": "v22.23.3",
+  "codeHead": "fd68032656d0d5942a7a99e7609d16dde12578ed",
+  "note": "Runner exit is non-zero when any check is BLOCKED. The only blocked check is navigation-guard (browser launch). No FAIL."
+}

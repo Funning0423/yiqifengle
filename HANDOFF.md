@@ -35,7 +35,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 - coast subpackage ≤ 943,718 B
 
 ## Open issues 未结问题
-1. **env_meadow shader compile stall**: about a 1.6 s frame at sail set-off. A+B probes are in place; warm-up C is not done. See `outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md`.
+1. **env_meadow shader compile stall**: warm-up C is on `ggbot/b20-meadow-c-skycity-rt`. See `docs/r5/b20-hotfix/INTEGRATE.md`. The offline cost model is ≤0.75 ms/frame and the sail frame compiles nothing. Mac still measures real frame time.
 2. **Lake freeze (fc3123fa)**: not confirmed on the Mac. fin r7/r8 are pending. Likely a DevTools host stall, but this is unproven.
 3. **DevTools simfail race**: a getBuilder race inside DevTools. R1 detect-and-retry is in `outbox/20261101-simfail/LAUNCH_FIX.md`. Tester results: E1 3/4, E2 2/4, and every failure carries the race signature. The 6-launch verification is pending.
 
@@ -54,7 +54,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 ## Evidence (box paths, not on GitHub)
 - simfail: /workspace/qifengle/test-reports/20261101_simfail-evidence/E-table.md, startedByCLI-grep.txt
 - meadow/lake: team/ggbot/outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md
-- Meadow warm-up C waits for r8 results. Target: ≤4 ms/frame, no hitch, final define set.
+- Meadow warm-up C and the skycity render-target churn are on `ggbot/b20-meadow-c-skycity-rt`. See `docs/r5/b20-hotfix/INTEGRATE.md`. Mac still measures real frame ms and the built package size.
 
 ## Next steps 下一步
 1. R1 six-launch verification
