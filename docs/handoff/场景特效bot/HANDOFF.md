@@ -64,4 +64,5 @@
 
 - `git push -u github fx/r5-black-landing-fix` → **403**（只试 1 次）
 - Bundle: `/workspace/yiqifengle/bundles/push-20261102/场景特效bot-fx-r5-black-landing-fix.bundle`
+- Bundle HEAD / 分支 tip: `fb7e9f72b584b79f54ca2eb9fad2af10f43da376`
 
