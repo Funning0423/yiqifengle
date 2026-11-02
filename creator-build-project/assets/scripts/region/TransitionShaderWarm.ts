@@ -1,15 +1,12 @@
 import {Node,director,isValid} from 'cc';
 import * as ccmod from 'cc';
 import {MEADOW_WARM_BUDGET_MS,kickCompiledPass,meadowWarmPlan} from './MeadowSailWarm';
-/** b20: Mac 8e93c02b world.animateCamera frame 1803 still compiled 70 PCF2 variants in 772 ms after the previous
- *  tip logged compiled=764 pending=0 criticalPending=0. That counter only meant the queue was empty. Pass.tryCompile
- *  / getShaderVariant call cclegacy.rendering.programLib.getProgramVariant, which Object.assign's pipeline.macros
- *  over the pass defines and then keys the live cache. A write to some other macros bag, or a name-swapped
- *  getProgramVariant on the wrong phase, does not create the GPU shader the draw path will request. This wraps
- *  Object.assign for the duration of the compile so the same defines object the library keys from gets the full
- *  spike pipeline bag (FOG4 / cascaded / HDR / SHADOWMAP_FORMAT / LINEAR_DEPTH / PCF2 / SHADOW_TYPE2). A job is
- *  cached only when the returned shader name carries those tokens. Uncached critical jobs keep compiling. Real
- *  material passes are compiled; the camera is not awaited or held. */
+/** b20: animateCamera PASS still left world.setCamera B1 at 647ms/102 shaders on 2672b080, and the experience
+ *  felt like slow-mo. setCamera createShader names carry FOG4/cascaded/HDR/SHADOWMAP_* / PCF2 but NOT CC_SHADOW_TYPE2
+ *  (0/40). Warm that forced SHADOW_TYPE=2 filled a different live-cache key than the draw path. Also marking every
+ *  builtin-standard as critical ballooned pending/criticalPending to 500–1200 and kept compiling every frame.
+ *  Fix: warm BOTH bags (with TYPE2 for animateCamera, without for setCamera); mark cached on the shared PCF2 bag;
+ *  critical = skin/morph + vertex-color + second-UV only; non-critical warm yields while criticalPending>0. */
 export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3];
 /** Exact pipeline macros on every Mac createShader name at meadow→skycity animateCamera frame 1803.
  *  0 is omitted from the program key, so a boot compile that only writes PCF still misses SHADOWMAP_FORMAT / LINEAR_DEPTH. */
@@ -22,9 +19,18 @@ export const DEPARTURE_SHADOW_MACROS:readonly {name:string;value:number}[]=[
  {name:'CC_DIR_SHADOW_PCF_TYPE',value:2},
  {name:'CC_SHADOW_TYPE',value:2},
 ];
-/** Substrings on the Mac createShader names. criticalPending stays up until each has been seen on a cached shader. */
+/** setCamera B1 Mac names: same bag but CC_SHADOW_TYPE omitted (0 is dropped from the program key). */
+export const SETCAM_SHADOW_MACROS:readonly {name:string;value:number}[]=[
+ {name:'CC_USE_FOG',value:4},
+ {name:'CC_SUPPORT_CASCADED_SHADOW_MAP',value:1},
+ {name:'CC_USE_HDR',value:1},
+ {name:'CC_SHADOWMAP_FORMAT',value:1},
+ {name:'CC_SHADOWMAP_USE_LINEAR_DEPTH',value:1},
+ {name:'CC_DIR_SHADOW_PCF_TYPE',value:2},
+];
+/** Shared createShader needles. CC_SHADOW_TYPE2 is optional (animateCamera has it; setCamera does not). */
 export const SPIKE_NAME_NEEDLES:readonly string[]=[
- 'CC_DIR_SHADOW_PCF_TYPE2','CC_SHADOW_TYPE2','CC_SHADOWMAP_FORMAT1','CC_SHADOWMAP_USE_LINEAR_DEPTH1',
+ 'CC_DIR_SHADOW_PCF_TYPE2','CC_SHADOWMAP_FORMAT1','CC_SHADOWMAP_USE_LINEAR_DEPTH1',
  'CC_SUPPORT_CASCADED_SHADOW_MAP1','CC_USE_HDR1','CC_USE_FOG4',
  'CC_MORPH_TARGET_COUNT53','CC_MORPH_TARGET_COUNT16','CC_MORPH_TARGET_COUNT3',
  'CC_USE_SKINNING1','CC_RECEIVE_SHADOW1','USE_VERTEX_COLOR1','CC_FORWARD_ADD1','reflect-map-fs','CC_PIPELINE_TYPE1',
@@ -41,32 +47,42 @@ export function reflectProgramName(name:string):string{
 }
 export function shaderShowsDeparture(name:string):boolean{
  if(!name)return false;
- return name.indexOf('CC_DIR_SHADOW_PCF_TYPE2')>=0&&name.indexOf('CC_SHADOW_TYPE2')>=0
+ return name.indexOf('CC_DIR_SHADOW_PCF_TYPE2')>=0
   &&name.indexOf('CC_SHADOWMAP_FORMAT1')>=0&&name.indexOf('CC_SHADOWMAP_USE_LINEAR_DEPTH1')>=0
   &&name.indexOf('CC_SUPPORT_CASCADED_SHADOW_MAP1')>=0;}
+export function shaderShowsSetcam(name:string):boolean{
+ return shaderShowsDeparture(name)&&name.indexOf('CC_SHADOW_TYPE2')<0;}
+export function shaderShowsAnimate(name:string):boolean{
+ return shaderShowsDeparture(name)&&name.indexOf('CC_SHADOW_TYPE2')>=0;}
 export function nameFromDefines(program:string,defines:Record<string,unknown>|null):string{
  const parts:string[]=[program||''],src=defines||{},keys=Object.keys(src);
  for(let i=0;i<keys.length;i++){const v=src[keys[i]];if(v===0||v===false||v==='0'||v===undefined)continue;
   parts.push(keys[i]+(v===true||v===1?'1':String(v)));}
  return parts.join('|');}
-/** getProgramVariant does Object.assign(defines, pipeline.macros) and then keys the live cache. Force the
- *  full spike pipeline bag onto that same target after the copy, then restore Object.assign. */
-export function withAssignDeparture<T>(run:()=>T):T{
+/** getProgramVariant Object.assign's pipeline.macros then keys the live cache. Force the given bag onto that object. */
+export function withAssignMacros<T>(bag:readonly {name:string;value:number}[],run:()=>T):T{
  const oa=Object.assign;
  const wrapped=function(target:any){const out=oa.apply(this,arguments);
   if(out&&typeof out==='object'){let hit=false;for(let i=1;i<arguments.length;i++){const s=arguments[i];
    if(s&&typeof s==='object'&&(s.CC_DIR_SHADOW_PCF_TYPE!==undefined||s.CC_SHADOW_TYPE!==undefined||s.CC_USE_HDR!==undefined||s.CC_USE_FOG!==undefined||s.CC_SUPPORT_CASCADED_SHADOW_MAP!==undefined||s.CC_SHADOWMAP_FORMAT!==undefined||s.CC_SHADOWMAP_USE_LINEAR_DEPTH!==undefined)){hit=true;break;}}
-   if(hit)for(let m=0;m<DEPARTURE_SHADOW_MACROS.length;m++)out[DEPARTURE_SHADOW_MACROS[m].name]=DEPARTURE_SHADOW_MACROS[m].value;}
+   if(hit){for(let m=0;m<bag.length;m++)out[bag[m].name]=bag[m].value;
+    if(!bag.some(x=>x.name==='CC_SHADOW_TYPE')&&Object.prototype.hasOwnProperty.call(out,'CC_SHADOW_TYPE'))delete out.CC_SHADOW_TYPE;}}
   return out;};
  Object.assign=wrapped as typeof Object.assign;
  try{return run();}finally{Object.assign=oa;}}
-export function withDepartureMacros<T>(macros:Record<string,unknown>|null,run:()=>T):T{
+export function withAssignDeparture<T>(run:()=>T):T{return withAssignMacros(DEPARTURE_SHADOW_MACROS,run);}
+export function withAssignSetcam<T>(run:()=>T):T{return withAssignMacros(SETCAM_SHADOW_MACROS,run);}
+export function withMacrosBag<T>(bag:readonly {name:string;value:number}[],macros:Record<string,unknown>|null,run:()=>T):T{
  if(!macros)return run();
  const saved:{name:string;had:boolean;value:unknown}[]=[];
- for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++){const n=DEPARTURE_SHADOW_MACROS[i].name;const had=Object.prototype.hasOwnProperty.call(macros,n);
-  saved.push({name:n,had,value:macros[n]});macros[n]=DEPARTURE_SHADOW_MACROS[i].value;}
- try{return run();}finally{for(let i=0;i<saved.length;i++){const s=saved[i];if(s.had)macros[s.name]=s.value;else delete macros[s.name];}}
+ for(let i=0;i<bag.length;i++){const n=bag[i].name;const had=Object.prototype.hasOwnProperty.call(macros,n);
+  saved.push({name:n,had,value:macros[n]});macros[n]=bag[i].value;}
+ const hadType=Object.prototype.hasOwnProperty.call(macros,'CC_SHADOW_TYPE');const typeVal=macros.CC_SHADOW_TYPE;
+ if(!bag.some(x=>x.name==='CC_SHADOW_TYPE')&&hadType)delete macros.CC_SHADOW_TYPE;
+ try{return run();}finally{for(let i=0;i<saved.length;i++){const s=saved[i];if(s.had)macros[s.name]=s.value;else delete macros[s.name];}
+  if(!bag.some(x=>x.name==='CC_SHADOW_TYPE')){if(hadType)macros.CC_SHADOW_TYPE=typeVal;else delete macros.CC_SHADOW_TYPE;}}
 }
+export function withDepartureMacros<T>(macros:Record<string,unknown>|null,run:()=>T):T{return withMacrosBag(DEPARTURE_SHADOW_MACROS,macros,run);}
 export function departureAlreadyLive(macros:Record<string,unknown>|null):boolean{
  if(!macros)return false;
  for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++){const n=DEPARTURE_SHADOW_MACROS[i].name;if(Number(macros[n])!==DEPARTURE_SHADOW_MACROS[i].value)return false;}
@@ -81,9 +97,10 @@ function macroStamp():string{
 type Patch={name:string;value:boolean|number};
 type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean;depart:boolean;critical:boolean;program:string;cached:boolean;tries:number};
 export type TransitionWarmStats={frames:number;sailSkips:number;kicked:number;compiled:number;pending:number;criticalPending:number;maxFrameMs:number;done:boolean};
-export function isCriticalWarm(hot:boolean,defines:Record<string,unknown>|null,effect:string,passName:string):boolean{
- if(hot)return true;const d=defines||{};if(d.USE_VERTEX_COLOR)return true;
- const n=(effect||'')+'|'+(passName||'');return n.indexOf('builtin-standard')>=0||n.indexOf('standard-vs')>=0;}
+export function isCriticalWarm(hot:boolean,defines:Record<string,unknown>|null,_effect?:string,_passName?:string):boolean{
+ if(hot)return true;const d=defines||{};
+ // setCamera spike + girl: vertex-color / second-UV / skin-morph only — not every builtin-standard (that ballooned pending).
+ return !!(d.USE_VERTEX_COLOR||d.HAS_SECOND_UV);}
 export function morphPatches(count:number,hasPosition:boolean):Patch[]{
  const p:Patch[]=[{name:'CC_USE_MORPH',value:true},{name:'CC_MORPH_TARGET_COUNT',value:count}];
  if(hasPosition)p.push({name:'CC_MORPH_TARGET_HAS_POSITION',value:true});return p;}
@@ -173,33 +190,42 @@ function macroBags(pass?:any):Record<string,unknown>[]{
  const out:Record<string,unknown>[]=[],add=(m:any)=>{if(m&&typeof m==='object'&&out.indexOf(m)<0)out.push(m);};
  const pipes=collectPipes(pass);for(let i=0;i<pipes.length;i++)add(pipes[i]&&pipes[i].macros);
  return out;}
-function forceDeparturePipes(pass?:any):()=>void{
+function forceMacroPipes(bag:readonly {name:string;value:number}[],pass?:any):()=>void{
  const pipes=collectPipes(pass),bags=macroBags(pass);
  const saved:{bag:Record<string,unknown>;name:string;had:boolean;value:unknown}[]=[];
  const ints:{pipe:any;name:string}[]=[];
- for(let b=0;b<bags.length;b++)for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++){const n=DEPARTURE_SHADOW_MACROS[i].name,bag=bags[b],had=Object.prototype.hasOwnProperty.call(bag,n);
-  saved.push({bag,name:n,had,value:bag[n]});bag[n]=DEPARTURE_SHADOW_MACROS[i].value;}
+ const typeSnaps:{bag:Record<string,unknown>;had:boolean;value:unknown}[]=[];
+ for(let b=0;b<bags.length;b++){const macros=bags[b];
+  if(!bag.some(x=>x.name==='CC_SHADOW_TYPE')){typeSnaps.push({bag:macros,had:Object.prototype.hasOwnProperty.call(macros,'CC_SHADOW_TYPE'),value:macros.CC_SHADOW_TYPE});delete macros.CC_SHADOW_TYPE;}
+  for(let i=0;i<bag.length;i++){const n=bag[i].name,had=Object.prototype.hasOwnProperty.call(macros,n);
+   saved.push({bag:macros,name:n,had,value:macros[n]});macros[n]=bag[i].value;}}
  for(let p=0;p<pipes.length;p++){const pipe=pipes[p];if(!pipe||typeof pipe.setMacroInt!=='function')continue;
-  for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++){const n=DEPARTURE_SHADOW_MACROS[i].name;try{pipe.setMacroInt(n,DEPARTURE_SHADOW_MACROS[i].value);ints.push({pipe,name:n});}catch{/* setter optional */}}}
+  for(let i=0;i<bag.length;i++){const n=bag[i].name;try{pipe.setMacroInt(n,bag[i].value);ints.push({pipe,name:n});}catch{/* setter optional */}}}
  return ()=>{for(let i=0;i<saved.length;i++){const s=saved[i];if(s.had)s.bag[s.name]=s.value;else delete s.bag[s.name];}
+  for(let i=0;i<typeSnaps.length;i++){const t=typeSnaps[i];if(t.had)t.bag.CC_SHADOW_TYPE=t.value;else delete t.bag.CC_SHADOW_TYPE;}
   for(let i=0;i<ints.length;i++){const it=ints[i],v=it.pipe.macros&&it.pipe.macros[it.name];try{if(typeof it.pipe.setMacroInt==='function'&&v!==undefined)it.pipe.setMacroInt(it.name,v);}catch{/* restore optional */}}};
 }
+function forceDeparturePipes(pass?:any):()=>void{return forceMacroPipes(DEPARTURE_SHADOW_MACROS,pass);}
+function forceSetcamPipes(pass?:any):()=>void{return forceMacroPipes(SETCAM_SHADOW_MACROS,pass);}
+
 function passBlend(pass:any):boolean{const t=pass&&pass.blendState&&pass.blendState.targets;if(!t||!t.length)return false;for(let i=0;i<t.length;i++)if(t[i]&&t[i].blend)return true;return false;}
-function defineCopy(pass:any,patches:Patch[]|null):Record<string,unknown>{
+function defineCopy(pass:any,patches:Patch[]|null,bag:readonly {name:string;value:number}[]=DEPARTURE_SHADOW_MACROS):Record<string,unknown>{
  const src=pass&&(pass.defines||pass._defines)||{},out:Record<string,unknown>={},keys=Object.keys(src);
  for(let i=0;i<keys.length;i++)out[keys[i]]=src[keys[i]];
  if(patches)for(let i=0;i<patches.length;i++)out[patches[i].name]=patches[i].value;
  if(passBlend(pass))out.CC_IS_TRANSPARENCY_PASS=1;
- for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++)out[DEPARTURE_SHADOW_MACROS[i].name]=DEPARTURE_SHADOW_MACROS[i].value;
+ if(!bag.some(x=>x.name==='CC_SHADOW_TYPE'))delete out.CC_SHADOW_TYPE;
+ for(let i=0;i<bag.length;i++)out[bag[i].name]=bag[i].value;
  return out;}
 function snapshotOwn(src:any):Record<string,unknown>|null{if(!src)return null;const out:Record<string,unknown>={},keys=Object.keys(src);for(let i=0;i<keys.length;i++)out[keys[i]]=src[keys[i]];return out;}
 function restoreOwn(dst:any,snap:Record<string,unknown>|null):void{
  if(!dst||!snap)return;const now=Object.keys(dst);
  for(let i=0;i<now.length;i++)if(!Object.prototype.hasOwnProperty.call(snap,now[i]))delete dst[now[i]];
  const back=Object.keys(snap);for(let i=0;i<back.length;i++)dst[back[i]]=snap[back[i]];}
-function writeDefines(d:any,patches:Patch[]|null):void{
+function writeDefines(d:any,patches:Patch[]|null,bag:readonly {name:string;value:number}[]=DEPARTURE_SHADOW_MACROS):void{
  if(!d)return;if(patches)for(let i=0;i<patches.length;i++)d[patches[i].name]=patches[i].value;
- for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++)d[DEPARTURE_SHADOW_MACROS[i].name]=DEPARTURE_SHADOW_MACROS[i].value;}
+ if(!bag.some(x=>x.name==='CC_SHADOW_TYPE'))delete d.CC_SHADOW_TYPE;
+ for(let i=0;i<bag.length;i++)d[bag[i].name]=bag[i].value;}
 function shaderNameOf(sh:any):string{return String(sh&&(sh.name||sh._name||(sh.shader&&(sh.shader.name||sh.shader._name)))||'');}
 function rememberName(name:string):void{if(!name||cachedNames.indexOf(name)>=0)return;cachedNames.push(name);}
 function needlesMissing():number{let n=0;for(let i=0;i<SPIKE_NAME_NEEDLES.length;i++){const need=SPIKE_NAME_NEEDLES[i];let hit=false;
@@ -210,27 +236,34 @@ function compileLive(item:Item):void{
  const pass=item.pass,patches=item.patches;
  if(!pass||typeof pass.getShaderVariant!=='function'){if(pass&&typeof pass.tryCompile==='function'){try{pass.tryCompile();}catch{/* miss */}}return;}
  try{pass.getShaderVariant(patches&&patches.length?patches:null);}catch{const d=pass.defines||pass._defines;if(d&&patches)for(let i=0;i<patches.length;i++){try{delete d[patches[i].name];}catch{/* leave */}}}}
-function compileViaLib(item:Item,name:string):string{
+function compileViaLib(item:Item,name:string,bag:readonly {name:string;value:number}[]):string{
  const pass=item.pass,lib=programLib(pass);if(!lib||!name)return '';
  const phase=pass.phaseID!==undefined?pass.phaseID:pass._phaseID,device=pass.device||pass._device||((director as any).root&&(director as any).root.device);
  if(device==null||typeof phase!=='number'||phase===INVALID_PHASE)return '';
- const defines=defineCopy(pass,item.patches);
+ const defines=defineCopy(pass,item.patches,bag);
  try{const prog=lib.getProgramVariant(device,phase,name,defines);if(!prog)return '';return shaderNameOf(prog)||nameFromDefines(name,defines);}catch{return '';}}
-function departurePatches(item:Item):Patch[]{
- const extra:Patch[]=[];for(let i=0;i<DEPARTURE_SHADOW_MACROS.length;i++)extra.push({name:DEPARTURE_SHADOW_MACROS[i].name,value:DEPARTURE_SHADOW_MACROS[i].value});
+function bagPatches(item:Item,bag:readonly {name:string;value:number}[]):Patch[]{
+ const extra:Patch[]=[];for(let i=0;i<bag.length;i++)extra.push({name:bag[i].name,value:bag[i].value});
  return item.patches&&item.patches.length?mergePatches(item.patches,extra):extra;}
-function compileDeparture(item:Item):void{
- const pass=item.pass;if(!pass)return;
- const restore=forceDeparturePipes(pass),d=pass.defines||pass._defines,snap=snapshotOwn(d),shader=pass._shader;
- withAssignDeparture(()=>{
-  writeDefines(d,item.patches);pass._shader=null;
-  try{const patches=departurePatches(item);let got='';
+function compileOneBag(item:Item,bag:readonly {name:string;value:number}[],assign:(run:()=>void)=>void,force:(pass?:any)=>()=>void):string{
+ const pass=item.pass;if(!pass)return '';
+ const restore=force(pass),d=pass.defines||pass._defines,snap=snapshotOwn(d),shader=pass._shader;
+ let got='';
+ assign(()=>{
+  writeDefines(d,item.patches,bag);pass._shader=null;
+  try{const patches=bagPatches(item,bag);
    if(typeof pass.getShaderVariant==='function'){try{got=shaderNameOf(pass.getShaderVariant(patches));}catch{/* miss */}}
    if(!shaderShowsDeparture(got)&&typeof pass.tryCompile==='function'){try{pass.tryCompile();got=shaderNameOf(pass._shader);}catch{/* miss */}}
-   const name=item.program||pass.program||pass._programName||pass.programName;const via=compileViaLib(item,String(name||''));
-   if(shaderShowsDeparture(via))got=via;
-   markCached(item,got);}
-  finally{restoreOwn(d,snap);pass._shader=shader;restore();}});}
+   const name=item.program||pass.program||pass._programName||pass.programName;const via=compileViaLib(item,String(name||''),bag);
+   if(shaderShowsDeparture(via))got=via;}
+  finally{restoreOwn(d,snap);pass._shader=shader;restore();}});
+ return got;}
+function compileDeparture(item:Item):void{
+ // animateCamera bag (TYPE2) then setCamera bag (no TYPE2) — both must land in the live program cache.
+ const a=compileOneBag(item,DEPARTURE_SHADOW_MACROS,withAssignDeparture,forceDeparturePipes);
+ if(shaderShowsDeparture(a))markCached(item,a);
+ const b=compileOneBag(item,SETCAM_SHADOW_MACROS,withAssignSetcam,forceSetcamPipes);
+ if(shaderShowsDeparture(b))markCached(item,b);}
 function compileItem(item:Item):void{if(item.depart)compileDeparture(item);else compileLive(item);}
 function enqueueAt(item:Item,front:boolean):void{
  if(seen.indexOf(item.key)>=0||seen.length>=SEEN_CAP)return;seen.push(item.key);
@@ -272,18 +305,20 @@ function absorb():void{
   for(let i=0;i<cold.length;i++)enqueueAt(cold[i],false);}}
 function onFrame():void{
  frames++;if(held)return;if(skipNext){skipNext=false;sailSkips++;return;}
- if(scanIn<=0){absorb();scanIn=criticalPending()?0:SCAN_EVERY;}else scanIn--;
+ if(scanIn<=0){absorb();scanIn=SCAN_EVERY;}else scanIn--;
  const pending=Math.max(0,jobs.length-compiled),crit=criticalPending();
  if(compiled>=jobs.length&&!crit){if(jobs.length&&!logged){logged=true;try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending:0,criticalPending:0,cached:cachedNames.length}));}catch{/* log only */}}return;}
  logged=false;const plan=meadowWarmPlan(jobs.length-kicked,kicked-compiled);if(plan.ms>maxFrameMs)maxFrameMs=plan.ms;
  let filled=0;
- if(plan.compiles&&compiled<kicked){compileItem(jobs[compiled]);compiled++;filled++;}
+ // While critical work remains, only compile critical — non-critical thrash caused the slow-mo feel.
+ if(plan.compiles&&compiled<kicked&&!(crit&&!jobs[compiled].critical)){compileItem(jobs[compiled]);compiled++;filled++;}
  while(filled<CRITICAL_PER_FRAME&&kicked<jobs.length&&jobs[kicked].critical){const item=jobs[kicked];compileItem(item);item.tries++;
   if(item.cached||item.tries>12){kicked++;compiled++;}filled++;}
- if(kicked<jobs.length&&!jobs[kicked].critical){const item=jobs[kicked];
+ if(!crit&&kicked<jobs.length&&!jobs[kicked].critical){const item=jobs[kicked];
   if(kickCompiledPass(item.pass))kicked++;
   else if(!filled){compileItem(item);kicked++;compiled++;}
   else kicked++;}
+ else if(crit&&kicked<jobs.length&&!jobs[kicked].critical){kicked++;}
  if(crit&&filled<CRITICAL_PER_FRAME){for(let i=0;i<jobs.length&&filled<CRITICAL_PER_FRAME;i++){if(!jobs[i].critical||jobs[i].cached)continue;compileItem(jobs[i]);jobs[i].tries++;filled++;}}
  if(crit&&frames%60===0){try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending,criticalPending:crit,cached:cachedNames.length}));}catch{/* log only */}}}
 /** Idempotent. No frame clock → the sail path stays as it is. Never blocks the caller. */
