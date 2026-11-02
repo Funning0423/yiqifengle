@@ -26,7 +26,7 @@ const nightFree=!/night/i.test(lensSrc);
 (async()=>{const sky=await Lsc.skyObjs(),solid=[Lsc.bvh(sky.filter(o=>!/foliage_cards|flowers|robot_gardener|cloud|cumulus/.test(o.name)))],see=Lsc.bvh(sky.filter(o=>!/cloud|cumulus/.test(o.name)));
 const blk=(p,f,dy)=>{const b=[f[0],f[1]+dy,f[2]],d=b.map((v,i)=>v-p[i]),l=Math.hypot(...d);return !!FL.cast(see,p,d.map(v=>v/l),l-0.3);};
 for(const mode of ['day','night'])for(const [w,h] of RL.SCREENS){const v=plan.vehicle(plan.total),o=v.pos,y=v.yaw*R2D,Wb=l=>TM.basketToWorld(o,y,l),camEnd=plan.camera(plan.total,{w,h}),sp=BC.basketCloseSpot(Wb(B.doorOutB),o,boxes,undefined,[camEnd]);
- const st=D4.standUp+D4.pause,t1=st+D4.doorReach,t2=t1+D4.stepDown+1,p2=[city(K.stepDown),city(K.deckEdge),city(K.s0New)],seatAt=c=>{const e=plan.vehicle(BF.rideToFlightT(c));return TM.basketToWorld(e.pos,e.yaw*R2D,[0,0,0]);};
+ const st=D4.standUp+D4.pause,t1=st+D4.doorReach,t2=t1+D4.stepDown+1,p2=[city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)],seatAt=c=>{const e=plan.vehicle(BF.rideToFlightT(c));return TM.basketToWorld(e.pos,e.yaw*R2D,[0,0,0]);};
  const feet=b=>b<t1?Wb([0,0,0]):b<t2?lerpPath([Wb([0,0,0]),Wb(B.thresholdB),Wb(B.doorOutB),city(K.stepDown)],(b-t1)/(t2-t1)):lerpPath(p2,(b-t2)/3);
  const ss=BC.speedSafeS(camEnd.position,sp.position,BC.BASKET_CLOSE.blendOutS),Tm=Math.max(MOVE,PRE+ss),close=f=>BC.basketClosePose(sp.position,f);
  const before=[],after=[];for(let c=RD-6;c<=RD+6+1e-9;c+=DT){const inB5=c>RD,b=c-RD,f=inB5?feet(b):seatAt(c),pl=inB5?camEnd:plan.camera(BF.rideToFlightT(c),{w,h});

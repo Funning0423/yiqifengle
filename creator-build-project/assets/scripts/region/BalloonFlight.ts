@@ -187,7 +187,7 @@ export const ISLET_NODES=['env_sky_floatingrocks_1','env_sky_floatingrocks_2','e
 export const CITY_CLOUD=['clouds_city_sea','clouds_floor','clouds_floor_puff'];
 export const ALWAYS_CLOUD=['clouds_deck','clouds_deck_loose','clouds_far','clouds_horizon'];
 /** Sky-city lawn the player stands on. The cruise may hide these; arrival must turn them back on. */
-export const SKY_LAWN=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_static_foliage_cards','env_sky_island_vines'] as const;
+export const SKY_LAWN=['env_sky_static_palette','env_sky_static_rock_strata','env_sky_static_foliage_cards','env_sky_island_vines','env_sky_floor_seal'] as const;
 /** Transit dressing that must be inactive once the ride has handed the city to gameplay. */
 export const TRANSIT_OFF_AFTER=['transit_clouds_merged','transit_sea_fallback','far_meadow_card','transit_night_dome','clouds_city_sea','clouds_floor','clouds_floor_puff','clouds_deck','clouds_deck_loose','clouds_far','clouds_horizon'] as const;
 /** After the balloon clock ends: lawn on, transit backdrop off. null = leave the node as the scene authored it. */
@@ -219,7 +219,7 @@ export function balloonQuat(yawDeg:number,rollDeg:number):[number,number,number,
  *  rate 1 through board / liftoff / cloud seam (t ≤ RIDE_KEEP_T, all seam & visibility cues keep their exact timing), then a
  *  smoothstep rise to RIDE_CRUISE_RATE, cruise, a smoothstep fall back to 1, and rate 1 for the last RIDE_TAIL_S of the
  *  approach + landing (touchdown and the basket-door beat play at real speed). C1 rate → no velocity step on the camera. */
-/** b19 caps (Grok Bot): meadow→skycity ≤ 50 s, visible flight 28.5 s (Grok Bot). ONE data-driven parameter: TRANSITION_RETIME.meadowRideS.
+/** b19 caps (Grok Bot): meadow→skycity ≤ 60 s (was 50; +B5 inland to spawn_girl), visible flight 28.5 s (Grok Bot). ONE data-driven parameter: TRANSITION_RETIME.meadowRideS.
  *  Re-blocked timing: rate 1 while she is seen boarding and lifting off (flight 0–RIDE_KEEP_T = end of B-c_liftoff), the speed-up is
  *  spent inside the cloud bank (4.3–15, 100% cloud at the seam) and the islets, and rate 1 again for approach + landing + exit
  *  (last RIDE_TAIL_S). */
