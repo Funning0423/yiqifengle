@@ -33,4 +33,4 @@ B5 exit stand was `TRANSITION_STAGING.skycity.s0New ≈ S0 rim` ([5.25,−0.084,
 
 ## Push
 Push: **403** to `Funning0423/yiqifengle` (denied). Bundle instead:
-`docs/handoff/运镜bot/cine-skycity-sea-landing-fix.bundle` (from `606f434e..d8ff771a`).
+`docs/handoff/运镜bot/cine-skycity-sea-landing-fix.bundle` (from `606f434e..656ea005` (code fix); tip `93b45802` adds this bundle file).
