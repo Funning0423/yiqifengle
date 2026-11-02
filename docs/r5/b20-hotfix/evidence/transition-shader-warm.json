@@ -1,17 +1,14 @@
 {
   "model": "transition-shader-warm",
   "macFrames": {
-    "animateCamera1841": {
-      "ms": 606,
-      "shaders": 70
-    },
-    "animateCamera1839": {
-      "ms": 613,
+    "animateCamera1826": {
+      "ms": 611,
       "shaders": 70,
-      "tip": "46e2c3ff"
+      "tip": "8571f6d1"
     }
   },
   "budgetMs": 4,
+  "criticalPerFrame": 3,
   "variants": 9,
   "morphCounts": [
     53,
@@ -22,13 +19,18 @@
     "CC_DIR_SHADOW_PCF_TYPE=2",
     "CC_SHADOW_TYPE=2"
   ],
+  "extraFamilies": [
+    "CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS",
+    "CC_PIPELINE_TYPE",
+    "reflect-map-fs"
+  ],
   "maxKicksPerFrame": 1,
   "maxCompilesPerFrame": 1,
-  "runtimeCompilesPerFrame": 1,
+  "runtimeCompilesPerFrame": 6,
   "maxFrameMs": 0.75,
   "sailSkips": 1,
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Offline schedule. Boot pipeline macros stay at PCF 0 / shadow type 1. Each pass is also compiled once under CC_DIR_SHADOW_PCF_TYPE=2 and CC_SHADOW_TYPE=2, one variant per frame, then those macros are restored. animateCamera is not awaited and the stepper is not held."
+  "note": "Critical girl/room PCF2 families (standard, forward-add, pipeline, reflect) compile up to 3 per frame from scene load. getProgramVariant reads programLib.pipeline.macros; the warm writes PCF=2 and SHADOW_TYPE=2 on every pipeline bag including pass._root, then restores. animateCamera is not awaited and the stepper is not held."
 }
