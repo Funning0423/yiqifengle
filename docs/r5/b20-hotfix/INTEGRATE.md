@@ -242,3 +242,6 @@ Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=1
 ## tip（Mac e987bf7a → setCamera&lt;100 保住 board=0）
 功能 tip 见本轮 tip SHA。根因：prime 内 `armTransitionHold` 生效 + `SkycityBoardLive.keepActive` 飞行常驻 board GLB。修复：prime 暖 4 后关 cam+rig、去掉 prime 内 armTransitionHold、Live 仅 shown keepActive。`test_transition_shader_warm.cjs` PASS；不上传微信。
 
+## Mac 230df8f6 → 中间态 tip（本轮）
+
+飞行期关 board rig（59b18785）把 board-bg 从 e987 的 0 打回 138，setCamera 仅 164→141。本 tip 恢复 Live keepActive + prime 4 帧只关 cam、prime 不 `armTransitionHold`，目标两门同时 &lt;100ms。不上传。

@@ -43,3 +43,7 @@ setCamera 163、board-bg 118。撤回 dfd2fe51→29815864 全部晚暖/拆帧差
 ## Mac e987bf7a setCamera residual
 
 board-bg=0 但 setCamera~164。prime 内 armTransitionHold 生效 + Live keepActive 飞行常驻 board GLB。本 tip：prime 暖 4 后关 cam+rig；Live 仅 shown keepActive。详见 NOTES-SETCAM-BOARD-LONG.md。
+
+## Mac 230df8f6 中间态
+
+关飞行 rig：setCamera 164→141 仍 FAIL，board 0→138。本 tip：恢复 keepActive + prime 4 只关 cam；prime 不 armTransitionHold。详见 NOTES-SETCAM-BOARD-LONG.md。

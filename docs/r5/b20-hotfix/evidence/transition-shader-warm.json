@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac e987bf7a: setCamera~164 with board=0. Root: prime armed armTransitionHold + Live keepActive kept board GLB live through flight. Fix: no armTransitionHold in prime; warm 4 then DISABLE cam+rig; Live keepActive only when shown. Target setCamera<100 keep board-bg PASS. RT untouched."
+  "note": "Mac 230df8f6: flight-inactive board cut setCamera 164→141 but board 0→138. Middle: restore Live keepActive + prime 4 cam-off-only (e987 board=0 path); no armTransitionHold in prime (25fa setCamera=0). Target both LONG <100. RT untouched."
 }

@@ -217,17 +217,20 @@ assert.match(skyBg,/holdTransitionShaders/);
 assert.match(skyBg,/noteTransitionHeavyFrames/);
 assert.match(skyBg,/armTransitionHold/);
 assert.match(skyBg,/let left=4/);
-assert.match(skyBg,/rig\.active=false/);
+assert.match(skyBg,/bgCamWant\(camera,false\)/);
 assert.doesNotMatch(skyBg,/armHold\(20\)/);
 assert.doesNotMatch(skyBg,/armTransitionHold\(20\)/);
+assert.doesNotMatch(skyBg,/armTransitionHold\(16\)/);
 assert.doesNotMatch(skyBg,/warmBeforeReveal/);
 assert.doesNotMatch(skyBg,/touchBoardGpu/);
 assert.doesNotMatch(skyBg,/skycity\.board-prime/);
 assert.doesNotMatch(skyBg,/priority=-20/);
 assert.doesNotMatch(skyBg,/leaveOn/);
+/* prime must NOT disable rig after warm (230 board regress); only cam off */
+assert.doesNotMatch(skyBg,/if\(!visible&&rig&&isValid\(rig,true\)\)rig\.active=false/);
 const skyLive=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/SkycityBoardLive.ts'),'utf8');
-assert.match(skyLive,/shown&&rig/);
-assert.doesNotMatch(skyLive,/keepActive\(\);keepActive/);
+assert.match(skyLive,/;keepActive\(\);/);
+assert.doesNotMatch(skyLive,/shown&&rig/);
 assert.match(nwa,/phase===0/);
 assert.match(nwa,/background\.setVisible\(true\)/);
 assert.match(nwa,/phase=1/);
@@ -248,7 +251,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Mac e987bf7a: setCamera~164 with board=0. Root: prime armed armTransitionHold + Live keepActive kept board GLB live through flight. Fix: no armTransitionHold in prime; warm 4 then DISABLE cam+rig; Live keepActive only when shown. Target setCamera<100 keep board-bg PASS. RT untouched.'};
+ note:'Mac 230df8f6: flight-inactive board cut setCamera 164→141 but board 0→138. Middle: restore Live keepActive + prime 4 cam-off-only (e987 board=0 path); no armTransitionHold in prime (25fa setCamera=0). Target both LONG <100. RT untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);
