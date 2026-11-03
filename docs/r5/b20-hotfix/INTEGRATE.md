@@ -238,4 +238,4 @@ Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `b4c86cb0d
 
 Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=102/0 @ f9200。根因：prime 2 帧 warm 后关相机，reveal 再开冷启用。本 tip：board-cam `priority=-20` 保活暖画（`skycity.board-prime`）+ reveal 三帧拆分 root→setVisible→present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
 
-- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge (+ cine `K.s1` kept) → tip record → manifest rehash. Final tip SHA = `git rev-parse HEAD` after this note.
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge (+ cine `K.s1` kept) → tip record → manifest rehash. Final tip SHA = `7edb804762f5c9a896e28ae8146e2a24a8306a61`.
