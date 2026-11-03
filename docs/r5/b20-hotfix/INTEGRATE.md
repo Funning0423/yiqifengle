@@ -230,3 +230,8 @@ Mac `e32f04bf`（源 tip `3be0a1c0`）setCamera 177ms/0、board-bg 105ms/0：已
 ## tip（本轮）
 
 - feature `508b5a18703af3b9b8f11c1d72b300434d9ac11c`：paint/setCamera 拆帧 + armTransitionHold B5→board + primeScene board-cam warm draw + reveal≠present 同帧。验收：过渡窗口 setCamera/board-bg LONG 均 <100ms；不上传微信。
+
+## board-bg keep-alive tip (post-25faaecf)
+
+Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=102/0 @ f9200。根因：prime 2 帧 warm 后关相机，reveal 再开冷启用。本 tip：board-cam `priority=-20` 保活暖画（`skycity.board-prime`）+ reveal 三帧拆分 root→setVisible→present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
+

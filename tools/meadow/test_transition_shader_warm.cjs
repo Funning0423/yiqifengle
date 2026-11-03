@@ -201,7 +201,7 @@ assert.match(ad,/noteMeadowSailFrame\(model\);noteTransitionSailFrame\(\)/);
 const nwa=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts'),'utf8');
 const balloon=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/BalloonTransit.ts'),'utf8');
 const boardUi=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/ManagedMobileBoardUI.ts'),'utf8');
-assert.match(nwa,/noteTransitionHeavyFrames\(24\)/);
+assert.match(nwa,/noteTransitionHeavyFrames\(32\)/);
 assert.match(nwa,/holdTransitionShaders\(true\)/);
 assert.match(nwa,/primeScene/);
 assert.match(balloon,/noteTransitionHeavyFrames\(8\)/);
@@ -214,6 +214,12 @@ const skyBg=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts
 assert.match(skyBg,/primeScene/);
 assert.match(skyBg,/holdTransitionShaders/);
 assert.match(skyBg,/noteTransitionHeavyFrames/);
+assert.match(skyBg,/skycity\.board-prime/);
+assert.match(skyBg,/priority=-20/);
+assert.match(skyBg,/armTransitionHold/);
+assert.match(nwa,/phase===0/);
+assert.match(nwa,/background\.setVisible\(true\)/);
+assert.match(nwa,/phase===1/);
 const lb=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/LevelBackground.ts'),'utf8');
 assert.match(lb,/primeScene\?/);
 /* hold refcount: two trues need two falses */
@@ -229,7 +235,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Mac e1974767: split paint/setCamera on threshold frames; absorb-while-held on quiet bridge; armTransitionHold B5→board; primeScene warm-draws board cam; reveal≠presentForPlay same frame. Target LONG<100. RT untouched.'};
+ note:'Mac 25faaecf: board-cam keep-alive warm under world (priority -20, board-prime); reveal 3-phase root→setVisible→present; target board-bg LONG<100. RT untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);
