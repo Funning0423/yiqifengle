@@ -2601,8 +2601,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts",
-    "bytes": 21679,
-    "sha256": "2e103c15f0cfb92567276aa796051569d4e780171ce3d7fe55e8e77fc0e7e9d9"
+    "bytes": 21735,
+    "sha256": "31bd9956e08dfb0e59e62b089189c3aa0d9b135fd7a84c3f2cc813bd859c9cbe"
   },
   {
     "path": "creator-build-project/assets/scripts/region/BalloonFlight.ts.meta",
@@ -3591,8 +3591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
-    "bytes": 6198,
-    "sha256": "11e5fa7310c457b406be6b1696835127cdbc74f84de30e68961a31bcdaa0cf3f"
+    "bytes": 6274,
+    "sha256": "2a917c70694f0dfab19d76c2d29a847162270d1e2daf835bee824b4c51f8c9d8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -3601,8 +3601,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts",
-    "bytes": 9129,
-    "sha256": "9a39901736e44b533031c1a2f59ac29feb469ef966349a5c2de4d1d09c1db717"
+    "bytes": 9002,
+    "sha256": "7e5c7282fcd058c9e0d026c6b1068b5496d1286e585432edf93f459d2ca027be"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts.meta",
@@ -3781,8 +3781,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts",
-    "bytes": 13184,
-    "sha256": "04beec1eb9dbdd780c99447f15b1465646f01a92d9ca2441be44bc149cffa15c"
+    "bytes": 13594,
+    "sha256": "8d4333556bd5de8e15adcad7f2897d81c5087d1782b525646acc6149954fa58c"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionStaging.ts.meta",
