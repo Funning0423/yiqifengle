@@ -244,4 +244,4 @@ Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=1
 
 Mac `4df76ffe`（源 tip `dfd2fe51`）setCamera 0→162 回退，board-bg 102→105。根因：飞行全程 board-cam keep-alive 双摄叠在 `world.setCamera`。本 tip：撤回飞行保活（`primeScene` 短暖 4 帧后 DISABLE）；新增 `warmBeforeReveal`，reveal 时 `-20`/board-prime 再暖 4 帧；`setVisible` 只拉 priority 44；reveal 等 warmLeft 后再 setVisible→present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
 
-- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge (+ cine `K.s1` kept) → tip record → manifest rehash. Final tip SHA = `git rev-parse HEAD` after this note.
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `b087da3c` (+ cine `K.s1` kept) → manifest `4d400a73` → tip record. Final tip SHA = `926b4b347d4911833c43ec766fcd0973ca88f9ef`.
