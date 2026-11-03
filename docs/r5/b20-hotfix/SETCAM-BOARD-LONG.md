@@ -24,3 +24,7 @@
 ## 验收（加严）
 
 过渡窗口内任意 `world.setCamera` / `board-bg` 相关 LONG **均 &lt;100ms**（目标 ≤80），无慢放感；RT 门禁不回退。
+
+## Mac 25faaecf board-bg keep-alive
+
+prime 2 帧后关相机 → reveal 冷开仍 102ms。本 tip：priority=-20 保活暖画 + reveal 三帧拆分。详见 NOTES-SETCAM-BOARD-LONG.md。

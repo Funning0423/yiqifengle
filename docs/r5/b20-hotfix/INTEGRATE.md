@@ -232,4 +232,10 @@ Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `b4c86cb0d
 ## paint-split / armHold / board-prime tip (post-e1974767)
 
 - feature `508b5a18703af3b9b8f11c1d72b300434d9ac11c`：paint/setCamera 拆帧 + armTransitionHold B5→board + primeScene board-cam warm draw + reveal≠present 同帧。验收：过渡窗口 setCamera/board-bg LONG 均 <100ms；不上传微信。
-- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `82c8220` (+ cine `K.s1` kept) → tip record `cd2333f` → manifest `cc7e3a6`. Final tip SHA = `git rev-parse HEAD` after this note.
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `82c8220` (+ cine `K.s1` kept) → tip record `cd2333f` → manifest `cc7e3a6`. Final tip SHA = `25faaecf7f72e2b31bd945dc7026760c7dd49363` (Mac setCamera PASS 0; board-bg FAIL 102ms/0).
+
+## board-bg keep-alive tip (post-25faaecf)
+
+Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=102/0 @ f9200。根因：prime 2 帧 warm 后关相机，reveal 再开冷启用。本 tip：board-cam `priority=-20` 保活暖画（`skycity.board-prime`）+ reveal 三帧拆分 root→setVisible→present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
+
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge (+ cine `K.s1` kept) → tip record → manifest rehash. Final tip SHA = `git rev-parse HEAD` after this note.
