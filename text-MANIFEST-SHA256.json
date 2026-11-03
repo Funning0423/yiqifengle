@@ -3591,8 +3591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
-    "bytes": 6549,
-    "sha256": "65fab9389c16ed95b9d29ba35c1ce3e6b4c081193b2ad637fe2ccc7285560088"
+    "bytes": 7226,
+    "sha256": "d89b6a301ff97eed9bb195ba670ad06a57f8cf56ad5b0af8f67017c84cfcc0c4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -4816,8 +4816,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelBackground.ts",
-    "bytes": 6534,
-    "sha256": "00005ada73ebf9f1fa8dd091579ff6915415e7c6ed804e940dc2206b72d07042"
+    "bytes": 6755,
+    "sha256": "5b75ee232e161957e972294fbf14703211c370688ae4826b222f9ccf07a859ec"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelBackground.ts.meta",
@@ -4876,8 +4876,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 10124,
-    "sha256": "30e9dfbd2b1e5d6a4a6361b63fb050782a3fccda7632b211358788ae005211ae"
+    "bytes": 10220,
+    "sha256": "9544883f922d8ecfb02bfbafbd15f870bf6fd8e9a08ee836ef099ac5ddba31c3"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
