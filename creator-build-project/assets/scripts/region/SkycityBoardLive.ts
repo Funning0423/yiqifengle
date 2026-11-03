@@ -17,10 +17,10 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const lease=await createBuild05SkycityBoard(ctx);if(!lease)return lease;
  const rig:Node|null=ctx.parent.getChildByName(SKYCITY_BOARD_RIG);
  hideOtherBoardStates(rig);
- // items 10/11: the scene stays active under the still-hidden board host, so it switches on during the hidden pre-activation and
- // the swap frame only turns its camera on. The Build05 lease toggles rig+camera in setVisible; the rig is put straight back (its
- // setVisible(false) calls come with the host hidden: binding load, lease hide), the camera keeps following visibility.
- const keepActive=()=>{if(rig&&isValid(rig,true)&&!rig.active)rig.active=true;};keepActive();
+ // items 10/11: primeScene warms under the hidden host (uploads), then Build05 disables rig until reveal so BalloonTransit
+ // setCamera frames do not pay live board GLB ticks. keepActive only after shown (reveal); setVisible(false) stays inactive.
+ let shown=false;
+ const keepActive=()=>{if(shown&&rig&&isValid(rig,true)&&!rig.active)rig.active=true;};
  // item 9 (Mac r4: daytime sky behind the night journey): the board sky follows the world day/night mode and its toggles.
  const camNode=rig?rig.getChildByName('SkycityBackgroundCamera'):null,camera:Camera|null=camNode?camNode.getComponent(Camera):null;let dead=false;
  // b16 复核4 ②：clear 色归棋盘管；云海组件（region/Skycity 云海）不再在白天强写/夜间还原这台相机（原来夜间还原出一帧存下的夜色，顶部天空闪一帧）。
@@ -40,7 +40,7 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  };
  // b16 真机复核 ②：补光、环境光、主光共用一个渐变权重 lightW（REGION_BOARD_LIGHT_FADE_S 0.6 s），不再一帧跳变。
  // 环境光/主光只在棋盘显示期间写，隐藏/释放时还原；世界在显示期间改了主光（日夜切换）就以新值为基准重新记。
- let fadeMixWas=1,lightW=NaN,lastT=0,shown=false,snapNext=false,fade:{from:number;p:number}|null=null,fadeMode:DayNightMode='day',scene:{amb:any;ambBase:number;ambPrev:number;ambWritten:number;main:DirectionalLight|null;mainBase:number;mainPrev:number;mainWritten:number;col:number[];colPrev:number[];colWritten:number[]|null}|null=null;
+ let fadeMixWas=1,lightW=NaN,lastT=0,snapNext=false,fade:{from:number;p:number}|null=null,fadeMode:DayNightMode='day',scene:{amb:any;ambBase:number;ambPrev:number;ambWritten:number;main:DirectionalLight|null;mainBase:number;mainPrev:number;mainWritten:number;col:number[];colPrev:number[];colWritten:number[]|null}|null=null;
  const sceneLights=()=>{const sc:any=director.getScene();const amb=sc?.globals?.ambient??null;const mn=sc?.getChildByName?.('Main Light')?.getComponent?.(DirectionalLight)??null;
   const col=mn?[mn.color.r,mn.color.g,mn.color.b]:[255,255,255];
   return {amb,ambBase:amb?amb.skyIllum:0,ambPrev:amb?amb.skyIllum:0,ambWritten:NaN,main:mn,mainBase:mn?mn.illuminance:0,mainPrev:mn?mn.illuminance:0,mainWritten:NaN,col,colPrev:col,colWritten:null};};
@@ -74,7 +74,7 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const tick=()=>{if(shown&&!dead)syncNight();};director.on(REGION_BOARD_TICK_EVENT,tick);
  return Object.assign({},lease,{
   frame:(...args:Parameters<typeof lease.frame>)=>{syncNight();lease.frame(...args);},
-  setVisible:(v:boolean)=>{/* b16 复核3 ②：显示首帧按当前日夜直接推目标光照（夜间进场即夜景，不从白天渐变） */if(v&&!shown){snapNext=true;lastT=0;}shown=v;syncNight();lease.setVisible(v);keepActive();},
+  setVisible:(v:boolean)=>{/* b16 复核3 ②：显示首帧按当前日夜直接推目标光照（夜间进场即夜景，不从白天渐变） */if(v&&!shown){snapNext=true;lastT=0;}shown=v;syncNight();lease.setVisible(v);if(v)keepActive();},
   diagnostics:()=>({...lease.diagnostics?.(),skyMode,skyNightBlend,keyLuminance:key?key.luminance:null,skyClearColor:camera?[camera.clearColor.r,camera.clearColor.g,camera.clearColor.b]:null,keyLight:key?{color:[key.color.r,key.color.g,key.color.b],luminance:key.luminance}:null,lightW,sceneLight:scene?{skyIllum:scene.amb?.skyIllum??null,ambientBase:scene.ambBase,mainIlluminance:scene.main?.illuminance??null,mainBase:scene.mainBase}:null}),
   dispose:()=>{if(!dead){dead=true;offNight();director.off(REGION_BOARD_TICK_EVENT,tick);restoreScene();}lease.dispose();}});
 };

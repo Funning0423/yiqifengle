@@ -254,3 +254,8 @@ Mac `d84fe519`（源 tip `07db498b` / feature `fbcb67cc`）setCamera 162→223 �
 ## restore-bb8 + prime-4 tip (post-4992e3b1)
 
 Mac `4992e3b1`（源 tip `29815864` / feature `adf343b6`）setCamera 163、board-bg 118。根因：warmBeforeReveal/touchBoardGpu/cam defer/三阶段 reveal 破坏了 bb8c1fa3（25faaecf setCamera=0）。本 tip：完整恢复 SkycityBoardBackground / NativeWorldLevelAdapter / LevelBackground 到 bb8 reveal；补 armTransitionHold import；极小步 `primeScene` 暖 2→4 帧 + armHold(20) 后 DISABLE（飞行期无第二摄）。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `9664ade9` (+ cine `K.s1` kept) → manifest `d81e2edc` → tip record. Final tip SHA = `e987bf7a42c986dc10d777be24fefa128ac88621` (Mac FAIL setCamera 164 / board-bg 0).
+
+## flight-inactive board tip (post-e987bf7a)
+
+Mac `e987bf7a`（源 tip `aaabd0e8` / feature `fca49f1c`）board-bg PASS max=0；setCamera FAIL max=164。根因：prime 内 `armTransitionHold` 生效 + `SkycityBoardLive.keepActive` 飞行常驻 board GLB。本 tip：prime 暖 4 后关 cam+rig、去掉 prime 内 armTransitionHold、Live 仅 shown keepActive。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
