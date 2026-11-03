@@ -249,3 +249,8 @@ Mac `4df76ffe`（源 tip `dfd2fe51`）setCamera 0→162 回退，board-bg 102→
 ## texture-only warmBeforeReveal tip (post-d84fe519)
 
 Mac `d84fe519`（源 tip `07db498b` / feature `fbcb67cc`）setCamera 162→223 更差，board-bg 101。根因：`warmBeforeReveal` 以 priority=-20 开第二摄，与飞行/B1 `world.setCamera` 同窗叠画。本 tip：撤回 -20 dual-cam；恢复 25faaecf `primeScene` 2 帧后关；`warmBeforeReveal` 改为仅 `touchBoardGpu`（getGFXTexture/pass variant）；`setVisible` 时 board-cam defer 一帧 after_draw；reveal 三阶段 root+texture warm → setVisible → present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。node-lens 171/56 记残余、本 tip 不清。
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `cbad9d08` (+ cine `K.s1` kept) → manifest `68d2d8e6` → tip record. Final tip SHA = `4992e3b1d537da68a1eee76af7b03c5dd3b6e793` (Mac FAIL setCamera 163 / board-bg 118；texture-only 未回到 25faaecf=0).
+
+## restore-bb8 + prime-4 tip (post-4992e3b1)
+
+Mac `4992e3b1`（源 tip `29815864` / feature `adf343b6`）setCamera 163、board-bg 118。根因：warmBeforeReveal/touchBoardGpu/cam defer/三阶段 reveal 破坏了 bb8c1fa3（25faaecf setCamera=0）。本 tip：完整恢复 SkycityBoardBackground / NativeWorldLevelAdapter / LevelBackground 到 bb8 reveal；补 armTransitionHold import；极小步 `primeScene` 暖 2→4 帧 + armHold(20) 后 DISABLE（飞行期无第二摄）。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
