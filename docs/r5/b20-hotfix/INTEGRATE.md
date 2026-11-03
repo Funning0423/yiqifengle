@@ -235,4 +235,5 @@ Mac `e32f04bf`（源 tip `3be0a1c0`）setCamera 177ms/0、board-bg 105ms/0：已
 
 Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=102/0 @ f9200。根因：prime 2 帧 warm 后关相机，reveal 再开冷启用。本 tip：board-cam `priority=-20` 保活暖画（`skycity.board-prime`）+ reveal 三帧拆分 root→setVisible→present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
 
-- tip（pending）：撤回 board-cam 飞行 keep-alive；reveal 前 warmBeforeReveal 晚暖（修 4df76ffe setCamera 162 回退）。
+- tip `07db498b` / feature `fbcb67cc` 合入后 Mac `d84fe519` FAIL：setCamera 223、board-bg 101（-20 warmBeforeReveal 双摄回退）。
+- tip（pending）：撤回 -20 双摄晚暖；恢复 25faaecf prime 2 帧后关；texture-only warmBeforeReveal + cam defer + 3-phase reveal。详见 `NOTES-SETCAM-BOARD-LONG.md`。

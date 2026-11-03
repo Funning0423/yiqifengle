@@ -201,9 +201,9 @@ assert.match(ad,/noteMeadowSailFrame\(model\);noteTransitionSailFrame\(\)/);
 const nwa=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts'),'utf8');
 const balloon=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/BalloonTransit.ts'),'utf8');
 const boardUi=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/ManagedMobileBoardUI.ts'),'utf8');
-assert.match(nwa,/noteTransitionHeavyFrames\(36\)/);
+assert.match(nwa,/noteTransitionHeavyFrames\(24\)/);
 assert.match(nwa,/warmBeforeReveal/);
-assert.match(nwa,/warmLeft/);
+assert.doesNotMatch(nwa,/warmLeft\s*=/);
 assert.match(nwa,/holdTransitionShaders\(true\)/);
 assert.match(nwa,/primeScene/);
 assert.match(balloon,/noteTransitionHeavyFrames\(8\)/);
@@ -216,14 +216,17 @@ const skyBg=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts
 assert.match(skyBg,/primeScene/);
 assert.match(skyBg,/holdTransitionShaders/);
 assert.match(skyBg,/noteTransitionHeavyFrames/);
-assert.match(skyBg,/skycity\.board-prime/);
-assert.match(skyBg,/priority=-20/);
+assert.doesNotMatch(skyBg,/skycity\.board-prime/);
+assert.doesNotMatch(skyBg,/priority=-20/);
 assert.match(skyBg,/armTransitionHold/);
 assert.match(skyBg,/warmBeforeReveal/);
-assert.match(skyBg,/leaveOn/);
+assert.match(skyBg,/touchBoardGpu/);
+assert.match(skyBg,/getGFXTexture/);
+assert.doesNotMatch(skyBg,/leaveOn/);
 assert.match(nwa,/phase===0/);
 assert.match(nwa,/background\.setVisible\(true\)/);
 assert.match(nwa,/phase===1/);
+assert.match(nwa,/phase===2/);
 const lb=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/LevelBackground.ts'),'utf8');
 assert.match(lb,/primeScene\?/);
 assert.match(lb,/warmBeforeReveal\?/);
@@ -240,7 +243,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Mac 4df76ffe: revert flight keep-alive (setCamera 162); late warmBeforeReveal at -20 just before setVisible; early prime disables after 4 draws. Target setCamera+board-bg LONG<100. RT untouched.'};
+ note:'Mac d84fe519: withdraw -20 dual-cam warmBeforeReveal (setCamera 223); restore 25faaecf prime 2-frame then disable; texture-only late warm + deferred cam + 3-phase reveal. Target setCamera+board-bg LONG<100. RT untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);
