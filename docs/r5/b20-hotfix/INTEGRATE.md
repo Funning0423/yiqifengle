@@ -238,3 +238,7 @@ Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=1
 - tip `07db498b` / feature `fbcb67cc` 合入后 Mac `d84fe519` FAIL：setCamera 223、board-bg 101（-20 warmBeforeReveal 双摄回退）。
 - tip `29815864` / feature `adf343b6` 合入后 Mac `4992e3b1` FAIL：setCamera 163、board-bg 118。
 - tip（pending）：完整恢复 bb8c1fa3/25faaecf reveal+setVisible；撤 warmBeforeReveal/touchBoardGpu/cam-defer/3-phase；prime 暖画 2→4 后关。详见 `NOTES-SETCAM-BOARD-LONG.md`。
+
+## tip（Mac e987bf7a → setCamera&lt;100 保住 board=0）
+功能 tip 见本轮 tip SHA。根因：prime 内 `armTransitionHold` 生效 + `SkycityBoardLive.keepActive` 飞行常驻 board GLB。修复：prime 暖 4 后关 cam+rig、去掉 prime 内 armTransitionHold、Live 仅 shown keepActive。`test_transition_shader_warm.cjs` PASS；不上传微信。
+

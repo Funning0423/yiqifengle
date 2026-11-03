@@ -40,3 +40,6 @@ warmBeforeReveal(-20) 把 setCamera 打到 223。本 tip：撤回双摄晚暖；
 
 setCamera 163、board-bg 118。撤回 dfd2fe51→29815864 全部晚暖/拆帧差异，恢复 bb8c1fa3/25faaecf 路径；prime 暖画 2→4。详见 NOTES-SETCAM-BOARD-LONG.md。
 
+## Mac e987bf7a setCamera residual
+
+board-bg=0 但 setCamera~164。prime 内 armTransitionHold 生效 + Live keepActive 飞行常驻 board GLB。本 tip：prime 暖 4 后关 cam+rig；Live 仅 shown keepActive。详见 NOTES-SETCAM-BOARD-LONG.md。

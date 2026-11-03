@@ -1,14 +1,15 @@
-# setCamera / board-bg 长帧续修笔记（Mac 4992e3b1 → 恢复 25faaecf）
+# setCamera / board-bg 长帧续修笔记（Mac e987bf7a → 恢复 setCamera≈0 且保住 board=0）
 
-## 根因（对照 25faaecf PASS setCamera=0 vs 4992e3b1 FAIL 163 / board 118）
-1. **dfd2fe51→29815864** 引入的 `warmBeforeReveal` / `touchBoardGpu` / cam defer / 三阶段 reveal，破坏了 `bb8c1fa3`（Mac integrate `25faaecf`）的 setCamera=0 路径；双摄晚暖更曾把 setCamera 打到 223。
-2. **board-bg**：25faaecf 已压到 **102ms**（只差 2ms）；后续晚暖/保活均未能破 100，且回退 setCamera。应先恢复基线，再只在 **enterLevel 窗**做极小 prime 加暖（不开飞行第二摄）。
+## 根因（对照 25faaecf setCamera=0 / board 102 vs e987bf7a setCamera 164 / board 0）
+1. **代码差仅 SkycityBoardBackground.primeScene**：`left=2→4`、`armHold(16→20)`，并把 `armTransitionHold` **真正 import**（25fa/bb8 调用了但未 import，try/catch 空转）。
+2. **SkycityBoardLive.keepActive** 在构造与每次 setVisible 后强制 `rig.active=true`，飞行全程 board GLB 常驻；prime 4 帧把更多 mesh/upload 拉活后，飞行 `BalloonTransit:flight` 的 `world.setCamera` 窗（shaders=0）叠上 board 主线程 tick → 164/158/110ms。
+3. board-bg=0 来自 enterLevel 窗内 4 帧 board-cam 暖画（uploads 提前），应保留暖画，但暖完必须 **关 cam + 关 rig**，且 Live 不得在飞行期 keepAlive。
 
-## 改动（本 tip）
-- **完整恢复** `SkycityBoardBackground` / `NativeWorldLevelAdapter` / `LevelBackground` 到 `bb8c1fa3` reveal 行为：无 warmBeforeReveal、无 touchBoardGpu、无 cam defer、两阶段 reveal（setVisible → presentForPlay）。
-- **补** `armTransitionHold` import（bb8 有调用无 import，被 try/catch 吞掉）。
-- **极小步**：`primeScene` board-cam 暖画 **2→4** 帧，armHold(20)，然后 **DISABLE**（飞行期无双摄）。
+## 本 tip
+- prime：保留 **4** 帧暖画；`armHold(16)`；**去掉** prime 内 `armTransitionHold`；暖完 `camera off` + `rig.active=false`。
+- Live：`keepActive` 仅 `shown`（reveal）后；构造不再强行激活；`setVisible(false)` 保持 inactive。
+- armHold：只在启动 tick 时 `holdTransitionShaders(true)`，避免重复加 holdDepth。
 - 不 hold 镜头；不改 fidelity/mask/content/walk-speed；不抢 cine/fx；不上传。
 
 ## 验收
-过渡窗口 setCamera / board-bg 相关 LONG **均 <100ms**（board-bg 目标 ≤80–90）；animateCamera / RT 不回退。若本 tip 仅恢复 setCamera≈0 而 board 仍 ~100，handoff 写明。
+过渡窗口 setCamera LONG **&lt;100ms**（最好≈0）；board-bg **保持 &lt;100**（目标 ≤80–90）；animateCamera / RT 不回退。

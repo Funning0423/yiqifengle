@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac 4992e3b1: restore bb8c1fa3/25faaecf reveal+setVisible (no warmBeforeReveal/touchBoardGpu/cam-defer/3-phase); primeScene warm draws 2→4 then DISABLE. Target setCamera=0 and board-bg LONG<100. RT untouched."
+  "note": "Mac e987bf7a: setCamera~164 with board=0. Root: prime armed armTransitionHold + Live keepActive kept board GLB live through flight. Fix: no armTransitionHold in prime; warm 4 then DISABLE cam+rig; Live keepActive only when shown. Target setCamera<100 keep board-bg PASS. RT untouched."
 }
