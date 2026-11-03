@@ -238,4 +238,10 @@ Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `b4c86cb0d
 
 Mac `25faaecf`（源 tip `bb8c1fa3`）setCamera PASS max=0；board-bg FAIL max=102/0 @ f9200。根因：prime 2 帧 warm 后关相机，reveal 再开冷启用。本 tip：board-cam `priority=-20` 保活暖画（`skycity.board-prime`）+ reveal 三帧拆分 root→setVisible→present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
 
-- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `89be72ce` (+ cine `K.s1` kept) → manifest `2a65b162` → tip record. Final tip SHA = `git rev-parse HEAD` after this note.
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge `89be72ce` (+ cine `K.s1` kept) → manifest `2a65b162` → tip record. Final tip SHA = `4df76ffe35d3e94ce5d946ea1e223409736e220f` (Mac FAIL setCamera 162 / board-bg 105；飞行双摄回退).
+
+## late warmBeforeReveal tip (post-4df76ffe)
+
+Mac `4df76ffe`（源 tip `dfd2fe51`）setCamera 0→162 回退，board-bg 102→105。根因：飞行全程 board-cam keep-alive 双摄叠在 `world.setCamera`。本 tip：撤回飞行保活（`primeScene` 短暖 4 帧后 DISABLE）；新增 `warmBeforeReveal`，reveal 时 `-20`/board-prime 再暖 4 帧；`setVisible` 只拉 priority 44；reveal 等 warmLeft 后再 setVisible→present。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
+
+- Integrate on `gbt/r5-b20-integrate-landing-visual-bg2`: feature merge (+ cine `K.s1` kept) → tip record → manifest rehash. Final tip SHA = `git rev-parse HEAD` after this note.

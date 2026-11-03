@@ -28,3 +28,7 @@
 ## Mac 25faaecf board-bg keep-alive
 
 prime 2 帧后关相机 → reveal 冷开仍 102ms。本 tip：priority=-20 保活暖画 + reveal 三帧拆分。详见 NOTES-SETCAM-BOARD-LONG.md。
+
+## Mac 4df76ffe 回退与晚暖
+
+keep-alive 把 setCamera 从 0 打回 162。本 tip：撤回飞行保活；reveal 前 `warmBeforeReveal` 短暖。详见 NOTES-SETCAM-BOARD-LONG.md。
