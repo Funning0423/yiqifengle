@@ -3591,8 +3591,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts",
-    "bytes": 6274,
-    "sha256": "2a917c70694f0dfab19d76c2d29a847162270d1e2daf835bee824b4c51f8c9d8"
+    "bytes": 6435,
+    "sha256": "8e7c656a808787b8e40814fc17931c12030f323a8b8a38d115a6ea96b1616099"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardBackground.ts.meta",
@@ -3601,8 +3601,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts",
-    "bytes": 9002,
-    "sha256": "7e5c7282fcd058c9e0d026c6b1068b5496d1286e585432edf93f459d2ca027be"
+    "bytes": 9066,
+    "sha256": "0b431f35cb7c4dff441db94bdf80ba1e292af19e802a97c241d837fb8b7ae296"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityBoardLive.ts.meta",
