@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac 25faaecf: board-cam keep-alive warm under world (priority -20, board-prime); reveal 3-phase root→setVisible→present; target board-bg LONG<100. RT untouched."
+  "note": "Mac 4df76ffe: revert flight keep-alive (setCamera 162); late warmBeforeReveal at -20 just before setVisible; early prime disables after 4 draws. Target setCamera+board-bg LONG<100. RT untouched."
 }
