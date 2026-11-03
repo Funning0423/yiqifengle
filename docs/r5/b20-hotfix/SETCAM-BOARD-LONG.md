@@ -35,3 +35,8 @@ keep-alive 把 setCamera 从 0 打回 162。本 tip：撤回飞行保活；revea
 
 ## Mac d84fe519（tip 07db498b）
 warmBeforeReveal(-20) 把 setCamera 打到 223。本 tip：撤回双摄晚暖；texture-only + 恢复 25faaecf prime。详见 NOTES-SETCAM-BOARD-LONG.md。
+
+## Mac 4992e3b1（texture-only 仍 FAIL）
+
+setCamera 163、board-bg 118。撤回 dfd2fe51→29815864 全部晚暖/拆帧差异，恢复 bb8c1fa3/25faaecf 路径；prime 暖画 2→4。详见 NOTES-SETCAM-BOARD-LONG.md。
+
