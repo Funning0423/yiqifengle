@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac 4df76ffe: revert flight keep-alive (setCamera 162); late warmBeforeReveal at -20 just before setVisible; early prime disables after 4 draws. Target setCamera+board-bg LONG<100. RT untouched."
+  "note": "Mac d84fe519: withdraw -20 dual-cam warmBeforeReveal (setCamera 223); restore 25faaecf prime 2-frame then disable; texture-only late warm + deferred cam + 3-phase reveal. Target setCamera+board-bg LONG<100. RT untouched."
 }

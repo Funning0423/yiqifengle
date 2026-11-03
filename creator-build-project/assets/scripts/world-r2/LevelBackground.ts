@@ -9,7 +9,7 @@ export interface LevelBackgroundLease {
   setVisible(visible:boolean):void;
   /** Optional: activate heavy 3D scene early while the board camera stays off (spreads reveal cost). */
   primeScene?():void;
-  /** Optional: short under-world board-cam warm just before reveal (must not overlap flight setCamera). */
+  /** Optional: late board prep just before reveal (texture touch only — must not enable a second camera over flight setCamera). */
   warmBeforeReveal?():void;
   /** Presentation clock only. Pausing must not hide the last rendered scenery. */
   setPaused?(paused:boolean):void;

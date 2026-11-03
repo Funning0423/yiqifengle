@@ -32,3 +32,6 @@ prime 2 帧后关相机 → reveal 冷开仍 102ms。本 tip：priority=-20 保�
 ## Mac 4df76ffe 回退与晚暖
 
 keep-alive 把 setCamera 从 0 打回 162。本 tip：撤回飞行保活；reveal 前 `warmBeforeReveal` 短暖。详见 NOTES-SETCAM-BOARD-LONG.md。
+
+## Mac d84fe519（tip 07db498b）
+warmBeforeReveal(-20) 把 setCamera 打到 223。本 tip：撤回双摄晚暖；texture-only + 恢复 25faaecf prime。详见 NOTES-SETCAM-BOARD-LONG.md。
