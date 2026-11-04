@@ -92,3 +92,33 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 
 验收：setCamera 与 board-bg 同时 <100（目标≈0）；animateCamera/RT 不回退；起身 warm/burst 意图仍在。
 
+## Strategy C：Mac 6f785228 == fb74 scripts → 阻塞 + tip 对齐过线树
+
+| metric | fb74d437 | 587b73d3 (A) | **6f785228 (B)** |
+|--------|----------|--------------|------------------|
+| setCamera max | **0** | 268 FAIL | **270 FAIL** |
+| board-bg max | **0** | 245 FAIL | **452 FAIL** |
+| build TOTAL | 23626088 | 23627295 | **23626088**（=fb74） |
+| scripts vs fb74 | — | +warmSample | **ZERO DIFF** |
+| criticalPending AFTER | 111 | 98 | 99 |
+
+### 精确 diff（integrate 树）
+1. `git diff fb74d437..6f785228 -- creator-build-project/assets/scripts` → **空**。blob 级 `BalloonTransit` / `TransitionStaging` / `SkycityBoard*` / `TransitionShaderWarm` / `WorldIntegrationBoot` 全相同。
+2. `git diff ac48372e..6f785228`（= `ac48372e..fb74d437`）仍有 5 个非 warmSample 文件：BalloonTransit middle（LAND_T showIsland、B5 island force-on、walk `K.s1→s0New`）、TransitionStaging（spawn_girl / toPath15 / cap60）、BalloonFlight（floor_seal）、SailPreload+RegionJourneyAdapter（black-fence always-configure）。**这 5 个 diff 在过线 tip fb74 上同样存在**，不能解释 PASS→FAIL。
+3. 6f78 的 setCamera/board LONG **shaders=0**（非 compile）；尖峰在 `BalloonTransit:flight→B5` 与随后 `skycity.board-background`。
+
+### 结论
+- warmSampleStandUp / TransitionShaderWarm standup 侵入：**已证伪**（Strategy A/B）。
+- BalloonTransit middle / black-fence：**不是相对 fb74 的抬门禁差**（同在 PASS 树）。**勿回退**这些（会离开已知过线代码）；**勿动 K.s1**。
+- 相对过线 Mac tip **已无脚本可剥**。下一动作不是再出脚本 tip，而是：
+  1. Mac **同日 CONTROL**：`KEEP_CACHE=0` 干净重建复测 `fb74d437`；
+  2. 同条件复测 `6f785228`；
+  3. 若 CONTROL 仍 PASS 而 6f78 FAIL → 查非 git（DevTools 态 / 注入 / 机温）；若 CONTROL 也 FAIL → 门禁当日噪声，再议 harden（超出 fb74 中间态）而不是回退 sea-landing。
+
+证据 JSON：`evidence/integrate-vs-fb74-rootcause.json`。upload=NO；live 仍 `1.0.202611031613` @ fb74d437。
+
+### 本 tip 动作（GGbot 分支）
+- 将 Strategy B 误剥回 `ac48372e` 的 5 文件（BalloonTransit / TransitionStaging / BalloonFlight / SailPreload / RegionJourneyAdapter）**恢复为 `fb74d437` blob**，使 tip 树 scripts == 过线 Mac tip。
+- 锁测：`tools/meadow/test_integrate_vs_fb74_scripts_identity.cjs`（gate 文件 == fb74 + 无 warmSampleStandUp）。
+- **不**回退 K.s1 / BalloonTransit middle / black-fence；**不**重引入 standup burst/warmSample。
+- integrate 合入后相对 `6f785228` 预期 scripts 仍 == fb74（noop 或文档对齐）；Mac 必须 `KEEP_CACHE=0` CONTROL 复测 `fb74d437` 同日对照。

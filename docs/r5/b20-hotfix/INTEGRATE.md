@@ -1,5 +1,19 @@
 # b20 hotfix — 草甸 warm-up C + 天空之城 RT + 转场 shader 预热
 
+## Strategy C：根因 = 无脚本差可剥（Mac 6f785228 == fb74d437 scripts）
+
+- 功能提交：见本 tip 的 feature SHA（`git log -1 --format=%H` 在 tip record 之前）
+- tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- Mac integrate tip `6f785228`（← GGbot Strategy B `0ba5ada5`）OVERALL FAIL：setCamera **270**、board-bg **452**；criticalPending AFTER≈99；build TOTAL **= fb74**（23626088）
+- **精确 diff**：`git diff fb74d437..6f785228 -- creator-build-project/assets/scripts` → **空**。blob 级 BalloonTransit / TransitionStaging / SkycityBoard* / TransitionShaderWarm / WorldIntegrationBoot / CharacterMotion 全相同。仅 docs/tests/evidence/MANIFEST 不同。
+- `ac48372e..6f785228`（= `ac48372e..fb74d437`）仍有 BalloonTransit middle / TransitionStaging s0New / BalloonFlight floor_seal / SailPreload+RegionJourneyAdapter black-fence always-configure——**过线 tip 上同样存在**，不是 PASS→FAIL 差。
+- Strategy A/B 已证伪 warmSampleStandUp / standup TransitionShaderWarm 侵入。
+- 本 tip：**GGbot 分支 tip 树 scripts 对齐 fb74d437**（把 Strategy B 误剥回 ac48372e 的 5 个海陆文件恢复到过线树）；**勿再回退** BalloonTransit / black-fence / K.s1；起身 warm 继续 DEFERRED。
+- **阻塞下一步（非再剥脚本）**：Mac 同日 `KEEP_CACHE=0` CONTROL 复测 `fb74d437`；同条件复测本 tip 合入后的 integrate。若 CONTROL PASS 而新 tip FAIL → 查非 git；若 CONTROL 也 FAIL → 门禁当日噪声，再议 harden。
+- 证据：`evidence/integrate-vs-fb74-rootcause.json`；锁测 `tools/meadow/test_integrate_vs_fb74_scripts_identity.cjs`
+- upload=NO；live 仍 `1.0.202611031613` @ fb74d437；过线前不上传
+
+
 ## Strategy B：全剥 warmSampleStandUp → scripts == ac48372e（相对 Mac 587b73d3 FAIL）
 
 - 功能 `aeb079bf3cc9855d33062f2ed26747f29abb8962`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
