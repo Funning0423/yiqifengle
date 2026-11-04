@@ -1981,8 +1981,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 139896,
-    "sha256": "ccb92064b578fda284710367564c1219e78f3841d49ac46d9c3e01db16669d44"
+    "bytes": 139742,
+    "sha256": "3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
@@ -2111,8 +2111,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 115986,
-    "sha256": "3049a8808d8455838f77aa5961dbe34bb4e70064d91403106c142135c601e82f"
+    "bytes": 113729,
+    "sha256": "19619af0b691b94d8d88031fb93e1cd28ef00ec1e5170b609286714faf7cb834"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -3201,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 67354,
-    "sha256": "8583fe2905bc8f3da6e2a04f19f42bc325fe839ec1faaa0b61dfefd5d7ee619a"
+    "bytes": 67279,
+    "sha256": "92c2e0b746cb80df2adf6d3efdcd0b9ff5d832ff32fe3f16c72bd463b6e7d9f7"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
