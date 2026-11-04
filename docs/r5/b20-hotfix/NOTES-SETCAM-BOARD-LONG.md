@@ -85,3 +85,23 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 - integrate 合入后相对 `6f785228` 预期 scripts 仍 == fb74（noop 或文档对齐）；Mac 必须 `KEEP_CACHE=0` CONTROL 复测 `fb74d437` 同日对照。
 
 
+
+## Strategy C′：CONTROL_FAIL_NOISE → standup-only 隔离（停门禁追逐）
+
+同日 `KEEP_CACHE=0`：
+| tip | setCamera | board-bg | scripts vs fb74 |
+|-----|-----------|----------|-----------------|
+| CONTROL `fb74d437` | **156 FAIL** | **127 FAIL** | —（历史 PASS 0/0） |
+| integrate `905bd9f1` ← cec2a99e | **181 FAIL** | **115 FAIL** | **ZERO_DIFF** |
+
+判定：**门禁噪声 / 非 git**。证据：`mac-selftest-fb74d437-control-landing/STRATEGY_C_VERDICT.md`。
+
+### 本 tip 动作
+1. **停** transition 门禁追逐；接受当日噪声带；**勿再回退** sea-landing / BalloonTransit / K.s1 / black-fence。
+2. **standup-only 隔离**：`warmSampleStandUp` 短窗 N=4，仅 `perform(stand)` + lakeside `playNamed('stand_up')`；**禁止 bindVisual**；**禁止** `armStandupShaderBurst` / DIR_LIGHT / 改 TransitionShaderWarm。
+3. MorphDriver EPS 注释恢复（STANDUP-PERF #4）。
+4. 可叠 `299afe73` anim morph 减负（本 tip 不 cherry-pick anim_meta）。
+5. **验收**：起身体感指标 + Funning 手机；**不再**以 setCamera/board=0 一票否决。
+6. upload=NO；live 仍 `1.0.202611031613` @ fb74d437。
+
+锁测：`test_standup_warm_sample.cjs`（隔离断言 + 短窗 runtime）、`test_transition_shader_warm.cjs`（无 burst；warmSample 仅角色路径）、`test_integrate_vs_fb74_scripts_identity.cjs`（transition/board/balloon == fb74）。

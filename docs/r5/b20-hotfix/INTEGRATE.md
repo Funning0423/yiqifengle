@@ -1,5 +1,22 @@
 # b20 hotfix — 草甸 warm-up C + 天空之城 RT + 转场 shader 预热
 
+## Strategy C′：standup-only 隔离 tip（CONTROL_FAIL_NOISE 之后）
+
+- 功能 `823828b5d74055b59484007a0be2a74a7e623edc`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- 同日 `KEEP_CACHE=0`：**CONTROL `fb74d437` FAIL** setCamera **156** / board-bg **127**；integrate `905bd9f1`（scripts vs fb74 ZERO_DIFF）181/115 → **门禁噪声 / 非 git**
+- **停** transition 门禁追逐；**勿再回退** sea-landing / BalloonTransit / K.s1 / black-fence；**勿再**为 setCamera+board≈0 剥 scripts
+- 本 tip **仅**角色起身路径：
+  1. `FlowReferenceStandin.warmSampleStandUp` 短窗 N=4（pose+morphWeights），只在 `perform(stand)` 与 lakeside `playNamed('stand_up')` 前调用
+  2. **禁止** `bindVisual` 调用（避免 landing 叠 sample）
+  3. **禁止** `armStandupShaderBurst` / DIR_LIGHT 袋 / 改 `TransitionShaderWarm` critical/hold/burst
+  4. MorphDriver `MORPH_EPS` 路径保留 + STANDUP-PERF #4 注释（无整表清零）
+- `TransitionShaderWarm` / `SkycityBoard*` / `BalloonTransit` / `BalloonFlight` / `TransitionStaging` / `SailPreload` 相对 `fb74d437` **零逻辑回归**（identity 锁测）
+- 可叠角色动画bot tip `299afe73`（`anim/standup-perf-morph`，anim_meta 曲线减负）；本 tip **不** cherry-pick 资产，仅 runtime 配合
+- **验收**：起身体感 / standup 段帧时与卡顿标记 + Funning 手机；**不再**以 setCamera/board=0 一票否决
+- upload=**NO**；live 仍 `1.0.202611031613` @ fb74d437
+- 证据：`evidence/standup-warm-sample.json`；锁测见 `tools/walk-driver/test_standup_warm_sample.cjs` + `tools/meadow/test_transition_shader_warm.cjs` + `tools/meadow/test_integrate_vs_fb74_scripts_identity.cjs`
+
+
 ## Strategy C：根因 = 无脚本差可剥（Mac 6f785228 == fb74d437 scripts）
 
 - 功能 `1f3f95dbb89184bf6223c9b4433bd279b5bee9ea`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
