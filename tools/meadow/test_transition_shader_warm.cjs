@@ -257,6 +257,19 @@ assert.doesNotMatch(lb,/warmBeforeReveal/);
 /* hold refcount: two trues need two falses */
 T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);const n0=L.recorded.length;T.holdTransitionShaders(true);T.holdTransitionShaders(true);L.listeners[0]();assert.equal(L.recorded.length,n0,'held skips compile');T.holdTransitionShaders(false);L.listeners[0]();assert.equal(L.recorded.length,n0,'still held after one release');T.holdTransitionShaders(false);
 
+/* 角色动画bot STANDUP-PERF → GGbot runtime: warm-sample + no sit→stand AnimRig rebuild */
+assert.match(boot,/warmSampleStandUp/);
+assert.match(boot,/standup-warm-sample/);
+assert.match(boot,/action\.kind==='stand'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:false\}\)/);
+assert.match(boot,/playNamed\('sit_hold'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:true\}\)/);
+{const performBlock=boot.slice(boot.indexOf("if(action.kind==='stand')"),boot.indexOf("if(action.kind==='stand')")+400);
+ assert.doesNotMatch(performBlock,/repairStates|requireDirectTrsStates|new AnimRig/);}
+const rjStand=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'),'utf8');
+assert.match(rjStand,/warmSampleStandUp\?\.\(\{restoreMorph:false\}\)/);
+const cmStand=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/CharacterMotion.ts'),'utf8');
+assert.match(cmStand,/MORPH_EPS/);
+assert.match(cmStand,/起身段无整表清零重写/);
+assert.doesNotMatch(balloon,/warmSampleStandUp/);
 assert.doesNotMatch(src,/\bnew (Map|Set)\b/);assert.doesNotMatch(src,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
 assert.doesNotMatch(meadowSrc,/\bnew (Map|Set)\b/);assert.doesNotMatch(meadowSrc,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
 const es5opts={compilerOptions:{module:1,target:1,...(ts.version.startsWith('6.')?{ignoreDeprecations:'6.0'}:{})},reportDiagnostics:true};
@@ -267,7 +280,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Funning standup tip: warm CC_DIR_LIGHT_SHADOW_TYPE1 + standard PRECOMPUTED morph before stand_up; armStandupShaderBurst 8/frame; USE_ALPHA_TEST critical for node-lens. Hard keep setCamera/board-bg=0; BalloonTransit untouched. Target stand_up no hitch + node-lens/enterLevel <100 + ready后 crit≈0.'};
+ note:'STANDUP-PERF runtime: warmSampleStandUp pose+morph before playNamed(stand_up); no sit→stand AnimRig rebuild; MorphDriver EPS-only (no full clear); keep DIR_LIGHT+COUNT53/73+PRECOMPUTED + armStandupShaderBurst. Hard keep setCamera/board-bg=0; BalloonTransit/K.s1 untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);

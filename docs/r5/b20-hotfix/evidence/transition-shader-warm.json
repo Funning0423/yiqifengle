@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Funning standup tip: warm CC_DIR_LIGHT_SHADOW_TYPE1 + standard PRECOMPUTED morph before stand_up; armStandupShaderBurst 8/frame; USE_ALPHA_TEST critical for node-lens. Hard keep setCamera/board-bg=0; BalloonTransit untouched. Target stand_up no hitch + node-lens/enterLevel <100 + ready后 crit≈0."
+  "note": "STANDUP-PERF runtime: warmSampleStandUp pose+morph before playNamed(stand_up); no sit→stand AnimRig rebuild; MorphDriver EPS-only (no full clear); keep DIR_LIGHT+COUNT53/73+PRECOMPUTED + armStandupShaderBurst. Hard keep setCamera/board-bg=0; BalloonTransit/K.s1 untouched."
 }

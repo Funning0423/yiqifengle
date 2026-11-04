@@ -1,5 +1,20 @@
 # b20 hotfix — 草甸 warm-up C + 天空之城 RT + 转场 shader 预热
 
+## STANDUP-PERF runtime tip（待 Mac / 真机复测）
+
+- 功能 tip = 本文件所在提交之上的 feature 提交（`git rev-parse HEAD^` / `HEAD`）；叠在 `14463a58` / `2f3fe317` 上
+- 补齐角色动画bot `STANDUP-PERF-20261104.md` §交给 GGbot #2：`warmSampleStandUp`（pose+morphWeights 先 setWeight）
+- #1/#3/#4 已满足（ctor-only AnimRig、DIR_LIGHT+COUNT53/73+PRECOMPUTED、MorphDriver EPS 无整表清零）
+- 硬保住 setCamera=0 / board-bg=0；勿动 BalloonTransit / K.s1
+- 细节见 `NOTES-SETCAM-BOARD-LONG.md`「STANDUP-PERF runtime tip」
+
+## Funning 起身 tip（待 Mac / 真机复测）
+
+- 功能 `2f3fe3172a3196ed9f75c918f6a475c810149222`；本 tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+
+首要：坐→起身手机不顿。runtime 预热 `CC_USE_SKINNING1|CC_USE_MORPH1`（MORPH 53/73±PRECOMPUTED）+ `CC_DIR_LIGHT_SHADOW_TYPE1`，`armStandupShaderBurst` 起身前冲刺；仍清 node-lens/enterLevel≥100 与 ready 后 criticalPending；硬保住 setCamera=0 / board-bg=0；勿动 BalloonTransit / K.s1。细节见 `NOTES-SETCAM-BOARD-LONG.md`「Funning 起身 tip」。
+
+
 - 分支：`ggbot/b20-meadow-c-skycity-rt`
 - 基底：`ggbot/release-b20` @ `b339414036cbba6d0b3053b035adb045b2e4b0e4`
 - 功能提交：
