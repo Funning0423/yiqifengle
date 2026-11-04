@@ -1,53 +1,59 @@
 {
   "gate": "standup-warm-sample",
-  "status": "DEFERRED",
-  "strategy": "B_full_strip_vs_ac48372e",
+  "status": "ACTIVE",
+  "strategy": "C_standup_only_isolation",
+  "control_verdict": "CONTROL_FAIL_NOISE",
+  "control_evidence": {
+    "fb74d437_KEEP_CACHE_0": {"setCamera_max": 156, "board_bg_max": 127},
+    "integrate_905bd9f1_ZERO_DIFF": {"setCamera_max": 181, "board_bg_max": 115},
+    "dirs": [
+      "/workspace/yiqifengle/mac-selftest-fb74d437-control-landing/",
+      "/workspace/yiqifengle/mac-selftest-905bd9f1-landing/",
+      "STRATEGY_C_VERDICT.md"
+    ]
+  },
   "rules": {
     "1_no_AnimRig_rebuild_on_sit_stand": {
       "ok": true,
-      "evidence": "WorldIntegrationBoot.ts restored to ac48372e; perform(stand) has no AnimRig rebuild"
+      "evidence": "perform(stand) only warmSampleStandUp + playNamed; no repairStates / new AnimRig"
     },
     "2_warm_sample_stand_up": {
-      "ok": false,
-      "deferred": true,
-      "evidence": "Mac 587b73d3: warmSampleStandUp retained after Strategy A still FAIL setCamera268/board245 (fb74=0/0). Stripped bind+perform+lakeside warmSampleStandUp and standup MorphDriver comment; reopen only on isolated tip after gates≈0."
+      "ok": true,
+      "isolated": true,
+      "evidence": "warmSampleStandUp short window N=4 only at perform(stand) and lakeside playNamed; NOT in bindVisual; no TransitionShaderWarm / board / BalloonTransit wiring"
     },
     "3_shader_warm_MORPH_COUNT_PRECOMPUTED_DIR_LIGHT": {
       "ok": false,
-      "deferred": true,
-      "evidence": "TransitionShaderWarm remains bit-identical ac48372e; no DIR_LIGHT / armStandupShaderBurst"
+      "deferred_forever_for_gates": true,
+      "evidence": "armStandupShaderBurst / DIR_LIGHT bag / TransitionShaderWarm critical/hold/burst changes FORBIDDEN (falsified + smashed integrate)"
     },
     "4_MorphDriver_no_full_clear": {
       "ok": true,
-      "evidence": "CharacterMotion MorphDriver.apply restored to ac48372e (MORPH_EPS baseline unchanged; standup-only comment removed)"
+      "evidence": "CharacterMotion MorphDriver.apply keeps MORPH_EPS; standup comment restored (no full-table clear)"
     }
   },
+  "forbidden": [
+    "armStandupShaderBurst",
+    "DIR_LIGHT bag in TransitionShaderWarm",
+    "changing TransitionShaderWarm critical/hold/burst",
+    "warmSampleStandUp in bindVisual",
+    "peeling BalloonTransit / K.s1 / black-fence / sea-landing for setCamera/board"
+  ],
+  "acceptance": {
+    "primary": "standup feel / standup-segment frame marks on Mac + Funning phone",
+    "not_veto": "setCamera/board-bg == 0 (same-day CONTROL also FAIL 156/127)"
+  },
+  "stack": {
+    "anim_morph_reduction": "299afe73 anim/standup-perf-morph (optional companion; anim_meta only; not cherry-picked into this runtime tip)",
+    "docs": "docs/handoff/角色动画bot/STANDUP-PERF-20261104.md"
+  },
   "unit": {
-    "status": "PASS",
-    "mode": "strip-assert",
-    "note": "tools/walk-driver/test_standup_warm_sample.cjs asserts warmSampleStandUp absent vs ac48372e"
+    "status": "see tools/walk-driver/test_standup_warm_sample.cjs",
+    "also": [
+      "tools/meadow/test_transition_shader_warm.cjs",
+      "tools/meadow/test_integrate_vs_fb74_scripts_identity.cjs"
+    ]
   },
-  "mac_fail_that_forced_strip": {
-    "tip": "587b73d3",
-    "feature": "9c8e781e",
-    "setCamera_max": 268,
-    "board_bg_max": 245,
-    "fb74_setCamera": 0,
-    "fb74_board_bg": 0,
-    "criticalPending_AFTER": 98,
-    "evidence": "/workspace/yiqifengle/mac-selftest-587b73d3-landing/"
-  },
-  "hard_keep": [
-    "setCamera≈0",
-    "board-bg≈0",
-    "BalloonTransit untouched",
-    "K.s1 untouched",
-    "TransitionShaderWarm==ac48372e",
-    "scripts/CharacterMotion+WorldIntegrationBoot+RegionJourneyAdapter == ac48372e"
-  ],
-  "tests": [
-    "tools/walk-driver/test_standup_warm_sample.cjs",
-    "tools/meadow/test_transition_shader_warm.cjs"
-  ],
-  "note": "Strategy B: peel warmSampleStandUp so RT/transition/board path matches over-line ac48372e/fb74d437. Standup warm is next-round isolated work."
+  "upload": "NO",
+  "live": "1.0.202611031613 @ fb74d437"
 }
