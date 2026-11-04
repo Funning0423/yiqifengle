@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "STANDUP-PERF runtime: warmSampleStandUp pose+morph before playNamed(stand_up); no sit→stand AnimRig rebuild; MorphDriver EPS-only (no full clear); keep DIR_LIGHT+COUNT53/73+PRECOMPUTED + armStandupShaderBurst. Hard keep setCamera/board-bg=0; BalloonTransit/K.s1 untouched."
+  "note": "Mac 8f757 FAIL setCamera237/board312: burst@8 after hold + heavy absorb on held after_draw. Fix: clear burst on hold/heavy; no auto-burst on release; lite absorb while held; DIR_LIGHT bags only while standupDirLight. Keep warmSampleStandUp+PRECOMPUTED+armStandupShaderBurst. Hard gates first; BalloonTransit/K.s1 untouched."
 }
