@@ -31,11 +31,11 @@
   ],
   "maxKicksPerFrame": 1,
   "maxCompilesPerFrame": 1,
-  "runtimeCompilesPerFrame": 32,
+  "runtimeCompilesPerFrame": 6,
   "maxFrameMs": 0.75,
   "sailSkips": 1,
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac 8f757 FAIL setCamera237/board312: burst@8 after hold + heavy absorb on held after_draw. Fix: clear burst on hold/heavy; no auto-burst on release; lite absorb while held; DIR_LIGHT bags only while standupDirLight. Keep warmSampleStandUp+PRECOMPUTED+armStandupShaderBurst. Hard gates first; BalloonTransit/K.s1 untouched."
+  "note": "Mac bf749b46 FAIL setCamera411/board828 (worse than 8f757). Strategy A: strip 2f3fe317/8287119a/0002c1f0 TransitionShaderWarm invasions back to ac48372e (no burst/DIR_LIGHT/lite-absorb/USE_ALPHA_TEST critical). Keep warmSampleStandUp+MorphDriver EPS only; zero transition enqueue from standup. Hard gates first; BalloonTransit/K.s1 untouched."
 }
