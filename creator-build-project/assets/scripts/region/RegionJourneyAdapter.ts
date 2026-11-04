@@ -113,7 +113,11 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
      const grass=validateModel(model);
      const warm=beginMeadowSailWarm(model);noteMeadowSailFrame(model);noteTransitionSailFrame();
-     if(!warm)configureMeadowVertexColors(model);
+     // Always sync-configure colourless palette slots (fence/path/windmill/…). Warm-up C
+     // recompiles the same USE_VERTEX_COLOR=false variants over frames, but until then a
+     // non-null warm used to skip this and the shared lit material multiplied missing
+     // COLOR_0 as black (black-fence-balloon). Old phone packages always configured.
+     configureMeadowVertexColors(model);
      // These local backdrops enclose the source island when both scenes coexist. Reuse the world's existing sky.
      // __qfSailWant: 0 stays off after warm-up; 1 (night dome) comes back when its variant is compiled.
      for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(backdrop)for(const r of backdrop.getComponentsInChildren(MeshRenderer)){r.enabled=false;(r as any).__qfSailWant=0;}}
