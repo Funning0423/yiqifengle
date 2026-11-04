@@ -2,7 +2,7 @@
 
 ## setCamera+board-bg 同过 tip（相对 8f757d4c FAIL）
 
-- 功能见本 tip 下一条 feature SHA；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- 功能 `0002c1f07c23786d55ca5a547b8eb070b36f7a2a`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
 - Mac `8f757d4c` OVERALL FAIL：setCamera max=237、board-bg max=312；过线基线 `fb74d437`/`ac48372e` 两者均为 0
 - 修：heavy/hold 清 standup burst；无 hold 释放自动 burst；held lite absorb；DIR_LIGHT 仅 standupDirLight 窗；保住 warmSampleStandUp + PRECOMPUTED + armStandupShaderBurst
 - 勿动 BalloonTransit / K.s1；保持 ac48372e middle（keepActive + prime cam-only-off + no armTH in prime）
