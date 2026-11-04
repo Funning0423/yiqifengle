@@ -315,3 +315,5 @@ Mac `e987bf7a`（源 tip `aaabd0e8` / feature `fca49f1c`）board-bg PASS max=0�
 ## keepActive + cam-only-off tip (post-230df8f6)
 
 Mac `230df8f6`（源 tip `59b18785` / feature `2f7c32c9`）setCamera 141、board-bg 0→138 回退。飞行期关 board rig 压 setCamera 但打回 board GPU。本 tip：恢复 Live keepActive（保 board GPU）；prime 4 帧只关 cam、不关 rig；prime 去掉 armTransitionHold（相对 e987 减 setCamera 叠压）。目标 setCamera 与 board-bg 过渡 LONG 同时 <100ms；animateCamera/RT 不回退。详见 `NOTES-SETCAM-BOARD-LONG.md`。`test_transition_shader_warm.cjs` PASS；不上传微信。
+
+Mac tip pending Strategy C CONTROL: feature integrate `cc73f038` ← GGbot `1f3f95db` / tip `cec2a99e` (scripts==fb74; KEEP_CACHE=0 CONTROL+retest). upload=NO.
