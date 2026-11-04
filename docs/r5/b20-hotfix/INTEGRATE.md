@@ -2,7 +2,7 @@
 
 ## Strategy A：剥回 TransitionShaderWarm → ac48372e（相对 bf749b46 FAIL）
 
-- 功能见本 tip 下一条 feature SHA；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- 功能 `9c8e781e9a1df05fbe6a1172dae434a1eabdf5ad`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
 - Mac `bf749b46`（合入 `0002c1f0` / tip `ef9a3755`）OVERALL FAIL 且比 `8f757d4c` 更差：setCamera **411**、board-bg **828**；AFTER ready criticalPending=**251** burstLeft=0
 - **停掉**「defer burst off flight/board」方向。Strategy A：`TransitionShaderWarm` **整文件回退**到过线基线 `ac48372e`；拆光 `armStandupShaderBurst` 接线；**仅保留** `warmSampleStandUp` + MorphDriver EPS（零侵入 transition）
 - SkycityBoard* middle（keepActive + prime cam-only-off + no armTH in prime）保持；**勿动** BalloonTransit / K.s1
