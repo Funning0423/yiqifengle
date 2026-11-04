@@ -22,7 +22,6 @@ function load(){
   if(defines.CC_SHADOWMAP_USE_LINEAR_DEPTH===1)parts.push('CC_SHADOWMAP_USE_LINEAR_DEPTH1');
   if(defines.CC_DIR_SHADOW_PCF_TYPE===2)parts.push('CC_DIR_SHADOW_PCF_TYPE2');
   if(defines.CC_SHADOW_TYPE===2)parts.push('CC_SHADOW_TYPE2');
-  if(defines.CC_DIR_LIGHT_SHADOW_TYPE===1)parts.push('CC_DIR_LIGHT_SHADOW_TYPE1');
   if(defines.CC_USE_SKINNING)parts.push('CC_USE_SKINNING1');
   if(defines.CC_RECEIVE_SHADOW)parts.push('CC_RECEIVE_SHADOW1');
   if(defines.CC_USE_MORPH)parts.push('CC_USE_MORPH1');
@@ -105,11 +104,8 @@ const preload=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scrip
 const sail=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/SailPreload.ts'),'utf8');
 const ad=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'),'utf8');
 assert.equal(flow.indexOf('warmBeforeDeparture'),-1,'camera is not gated on the warm');
-assert.match(flow,/const fail=this\.blocked\('home',true\);if\(fail\)return fail;/);
-assert.match(flow,/armStandupShaderBurst/);
-assert.match(flow,/return this\.operate\('standing'/);
+assert.match(flow,/const fail=this\.blocked\('home',true\);if\(fail\)return fail;\s*return this\.operate\('standing'/);
 assert.match(comp,/armTransitionShaderWarm\(\)/);assert.match(comp,/beginTransitionShaderWarm\(\)/);assert.match(comp,/watchTransitionRoot\(scene\)/);
-assert.match(comp,/armStandupShaderBurst\(\)/);
 assert.equal(comp.indexOf('holdTransitionShaders'),-1,'animateCamera does not pause the warm');
 assert.match(comp,/animateCamera:\(path,seconds,t,options,progress,onSample\)=>\{const track=createCameraTrack\(camera,path,'world\.animateCamera'/);
 const cam=comp.slice(comp.indexOf("animateCamera:(path"),comp.indexOf("animateCamera:(path")+700);
@@ -139,28 +135,19 @@ assert.equal(assigned.CC_SUPPORT_CASCADED_SHADOW_MAP,1);assert.equal(assigned.CC
 assert.ok(T.isCriticalWarm(true,{},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{USE_VERTEX_COLOR:1},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{HAS_SECOND_UV:1},'fx','p'));
-assert.ok(T.isCriticalWarm(false,{USE_ALPHA_TEST:1},'fx','p'));
 assert.equal(T.isCriticalWarm(false,{},'builtin-standard','standard-vs|standard-fs'),false);
-assert.ok(T.DIR_LIGHT_SHADOW_MACROS.some(m=>m.name==='CC_DIR_LIGHT_SHADOW_TYPE'&&m.value===1));
-assert.equal(typeof T.armStandupShaderBurst,'function');
-assert.equal(T.STANDUP_CRITICAL_PER_FRAME,8);
 T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);assert.equal(L.listeners.length,1);
 const girlPass=girl.children[0].components[0].sharedMaterials[0].passes[0];
 let maxCompile=0;
-T.armStandupShaderBurst(40);
-for(let i=0;i<120;i++){const n0=L.recorded.length;L.listeners[0]();const dn=L.recorded.length-n0;if(dn>maxCompile)maxCompile=dn;
- assert.ok(dn<=T.STANDUP_CRITICAL_PER_FRAME*8,'critical frame compiled too many '+dn);
+for(let i=0;i<80;i++){const n0=L.recorded.length;L.listeners[0]();const dn=L.recorded.length-n0;if(dn>maxCompile)maxCompile=dn;
+ assert.ok(dn<=T.CRITICAL_PER_FRAME*4,'critical frame compiled too many '+dn);
  assert.equal(L.macros.CC_DIR_SHADOW_PCF_TYPE,0);assert.equal(L.engineMacros.CC_DIR_SHADOW_PCF_TYPE,0);assert.equal(L.engineMacros.CC_SHADOW_TYPE,1);
  assert.notEqual(girlPass.defines.CC_DIR_SHADOW_PCF_TYPE,2,'departure compile stuck PCF on the pass');}
-assert.ok(maxCompile>=1&&maxCompile<=T.STANDUP_CRITICAL_PER_FRAME*8);
+assert.ok(maxCompile>=1&&maxCompile<=T.CRITICAL_PER_FRAME*4);
 assert.ok(L.recorded.length>=6,'departure variants did not compile');
 const pcf2=L.recorded.filter(r=>r.CC_DIR_SHADOW_PCF_TYPE===2&&r.CC_SHADOW_TYPE===2);
 assert.ok(pcf2.length>=6,'spike macros missing '+JSON.stringify(L.recorded.slice(0,6)));
 assert.ok(pcf2.some(r=>r.CC_MORPH_TARGET_COUNT===53&&r.CC_USE_SKINNING===true&&r.CC_RECEIVE_SHADOW===true&&r.CC_USE_MORPH===true));
-const dirLit=L.recorded.filter(r=>r.CC_DIR_LIGHT_SHADOW_TYPE===1&&r.CC_DIR_SHADOW_PCF_TYPE===2&&r.CC_USE_SKINNING===true);
-assert.ok(dirLit.length>=4,'DIR_LIGHT stand_up bag missing '+JSON.stringify(L.recorded.filter(r=>r.CC_USE_SKINNING).slice(0,4)));
-assert.ok(dirLit.some(r=>r.CC_MORPH_TARGET_COUNT===53));
-assert.ok(L.recorded.some(r=>r.CC_MORPH_PRECOMPUTED===true||r.CC_MORPH_PRECOMPUTED===1),'standard PRECOMPUTED warm missing');
 assert.ok(pcf2.some(r=>r.CC_FORWARD_ADD===1&&r.CC_IS_TRANSPARENCY_PASS===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>r.CC_PIPELINE_TYPE===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>String(r.name).indexOf('reflect-map-fs')>=0&&r.CC_MORPH_TARGET_COUNT===53));
@@ -211,9 +198,6 @@ assert.match(comp,/herAdapter as any/);
 assert.match(preload,/beginTransitionShaderWarm\(\);watchTransitionRoot\(parent\);/);
 assert.match(sail,/watchTransitionRoot\(model\)/);
 assert.match(ad,/noteMeadowSailFrame\(model\);noteTransitionSailFrame\(\)/);
-assert.match(ad,/armStandupShaderBurst/);
-const boot=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
-assert.match(boot,/armStandupShaderBurst/);
 const nwa=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts'),'utf8');
 const balloon=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/BalloonTransit.ts'),'utf8');
 const boardUi=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/ManagedMobileBoardUI.ts'),'utf8');
@@ -257,36 +241,38 @@ assert.doesNotMatch(lb,/warmBeforeReveal/);
 /* hold refcount: two trues need two falses */
 T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);const n0=L.recorded.length;T.holdTransitionShaders(true);T.holdTransitionShaders(true);L.listeners[0]();assert.equal(L.recorded.length,n0,'held skips compile');T.holdTransitionShaders(false);L.listeners[0]();assert.equal(L.recorded.length,n0,'still held after one release');T.holdTransitionShaders(false);
 
-/* Mac 8f757d4c: standup burst must NOT stack onto flight/board — heavy/hold clear burst; no auto-burst on hold release */
-assert.match(src,/burstLeft=0;standupDirLight=false/);
-assert.match(src,/no auto-burst/);
-assert.match(src,/absorb\(true\)/);
-assert.match(src,/standupDirLight/);
-assert.match(src,/lite absorb while held|Lite absorb only|absorb\(true\)/);
-assert.doesNotMatch(src,/if\(burstLeft<60\)burstLeft=60/);
-assert.match(src,/if\(held\|\|skipLeft>0\|\|skipNext\)return/);
-T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);T.armStandupShaderBurst(12);
-T.noteTransitionHeavyFrames(3);{const nH=L.recorded.length;for(let i=0;i<3;i++)L.listeners[0]();assert.equal(L.recorded.length,nH,'heavy clears burst and skips compile');}
-T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);T.armStandupShaderBurst(12);T.holdTransitionShaders(true);
-{const nHold=L.recorded.length;for(let i=0;i<5;i++)L.listeners[0]();assert.equal(L.recorded.length,nHold,'held clears burst and skips compile');}
-T.holdTransitionShaders(false);
-/* hold release must not re-arm STANDUP burst (was burstLeft=60) — steady 3/frame only */
-{const nAfter=L.recorded.length;for(let i=0;i<4;i++)L.listeners[0]();
- assert.ok(L.recorded.length-nAfter<=T.CRITICAL_PER_FRAME*4+4,'no auto-burst after hold release got '+(L.recorded.length-nAfter));}
 
-/* 角色动画bot STANDUP-PERF → GGbot runtime: warm-sample + no sit→stand AnimRig rebuild */
-assert.match(boot,/warmSampleStandUp/);
-assert.match(boot,/standup-warm-sample/);
-assert.match(boot,/action\.kind==='stand'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:false\}\)/);
-assert.match(boot,/playNamed\('sit_hold'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:true\}\)/);
-{const performBlock=boot.slice(boot.indexOf("if(action.kind==='stand')"),boot.indexOf("if(action.kind==='stand')")+400);
+/* Strategy A / Mac bf749b46: TransitionShaderWarm must match ac48372e — no standup burst / DIR_LIGHT / lite-absorb invasions */
+assert.doesNotMatch(src,/armStandupShaderBurst/);
+assert.doesNotMatch(src,/burstLeft/);
+assert.doesNotMatch(src,/standupDirLight/);
+assert.doesNotMatch(src,/DIR_LIGHT_SHADOW/);
+assert.doesNotMatch(src,/withDirLightBag/);
+assert.doesNotMatch(src,/STANDUP_CRITICAL_PER_FRAME|STANDUP_BURST_FRAMES/);
+assert.doesNotMatch(src,/absorb\(true\)|absorb\(lite/);
+assert.doesNotMatch(src,/function absorb\(lite/);
+assert.equal(typeof T.armStandupShaderBurst,'undefined');
+assert.equal(flow.indexOf('armStandupShaderBurst'),-1);
+assert.equal(comp.indexOf('armStandupShaderBurst'),-1);
+assert.equal(ad.indexOf('armStandupShaderBurst'),-1);
+const bootStrip=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
+assert.equal(bootStrip.indexOf('armStandupShaderBurst'),-1);
+/* standup non-transition keep: warmSampleStandUp + MorphDriver EPS; no AnimRig rebuild on stand */
+assert.match(bootStrip,/warmSampleStandUp/);
+assert.match(bootStrip,/standup-warm-sample/);
+assert.match(bootStrip,/action\.kind==='stand'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:false\}\)/);
+assert.match(bootStrip,/playNamed\('sit_hold'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:true\}\)/);
+{const performBlock=bootStrip.slice(bootStrip.indexOf("if(action.kind==='stand')"),bootStrip.indexOf("if(action.kind==='stand')")+400);
  assert.doesNotMatch(performBlock,/repairStates|requireDirectTrsStates|new AnimRig/);}
-const rjStand=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'),'utf8');
-assert.match(rjStand,/warmSampleStandUp\?\.\(\{restoreMorph:false\}\)/);
+assert.match(ad,/warmSampleStandUp\?\.\(\{restoreMorph:false\}\)/);
 const cmStand=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/CharacterMotion.ts'),'utf8');
 assert.match(cmStand,/MORPH_EPS/);
 assert.match(cmStand,/起身段无整表清零重写/);
 assert.doesNotMatch(balloon,/warmSampleStandUp/);
+assert.doesNotMatch(balloon,/armStandupShaderBurst/);
+/* USE_ALPHA_TEST must NOT broaden critical vs ac48372e (node-lens residual is non-gate) */
+assert.equal(T.isCriticalWarm(false,{USE_ALPHA_TEST:1},'fx','p'),false);
+
 assert.doesNotMatch(src,/\bnew (Map|Set)\b/);assert.doesNotMatch(src,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
 assert.doesNotMatch(meadowSrc,/\bnew (Map|Set)\b/);assert.doesNotMatch(meadowSrc,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
 const es5opts={compilerOptions:{module:1,target:1,...(ts.version.startsWith('6.')?{ignoreDeprecations:'6.0'}:{})},reportDiagnostics:true};
@@ -297,7 +283,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Mac 8f757 FAIL setCamera237/board312: burst@8 after hold + heavy absorb on held after_draw. Fix: clear burst on hold/heavy; no auto-burst on release; lite absorb while held; DIR_LIGHT bags only while standupDirLight. Keep warmSampleStandUp+PRECOMPUTED+armStandupShaderBurst. Hard gates first; BalloonTransit/K.s1 untouched.'};
+ note:'Mac bf749b46 FAIL setCamera411/board828 (worse than 8f757). Strategy A: strip 2f3fe317/8287119a/0002c1f0 TransitionShaderWarm invasions back to ac48372e (no burst/DIR_LIGHT/lite-absorb/USE_ALPHA_TEST critical). Keep warmSampleStandUp+MorphDriver EPS only; zero transition enqueue from standup. Hard gates first; BalloonTransit/K.s1 untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);
