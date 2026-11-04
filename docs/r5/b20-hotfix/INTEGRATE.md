@@ -2,7 +2,7 @@
 
 ## Strategy B：全剥 warmSampleStandUp → scripts == ac48372e（相对 Mac 587b73d3 FAIL）
 
-- 功能提交 SHA 见本文件提交消息；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- 功能 `5d7671c1b2786f2681f7334f1fab42e88c8b5189`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
 - Mac `587b73d3`（合入 Strategy A `9c8e781e` / tip `52b36385`）OVERALL FAIL：setCamera **268**、board-bg **245**（好于 bf 411/828、8f 237/312，仍远差于 fb74 **0/0**）
 - `TransitionShaderWarm` 已 bit-identical `ac48372e`；armStandupShaderBurst 已拆；criticalPending AFTER=**98**（≈fb74 111）；node-lens/enterLevel≥100=**0**
 - 残留根因：`warmSampleStandUp`（bind / perform / lakeside）仍非零侵入 → Strategy B **整文件恢复** `WorldIntegrationBoot` / `RegionJourneyAdapter` / `CharacterMotion` 到 `ac48372e`（scripts 零 diff）
