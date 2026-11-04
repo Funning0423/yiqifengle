@@ -465,7 +465,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
      const seatDef={position:seatRoot,back:seatRoot,yawRad:moored.startYawRad,seatedFoot:seatRoot,standingFoot:P0,seatedControllerRoot:seatRoot,standingControllerRoot:P0};
      const dur=(typeof a.rig?.duration==='function'&&a.rig.duration('stand_up'))||1.266667;
      const prevStep=ticker.step;
-     try{actor.cancelAndReset({kind:'seated',seat:seatDef} as any);a.pendingIdle=false;try{a.warmSampleStandUp?.({restoreMorph:false});}catch{/* warm optional */}a.playNamed('stand_up',false,0);
+     try{actor.cancelAndReset({kind:'seated',seat:seatDef} as any);a.pendingIdle=false;a.playNamed('stand_up',false,0);
       await new Promise<void>((ok,bad)=>{let st=0;const off=rideToken.onCancel(()=>{bad(Object.assign(Error('cancelled'),{name:'Cancelled'}));});
        ticker.step=(dt)=>{stopEngineStates();st=Math.min(dur,st+dt);const k=standupRootK(st,dur),m=a.node;
         if(m&&isValid(m,true))m.setWorldPosition(seatRoot[0]+(P0[0]-seatRoot[0])*k,seatRoot[1]+(P0[1]-seatRoot[1])*k,seatRoot[2]+(P0[2]-seatRoot[2])*k);

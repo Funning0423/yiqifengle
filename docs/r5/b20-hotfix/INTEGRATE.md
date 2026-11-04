@@ -1,13 +1,14 @@
 # b20 hotfix — 草甸 warm-up C + 天空之城 RT + 转场 shader 预热
 
-## Strategy A：剥回 TransitionShaderWarm → ac48372e（相对 bf749b46 FAIL）
+## Strategy B：全剥 warmSampleStandUp → scripts == ac48372e（相对 Mac 587b73d3 FAIL）
 
-- 功能 `2acf116bd816edf98f29aa8c33b7b04028f764c4`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
-- Mac `bf749b46`（合入 `0002c1f0` / tip `ef9a3755`）OVERALL FAIL 且比 `8f757d4c` 更差：setCamera **411**、board-bg **828**；AFTER ready criticalPending=**251** burstLeft=0
-- **停掉**「defer burst off flight/board」方向。Strategy A：`TransitionShaderWarm` **整文件回退**到过线基线 `ac48372e`；拆光 `armStandupShaderBurst` 接线；**仅保留** `warmSampleStandUp` + MorphDriver EPS（零侵入 transition）
-- SkycityBoard* middle（keepActive + prime cam-only-off + no armTH in prime）保持；**勿动** BalloonTransit / K.s1
-- 硬门禁优先：setCamera≈0 且 board-bg≈0（对齐 `fb74d437`）；criticalPending 不因 standup tip 飙升
-- 细节见 `NOTES-SETCAM-BOARD-LONG.md`「Strategy A 回退」
+- 功能提交 SHA 见本文件提交消息；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- Mac `587b73d3`（合入 Strategy A `9c8e781e` / tip `52b36385`）OVERALL FAIL：setCamera **268**、board-bg **245**（好于 bf 411/828、8f 237/312，仍远差于 fb74 **0/0**）
+- `TransitionShaderWarm` 已 bit-identical `ac48372e`；armStandupShaderBurst 已拆；criticalPending AFTER=**98**（≈fb74 111）；node-lens/enterLevel≥100=**0**
+- 残留根因：`warmSampleStandUp`（bind / perform / lakeside）仍非零侵入 → Strategy B **整文件恢复** `WorldIntegrationBoot` / `RegionJourneyAdapter` / `CharacterMotion` 到 `ac48372e`（scripts 零 diff）
+- 起身 warm **DEFERRED**（隔离 tip，过门禁后再开）；**勿动** BalloonTransit / K.s1；勿再改 TransitionShaderWarm
+- 硬门禁优先：setCamera≈0 且 board-bg≈0（对齐 `fb74d437`）
+- 细节见 `NOTES-SETCAM-BOARD-LONG.md`「Strategy B」
 - 合入 `gbt/r5-b20-integrate-landing-visual-bg2` → Mac 复测 setCamera+board≈0 优先 → 过线再传体验版；live 仍 `1.0.202611031613` @ fb74d437；过线前不上传
 
 
