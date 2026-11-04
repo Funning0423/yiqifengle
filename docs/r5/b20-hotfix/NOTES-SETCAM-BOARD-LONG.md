@@ -40,3 +40,18 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 5. hold 释放后自动再 burst 60 帧，消化 ready 后 city mats。
 
 验收：坐→起身手机不顿；node-lens / enterLevel LONG &lt;100；ready 后 criticalPending≈0；setCamera / board-bg 仍 0；RT / animateCamera 不回退。
+
+
+## STANDUP-PERF runtime tip（本轮 · 角色动画bot 约束）
+
+审计相对 tip `14463a58` / feature `2f3fe317`（DIR_LIGHT+COUNT53/73+PRECOMPUTED+armStandupShaderBurst）：
+
+| # | 规则 | 结论 | 证据 |
+|---|---|---|---|
+| 1 | 勿在 sit→stand 重建 AnimRig / repairStates | **YES**（保持） | `AnimRig` ctor 内 `requireDirectTrsStates`+`repairStates`；`perform(stand)` / lakeside `stand_up` 无 rebuild |
+| 2 | 起身前 warm-sample stand_up（pose+morphWeights→setWeight） | **补齐** | `FlowReferenceStandin.warmSampleStandUp`；bind `restoreMorph:true`；`perform(stand)` / lakeside `restoreMorph:false` 紧挨 `playNamed` |
+| 3 | 预热 MORPH1 + COUNT53/73 + PRECOMPUTED（+DIR_LIGHT） | **YES**（2f3fe317） | `TransitionShaderWarm` `MAC_MORPH_COUNTS` / `withDirLightBag` / `armStandupShaderBurst` |
+| 4 | MorphDriver 起身段无整表 setWeight 清零重写 | **YES**（保持 + 注释） | `MORPH_EPS` 增量；warm 末样本落 t=0，首帧几乎无增量 |
+
+硬约束：保住 setCamera=0 / board-bg=0；**勿动** BalloonTransit / K.s1。
+

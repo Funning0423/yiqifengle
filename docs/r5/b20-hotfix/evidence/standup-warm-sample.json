@@ -1,0 +1,41 @@
+{
+  "gate": "standup-warm-sample",
+  "status": "PASS",
+  "rules": {
+    "1_no_AnimRig_rebuild_on_sit_stand": {
+      "ok": true,
+      "evidence": "WorldIntegrationBoot.ts: AnimRig/repairStates/requireDirectTrsStates only in bindVisual; perform(stand) path has no rebuild; unit assert repairedStates unchanged across sit→stand"
+    },
+    "2_warm_sample_stand_up": {
+      "ok": true,
+      "evidence": "FlowReferenceStandin.warmSampleStandUp; bindVisual restoreMorph:true; perform(stand) + RegionJourneyAdapter lakeside restoreMorph:false before playNamed(stand_up)"
+    },
+    "3_shader_warm_MORPH_COUNT_PRECOMPUTED_DIR_LIGHT": {
+      "ok": true,
+      "evidence": "region/TransitionShaderWarm.ts: CC_MORPH_TARGET_COUNT 53/16/3/73 + CC_MORPH_PRECOMPUTED + DIR_LIGHT_SHADOW; armStandupShaderBurst before stand (tip 2f3fe317 / 14463a58)"
+    },
+    "4_MorphDriver_no_full_clear": {
+      "ok": true,
+      "evidence": "CharacterMotion MorphDriver.apply: only |Δw|>MORPH_EPS or exact 0/1; STANDUP-PERF #4 comment; no last-map reset on standup"
+    }
+  },
+  "unit": {
+    "status": "PASS",
+    "samples": 13,
+    "warmEvents": 4,
+    "repairedStates": 0,
+    "glb": "chr_b_r5g2_walk-v1_TEST.glb",
+    "note": "setWeightCalls may be 0 in host mock when morphMeshes names mismatch TEST glb; GPU warm path still samples stand_up via applyMorph"
+  },
+  "base_tip": "14463a5851b6e20846af5c90f6f8996c1a6abc3d",
+  "hard_keep": [
+    "setCamera=0",
+    "board-bg=0",
+    "BalloonTransit untouched",
+    "K.s1 untouched"
+  ],
+  "tests": [
+    "tools/walk-driver/test_standup_warm_sample.cjs",
+    "tools/meadow/test_transition_shader_warm.cjs"
+  ]
+}
