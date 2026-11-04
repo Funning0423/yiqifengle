@@ -786,8 +786,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-    "bytes": 290465,
-    "sha256": "ffcdada55f16a2d4ead42f915161c01b544a3b33e103ad91b118c5f156e81876"
+    "bytes": 284435,
+    "sha256": "507468508fe7b3a5253e4340b7305c34801098f023cd655022e08120d1a03f05"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
@@ -1981,8 +1981,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 139742,
-    "sha256": "3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657"
+    "bytes": 139896,
+    "sha256": "ccb92064b578fda284710367564c1219e78f3841d49ac46d9c3e01db16669d44"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
@@ -2111,8 +2111,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 113729,
-    "sha256": "19619af0b691b94d8d88031fb93e1cd28ef00ec1e5170b609286714faf7cb834"
+    "bytes": 115763,
+    "sha256": "869767de4628b981da0887a654196c6f2e5a433d866deddd49c37219a450085d"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -3201,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 67279,
-    "sha256": "92c2e0b746cb80df2adf6d3efdcd0b9ff5d832ff32fe3f16c72bd463b6e7d9f7"
+    "bytes": 67354,
+    "sha256": "8583fe2905bc8f3da6e2a04f19f42bc325fe839ec1faaa0b61dfefd5d7ee619a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
