@@ -257,6 +257,23 @@ assert.doesNotMatch(lb,/warmBeforeReveal/);
 /* hold refcount: two trues need two falses */
 T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);const n0=L.recorded.length;T.holdTransitionShaders(true);T.holdTransitionShaders(true);L.listeners[0]();assert.equal(L.recorded.length,n0,'held skips compile');T.holdTransitionShaders(false);L.listeners[0]();assert.equal(L.recorded.length,n0,'still held after one release');T.holdTransitionShaders(false);
 
+/* Mac 8f757d4c: standup burst must NOT stack onto flight/board — heavy/hold clear burst; no auto-burst on hold release */
+assert.match(src,/burstLeft=0;standupDirLight=false/);
+assert.match(src,/no auto-burst/);
+assert.match(src,/absorb\(true\)/);
+assert.match(src,/standupDirLight/);
+assert.match(src,/lite absorb while held|Lite absorb only|absorb\(true\)/);
+assert.doesNotMatch(src,/if\(burstLeft<60\)burstLeft=60/);
+assert.match(src,/if\(held\|\|skipLeft>0\|\|skipNext\)return/);
+T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);T.armStandupShaderBurst(12);
+T.noteTransitionHeavyFrames(3);{const nH=L.recorded.length;for(let i=0;i<3;i++)L.listeners[0]();assert.equal(L.recorded.length,nH,'heavy clears burst and skips compile');}
+T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);T.armStandupShaderBurst(12);T.holdTransitionShaders(true);
+{const nHold=L.recorded.length;for(let i=0;i<5;i++)L.listeners[0]();assert.equal(L.recorded.length,nHold,'held clears burst and skips compile');}
+T.holdTransitionShaders(false);
+/* hold release must not re-arm STANDUP burst (was burstLeft=60) — steady 3/frame only */
+{const nAfter=L.recorded.length;for(let i=0;i<4;i++)L.listeners[0]();
+ assert.ok(L.recorded.length-nAfter<=T.CRITICAL_PER_FRAME*4+4,'no auto-burst after hold release got '+(L.recorded.length-nAfter));}
+
 /* 角色动画bot STANDUP-PERF → GGbot runtime: warm-sample + no sit→stand AnimRig rebuild */
 assert.match(boot,/warmSampleStandUp/);
 assert.match(boot,/standup-warm-sample/);
@@ -280,7 +297,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'STANDUP-PERF runtime: warmSampleStandUp pose+morph before playNamed(stand_up); no sit→stand AnimRig rebuild; MorphDriver EPS-only (no full clear); keep DIR_LIGHT+COUNT53/73+PRECOMPUTED + armStandupShaderBurst. Hard keep setCamera/board-bg=0; BalloonTransit/K.s1 untouched.'};
+ note:'Mac 8f757 FAIL setCamera237/board312: burst@8 after hold + heavy absorb on held after_draw. Fix: clear burst on hold/heavy; no auto-burst on release; lite absorb while held; DIR_LIGHT bags only while standupDirLight. Keep warmSampleStandUp+PRECOMPUTED+armStandupShaderBurst. Hard gates first; BalloonTransit/K.s1 untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);

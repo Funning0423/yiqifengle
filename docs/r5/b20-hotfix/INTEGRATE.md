@@ -1,5 +1,15 @@
 # b20 hotfix — 草甸 warm-up C + 天空之城 RT + 转场 shader 预热
 
+## setCamera+board-bg 同过 tip（相对 8f757d4c FAIL）
+
+- 功能见本 tip 下一条 feature SHA；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- Mac `8f757d4c` OVERALL FAIL：setCamera max=237、board-bg max=312；过线基线 `fb74d437`/`ac48372e` 两者均为 0
+- 修：heavy/hold 清 standup burst；无 hold 释放自动 burst；held lite absorb；DIR_LIGHT 仅 standupDirLight 窗；保住 warmSampleStandUp + PRECOMPUTED + armStandupShaderBurst
+- 勿动 BalloonTransit / K.s1；保持 ac48372e middle（keepActive + prime cam-only-off + no armTH in prime）
+- 细节见 `NOTES-SETCAM-BOARD-LONG.md`「Mac 8f757d4c 回退」
+- 合入 `gbt/r5-b20-integrate-landing-visual-bg2` → Mac 复测（setCamera+board-bg≈0 优先）→ 过线再传体验版
+
+
 ## STANDUP-PERF runtime tip（待 Mac / 真机复测）
 
 - 功能 `8287119af699700834758a49521048749ff9e388`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）；叠在 `14463a58` / `2f3fe317` 上

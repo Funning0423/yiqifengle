@@ -57,3 +57,28 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 
 硬约束：保住 setCamera=0 / board-bg=0；**勿动** BalloonTransit / K.s1。
 
+
+
+## Mac 8f757d4c 回退 → 同过两门（本轮）
+
+叠合 tip `8f757d4c`（`2f3fe317` armStandupShaderBurst + `8287119a` warmSampleStandUp）相对过线 `fb74d437`/`ac48372e`：
+
+| metric | fb74d437 | 8f757d4c |
+|--------|----------|----------|
+| setCamera max | **0** | **237 FAIL**（BalloonTransit:flight，shaders=0） |
+| board-bg max | **0** | **312 FAIL**（reveal 窗，burstLeft 仍高） |
+| animateCamera / RT | PASS | PASS |
+
+根因（同窗抢主线程，不是拆掉 ac48372e middle state）：
+1. hold 释放自动 `burstLeft=60` → board reveal 后仍 8/帧 compile（console burstLeft 194→31 叠 board-bg）。
+2. held/flight 期 full absorb（PRECOMPUTED/fwd/pipe 全家）在 after_draw 上偏重，叠 BalloonTransit:flight `setCamera`（shaders=0 仍 LONG）。
+3. SkycityBoard* / BalloonTransit / K.s1 **未改**；keepActive + prime cam-only-off + no armTransitionHold in prime 仍在。
+
+修复（硬门禁优先，保住起身意图）：
+1. `noteTransitionHeavyFrames` / `holdTransitionShaders(true)` / `armTransitionHold`：**清 burst + standupDirLight**。
+2. **取消** hold 释放自动再 burst。
+3. held 期 **lite absorb**（只 enqueue base live/depart）。
+4. `CC_DIR_LIGHT` 袋仅在 `standupDirLight`（armStandupShaderBurst 窗口）编译。
+5. 保留 `warmSampleStandUp` + PRECOMPUTED + `armStandupShaderBurst` 接线；Burst 在 held/heavy 时 no-op。
+
+验收：setCamera 与 board-bg 同时 &lt;100（目标≈0）；animateCamera/RT 不回退；起身 warm/burst 意图仍在。

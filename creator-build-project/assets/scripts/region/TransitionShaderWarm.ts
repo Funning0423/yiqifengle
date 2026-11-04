@@ -208,7 +208,7 @@ export function stageTransitionWarm(items:{key:string}[],hooks:{kick(key:string)
   stats:()=>({frames,sailSkips,kicked,compiled,pending:items.length-compiled,criticalPending:0,maxFrameMs,done:compiled>=items.length}),
   dispose(){dead=true;}};}
 const roots:Node[]=[];const jobs:Item[]=[];const seen:string[]=[];const cachedNames:string[]=[];
-let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,skipLeft=0,held=false,holdDepth=0,armHoldLeft=0,armHoldArmed=false,burstLeft=0,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
+let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,skipLeft=0,held=false,holdDepth=0,armHoldLeft=0,armHoldArmed=false,burstLeft=0,standupDirLight=false,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
 function remember(node:Node|null):void{if(!node||!isValid(node,true))return;if(roots.indexOf(node)>=0)return;roots.push(node);scanIn=0;}
 function pipelineOf(obj:any):any{return obj&&(obj.pipeline||obj._pipeline)||null;}
 function programLib(pass?:any):any{
@@ -318,8 +318,8 @@ function compileDeparture(item:Item):void{
  if(shaderShowsDeparture(a))markCached(item,a);
  const b=compileOneBag(item,SETCAM_SHADOW_MACROS,withAssignSetcam,forceSetcamPipes);
  if(shaderShowsDeparture(b))markCached(item,b);
- // stand_up / leaveHome live keys also include CC_DIR_LIGHT_SHADOW_TYPE1 when the sun casts shadows.
- if(item.hot||item.critical){
+ // stand_up DIR_LIGHT bags only while standup burst is armed — avoid 2× departure compile during flight/board drain.
+ if((item.hot||item.critical)&&standupDirLight){
   const dBag=withDirLightBag(DEPARTURE_SHADOW_MACROS),sBag=withDirLightBag(SETCAM_SHADOW_MACROS);
   const c=compileOneBag(item,dBag,run=>withAssignMacros(dBag,run),pass=>forceMacroPipes(dBag,pass));
   if(shaderShowsDeparture(c))markCached(item,c);
@@ -338,7 +338,7 @@ function enqueueAt(item:Item,front:boolean):void{
  const rest=jobs.splice(kicked);jobs.push(item);for(let i=0;i<rest.length;i++)jobs.push(rest[i]);}
 function criticalPending():number{let n=needlesMissing();for(let i=0;i<jobs.length;i++)if(jobs[i].critical&&!jobs[i].cached&&!jobs[i].exhausted)n++;return n;}
 function exhaustItem(item:Item):void{item.exhausted=true;item.tries=Math.max(item.tries,13);}
-function absorb():void{
+function absorb(lite:boolean=false):void{
  for(let r=roots.length-1;r>=0;r--){const root=roots[r];if(!isValid(root,true)){roots.splice(r,1);continue;}
   const crit:Item[]=[],depart:Item[]=[],hot:Item[]=[],cold:Item[]=[];
   const take=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean,departFlag:boolean,extra:readonly {name:string;value:number}[]|null,program:string,tag:string)=>{
@@ -353,6 +353,8 @@ function absorb():void{
   const families=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean)=>{
    const fx=effectOf(mat),pn=passName(pass,index),unlit=effectLooksUnlit(fx,pn),hotNow=isHot(renderer,sub);
    take(renderer,mat,pass,index,sub,force,false,null,'','');
+   // Held/flight/board bridge: enqueue base live+depart only — PRECOMPUTED/fwd/pipe extras wait for quiet frames (Mac 8f757: heavy absorb on held after_draw stacked onto BalloonTransit setCamera).
+   if(lite){if(!unlit)take(renderer,mat,pass,index,sub,force,true,null,'','');return;}
    // Mac residual: morph 73 (±standard) drew with CC_MORPH_PRECOMPUTED1 during stand_up/animateCamera — warm even if mesh flags omit it.
    if(hotNow)take(renderer,mat,pass,index,sub,force,false,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any],'','pre~');
    if(!unlit)take(renderer,mat,pass,index,sub,force,true,null,'','');
@@ -383,18 +385,18 @@ function absorb():void{
   for(let i=0;i<cold.length;i++)enqueueAt(cold[i],false);}}
 function onFrame():void{
  frames++;
- // Bridge hold (B5→board / prime): countdown on after_draw; absorb still runs so city materials enqueue without compile.
- if(armHoldArmed){if(armHoldLeft>0)armHoldLeft--;if(armHoldLeft<=0){armHoldArmed=false;holdTransitionShaders(false);scanIn=0;if(burstLeft<60)burstLeft=60;}}
+ // Bridge hold (B5→board / prime): countdown on after_draw; lite absorb still runs so city materials enqueue without compile.
+ if(armHoldArmed){if(armHoldLeft>0)armHoldLeft--;if(armHoldLeft<=0){armHoldArmed=false;holdTransitionShaders(false);scanIn=0;/* no auto-burst: Mac 8f757 board-bg 312 from burst@8/frame after reveal hold */}}
  // While held: never compile. Still honor heavy-frame skips (flight/B1 note) so absorb cannot stack onto setCamera LONGs.
- // Only absorb on quiet held frames (B5→board bridge) so city mats enqueue before reveal.
+ // Lite absorb only (no PRECOMPUTED/fwd extras) — full families wait for quiet post-hold frames (ac48372e setCamera=0 path).
  if(held){if(skipNext||skipLeft>0){if(skipNext)skipNext=false;if(skipLeft>0)skipLeft--;sailSkips++;return;}
-  if(scanIn<=0){absorb();scanIn=SCAN_EVERY;}else scanIn--;sailSkips++;return;}
+  if(scanIn<=0){absorb(true);scanIn=SCAN_EVERY;}else scanIn--;sailSkips++;return;}
  if(skipNext||skipLeft>0){if(skipNext)skipNext=false;if(skipLeft>0)skipLeft--;sailSkips++;return;}
- if(scanIn<=0){absorb();scanIn=SCAN_EVERY;}else scanIn--;
+ if(scanIn<=0){absorb(false);scanIn=SCAN_EVERY;}else scanIn--;
  const pending=Math.max(0,jobs.length-compiled),crit=criticalPending();
  if(compiled>=jobs.length&&!crit){if(jobs.length&&!logged){logged=true;try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending:0,criticalPending:0,cached:cachedNames.length}));}catch{/* log only */}}return;}
  logged=false;const plan=meadowWarmPlan(jobs.length-kicked,kicked-compiled);if(plan.ms>maxFrameMs)maxFrameMs=plan.ms;
- let filled=0;const budget=burstLeft>0?STANDUP_CRITICAL_PER_FRAME:CRITICAL_PER_FRAME;if(burstLeft>0)burstLeft--;
+ let filled=0;const budget=burstLeft>0?STANDUP_CRITICAL_PER_FRAME:CRITICAL_PER_FRAME;if(burstLeft>0){burstLeft--;if(burstLeft<=0)standupDirLight=false;}
  // While critical work remains, only compile critical — non-critical thrash caused the slow-mo feel.
  if(plan.compiles&&compiled<kicked&&!(crit&&!jobs[compiled].critical)){compileItem(jobs[compiled]);compiled++;filled++;}
  while(filled<budget&&kicked<jobs.length&&jobs[kicked].critical){const item=jobs[kicked];
@@ -419,17 +421,18 @@ export function beginTransitionShaderWarm():void{
 export function watchTransitionRoot(node:Node|null):void{beginTransitionShaderWarm();remember(node);absorb();}
 /** The next warm step (sail set-off) kicks and compiles nothing. */
 export function noteTransitionSailFrame():void{skipNext=true;}
-/** Skip warm compiles for the next n after_draw frames (board reveal / setCamera heavy window). */
-export function noteTransitionHeavyFrames(n:number=3):void{if(n>skipLeft)skipLeft=n|0;}
+/** Skip warm compiles for the next n after_draw frames (board reveal / setCamera heavy window). Clears standup burst so 8/frame drain cannot stack onto the window. */
+export function noteTransitionHeavyFrames(n:number=3):void{if(n>skipLeft)skipLeft=n|0;burstLeft=0;standupDirLight=false;}
 export function transitionWarmStats():TransitionWarmStats{return {frames,sailSkips,kicked,compiled,pending:Math.max(0,jobs.length-compiled),criticalPending:criticalPending(),maxFrameMs,done:jobs.length>0&&compiled>=jobs.length&&criticalPending()===0};}
-/** Test hook. Production does not call this from the camera. */
-export function holdTransitionShaders(on:boolean):void{if(on)holdDepth++;else if(holdDepth>0)holdDepth--;held=holdDepth>0;}
+/** Test hook. Production does not call this from the camera. Holding also clears standup burst (flight/board bridge). */
+export function holdTransitionShaders(on:boolean):void{if(on){holdDepth++;burstLeft=0;standupDirLight=false;}else if(holdDepth>0)holdDepth--;held=holdDepth>0;}
 /** Hold warm compiles for n after_draw frames (refcount). Use to bridge B5→board without a compile window. */
 export function armTransitionHold(n:number=12):void{
- const want=n|0;if(want<=0)return;if(want>armHoldLeft)armHoldLeft=want;
+ const want=n|0;if(want<=0)return;if(want>armHoldLeft)armHoldLeft=want;burstLeft=0;standupDirLight=false;
  if(armHoldArmed)return;armHoldArmed=true;holdTransitionShaders(true);}
 export function cachedWarmNames():string[]{const out:string[]=[];for(let i=0;i<cachedNames.length;i++)out.push(cachedNames[i]);return out;}
-/** Raise critical drain for the next n after_draw frames (sit→stand_up / leaveHome). Does not hold the camera. */
+/** Raise critical drain for the next n after_draw frames (sit→stand_up / leaveHome). Does not hold the camera. No-op while held/heavy — hard gates beat standup prewarm. */
 export function armStandupShaderBurst(n:number=STANDUP_BURST_FRAMES):void{
- const want=n|0;if(want>burstLeft)burstLeft=want;beginTransitionShaderWarm();scanIn=0;absorb();}
-export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;holdDepth=0;armHoldLeft=0;armHoldArmed=false;burstLeft=0;scanIn=0;listening=false;logged=false;}
+ if(held||skipLeft>0||skipNext)return;
+ const want=n|0;if(want>burstLeft)burstLeft=want;standupDirLight=true;beginTransitionShaderWarm();scanIn=0;absorb(false);}
+export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;holdDepth=0;armHoldLeft=0;armHoldArmed=false;burstLeft=0;standupDirLight=false;scanIn=0;listening=false;logged=false;}
