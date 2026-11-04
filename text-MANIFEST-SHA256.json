@@ -2111,8 +2111,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 116112,
-    "sha256": "2b6ce563e46701adefa4a0208a5764eb95ef70d4e193e70e11e613ff35e91861"
+    "bytes": 115986,
+    "sha256": "3049a8808d8455838f77aa5961dbe34bb4e70064d91403106c142135c601e82f"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -3201,8 +3201,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts",
-    "bytes": 67473,
-    "sha256": "c3a9fd79e63f725d7a5745005b6f9f0c0c28ce31fe7c51be071ff374273a67a7"
+    "bytes": 67354,
+    "sha256": "8583fe2905bc8f3da6e2a04f19f42bc325fe839ec1faaa0b61dfefd5d7ee619a"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts.meta",
@@ -3771,8 +3771,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts",
-    "bytes": 37801,
-    "sha256": "7dd8c47f937d95b8c3ffd0370bf2bce14b863444cbd1d07537f8ed259186b881"
+    "bytes": 34070,
+    "sha256": "4110af700e7b060f57468dae35fa234af089ac78a9988f083682e6dc06221970"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts.meta",
@@ -4621,8 +4621,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 74986,
-    "sha256": "12e869b6316cf6de7ddb30f5cd7833d5470fc266a690d8f297f709f99ee1b9c7"
+    "bytes": 74939,
+    "sha256": "fbfee6c49c0a898dc2b3b1c52ed327dcd0d18d6b8c37475bb16e4e1a68f071c1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -4631,8 +4631,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 65958,
-    "sha256": "bb40d9cf62b2c1103f5b208dfef6b074947483d227b368585713564ff3dfad60"
+    "bytes": 65826,
+    "sha256": "e2947cad7cc952d85b76022c19c2f7477075ca8362cbd658e073d0f2df93f2a6"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
