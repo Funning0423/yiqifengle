@@ -31,6 +31,7 @@ import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterM
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
 import {FIRSTSLICE} from './world-r1/FirstsliceFacts';
 import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/WorldFlowCore';
+import { armStandupShaderBurst } from './region/TransitionShaderWarm';
 import {StartupReadyGate,StartupAttempt,StartupCancelled} from './world-r2/StartupReadyGate';
 import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
 import {StartupLoadingLayer} from './ui/StartupLoadingLayer';
@@ -299,7 +300,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   }
   let duration:number;const extra:any={};
   try{
-   if(action.kind==='stand')duration=this.playNamed(CLIP_ROLES.standUp,false)!;
+   if(action.kind==='stand'){try{armStandupShaderBurst();}catch{/* warm optional */}duration=this.playNamed(CLIP_ROLES.standUp,false)!;}
    else if(action.kind==='sit')duration=this.playNamed(CLIP_ROLES.sitDown,false)!;
    else if(action.kind==='walk'){this.requireClip(CLIP_ROLES.walk);duration=action.duration;let L=0;for(let i=1;i<action.path.length;i++){const a=action.path[i-1],b=action.path[i];L+=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}extra.length=L;
     extra.plan=Number.isFinite(duration)&&duration>0?this.planFor(action,L):null;extra.fromRest=this.beginWalk(extra.plan||{L,D:duration,start:null,stop:null,cruise:null,linear:true,rate:1,notes:[]});}

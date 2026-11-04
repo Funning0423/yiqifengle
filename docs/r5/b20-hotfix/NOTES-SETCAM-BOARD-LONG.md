@@ -20,3 +20,23 @@
 
 ## 验收
 setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**（最好回到 e987 的 0）；animateCamera / RT 不回退。
+
+
+## Funning 起身 tip（本轮）
+
+手机最卡在 **坐→起身 stand_up**，高于 meadow→skycity 门禁窗。
+
+根因（Mac `fb74d437` / tip `ac48372e` console）：
+- leaveHome / 开场 `world.animateCamera` fr123–184 大量 `CC_USE_SKINNING1|CC_USE_MORPH1`（53/16/3/73）**现场编译**；
+- live createShader 名带 `CC_DIR_LIGHT_SHADOW_TYPE1`，旧 warm 袋子没有 → cache miss；
+- morph 73 ± `CC_MORPH_PRECOMPUTED1` 在 standard 路径上未强制预热；
+- critical 稳态仅 3/帧，起身窗 criticalPending 仍高。
+
+改动（runtime / TransitionShaderWarm only；**勿动 BalloonTransit / K.s1**；硬保住 setCamera=0 / board-bg=0）：
+1. `withDirLightBag`：hot/critical 再编一套 DIR_LIGHT 叠加的 DEPARTURE/SETCAM 袋；
+2. 标准 hot 也强制 `CC_MORPH_PRECOMPUTED`（live + depart + fwd/pipe/reflect）；
+3. `USE_ALPHA_TEST` 进 critical（node-lens 叶面）；
+4. `armStandupShaderBurst`：起身前 200 帧按 8/帧冲刺 drain；接线 `armTransitionShaderWarm` / `leaveHome` / `perform(stand)` / lakeside `stand_up`；
+5. hold 释放后自动再 burst 60 帧，消化 ready 后 city mats。
+
+验收：坐→起身手机不顿；node-lens / enterLevel LONG &lt;100；ready 后 criticalPending≈0；setCamera / board-bg 仍 0；RT / animateCamera 不回退。
