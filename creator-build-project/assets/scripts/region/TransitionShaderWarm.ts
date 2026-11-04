@@ -10,7 +10,11 @@ import {MEADOW_WARM_BUDGET_MS,kickCompiledPass,meadowWarmPlan} from './MeadowSai
  *  Mac 81c841d4: residual setCamera 446ms/12 was ALL builtin-unlit+morph (53/16/3/73±PRECOMPUTED), not standard/PCF2.
  *  Departure shadow bags miss that key. Also tries>12 critical stayed !cached → criticalPending 300–680 forever and
  *  every frame recompiled Invalid reflect-map during board-bg (490ms/0 shaders). Fix: warm unlit/planar live macros;
- *  exhaust critical after tries; skip warm for a few heavy board/reveal frames. */
+ *  exhaust critical after tries; skip warm for a few heavy board/reveal frames.
+ *  Funning tip: sit→stand_up is the first stutter. Live createShader at fr123–184 carries
+ *  CC_DIR_LIGHT_SHADOW_TYPE1 on skin+morph (53/16/3/73±PRECOMPUTED) while warm bags omitted it,
+ *  so animateCamera / leaveHome still live-compiled. Also force PRECOMPUTED for standard hot,
+ *  mark USE_ALPHA_TEST critical (node-lens), and burst critical before stand_up. */
 export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3,73];
 /** Exact pipeline macros on every Mac createShader name at meadow→skycity animateCamera frame 1803.
  *  0 is omitted from the program key, so a boot compile that only writes PCF still misses SHADOWMAP_FORMAT / LINEAR_DEPTH. */
@@ -23,6 +27,16 @@ export const DEPARTURE_SHADOW_MACROS:readonly {name:string;value:number}[]=[
  {name:'CC_DIR_SHADOW_PCF_TYPE',value:2},
  {name:'CC_SHADOW_TYPE',value:2},
 ];
+/** Mac leaveHome/stand_up createShader names also carry the dir-light shadow type (omitted from key when 0). */
+export const DIR_LIGHT_SHADOW_MACROS:readonly {name:string;value:number}[]=[
+ {name:'CC_DIR_LIGHT_SHADOW_TYPE',value:1},
+];
+export function withDirLightBag(bag:readonly {name:string;value:number}[]):{name:string;value:number}[]{
+ const out:{name:string;value:number}[]=[];for(let i=0;i<bag.length;i++)out.push(bag[i]);
+ for(let i=0;i<DIR_LIGHT_SHADOW_MACROS.length;i++){const n=DIR_LIGHT_SHADOW_MACROS[i].name;let hit=false;
+  for(let j=0;j<out.length;j++)if(out[j].name===n){out[j]=DIR_LIGHT_SHADOW_MACROS[i];hit=true;break;}
+  if(!hit)out.push(DIR_LIGHT_SHADOW_MACROS[i]);}
+ return out;}
 /** setCamera B1 Mac names: same bag but CC_SHADOW_TYPE omitted (0 is dropped from the program key). */
 export const SETCAM_SHADOW_MACROS:readonly {name:string;value:number}[]=[
  {name:'CC_USE_FOG',value:4},
@@ -55,6 +69,9 @@ const SEEN_CAP=4000;
 const SCAN_EVERY=10;
 const INVALID_PHASE=0xFFFFFFFF;
 export const CRITICAL_PER_FRAME=3;
+/** sit→stand_up / leaveHome animateCamera window: drain skin+morph faster than the steady 3/frame. */
+export const STANDUP_CRITICAL_PER_FRAME=8;
+export const STANDUP_BURST_FRAMES=200;
 const FWD_PATCHES:readonly {name:string;value:number}[]=[{name:'CC_FORWARD_ADD',value:1},{name:'CC_IS_TRANSPARENCY_PASS',value:1}];
 const PIPE_PATCHES:readonly {name:string;value:number}[]=[{name:'CC_PIPELINE_TYPE',value:1}];
 export function reflectProgramName(name:string):string{
@@ -80,7 +97,7 @@ export function withAssignMacros<T>(bag:readonly {name:string;value:number}[],ru
  const oa=Object.assign;
  const wrapped=function(target:any){const out=oa.apply(this,arguments);
   if(out&&typeof out==='object'){let hit=false;for(let i=1;i<arguments.length;i++){const s=arguments[i];
-   if(s&&typeof s==='object'&&(s.CC_DIR_SHADOW_PCF_TYPE!==undefined||s.CC_SHADOW_TYPE!==undefined||s.CC_USE_HDR!==undefined||s.CC_USE_FOG!==undefined||s.CC_SUPPORT_CASCADED_SHADOW_MAP!==undefined||s.CC_SHADOWMAP_FORMAT!==undefined||s.CC_SHADOWMAP_USE_LINEAR_DEPTH!==undefined)){hit=true;break;}}
+   if(s&&typeof s==='object'&&(s.CC_DIR_SHADOW_PCF_TYPE!==undefined||s.CC_SHADOW_TYPE!==undefined||s.CC_USE_HDR!==undefined||s.CC_USE_FOG!==undefined||s.CC_SUPPORT_CASCADED_SHADOW_MAP!==undefined||s.CC_SHADOWMAP_FORMAT!==undefined||s.CC_SHADOWMAP_USE_LINEAR_DEPTH!==undefined||s.CC_DIR_LIGHT_SHADOW_TYPE!==undefined)){hit=true;break;}}
    if(hit){for(let m=0;m<bag.length;m++)out[bag[m].name]=bag[m].value;
     if(!bag.some(x=>x.name==='CC_SHADOW_TYPE')&&Object.prototype.hasOwnProperty.call(out,'CC_SHADOW_TYPE'))delete out.CC_SHADOW_TYPE;}}
   return out;};
@@ -115,8 +132,8 @@ type Item={key:string;pass:any;patches:Patch[]|null;hot:boolean;depart:boolean;c
 export type TransitionWarmStats={frames:number;sailSkips:number;kicked:number;compiled:number;pending:number;criticalPending:number;maxFrameMs:number;done:boolean};
 export function isCriticalWarm(hot:boolean,defines:Record<string,unknown>|null,_effect?:string,_passName?:string):boolean{
  if(hot)return true;const d=defines||{};
- // setCamera spike + girl: vertex-color / second-UV / skin-morph only — not every builtin-standard (that ballooned pending).
- return !!(d.USE_VERTEX_COLOR||d.HAS_SECOND_UV);}
+ // setCamera spike + girl: vertex-color / second-UV / alpha-test (node-lens foliage) / skin-morph only — not every builtin-standard.
+ return !!(d.USE_VERTEX_COLOR||d.HAS_SECOND_UV||d.USE_ALPHA_TEST);}
 export function morphPatches(count:number,hasPosition:boolean,precomputed:boolean=false):Patch[]{
  const p:Patch[]=[{name:'CC_USE_MORPH',value:true},{name:'CC_MORPH_TARGET_COUNT',value:count}];
  if(hasPosition)p.push({name:'CC_MORPH_TARGET_HAS_POSITION',value:true});
@@ -191,7 +208,7 @@ export function stageTransitionWarm(items:{key:string}[],hooks:{kick(key:string)
   stats:()=>({frames,sailSkips,kicked,compiled,pending:items.length-compiled,criticalPending:0,maxFrameMs,done:compiled>=items.length}),
   dispose(){dead=true;}};}
 const roots:Node[]=[];const jobs:Item[]=[];const seen:string[]=[];const cachedNames:string[]=[];
-let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,skipLeft=0,held=false,holdDepth=0,armHoldLeft=0,armHoldArmed=false,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
+let kicked=0,compiled=0,frames=0,sailSkips=0,maxFrameMs=0,skipNext=false,skipLeft=0,held=false,holdDepth=0,armHoldLeft=0,armHoldArmed=false,burstLeft=0,scanIn=0,listening=false,logged=false,off:(()=>void)|null=null;
 function remember(node:Node|null):void{if(!node||!isValid(node,true))return;if(roots.indexOf(node)>=0)return;roots.push(node);scanIn=0;}
 function pipelineOf(obj:any):any{return obj&&(obj.pipeline||obj._pipeline)||null;}
 function programLib(pass?:any):any{
@@ -300,7 +317,14 @@ function compileDeparture(item:Item):void{
  const a=compileOneBag(item,DEPARTURE_SHADOW_MACROS,withAssignDeparture,forceDeparturePipes);
  if(shaderShowsDeparture(a))markCached(item,a);
  const b=compileOneBag(item,SETCAM_SHADOW_MACROS,withAssignSetcam,forceSetcamPipes);
- if(shaderShowsDeparture(b))markCached(item,b);}
+ if(shaderShowsDeparture(b))markCached(item,b);
+ // stand_up / leaveHome live keys also include CC_DIR_LIGHT_SHADOW_TYPE1 when the sun casts shadows.
+ if(item.hot||item.critical){
+  const dBag=withDirLightBag(DEPARTURE_SHADOW_MACROS),sBag=withDirLightBag(SETCAM_SHADOW_MACROS);
+  const c=compileOneBag(item,dBag,run=>withAssignMacros(dBag,run),pass=>forceMacroPipes(dBag,pass));
+  if(shaderShowsDeparture(c))markCached(item,c);
+  const d=compileOneBag(item,sBag,run=>withAssignMacros(sBag,run),pass=>forceMacroPipes(sBag,pass));
+  if(shaderShowsDeparture(d))markCached(item,d);}}
 function compileItem(item:Item):void{
  if(item.unlit||effectLooksUnlit(item.effect,item.program)){compileUnlitLive(item);return;}
  if(item.depart){compileDeparture(item);
@@ -329,14 +353,18 @@ function absorb():void{
   const families=(renderer:any,mat:any,pass:any,index:number,sub:number,force:boolean)=>{
    const fx=effectOf(mat),pn=passName(pass,index),unlit=effectLooksUnlit(fx,pn),hotNow=isHot(renderer,sub);
    take(renderer,mat,pass,index,sub,force,false,null,'','');
-   // Mac residual setCamera: morph 73 drew with CC_MORPH_PRECOMPUTED1 — warm that key even if mesh flags omit it.
-   if(unlit&&hotNow)take(renderer,mat,pass,index,sub,force,false,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any],'','pre~');
+   // Mac residual: morph 73 (±standard) drew with CC_MORPH_PRECOMPUTED1 during stand_up/animateCamera — warm even if mesh flags omit it.
+   if(hotNow)take(renderer,mat,pass,index,sub,force,false,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any],'','pre~');
    if(!unlit)take(renderer,mat,pass,index,sub,force,true,null,'','');
+   if(!unlit&&hotNow)take(renderer,mat,pass,index,sub,force,true,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any],'','pre~');
    if(unlit||!isCriticalWarm(hotNow,pass&&pass.defines||null,fx,pn))return;
    take(renderer,mat,pass,index,sub,force,true,FWD_PATCHES,'','fwd~');
    take(renderer,mat,pass,index,sub,force,true,PIPE_PATCHES,'','pipe~');
+   if(hotNow){take(renderer,mat,pass,index,sub,force,true,mergePatches(FWD_PATCHES as any,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any]),'','fwd-pre~');
+    take(renderer,mat,pass,index,sub,force,true,mergePatches(PIPE_PATCHES as any,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any]),'','pipe-pre~');}
    const name=String(pass.program||pass._programName||pass.programName||'');const alt=reflectProgramName(name);
-   if(alt)take(renderer,mat,pass,index,sub,force,true,null,alt,'reflect~');};
+   if(alt){take(renderer,mat,pass,index,sub,force,true,null,alt,'reflect~');
+    if(hotNow)take(renderer,mat,pass,index,sub,force,true,[{name:'CC_MORPH_PRECOMPUTED',value:1} as any],alt,'reflect-pre~');}};
   const walk=(node:any)=>{
    if(!node)return;
    const comps=node.components||node._components||[];
@@ -356,7 +384,7 @@ function absorb():void{
 function onFrame():void{
  frames++;
  // Bridge hold (B5→board / prime): countdown on after_draw; absorb still runs so city materials enqueue without compile.
- if(armHoldArmed){if(armHoldLeft>0)armHoldLeft--;if(armHoldLeft<=0){armHoldArmed=false;holdTransitionShaders(false);}}
+ if(armHoldArmed){if(armHoldLeft>0)armHoldLeft--;if(armHoldLeft<=0){armHoldArmed=false;holdTransitionShaders(false);scanIn=0;if(burstLeft<60)burstLeft=60;}}
  // While held: never compile. Still honor heavy-frame skips (flight/B1 note) so absorb cannot stack onto setCamera LONGs.
  // Only absorb on quiet held frames (B5→board bridge) so city mats enqueue before reveal.
  if(held){if(skipNext||skipLeft>0){if(skipNext)skipNext=false;if(skipLeft>0)skipLeft--;sailSkips++;return;}
@@ -366,10 +394,10 @@ function onFrame():void{
  const pending=Math.max(0,jobs.length-compiled),crit=criticalPending();
  if(compiled>=jobs.length&&!crit){if(jobs.length&&!logged){logged=true;try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending:0,criticalPending:0,cached:cachedNames.length}));}catch{/* log only */}}return;}
  logged=false;const plan=meadowWarmPlan(jobs.length-kicked,kicked-compiled);if(plan.ms>maxFrameMs)maxFrameMs=plan.ms;
- let filled=0;
+ let filled=0;const budget=burstLeft>0?STANDUP_CRITICAL_PER_FRAME:CRITICAL_PER_FRAME;if(burstLeft>0)burstLeft--;
  // While critical work remains, only compile critical — non-critical thrash caused the slow-mo feel.
  if(plan.compiles&&compiled<kicked&&!(crit&&!jobs[compiled].critical)){compileItem(jobs[compiled]);compiled++;filled++;}
- while(filled<CRITICAL_PER_FRAME&&kicked<jobs.length&&jobs[kicked].critical){const item=jobs[kicked];
+ while(filled<budget&&kicked<jobs.length&&jobs[kicked].critical){const item=jobs[kicked];
   if(item.cached||item.exhausted){kicked++;compiled++;continue;}
   compileItem(item);item.tries++;
   if(item.cached){kicked++;compiled++;}
@@ -380,10 +408,10 @@ function onFrame():void{
   else if(!filled){compileItem(item);kicked++;compiled++;}
   else kicked++;}
  else if(crit&&kicked<jobs.length&&!jobs[kicked].critical){kicked++;}
- if(crit&&filled<CRITICAL_PER_FRAME){for(let i=0;i<jobs.length&&filled<CRITICAL_PER_FRAME;i++){
+ if(crit&&filled<budget){for(let i=0;i<jobs.length&&filled<budget;i++){
   if(!jobs[i].critical||jobs[i].cached||jobs[i].exhausted)continue;
   compileItem(jobs[i]);jobs[i].tries++;if(jobs[i].tries>12&&!jobs[i].cached)exhaustItem(jobs[i]);filled++;}}
- if(crit&&frames%60===0){try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending,criticalPending:crit,cached:cachedNames.length}));}catch{/* log only */}}}
+ if(crit&&frames%60===0){try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending,criticalPending:crit,cached:cachedNames.length,burstLeft}));}catch{/* log only */}}}
 /** Idempotent. No frame clock → the sail path stays as it is. Never blocks the caller. */
 export function beginTransitionShaderWarm():void{
  if(listening)return;const d:any=director;if(!d||typeof d.on!=='function'||typeof d.off!=='function')return;listening=true;
@@ -401,4 +429,7 @@ export function armTransitionHold(n:number=12):void{
  const want=n|0;if(want<=0)return;if(want>armHoldLeft)armHoldLeft=want;
  if(armHoldArmed)return;armHoldArmed=true;holdTransitionShaders(true);}
 export function cachedWarmNames():string[]{const out:string[]=[];for(let i=0;i<cachedNames.length;i++)out.push(cachedNames[i]);return out;}
-export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;holdDepth=0;armHoldLeft=0;armHoldArmed=false;scanIn=0;listening=false;logged=false;}
+/** Raise critical drain for the next n after_draw frames (sit→stand_up / leaveHome). Does not hold the camera. */
+export function armStandupShaderBurst(n:number=STANDUP_BURST_FRAMES):void{
+ const want=n|0;if(want>burstLeft)burstLeft=want;beginTransitionShaderWarm();scanIn=0;absorb();}
+export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;holdDepth=0;armHoldLeft=0;armHoldArmed=false;burstLeft=0;scanIn=0;listening=false;logged=false;}

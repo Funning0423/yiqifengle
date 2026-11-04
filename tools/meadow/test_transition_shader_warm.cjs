@@ -22,6 +22,7 @@ function load(){
   if(defines.CC_SHADOWMAP_USE_LINEAR_DEPTH===1)parts.push('CC_SHADOWMAP_USE_LINEAR_DEPTH1');
   if(defines.CC_DIR_SHADOW_PCF_TYPE===2)parts.push('CC_DIR_SHADOW_PCF_TYPE2');
   if(defines.CC_SHADOW_TYPE===2)parts.push('CC_SHADOW_TYPE2');
+  if(defines.CC_DIR_LIGHT_SHADOW_TYPE===1)parts.push('CC_DIR_LIGHT_SHADOW_TYPE1');
   if(defines.CC_USE_SKINNING)parts.push('CC_USE_SKINNING1');
   if(defines.CC_RECEIVE_SHADOW)parts.push('CC_RECEIVE_SHADOW1');
   if(defines.CC_USE_MORPH)parts.push('CC_USE_MORPH1');
@@ -104,8 +105,11 @@ const preload=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scrip
 const sail=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/SailPreload.ts'),'utf8');
 const ad=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts'),'utf8');
 assert.equal(flow.indexOf('warmBeforeDeparture'),-1,'camera is not gated on the warm');
-assert.match(flow,/const fail=this\.blocked\('home',true\);if\(fail\)return fail;\s*return this\.operate\('standing'/);
+assert.match(flow,/const fail=this\.blocked\('home',true\);if\(fail\)return fail;/);
+assert.match(flow,/armStandupShaderBurst/);
+assert.match(flow,/return this\.operate\('standing'/);
 assert.match(comp,/armTransitionShaderWarm\(\)/);assert.match(comp,/beginTransitionShaderWarm\(\)/);assert.match(comp,/watchTransitionRoot\(scene\)/);
+assert.match(comp,/armStandupShaderBurst\(\)/);
 assert.equal(comp.indexOf('holdTransitionShaders'),-1,'animateCamera does not pause the warm');
 assert.match(comp,/animateCamera:\(path,seconds,t,options,progress,onSample\)=>\{const track=createCameraTrack\(camera,path,'world\.animateCamera'/);
 const cam=comp.slice(comp.indexOf("animateCamera:(path"),comp.indexOf("animateCamera:(path")+700);
@@ -135,19 +139,28 @@ assert.equal(assigned.CC_SUPPORT_CASCADED_SHADOW_MAP,1);assert.equal(assigned.CC
 assert.ok(T.isCriticalWarm(true,{},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{USE_VERTEX_COLOR:1},'fx','p'));
 assert.ok(T.isCriticalWarm(false,{HAS_SECOND_UV:1},'fx','p'));
+assert.ok(T.isCriticalWarm(false,{USE_ALPHA_TEST:1},'fx','p'));
 assert.equal(T.isCriticalWarm(false,{},'builtin-standard','standard-vs|standard-fs'),false);
+assert.ok(T.DIR_LIGHT_SHADOW_MACROS.some(m=>m.name==='CC_DIR_LIGHT_SHADOW_TYPE'&&m.value===1));
+assert.equal(typeof T.armStandupShaderBurst,'function');
+assert.equal(T.STANDUP_CRITICAL_PER_FRAME,8);
 T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);assert.equal(L.listeners.length,1);
 const girlPass=girl.children[0].components[0].sharedMaterials[0].passes[0];
 let maxCompile=0;
-for(let i=0;i<80;i++){const n0=L.recorded.length;L.listeners[0]();const dn=L.recorded.length-n0;if(dn>maxCompile)maxCompile=dn;
- assert.ok(dn<=T.CRITICAL_PER_FRAME*4,'critical frame compiled too many '+dn);
+T.armStandupShaderBurst(40);
+for(let i=0;i<120;i++){const n0=L.recorded.length;L.listeners[0]();const dn=L.recorded.length-n0;if(dn>maxCompile)maxCompile=dn;
+ assert.ok(dn<=T.STANDUP_CRITICAL_PER_FRAME*8,'critical frame compiled too many '+dn);
  assert.equal(L.macros.CC_DIR_SHADOW_PCF_TYPE,0);assert.equal(L.engineMacros.CC_DIR_SHADOW_PCF_TYPE,0);assert.equal(L.engineMacros.CC_SHADOW_TYPE,1);
  assert.notEqual(girlPass.defines.CC_DIR_SHADOW_PCF_TYPE,2,'departure compile stuck PCF on the pass');}
-assert.ok(maxCompile>=1&&maxCompile<=T.CRITICAL_PER_FRAME*4);
+assert.ok(maxCompile>=1&&maxCompile<=T.STANDUP_CRITICAL_PER_FRAME*8);
 assert.ok(L.recorded.length>=6,'departure variants did not compile');
 const pcf2=L.recorded.filter(r=>r.CC_DIR_SHADOW_PCF_TYPE===2&&r.CC_SHADOW_TYPE===2);
 assert.ok(pcf2.length>=6,'spike macros missing '+JSON.stringify(L.recorded.slice(0,6)));
 assert.ok(pcf2.some(r=>r.CC_MORPH_TARGET_COUNT===53&&r.CC_USE_SKINNING===true&&r.CC_RECEIVE_SHADOW===true&&r.CC_USE_MORPH===true));
+const dirLit=L.recorded.filter(r=>r.CC_DIR_LIGHT_SHADOW_TYPE===1&&r.CC_DIR_SHADOW_PCF_TYPE===2&&r.CC_USE_SKINNING===true);
+assert.ok(dirLit.length>=4,'DIR_LIGHT stand_up bag missing '+JSON.stringify(L.recorded.filter(r=>r.CC_USE_SKINNING).slice(0,4)));
+assert.ok(dirLit.some(r=>r.CC_MORPH_TARGET_COUNT===53));
+assert.ok(L.recorded.some(r=>r.CC_MORPH_PRECOMPUTED===true||r.CC_MORPH_PRECOMPUTED===1),'standard PRECOMPUTED warm missing');
 assert.ok(pcf2.some(r=>r.CC_FORWARD_ADD===1&&r.CC_IS_TRANSPARENCY_PASS===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>r.CC_PIPELINE_TYPE===1&&r.CC_MORPH_TARGET_COUNT===53));
 assert.ok(pcf2.some(r=>String(r.name).indexOf('reflect-map-fs')>=0&&r.CC_MORPH_TARGET_COUNT===53));
@@ -198,6 +211,9 @@ assert.match(comp,/herAdapter as any/);
 assert.match(preload,/beginTransitionShaderWarm\(\);watchTransitionRoot\(parent\);/);
 assert.match(sail,/watchTransitionRoot\(model\)/);
 assert.match(ad,/noteMeadowSailFrame\(model\);noteTransitionSailFrame\(\)/);
+assert.match(ad,/armStandupShaderBurst/);
+const boot=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
+assert.match(boot,/armStandupShaderBurst/);
 const nwa=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts'),'utf8');
 const balloon=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/region/BalloonTransit.ts'),'utf8');
 const boardUi=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/ManagedMobileBoardUI.ts'),'utf8');
@@ -251,7 +267,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Mac 230df8f6: flight-inactive board cut setCamera 164→141 but board 0→138. Middle: restore Live keepActive + prime 4 cam-off-only (e987 board=0 path); no armTransitionHold in prime (25fa setCamera=0). Target both LONG <100. RT untouched.'};
+ note:'Funning standup tip: warm CC_DIR_LIGHT_SHADOW_TYPE1 + standard PRECOMPUTED morph before stand_up; armStandupShaderBurst 8/frame; USE_ALPHA_TEST critical for node-lens. Hard keep setCamera/board-bg=0; BalloonTransit untouched. Target stand_up no hitch + node-lens/enterLevel <100 + ready后 crit≈0.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);

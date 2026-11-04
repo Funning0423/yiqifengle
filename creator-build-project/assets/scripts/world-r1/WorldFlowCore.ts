@@ -1,6 +1,7 @@
 import type { RegionJourneyController, JourneyRegion, JourneySnapshot } from './RegionJourneyCore';
 import { CameraTrackFailure } from './CameraPose';
 import type { TrackOptions, WeightRamp } from './CameraPose';
+import { armStandupShaderBurst } from '../region/TransitionShaderWarm';
 /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
 export type Vec = readonly [number, number, number];
 export type Mode = 'fixed' | 'motion';
@@ -408,6 +409,7 @@ export class WorldFlow {
    *  back to the girl (no rejoin cut). Omitted = start on cameraHome. */
   async leaveHome(options?:{from?:Pose}):Promise<Result> {
     const fail=this.blocked('home',true);if(fail)return fail;
+    try{armStandupShaderBurst();}catch{/* warm optional */}
     return this.operate('standing',async t=>{
       const c=this.config,turn:Action={kind:'turn',controllerRoot:c.seat.standingControllerRoot,fromYawRad:c.seat.yawRad,toYawRad:pathHeading(c.toDoor),direction:'left'};
       if(this.mode==='motion'&&c.cameraStandTurn&&c.cameraTracks?.standTurn){

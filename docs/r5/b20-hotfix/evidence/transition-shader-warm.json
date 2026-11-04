@@ -31,11 +31,11 @@
   ],
   "maxKicksPerFrame": 1,
   "maxCompilesPerFrame": 1,
-  "runtimeCompilesPerFrame": 6,
+  "runtimeCompilesPerFrame": 32,
   "maxFrameMs": 0.75,
   "sailSkips": 1,
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac 230df8f6: flight-inactive board cut setCamera 164→141 but board 0→138. Middle: restore Live keepActive + prime 4 cam-off-only (e987 board=0 path); no armTransitionHold in prime (25fa setCamera=0). Target both LONG <100. RT untouched."
+  "note": "Funning standup tip: warm CC_DIR_LIGHT_SHADOW_TYPE1 + standard PRECOMPUTED morph before stand_up; armStandupShaderBurst 8/frame; USE_ALPHA_TEST critical for node-lens. Hard keep setCamera/board-bg=0; BalloonTransit untouched. Target stand_up no hitch + node-lens/enterLevel <100 + ready后 crit≈0."
 }
