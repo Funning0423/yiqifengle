@@ -1,5 +1,14 @@
 # b20 hotfix — 草甸 warm-up C + 天空之城 RT + 转场 shader 预热
 
+## Strategy C′：standup-only 隔离 tip + morph 减负（停 transition 门禁追逐）
+
+- 功能：`57a620ca` ← cherry-pick GGbot feature `823828b5` / tip `3081b184`（warmSampleStandUp 仅 sit→stand 窗 N≈4：perform(stand)+lakeside；零侵入 TransitionShaderWarm/Board/BalloonTransit/K.s1；无 armStandupShaderBurst/bindVisual warm）
+- 叠：`0831d4f9` ← 角色动画bot `299afe73` `anim/standup-perf-morph`（anim_meta stand_up morph curves → **23**；手臂未改）
+- MANIFEST：`c89eba9c`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
+- **验收**：起身体感 / warmSample 标记 / RT from2+zero；**不以** setCamera/board≠0 否决（同日 CONTROL fb74 KEEP_CACHE=0 已 156/127 = CONTROL_FAIL_NOISE）
+- 离线：`test_integrate_vs_fb74_scripts_identity.cjs` PASS（transition/board == fb74；standup warm isolated）；`test_standup_warm_sample.cjs` PASS
+- upload=NO；live 仍 `1.0.202611031613` @ fb74d437
+
 ## Strategy C：根因 = 无脚本差可剥（Mac 6f785228 == fb74d437 scripts）
 
 - 功能提交：见本 tip 的 feature SHA（`git log -1 --format=%H` 在 tip record 之前）
