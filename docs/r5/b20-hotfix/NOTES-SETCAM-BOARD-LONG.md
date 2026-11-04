@@ -53,5 +53,7 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 | 3 | 预热 MORPH1 + COUNT53/73 + PRECOMPUTED（+DIR_LIGHT） | **YES**（2f3fe317） | `TransitionShaderWarm` `MAC_MORPH_COUNTS` / `withDirLightBag` / `armStandupShaderBurst` |
 | 4 | MorphDriver 起身段无整表 setWeight 清零重写 | **YES**（保持 + 注释） | `MORPH_EPS` 增量；warm 末样本落 t=0，首帧几乎无增量 |
 
+交付：feature `8287119af699700834758a49521048749ff9e388`；tip 头见本文件所在提交。
+
 硬约束：保住 setCamera=0 / board-bg=0；**勿动** BalloonTransit / K.s1。
 

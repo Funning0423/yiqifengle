@@ -2,7 +2,7 @@
 
 ## STANDUP-PERF runtime tip（待 Mac / 真机复测）
 
-- 功能 tip = 本文件所在提交之上的 feature 提交（`git rev-parse HEAD^` / `HEAD`）；叠在 `14463a58` / `2f3fe317` 上
+- 功能 `8287119af699700834758a49521048749ff9e388`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）；叠在 `14463a58` / `2f3fe317` 上
 - 补齐角色动画bot `STANDUP-PERF-20261104.md` §交给 GGbot #2：`warmSampleStandUp`（pose+morphWeights 先 setWeight）
 - #1/#3/#4 已满足（ctor-only AnimRig、DIR_LIGHT+COUNT53/73+PRECOMPUTED、MorphDriver EPS 无整表清零）
 - 硬保住 setCamera=0 / board-bg=0；勿动 BalloonTransit / K.s1
