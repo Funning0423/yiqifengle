@@ -512,7 +512,8 @@ export class MorphDriver {
       for(let i=0;i<subs.length;i++){const n=subs[i]&&subs[i].targets?subs[i].targets.length:0;this.targetCounts.push(n);if(n>=this.need&&n>0)this.subMeshes.push(i);}
       if(!this.subMeshes.length){this.status='too-few-targets';this.reason='need '+this.need+' targets, sub-meshes have '+this.targetCounts.join(',');return this.status;}
       this.renderer=r;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
-  /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made. */
+  /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made.
+   *  角色动画bot STANDUP-PERF #4：仅在 |Δw|>MORPH_EPS（或触及精确 0/1）时 setWeight；起身段无整表清零重写、不重置 last。 */
   apply(w:{[target:string]:number}):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;let n=0;
     for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;this.weights[t]=v;const prev=this.last[t];
       if(prev!==undefined&&!(Math.abs(v-prev)>MORPH_EPS)&&!((v===0||v===1)&&v!==prev))continue;
