@@ -2,7 +2,7 @@
 
 ## Strategy C：根因 = 无脚本差可剥（Mac 6f785228 == fb74d437 scripts）
 
-- 功能提交：见本 tip 的 feature SHA（`git log -1 --format=%H` 在 tip record 之前）
+- 功能 `1f3f95dbb89184bf6223c9b4433bd279b5bee9ea`；tip 头 = 本文件所在提交（`git rev-parse HEAD`）
 - tip 头 = 本文件所在提交（`git rev-parse HEAD`）
 - Mac integrate tip `6f785228`（← GGbot Strategy B `0ba5ada5`）OVERALL FAIL：setCamera **270**、board-bg **452**；criticalPending AFTER≈99；build TOTAL **= fb74**（23626088）
 - **精确 diff**：`git diff fb74d437..6f785228 -- creator-build-project/assets/scripts` → **空**。blob 级 BalloonTransit / TransitionStaging / SkycityBoard* / TransitionShaderWarm / WorldIntegrationBoot / CharacterMotion 全相同。仅 docs/tests/evidence/MANIFEST 不同。
