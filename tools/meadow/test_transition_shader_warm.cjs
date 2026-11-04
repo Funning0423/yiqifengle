@@ -242,7 +242,8 @@ assert.doesNotMatch(lb,/warmBeforeReveal/);
 T.resetTransitionShaderWarm();T.watchTransitionRoot(girl);const n0=L.recorded.length;T.holdTransitionShaders(true);T.holdTransitionShaders(true);L.listeners[0]();assert.equal(L.recorded.length,n0,'held skips compile');T.holdTransitionShaders(false);L.listeners[0]();assert.equal(L.recorded.length,n0,'still held after one release');T.holdTransitionShaders(false);
 
 
-/* Strategy A / Mac bf749b46: TransitionShaderWarm must match ac48372e — no standup burst / DIR_LIGHT / lite-absorb invasions */
+/* Strategy B / Mac 587b73d3: full strip standup warm vs ac48372e — TransitionShaderWarm already == ac48372e;
+ * warmSampleStandUp bind/perform/lakeside still invaded setCamera/board (268/245). Peel warmSample too. */
 assert.doesNotMatch(src,/armStandupShaderBurst/);
 assert.doesNotMatch(src,/burstLeft/);
 assert.doesNotMatch(src,/standupDirLight/);
@@ -257,20 +258,16 @@ assert.equal(comp.indexOf('armStandupShaderBurst'),-1);
 assert.equal(ad.indexOf('armStandupShaderBurst'),-1);
 const bootStrip=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
 assert.equal(bootStrip.indexOf('armStandupShaderBurst'),-1);
-/* standup non-transition keep: warmSampleStandUp + MorphDriver EPS; no AnimRig rebuild on stand */
-assert.match(bootStrip,/warmSampleStandUp/);
-assert.match(bootStrip,/standup-warm-sample/);
-assert.match(bootStrip,/action\.kind==='stand'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:false\}\)/);
-assert.match(bootStrip,/playNamed\('sit_hold'[\s\S]{0,280}warmSampleStandUp\(\{restoreMorph:true\}\)/);
-{const performBlock=bootStrip.slice(bootStrip.indexOf("if(action.kind==='stand')"),bootStrip.indexOf("if(action.kind==='stand')")+400);
- assert.doesNotMatch(performBlock,/repairStates|requireDirectTrsStates|new AnimRig/);}
-assert.match(ad,/warmSampleStandUp\?\.\(\{restoreMorph:false\}\)/);
+assert.doesNotMatch(bootStrip,/warmSampleStandUp/);
+assert.doesNotMatch(bootStrip,/standup-warm-sample/);
+assert.doesNotMatch(bootStrip,/standUpWarmPrimed/);
+assert.doesNotMatch(ad,/warmSampleStandUp/);
 const cmStand=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/CharacterMotion.ts'),'utf8');
 assert.match(cmStand,/MORPH_EPS/);
-assert.match(cmStand,/起身段无整表清零重写/);
+assert.doesNotMatch(cmStand,/起身段无整表清零重写/);
 assert.doesNotMatch(balloon,/warmSampleStandUp/);
 assert.doesNotMatch(balloon,/armStandupShaderBurst/);
-/* USE_ALPHA_TEST must NOT broaden critical vs ac48372e (node-lens residual is non-gate) */
+/* USE_ALPHA_TEST must NOT broaden critical vs ac48372e */
 assert.equal(T.isCriticalWarm(false,{USE_ALPHA_TEST:1},'fx','p'),false);
 
 assert.doesNotMatch(src,/\bnew (Map|Set)\b/);assert.doesNotMatch(src,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
@@ -283,7 +280,7 @@ const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Mac bf749b46 FAIL setCamera411/board828 (worse than 8f757). Strategy A: strip 2f3fe317/8287119a/0002c1f0 TransitionShaderWarm invasions back to ac48372e (no burst/DIR_LIGHT/lite-absorb/USE_ALPHA_TEST critical). Keep warmSampleStandUp+MorphDriver EPS only; zero transition enqueue from standup. Hard gates first; BalloonTransit/K.s1 untouched.'};
+ note:'Mac 587b73d3 FAIL setCamera268/board245 after Strategy A (TransitionShaderWarm==ac48372e, warmSample kept). Strategy B: also strip warmSampleStandUp + standup MorphDriver comment vs ac48372e so scripts bit-identical to over-line tip. Hard gates first; BalloonTransit/K.s1 untouched.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);

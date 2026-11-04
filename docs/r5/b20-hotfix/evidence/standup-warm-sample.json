@@ -1,45 +1,53 @@
 {
   "gate": "standup-warm-sample",
-  "status": "PASS",
+  "status": "DEFERRED",
+  "strategy": "B_full_strip_vs_ac48372e",
   "rules": {
     "1_no_AnimRig_rebuild_on_sit_stand": {
       "ok": true,
-      "evidence": "WorldIntegrationBoot.ts: AnimRig/repairStates/requireDirectTrsStates only in bindVisual; perform(stand) path has no rebuild; unit assert repairedStates unchanged across sit→stand"
+      "evidence": "WorldIntegrationBoot.ts restored to ac48372e; perform(stand) has no AnimRig rebuild"
     },
     "2_warm_sample_stand_up": {
-      "ok": true,
-      "evidence": "FlowReferenceStandin.warmSampleStandUp; bindVisual restoreMorph:true; perform(stand) + RegionJourneyAdapter lakeside restoreMorph:false before playNamed(stand_up)"
+      "ok": false,
+      "deferred": true,
+      "evidence": "Mac 587b73d3: warmSampleStandUp retained after Strategy A still FAIL setCamera268/board245 (fb74=0/0). Stripped bind+perform+lakeside warmSampleStandUp and standup MorphDriver comment; reopen only on isolated tip after gates≈0."
     },
     "3_shader_warm_MORPH_COUNT_PRECOMPUTED_DIR_LIGHT": {
       "ok": false,
       "deferred": true,
-      "evidence": "Strategy A (Mac bf749b46): TransitionShaderWarm stripped back to ac48372e — no DIR_LIGHT bags / armStandupShaderBurst / PRECOMPUTED extras. Shader standup warm deferred until a zero-invasion path exists. Baseline MAC_MORPH_COUNTS 53/16/3/73 still present in ac48372e warm."
+      "evidence": "TransitionShaderWarm remains bit-identical ac48372e; no DIR_LIGHT / armStandupShaderBurst"
     },
     "4_MorphDriver_no_full_clear": {
       "ok": true,
-      "evidence": "CharacterMotion MorphDriver.apply: only |Δw|>MORPH_EPS or exact 0/1; STANDUP-PERF #4 comment; no last-map reset on standup"
+      "evidence": "CharacterMotion MorphDriver.apply restored to ac48372e (MORPH_EPS baseline unchanged; standup-only comment removed)"
     }
   },
   "unit": {
     "status": "PASS",
-    "samples": 13,
-    "warmEvents": 4,
-    "repairedStates": 0,
-    "glb": "chr_b_r5g2_walk-v1_TEST.glb",
-    "note": "setWeightCalls may be 0 in host mock when morphMeshes names mismatch TEST glb; GPU warm path still samples stand_up via applyMorph"
+    "mode": "strip-assert",
+    "note": "tools/walk-driver/test_standup_warm_sample.cjs asserts warmSampleStandUp absent vs ac48372e"
   },
-  "base_tip": "14463a5851b6e20846af5c90f6f8996c1a6abc3d",
+  "mac_fail_that_forced_strip": {
+    "tip": "587b73d3",
+    "feature": "9c8e781e",
+    "setCamera_max": 268,
+    "board_bg_max": 245,
+    "fb74_setCamera": 0,
+    "fb74_board_bg": 0,
+    "criticalPending_AFTER": 98,
+    "evidence": "/workspace/yiqifengle/mac-selftest-587b73d3-landing/"
+  },
   "hard_keep": [
-    "setCamera=0",
-    "board-bg=0",
+    "setCamera≈0",
+    "board-bg≈0",
     "BalloonTransit untouched",
     "K.s1 untouched",
-    "TransitionShaderWarm==ac48372e"
+    "TransitionShaderWarm==ac48372e",
+    "scripts/CharacterMotion+WorldIntegrationBoot+RegionJourneyAdapter == ac48372e"
   ],
   "tests": [
     "tools/walk-driver/test_standup_warm_sample.cjs",
     "tools/meadow/test_transition_shader_warm.cjs"
   ],
-  "strategy": "A_strip_transition_invasions",
-  "note": "Keep warmSampleStandUp + MorphDriver EPS only; transition path bit-identical to ac48372e for hard gates."
+  "note": "Strategy B: peel warmSampleStandUp so RT/transition/board path matches over-line ac48372e/fb74d437. Standup warm is next-round isolated work."
 }

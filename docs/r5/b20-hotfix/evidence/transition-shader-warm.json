@@ -37,5 +37,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Mac bf749b46 FAIL setCamera411/board828 (worse than 8f757). Strategy A: strip 2f3fe317/8287119a/0002c1f0 TransitionShaderWarm invasions back to ac48372e (no burst/DIR_LIGHT/lite-absorb/USE_ALPHA_TEST critical). Keep warmSampleStandUp+MorphDriver EPS only; zero transition enqueue from standup. Hard gates first; BalloonTransit/K.s1 untouched."
+  "note": "Mac 587b73d3 FAIL setCamera268/board245 after Strategy A (TransitionShaderWarm==ac48372e, warmSample kept). Strategy B: also strip warmSampleStandUp + standup MorphDriver comment vs ac48372e so scripts bit-identical to over-line tip. Hard gates first; BalloonTransit/K.s1 untouched."
 }
