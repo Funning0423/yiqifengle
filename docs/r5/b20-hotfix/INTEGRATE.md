@@ -2,7 +2,7 @@
 
 ## Funning 起身 tip（待 Mac / 真机复测）
 
-- 功能 `2f3fe3172a3196ed9f75c918f6a475c810149222` / tip `a3dc407e341f38053ffb7f378b330f317e5d4461`
+- 功能 `2f3fe3172a3196ed9f75c918f6a475c810149222`；本 tip 头 = 本文件所在提交（`git rev-parse HEAD`）
 
 首要：坐→起身手机不顿。runtime 预热 `CC_USE_SKINNING1|CC_USE_MORPH1`（MORPH 53/73±PRECOMPUTED）+ `CC_DIR_LIGHT_SHADOW_TYPE1`，`armStandupShaderBurst` 起身前冲刺；仍清 node-lens/enterLevel≥100 与 ready 后 criticalPending；硬保住 setCamera=0 / board-bg=0；勿动 BalloonTransit / K.s1。细节见 `NOTES-SETCAM-BOARD-LONG.md`「Funning 起身 tip」。
 
