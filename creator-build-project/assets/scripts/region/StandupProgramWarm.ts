@@ -71,8 +71,8 @@ let armed=false;
 let windowOpen=false;
 let lastLabel='';
 let rootRef:Node|null=null;
-/** A/B kill switch: false = arm/step/flush no-op (peel warm, keep COUNT16+meta). Default true. */
-export let STANDUP_PROGRAM_WARM_ENABLED=true;
+/** A/B kill switch: false = arm/step/flush no-op (peel warm, keep COUNT16+meta). Default false (2026-11-05 A/B: isolate warm vs whole-UI/periodic stutter). Manual setStandupProgramWarmEnabled(true) still re-arms. */
+export let STANDUP_PROGRAM_WARM_ENABLED=false;
 export function setStandupProgramWarmEnabled(on:boolean):void{STANDUP_PROGRAM_WARM_ENABLED=!!on;if(!on){windowOpen=false;jobs=[];cursor=0;warmed=0;frames=0;armed=false;lastLabel='';}}
 
 function countInBag(n:number):boolean{
