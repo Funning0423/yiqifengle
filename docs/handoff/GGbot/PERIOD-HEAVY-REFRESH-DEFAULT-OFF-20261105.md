@@ -2,7 +2,7 @@
 
 ## Tip / feature
 - **feature** `403462f1f05c5828ace711254c7dd6a4b1ba8179`
-- **tip** `PENDING_TIP_SHA`
+- **tip** `6be031eda7f7ca76afb1911f63518cd34e898388`
 
 ## 一句话
 Funning 摸 `1.0.202611050645` @ tip `6954a20b`（Morph idle-drive 默认 OFF，叠 warm-OFF）：**周期整机掉帧一样没改善、起身仍顺** → Morph 栈 **非**周期 stutter 主因。本 tip 把 `PERIOD_HEAVY_REFRESH_ENABLED` **默认 false**，统一关掉最可疑的固定间隔重刷新（orbit AABB / sector 72 网格 / markers createMesh / 5s diagnostic tick）；**起身路径零改动**。最短可测「timer 周期源 vs 别的（含 COUNT16→FAT）」。
