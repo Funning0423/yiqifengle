@@ -1,7 +1,7 @@
 'use strict';
 /**
- * Standup-only COUNT53 program warm (independent of TransitionShaderWarm).
- * Gates: zero TSW import/burst; COUNT53 skin+morph queue; multi-frame step; MorphDriver budget.
+ * Standup-only COUNT16/15/3 program warm (independent of TransitionShaderWarm).
+ * Gates: zero TSW import/burst; APRON16/DRESS15/BODY15/BOW3 bag; multi-frame step; MorphDriver budget.
  */
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
 const ROOT=path.resolve(__dirname,'..','..');
@@ -22,7 +22,15 @@ assert.doesNotMatch(warmSrc,/\barmStandupShaderBurst\s*\(|export\s+function\s+ar
 assert.doesNotMatch(warmSrc,/\bbeginTransitionShaderWarm\s*\(|\bholdTransitionShaders\s*\(|\bresetTransitionShaderWarm\s*\(/);
 assert.match(warmSrc,/getProgramVariant/);
 assert.match(warmSrc,/CC_MORPH_TARGET_COUNT/);
-assert.match(warmSrc,/STANDUP_MORPH_COUNT\s*=\s*53/);
+assert.match(warmSrc,/STANDUP_MORPH_APRON\s*=\s*16/);
+assert.match(warmSrc,/STANDUP_MORPH_DRESS\s*=\s*15/);
+assert.match(warmSrc,/STANDUP_MORPH_BODY\s*=\s*15/);
+assert.match(warmSrc,/STANDUP_MORPH_BOW\s*=\s*3/);
+assert.match(warmSrc,/STANDUP_MORPH_COUNTS/);
+assert.match(warmSrc,/STANDUP_MORPH_COUNT\s*=\s*STANDUP_MORPH_APRON/);
+assert.doesNotMatch(warmSrc,/STANDUP_MORPH_COUNT\s*=\s*53/);
+assert.doesNotMatch(warmSrc,/CC_MORPH_TARGET_COUNT53/);
+assert.doesNotMatch(warmSrc,/CC_MORPH_TARGET_COUNT73/);
 assert.match(warmSrc,/STANDUP_WARM_PER_FRAME/);
 
 /* TSW must stay free of standup program warm / burst wiring */
@@ -73,18 +81,28 @@ vm.runInNewContext(tx(warmSrc),{
   console,Math,Object,Array,String,Number,Boolean,Error,globalThis:{cc:ccStub,CC:ccStub,legacyCC:ccStub},
 });
 const W=exportsObj;
-assert.equal(W.STANDUP_MORPH_COUNT,53);
+assert.equal(W.STANDUP_MORPH_APRON,16);
+assert.equal(W.STANDUP_MORPH_DRESS,15);
+assert.equal(W.STANDUP_MORPH_BODY,15);
+assert.equal(W.STANDUP_MORPH_BOW,3);
+assert.deepEqual([...W.STANDUP_MORPH_COUNTS],[16,15,3]);
+assert.equal(W.STANDUP_MORPH_COUNT,16);
 assert.equal(W.STANDUP_WARM_PER_FRAME,2);
 
 W.resetStandupProgramWarm();
 const syn=W.buildStandupWarmQueueSynthetic();
-assert.ok(syn.length>=6,'synthetic queue');
-assert.ok(syn.every(j=>Number(j.defines.CC_MORPH_TARGET_COUNT)===53&&j.defines.CC_USE_SKINNING&&j.defines.CC_USE_MORPH));
+assert.ok(syn.length>=8,'synthetic queue');
+const counts=new Set(syn.map(j=>Number(j.defines.CC_MORPH_TARGET_COUNT)));
+assert.ok(counts.has(16)&&counts.has(15)&&counts.has(3),'bag must cover 16/15/3 got '+[...counts]);
+assert.ok(syn.every(j=>j.defines.CC_USE_SKINNING&&j.defines.CC_USE_MORPH));
+assert.ok(syn.every(j=>[16,15,3].includes(Number(j.defines.CC_MORPH_TARGET_COUNT))));
+assert.ok(!syn.some(j=>Number(j.defines.CC_MORPH_TARGET_COUNT)===53||Number(j.defines.CC_MORPH_TARGET_COUNT)===73),'must NOT warm legacy 53/73');
 
 const arm=W.armStandupProgramWarm(null);
 assert.equal(arm.armed,true);
-assert.equal(arm.count53,true);
-assert.ok(arm.pending>=6);
+assert.equal(arm.bagReady,true);
+assert.equal(arm.count53,false);
+assert.ok(arm.pending>=8);
 
 const per=W.STANDUP_WARM_PER_FRAME;
 let steps=0,prevPending=arm.pending;
@@ -99,8 +117,10 @@ assert.ok(steps>=3&&steps<=W.STANDUP_WARM_MAX_FRAMES+1,'spread across frames got
 const after=W.standupProgramWarmStats();
 assert.ok(after.warmed>=4,'warmed via getProgramVariant got '+after.warmed);
 assert.ok(fakeLib.calls.length>=4,'lib calls '+fakeLib.calls.length);
-assert.ok(fakeLib.calls.some(c=>Number(c.defines.CC_MORPH_TARGET_COUNT)===53));
+assert.ok(fakeLib.calls.some(c=>Number(c.defines.CC_MORPH_TARGET_COUNT)===16));
+assert.ok(fakeLib.calls.some(c=>Number(c.defines.CC_MORPH_TARGET_COUNT)===15));
 assert.ok(fakeLib.calls.some(c=>c.defines.CC_USE_SKINNING===true&&c.defines.CC_USE_MORPH===true));
+assert.ok(!fakeLib.calls.some(c=>Number(c.defines.CC_MORPH_TARGET_COUNT)===53));
 
 /* flush before stand only takes a couple */
 W.resetStandupProgramWarm();
@@ -120,22 +140,23 @@ const renderer={node:{name:'apron'},mesh:{name:'apron',struct:{morph:{subMeshMor
 const md=new motion.MorphDriver('apron',targets);
 assert.equal(md.bind([renderer]),'ok');
 const n1=md.apply({a:1,b:1,c:1,d:1,e:1,f:1},2);
-assert.equal(n1,2,'budget 2 → 2 setWeight (1 target × 1 subMesh? wait subMeshes)');
-// one subMesh → each target costs 1 call; budget 2 → 2 targets
+assert.equal(n1,2,'budget 2 → 2 setWeight');
 assert.equal(calls.length,2);
 const n2=md.apply({a:1,b:1,c:1,d:1,e:1,f:1},4);
 assert.ok(n2>=1&&calls.length<=6);
 
 const out={
   status:'PASS',
-  gate:'standup-program-warm-count53',
+  gate:'standup-program-warm-count16-15',
   isolation:{TransitionShaderWarm:false,armStandupShaderBurst:false,BalloonTransit:false},
+  bag:{APRON:16,DRESS:15,BODY:15,BOW:3,unique:[...W.STANDUP_MORPH_COUNTS]},
   synthetic:syn.length,
+  syntheticCounts:[...counts].sort((a,b)=>a-b),
   spreadSteps:steps,
   warmed:after.warmed,
   libCalls:fakeLib.calls.length,
   morphBudget:{first:n1,second:n2,totalCalls:calls.length},
   acceptance:'standup feel — NOT setCamera/board=0 veto',
-  stackNote:'may stack anim tip that culls mesh COUNT53 morph targets (curves-only cull already falsified)',
+  stackNote:'pairs with COUNT16/15 GLB + formal anim_meta (6fd22962 / 6bd40657); no legacy COUNT53/73 warm',
 };
 console.log(JSON.stringify(out,null,1));
