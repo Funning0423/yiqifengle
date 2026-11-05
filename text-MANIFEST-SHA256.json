@@ -786,8 +786,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-    "bytes": 284435,
-    "sha256": "507468508fe7b3a5253e4340b7305c34801098f023cd655022e08120d1a03f05"
+    "bytes": 416293,
+    "sha256": "f9b53f3fa23964de675dd93b86b4790d655ebb1b0022bc2280a09371cf4f848b"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
@@ -1981,8 +1981,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 139896,
-    "sha256": "ccb92064b578fda284710367564c1219e78f3841d49ac46d9c3e01db16669d44"
+    "bytes": 140197,
+    "sha256": "8a1bec77b2fa6862e4293a485285369a70b167d415174e3a1b73fec7816e28bf"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
@@ -2111,8 +2111,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 115763,
-    "sha256": "869767de4628b981da0887a654196c6f2e5a433d866deddd49c37219a450085d"
+    "bytes": 117054,
+    "sha256": "4a5095b0bbda2f336369f44a9a7d4d011230987bd4ceb15c265dc63b13cdc03f"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -3688,6 +3688,16 @@
     "path": "creator-build-project/assets/scripts/region/SkycityVisitPose.ts.meta",
     "bytes": 171,
     "sha256": "12da100b99afc19340249f5a06566ff0797aa4369183daeae325edf7dbcbc4d9"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/StandupProgramWarm.ts",
+    "bytes": 13661,
+    "sha256": "4d444e8b4d675c7f1c8688ba135fc586f211bf8a1ce784e0215bb125c811590b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/StandupProgramWarm.ts.meta",
+    "bytes": 171,
+    "sha256": "48ec4d423351fe4776b44ba7113418c383f87e22b00426df77ef3cbed7e0be13"
   },
   {
     "path": "creator-build-project/assets/scripts/region/TransitAudioHooks.ts",
