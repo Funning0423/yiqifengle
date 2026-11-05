@@ -88,6 +88,14 @@ export function doorOpensAfterSettle(D=BALLOON_DOOR):boolean{return D.settleT1+D
 /** B1 door (meadow, she walks in): opens as she arrives at the door front, closes behind her. */
 export function doorInAngleAt(t:number,inAt:number,D=BALLOON_DOOR):number{
  const open=D.openDeg*minJerk(t/D.openS),close=t>inAt?minJerk((t-inAt)/D.closeS):0;return open*(1-close);}
+/** GLB rest local-Y (deg) for basket door hinges (door2 make_door2.py): A identity, B yaw 180 so the shared leaf faces −Z.
+ *  setRotationFromEuler replaces the whole local rotation — closed must restore REST, not 0, or door B stays open in flight. */
+export const BASKET_DOOR_REST_YAW=Object.freeze({basket_door:0,basket_door_b:180} as Readonly<Record<string,number>>);
+export function basketDoorRestYaw(nodeName:string|null|undefined):number{
+ if(!nodeName)return 0;if(nodeName in BASKET_DOOR_REST_YAW)return BASKET_DOOR_REST_YAW[nodeName];
+ return /door_b|_b$/i.test(nodeName)?180:0;}
+/** Absolute local-Y euler for a door hinge: rest + openDeg (0 = closed / GLB rest). */
+export function basketDoorYawDeg(nodeName:string|null|undefined,openDeg:number):number{return basketDoorRestYaw(nodeName)+openDeg;}
 // ── animation guard ─────────────────────────────────────────────────────────────────────────────────────────────────────
 /** Stop every engine-played SkeletalAnimation state (sit_hold left playing) right before a walk; counted for QA. */
 export function guardBeforeWalk(anim:EngineAnimLike|null|undefined,tag:string):number{

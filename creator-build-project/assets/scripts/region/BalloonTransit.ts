@@ -16,7 +16,7 @@ import {emitTransitCue} from './TransitAudioHooks';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {gradeSkycityCloudsea,gradeSkycityNight} from './SkycityNightApply';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
-import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,doorAngleAt,doorInAngleAt,guardBeforeWalk,inflateAt} from './TransitionChain';
+import {BALLOON_DOOR,INFLATE,basketDoorRestYaw,basketDoorYawDeg,chainMark,continuousTransitions,doorAngleAt,doorInAngleAt,guardBeforeWalk,inflateAt} from './TransitionChain';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING} from './TransitionStaging';
 import {basketToWorld,pathLength} from './TransitionStagingMath';
 import {seatFromBench} from './TransportLeg';
@@ -719,7 +719,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }
    director.off(Director.EVENT_AFTER_DRAW,b1AfterDraw);director.off(Director.EVENT_BEFORE_DRAW,b1BeforeDraw);
    if(girl&&isValid(girl,true)){if(seated)girl.setParent(vehicle,true)/* seated root kept where sit_down put it */;else{girl.setParent(seat,true);girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}}
-   if(door&&isValid(door,true)&&contChain)door.setRotationFromEuler(0,0,0);if(doorB&&isValid(doorB,true)&&contChain)doorB.setRotationFromEuler(0,0,0);
+   const closeBasketDoors=()=>{if(door&&isValid(door,true))door.setRotationFromEuler(0,basketDoorRestYaw(TRANSITION_STAGING.basket.entryDoorNode),0);if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,basketDoorRestYaw(TRANSITION_STAGING.basket.exitDoorNode),0);};
+   closeBasketDoors()/* door2: A rest=0, B rest=180 — never write (0,0,0) on B or flight looks open */;
    if(inflateT<INFLATE.durationS)applyInflate();
    const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
    /* call with the actor as `this`: FlowReferenceStandin.setWindSource is a class method (unbound call threw "Cannot set properties of undefined (setting 'windSource')" -> journey failed) */if(setWind)setWind.call(actor,()=>0.35);
@@ -751,6 +752,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     if(prevThreshKey&&threshKey!==prevThreshKey){paintDebt=2;try{noteTransitionHeavyFrames(6);}catch{/* warm optional */}}
     prevThreshKey=threshKey;
     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
+    closeBasketDoors()/* B2–B4: keep both leaves at GLB rest while the basket yaws/rolls */;
     paint(t);
     if(writeCam){
      if(paintDebt>0&&lastFlightCam){paintDebt--;camTag('BalloonTransit:flight');world.setCamera(lastFlightCam);}
@@ -810,22 +812,31 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
     try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
     const b5Lens=():Pose|null=>{if(land)return landPose(camEnd,RIDE_DURATION-land.c0+b5Cam);if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
-    let b5=0,b5On=true;try{holdTransitionShaders(true);noteTransitionHeavyFrames(6);}catch{/* warm optional */}const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
+    let b5=0,b5On=true;try{holdTransitionShaders(true);noteTransitionHeavyFrames(6);}catch{/* warm optional */}const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,basketDoorYawDeg(TRANSITION_STAGING.basket.exitDoorNode,doorAngleAt(b5)),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
      const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);
-     const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);
      const city=(l:Vec):Vec=>{if(!model)return l;const v=new Vec3(l[0],l[1],l[2]);Vec3.transformMat4(v,v,model.worldMatrix);return [v.x,v.y,v.z];};
+     // Bug A (2026-11-05): B1 seatDef is meadow-world. Stand with it lerps her into the sea void. Rebuild from the LANDED basket
+     // (lakeside getout 968be1d1 parity). Keep her parented on the vehicle through stand so roll/yaw sway stays basket-relative.
+     const landSeat=seatFromBench(W(B.seat),(y+B.seatYawDeg)*Math.PI/180);seatDef=landSeat;
      guardBeforeWalk(anim,'B5 stand up');
      if(seated&&seatDef){try{await actor.perform({kind:'stand',seat:seatDef} as any,rideToken);}catch(e){if((e as any)?.name==='Cancelled')throw e;console.warn('[QF_TRANSITION] B5 stand skipped: '+String(e));}}
-     rideToken.check();await new Promise<void>(r=>setTimeout(r,D4.pause*1000));b5=0/* door clock starts with door_reach */;
+     rideToken.check();
+     const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);
+     await new Promise<void>(r=>setTimeout(r,D4.pause*1000));b5=0/* door clock starts with door_reach */;
      const gw=girl.worldPosition,here:Vec=[gw.x,gw.y,gw.z];
      actor.cancelAndReset({kind:'standing',controllerRoot:here,yawRad:(y+B.seatYawDeg)*Math.PI/180/* door2: stood up facing door B, no turn */});
      guardBeforeWalk(anim,'B5 door reach');if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});
      rideToken.check();guardBeforeWalk(anim,'B5 walk out');
+     // Path: stepDown → via (clear horizontal rock on the old straight s1 chord) → deckEdge → s1 → spawn_girl; hard stop at end.
+     const viaRock:Vec=city([3.55,-0.05,39.05])/* between deckEdge≈(5.1,41.5) and s1≈(1.9,36.6); skirts the slab */;
      await walkTo([here,W(B.thresholdB),W(B.doorOutB),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
-     await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
-     s0End=city(K.s0New);(lease as any).tail=true/* she ends on spawn_girl (FX tip): board pose frames her on the deck, not soft-sea rim */;
+     const deckPath=[city(K.stepDown),city(K.deckEdge),viaRock,city(K.s1),city(K.s0New)];
+     await walkTo(deckPath,Math.min(D4.toPath,Math.max(1.5,pathLength(deckPath)/TRANSITION_STAGING.walkMps)));rideToken.check();
+     s0End=city(K.s0New);
+     actor.cancelAndReset({kind:'standing',controllerRoot:s0End,yawRad:TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?worldYawDeg(model)*Math.PI/180:0)});
+     (lease as any).tail=false/* arrived on spawn_girl; do not keep an endless walk tail */;
     }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);try{holdTransitionShaders(false);armTransitionHold(180);noteTransitionHeavyFrames(6);}catch{/* warm optional */}}
    }else if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:s0End||plan.s0,yawRad:s0End?TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?worldYawDeg(model)*Math.PI/180:0):plan.vehicle(LAND_T).yaw});

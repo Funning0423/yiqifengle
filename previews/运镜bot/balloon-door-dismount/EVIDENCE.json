@@ -1,0 +1,36 @@
+{
+  "tip": "cine/balloon-door-dismount-fix",
+  "base": "github/gbt/r5-b20-integrate-landing-visual-bg2 @ 9ec8410c",
+  "bugs": {
+    "A_fling": {
+      "root": "B5 perform(stand) reused B1 meadow seatDef world roots; stand lerped ~125m into void",
+      "fix": "rebuild landSeat from current vehicle world pose; stand while still parented to vehicle; detach after",
+      "parity": "lakeside RegionJourneyAdapter getout 968be1d1"
+    },
+    "B_door": {
+      "root": "basket_door_b GLB rest Y=180; code setRotationFromEuler(0,0,0) wiped rest → looked open in flight",
+      "fix": "A closed=0 open=100; B closed=180 open=180+θ; force-close every flight apply frame"
+    },
+    "C_keep_walking": {
+      "fix": "hard cancelAndReset at s0New/spawn_girl; lease.tail=false (no endless walk tail)"
+    },
+    "D_hud": {
+      "fix": "WorldIntegrationBoot transitHud hides 继续旅程/主页 while journey.target or phase ready|approach|bridge|arrival or state region-travel"
+    },
+    "E_rock": {
+      "fix": "B5 deck path inserts viaRock city-local [3.55,-0.05,39.05] between deckEdge and s1"
+    }
+  },
+  "screenshots_in": [
+    "ascent-door-open.png",
+    "dismount-fling-sea.png",
+    "skycity-keep-walking-hud.png"
+  ],
+  "test": "tools/transitions-continuous/test_balloon_door_dismount.cjs PASS",
+  "not_touched": [
+    "TransitionShaderWarm",
+    "morph",
+    "FPS tips",
+    "sea-landing s0New"
+  ]
+}
