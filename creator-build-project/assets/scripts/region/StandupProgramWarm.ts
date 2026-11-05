@@ -8,7 +8,12 @@
  * do NOT enqueue into TSW critical/hold/burst. Spreads getProgramVariant / getShaderVariant
  * across sit_hold frames (1–2 / frame) so sit→stand does not live-compile the new COUNT family.
  *
- * Acceptance = Funning phone standup feel. Mac setCamera/board=0 is NOT a veto (CONTROL_FAIL_NOISE).
+ * **Window gate (global FPS):** step/compile is allowed ONLY while the sit_hold warm window is open.
+ * walk / locomotion / stand_idle / UI must never pay getProgramVariant. Leaving sit without standup,
+ * or starting stand_up, closes the window (disarm). Funning 1.0.202611050458: standup smooth but
+ * whole UI dropped frames — advanceStep was stepping whenever armed&&pending with no clip gate.
+ *
+ * Acceptance = whole-UI FPS + standup feel. Mac setCamera/board=0 is NOT a veto (CONTROL_FAIL_NOISE).
  */
 import {Node,director,isValid} from 'cc';
 import * as ccmod from 'cc';
@@ -42,6 +47,8 @@ export type StandupWarmJob={
 
 export type StandupWarmStats={
  armed:boolean;
+ /** True only during sit_hold warm window — step is a no-op when false. */
+ windowOpen:boolean;
  pending:number;
  warmed:number;
  frames:number;
@@ -60,6 +67,8 @@ let cursor=0;
 let warmed=0;
 let frames=0;
 let armed=false;
+/** sit_hold-only gate: step/compile runs only while true. */
+let windowOpen=false;
 let lastLabel='';
 let rootRef:Node|null=null;
 
@@ -292,7 +301,8 @@ function compileJob(job:StandupWarmJob):boolean{
  }catch{return false;}
 }
 
-/** Arm multi-frame COUNT16/15/3 warm against a character visual (or synthetic fallback). Idempotent. */
+/** Arm multi-frame COUNT16/15/3 warm against a character visual (or synthetic fallback). Idempotent.
+ *  Does NOT open the sit_hold window by itself — prefer openStandupWarmWindow from boot. */
 export function armStandupProgramWarm(visual?:Node|null):StandupWarmStats{
  const root=visual&&isValid(visual,true)?visual:rootRef;
  if(root&&isValid(root,true))rootRef=root;
@@ -306,9 +316,28 @@ export function armStandupProgramWarm(visual?:Node|null):StandupWarmStats{
  return standupProgramWarmStats();
 }
 
-/** Compile up to `n` pending bag variants (default STANDUP_WARM_PER_FRAME). */
-export function stepStandupProgramWarm(n:number=STANDUP_WARM_PER_FRAME):StandupWarmStats{
+/** Open sit_hold warm window + arm. Call on bindVisual / re-seat. */
+export function openStandupWarmWindow(visual?:Node|null):StandupWarmStats{
+ const st=armStandupProgramWarm(visual);
+ windowOpen=true;
+ return standupProgramWarmStats();
+}
+
+/** Close window and disarm queue — walk / idle / UI must not compile. Idempotent. */
+export function closeStandupWarmWindow():StandupWarmStats{
+ windowOpen=false;
+ jobs=[];cursor=0;warmed=0;frames=0;armed=false;lastLabel='';
+ // keep rootRef so a later open/flush can re-collect
+ return standupProgramWarmStats();
+}
+
+export function standupWarmWindowOpen():boolean{return windowOpen;}
+
+/** Compile up to `n` pending bag variants (default STANDUP_WARM_PER_FRAME).
+ *  No-op when the sit_hold window is closed (force=true only for pre-stand flush). */
+export function stepStandupProgramWarm(n:number=STANDUP_WARM_PER_FRAME,force=false):StandupWarmStats{
  if(!armed)return standupProgramWarmStats();
+ if(!windowOpen&&!force)return standupProgramWarmStats();
  if(frames>=STANDUP_WARM_MAX_FRAMES&&cursor>=jobs.length)return standupProgramWarmStats();
  frames++;
  const budget=Math.max(1,n|0);
@@ -322,15 +351,19 @@ export function stepStandupProgramWarm(n:number=STANDUP_WARM_PER_FRAME):StandupW
  return standupProgramWarmStats();
 }
 
-/** Drain a few remaining jobs right before sit→stand (never the whole queue at once). */
+/** Drain a few remaining jobs right before sit→stand (never the whole queue at once).
+ *  Force-steps even if window already closing; caller should closeStandupWarmWindow after. */
 export function flushStandupProgramWarmBeforeStand(max:number=2):StandupWarmStats{
  if(!armed)armStandupProgramWarm(rootRef);
- return stepStandupProgramWarm(max);
+ if(!windowOpen)windowOpen=true;
+ return stepStandupProgramWarm(max,true);
 }
 
 export function standupProgramWarmStats():StandupWarmStats{
  const pending=Math.max(0,jobs.length-cursor);
  let has16=false,has15=false;
+ // Cheap path: after close, jobs empty — no bag scan.
+ if(!jobs.length)return {armed,windowOpen,pending:0,warmed,frames,lastLabel,bagReady:false,count53:false};
  for(let i=0;i<jobs.length;i++){
   const d=jobs[i].defines;
   const c=Number(d.CC_MORPH_TARGET_COUNT);
@@ -348,11 +381,11 @@ export function standupProgramWarmStats():StandupWarmStats{
    }
   }
  }
- return {armed,pending,warmed,frames,lastLabel,bagReady:has16&&has15,count53:false};
+ return {armed,windowOpen,pending,warmed,frames,lastLabel,bagReady:has16&&has15,count53:false};
 }
 
 export function resetStandupProgramWarm():void{
- jobs=[];cursor=0;warmed=0;frames=0;armed=false;lastLabel='';rootRef=null;
+ jobs=[];cursor=0;warmed=0;frames=0;armed=false;windowOpen=false;lastLabel='';rootRef=null;
 }
 
 /** True when the module never touches TransitionShaderWarm symbols (static contract for tests). */

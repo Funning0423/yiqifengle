@@ -28,7 +28,7 @@ import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
 import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,SoleContactSolver,supportPose,
   planWalk,walkDistanceAt,stopCandidates,stopLateralAt,piecewise,restAheadFromRoutes,FOOT_DEDUPE_S,DEFAULT_NATIVE_SPEED} from './CharacterMotion';
 import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterMotion';
-import {armStandupProgramWarm,stepStandupProgramWarm,flushStandupProgramWarmBeforeStand,standupProgramWarmStats,STANDUP_WARM_PER_FRAME,STANDUP_MORPH_BUDGET_FIRST,STANDUP_MORPH_BUDGET_FRAMES} from './region/StandupProgramWarm';
+import {openStandupWarmWindow,closeStandupWarmWindow,standupWarmWindowOpen,stepStandupProgramWarm,flushStandupProgramWarmBeforeStand,standupProgramWarmStats,STANDUP_WARM_PER_FRAME,STANDUP_MORPH_BUDGET_FIRST,STANDUP_MORPH_BUDGET_FRAMES} from './region/StandupProgramWarm';
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
 import {FIRSTSLICE} from './world-r1/FirstsliceFacts';
 import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/WorldFlowCore';
@@ -125,8 +125,8 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(this.rig.has('walk_turn_90_bodyL')){const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);const times=new Set<number>();for(const t of [.35,.75,1.3333333333333333])for(const dt of [-1/240,0,1/240])times.add(t+dt);for(const time of Array.from(times).sort((a,b)=>a-b)){if(time<.2)this.rig.apply({base:{clip:'walk_turn_90_bodyL',time,loop:false},out:{clip:CLIP_ROLES.idle,time,weight:1-time/.2},layers:[],morph:[]});else (this.rig as any).sample('walk_turn_90_bodyL',time);this.ninetyLandingSamples.push({time,pose:supportPose(this.rig.joints)});}(this.rig as any).sample(CLIP_ROLES.idle,0);this.turnLandingIdle=supportPose(this.rig.joints);writePose(this.rig.joints,saved);}
   if(this.rig.has('walk_turn_180_bodyR')){const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);const times=new Set<number>();for(const t of [.075,.38,.4,.98,1.02,1.4])for(const dt of [-1/240,0,1/240])times.add(t+dt);for(const time of Array.from(times).sort((a,b)=>a-b)){if(time<.2)this.rig.apply({base:{clip:'walk_turn_180_bodyR',time,loop:false},out:{clip:CLIP_ROLES.idle,time,weight:1-time/.2},layers:[],morph:[]});else (this.rig as any).sample('walk_turn_180_bodyR',time);this.turnLandingSamples.push({time,pose:supportPose(this.rig.joints)});}(this.rig as any).sample(CLIP_ROLES.idle,0);this.turnLandingIdle=supportPose(this.rig.joints);writePose(this.rig.joints,saved);}
   this.playNamed('sit_hold',true,0);
-  // Standup-only COUNT53 program warm (independent of TransitionShaderWarm): spread over sit_hold frames.
-  this.standupProgramWarmVisual=visual;try{armStandupProgramWarm(visual);}catch{/* warm optional */}}
+  // Standup-only COUNT16/15/3 program warm: open sit_hold window only (independent of TransitionShaderWarm).
+  this.standupProgramWarmVisual=visual;try{openStandupWarmWindow(visual);}catch{/* warm optional */}}
  private requireClip(name:string){const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);return clip.duration;}
  /** The controller is the sole clock (Creator 3.8.8: paused/unplayed states, public setTime/sample). keep: same clip stays at its phase. */
  private playNamed(name:string,loop:boolean,fade=-1,keep=false,time=0){if(this.disposed||!this.clock)return;
@@ -171,6 +171,8 @@ class FlowReferenceStandin implements CharacterAdapter {
   }
   const setWeightCalls=this.morphs.reduce((n,m)=>n+(m.calls|0),0)-before;
   this.standUpWarmPrimed=true;this.standupMorphBudgetLeft=STANDUP_MORPH_BUDGET_FRAMES;
+  // Stand is starting — close warm window so walk/UI never keeps compiling.
+  try{closeStandupWarmWindow();}catch{/* optional */}
   this.logEvent({kind:'standup-warm-sample',samples,setWeightCalls,restoreMorph:restore,duration:dur,programWarm});
   return {ok:true,samples,setWeightCalls,restoreMorph:restore,programWarm};}
  private setYaw(rad:number){this.yawRad=rad;this.node.setRotationFromEuler(0,rad*180/Math.PI,0);}
@@ -251,8 +253,16 @@ class FlowReferenceStandin implements CharacterAdapter {
   * (including a partial final interval), rather than dropping long frames or solving only their endpoint. */
  advance(dt:number){if(!Number.isFinite(dt)||dt<=0)return;let left=dt;while(left>1e-10){const step=Math.min(left,1/120);this.advanceStep(step);left-=step;}}
  private advanceStep(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0||!this.clock)return;const step=Math.min(dt,.1);const j=this.job;const c=this.clock;
-  // Spread COUNT53 program warm across sit_hold / pre-stand frames (1–2 / tick); never via TransitionShaderWarm.
-  try{const st=standupProgramWarmStats();if(st.armed&&st.pending>0)stepStandupProgramWarm(STANDUP_WARM_PER_FRAME);}catch{/* warm optional */}
+  // COUNT16/15/3 program warm: ONLY while sit_hold window is open. Walk/idle/UI → no-op + disarm leak.
+  try{
+   const clip=c.base?.clip;
+   if(clip===CLIP_ROLES.sitHold&&standupWarmWindowOpen()){
+    const st=standupProgramWarmStats();
+    if(st.armed&&st.pending>0)stepStandupProgramWarm(STANDUP_WARM_PER_FRAME);
+   }else if(standupWarmWindowOpen()&&clip!==CLIP_ROLES.sitHold&&clip!==CLIP_ROLES.sitDown){
+    closeStandupWarmWindow();
+   }
+  }catch{/* warm optional */}
   this.motionT+=step;
   if(this.pendingIdle&&!(j&&j.action.kind==='walk')){this.pendingFor+=step;if(j||this.pendingFor>=WALK_JOIN_GRACE_S){this.pendingIdle=false;if(!j)this.settleFromWalk();}}
   let ds:number|null=null;let entry:{dt1:number;ds1:number}|null=null;
@@ -302,7 +312,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   this.render(step);
   if(j&&j.elapsed===j.duration){if(j.action.kind==='turn'&&j.foldS>0){j.elapsed=j.duration;this.setYaw(j.fromYaw+j.deltaYaw);this.yaw.reset(this.yawRad);}const kind=j.action.kind;j.off();this.job=null;
    if(kind==='walk'){if(!j.stopEntered){this.pendingIdle=true;this.pendingFor=0;}} // keep the walk pose/phase; resolved next frame unless another walk starts (planned stop: already playing)
-   else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
+   else if(kind==='sit'){this.playNamed(CLIP_ROLES.sitHold,true);try{openStandupWarmWindow(this.standupProgramWarmVisual);}catch{/* optional */}}else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
    j.resolve();}
   this.tickStopHold(step);this.resumeAfterSettle();
  }
@@ -375,11 +385,11 @@ class FlowReferenceStandin implements CharacterAdapter {
   const inPlace=Math.hypot(p.x-root[0],p.y-root[1],p.z-root[2])<.01;
   this.node.setWorldPosition(...root);this.setYaw(yaw);this.yaw.reset(yaw);
   if(!inPlace||pose.kind==='seated')this.stopRoot=null;
-  if(pose.kind==='seated'){this.pendingIdle=false;this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);}
-  else if(inPlace&&this.isWalkClip(this.clock?.base?.clip)){if((this.clock?.base?.clip===CLIP_ROLES.walk||this.clock?.base?.clip===CLIP_ROLES.walkStart)&&!this.pendingIdle){this.pendingIdle=true;this.pendingFor=0;}}
-  else{this.pendingIdle=false;this.playNamed(CLIP_ROLES.idle,true,inPlace?-1:0,true);}}
+  if(pose.kind==='seated'){this.pendingIdle=false;this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);try{openStandupWarmWindow(this.standupProgramWarmVisual);}catch{/* optional */}}
+  else if(inPlace&&this.isWalkClip(this.clock?.base?.clip)){try{closeStandupWarmWindow();}catch{/* optional */}if((this.clock?.base?.clip===CLIP_ROLES.walk||this.clock?.base?.clip===CLIP_ROLES.walkStart)&&!this.pendingIdle){this.pendingIdle=true;this.pendingFor=0;}}
+  else{this.pendingIdle=false;try{closeStandupWarmWindow();}catch{/* optional */}this.playNamed(CLIP_ROLES.idle,true,inPlace?-1:0,true);}}
  setVisible(v:boolean){if(!this.disposed)this.node.active=v;}
- dispose(){if(this.disposed)return;this.clearSettleQueue();this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.rig?.dispose();this.rig=null;this.clock=null;this.morphs=[];this.anim=null;this.footListeners=[];this.apronListeners=[];this.node.destroy();}
+ dispose(){if(this.disposed)return;this.clearSettleQueue();this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}try{closeStandupWarmWindow();}catch{/* optional */}this.standupProgramWarmVisual=null;this.rig?.dispose();this.rig=null;this.clock=null;this.morphs=[];this.anim=null;this.footListeners=[];this.apronListeners=[];this.node.destroy();}
 }
 /** Cocos side of the pose pipeline. Blend mode (useBakedAnimation=false): the evaluator writes joint nodes synchronously
  * (AnimationClip.enableTrsBlending=false, states never played), so the driver samples, captures and mixes itself:

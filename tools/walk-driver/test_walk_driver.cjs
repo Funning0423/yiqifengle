@@ -7,7 +7,7 @@
  * Engine-free, no rendering. Not render/device acceptance. */
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
 const ROOT=path.resolve(__dirname,'..','..');const S=path.join(ROOT,'creator-build-project/assets/scripts');
-const ts=require(process.env.QF_TYPESCRIPT_MODULE||require('../qf-env.cjs').typescript());
+const ts=process.env.QF_TYPESCRIPT_MODULE?require(process.env.QF_TYPESCRIPT_MODULE):require('../qf-env.cjs').typescript();
 const G=require('./glb_rig.cjs');
 const flowRoot=process.env.WALK_FLOW_ROOT?path.resolve(process.env.WALK_FLOW_ROOT):ROOT;
 const {load}=require(path.join(flowRoot,'tools/camera-frame-test/load_ts.cjs'));const M=load();const W=M.WorldFlowCore;

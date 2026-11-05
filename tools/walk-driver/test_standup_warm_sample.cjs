@@ -31,7 +31,8 @@ assert.match(spwSrc,/STANDUP_MORPH_BOW\s*=\s*3/);
 assert.doesNotMatch(spwSrc,/STANDUP_MORPH_COUNT\s*=\s*53/);
 assert.doesNotMatch(spwSrc,/from\s+['"]\.\/TransitionShaderWarm['"]/);
 assert.doesNotMatch(spwSrc,/\barmStandupShaderBurst\s*\(|export\s+function\s+armStandupShaderBurst/);
-assert.match(bootSrc,/armStandupProgramWarm|stepStandupProgramWarm|flushStandupProgramWarmBeforeStand/);
+assert.match(bootSrc,/openStandupWarmWindow|stepStandupProgramWarm|flushStandupProgramWarmBeforeStand/);
+assert.match(bootSrc,/closeStandupWarmWindow/);
 assert.doesNotMatch(balloonSrc,/StandupProgramWarm|armStandupProgramWarm/);
 assert.match(cmSrc,/maxCalls\?:number/);
 assert.match(cmSrc,/起身段无整表清零重写/);
@@ -53,11 +54,14 @@ assert.doesNotMatch(pb,/armStandupShaderBurst/);
 assert.match(adSrc,/warmSampleStandUp\?\.?\(\{restoreMorph:false\}\)/);
 
 const classText=bootSrc.slice(bootSrc.indexOf('/** Explicit flow-reference stand-in.'),bootSrc.indexOf("@ccclass('WorldIntegrationBoot')"));
-const standupWarmStub={armed:false,pending:0,warmed:0,frames:0,lastLabel:'',bagReady:true,count53:false};
+const standupWarmStub={armed:false,windowOpen:false,pending:0,warmed:0,frames:0,lastLabel:'',bagReady:true,count53:false};
 const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Cancelled,AnimationClip:{WrapMode:{Loop:2,Normal:1}},SkeletalAnimation:function(){},MeshRenderer:function MeshRenderer(){},pointOnPath:W.pointOnPath,
- armStandupProgramWarm:(v)=>{standupWarmStub.armed=true;standupWarmStub.pending=6;standupWarmStub.bagReady=true;standupWarmStub.count53=false;return standupWarmStub;},
- stepStandupProgramWarm:(n)=>{const take=Math.min(n||2,standupWarmStub.pending);standupWarmStub.pending-=take;standupWarmStub.warmed+=take;standupWarmStub.frames++;return Object.assign({},standupWarmStub);},
- flushStandupProgramWarmBeforeStand:(max)=>ctx.stepStandupProgramWarm(max||2),
+ armStandupProgramWarm:(v)=>{standupWarmStub.armed=true;standupWarmStub.pending=6;standupWarmStub.bagReady=true;standupWarmStub.count53=false;return Object.assign({},standupWarmStub);},
+ openStandupWarmWindow:(v)=>{standupWarmStub.armed=true;standupWarmStub.windowOpen=true;standupWarmStub.pending=6;standupWarmStub.bagReady=true;standupWarmStub.count53=false;return Object.assign({},standupWarmStub);},
+ closeStandupWarmWindow:()=>{standupWarmStub.windowOpen=false;standupWarmStub.armed=false;standupWarmStub.pending=0;return Object.assign({},standupWarmStub);},
+ standupWarmWindowOpen:()=>!!standupWarmStub.windowOpen,
+ stepStandupProgramWarm:(n)=>{if(!standupWarmStub.windowOpen)return Object.assign({},standupWarmStub);const take=Math.min(n||2,standupWarmStub.pending);standupWarmStub.pending-=take;standupWarmStub.warmed+=take;standupWarmStub.frames++;return Object.assign({},standupWarmStub);},
+ flushStandupProgramWarmBeforeStand:(max)=>{standupWarmStub.windowOpen=true;standupWarmStub.armed=true;return ctx.stepStandupProgramWarm(max||2);},
  standupProgramWarmStats:()=>Object.assign({},standupWarmStub),
  STANDUP_WARM_PER_FRAME:2,STANDUP_MORPH_BUDGET_FIRST:12,STANDUP_MORPH_BUDGET_FRAMES:4,
  exports:{},console,Date,Math,Number,Float64Array,Error,Promise,globalThis:{}};
