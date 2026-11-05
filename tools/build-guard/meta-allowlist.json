@@ -79,6 +79,12 @@
       },
       "why": "b20 hotfix A/B: PeriodHeavyRefresh.ts gates orbit AABB / sector / markers / tick (feature 403462f1 → integrate 83c069cd). Grok Bot assigned this hotfix."
     },
+    "creator-build-project/assets/scripts/audio/SceneAudioPoll.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 hotfix A/B: SceneAudioPoll.ts gates SceneMusic 0.25s / LandmarkAudio poll (feature 761d1bf7 → integrate 8b24b76). Grok Bot assigned this hotfix."
+    },
     "creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta": {
       "allowAdd": {
         "importer": "typescript"
