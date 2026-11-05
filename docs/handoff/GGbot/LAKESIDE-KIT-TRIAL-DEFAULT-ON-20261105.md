@@ -1,8 +1,8 @@
 # tip · 湖畔 LAKESIDE_KIT **trial 默认 ON**（真机对照 Funning 样板）· 2026-11-05
 
 ## Tip / feature
-- **feature** `FEATURE_SHA_TBD`
-- **tip** `TIP_SHA_TBD`
+- **feature** `e74c0f766d1b23e8bf28964195bd076a6063c1e5`
+- **tip** `02808214efc15965ad58d74aff27037feb2447b8`
 - **基于改写 tip**：feature `ee791ad57bd204fbc80495139c91ea9d70bc2533` / tip `05ca7c50c1472829b45e2e4e91f0a56a2e578a86`（正式语义仍默认 OFF · HOLD）
 - **叠合 integrate 父提交（TSW-OFF 线）**：`dc248d14869750e64a3e086e5877c395c353a492`（短 `dc248d14`，cherry-pick 自 feature `8f520d00`）
   - 当前 integrate 头 `gbt/r5-b20-integrate-landing-visual-bg2` = `b2b1146195d290ad19ad687173bf4146d1ad6190`（短 `b2b11461`，TSW 根因备注叠在 `dc248d14` 上）
