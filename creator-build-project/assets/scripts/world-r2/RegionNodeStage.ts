@@ -36,6 +36,7 @@ import {ArmSmoother} from '../region/ArmSmoother';
 import {AVOID,LENS_PITCH_MAX_DEG,herOcclusion,lensLevel,nearSphere,toFrame,type FrameBox} from '../region/LensAvoid';
 import {LENS_SMOOTH,OffsetSmoother,frameHer,posOf,sphOf,wrapDeg} from '../region/LensSmooth';
 import {nearestWalkable,walkPath,walkTapPath,walkPathLengthM,walkRayHit,type WVec} from '../region/RegionWalkable';
+import {PERIOD_HEAVY_REFRESH_ENABLED} from '../region/PeriodHeavyRefresh';
 const {ccclass}=_decorator;
 
 type Cover={host:Node|null;nav:Node|null;cams:{cam:Camera;on:boolean}[];rig:Node|null;rigOn:boolean};
@@ -604,6 +605,8 @@ export class RegionNodeStage extends Component{
  }
  /** AABB cache at 2.5 Hz, capped, so a drag does not walk every mesh on a 60 fps phone. */
  private refreshOrbitBoxes(g:Vec){
+  // A/B: skip ~400ms full-scene MeshRenderer AABB walk when period-heavy refresh OFF.
+  if(!PERIOD_HEAVY_REFRESH_ENABLED)return;
   const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return;
   this.orbitBoxAt=now;this.orbitBoxes.length=0;
   const scene=director.getScene();if(!scene)return;
@@ -701,7 +704,9 @@ export class RegionNodeStage extends Component{
   /* the QA-hook hold keeps its yaw while the orbit stays put (p0drag10 Q2); once the player turns the orbit ≥ 2° away it ends, like a drag */
   if(this.qaHold){if(!Number.isFinite(this.secHoldY))this.secHoldY=r.yaw;if(Math.abs(wrapDeg(r.yaw-this.secHoldY))<2)return null;this.qaHold=false;}this.secHoldY=NaN;
   if(!bx||!bx.length||!S.live||this.groundWalking)return null;/* walking: the avoider (arm pull-in past walls) on the same eased cap */const now=(this.secT=(this.secT||0)+Math.max(0,Math.min(0.1,dt||0)));
-  const C=this.secC;if(!C||now-C.t>0.25||Math.hypot(g[0]-C.g[0],g[2]-C.g[2])>0.6||Math.abs(r.el-C.el)>3||Math.abs(r.arm-C.arm)>0.5||C.w!==this.groundWalking){
+  const C=this.secC;/* A/B: when period-heavy OFF, keep last 72-yaw grid (no 0.25s rebuild); still rebuild on move/pose change so explore is not frozen forever. */
+  const timedOut=PERIOD_HEAVY_REFRESH_ENABLED&&!!C&&now-C.t>0.25;
+  if(!C||timedOut||Math.hypot(g[0]-C.g[0],g[2]-C.g[2])>0.6||Math.abs(r.el-C.el)>3||Math.abs(r.arm-C.arm)>0.5||C.w!==this.groundWalking){
    const near=nearSphere(bx,look,r.arm+1),ok:boolean[]=[],fre:boolean[]=[];
    /* walking: also where she will be in 0.5 s (her velocity) — the lens heads for yaws that stay clear, instead of chasing a sector that keeps moving */
    const pv=this.secPg,vt=pv&&now>pv.t?Math.min(3,0.5/(now-pv.t)):0,gA=pv&&this.groundWalking?[g[0]+(g[0]-pv.g[0])*vt,g[1],g[2]+(g[2]-pv.g[2])*vt]:null,dA=gA?[gA[0]-g[0],0,gA[2]-g[2]]:null;
@@ -1335,7 +1340,8 @@ export class RegionNodeStage extends Component{
   this.tickLens(dt);
   /* p0drag7 (Mac p0drag6 item 5: 0 frames in explore): one camTrace row per frame while ?camTrace=1 is on */
   {const T=(globalThis as any).__qfCamTrace;if(T)this.traceFrame(T);}
-  if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
+  // A/B: skip 0.25s createMesh marker rebuild when period-heavy OFF (event-driven rebuildMarkers still runs).
+  if(PERIOD_HEAVY_REFRESH_ENABLED&&(this.lens==='MapExplore'||this.lens==='FollowWalk')){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
  }
 }
 

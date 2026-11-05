@@ -77,6 +77,23 @@ assert.match(bootSrc,/morphPlanNeedsSeatDrive/);
 assert.match(bootSrc,/hardUnload/);
 assert.match(bootSrc,/morph-idle-unload/);
 
+/* Period-heavy refresh A/B (fixed-interval stutter suspects) */
+const phrSrc=fs.readFileSync(path.join(S,'region/PeriodHeavyRefresh.ts'),'utf8');
+const rnsSrc=fs.readFileSync(path.join(S,'world-r2/RegionNodeStage.ts'),'utf8');
+const wfcSrc=fs.readFileSync(path.join(S,'world-r1/WorldFlowComponent.ts'),'utf8');
+assert.match(phrSrc,/PERIOD_HEAVY_REFRESH_ENABLED/);
+assert.match(phrSrc,/PERIOD_HEAVY_REFRESH_ENABLED\s*=\s*false/,'default OFF for A/B peel period-heavy refresh');
+assert.doesNotMatch(phrSrc,/PERIOD_HEAVY_REFRESH_ENABLED\s*=\s*true/);
+assert.match(phrSrc,/setPeriodHeavyRefreshEnabled/);
+assert.doesNotMatch(phrSrc,/TransitionShaderWarm|StandupProgramWarm|BalloonTransit|armStandupShaderBurst/);
+assert.match(rnsSrc,/PERIOD_HEAVY_REFRESH_ENABLED/);
+assert.match(rnsSrc,/if\(!PERIOD_HEAVY_REFRESH_ENABLED\)return/);
+assert.match(rnsSrc,/PERIOD_HEAVY_REFRESH_ENABLED&&\(this\.lens==='MapExplore'/);
+assert.match(rnsSrc,/timedOut=PERIOD_HEAVY_REFRESH_ENABLED/);
+assert.match(wfcSrc,/PERIOD_HEAVY_REFRESH_ENABLED/);
+assert.match(wfcSrc,/if\(!PERIOD_HEAVY_REFRESH_ENABLED\)return this\.orbitBoxes/);
+assert.match(wfcSrc,/PERIOD_HEAVY_REFRESH_ENABLED&&Date\.now\(\)-this\.lastDiagnosticAt>=5000/);
+
 assert.match(warmSrc,/windowOpen/);
 assert.match(warmSrc,/openStandupWarmWindow/);
 assert.match(warmSrc,/closeStandupWarmWindow/);
@@ -309,6 +326,22 @@ assert.equal(wSit.seat_bake_sit_0,1);
 assert.equal(wSit.sit_drape,1);
 assert.ok(!Object.prototype.hasOwnProperty.call(motion.morphActiveTargets(cfg,sitPlan,0),'task21_walk_layer_gap'));
 
+
+/* PeriodHeavyRefresh runtime: default OFF + manual ON kill-switch */
+const phrMod=new (module.constructor)();
+phrMod.paths=module.paths;
+phrMod._compile(tx(phrSrc),path.join(S,'region/PeriodHeavyRefresh.ts'));
+const PHR=phrMod.exports;
+assert.equal(PHR.PERIOD_HEAVY_REFRESH_ENABLED,false,'period heavy default OFF');
+PHR.setPeriodHeavyRefreshEnabled(true);
+assert.equal(PHR.PERIOD_HEAVY_REFRESH_ENABLED,true,'manual ON works');
+PHR.setPeriodHeavyRefreshEnabled(false);
+assert.equal(PHR.PERIOD_HEAVY_REFRESH_ENABLED,false,'manual OFF restore');
+const periodHeavyRefreshDefaultOff=true;
+const periodHeavyRefreshManualOnWorks=true;
+const periodHeavyRefreshGates=true;
+
+
 const out={
   status:'PASS',
   gate:'morph-drive-fps+standup-window',
@@ -328,7 +361,10 @@ const out={
   morphIdleDriveDefaultOff:true,
   morphIdleHardUnload:true,
   morphIdleManualOnWorks:true,
-  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B Morph idle-drive DEFAULT OFF (seat window still drives)',
-  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL GPU morph gate kept; StandupProgramWarm DEFAULT OFF; Morph idle-drive DEFAULT OFF (hardUnload outside sit/stand)',
+  periodHeavyRefreshDefaultOff:true,
+  periodHeavyRefreshManualOnWorks:true,
+  periodHeavyRefreshGates:true,
+  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B period-heavy refresh DEFAULT OFF (orbit AABB / sector / markers / tick)',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; Morph GPU gate + warm OFF + Morph idle OFF kept; PeriodHeavyRefresh DEFAULT OFF',
 };
 console.log(JSON.stringify(out,null,1));
