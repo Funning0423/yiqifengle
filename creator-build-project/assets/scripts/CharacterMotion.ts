@@ -472,21 +472,30 @@ export function restAheadFromRoutes(routes:any,chains?:ReadonlyArray<ReadonlyArr
 
 /* ---------------- morph targets (blend shapes) ---------------- */
 function curveAt(cfg:MotionConfig,clip:string,target:string,time:number):number {const m=cfg.clips[clip];const c=m&&m.morph&&m.morph.curves[target];return c&&c.length?piecewise(c,time):0;}
-/** Per-target weights for this frame, the same blend as the pose:
- *   base  = curve(base clip, base time) x (1 - fade) + curve(outgoing clip, its time) x fade        (crossfade weights)
- *   layer = sum over layers (wind_flutter_loop, apron_lift) of layerWeight x curve(layer clip, layer time)
- *   clip  = base + layer;  a clip without a curve for that target contributes 0.
- *   flutter only: w = max(clip, windToMorphFlutter(windDrive))  -- MAX, not sum, so a flutter curve authored in
- *   wind_flutter_loop AND a wind mapping never double up; with only one of them it is exactly that one.
- *   Every result clamped 0..1. Targets = keys of every cfg.morphMeshes[i].targets (cfg.morphTargets when absent). */
+/** Mark morph curve names authored on a clip (active-set for sparse morphWeights). */
+function markMorphCurveNames(cfg:MotionConfig,clip:string|null|undefined,into:{[t:string]:1}):void {
+  if(!clip)return;const m=cfg.clips[clip];const curves=m&&m.morph&&m.morph.curves;if(!curves)return;
+  for(const t in curves)if(Object.prototype.hasOwnProperty.call(curves,t))into[t]=1;}
+/** Active morph target names for this frame = base/out/layer curve keys (+ flutter when wind maps).
+ *  Idle/walk only touch a few correctives; seat_bake_* stay out of the set until sit/stand. */
+export function morphActiveTargets(cfg:MotionConfig,plan:Plan,windDrive:number):{[t:string]:1} {
+  const active:{[t:string]:1}={};const b=plan.base,o=plan.out;
+  if(b)markMorphCurveNames(cfg,b.clip,active);if(o)markMorphCurveNames(cfg,o.clip,active);
+  const ls=plan.morph||[];for(let i=0;i<ls.length;i++)markMorphCurveNames(cfg,ls[i].clip,active);
+  if(cfg.windToMorphFlutter){const ww=piecewise(cfg.windToMorphFlutter,windDrive);if(ww>0)active.flutter=1;}
+  return active;}
+/** Per-target weights for this frame, the same blend as the pose — but only for the active curve set.
+ *   Inactive keys already present in `out` are zeroed once so MorphDriver can clear last/GPU.
+ *   Idle/UI/walk therefore skip ~49-slot full-table curveAt; standup/sit keep full seat drive. */
 export function morphWeights(cfg:MotionConfig,plan:Plan,windDrive:number,out?:{[target:string]:number}):{[target:string]:number} {const res=out||{};const b=plan.base,o=plan.out;
-  const bs=cfg.morphMeshes&&cfg.morphMeshes.length?cfg.morphMeshes:null;const nb=bs?bs.length:1;
-  for(let m=0;m<nb;m++){const targets=bs?bs[m].targets:cfg.morphTargets;
-  for(const t in targets){if(!Object.prototype.hasOwnProperty.call(targets,t))continue;let w=0;
+  const active=morphActiveTargets(cfg,plan,windDrive);
+  // Zero previous keys that left the active set (sit→walk clears seat_bake without full-table curveAt).
+  for(const t in res){if(!Object.prototype.hasOwnProperty.call(res,t))continue;if(!Object.prototype.hasOwnProperty.call(active,t))res[t]=0;}
+  for(const t in active){if(!Object.prototype.hasOwnProperty.call(active,t))continue;let w=0;
     if(b){const fo=o?o.weight:0;w=curveAt(cfg,b.clip,t,b.time)*(1-fo);if(o)w+=curveAt(cfg,o.clip,t,o.time)*fo;}
     const ls=plan.morph||[];for(let i=0;i<ls.length;i++)w+=ls[i].weight*curveAt(cfg,ls[i].clip,t,ls[i].time);
     if(t==='flutter'&&cfg.windToMorphFlutter){const ww=piecewise(cfg.windToMorphFlutter,windDrive);if(ww>w)w=ww;}
-    res[t]=w>0?(w<1?w:1):0;}}
+    res[t]=w>0?(w<1?w:1):0;}
   return res;}
 /** Structural subset of Cocos MeshRenderer / SkinnedMeshRenderer (3.8.8: setWeight(weight, subMeshIndex, shapeIndex)). */
 export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:boolean;setWeight(weight:number,subMeshIndex:number,shapeIndex:number):void};
@@ -512,16 +521,32 @@ export class MorphDriver {
       for(let i=0;i<subs.length;i++){const n=subs[i]&&subs[i].targets?subs[i].targets.length:0;this.targetCounts.push(n);if(n>=this.need&&n>0)this.subMeshes.push(i);}
       if(!this.subMeshes.length){this.status='too-few-targets';this.reason='need '+this.need+' targets, sub-meshes have '+this.targetCounts.join(',');return this.status;}
       this.renderer=r;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
+  /** GPU morph gate: when all tip weights are ~0, unload MeshRenderer.enableMorph so COUNT16/15/3
+   *  shaders stop evaluating zero targets during idle/UI/walk. Re-enable before the next non-zero write.
+   *  Does not change status (bind-time enableMorph=false still → morph-disabled). */
+  private syncGpuGate(needOn:boolean):void {const r=this.renderer;if(!r||this.status!=='ok')return;
+    try{if(needOn){if(r.enableMorph===false)r.enableMorph=true;}else if(r.enableMorph!==false)r.enableMorph=false;}catch{/* best-effort */}}
+  /** True when any bound tip still has last weight > MORPH_EPS (seat→walk may still be decaying). */
+  private anyLiveLast():boolean {for(const t in this.last){if(!Object.prototype.hasOwnProperty.call(this.last,t))continue;const v=this.last[t];if(v!==undefined&&v>MORPH_EPS)return true;}return false;}
   /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made.
    *  角色动画bot STANDUP-PERF #4：仅在 |Δw|>MORPH_EPS（或触及精确 0/1）时 setWeight；起身段无整表清零重写、不重置 last。
-   *  maxCalls（可选）：起身首几帧软限流，未写完的 target 留待下帧（不清 last）。 */
-  apply(w:{[target:string]:number},maxCalls?:number):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;let n=0;const cap=maxCalls!==undefined&&maxCalls>=0?maxCalls|0:-1;
+   *  maxCalls（可选）：起身首几帧软限流，未写完的 target 留待下帧（不清 last）。
+   *  FPS：all-zero mesh → early return + enableMorph=false（DRESS/BOW idle/walk 卸 COUNT）；起身窗非零 → 再打开。 */
+  apply(w:{[target:string]:number},maxCalls?:number):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;
+    let incomingLive=false;
+    for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;if(v>MORPH_EPS){incomingLive=true;break;}}
+    // Re-enable before any non-zero / decaying write. First all-zero establish still runs (last undefined → setWeight 0).
+    if(incomingLive||this.anyLiveLast())this.syncGpuGate(true);
+    let n=0;const cap=maxCalls!==undefined&&maxCalls>=0?maxCalls|0:-1;
     for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;this.weights[t]=v;const prev=this.last[t];
       if(prev!==undefined&&!(Math.abs(v-prev)>MORPH_EPS)&&!((v===0||v===1)&&v!==prev))continue;
       if(cap>=0&&n+this.subMeshes.length>cap)break; // leave whole target for next frame (no partial sub-mesh write)
       try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(v,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=v;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
-    this.calls+=n;return n;}
-  diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls};}
+    this.calls+=n;
+    // After writes: every tip ~0 → unload GPU morph (DRESS/BOW idle/walk drop COUNT15/3).
+    if(!this.anyLiveLast())this.syncGpuGate(false);
+    return n;}
+  diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls,enableMorph:this.renderer?this.renderer.enableMorph:undefined};}
 }
 
 /** Post-blend, world-space rigid sole contacts. Controller travel/yaw is already written before this solve.

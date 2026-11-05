@@ -39,21 +39,29 @@ assert.doesNotMatch(tswSrc,/armStandupProgramWarm/);
 assert.doesNotMatch(tswSrc,/\barmStandupShaderBurst\s*\(|export\s+function\s+armStandupShaderBurst/);
 assert.doesNotMatch(tswSrc,/warmSampleStandUp/);
 
-/* Boot wires standalone warm; still no TSW burst; warmSample stays off bindVisual */
-assert.match(bootSrc,/armStandupProgramWarm/);
+/* Boot wires sit_hold window gate; still no TSW burst; warmSample stays off bindVisual */
+assert.match(bootSrc,/openStandupWarmWindow/);
+assert.match(bootSrc,/closeStandupWarmWindow/);
+assert.match(bootSrc,/standupWarmWindowOpen/);
 assert.match(bootSrc,/stepStandupProgramWarm/);
 assert.match(bootSrc,/flushStandupProgramWarmBeforeStand/);
 assert.match(bootSrc,/standupMorphBudgetLeft/);
 assert.doesNotMatch(bootSrc,/\barmStandupShaderBurst\s*\(/);
 const bindSnip=bootSrc.slice(bootSrc.indexOf('bindVisual(visual:Node)'),bootSrc.indexOf('private requireClip'));
 assert.doesNotMatch(bindSnip,/warmSampleStandUp/,'warmSample must NOT run in bindVisual');
-assert.match(bindSnip,/armStandupProgramWarm/);
-assert.doesNotMatch(balloonSrc,/StandupProgramWarm|armStandupProgramWarm|warmSampleStandUp/);
+assert.match(bindSnip,/openStandupWarmWindow/);
+assert.doesNotMatch(balloonSrc,/StandupProgramWarm|armStandupProgramWarm|openStandupWarmWindow|warmSampleStandUp/);
 
-/* MorphDriver budget API */
+/* MorphDriver budget + sparse morphWeights + GPU enableMorph gate */
 assert.match(cmSrc,/apply\(w:\{\[target:string\]:number\},maxCalls\?:number\)/);
 assert.match(cmSrc,/起身段无整表清零重写/);
 assert.match(cmSrc,/MORPH_EPS/);
+assert.match(cmSrc,/morphActiveTargets/);
+assert.match(cmSrc,/syncGpuGate/);
+assert.match(cmSrc,/enableMorph/);
+assert.match(warmSrc,/windowOpen/);
+assert.match(warmSrc,/openStandupWarmWindow/);
+assert.match(warmSrc,/closeStandupWarmWindow/);
 
 /* Load module under mock cc */
 const fakeDirector={getScene:()=>null,root:{device:{id:'mock-device'},pipeline:{macros:{}}}};
@@ -98,10 +106,22 @@ assert.ok(syn.every(j=>j.defines.CC_USE_SKINNING&&j.defines.CC_USE_MORPH));
 assert.ok(syn.every(j=>[16,15,3].includes(Number(j.defines.CC_MORPH_TARGET_COUNT))));
 assert.ok(!syn.some(j=>Number(j.defines.CC_MORPH_TARGET_COUNT)===53||Number(j.defines.CC_MORPH_TARGET_COUNT)===73),'must NOT warm legacy 53/73');
 
-const arm=W.armStandupProgramWarm(null);
+/* arm alone does NOT open window — step must no-op (walk/UI leak guard) */
+const armedOnly=W.armStandupProgramWarm(null);
+assert.equal(armedOnly.armed,true);
+assert.equal(armedOnly.windowOpen,false);
+assert.equal(armedOnly.bagReady,true);
+assert.equal(armedOnly.count53,false);
+const leakCalls=fakeLib.calls.length;
+const noop=W.stepStandupProgramWarm(W.STANDUP_WARM_PER_FRAME);
+assert.equal(noop.warmed,0,'step without window must not compile');
+assert.equal(fakeLib.calls.length,leakCalls,'no getProgramVariant outside sit_hold window');
+
+/* open window → multi-frame spread */
+const arm=W.openStandupWarmWindow(null);
 assert.equal(arm.armed,true);
+assert.equal(arm.windowOpen,true);
 assert.equal(arm.bagReady,true);
-assert.equal(arm.count53,false);
 assert.ok(arm.pending>=8);
 
 const per=W.STANDUP_WARM_PER_FRAME;
@@ -122,15 +142,26 @@ assert.ok(fakeLib.calls.some(c=>Number(c.defines.CC_MORPH_TARGET_COUNT)===15));
 assert.ok(fakeLib.calls.some(c=>c.defines.CC_USE_SKINNING===true&&c.defines.CC_USE_MORPH===true));
 assert.ok(!fakeLib.calls.some(c=>Number(c.defines.CC_MORPH_TARGET_COUNT)===53));
 
-/* flush before stand only takes a couple */
+/* close → disarm; further step no-op */
+W.closeStandupWarmWindow();
+const closed=W.standupProgramWarmStats();
+assert.equal(closed.windowOpen,false);
+assert.equal(closed.armed,false);
+assert.equal(closed.pending,0);
+const afterCloseCalls=fakeLib.calls.length;
+W.stepStandupProgramWarm(per);
+assert.equal(fakeLib.calls.length,afterCloseCalls);
+
+/* flush before stand only takes a couple (force-opens window) */
 W.resetStandupProgramWarm();
-W.armStandupProgramWarm(null);
+W.armStandupProgramWarm(null); // armed but window closed
 const before=fakeLib.calls.length;
 const fl=W.flushStandupProgramWarmBeforeStand(2);
 assert.ok(fl.warmed<=2);
 assert.ok(fakeLib.calls.length-before<=2);
+assert.equal(fl.windowOpen,true);
 
-/* MorphDriver maxCalls */
+/* MorphDriver maxCalls + GPU gate */
 const motion={};
 vm.runInNewContext(tx(fs.readFileSync(path.join(S,'CharacterMotion.ts'),'utf8')),{exports:motion,Math,Float64Array,RegExp,Object,Array,String,Number,isFinite,Error});
 const targets={a:0,b:1,c:2,d:3,e:4,f:5};
@@ -142,12 +173,39 @@ assert.equal(md.bind([renderer]),'ok');
 const n1=md.apply({a:1,b:1,c:1,d:1,e:1,f:1},2);
 assert.equal(n1,2,'budget 2 → 2 setWeight');
 assert.equal(calls.length,2);
+assert.equal(renderer.enableMorph,true,'live weights keep enableMorph');
 const n2=md.apply({a:1,b:1,c:1,d:1,e:1,f:1},4);
 assert.ok(n2>=1&&calls.length<=6);
+// drain remaining then zero → GPU unload
+md.apply({a:1,b:1,c:1,d:1,e:1,f:1});
+md.apply({a:0,b:0,c:0,d:0,e:0,f:0});
+assert.equal(renderer.enableMorph,false,'all-zero tips unload enableMorph (idle/walk DRESS/BOW)');
+md.apply({a:0.5,b:0,c:0,d:0,e:0,f:0});
+assert.equal(renderer.enableMorph,true,'non-zero re-enables before setWeight (standup window)');
+
+/* sparse morphWeights: walk only evaluates active curves, not full tip table */
+const cfg=motion.defaultMotionConfig();
+cfg.morphMeshes=[{mesh:'LOD0_G2_APRON',targets:{task21_walk_layer_gap:0,seat_bake_sit_0:1,sit_drape:2}},
+  {mesh:'LOD0_G2_DRESS',targets:{seat_bake_sit_0:0,sit_drape:1,cloth_envelope_stand_up_0:2}}];
+cfg.clips.walk_loop=Object.assign({},cfg.clips.walk_loop||{},{morph:{curves:{task21_walk_layer_gap:[[0,0.4],[1,0.4]]}}});
+cfg.clips.sit_hold=Object.assign({},cfg.clips.sit_hold||{},{morph:{curves:{seat_bake_sit_0:[[0,1],[1,1]],sit_drape:[[0,1],[1,1]]}}});
+const walkPlan={base:{clip:'walk_loop',time:0.2,loop:true},out:null,layers:[],morph:[]};
+const active=motion.morphActiveTargets(cfg,walkPlan,0);
+assert.deepEqual(Object.keys(active).sort(),['task21_walk_layer_gap']);
+const bag={seat_bake_sit_0:1,sit_drape:1,task21_walk_layer_gap:0}; // leftover from sit
+const wWalk=motion.morphWeights(cfg,walkPlan,0,bag);
+assert.equal(wWalk.task21_walk_layer_gap,0.4);
+assert.equal(wWalk.seat_bake_sit_0,0,'sit leftovers zeroed without curveAt');
+assert.equal(wWalk.sit_drape,0);
+const sitPlan={base:{clip:'sit_hold',time:0,loop:true},out:null,layers:[],morph:[]};
+const wSit=motion.morphWeights(cfg,sitPlan,0,{});
+assert.equal(wSit.seat_bake_sit_0,1);
+assert.equal(wSit.sit_drape,1);
+assert.ok(!Object.prototype.hasOwnProperty.call(motion.morphActiveTargets(cfg,sitPlan,0),'task21_walk_layer_gap'));
 
 const out={
   status:'PASS',
-  gate:'standup-program-warm-count16-15',
+  gate:'morph-drive-fps+standup-window',
   isolation:{TransitionShaderWarm:false,armStandupShaderBurst:false,BalloonTransit:false},
   bag:{APRON:16,DRESS:15,BODY:15,BOW:3,unique:[...W.STANDUP_MORPH_COUNTS]},
   synthetic:syn.length,
@@ -155,8 +213,11 @@ const out={
   spreadSteps:steps,
   warmed:after.warmed,
   libCalls:fakeLib.calls.length,
+  windowGate:{armNoStep:true,closeDisarm:true},
   morphBudget:{first:n1,second:n2,totalCalls:calls.length},
-  acceptance:'standup feel — NOT setCamera/board=0 veto',
-  stackNote:'pairs with COUNT16/15 GLB + formal anim_meta (6fd22962 / 6bd40657); no legacy COUNT53/73 warm',
+  morphSparse:{walkActive:Object.keys(active),sitSeat:true},
+  gpuGate:{unloadOnZero:true,reloadOnLive:true},
+  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; sparse morphWeights + enableMorph gate; StandupProgramWarm sit_hold window',
 };
 console.log(JSON.stringify(out,null,1));
