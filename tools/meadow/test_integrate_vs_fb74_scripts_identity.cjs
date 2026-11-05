@@ -5,6 +5,8 @@
  * WorldIntegrationBoot / RegionJourneyAdapter / CharacterMotion / StandupProgramWarm.ts.
  * Do NOT peel BalloonTransit / black-fence / K.s1. Do NOT put warmSample into
  * TransitionShaderWarm / SkycityBoard* / BalloonTransit.
+ * 2026-11-05: TransitionShaderWarm is INTENTIONALLY peeled (default OFF kill-switch for period stutter A/B).
+ * BalloonTransit / SkycityBoard* stay LOCK_SAME; TSW hold/note APIs remain callable empty when OFF.
  */
 const { execSync } = require('child_process');
 const PASS = 'fb74d437d96d1201f597b36f669b22115988077d';
@@ -15,8 +17,10 @@ const LOCK_SAME = [
   'creator-build-project/assets/scripts/region/SailPreload.ts',
   'creator-build-project/assets/scripts/region/SkycityBoardLive.ts',
   'creator-build-project/assets/scripts/region/SkycityBoardBackground.ts',
-  'creator-build-project/assets/scripts/region/TransitionShaderWarm.ts',
 ];
+/* 2026-11-05 TSW tip: TransitionShaderWarm intentionally DIFF vs fb74 (default OFF kill-switch). Not zero-intrusion. */
+const LOCK_TSW_PEEL='creator-build-project/assets/scripts/region/TransitionShaderWarm.ts';
+
 const STANDUP_ALLOWED = [
   'creator-build-project/assets/scripts/WorldIntegrationBoot.ts',
   'creator-build-project/assets/scripts/CharacterMotion.ts',
@@ -53,6 +57,23 @@ for (const f of LOCK_SAME) {
     failed++;
   } else {
     console.log(`SAME ${f}`);
+  }
+}
+/* TSW peel: must DIFF vs fb74 and carry default-OFF kill-switch */
+{
+  const f = LOCK_TSW_PEEL;
+  const passBlob = revParse(`${PASS}:${f}`);
+  let cur = null;
+  try { cur = execSync(`git hash-object ${f}`, { encoding: 'utf8' }).trim(); } catch { cur = revParse(`HEAD:${f}`); }
+  const body = require('fs').readFileSync(f, 'utf8');
+  if (!/TRANSITION_SHADER_WARM_ENABLED\s*=\s*false/.test(body) || !/setTransitionShaderWarmEnabled/.test(body)) {
+    console.error('TSW peel missing default-OFF kill-switch');
+    failed++;
+  } else if (passBlob && cur && passBlob === cur) {
+    console.error('TSW peel expected DIFF vs fb74 but SAME');
+    failed++;
+  } else {
+    console.log(`PEEL OK ${f} (intentional DIFF + default OFF)`);
   }
 }
 const warmHits = execSync(
@@ -129,4 +150,4 @@ if (failed) {
   console.error(`FAIL ${failed}`);
   process.exit(1);
 }
-console.log('PASS Strategy C: transition/board/balloon == fb74; standup warmSample isolated');
+console.log('PASS Strategy C: board/balloon == fb74; TSW peeled default OFF; standup warmSample isolated');

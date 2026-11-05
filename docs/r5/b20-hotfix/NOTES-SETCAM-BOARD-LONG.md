@@ -139,3 +139,12 @@ Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insu
 - 读法：周期 stutter 消失 → Morph 有贡献；仍在 → Morph 非主因 → timer/GC/sync 或剥 FAT（标明拆对）。
 - upload=等 PM。
 
+
+
+## 2026-11-05 · TransitionShaderWarm 默认 OFF（周期整机 stutter A/B · 本刀）
+
+PM 深挖：五轮零侵入 TSW 均无改善；流畅基线 `0421cfff` **无** TSW；live tip 仍 `director_after_draw` 常驻；COUNT16 在线但 `CRITICAL_CACHE_NEEDLES` 仍等 COUNT53/73 → `needlesMissing` 永久>0 → `criticalPending` 永不归零 → 每帧 compile + 每10帧 absorb。对得上「整机周期卡、起身仍顺」。
+
+本 tip：`TRANSITION_SHADER_WARM_ENABLED=false`；`setTransitionShaderWarmEnabled` 回滚；hold/note/arm 空转保 BalloonTransit/Board。**故意动 TSW（不再零侵入）**。COUNT16↔FAT 降为失败后 #2（回 FAT 更可能伤起身而非消周期）。
+
+验收：周期 stutter 消 → TSW 命中；仍在 → 再 COUNT16↔FAT。不追 setCamera/board=0。upload=等 PM。

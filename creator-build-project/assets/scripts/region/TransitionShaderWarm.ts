@@ -11,6 +11,14 @@ import {MEADOW_WARM_BUDGET_MS,kickCompiledPass,meadowWarmPlan} from './MeadowSai
  *  Departure shadow bags miss that key. Also tries>12 critical stayed !cached → criticalPending 300–680 forever and
  *  every frame recompiled Invalid reflect-map during board-bg (490ms/0 shaders). Fix: warm unlit/planar live macros;
  *  exhaust critical after tries; skip warm for a few heavy board/reveal frames. */
+/** A/B (2026-11-05): TransitionShaderWarm director_after_draw is the #1 period whole-UI stutter suspect
+ *  (feel-control 0421cfff had no TSW / smooth; live COUNT16 but CRITICAL_CACHE_NEEDLES still waits COUNT53/73
+ *  → needlesMissing forever → criticalPending never 0 → every-frame compile + SCAN_EVERY=10 absorb).
+ *  Default false: begin/watch/onFrame/absorb/compile no-op; hold/note/arm APIs stay callable but empty
+ *  (BalloonTransit / Board / Sail / sea-landing callers do not throw).
+ *  setTransitionShaderWarmEnabled(true) restores prior warm for rollback (then begin/watch again).
+ *  This tip intentionally peels TSW — not "zero intrusion". COUNT16↔FAT is #2 only if OFF fails. */
+export let TRANSITION_SHADER_WARM_ENABLED=false;
 export const MAC_MORPH_COUNTS:readonly number[]=[53,16,3,73];
 /** Exact pipeline macros on every Mac createShader name at meadow→skycity animateCamera frame 1803.
  *  0 is omitted from the program key, so a boot compile that only writes PCF still misses SHADOWMAP_FORMAT / LINEAR_DEPTH. */
@@ -354,6 +362,7 @@ function absorb():void{
   for(let i=hot.length-1;i>=0;i--)enqueueAt(hot[i],true);
   for(let i=0;i<cold.length;i++)enqueueAt(cold[i],false);}}
 function onFrame():void{
+ if(!TRANSITION_SHADER_WARM_ENABLED)return;
  frames++;
  // Bridge hold (B5→board / prime): countdown on after_draw; absorb still runs so city materials enqueue without compile.
  if(armHoldArmed){if(armHoldLeft>0)armHoldLeft--;if(armHoldLeft<=0){armHoldArmed=false;holdTransitionShaders(false);}}
@@ -386,19 +395,25 @@ function onFrame():void{
  if(crit&&frames%60===0){try{console.info('[QF_SHADER_WARM] '+JSON.stringify({compiled,frames,sailSkips,pending,criticalPending:crit,cached:cachedNames.length}));}catch{/* log only */}}}
 /** Idempotent. No frame clock → the sail path stays as it is. Never blocks the caller. */
 export function beginTransitionShaderWarm():void{
+ if(!TRANSITION_SHADER_WARM_ENABLED)return;
  if(listening)return;const d:any=director;if(!d||typeof d.on!=='function'||typeof d.off!=='function')return;listening=true;
  d.on('director_after_draw',onFrame);off=()=>{try{d.off('director_after_draw',onFrame);}catch{/* already */}};}
-export function watchTransitionRoot(node:Node|null):void{beginTransitionShaderWarm();remember(node);absorb();}
+export function watchTransitionRoot(node:Node|null):void{if(!TRANSITION_SHADER_WARM_ENABLED)return;beginTransitionShaderWarm();remember(node);absorb();}
 /** The next warm step (sail set-off) kicks and compiles nothing. */
-export function noteTransitionSailFrame():void{skipNext=true;}
+export function noteTransitionSailFrame():void{if(!TRANSITION_SHADER_WARM_ENABLED)return;skipNext=true;}
 /** Skip warm compiles for the next n after_draw frames (board reveal / setCamera heavy window). */
-export function noteTransitionHeavyFrames(n:number=3):void{if(n>skipLeft)skipLeft=n|0;}
+export function noteTransitionHeavyFrames(n:number=3):void{if(!TRANSITION_SHADER_WARM_ENABLED)return;if(n>skipLeft)skipLeft=n|0;}
 export function transitionWarmStats():TransitionWarmStats{return {frames,sailSkips,kicked,compiled,pending:Math.max(0,jobs.length-compiled),criticalPending:criticalPending(),maxFrameMs,done:jobs.length>0&&compiled>=jobs.length&&criticalPending()===0};}
 /** Test hook. Production does not call this from the camera. */
-export function holdTransitionShaders(on:boolean):void{if(on)holdDepth++;else if(holdDepth>0)holdDepth--;held=holdDepth>0;}
+export function holdTransitionShaders(on:boolean):void{if(!TRANSITION_SHADER_WARM_ENABLED)return;if(on)holdDepth++;else if(holdDepth>0)holdDepth--;held=holdDepth>0;}
 /** Hold warm compiles for n after_draw frames (refcount). Use to bridge B5→board without a compile window. */
 export function armTransitionHold(n:number=12):void{
+ if(!TRANSITION_SHADER_WARM_ENABLED)return;
  const want=n|0;if(want<=0)return;if(want>armHoldLeft)armHoldLeft=want;
  if(armHoldArmed)return;armHoldArmed=true;holdTransitionShaders(true);}
 export function cachedWarmNames():string[]{const out:string[]=[];for(let i=0;i<cachedNames.length;i++)out.push(cachedNames[i]);return out;}
+export function setTransitionShaderWarmEnabled(on:boolean):void{
+ TRANSITION_SHADER_WARM_ENABLED=!!on;
+ if(!on)resetTransitionShaderWarm();
+}
 export function resetTransitionShaderWarm():void{if(off){const f=off;off=null;f();}roots.length=0;jobs.length=0;seen.length=0;cachedNames.length=0;kicked=0;compiled=0;frames=0;sailSkips=0;maxFrameMs=0;skipNext=false;skipLeft=0;held=false;holdDepth=0;armHoldLeft=0;armHoldArmed=false;scanIn=0;listening=false;logged=false;}
