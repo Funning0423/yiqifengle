@@ -349,3 +349,10 @@ export function lakesideSceneInstances(instances: readonly LakesideInstance[]): 
  *  always suffixed (`_i`, `_i.001`, `LK_tree_mid_*`…), so an instance whose name equals its GLB basename is a template. */
 export function isLakesideAssetTemplate(i: LakesideInstance): boolean { return !!i && i.name === lakesidePrefabName(i.glb); }
 export function lakesidePrefabName(glb: string): string { return String(glb).replace(/\.glb$/i, ''); }
+
+/** Camera / UI kit flag (运镜bot cine/lakeside-board-cam-fix). Read by LakesideCameraLayout to pick fusion mild-overhead
+ *  vs b18 tray sightseeing lens. Default false (= kit OFF sightseeing). GGbot owns preload ordering + instance keep/skip;
+ *  this tip does NOT change lakesideSceneInstances filtering. */
+let lakesideKitAssetsOn = false;
+export function setLakesideKitAssets(on: boolean): void { lakesideKitAssetsOn = !!on; }
+export function lakesideKitAssetsEnabled(): boolean { return lakesideKitAssetsOn; }

@@ -1,125 +1,82 @@
-# HANDOFF — 咦 起风了 (QIFENGLE) / release-b20
+# HANDOFF — cine/lakeside-board-cam-fix（湖畔进盘轻俯视相机）
 
-## Mac LONG+RT integrate tip (2026-11-02 / Funning)
+**日期**：2026-11-05（America/New_York）  
+**分支**：`cine/lakeside-board-cam-fix`  
+**基线**：`gbt/r5-b20-integrate-landing-visual-bg2` @ `6bd40657`  
+**验收前**：不推 GitHub、不传微信。可 bundle。  
+**范围**：仅运镜（portrait 双机位 + kit flag 切换）。**零碰** TSW / morph / 气球 tip / kit 实例过滤与 preload 竞态（空盘资产挂载归 GGbot，见 PM `work/pm/lakeside-empty-on-trial-20261105.md` §2.1 / §4.1）。
 
-- Integrate tip: `cbcad31a` = merge of ggbot tip `9cd4820a` / feature `04d62636` (Object.assign wrap + full spike bag) onto `gbt/r5-b20-integrate-landing-visual-bg2`.
-- Prior FAIL: `8e93c02b` animateCamera LONG 772ms / 70 shaders (pending=0 alone not enough).
-- Root cause fix: Pass.tryCompile/getShaderVariant keys via programLib.getProgramVariant after Object.assign(pipeline.macros); wrap so live programProxies get FOG4/cascaded/HDR/SHADOWMAP_*/PCF2/SHADOW_TYPE2; count cached only when shader name contains those tokens.
-- Mac retest: STRIP_PROBES=0 wechat-release, gates LONG+landing from2+board-bg; upload=no; live stays 1.0.202611020627.
+---
 
-Release branch: `ggbot/release-b20` (= `ggbot/b20-meadow-ab` @ 93607a48 + this file). Suite on 93607a48: 365/366 PASS, the only miss is navigation-guard BLOCKED_BROWSER. journal-r6 (bc09aac1) was NOT merged: 13 conflicting files (JourneyPanels.ts, PreTransition*, run-suite.cjs, build-guard scripts, manifests...). It needs a separate merge.
+## 1. 改了啥
 
-## Build 构建
-- Cocos Creator 3.8.8 (Mac): `~/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app`
-- Production upload: only via `FORMAL_RELEASE=1 tools/build-guard/build-production-upload.sh`. Do not use any other path.
-- Preview flavor (device QR): see `PREVIEW_BUILD.md` (on the journal-r6 branch).
-- Bans: wx.login / wx.authorize, isRemoteBundle / CDN. Free assets only.
+### 根因（PM §2.2）
+- 不是「没进盘相机」：`LakesideBoardBackground.frame()` 已 `applyCameraPose(lakesideAlignedBoardPose)`。
+- portrait 机位本身是 b18 **岸边观光镜** `[2,6,33]→[.5,.7,2]`（≈22 m、俯角 ~−10°）——与 Funning 空盘坏样一致；样板要**带一点俯视、盘面可点**。
 
-## Upload to WeChat 上传
-- Production uploads go ONLY through `FORMAL_RELEASE=1 bash tools/build-guard/build-production-upload.sh`. What the script does:
-  1. It refuses without FORMAL_RELEASE=1.
-  2. It requires STRIP_PROBES=1 and the target `wechat`.
-  3. It runs `build-wechat-guarded.sh wechat` with FORMAL_RELEASE=1 STRIP_PROBES=1.
-  4. It checks that the output `creator-build-project/build/wechat-release` exists.
-  5. It runs `release-gates.cjs --probe-free` and `--formal-free` on that output (no probe code, no qfPre/__qfPreTransition).
-  6. It prints `PRODUCTION UPLOAD READY`.
-- **The script does NOT upload.** After it prints READY, the tester runs the upload by hand:
-  `cli upload --project <repo>/creator-build-project/build/wechat-release -v 1.0.<YYYYMMDDHHmm> -d "ggbot/release-b20@<sha>"`
-- Version format: `1.0.<YYYYMMDDHHmm>` (e.g. 1.0.202611011200).
-- The tester runs this on the Mac after the slim acceptance passes, under the Mac idle and lock rules below.
-- Trial uploads (体验版) use `build-wechat-guarded.sh` with the default FORMAL_RELEASE=0.
-- Once the tester reports them, the uploaded version number and SHA will be recorded in the GitHub issue 'Handoff: current status'.
+### 改法（PM §4.2）
+1. **保留两套 authored lens**（勿毁掉 kit OFF 观光镜）  
+   - `board.portrait` = b18 观光（kit OFF / 2D tray 路径：托盘下仍见南岸人物/桥）  
+   - `board.portraitFusion` = 轻俯视近景（kit ON）：`main [0,9.5,23]→[0,.15,10] fov 50` ≈ **−36°**；`short [0,10.2,24]→[0,.1,10] fov 50`
+2. **`lakesidePortraitLens` / `lakesideAlignedLookAt` / `lakesideAlignedBoardPose` / `lakesideScreenLanding` / `lakesideLandingBlend`** 全部经 `lakesidePortraitLens` → 当 `lakesideKitAssetsEnabled()` 为 true 用 fusion，否则观光。旅程终点与 lease.frame **同一 pose**（零缝）。
+3. **`LakesideSceneData`**：仅追加 `setLakesideKitAssets` / `lakesideKitAssetsEnabled`（默认 `false`）。**未改** `lakesideSceneInstances` 过滤（GGbot 负责竞态 + keep pieces / RING/SHD）。
+4. **`FreeOrbit` lakeside `pitchMaxDeg` 54→66**：仅使 kit-ON fusion 镜相对角色 look point（~63.6°）能 `seed` 零夹；kit OFF 观光仍 ≪ 54。
 
-## Tests 测试
-```
-QF_TYPESCRIPT_MODULE=/workspace/wt/ts5/node_modules/typescript DRACO3D=/workspace/wt/draco3d/node_modules/draco3d npx -y node@22 tools/journey-integration/run-suite.cjs
-```
-It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard). Never loosen thresholds. Don't commit suite report files.
-
-## Size budgets 包体
-- total ≤ 24,641,536 B
-- main package ≤ 4,000,000 B
-- coast subpackage ≤ 943,718 B
-
-## Open issues 未结问题
-1. **env_meadow shader compile stall**: warm-up C is on `ggbot/b20-meadow-c-skycity-rt`. See `docs/r5/b20-hotfix/INTEGRATE.md`. The offline cost model is ≤0.75 ms/frame and the sail frame compiles nothing. Mac still measures real frame time.
-2. **Lake freeze (fc3123fa)**: not confirmed on the Mac. fin r7/r8 are pending. Likely a DevTools host stall, but this is unproven.
-3. **DevTools simfail race**: a getBuilder race inside DevTools. R1 detect-and-retry is in `outbox/20261101-simfail/LAUNCH_FIX.md`. Tester results: E1 3/4, E2 2/4, and every failure carries the race signature. The 6-launch verification is pending.
-
-## Mac DevTools steps + R1 launch retry
-- Only the tester runs Mac steps; Grok Bot schedules them. Run DevTools or `cli open` only when HID idle is ≥600 s AND no display-sleep assertion is held AND no video app is in front, OR the screen is locked. Re-check before every launch and stop on any input. Never touch the mouse.
-- Free disk must be ≥8.5 GiB (≥9 GiB for builds). Take `.build.lock`. Only ONE DevTools window ever, and never alongside Creator. Clean up build, cache and test files promptly.
-- Harness: tools/wx-autoplay/qf-autoplay.js (cdpK22b helper) drives the simulator.
-- **R1 (from LAUNCH_FIX.md)**: DevTools sometimes loses the getBuilder race inside DevTools (simulatorType unserialized), so after `cli open` there is no game target. If no game target shows up within the launch window, close that project and run `cli open` again (one bounded retry). Log `startedByCLI`. This does not loosen any timeout.
-
-## Team rules 团队规则
-- Acceptance: 0 FAIL except BLOCKED_BROWSER. Never loosen thresholds or timeouts. Fix root causes; "passes alone" is not a waiver. No loading screens or masks. Don't change walking speed. Never delete content. Size budgets above.
-- Frozen files (any diff needs a `.diff.PROPOSED` approved first): WorldIntegrationBoot.ts, ScreenCover.ts, the reviewed controllers, WorldFlowCore, RegionJourneyCore, CharacterMotion.ts, WNC/WFC, loadHomeSeated, StaticSeatedPreview.
-- Git: work on your own new branch. No force, amend, reset or stash, and don't edit .git/config. Every delivery comes with a SHA plus video or screenshots. Funning accepts. Never hand-write .meta files; regenerate manifests with the repo tools.
-- wx.login / wx.authorize are banned. Free assets only. No CDN / isRemoteBundle.
-
-## Evidence (box paths, not on GitHub)
-- simfail: /workspace/qifengle/test-reports/20261101_simfail-evidence/E-table.md, startedByCLI-grep.txt
-- meadow/lake: team/ggbot/outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md
-- Meadow warm-up C passed on Mac `ced9972f`. Integrate tips through `8e93c02b` kept landing from2 0/0/0 and board-bg zero 1.0. `8e93c02b` still failed `world.animateCamera` frame 1803 at 772 ms / 70 shaders after warm logged compiled=764 pending=0 criticalPending=0. That counter was a queue empty, not a live-cache hit: `getProgramVariant` Object.assign's pipeline.macros and keys the draw cache. This tip wraps Object.assign during compile so those defines get the full spike bag (FOG4 / cascaded / HDR / SHADOWMAP_FORMAT / LINEAR_DEPTH / PCF2 / SHADOW_TYPE2). criticalPending stays up until those createShader names are cached. The camera track is not awaited or held. See `docs/r5/b20-hotfix/LIVE-CACHE.md`. Do not upload.
-
-## Next steps 下一步
-1. R1 six-launch verification
-2. J7b (rerun on fcb354a9)
-3. preview / QR
-4. J8
-5. r8
-6. b20 B23 rerun
-7. meadow C
-8. preview P3s (night sun ×0.80, icon shadow)
-9. port the fin commits to coast/b20
-10. glb-skin rebake
-11. 48 legacy fails
-12. pin debt
-
-## Branches 分支
-| branch | SHA |
+### 文件
+| 文件 | 变更 |
 |---|---|
-| ggbot/release-b20 | (this commit) |
-| ggbot/b20-meadow-ab | 93607a48 |
-| ggbot/journal-r6 | bc09aac1 |
-| ggbot/journal-r6-preview-guard | fcb354a9 |
-| ggbot/p0-meadow-ab | 88833c0f |
-| ggbot/coast-meadow-ab | 35d9c4f4 |
-| ggbot/b20-sync-b23-r3 | 05c2d2ce |
-| ggbot/coast-sync-b23-r3 | 87ab6d0f |
-| ggbot/p0-shadow-churn-r3 | aa044e43 |
+| `creator-build-project/assets/scripts/region/LakesideCameraLayout.ts` | `portraitFusion` + kit 切换 |
+| `creator-build-project/assets/scripts/region/LakesideSceneData.ts` | flag getter/setter only |
+| `creator-build-project/assets/scripts/region/FreeOrbit.ts` | lakeside pitchMax 66（kit-ON seed） |
+| `tools/journey-integration/test-lakeside-camera.cjs` | K9 kit OFF/ON 双断言 |
 
 ---
 
-# Integrate tip — TransitionShaderWarm + cine + fx (stutter retest)
+## 2. 怎么验
 
-- Tip: `ed7e6f5b64693f0062d541c32346d14ed8ca0654`
-- Branch: `gbt/r5-b20-integrate-landing-visual-bg2`
-- Base: `0421cfff` (RT board-bg2 + cine sea-landing + fx black-landing)
-- Merged: `bdcb4b86` / PR #65 TransitionShaderWarm (`a2168f38` + docs tip)
-- Conflict resolution: keep always `configureMeadowVertexColors` + add warm hooks
-- Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
-- Live trial stays `1.0.202611020627` until a later PASS upload
+```bash
+cd /workspace/yiqifengle/work/cine-lakeside-board-cam
+export QF_TYPESCRIPT_MODULE=/home/box/.local/lib/node_modules/typescript   # or Mac TS path
+node tools/journey-integration/test-lakeside-camera.cjs   # 期望 PASS，含 K9 OFF + K9 ON
+node tools/lakeside/test_lakeside_reveal_orbit.cjs
+node tools/journey-integration/test-lakeside-landing-hook.cjs
+```
+
+| 断言 | 期望 |
+|---|---|
+| kit OFF | pose = `[2,6,33]→[.5,.7,2]` fov 56，pitch ≈ −9.7°；K1–K8 原观光契约 PASS |
+| kit ON | pitch ∈ [−48,−28]；盘心 `[0,0.02,12]` 进画；近格 ≥ 44 px；`lakesideLandingBlend` gap ≈ 0 |
+| FreeOrbit kit ON | seedErr ≈ 0（pitchMax 66） |
+
+**真机**（需 GGbot 先修 preload 竞态，否则仍无 3D 棋子）：trial kit 默认 ON 时进湖畔盘，构图应对齐样板骨架（轻俯视可点格），不再是南岸远看。
+
+样板：`work/pm/lakeside-fusion-sample-funning-20261105.png`  
+坏样：`work/pm/balloon-bugs-20261105/lakeside-empty-board-050927.png`
 
 ---
 
-# Integrate tip — PCF2 departure shadow warm (LONG retest)
+## 3. 证据路径
 
-- Tip: `4b3b9a8070245acb6672a23a4b512282bdceb2a1`
-- Branch: `gbt/r5-b20-integrate-landing-visual-bg2`
-- Base: `46e2c3ff` (TransitionShaderWarm + cine + fx + RT)
-- Merged: `15887835` / `b95d8555` (PCF2 shadow warm; character variants first)
-- Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
-- Live trial stays `1.0.202611020627` until a later PASS upload
+`previews/运镜bot/lakeside-board-cam/`
+- `pose-metrics-390x844.json` — kit OFF/ON 数值
+- `kitOFF-sightseeing-390x844.svg` / `kitON-fusion-mild-overhead-390x844.svg` — 投影示意
+- `SAMPLE-funning-fusion.png` / `BAD-empty-shore-far-050927.png` — 对照拷贝
+
+OFF：pitch −9.69°，dist≈21.9 m，cell≈48 px  
+ON：pitch −35.72°，dist≈14.5 m，cell≈88 px，seedErr 0
 
 ---
 
-# Integrate tip — animateCamera PCF2 program-cache fix (LONG retest)
+## 4. 已知未做
 
-- Tip: `86705fbe4a9898722afbaac86b6ca7b873917168`
-- Branch: `gbt/r5-b20-integrate-landing-visual-bg2`
-- Base: `8571f6d1` (prior PCF2 tip that FAILED Mac 611ms/70)
-- Merged: `66937792` / `de045cb6` (pipeline-bag PCF write + girl/room families before camera; no animateCamera hold)
-- Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
-- Live trial stays `1.0.202611020627` until a later PASS upload
+1. **空盘竞态（GGbot §4.1）**：preload 时 kit flag 仍 false → 无 `LK_piece_*` / RING/SHD；本 tip 零碰。
+2. **莲座 / 棋子造型 / 夜景灯笼发光**：美术 + 场景特效（PM §2.3）。
+3. **未打 Creator / 未真机截图**：仅 Node 几何 + SVG 示意；合包后需真机对样板。
+4. **未推 GitHub / 未 upload**。
+5. 与气球门/甩海 tip **分支分离**（`cine/balloon-door-dismount-fix` 勿混）。
+
+---
+
+## 5. 给 Clonebot / 停工交接
+
+本 tip 交完后小游戏开发/测试整体暂停交 Clonebot。运镜侧本项可 pause；下一包需同时含本 tip（近景镜）+ GGbot 竞态 fix 才有「有棋子的俯视近景」真机观感。
