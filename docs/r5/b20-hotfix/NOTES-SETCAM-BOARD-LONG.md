@@ -132,3 +132,10 @@ Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insu
 - 读法：起身变卡 → warm 有贡献；整机仍掉 → warm 非主因 → 剥 COUNT16/FAT 或盯 timer/GC/定期 sync/日志 flush。
 - upload=等 PM。
 
+## Morph idle-drive 默认 OFF（本轮 · 050621 A/B）
+
+- Funning `1.0.202611050621` @ c672511：warm OFF 后 **周期整机 stutter 仍在**、起身仍顺 → warm 非主因。
+- tip：`MORPH_IDLE_DRIVE_ENABLED` **默认 false**；idle/UI `hardUnload`（含 BODY）；sit/stand 仍驱动；`setMorphIdleDriveEnabled(true)` 可回滚。COUNT16+meta + GPU 闸 + warm OFF 保留；零 TSW。
+- 读法：周期 stutter 消失 → Morph 有贡献；仍在 → Morph 非主因 → timer/GC/sync 或剥 FAT（标明拆对）。
+- upload=等 PM。
+
