@@ -124,3 +124,11 @@ Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insu
 - tip：`applyRendererMorphGate`（watch / mesh-reassign STRIP + `setMorphRendering(null)`）+ `morph-gpu-gate` 日志 + StandupProgramWarm kill switch（A/B 剥 warm 保 COUNT16）。
 - 成对 e3fbce98 + 6fd22962 **未拆**；零 TSW；upload=等 PM。
 - 验收：整机 FPS + 起身；gate 用日志 `morph-gpu-gate` / diagnostics.gatePath 验证。
+
+## StandupProgramWarm 默认 OFF（本轮 · 050605 A/B）
+
+- Funning `1.0.202611050605` @ 04998c82：整机仍掉帧（**固定间隔周期 stutter**）；起身仍顺。Morph 真 GPU 闸已上。
+- tip：`STANDUP_PROGRAM_WARM_ENABLED` **默认 false**；`setStandupProgramWarmEnabled(true)` 可回滚。COUNT16+meta + GPU 闸保留；零 TSW。
+- 读法：起身变卡 → warm 有贡献；整机仍掉 → warm 非主因 → 剥 COUNT16/FAT 或盯 timer/GC/定期 sync/日志 flush。
+- upload=等 PM。
+
