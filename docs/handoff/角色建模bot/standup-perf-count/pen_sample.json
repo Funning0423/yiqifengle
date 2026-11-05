@@ -1,0 +1,121 @@
+{
+  "gate": "standup-perf-count-pen-sample",
+  "mode": 30,
+  "clips": [
+    "sit_down",
+    "sit_hold",
+    "stand_up"
+  ],
+  "baseline_c40de312": {
+    "glb": "FAT INTERIM_s1_grokbot2",
+    "rows": [
+      {
+        "clip": "sit_down",
+        "frames": 38,
+        "hits": 0,
+        "maxDepthCm": 0,
+        "worst": null
+      },
+      {
+        "clip": "sit_hold",
+        "frames": 61,
+        "hits": 0,
+        "maxDepthCm": 0,
+        "worst": null
+      },
+      {
+        "clip": "stand_up",
+        "frames": 40,
+        "hits": 0,
+        "maxDepthCm": 0,
+        "worst": null
+      }
+    ]
+  },
+  "baked_v1": {
+    "glb": "chr_b_standup_count_v1",
+    "rows": [
+      {
+        "clip": "sit_down",
+        "frames": 38,
+        "hits": 684,
+        "maxDepthCm": 3.48,
+        "worst": {
+          "at": "sit_down@0.200",
+          "vertex": 14089,
+          "bone": "thigh.R",
+          "mesh": "apron",
+          "test": "axis"
+        }
+      },
+      {
+        "clip": "sit_hold",
+        "frames": 61,
+        "hits": 122,
+        "maxDepthCm": 0.26,
+        "worst": {
+          "at": "sit_hold@0.100",
+          "vertex": 13857,
+          "bone": "thigh.L",
+          "mesh": "dress",
+          "tri": 4386,
+          "cloth": "skirt.back"
+        }
+      },
+      {
+        "clip": "stand_up",
+        "frames": 40,
+        "hits": 927,
+        "maxDepthCm": 9.29,
+        "worst": {
+          "at": "stand_up@0.900",
+          "vertex": 13851,
+          "bone": "thigh.L",
+          "mesh": "apron",
+          "test": "axis"
+        }
+      }
+    ]
+  },
+  "note": "Sample only (sit_down/sit_hold/stand_up @30fps). Not full skirt-leg gate. PM: COUNT≤16 wins; residual documented.",
+  "baked_interim32": {
+    "glb": "chr_b_standup_count_v1_interim32",
+    "rows": [
+      {
+        "clip": "sit_down",
+        "frames": 38,
+        "hits": 194,
+        "maxDepthCm": 4.48,
+        "worst": {
+          "at": "sit_down@0.900",
+          "vertex": 14080,
+          "bone": "thigh.R",
+          "mesh": "apron",
+          "tri": 1275,
+          "cloth": "skirt.front.mid"
+        }
+      },
+      {
+        "clip": "sit_hold",
+        "frames": 61,
+        "hits": 0,
+        "maxDepthCm": 0,
+        "worst": null
+      },
+      {
+        "clip": "stand_up",
+        "frames": 40,
+        "hits": 114,
+        "maxDepthCm": 4.56,
+        "worst": {
+          "at": "stand_up@0.267",
+          "vertex": 14122,
+          "bone": "thigh.R",
+          "mesh": "apron",
+          "tri": 1677,
+          "cloth": "skirt.front.mid"
+        }
+      }
+    ]
+  }
+}

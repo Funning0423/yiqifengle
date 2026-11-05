@@ -1,0 +1,3148 @@
+{
+  "as_of": "2026-11-05T04:33:00-05:00",
+  "feel_control": "1.0.202611050247 @ 0421cfff",
+  "live_glb": "repo/…/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb (also integrate)",
+  "live_counts": {
+    "LOD0_G2_APRON": 53,
+    "LOD0_G2_BODY": 16,
+    "LOD0_G2_BOW": 3,
+    "LOD0_G2_DRESS": 73
+  },
+  "shader_macros": {
+    "CC_MORPH_TARGET_COUNT53": "LOD0_G2_APRON",
+    "CC_MORPH_TARGET_COUNT73": "LOD0_G2_DRESS",
+    "CC_MORPH_TARGET_COUNT16": "LOD0_G2_BODY",
+    "CC_MORPH_TARGET_COUNT3": "LOD0_G2_BOW"
+  },
+  "tip1": "anim/standup-perf-morph @ 299afe73 — curves only; stacked anim_meta onto FAT glb",
+  "anim_bot_worktree_glb_stale": {
+    "APRON": 29,
+    "DRESS": 32,
+    "BODY": 16,
+    "BOW": 0,
+    "note": "do not use for COUNT work"
+  },
+  "decision": "C_NEED_MODELING",
+  "projections": {
+    "LOD0_G2_APRON": {
+      "live_count": 53,
+      "safe_delete_only": 48,
+      "safe_delete_n": 5,
+      "modeling_bake_candidates": 24,
+      "target_after_modeling_aggressive": 16,
+      "target_interim_bake8": 32
+    },
+    "LOD0_G2_BODY": {
+      "live_count": 16,
+      "safe_delete_only": 15,
+      "safe_delete_n": 1,
+      "modeling_bake_candidates": 0,
+      "target_after_modeling_aggressive": 12
+    },
+    "LOD0_G2_BOW": {
+      "live_count": 3,
+      "safe_delete_only": 3,
+      "safe_delete_n": 0,
+      "modeling_bake_candidates": 0,
+      "target_after_modeling_aggressive": 3
+    },
+    "LOD0_G2_DRESS": {
+      "live_count": 73,
+      "safe_delete_only": 68,
+      "safe_delete_n": 5,
+      "modeling_bake_candidates": 41,
+      "target_after_modeling_aggressive": 16,
+      "target_interim_bake8": 35
+    }
+  },
+  "cut_list": [
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 0,
+      "name": "sit_drape",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 1,
+      "name": "sit_drape_mid",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 2,
+      "name": "hand_rest_support",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "sit_hold"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 3,
+      "name": "sit_clearance_rise",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 4,
+      "name": "cloth_return_clearance",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 5,
+      "name": "cloth_rise_clearance",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 6,
+      "name": "cloth_waist_rise_seam",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 7,
+      "name": "cloth_envelope_stand_up_0",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 8,
+      "name": "cloth_envelope_stand_up_1",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 9,
+      "name": "cloth_envelope_stand_up_2",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 10,
+      "name": "cloth_envelope_sit_down_5",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 11,
+      "name": "cloth_envelope_sit_down_6",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 12,
+      "name": "cloth_envelope_sit_down_7",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 13,
+      "name": "cloth_envelope_sit_down_8",
+      "in_tip1_map": true,
+      "repo_nz_clips": [],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 14,
+      "name": "cloth_cuff_clearance",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 15,
+      "name": "task21_sit_down_2",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 16,
+      "name": "task21_sit_down_3",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 17,
+      "name": "task21_sit_down_4",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 18,
+      "name": "task21_sit_down_5",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 19,
+      "name": "task21_sit_down_6",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 20,
+      "name": "task21_sit_down_7",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 21,
+      "name": "task21_stand_up_4",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 22,
+      "name": "task21_stand_up_5",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 23,
+      "name": "task21_stand_up_6",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 24,
+      "name": "task21_walk_layer_gap",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "walk_loop",
+        "walk_start",
+        "walk_stop_bodyL",
+        "walk_stop_bodyR"
+      ],
+      "tip1_nz_clips": [
+        "walk_loop",
+        "walk_start",
+        "walk_stop_bodyL",
+        "walk_stop_bodyR"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 25,
+      "name": "task21_refine_sit_down_139",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 26,
+      "name": "task21_refine_sit_down_286",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 27,
+      "name": "task21_refine_stand_up_174",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 28,
+      "name": "task21_refine_stand_up_208",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 29,
+      "name": "sit_drape_blend_comp",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 30,
+      "name": "seat_fix_sit_down_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 31,
+      "name": "seat_fix_sit_down_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 32,
+      "name": "seat_fix_sit_down_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 33,
+      "name": "seat_fix_sit_down_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 34,
+      "name": "seat_fix_sit_down_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 35,
+      "name": "seat_fix_sit_down_20",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 36,
+      "name": "seat_fix_sit_down_21",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 37,
+      "name": "seat_fix_sit_down_22",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 38,
+      "name": "seat_fix_sit_down_23",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 39,
+      "name": "seat_fix_sit_down_24",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 40,
+      "name": "seat_fix_sit_down_25",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 41,
+      "name": "seat_fix_sit_down_26",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 42,
+      "name": "seat_fix_sit_down_27",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 43,
+      "name": "seat_fix_sit_down_28",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 44,
+      "name": "seat_fix_sit_down_29",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 45,
+      "name": "seat_fix_stand_up_03",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 46,
+      "name": "seat_fix_stand_up_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 47,
+      "name": "seat_fix_stand_up_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 48,
+      "name": "seat_fix_stand_up_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 49,
+      "name": "seat_fix_stand_up_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 50,
+      "name": "seat_fix_stand_up_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 51,
+      "name": "seat_fix_stand_up_09",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 52,
+      "name": "seat_fix_stand_up_10",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 0,
+      "name": "corrective_stand_up_0",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 1,
+      "name": "corrective_stand_up_1",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 2,
+      "name": "corrective_stand_up_2",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 3,
+      "name": "corrective_stand_up_3",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 4,
+      "name": "corrective_stand_up_4",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 5,
+      "name": "corrective_stand_up_5",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 6,
+      "name": "corrective_stand_up_6",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 7,
+      "name": "corrective_stand_up_7",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 8,
+      "name": "corrective_stand_up_8",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 9,
+      "name": "corrective_door_0",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "door_reach",
+        "idle_breathing_loop",
+        "walk_loop",
+        "walk_stop_bodyL",
+        "walk_turn_180",
+        "walk_turn_180_bodyR",
+        "walk_turn_90_bodyL",
+        "walk_turn_90_bodyR"
+      ],
+      "tip1_nz_clips": [
+        "door_reach",
+        "idle_breathing_loop",
+        "walk_loop",
+        "walk_stop_bodyL",
+        "walk_turn_180",
+        "walk_turn_180_bodyR",
+        "walk_turn_90_bodyL",
+        "walk_turn_90_bodyR"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 10,
+      "name": "corrective_door_1",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "door_reach"
+      ],
+      "tip1_nz_clips": [
+        "door_reach"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 11,
+      "name": "corrective_door_4",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "door_reach"
+      ],
+      "tip1_nz_clips": [
+        "door_reach"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 12,
+      "name": "corrective_shoulder_surface_relax",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "door_reach",
+        "idle_breathing_loop",
+        "sit_down",
+        "sit_hold",
+        "stand_up",
+        "walk_loop",
+        "walk_stop_bodyL",
+        "walk_turn_180",
+        "walk_turn_180_bodyR",
+        "walk_turn_90_bodyL",
+        "walk_turn_90_bodyR"
+      ],
+      "tip1_nz_clips": [
+        "door_reach",
+        "idle_breathing_loop",
+        "sit_down",
+        "sit_hold",
+        "stand_up",
+        "walk_loop",
+        "walk_stop_bodyL",
+        "walk_turn_180",
+        "walk_turn_180_bodyR",
+        "walk_turn_90_bodyL",
+        "walk_turn_90_bodyR"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 13,
+      "name": "wrist_clearance_stand_up_0",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 14,
+      "name": "wrist_clearance_stand_up_1",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 15,
+      "name": "wrist_clearance_stand_up_2",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_BOW",
+      "index": 0,
+      "name": "bow_sit_drape",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "KEEP_OR_REVIEW",
+      "risk": "med: tip1 stack dropped BOW map; ribbon/sit drape may be undriven"
+    },
+    {
+      "mesh": "LOD0_G2_BOW",
+      "index": 1,
+      "name": "ribbon_bend_half",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "KEEP_OR_REVIEW",
+      "risk": "med: tip1 stack dropped BOW map; ribbon/sit drape may be undriven"
+    },
+    {
+      "mesh": "LOD0_G2_BOW",
+      "index": 2,
+      "name": "ribbon_bend",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "KEEP_OR_REVIEW",
+      "risk": "med: tip1 stack dropped BOW map; ribbon/sit drape may be undriven"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 0,
+      "name": "sit_drape",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 1,
+      "name": "sit_drape_mid",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 2,
+      "name": "hand_rest_support",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down",
+        "sit_hold",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "sit_down",
+        "sit_hold"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 3,
+      "name": "sit_clearance_rise",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 4,
+      "name": "cloth_return_clearance",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 5,
+      "name": "cloth_rise_clearance",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 6,
+      "name": "cloth_waist_rise_seam",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 7,
+      "name": "cloth_envelope_stand_up_0",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 8,
+      "name": "cloth_envelope_stand_up_1",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 9,
+      "name": "cloth_envelope_stand_up_2",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 10,
+      "name": "cloth_envelope_stand_up_4",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 11,
+      "name": "cloth_envelope_stand_up_5",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [
+        "stand_up"
+      ],
+      "owner": "shared",
+      "action": "KEEP",
+      "risk": "needed by active clips"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 12,
+      "name": "cloth_envelope_sit_down_6",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 13,
+      "name": "cloth_envelope_sit_down_7",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 14,
+      "name": "cloth_envelope_sit_down_8",
+      "in_tip1_map": true,
+      "repo_nz_clips": [],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 15,
+      "name": "task21_sit_down_1",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 16,
+      "name": "task21_sit_down_2",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 17,
+      "name": "task21_sit_down_3",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 18,
+      "name": "task21_sit_down_4",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 19,
+      "name": "task21_sit_down_5",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 20,
+      "name": "task21_sit_down_6",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 21,
+      "name": "task21_sit_down_7",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 22,
+      "name": "task21_stand_up_4",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 23,
+      "name": "task21_stand_up_5",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 24,
+      "name": "task21_stand_up_6",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 25,
+      "name": "task21_stand_up_9",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 26,
+      "name": "task21_refine_sit_down_139",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 27,
+      "name": "task21_refine_sit_down_177",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 28,
+      "name": "task21_refine_sit_down_214",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 29,
+      "name": "task21_refine_sit_down_249",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 30,
+      "name": "task21_refine_sit_down_286",
+      "in_tip1_map": true,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [
+        "sit_down"
+      ],
+      "owner": "shared",
+      "action": "KEEP_FOR_SIT",
+      "risk": "med-if-deleted: sit_down/sit_hold cloth"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 31,
+      "name": "task21_refine_stand_up_174",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 32,
+      "name": "sit_drape_blend_comp",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 33,
+      "name": "skirt_back_thin_sit_d_26",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 34,
+      "name": "skirt_back_thin_sit_d_32",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 35,
+      "name": "skirt_back_thin_stand_02",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 36,
+      "name": "skirt_back_thin_stand_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 37,
+      "name": "skirt_back_thin_stand_11",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 38,
+      "name": "seat_fix_sit_down_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 39,
+      "name": "seat_fix_sit_down_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 40,
+      "name": "seat_fix_sit_down_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 41,
+      "name": "seat_fix_sit_down_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 42,
+      "name": "seat_fix_sit_down_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 43,
+      "name": "seat_fix_sit_down_20",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 44,
+      "name": "seat_fix_sit_down_21",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 45,
+      "name": "seat_fix_sit_down_22",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 46,
+      "name": "seat_fix_sit_down_23",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 47,
+      "name": "seat_fix_sit_down_24",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 48,
+      "name": "seat_fix_sit_down_25",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 49,
+      "name": "seat_fix_sit_down_26",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 50,
+      "name": "seat_fix_sit_down_27",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 51,
+      "name": "seat_fix_sit_down_28",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 52,
+      "name": "seat_fix_sit_down_29",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 53,
+      "name": "seat_fix_sit_down_30",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 54,
+      "name": "seat_fix_sit_down_31",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 55,
+      "name": "seat_fix_sit_down_32",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 56,
+      "name": "seat_fix_sit_down_33",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 57,
+      "name": "seat_fix_sit_down_34",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 58,
+      "name": "seat_fix_sit_down_35",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 59,
+      "name": "seat_fix_stand_up_02",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 60,
+      "name": "seat_fix_stand_up_03",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 61,
+      "name": "seat_fix_stand_up_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 62,
+      "name": "seat_fix_stand_up_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 63,
+      "name": "seat_fix_stand_up_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 64,
+      "name": "seat_fix_stand_up_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 65,
+      "name": "seat_fix_stand_up_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 66,
+      "name": "seat_fix_stand_up_09",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 67,
+      "name": "seat_fix_stand_up_10",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 68,
+      "name": "seat_fix_stand_up_11",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 69,
+      "name": "seat_fix_stand_up_12",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 70,
+      "name": "seat_fix_stand_up_13",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 71,
+      "name": "seat_fix_stand_up_14",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 72,
+      "name": "seat_fix_stand_up_15",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    }
+  ],
+  "safe_delete_summary": [
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 21,
+      "name": "task21_stand_up_4",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 22,
+      "name": "task21_stand_up_5",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 23,
+      "name": "task21_stand_up_6",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 27,
+      "name": "task21_refine_stand_up_174",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 28,
+      "name": "task21_refine_stand_up_208",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "index": 13,
+      "name": "wrist_clearance_stand_up_0",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 22,
+      "name": "task21_stand_up_4",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 23,
+      "name": "task21_stand_up_5",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 24,
+      "name": "task21_stand_up_6",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 25,
+      "name": "task21_stand_up_9",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 31,
+      "name": "task21_refine_stand_up_174",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "anim_or_modeling",
+      "action": "SAFE_DELETE",
+      "risk": "low: tip1 culled as spike/noise; verify no visual regress"
+    }
+  ],
+  "modeling_bake_summary": [
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 29,
+      "name": "sit_drape_blend_comp",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 30,
+      "name": "seat_fix_sit_down_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 31,
+      "name": "seat_fix_sit_down_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 32,
+      "name": "seat_fix_sit_down_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 33,
+      "name": "seat_fix_sit_down_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 34,
+      "name": "seat_fix_sit_down_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 35,
+      "name": "seat_fix_sit_down_20",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 36,
+      "name": "seat_fix_sit_down_21",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 37,
+      "name": "seat_fix_sit_down_22",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 38,
+      "name": "seat_fix_sit_down_23",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 39,
+      "name": "seat_fix_sit_down_24",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 40,
+      "name": "seat_fix_sit_down_25",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 41,
+      "name": "seat_fix_sit_down_26",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 42,
+      "name": "seat_fix_sit_down_27",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 43,
+      "name": "seat_fix_sit_down_28",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 44,
+      "name": "seat_fix_sit_down_29",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 45,
+      "name": "seat_fix_stand_up_03",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 46,
+      "name": "seat_fix_stand_up_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 47,
+      "name": "seat_fix_stand_up_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 48,
+      "name": "seat_fix_stand_up_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 49,
+      "name": "seat_fix_stand_up_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 50,
+      "name": "seat_fix_stand_up_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 51,
+      "name": "seat_fix_stand_up_09",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_APRON",
+      "index": 52,
+      "name": "seat_fix_stand_up_10",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 32,
+      "name": "sit_drape_blend_comp",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down",
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 33,
+      "name": "skirt_back_thin_sit_d_26",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 34,
+      "name": "skirt_back_thin_sit_d_32",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 35,
+      "name": "skirt_back_thin_stand_02",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 36,
+      "name": "skirt_back_thin_stand_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 37,
+      "name": "skirt_back_thin_stand_11",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 38,
+      "name": "seat_fix_sit_down_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 39,
+      "name": "seat_fix_sit_down_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 40,
+      "name": "seat_fix_sit_down_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 41,
+      "name": "seat_fix_sit_down_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 42,
+      "name": "seat_fix_sit_down_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 43,
+      "name": "seat_fix_sit_down_20",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 44,
+      "name": "seat_fix_sit_down_21",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 45,
+      "name": "seat_fix_sit_down_22",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 46,
+      "name": "seat_fix_sit_down_23",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 47,
+      "name": "seat_fix_sit_down_24",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 48,
+      "name": "seat_fix_sit_down_25",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 49,
+      "name": "seat_fix_sit_down_26",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 50,
+      "name": "seat_fix_sit_down_27",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 51,
+      "name": "seat_fix_sit_down_28",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 52,
+      "name": "seat_fix_sit_down_29",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 53,
+      "name": "seat_fix_sit_down_30",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 54,
+      "name": "seat_fix_sit_down_31",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 55,
+      "name": "seat_fix_sit_down_32",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 56,
+      "name": "seat_fix_sit_down_33",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 57,
+      "name": "seat_fix_sit_down_34",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 58,
+      "name": "seat_fix_sit_down_35",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "sit_down"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 59,
+      "name": "seat_fix_stand_up_02",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 60,
+      "name": "seat_fix_stand_up_03",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 61,
+      "name": "seat_fix_stand_up_04",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 62,
+      "name": "seat_fix_stand_up_05",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 63,
+      "name": "seat_fix_stand_up_06",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 64,
+      "name": "seat_fix_stand_up_07",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 65,
+      "name": "seat_fix_stand_up_08",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 66,
+      "name": "seat_fix_stand_up_09",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 67,
+      "name": "seat_fix_stand_up_10",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 68,
+      "name": "seat_fix_stand_up_11",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 69,
+      "name": "seat_fix_stand_up_12",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 70,
+      "name": "seat_fix_stand_up_13",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 71,
+      "name": "seat_fix_stand_up_14",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    },
+    {
+      "mesh": "LOD0_G2_DRESS",
+      "index": 72,
+      "name": "seat_fix_stand_up_15",
+      "in_tip1_map": false,
+      "repo_nz_clips": [
+        "stand_up"
+      ],
+      "tip1_nz_clips": [],
+      "owner": "modeling",
+      "action": "BAKE_MERGE_OR_LOD",
+      "risk": "high-if-deleted: seated skirt penetration regress (c40de312)"
+    }
+  ]
+}

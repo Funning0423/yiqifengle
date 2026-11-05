@@ -1,0 +1,234 @@
+{
+  "before": {
+    "LOD0_G2_APRON": 53,
+    "LOD0_G2_DRESS": 73,
+    "LOD0_G2_BODY": 16,
+    "LOD0_G2_BOW": 3
+  },
+  "after": {
+    "LOD0_G2_APRON": 16,
+    "LOD0_G2_DRESS": 15,
+    "LOD0_G2_BODY": 15,
+    "LOD0_G2_BOW": 3
+  },
+  "targets": {
+    "APRON": "≤16 aggressive / ≤32 interim",
+    "DRESS": "≤16 aggressive / ≤35 interim",
+    "BODY": "≤16 (expect 15)",
+    "BOW": 3
+  },
+  "hit_interim": {
+    "APRON": true,
+    "DRESS": true
+  },
+  "hit_aggressive": {
+    "APRON": true,
+    "DRESS": true
+  },
+  "sha256": "e3fbce98135e6370e901dc4eac04d6d531f07aad3ba4b9a0e0db81ee5291eb86",
+  "bytes": 2979956,
+  "tangents": "Exclude",
+  "recon": {
+    "APRON": {
+      "sit_rmse": 0.02013757824897766,
+      "sit_max": 0.055006515234708786,
+      "stand_rmse": 0.0004470851272344589,
+      "stand_max": 0.0018769227899610996
+    },
+    "DRESS": {
+      "sit_rmse": 0.071807861328125,
+      "sit_max": 0.23515768349170685,
+      "stand_rmse": 0.016231058165431023,
+      "stand_max": 0.05368254333734512
+    }
+  },
+  "pen_sample_30fps": {
+    "gate": "standup-perf-count-pen-sample",
+    "mode": 30,
+    "clips": [
+      "sit_down",
+      "sit_hold",
+      "stand_up"
+    ],
+    "baseline_c40de312": {
+      "glb": "FAT INTERIM_s1_grokbot2",
+      "rows": [
+        {
+          "clip": "sit_down",
+          "frames": 38,
+          "hits": 0,
+          "maxDepthCm": 0,
+          "worst": null
+        },
+        {
+          "clip": "sit_hold",
+          "frames": 61,
+          "hits": 0,
+          "maxDepthCm": 0,
+          "worst": null
+        },
+        {
+          "clip": "stand_up",
+          "frames": 40,
+          "hits": 0,
+          "maxDepthCm": 0,
+          "worst": null
+        }
+      ]
+    },
+    "baked_v1": {
+      "glb": "chr_b_standup_count_v1",
+      "rows": [
+        {
+          "clip": "sit_down",
+          "frames": 38,
+          "hits": 684,
+          "maxDepthCm": 3.48,
+          "worst": {
+            "at": "sit_down@0.200",
+            "vertex": 14089,
+            "bone": "thigh.R",
+            "mesh": "apron",
+            "test": "axis"
+          }
+        },
+        {
+          "clip": "sit_hold",
+          "frames": 61,
+          "hits": 122,
+          "maxDepthCm": 0.26,
+          "worst": {
+            "at": "sit_hold@0.100",
+            "vertex": 13857,
+            "bone": "thigh.L",
+            "mesh": "dress",
+            "tri": 4386,
+            "cloth": "skirt.back"
+          }
+        },
+        {
+          "clip": "stand_up",
+          "frames": 40,
+          "hits": 927,
+          "maxDepthCm": 9.29,
+          "worst": {
+            "at": "stand_up@0.900",
+            "vertex": 13851,
+            "bone": "thigh.L",
+            "mesh": "apron",
+            "test": "axis"
+          }
+        }
+      ]
+    },
+    "note": "Sample only (sit_down/sit_hold/stand_up @30fps). Not full skirt-leg gate. PM: COUNT≤16 wins; residual documented.",
+    "baked_interim32": {
+      "glb": "chr_b_standup_count_v1_interim32",
+      "rows": [
+        {
+          "clip": "sit_down",
+          "frames": 38,
+          "hits": 194,
+          "maxDepthCm": 4.48,
+          "worst": {
+            "at": "sit_down@0.900",
+            "vertex": 14080,
+            "bone": "thigh.R",
+            "mesh": "apron",
+            "tri": 1275,
+            "cloth": "skirt.front.mid"
+          }
+        },
+        {
+          "clip": "sit_hold",
+          "frames": 61,
+          "hits": 0,
+          "maxDepthCm": 0,
+          "worst": null
+        },
+        {
+          "clip": "stand_up",
+          "frames": 40,
+          "hits": 114,
+          "maxDepthCm": 4.56,
+          "worst": {
+            "at": "stand_up@0.267",
+            "vertex": 14122,
+            "bone": "thigh.R",
+            "mesh": "apron",
+            "tri": 1677,
+            "cloth": "skirt.front.mid"
+          }
+        }
+      ]
+    }
+  },
+  "after_names": {
+    "LOD0_G2_APRON": [
+      "sit_drape",
+      "sit_drape_mid",
+      "cloth_rise_clearance",
+      "cloth_waist_rise_seam",
+      "cloth_envelope_stand_up_0",
+      "cloth_envelope_stand_up_1",
+      "cloth_envelope_stand_up_2",
+      "task21_walk_layer_gap",
+      "seat_bake_sit_0",
+      "seat_bake_sit_1",
+      "seat_bake_sit_2",
+      "seat_bake_sit_3",
+      "seat_bake_stand_0",
+      "seat_bake_stand_1",
+      "seat_bake_stand_2",
+      "seat_bake_stand_3"
+    ],
+    "LOD0_G2_DRESS": [
+      "sit_drape",
+      "sit_drape_mid",
+      "cloth_rise_clearance",
+      "cloth_waist_rise_seam",
+      "cloth_envelope_stand_up_0",
+      "cloth_envelope_stand_up_1",
+      "cloth_envelope_stand_up_2",
+      "seat_bake_sit_0",
+      "seat_bake_sit_1",
+      "seat_bake_sit_2",
+      "seat_bake_sit_3",
+      "seat_bake_stand_0",
+      "seat_bake_stand_1",
+      "seat_bake_stand_2",
+      "seat_bake_stand_3"
+    ],
+    "LOD0_G2_BODY": [
+      "corrective_stand_up_0",
+      "corrective_stand_up_1",
+      "corrective_stand_up_2",
+      "corrective_stand_up_3",
+      "corrective_stand_up_4",
+      "corrective_stand_up_5",
+      "corrective_stand_up_6",
+      "corrective_stand_up_7",
+      "corrective_stand_up_8",
+      "corrective_door_0",
+      "corrective_door_1",
+      "corrective_door_4",
+      "corrective_shoulder_surface_relax",
+      "wrist_clearance_stand_up_1",
+      "wrist_clearance_stand_up_2"
+    ],
+    "LOD0_G2_BOW": [
+      "bow_sit_drape",
+      "ribbon_bend_half",
+      "ribbon_bend"
+    ]
+  },
+  "interim32": {
+    "sha256_note": "see count_interim32.json",
+    "counts": {
+      "LOD0_G2_APRON": 32,
+      "LOD0_G2_DRESS": 35,
+      "LOD0_G2_BODY": 15,
+      "LOD0_G2_BOW": 3
+    }
+  }
+}

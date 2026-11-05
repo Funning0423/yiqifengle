@@ -1,0 +1,31 @@
+{
+  "before": {
+    "LOD0_G2_APRON": 53,
+    "LOD0_G2_DRESS": 73,
+    "LOD0_G2_BODY": 16,
+    "LOD0_G2_BOW": 3
+  },
+  "after": {
+    "LOD0_G2_APRON": 32,
+    "LOD0_G2_DRESS": 35,
+    "LOD0_G2_BODY": 15,
+    "LOD0_G2_BOW": 3
+  },
+  "targets": {
+    "APRON": "≤16 aggressive / ≤32 interim",
+    "DRESS": "≤16 aggressive / ≤35 interim",
+    "BODY": "≤16 (expect 15)",
+    "BOW": 3
+  },
+  "hit_interim": {
+    "APRON": true,
+    "DRESS": true
+  },
+  "hit_aggressive": {
+    "APRON": false,
+    "DRESS": false
+  },
+  "sha256": "2937f2811bbbfbf434dce06092c117ae78c3cb7bb71967ed187591c493520dad",
+  "bytes": 3197588,
+  "tangents": "Exclude"
+}

@@ -1,3 +1,27 @@
+# 角色建模bot 交接（2026-11-05 04:45 ET）
+
+分支 `work/角色建模bot`（worktree：`/workspace/yiqifengle/work/角色建模bot`）。**GLB 一律不进仓库**。
+
+## 当前主线 · standup-perf-count（COUNT≤16）
+
+- Tip：`docs/handoff/角色动画bot/STANDUP-PERF-COUNT-20261105.md`（动画侧）
+- 交付说明：`docs/handoff/角色建模bot/STANDUP-PERF-COUNT-20261105.md`（= previews REPORT）
+- 预览（不进仓）：`previews/角色建模bot/standup-perf-count/chr_b_standup_count_v1.glb`
+  - sha256 `e3fbce98135e6370e901dc4eac04d6d531f07aad3ba4b9a0e0db81ee5291eb86`，2,979,956 B
+  - COUNT：**APRON 16 / DRESS 15 / BODY 15 / BOW 3**（源 53/73/16/3）
+- 动画补丁草案：同目录 `standup-perf-count/anim_meta_patch_draft.json`（需动画侧重接曲线；本 bot 不改 live anim_meta）
+- 穿透：c40 基线 0；aggressive 坐/起有残留（sit_hold ≤0.26 cm，stand_up 最深 ~9.3 cm）——PM 优先 COUNT，残留已写 REPORT
+- 过渡对照：`chr_b_standup_count_v1_interim32.glb`（32/35，穿透更轻）
+- **未测**：真机 feel、全量 skirt-leg gate、截图、集成替换
+- 灯塔右手环线 / C 半蹲 / D 走路穿裙：**暂停写入**（本 tip 不继续）
+
+## 历史 · 灯塔包（暂停，摘要）
+
+以下保留自 2026-10-22 交接，便于回跳；本 tip 不推进。
+
+
+<details><summary>旧 HANDOFF 2026-10-22 全文</summary>
+
 # 角色建模bot 交接（2026-10-22 08:05 ET）
 分支 work/角色建模bot（worktree：/workspace/yiqifengle/work/角色建模bot），基点为 github/work/角色建模bot 1c4c61e3。GLB 一律不进仓库，产物都在 `previews/角色建模bot/accessories/`（下面简写为 A/）。
 
@@ -51,3 +75,5 @@
 - QA：A/qa/v3、qa/v3b。
 - 输入：previews/角色动画bot/scarf-lantern/（lantern_v2/qa_v3b、stand_r/work/r3_compqa.glb）。
 - Blender 4.5：/workspace/tools/blender-4.5.3-linux-x64；scipy 装在 /workspace/tools/bpy_site。
+
+</details>
