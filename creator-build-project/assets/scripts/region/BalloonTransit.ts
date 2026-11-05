@@ -31,6 +31,8 @@ import {M6_LOCAL} from './BalloonFlight'/* full8: one basket-anchor M6 (was a se
 import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe,camActorPose} from './CamTraceLog';
 import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
+import {armTransitionHold,noteTransitionHeavyFrames,holdTransitionShaders} from './TransitionShaderWarm';
+import {SKYCITY_LEG_HEAVY_ENABLED,skycityLegHeavyFromFlag} from './SkycityLegHeavy';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -311,7 +313,7 @@ function dimCityNight(model:Node|null,night:boolean,cache:CityNightCache):void{
 }
 function showNamed(root:Node|null,names:readonly string[],on:boolean):void{
  if(!root)return;const set=new Set(names);
- eachNamed(root,n=>{if(set.has(n.name))n.active=on;});
+ eachNamed(root,n=>{if(set.has(n.name)&&n.active!==on)n.active=on;});
 }
 function setRigid(node:Node,frame:Rigid):void{
  Quat.fromEuler(q,0,frame.yawDeg,0);node.setWorldRotation(q);
@@ -356,6 +358,7 @@ function publishFlight(doc:FlightDoc):void{(globalThis as any).__QF_BALLOON_FLIG
  */
 export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start:Vec;token:Cancellation;progress:(n:number)=>void}):Promise<JourneySceneLease&{model:Node|null}>{
  if(!opts.meadow||!isValid(opts.meadow,true))throw Error('journey-meadow-lease-missing');
+ try{skycityLegHeavyFromFlag();}catch{/* query optional */}/* A/B: skycity-leg heavy default OFF (ascent+post-land) */
  const token=opts.token,progress=opts.progress,meadow=opts.meadow;
  const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token,VEHICLE_ASSET_WAIT_MS);token.check();
  prefab.addRef();
@@ -369,7 +372,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   let restoreSailLeft=()=>{};
   let landRopeOn=false;
   const cityNightDimmed:CityNightCache=new Map()/* full8: before release() so abort/teardown can restore */;
-  const release=()=>{if(dead)return;dead=true;try{restoreCityNight(cityNightDimmed);}catch{}if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
+  const release=()=>{if(dead)return;dead=true;try{restoreCityNight(cityNightDimmed);}catch{}if(boardSrc&&regionBoardSource('skycity')===boardSrc)setRegionBoardSource('skycity',null);try{restoreSailLeft();}catch{}try{setMooringRopes(model,'landing',false);basketObstacleEvent('balloon:released');}catch{}/* cand7: basket gone → rope stowed, landing obstacle off */director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);try{holdTransitionShaders(false);}catch{/* warm optional */}(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_SEA_PLAN=null;offNight();
   domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
@@ -438,7 +441,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   // (audit b17-cand-76a0433, 15.8-17 s). Hide EVERY live env_sea_surface each frame (rescanned, not one cached node) whenever
   // islandSeaShown() says so; paint runs on EVENT_BEFORE_DRAW so this is the last write before the frame.
   const seas:Node[]=[];let seaScanAt=-1;
-  const scanSeas=(t:number)=>{if(seaScanAt>=0&&Math.abs(t-seaScanAt)<0.5&&seas.every(n=>isValid(n,true))&&sailLeft.every(n=>isValid(n,true)))return;seaScanAt=t;seas.length=0;sailLeft.length=0;const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(n.name==='env_sea_surface')seas.push(n);else if(n.name==='SailArt'){sailLeft.push(n);if(!sailHome.has(n))sailHome.set(n,n.active);}});};
+  const scanSeas=(t:number)=>{const valid=seas.every(n=>isValid(n,true))&&sailLeft.every(n=>isValid(n,true));/* A/B: OFF → rescan only when list empty/invalid (no 0.5s full-scene walk). ON → prior 0.5s cadence. */if(seas.length&&valid&&(!SKYCITY_LEG_HEAVY_ENABLED||(seaScanAt>=0&&Math.abs(t-seaScanAt)<0.5)))return;seaScanAt=t;seas.length=0;sailLeft.length=0;const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(n.name==='env_sea_surface')seas.push(n);else if(n.name==='SailArt'){sailLeft.push(n);if(!sailHome.has(n))sailHome.set(n,n.active);}});};
   // b17r7 B1 (Mac diagDump 3efe2a0c): the blocker is the SAIL leg's leftover SailArt (WorldFlowOwner/RegionJourney-meadow/SailArt:
   // transit_sea/sea_plane, world y=-0.91, AABB half-extent 832 m around (-3.7,30.4)). SailArt is a sibling of the meadow model,
   // disposed only with the meadow lease, so hiding the meadow at MEADOW_OFF_T left it on; the post-seam lens climbs through
@@ -463,7 +466,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainPitch0=mainLight.node.eulerAngles.x;mainRoll0=mainLight.node.eulerAngles.z;mainIllum0=mainLight.illuminance;mainShadow0=!!(mainLight as any).shadowEnabled;}}
   // Shadows stay on during meadow board/liftoff so windmill/bell match normal meadow gameplay; drop after unload for DC.
   let seaRestored=false,backdropRestored=false,arrived=false;
-  let canopyClipped=false;
+  let canopyClipped=false,cityNoShadow=false,foliageHidden=false,paintDebt=0,lastFlightCam:Pose|null=null,prevThreshKey='',lastVisKey='';
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
   const contChain=continuousTransitions();
   const handoffFade=(t:number):number=>{
@@ -527,7 +530,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const cover=t+1e-9>=HANDOFF_COVER_T;
    const handoff=arrived||cover;
    const meadowOn=!arrived&&t<plan.meadowOffAt,cityOn=arrived||t>=plan.cityActiveAt;
-   const showIsland=arrived||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
+   // Island body (lawn+rock) must stay on from LAND_T through B5. Old gate hid it at
+   // HANDOFF_COVER_T/STRATA_OFF_T until the arrived flag flipped *after* the walk-out, so she stood
+   // on restored cloudsea with only far floatingrocks visible (skycity-sea-landing).
+   const showIsland=arrived||t+1e-9>=LAND_T||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
+   const visKey=`${meadowOn?1:0}${cityOn?1:0}${showIsland?1:0}${Number(t>=GRASS_OFF_T)}${Number(t>=4.8&&t<7.5)}${Number(t>=FAR_CARD_ON_T&&t<21)}${Number(t>=ISLETS_ON_T&&t>=27)}${Number(t<ISLETS_ON_T)}${arrived?1:0}${handoff?1:0}${night?1:0}`;
+   const runVis=SKYCITY_LEG_HEAVY_ENABLED||visKey!==lastVisKey;if(runVis)lastVisKey=visKey;
    if(isValid(meadow,true))meadow.active=meadowOn;
    scanSeas(t);applySailLeft(sailLeftoverShown(t,arrived)&&meadowOn);
    // Shadows on for meadow gameplay match; off after unload for DC ≤53.
@@ -540,20 +548,25 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }
    if(model){
     model.active=cityOn;
-    model.getComponent(SkycityCloudsea)!.setFlightHidden(!arrived);
-    if(cityOn)noShadow(model);
-    showNamed(model,ALWAYS_HIDDEN,false);
-    if(!arrived)showNamed(model,FLIGHT_FAR_CLOUDS,false);
-    showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
-    showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],cityOn&&t>=ISLETS_ON_T&&t>=27);
-    showNamed(model,['env_sky_islets_far'],false);
-    showNamed(model,CITY_RIDE_HIDE,false);
-    // Floating island body (grass + rock). Hide vines/roots — they read as free-floating brown rods in the cloud sea.
-    showNamed(model,ISLAND_BODY,showIsland);
-    showNamed(model,ISLAND_VINES,arrived);
-    if(!arrived)eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name))n.active=false;});
+    // Skip city tree walks while inactive — early-flight LONGs were walking showNamed×8 on a disabled model every frame.
+    // A/B: when skycity-leg heavy OFF, showNamed×N only on visKey change (thresholds / arrival).
+    if(cityOn){
+     model.getComponent(SkycityCloudsea)!.setFlightHidden(!arrived);
+     if(!cityNoShadow){cityNoShadow=true;noShadow(model);}
+     if(runVis){
+      showNamed(model,ALWAYS_HIDDEN,false);
+      if(!arrived)showNamed(model,FLIGHT_FAR_CLOUDS,false);
+      showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
+      showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],t>=ISLETS_ON_T&&t>=27);
+      showNamed(model,['env_sky_islets_far'],false);
+      showNamed(model,CITY_RIDE_HIDE,false);
+      showNamed(model,ISLAND_BODY,showIsland);
+      showNamed(model,ISLAND_VINES,arrived);
+      if(!arrived){if(!foliageHidden){foliageHidden=true;eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name)&&n.active)n.active=false;});}}else foliageHidden=false;
+     }
+    }else{cityNoShadow=false;foliageHidden=false;}
    }
-   if(!arrived){
+   if(!arrived&&runVis){
    showNamed(clouds,CITY_CLOUD,cityOn);
    showNamed(clouds,ALWAYS_CLOUD,true);
    // Board (t≈0.9): keep far/horizon transit clouds so the sky matches meadow gameplay (not empty blue).
@@ -562,17 +575,17 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    // City close-up drops far cards for DC. Horizon stays through cruise (before islets) so the sea/sky edge is not a hard line.
    if(cityOn){showNamed(clouds,['clouds_far','clouds_deck_loose'],false);showNamed(clouds,['clouds_horizon'],t<ISLETS_ON_T);}
    }
-   eachNamed(meadow,n=>{
-    if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;
-    // Re-assert meadow sky dressing every frame (other systems may park these inactive).
-    if(meadowOn&&(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'))n.active=true;
-   });
+   // Skip the meadow tree walk once it is off — was every flight frame and stacked with setCamera.
+   // A/B: when skycity-leg heavy OFF, only re-walk meadow on visKey change.
+   if(runVis&&meadowOn&&isValid(meadow,true)){eachNamed(meadow,n=>{
+    if(n.name.startsWith('meadow_grass')){const want=t<GRASS_OFF_T;if(n.active!==want)n.active=want;}
+    if(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'){if(!n.active)n.active=true;}
+   });}
    // Card is only readable through cruise cloud gaps (~14–21 s); hide afterward to save DC.
    const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
    if(farRoot&&isValid(farRoot,true)){
     farRoot.active=farOn;
-    eachNamed(farRoot,n=>{for(const r of n.getComponents(MeshRenderer))r.enabled=farOn;});
-    if(farOn)tintFarCard(farRoot,night);
+    if(runVis){eachNamed(farRoot,n=>{for(const r of n.getComponents(MeshRenderer))r.enabled=farOn;});if(farOn)tintFarCard(farRoot,night);}
    }
    const frame=t+1e-9>=SEAM_T?postFrame:meadowFrame;
    setRigid(transitFrame,frame);
@@ -597,11 +610,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    // b16: self-lit sky-city clouds / accents follow the island night (they ignored the dimmed light; after landing the
    // cloud_small and accents came back at day brightness). Cached: only walks the city when the mode changes.
    if(model&&cityOn){const w=night?(arrived?1:Math.round(nightCityBlend(t)*20)/20):0; /* 5% steps: one city walk per step, not per frame */gradeSkycityNight(model,w);gradeSkycityCloudsea(model.parent,w);}
-   if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);}hideCityNightGlow(model,night);if(night)dimCityNight(model,true,cityNightDimmed);}
+   if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);hideCityNightGlow(model,night);}if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=!arrived&&t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    if(arrived){
-    const dress=[model,clouds,farRoot,seaFallback,nightDome];
-    for(const root of dress){if(!root||!isValid(root,true))continue;eachNamed(root,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;else if(want==='off')n.active=false;});}
+    // A/B: when skycity-leg heavy OFF, arrival dress tree walk only on visKey change (once at arrived flip).
+    if(runVis){const dress=[model,clouds,farRoot,seaFallback,nightDome];
+    for(const root of dress){if(!root||!isValid(root,true))continue;eachNamed(root,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;else if(want==='off')n.active=false;});}}
     (globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_FADE=0;
    }else{(globalThis as any).__QF_BALLOON_FADE=fade;}
    (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade:arrived?0:fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn:arrived?false:farOn,meadowOn,cityOn,showIsland,arrived};
@@ -686,7 +700,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];gapPh('lensSolid');
     const b1Ground=(w:Vec):number|null=>{if(!b1Solid)return null;const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+b1Y0;};
     let b1=0,inAt=1e9,b1On=true,b1Hold:Pose|null=null;const b1Draw=()=>{if(dead||!b1On)return;
-     if(!b1Drawn){gapPh('firstDraw-wait');b1Hold=b1Hold||liveWorldPose();if(b1Hold){camTag('BalloonTransit:B1-hold');world.setCamera(b1Hold);}return;}/* hold the real previous frame, single writer (before-draw) */b1Hold=b1Hold||liveWorldPose();const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
+     if(!b1Drawn){gapPh('firstDraw-wait');b1Hold=b1Hold||liveWorldPose();if(b1Hold){camTag('BalloonTransit:B1-hold');world.setCamera(b1Hold);}return;}/* hold the real previous frame, single writer (before-draw) */b1Hold=b1Hold||liveWorldPose();const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');try{noteTransitionHeavyFrames(8);}catch{/* warm optional */}world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}/* paint(0) removed from setCamera frame — was stacking meadow walks onto B1 LONGs; setup paint(0) + flight apply cover state */if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);gapPh('b1Register');
@@ -732,10 +746,17 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      try{sp=basketCloseSpot(basketToWorld(o,e.yaw*180/Math.PI,TRANSITION_STAGING.basket.doorOutB),o,transitionOccluderBoxes() as any,undefined,[end]);}catch{}
      land=sp&&{c0:clock.t,spot:sp,T:Math.max(5,RIDE_DURATION-clock.t+speedSafeS(end.position,sp.position,BASKET_CLOSE.blendOutS))};}
     if(land){const p=landPose(plan0,clock.t-land.c0);if(p)pose=p;}
-    if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
-    const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
+    // Threshold crossings (meadow off / seam / city on / islets): paint alone this frame, reuse last cam — was 139ms with setCamera.
+    const threshKey=(t>=GRASS_OFF_T?'g':'')+(t>=MEADOW_OFF_T?'m':'')+(t>=FAR_CARD_ON_T?'f':'')+(t>=SEAM_T?'s':'')+(t>=CITY_ON_T?'c':'')+(t>=ISLETS_ON_T?'i':'')+(t>=LAND_T?'l':'');
+    if(prevThreshKey&&threshKey!==prevThreshKey){paintDebt=2;try{noteTransitionHeavyFrames(6);}catch{/* warm optional */}}
+    prevThreshKey=threshKey;
     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
     paint(t);
+    if(writeCam){
+     if(paintDebt>0&&lastFlightCam){paintDebt--;camTag('BalloonTransit:flight');world.setCamera(lastFlightCam);}
+     else{paintDebt=0;camTag('BalloonTransit:flight');world.setCamera(pose);lastFlightCam={position:pose.position.slice() as Vec,target:pose.target.slice() as Vec,fovVerticalDeg:pose.fovVerticalDeg};}
+    }
+    const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
     if(diag.hide.length){const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(diag.hide.includes(n.name))n.active=false;});}
     if(diag.dump&&!diagDone&&(hold===null||t+1e-6>=hold)){diagDone=true;diagDumpScene(t);}
     const fade=Number((globalThis as any).__QF_BALLOON_FADE)||0;
@@ -745,7 +766,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     return t;
    };
    let flightMarked=!contChain,settleMarked=!contChain;
-   beforeDraw=()=>{if(!dead){apply();if(inflateT<INFLATE.durationS)applyInflate();}};
+   try{holdTransitionShaders(true);noteTransitionHeavyFrames(8);}catch{/* warm optional */}
+   beforeDraw=()=>{if(!dead){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}apply();if(inflateT<INFLATE.durationS)applyInflate();}};
    director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
    await new Promise<void>((ok,bad)=>{
     const off=rideToken.onCancel(()=>bad(Error('cancelled')));
@@ -753,7 +775,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      const hidden=typeof document!=='undefined'&&!!document.hidden;
      if(inflateT<INFLATE.durationS){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}if(!hidden)inflateT=Math.min(INFLATE.durationS,inflateT+Math.max(0,Math.min(.1,dt)));}
      else if(!(hold!=null&&rideToFlightT(clock.t)>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
-     const t=apply(Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)))>=plan.total&&hold==null)/* full9b single writer: beforeDraw writes the lens; the step only on its last frame (beforeDraw is removed below) */;if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
+     /* A/B: when skycity-leg heavy OFF, beforeDraw alone paints; step only advances clock + end detect (avoid double paint/showNamed). */
+     const endNow=Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)))>=plan.total&&hold==null;
+     const t=(!SKYCITY_LEG_HEAVY_ENABLED&&!endNow)?Math.max(0,Math.min(plan.total,rideToFlightT(clock.t))):apply(endNow)/* full9b single writer: beforeDraw writes the lens; the step only on its last frame (beforeDraw is removed below) */;if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
      {const m=t>=LAND_T;if(m!==landRopeOn){landRopeOn=m;setMooringRopes(model,'landing',m);}}/* cand7: landing rope only with the basket down */
      if(contChain&&inflateT>=INFLATE.durationS&&!flightMarked){flightMarked=true;chainMark('balloon','B3-flight');}
      if(contChain&&!settleMarked&&clock.t>=BALLOON_DOOR.settleT0){settleMarked=true;chainMark('balloon','B4-settle');}
@@ -762,23 +786,31 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      frames++;if(dc>dcWorst){dcWorst=dc;dcAt=t;}
      const beat=plan.beats.find(b=>t>=b.t0&&t<b.t1)?.id??'board';
      (globalThis as any).__QF_BALLOON={t,rideT:clock.t,rideTotal:RIDE_DURATION,total:plan.total,beat,alt:plan.vehicle(t).pos[1]-plan.launch[1],wind:0.35,night,meadow:t<MEADOW_OFF_T,city:t>=CITY_ON_T,dc,dcWorst,dcAt,frames,hold:hold!=null&&t>=(hold??0)-1e-3,seam:t>=SEAM_T,far:t>=FAR_CARD_ON_T&&t<MEADOW_OFF_T?false:t>=FAR_CARD_ON_T,seaPlan:SEA_PLAN};
-     if(t>=plan.total&&hold==null){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);driver.step=()=>{};ok();}
+     if(t>=plan.total&&hold==null){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);try{holdTransitionShaders(false);armTransitionHold(180);noteTransitionHeavyFrames(4);}catch{/* warm optional */}driver.step=()=>{};ok();}
     };
    });
    rideToken.check();
    if(setWind)setWind.call(actor,()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
    if(envHome&&envelope&&isValid(envelope,true)){envelope.setScale(envHome.s);envelope.setPosition(envHome.p);}
    if(contChain&&girl&&isValid(girl,true)){
-    // B5 (after the B4 settle 29–30 s): the door opens (door_reach), she leaves stand_point over the sill and walks to the first
-    // sky-city stop (plan.s0). No teleport: the actor is reset to where she stands, then walks.
+    // B5 (after the B4 settle 29–30 s): the door opens (door_reach), she leaves stand_point over the sill and walks inland
+    // to anchor_spawn_girl (TRANSITION_STAGING.skycity.s0New). Basket touchdown stays S0_LOCAL; board frames spawn+court.
     chainMark('balloon','B5-door-walk-out');
+    // Belt: ride beforeDraw already stopped; last paint may have been under cover. Force
+    // island floor (+ arrival lawn nodes) on before she steps out onto S0.
+    if(model){
+     showNamed(model,ISLAND_BODY,true);
+     showNamed(model,ISLAND_VINES,true);
+     eachNamed(model,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;});
+     try{model.getComponent(SkycityCloudsea)!.setFlightHidden(false);}catch{}
+    }
     const vp=vehicle.worldPosition,o:Vec=[vp.x,vp.y,vp.z],y=worldYawDeg(vehicle)/* full8: world yaw (yaw+roll quat; euler read-back can fold) */;
     // full2-cam E: exit close-up — from the ride's last pose, min-jerk (BASKET_CLOSE.blendS) onto a lens beside door B (her ≈30 %),
     // panning with her down the step to S0; the ride ends on it (RegionJourneyCore keeps a ride's last lens; D hands it to the board).
     const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
     try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
     const b5Lens=():Pose|null=>{if(land)return landPose(camEnd,RIDE_DURATION-land.c0+b5Cam);if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
-    let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
+    let b5=0,b5On=true;try{holdTransitionShaders(true);noteTransitionHeavyFrames(6);}catch{/* warm optional */}const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
      const D4=TRANSITION_DURATIONS.seg4,B=TRANSITION_STAGING.basket,K=TRANSITION_STAGING.skycity,W=(l:Vec)=>basketToWorld(o,y,l);
@@ -792,9 +824,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      guardBeforeWalk(anim,'B5 door reach');if(actor.performDoorReach)await actor.performDoorReach(rideToken).catch(()=>{});
      rideToken.check();guardBeforeWalk(anim,'B5 walk out');
      await walkTo([here,W(B.thresholdB),W(B.doorOutB),city(K.stepDown)],D4.stepDown+1.0);rideToken.check();
-     await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
-     s0End=city(K.s0New);(lease as any).tail=true/* she ends on the b19 S0: the controller must not reset her to the old route end */;
-    }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);}
+     await walkTo([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)],Math.min(D4.toPath,Math.max(1.5,pathLength([city(K.stepDown),city(K.deckEdge),city(K.s1),city(K.s0New)])/TRANSITION_STAGING.walkMps)));rideToken.check();
+     s0End=city(K.s0New);(lease as any).tail=true/* she ends on spawn_girl (FX tip): board pose frames her on the deck, not soft-sea rim */;
+    }finally{b5On=false;director.off(Director.EVENT_BEFORE_DRAW,b5Draw);try{holdTransitionShaders(false);armTransitionHold(180);noteTransitionHeavyFrames(6);}catch{/* warm optional */}}
    }else if(girl&&isValid(girl,true)){const worldParent=prev&&isValid(prev,true)?prev:rig.parent;if(worldParent)girl.setParent(worldParent,true);}
    actor.cancelAndReset({kind:'standing',controllerRoot:s0End||plan.s0,yawRad:s0End?TRANSITION_STAGING.skycity.s0YawDeg*Math.PI/180+(model?worldYawDeg(model)*Math.PI/180:0):plan.vehicle(LAND_T).yaw});
    arrived=true;

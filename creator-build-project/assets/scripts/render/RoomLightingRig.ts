@@ -598,45 +598,79 @@ export class RoomLightingRig {
  * destroyed and re-created EVERY frame while a shadow-casting main light is on (Mac: 112–116 creates/s, ~460 MB/s churn).
  * Fix without touching the engine: mark those resources PERSISTENT (residency !== MANAGED, so the executor keeps them). The executor
  * still re-creates a device texture when the descriptor size changes (createDeviceTex → checkTexture), so a shadow-size change is
- * honoured; same size, same format, same passes → no visual change. Scan is O(vertices) and only when the vertex count changes.
+ * honoured; same size, same format, same passes → no visual change.
+ * b20 skycity: the builtin forward pipeline (3.8.8) also registers, per window, MANAGED SceneDepth_<id> / Radiance*_<id> /
+ * LdrColor*_<id> / UiColor*_<id> (and BloomTex<id>_<i> when bloom is on). resourceUses is empty at _removeDeviceResource, so each
+ * of those is destroyed and created again every frame the world camera draws — the post-arrival DepthStencil / RT storm.
+ * A pin that runs only when the vertex count changes misses them (stable count) and misses a DepthStencil whose residency is put
+ * back to MANAGED. The scan is O(vertices) and runs every frame; dead windows are still released.
  */
 export const SHADOW_RESOURCE = /^(Spot)?Shadow(Map|Depth)\d+$/;
 /** r3 (fin r6 6fb9181b: DepthStencil893/896 1024² destroyed + re-created every frame while the result chest RenderTexture camera renders;
  *  same executor rule as the shadow maps): an off-screen window's DepthStencil<win> is MANAGED too (its Color<win> is the RenderTexture,
  *  external). Pinned like the shadow maps. Because every new RenderTexture gets a NEW window id (chest 893 → 896 → …), pinned textures of
- *  windows that no longer exist are released (releaseDeadWindows), so pinning never leaks. */
-export const PIN_RESOURCE = /^((Spot)?Shadow(Map|Depth)|DepthStencil)\d+$/;
-/** Per-window resources (trailing number = renderWindowId); SpotShadow* is per light, not per window. */
+ *  windows that no longer exist are released (releaseDeadWindows), so pinning never leaks.
+ *  b20: also the full-pipeline per-window targets (SceneDepth_, Radiance_, LdrColor_, UiColor_, BloomTex).
+ *  Mac 606f434e: those names are already quiet (landing uploads 0, board-background zero 0.988) but sample2+
+ *  cre/des stayed at 114/s of sub-256KB pairs. The executor still drops every other MANAGED vertex because
+ *  resourceUses is empty, so pin every MANAGED vertex. Bloom0 stays MANAGED (the name is the negative). */
+export const PIN_RESOURCE = /^(?:(?:Spot)?Shadow(?:Map|Depth)|DepthStencil|Msaa(?:Radiance|DepthStencil))\d+$|^(?:(?:Scaled)?(?:SceneDepth|Radiance\d+|LdrColor\d+|UiColor\d+))_\d+$|^BloomTex\d+_\d+$/;
+/** Names that must stay MANAGED. Bloom0 is the negative in the residency gates. */
+export const PIN_DENY = /^Bloom0$/;
+/** Per-window resources (captured number = renderWindowId); SpotShadow* is per light, not per window. */
 export const WINDOW_RESOURCE = /^(?:Shadow(?:Map|Depth)|DepthStencil)(\d+)$/;
+/** Window id of a pinned per-window resource, or null (SpotShadow* and anything we do not recognise). */
+export function windowIdOfPinned(name: string): number | null {
+  const s = String(name);
+  let m = /^(?:Shadow(?:Map|Depth)|DepthStencil|Msaa(?:Radiance|DepthStencil))(\d+)$/.exec(s);
+  if (m) return Number(m[1]);
+  m = /^(?:(?:Scaled)?(?:SceneDepth|Radiance\d+|LdrColor\d+|UiColor\d+))_(\d+)$/.exec(s);
+  if (m) return Number(m[1]);
+  m = /^BloomTex(\d+)_\d+$/.exec(s);
+  if (m) return Number(m[1]);
+  return null;
+}
 /** cc.rendering.ResourceResidency */
 export const RESIDENCY = Object.freeze({ MANAGED: 0, PERSISTENT: 2 });
 
-/** Pure: pin every shadow resource of a resource graph to PERSISTENT. Returns how many were changed. */
+/** Pure: pin every MANAGED resource-graph vertex to PERSISTENT. Returns how many were changed. Bloom0 stays MANAGED. */
 export function pinShadowResidency(rg: any): number {
   if (!rg || typeof rg.vertexName !== 'function' || typeof rg.getTraits !== 'function') return 0;
   const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
   let changed = 0;
   for (let v = 0; v < n; v++) {
     let name = ''; try { name = String(rg.vertexName(v)); } catch { continue; }
-    if (!PIN_RESOURCE.test(name)) continue;
-    const t = rg.getTraits(v);
+    if (PIN_DENY.test(name)) continue;
+    let t: any = null; try { t = rg.getTraits(v); } catch { continue; }
     if (t && t.residency === RESIDENCY.MANAGED) { t.residency = RESIDENCY.PERSISTENT; changed++; }
   }
   return changed;
 }
 
-/** Pure: device textures of pinned resources whose descriptor size changed (e.g. RoomLightingRig 512 → 1024) are released so the
- *  executor re-creates them at the new size exactly once — the size-change behaviour MANAGED residency used to give. */
+/** Pure: device textures whose descriptor size changed (e.g. RoomLightingRig 512 → 1024) are released so the
+ *  executor re-creates them at the new size exactly once — the size-change behaviour MANAGED residency used to give.
+ *  Every graph texture, not only the old name list: a newly pinned target still has to follow a real resize. */
 export function releaseResized(rg: any, deviceTextures: any): number {
-  if (!rg || !deviceTextures || typeof deviceTextures.forEach !== 'function') return 0;
+  if (!rg || !deviceTextures || typeof deviceTextures.forEach !== 'function' || typeof rg.find !== 'function') return 0;
   const drop: string[] = [];
   deviceTextures.forEach((res: any, name: string) => {
-    if (!PIN_RESOURCE.test(String(name))) return;
     const tex = res?.texture; if (!tex) return;
-    let v = -1; try { v = rg.find(name); } catch { return; } if (v < 0 || v === 4294967295) return;
-    const d = rg.getDesc(v); if (d && (d.width !== tex.width || d.height !== tex.height)) drop.push(name);
+    let v = -1; try { v = rg.find(name); } catch { return; } if (v == null || v < 0 || v === 4294967295) return;
+    let d: any = null; try { d = rg.getDesc(v); } catch { return; }
+    if (d && (d.width !== tex.width || d.height !== tex.height)) drop.push(name);
   });
   for (const name of drop) { try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
+  return drop.length;
+}
+/** Pure: drop device textures whose resource-graph vertex is gone, so pinning the rest cannot leak a removed name. */
+export function releaseOrphans(rg: any, deviceTextures: any): number {
+  if (!rg || !deviceTextures || typeof deviceTextures.forEach !== 'function' || typeof rg.find !== 'function') return 0;
+  const drop: string[] = [];
+  deviceTextures.forEach((_res: any, name: string) => {
+    let v = -1; try { v = rg.find(name); } catch { return; }
+    if (v == null || v < 0 || v === 4294967295) drop.push(String(name));
+  });
+  for (let i = 0; i < drop.length; i++) { const name = drop[i]; try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
   return drop.length;
 }
 
@@ -644,7 +678,7 @@ export function releaseResized(rg: any, deviceTextures: any): number {
 export function releaseDeadWindows(deviceTextures: any, aliveIds: Set<number>): number {
   if (!deviceTextures || typeof deviceTextures.forEach !== 'function' || !aliveIds || !aliveIds.size) return 0;
   const drop: string[] = [];
-  deviceTextures.forEach((_res: any, name: string) => { const m = WINDOW_RESOURCE.exec(String(name)); if (m && !aliveIds.has(Number(m[1]))) drop.push(name); });
+  deviceTextures.forEach((_res: any, name: string) => { const id = windowIdOfPinned(String(name)); if (id !== null && !aliveIds.has(id)) drop.push(name); });
   for (const name of drop) { try { deviceTextures.get(name)?.release?.(); } catch { } deviceTextures.delete(name); }
   return drop.length;
 }
@@ -657,13 +691,17 @@ export function aliveWindowIds(root: any): Set<number> | null {
 const state = { installed: false, seen: -1, pinned: 0, resized: 0, dead: 0, winSig: -1 };
 export function shadowResidencyStats() { return { installed: state.installed, pinned: state.pinned, resized: state.resized, deadReleased: state.dead }; }
 
-/** Runs right before each render-graph execute (after windowResize + compile, so descriptors are final for this frame). */
+/** Runs right before each render-graph execute (after windowResize + compile, so descriptors are final for this frame).
+ *  Re-pins every frame: windowResize does not reset an existing vertex, but a once-only pin misses new MANAGED names at a
+ *  stable vertex count and any residency that is put back to MANAGED before execute. */
 export function shadowResidencyBeforeExecute(pipeline: any): void {
+  try { ensureRtPool(root()?.device); } catch { /* device not up */ }
   const rg = pipeline?.resourceGraph; if (!rg) return;
   const n = typeof rg.numVertices === 'function' ? rg.numVertices() : (rg.x?.length | 0);
-  if (n !== state.seen) { state.seen = n; state.pinned += pinShadowResidency(rg); }
+  state.seen = n; state.pinned += pinShadowResidency(rg);
   const dt = pipeline?._executor?._context?.deviceTextures;
   if (state.pinned) state.resized += releaseResized(rg, dt);
+  if (state.pinned) state.dead += releaseOrphans(rg, dt);
   if (state.pinned) { const sig = windowSig(root()); if (sig !== state.winSig) { state.winSig = sig; const ids = aliveWindowIds(root()); if (ids) state.dead += releaseDeadWindows(dt, ids); } }
 }
 /** Allocation-free window-set signature (count + id sum + id xor); the id Set is built only when it changes. */
@@ -686,3 +724,237 @@ export function installShadowResidency(): boolean {
   return true;
 }
 installShadowResidency();
+
+/* ===== b20 landing attachment pool ===== */
+
+/**
+ * Mac ced9972f skycity.landing-board: cre/des ~389/s, uploads ~83/s, anonymous `?:N`.
+ * Mac 186b34e7: the attachment pool dropped uploads to 0 and named DepthStencil churn to 0, but
+ * cre/des stayed at ~112/s (median 112, 108–114, zero_frac 0) from sample 2. Those creates are under
+ * the probe's 256KB upload line, so they were never COLOR/DEPTH attachments of a stable screen size.
+ * The engine still calls createTexture + destroy every frame; a cache hit must return the same object
+ * without entering the probe. Pool every non-external texture of the same usage/format/size, including
+ * sampled images and the 0×0 pass dummy.
+ * Mac 606f434e: that exact key still left landing sample2+ at cre/des median 114/s, uploads 0, live 384,
+ * and zero TEX lines (the probe only prints ≥256KB). TextureViewInfo has no width, so a view is a counted
+ * create/destroy under the line. A sub-256KB image whose size changes also misses the exact key. Views are
+ * pooled by base id plus subresource range. A miss under RT_LOOSE_BYTES may resize a free texture of the
+ * same family (usage/format/samples/type/flags/depth/layers, mip count collapsed to 1-or-many) when
+ * Texture.resize exists. Mac ac9a0aeb skycity.board-background: the first two seconds are label resets
+ * (SimpleTexture destroys the image and its view, then creates both again). Strips run from 1×1 up to
+ * about 1367×175 (~1 MB), so a 256KB ceiling still allocated the image, and the view was allocated again
+ * because the pooled view still had the old base size. A view of the same base and range is resized in
+ * place when Texture.resize exists; the GL texture belongs to the base. Screen-sized targets stay
+ * exact-key. External images are not pooled. Caps: 32 textures / 48 MB, and 64 views. A full list evicts
+ * the oldest with the original destroy. Re-installed every BEFORE_DRAW so a later GPU-probe wrap cannot
+ * sit outside the pool and count a cache hit as a create.
+ */
+export const RT_POOL_CAP = 32;
+/** Byte ceiling for retained attachments (w*h*4). A single larger texture is destroyed for real. */
+export const RT_POOL_BYTES = 48 * 1024 * 1024;
+/** Loose resize ceiling (w*h*depth*layers*4). Label strips on the sky-city board are ~1 MB; a 1170×2532
+ *  screen target is ~12 MB and stays exact-key. The free texture must also be under this ceiling. */
+export const RT_LOOSE_BYTES = 2 * 1024 * 1024;
+export const RT_VIEW_CAP = 64;
+const rtFree: any[] = [];
+const rtViews: any[] = [];
+let rtSeq = 0;
+function rtBytes(tex: any): number {
+  const w = tex?.width | 0, h = tex?.height | 0;
+  return w > 0 && h > 0 ? w * h * 4 : 0;
+}
+function rtInfoBytes(info: any): number {
+  const w = info?.width | 0, h = info?.height | 0;
+  if (w <= 0 || h <= 0) return 0;
+  const d = Math.max(1, info?.depth | 0), l = Math.max(1, info?.layerCount | 0);
+  return w * h * d * l * 4;
+}
+function rtFreeBytes(): number {
+  let n = 0;
+  for (let i = 0; i < rtFree.length; i++) n += rtBytes(rtFree[i]);
+  return n;
+}
+
+function rtNorm(v: any, dflt: number): number {
+  if (v == null) return dflt;
+  const n = v | 0;
+  return n > 0 ? n : dflt;
+}
+/** '' for texture views and external images. Everything else, including sampled and 0×0, is reusable. */
+export function rtPoolKey(info: any): string {
+  if (!info || info.texture) return '';
+  const flags = info.flags | 0;
+  if ((flags & 0xc) !== 0 || info.externalRes) return '';
+  const w = info.width | 0, h = info.height | 0;
+  if (w < 0 || h < 0) return '';
+  return [
+    info.usage | 0, info.format | 0, w, h,
+    rtNorm(info.samples, 1), info.type == null ? 1 : (info.type | 0), flags,
+    rtNorm(info.depth, 1), rtNorm(info.layerCount, 1), rtNorm(info.levelCount, 1),
+  ].join(':');
+}
+/** Family ignores width/height. levelCount is 1 or "has mips", because resize rewrites a full mip chain. */
+export function rtFamily(info: any): string {
+  const levels = rtNorm(info?.levelCount, 1);
+  return [
+    info?.usage | 0, info?.format | 0,
+    rtNorm(info?.samples, 1), info?.type == null ? 1 : (info.type | 0), info?.flags | 0,
+    rtNorm(info?.depth, 1), rtNorm(info?.layerCount, 1), levels <= 1 ? 1 : 0,
+  ].join(':');
+}
+function rtId(tex: any): number {
+  if (!tex || typeof tex !== 'object') return 0;
+  const cur = tex.__qfRtId | 0; if (cur) return cur;
+  const n = ++rtSeq; try { tex.__qfRtId = n; } catch { return 0; }
+  return tex.__qfRtId === n ? n : 0;
+}
+/** '' when this is not a view. Keyed by the base object plus the subresource range, not by width. */
+export function rtViewKey(info: any): string {
+  const base = info && info.texture;
+  const id = rtId(base); if (!id) return '';
+  return [
+    'v', id, info.type == null ? 1 : (info.type | 0), info.format | 0,
+    info.baseLevel | 0, rtNorm(info.levelCount, 1), info.baseLayer | 0, rtNorm(info.layerCount, 1),
+    info.basePlane | 0, rtNorm(info.planeCount, 1),
+  ].join(':');
+}
+export function rtPoolOccupancy(): number { return rtFree.length; }
+
+function rtDropViews(id: number): void {
+  if (!id) return;
+  for (let i = rtViews.length - 1; i >= 0; i--) {
+    const v = rtViews[i];
+    if (v && v.__qfRtBase === id) { rtViews.splice(i, 1); rtEvict(v); }
+  }
+}
+function rtEvict(tex: any): void {
+  if (!tex || tex.__qfRtDead) return;
+  const id = tex.__qfRtKind === 'v' ? 0 : (tex.__qfRtId | 0);
+  tex.__qfRtDead = true; tex.__qfRtHeld = false; tex.__qfRtEvict = true;
+  if (id) rtDropViews(id);
+  const d = tex.__qfRtOrigDestroy;
+  if (typeof d === 'function') { try { d.call(tex); } catch { /* native destroy already ran */ } }
+}
+function armRt(tex: any, kind: 't' | 'v'): void {
+  if (tex.__qfRtDead) return;
+  tex.__qfRtKind = kind;
+  if (tex.destroy && tex.destroy.__qfRtRecycle) { tex.__qfRtHeld = false; return; }
+  if (!tex.__qfRtOrigDestroy && typeof tex.destroy === 'function') tex.__qfRtOrigDestroy = tex.destroy;
+  const recycle = function (this: any) {
+    if (tex.__qfRtDead) return;
+    if (tex.__qfRtEvict) {
+      tex.__qfRtEvict = false; tex.__qfRtDead = true;
+      const d = tex.__qfRtOrigDestroy;
+      if (typeof d === 'function' && d !== recycle) { try { d.call(tex); } catch { /* native destroy */ } }
+      return;
+    }
+    if (tex.__qfRtHeld) return;
+    tex.__qfRtHeld = true;
+    if (kind === 'v') {
+      while (rtViews.length >= RT_VIEW_CAP) { const old = rtViews.shift(); if (old && old !== tex) rtEvict(old); }
+      if (rtViews.length < RT_VIEW_CAP) rtViews.push(tex); else rtEvict(tex);
+      return;
+    }
+    const need = rtBytes(tex);
+    if (need > RT_POOL_BYTES) { rtEvict(tex); return; }
+    while (rtFree.length >= RT_POOL_CAP || (rtFree.length > 0 && rtFreeBytes() + need > RT_POOL_BYTES)) {
+      const old = rtFree.shift(); if (old && old !== tex) rtEvict(old);
+    }
+    if (rtFree.length < RT_POOL_CAP && rtFreeBytes() + need <= RT_POOL_BYTES) rtFree.push(tex); else rtEvict(tex);
+  };
+  recycle.__qfRtRecycle = true;
+  tex.destroy = recycle;
+  tex.__qfRtPool = true;
+  tex.__qfRtHeld = false;
+}
+function rtTake(key: string): any {
+  for (let i = 0; i < rtFree.length; i++) {
+    const t = rtFree[i];
+    if (t && !t.__qfRtDead && t.__qfRtKey === key) { rtFree.splice(i, 1); return t; }
+  }
+  return null;
+}
+function rtViewSize(base: any): { w: number, h: number } | null {
+  if (!base || base.width == null || base.height == null) return null;
+  return { w: base.width | 0, h: base.height | 0 };
+}
+/** A view copies the base size at initialize. WebGL stores that copy on the view and shares the base
+ *  GL texture, so Texture.resize on the view updates the copy and does not allocate. */
+function rtRefreshView(view: any, info: any): boolean {
+  const sz = rtViewSize(info && info.texture); if (!sz) return true;
+  if ((view.__qfRtBaseW | 0) === sz.w && (view.__qfRtBaseH | 0) === sz.h) return true;
+  if (typeof view.resize !== 'function') return false;
+  try { view.resize(sz.w, sz.h); } catch { return false; }
+  if ((view.width | 0) !== sz.w || (view.height | 0) !== sz.h) return false;
+  view.__qfRtBaseW = sz.w; view.__qfRtBaseH = sz.h;
+  return true;
+}
+/** Take a free view of this base and range. A size mismatch is refreshed in place; a view that cannot
+ *  resize is destroyed so it is not handed back at the old size. */
+function rtTakeFreshView(key: string, info: any): any {
+  for (let i = 0; i < rtViews.length; i++) {
+    const t = rtViews[i];
+    if (!t || t.__qfRtDead || t.__qfRtKey !== key) continue;
+    rtViews.splice(i, 1); i--;
+    if (rtRefreshView(t, info)) return t;
+    rtEvict(t);
+  }
+  return null;
+}
+function rtLooseTake(family: string): any {
+  for (let i = 0; i < rtFree.length; i++) {
+    const t = rtFree[i];
+    if (t && !t.__qfRtDead && t.__qfRtFamily === family && rtBytes(t) < RT_LOOSE_BYTES) { rtFree.splice(i, 1); return t; }
+  }
+  return null;
+}
+function rtFit(tex: any, info: any): boolean {
+  const w = info?.width | 0, h = info?.height | 0;
+  if ((tex.width | 0) === w && (tex.height | 0) === h) return true;
+  if (typeof tex.resize !== 'function') return false;
+  try { tex.resize(w, h); } catch { return false; }
+  return (tex.width | 0) === w && (tex.height | 0) === h;
+}
+/** Keep this wrapper outermost on device.createTexture. Returns false when there is nothing to wrap. */
+export function ensureRtPool(device: any): boolean {
+  if (!device || typeof device.createTexture !== 'function') return false;
+  if (device.createTexture.__qfRtOuter) return true;
+  const inner = device.createTexture;
+  const createTexture = function (this: any, info: any) {
+    const viewKey = info && info.texture ? rtViewKey(info) : '';
+    if (viewKey) {
+      const hit = rtTakeFreshView(viewKey, info);
+      if (hit) { hit.__qfRtReuse = 1; hit.__qfRtHeld = false; armRt(hit, 'v'); return hit; }
+      const view = inner.call(device, info);
+      if (view) {
+        view.__qfRtKey = viewKey; view.__qfRtBase = info.texture.__qfRtId | 0;
+        const sz = rtViewSize(info.texture); if (sz) { view.__qfRtBaseW = sz.w; view.__qfRtBaseH = sz.h; }
+        armRt(view, 'v');
+      }
+      return view;
+    }
+    const key = rtPoolKey(info);
+    if (key) {
+      const hit = rtTake(key);
+      if (hit) { hit.__qfRtReuse = 1; hit.__qfRtHeld = false; armRt(hit, 't'); return hit; }
+      if (rtInfoBytes(info) < RT_LOOSE_BYTES) {
+        const loose = rtLooseTake(rtFamily(info));
+        if (loose) {
+          if (rtFit(loose, info)) { loose.__qfRtKey = key; loose.__qfRtReuse = 1; loose.__qfRtHeld = false; armRt(loose, 't'); return loose; }
+          loose.__qfRtHeld = true; rtFree.push(loose);
+        }
+      }
+    }
+    const tex = inner.call(device, info);
+    if (tex && key) { tex.__qfRtKey = key; tex.__qfRtFamily = rtFamily(info); armRt(tex, 't'); }
+    return tex;
+  };
+  createTexture.__qfRtOuter = true;
+  device.createTexture = createTexture;
+  return true;
+}
+function installRtPool(): void {
+  const tick = () => { try { ensureRtPool(root()?.device); } catch { /* device not up */ } };
+  try { director.on(Director.EVENT_BEFORE_DRAW, tick); } catch { /* headless */ }
+}
+installRtPool();

@@ -87,6 +87,8 @@ const tests=[
  ['landmark-audio','tests/test_landmark_audio.cjs'],
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['region-board-staging','tools/meadow/test_region_board_staging.cjs'],/* r5 G1: meadow / sky-city board work spread over level-loading */
+ ['meadow-sail-warm','tools/meadow/test_meadow_sail_warm.cjs'],/* b20 warm-up C: sail env_meadow variants, ≤4 ms cost model, sail frame compiles nothing */
+ ['transition-shader-warm','tools/meadow/test_transition_shader_warm.cjs'],/* b20: morph/skin/shadow variants one per frame, sail frame 0, camera not delayed */
  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
  ['world-background-freeze','tools/journey-integration/test-world-background-freeze.cjs'],
  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
@@ -109,7 +111,7 @@ const tests=[
  ['host-sync-hot-transitive','tools/host-sync/test_no_storage_hot_transitive.cjs'],['report-runtime-async','tools/host-sync/test_report_runtime_async.cjs'],
  ['mainline-storage-cache','tools/storage-cache/test_mainline_storage_cache.cjs'],
  ['region-flow-checkpoint-reads','tools/storage-cache/test_region_flow_checkpoint_reads.cjs'],['host-env-once','tools/storage-cache/test_host_env_once.cjs'],
- ['sync-probe','tools/sync-probe/test_sync_probe.cjs'],['pre-transition-sync-frames','tools/pre-transition-sync/test_pre_transition_sync_frames.cjs'],['gpu-shader-frames','tools/sync-probe/test_gpu_shader_frames.cjs'],['qa-sync-scope','tools/sync-probe/test_qa_sync_scope.cjs'],['gpu-probe','tools/sync-probe/test_gpu_probe.cjs'],['gpu-probe-start','tools/sync-probe/test_gpu_probe_start.cjs'],['gpu-churn-verdict','tools/cam-trace/test_gpu_churn_verdict.cjs'],['harness-noprobe','tools/wx-autoplay/test-noprobe.cjs'],['shadow-churn-gate','tools/shadow-churn/test_shadow_churn_gate.cjs'],['rt-depth-churn-gate','tools/shadow-churn/test_rt_depth_churn_gate.cjs'],['gpu-probe-src','tools/sync-probe/test_gpu_probe_src.cjs'],
+ ['sync-probe','tools/sync-probe/test_sync_probe.cjs'],['pre-transition-sync-frames','tools/pre-transition-sync/test_pre_transition_sync_frames.cjs'],['gpu-shader-frames','tools/sync-probe/test_gpu_shader_frames.cjs'],['qa-sync-scope','tools/sync-probe/test_qa_sync_scope.cjs'],['gpu-probe','tools/sync-probe/test_gpu_probe.cjs'],['gpu-probe-start','tools/sync-probe/test_gpu_probe_start.cjs'],['gpu-churn-verdict','tools/cam-trace/test_gpu_churn_verdict.cjs'],['harness-noprobe','tools/wx-autoplay/test-noprobe.cjs'],['shadow-churn-gate','tools/shadow-churn/test_shadow_churn_gate.cjs'],['rt-depth-churn-gate','tools/shadow-churn/test_rt_depth_churn_gate.cjs'],['skycity-rt-residency','tools/shadow-churn/test_skycity_rt_residency.cjs'],['skycity-landing-rt-pool','tools/shadow-churn/test_skycity_landing_rt_pool.cjs'],['gpu-probe-src','tools/sync-probe/test_gpu_probe_src.cjs'],
  ['w2-append-only','tools/wx-autoplay/test-w2-append.cjs'],['result-abrupt','tools/wx-autoplay/test-result-abrupt.cjs'],
  ['manifests-fresh','tools/manifests/test_manifests_fresh.cjs'],
  ['cam-trace-log-rate','tools/cam-trace/test_cam_trace_log_rate.cjs'],

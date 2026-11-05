@@ -1,0 +1,103 @@
+{
+  "model": "skycity-landing-rt-pool",
+  "frames": 40,
+  "cap": 32,
+  "byteCap": 50331648,
+  "nativeCreatesForDepthAndColor": 2,
+  "nativeDestroysWhileHot": 0,
+  "probeCreates": 2,
+  "probeDestroys": 0,
+  "probeUploads": 2,
+  "sampledNativeCreates": 1,
+  "smallNativeCreates": 2,
+  "viewNativeCreates": 1,
+  "looseNativeCreates": 1,
+  "mac606f434e": {
+    "commit": "606f434eb6289aa03585165ee9f76aff775fa504",
+    "feature": "968ab266c4e401e0cac35c5e3efb9b1aab33def2",
+    "phase": "skycity.landing-board",
+    "from2": {
+      "n": 15,
+      "creAvg": 112.8,
+      "creMedian": 114,
+      "desMedian": 114,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 0
+    },
+    "all": {
+      "n": 16,
+      "creAvg": 112.1,
+      "creMedian": 114,
+      "desMedian": 114,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 0
+    },
+    "live": 384,
+    "texDetailDuringLanding": 0,
+    "steadyPhase": "skycity.board-background",
+    "steadySamples": 85,
+    "steadyZeroFrac": 0.988,
+    "steadyCreAvg": 0.4,
+    "packageProbeKept": {
+      "total": 23600616,
+      "main": 1874614
+    }
+  },
+  "macBefore": {
+    "commit": "ced9972fb7917119baa7220c783f4dab40019ab5",
+    "phase": "skycity.landing-board",
+    "samples": 16,
+    "creMin": 308,
+    "creMax": 399,
+    "creAvg": 389.4,
+    "zeroFrac": 0,
+    "uploadsAvg": 83.4,
+    "uploadsMax": 87,
+    "uploadMBMax": 34.5,
+    "depthStencilChurnRows": 16,
+    "namedSceneColorRows": 0,
+    "steadyPhase": "skycity.board-background",
+    "steadySamples": 73,
+    "steadyZeroFrac": 0.986,
+    "steadyCreAvg": 1.1
+  },
+  "mac186b34e7": {
+    "commit": "186b34e7f627c3f15ac31c3c5b2c5b30a5d7c015",
+    "feature": "b45315eae7a0c49763a6afb4f974b88816c1d560",
+    "phase": "skycity.landing-board",
+    "from2": {
+      "n": 15,
+      "creMin": 108,
+      "creMax": 114,
+      "creAvg": 112.3,
+      "creMedian": 112,
+      "desMedian": 112,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 0,
+      "depthStencilChurnRows": 0
+    },
+    "all": {
+      "n": 16,
+      "creMin": 56,
+      "creAvg": 108.8,
+      "creMedian": 112,
+      "desMedian": 112,
+      "zeroFrac": 0,
+      "uploadsMedian": 0,
+      "uploadsMax": 3
+    },
+    "steadyPhase": "skycity.board-background",
+    "steadySamples": 79,
+    "steadyZeroFrac": 0.975,
+    "steadyCreAvg": 1.1,
+    "steadyCreMax": 78,
+    "packageProbeKept": {
+      "total": 23600600,
+      "main": 1874614
+    }
+  },
+  "note": "Exact-key pool, views by base id + subresource, and same-family resize under 2MB when Texture.resize exists. A view of that base is resized in place so a label reset (1x1 to 1187x170 / 1367x175) does not allocate. A hit returns the same object and the probe does not count it. External images, a size at or above 2MB, and a view with no resize still allocate. Mac ac9a0aeb passed landing from2 (0/0/0) and failed board-background zero_frac 0.964 on two seconds of f35 v1 strips. Mac must re-measure: landing from sample 2 cre and des median <= 2/s and uploads <= 1/s, and board-background zero_frac >= 0.98."
+}

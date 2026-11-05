@@ -1,0 +1,25 @@
+{
+  "model": "skycity-rt-residency",
+  "frames": 600,
+  "warmFrames": 10,
+  "names": [
+    "SceneDepth_0",
+    "Radiance0_0",
+    "Radiance1_0",
+    "LdrColor0_0",
+    "LdrColor1_0",
+    "UiColor0_0",
+    "UiColor1_0",
+    "DepthStencil0",
+    "ShadowMap0",
+    "ShadowDepth0"
+  ],
+  "fixedSteadyCreates": 0,
+  "fixedDepthStencilCreates": 0,
+  "fixedSceneDepthCreates": 0,
+  "baselineCommit": "b3394140",
+  "baselineSteadyCreates": 6000,
+  "baselineDepthStencilCreates": 600,
+  "baselineCreatesPerSecondAt60": 600,
+  "note": "Hostile test puts every full-pipeline residency back to MANAGED before execute, with resourceUses empty. Fixed code re-pins every MANAGED vertex each frame (Bloom0 stays MANAGED), so steady creates are 0. b3394140 pin-once of DepthStencil/shadow only fails. Mac 606f434e board-background zero_frac 0.988. Landing from2 cre/des median 114/s is the texture pool in skycity-landing-rt.json, not this pin gate."
+}

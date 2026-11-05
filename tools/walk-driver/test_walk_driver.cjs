@@ -7,7 +7,7 @@
  * Engine-free, no rendering. Not render/device acceptance. */
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
 const ROOT=path.resolve(__dirname,'..','..');const S=path.join(ROOT,'creator-build-project/assets/scripts');
-const ts=require(process.env.QF_TYPESCRIPT_MODULE||require('../qf-env.cjs').typescript());
+const ts=process.env.QF_TYPESCRIPT_MODULE?require(process.env.QF_TYPESCRIPT_MODULE):require('../qf-env.cjs').typescript();
 const G=require('./glb_rig.cjs');
 const flowRoot=process.env.WALK_FLOW_ROOT?path.resolve(process.env.WALK_FLOW_ROOT):ROOT;
 const {load}=require(path.join(flowRoot,'tools/camera-frame-test/load_ts.cjs'));const M=load();const W=M.WorldFlowCore;
@@ -183,7 +183,7 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
    const sc=maxStep(cu),sf=maxStep(fl);assert(sc.m<.06&&sf.m<.06,'jumps '+sc.m+' '+sf.m);assert(Math.max(...fl)>.5,'flutter layer curve dominates the wind map at high wind');assert.equal(below,0,'frames with flutter < windToMorphFlutter(wind)');
    return {crossT:+cross.toFixed(3),curlPeakT:+(peak/60).toFixed(3),curlMaxStep:+sc.m.toFixed(4),flutterMaxStep:+sf.m.toFixed(4),flutterMax:+Math.max(...fl).toFixed(3),calls:r.calls.length};});}
  // 4) missing mesh / no morph / too few targets / morph disabled: nothing written, status recorded, driver unaffected
- {const cases=[['not-found',[mockRenderer('LOD0_G2_BODY')]],['no-morph',[mockRenderer('LOD0_G2_APRON',[2],{noMorph:true})]],['too-few-targets',[mockRenderer('LOD0_G2_APRON',[1])]],['morph-disabled',[mockRenderer('LOD0_G2_APRON',[2],{enableMorph:false})]],['not-found',null]];const out=[];
+ {const cases=[['not-found',[mockRenderer('LOD0_G2_BODY')]],['no-morph',[mockRenderer('LOD0_G2_APRON',[2],{noMorph:true})]],['too-few-targets',[mockRenderer('LOD0_G2_APRON',[1])]],['morph-disabled',[mockRenderer('LOD0_G2_APRON',[2],{enableMorph:false,noMorph:true})]],['not-found',null]];const out=[];
   for(const [want,rs] of cases){const c=makeCharacter({meta:morphMeta(),renderers:rs||undefined});c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});const fe=[];c.s.onFoot(e=>fe.push(e));
    const wp=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,1.5]],duration:1.5/0.7},new Token());for(let i=0;i<160;i++){c.s.advance(1/60);await flush();}await wp;const md=c.s.diagnostics().motion.morph;
    out.push({want,status:md.status,reason:md.reason,calls:(rs||[]).reduce((a,x)=>a+x.calls.length,0),feet:fe.length,targetCounts:md.targetCounts});}

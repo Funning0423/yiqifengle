@@ -17,6 +17,7 @@ import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { preloadMeadowForSail } from '../region/SailPreload';
 import { warmTransition } from '../region/TransitionPreload';
+import { beginTransitionShaderWarm, watchTransitionRoot } from '../region/TransitionShaderWarm';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import { hasScreenCover, screenCover } from './ScreenCover';
@@ -31,6 +32,7 @@ import { DIALOG_CAMERA_YIELD, dialogCameraOpen, dialogYieldPitchDeg, createYield
 import { FreeOrbit, orbitColliderName, type OrbitBox } from '../region/FreeOrbit';
 import { RoomShell360 } from '../render/RoomShell360';
 import { exploreEnabled } from '../region/ExploreGate';
+import { PERIOD_HEAVY_REFRESH_ENABLED } from '../region/PeriodHeavyRefresh';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode, emitDayNightChange } from './DayNightContract';
 import { skyFollowColor, vertexColorAverageLinear } from './SkyFollowCore';
 /** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
@@ -328,7 +330,7 @@ export class WorldFlowComponent extends Component {
   private readLivePose():Pose{const cam=this.worldCamera!,n=cam.node,p=n.worldPosition,f=n.forward;return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:cam.fov};}
   /** Door hint from a lens. Same screen test as RoomLook, measured from this lens so a spun room still finds the handle. */
   private doorGlance(cam:CameraPose,aspect:number,point:V3){if(!Number.isFinite(aspect)||aspect<=0)return {visible:false,x:.5,y:.5,direction:1};const p=projectPoint(cam,aspect,point),x=(p.x+1)/2,y=(p.y+1)/2;const a=yawPitch(cam.rotation),rel=[point[0]-cam.position[0],point[2]-cam.position[2]];let delta=Math.atan2(rel[0],rel[1])-a.yaw;while(delta>Math.PI)delta-=2*Math.PI;while(delta<-Math.PI)delta+=2*Math.PI;return {visible:p.depth>.05&&x>.10&&x<1-.10&&y>.12&&y<.86,x,y,direction:delta<0?1:-1};}
-  private fillBoxes():OrbitBox[]{const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return this.orbitBoxes;this.orbitBoxAt=now;this.orbitBoxes.length=0;const root=this.ownedModel;if(!root)return this.orbitBoxes;const list=root.getComponentsInChildren(MeshRenderer);for(let i=0;i<list.length&&this.orbitBoxes.length<32;i++){const r=list[i];if(!r.enabled||!r.node.activeInHierarchy||orbitColliderName(r.node.name)||!r.model?.worldBounds)continue;const b=r.model.worldBounds,c=b.center,h=b.halfExtents,span=Math.max(h.x,h.y,h.z)*2;if(span<0.25||span>16)continue;this.orbitBoxes.push({min:[c.x-h.x,c.y-h.y,c.z-h.z],max:[c.x+h.x,c.y+h.y,c.z+h.z],name:r.node.name});}return this.orbitBoxes;}
+  private fillBoxes():OrbitBox[]{if(!PERIOD_HEAVY_REFRESH_ENABLED)return this.orbitBoxes;/* A/B: skip ~400ms MeshRenderer AABB walk */const now=Date.now();if(now-this.orbitBoxAt<400&&this.orbitBoxes.length)return this.orbitBoxes;this.orbitBoxAt=now;this.orbitBoxes.length=0;const root=this.ownedModel;if(!root)return this.orbitBoxes;const list=root.getComponentsInChildren(MeshRenderer);for(let i=0;i<list.length&&this.orbitBoxes.length<32;i++){const r=list[i];if(!r.enabled||!r.node.activeInHierarchy||orbitColliderName(r.node.name)||!r.model?.worldBounds)continue;const b=r.model.worldBounds,c=b.center,h=b.halfExtents,span=Math.max(h.x,h.y,h.z)*2;if(span<0.25||span>16)continue;this.orbitBoxes.push({min:[c.x-h.x,c.y-h.y,c.z-h.z],max:[c.x+h.x,c.y+h.y,c.z+h.z],name:r.node.name});}return this.orbitBoxes;}
   private writeOrbit(orbit:FreeOrbit,feet:V3,reason:string):boolean{if(!this.worldCamera)return false;const pose=orbit.solve(feet,this.fillBoxes(),feet[1]);return applyCameraPose(this.worldCamera,fromLookAt(pose),reason);}
   private noteCinematic(){this.homeOrbit.pause();this.islandOrbit.pause();this.cinematicSerial=this.frameSerial;}
   private roomView(aspect:number){const s=this.flow?.snapshot();const enabled=!!s&&s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&!this.roomLookToken&&this.jobs.size===0;const handle=FIRSTSLICE.anchors.door_handle.position as V3;if(enabled&&this.homeOrbit.engaged()&&this.worldCamera){const pose=fromLookAt(this.homeOrbit.solve(this.homePivot(),this.fillBoxes(),this.homePivot()[1]));return {enabled,settling:!!this.roomLookToken,door:this.doorGlance(pose,aspect,handle),angles:{yaw:this.homeOrbit.yaw,pitch:this.homeOrbit.pitch}};}return {enabled,settling:!!this.roomLookToken,door:this.roomLook.door(handle,aspect),angles:this.roomLook.angles()};}
@@ -379,7 +381,9 @@ export class WorldFlowComponent extends Component {
     catch(error){this.cancelRoomLook();if(error instanceof Cancelled)return {ok:false,reason:'cancelled'};throw error;}
     finally {if(this.roomLookToken===token)this.roomLookToken=null;}
   }
-  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok)this.herAdapter=adapter;/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
+  bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok){this.herAdapter=adapter;this.armTransitionShaderWarm();}/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
+  /** Spread character/island/meadow shader variants one per frame. Does not await, and does not hold animateCamera. */
+  private armTransitionShaderWarm():void{beginTransitionShaderWarm();const scene=director.getScene();if(scene)watchTransitionRoot(scene);if(this.ownedModel)watchTransitionRoot(this.ownedModel);const her=(this.herAdapter as any)&&((this.herAdapter as any).node||(this.herAdapter as any).root);if(her)watchTransitionRoot(her);}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
     token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);this.worldAmbient=ambient;ambient.clipUuids=REGIONS.island.ambientClipUuids!;this.ownedModel=model;this.node.addChild(model);
     try {
@@ -459,7 +463,7 @@ export class WorldFlowComponent extends Component {
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
       token.check();
       const writeLayers=(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);this.room360?.syncLayers();};
-      this.nodeWalkLayers=writeLayers;
+      this.nodeWalkLayers=writeLayers;this.armTransitionShaderWarm();
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.
@@ -554,7 +558,7 @@ export class WorldFlowComponent extends Component {
     }
     this.settleOrbit(frameDt,finger);
     this.applyDialogYield(frameDt);
-    if(Date.now()-this.lastDiagnosticAt>=5000)this.reportRuntime('tick');
+    if(PERIOD_HEAVY_REFRESH_ENABLED&&Date.now()-this.lastDiagnosticAt>=5000)this.reportRuntime('tick');/* A/B: skip 5s snapshot tick */
   }
   /** After a cinematic frame, ease back to the orbit the player left. Region walks own the lens while explore is on. */
   private settleOrbit(dt:number,finger:boolean){

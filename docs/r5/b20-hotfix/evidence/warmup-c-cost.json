@@ -1,0 +1,21 @@
+{
+  "model": "meadow-sail-warm-c",
+  "unfixedVariants": 69,
+  "unfixedSailMs": 1601,
+  "budgetMs": 4,
+  "frameCostMs": {
+    "kick": 0.25,
+    "cacheHit": 0.5,
+    "kickPlusCacheHit": 0.75
+  },
+  "earlySailAtFrame": 5,
+  "earlySailKicks": 0,
+  "earlySailCompiles": 0,
+  "totalCompiles": 69,
+  "maxKicksPerFrame": 1,
+  "maxCompilesPerFrame": 1,
+  "maxFrameMs": 0.75,
+  "sailSkips": 2,
+  "finalDefineKeys": 69,
+  "note": "Offline cost model. One synchronous driver compile is not sliced; the sail frame does none, and unfinished MeshRenderers stay disabled. Mac measures real frame ms."
+}

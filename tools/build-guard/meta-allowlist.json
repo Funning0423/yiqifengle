@@ -50,6 +50,8 @@
       "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
     },
     "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "运镜bot b20 meadow-board-lens: new script MeadowStageLens.ts (per-stage meadow board lens); pending Grok Bot review"},
+    "creator-build-project/assets/scripts/region/MeadowSailWarm.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "b20 hotfix warm-up C: new script MeadowSailWarm.ts (sail env_meadow shader warm-up, one variant per frame). Grok Bot assigned this hotfix."},
+    "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "b20 hotfix: TransitionShaderWarm.ts spreads the animateCamera morph/skin/shadow variants one per frame. Grok Bot assigned this hotfix."},
     "creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta": {
       "allowAdd": {
         "importer": "typescript"
@@ -122,6 +124,12 @@
         "importer": "image"
       },
       "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as reward_seal_lake.png.meta). Needs Grok Bot review per this file's rule."
+    },
+    "creator-build-project/assets/scripts/region/SkycityLegHeavy.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 hotfix A/B: SkycityLegHeavy.ts gates BalloonTransit ascent paint + SkycityCloudsea post-land syncDay (meadow→skycity ascent AND walk-to-plaza with TSW OFF). Grok Bot assigned this hotfix."
     },
     "creator-build-project/assets/bundles/board_art/r2/region_coast.png.meta": {
       "allowAdd": {

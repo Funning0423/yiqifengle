@@ -1,0 +1,53 @@
+{
+  "title": "Strategy B FAIL root-cause: no script delta vs over-line fb74d437",
+  "mac_fail_tip": "6f785228c27292bbe6b849bbb55657993b64a7e5",
+  "mac_pass_tip": "fb74d437d96d1201f597b36f669b22115988077d",
+  "ggbot_pass_tip": "ac48372e806995e83336a78e1f40297dc5243a7f",
+  "ggbot_strategy_b_tip": "0ba5ada56da673743652ad247290336f53e79851",
+  "gates": {
+    "fb74d437": {
+      "setCamera_max": 0,
+      "board_bg_max": 0,
+      "animateCamera": 0
+    },
+    "6f785228": {
+      "setCamera_max": 270,
+      "board_bg_max": 452,
+      "animateCamera": 0,
+      "n_setCamera_ge100": 17,
+      "n_board_ge100": 75
+    },
+    "587b73d3_strategy_a": {
+      "setCamera_max": 268,
+      "board_bg_max": 245
+    }
+  },
+  "build_TOTAL": {
+    "fb74d437": 23626088,
+    "6f785228": 23626088,
+    "587b73d3": 23627295
+  },
+  "finding": "creator-build-project/assets/scripts/** bit-identical fb74d437..6f785228; only docs/tests/evidence/MANIFEST differ. LONGs have shaders=0. BalloonTransit middle / black-fence always-configure / TransitionStaging s0New ARE present on BOTH pass and fail tips (ac48372e..fb74/6f78), so they are NOT the regressing delta vs over-line Mac tip.",
+  "scripts_fb74_vs_6f78": "ZERO_DIFF",
+  "scripts_ac48372e_vs_6f78_still_diff": [
+    "BalloonTransit.ts (showIsland from LAND_T; B5 island force-on; walk via K.s1→s0New)",
+    "TransitionStaging.ts (s0New=spawn_girl; s1; toPath 15; meadowToSkycity cap 60)",
+    "BalloonFlight.ts (SKY_LAWN +floor_seal; comment cap 60)",
+    "SailPreload.ts (configureMeadowVertexColors on warm)",
+    "RegionJourneyAdapter.ts (black-fence always-configure vertex colors)"
+  ],
+  "note": "Those five diffs equal ac48372e..fb74d437 as well — already on the PASS tip.",
+  "long_signature_6f785228": "post-ready LONGs shaders=0 (not compile); setCamera frames~6123-7683 during BalloonTransit:flight→B5; board-bg frames~8173-9040",
+  "ruled_out": [
+    "warmSampleStandUp",
+    "armStandupShaderBurst",
+    "TransitionShaderWarm standup invasions",
+    "BalloonTransit/black-fence as delta vs fb74"
+  ],
+  "block": "Cannot peel another script delta to restore gates: scripts already == over-line Mac tip. Next: Mac same-day CONTROL retest of fb74d437 with KEEP_CACHE=0; do not revert sea-landing/black-fence (would leave the known PASS tree). upload=NO. live still 1.0.202611031613 @ fb74d437.",
+  "evidence_dirs": [
+    "/workspace/yiqifengle/mac-selftest-6f785228-landing/",
+    "/workspace/yiqifengle/mac-selftest-fb74d437-landing/",
+    "/workspace/yiqifengle/mac-selftest-587b73d3-landing/"
+  ]
+}

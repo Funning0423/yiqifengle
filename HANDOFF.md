@@ -35,7 +35,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 - coast subpackage ≤ 943,718 B
 
 ## Open issues 未结问题
-1. **env_meadow shader compile stall**: about a 1.6 s frame at sail set-off. A+B probes are in place; warm-up C is not done. See `outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md`.
+1. **env_meadow shader compile stall**: warm-up C is on `ggbot/b20-meadow-c-skycity-rt`. See `docs/r5/b20-hotfix/INTEGRATE.md`. The offline cost model is ≤0.75 ms/frame and the sail frame compiles nothing. Mac still measures real frame time.
 2. **Lake freeze (fc3123fa)**: not confirmed on the Mac. fin r7/r8 are pending. Likely a DevTools host stall, but this is unproven.
 3. **DevTools simfail race**: a getBuilder race inside DevTools. R1 detect-and-retry is in `outbox/20261101-simfail/LAUNCH_FIX.md`. Tester results: E1 3/4, E2 2/4, and every failure carries the race signature. The 6-launch verification is pending.
 
@@ -54,7 +54,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 ## Evidence (box paths, not on GitHub)
 - simfail: /workspace/qifengle/test-reports/20261101_simfail-evidence/E-table.md, startedByCLI-grep.txt
 - meadow/lake: team/ggbot/outbox/20261030-p0-fin-lake-freeze/MAC_STEPS_r8.md
-- Meadow warm-up C waits for r8 results. Target: ≤4 ms/frame, no hitch, final define set.
+- Meadow warm-up C passed on Mac `ced9972f`. Integrate tips through `8e93c02b` kept landing from2 0/0/0 and board-bg zero 1.0. `8e93c02b` still failed `world.animateCamera` frame 1803 at 772 ms / 70 shaders after warm logged compiled=764 pending=0 criticalPending=0. That counter was a queue empty, not a live-cache hit: `getProgramVariant` Object.assign's pipeline.macros and keys the draw cache. This tip wraps Object.assign during compile so those defines get the full spike bag (FOG4 / cascaded / HDR / SHADOWMAP_FORMAT / LINEAR_DEPTH / PCF2 / SHADOW_TYPE2). criticalPending stays up until those createShader names are cached. The camera track is not awaited or held. See `docs/r5/b20-hotfix/LIVE-CACHE.md`. Do not upload.
 
 ## Next steps 下一步
 1. R1 six-launch verification

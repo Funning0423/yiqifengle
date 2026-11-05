@@ -1,0 +1,28 @@
+{
+  "tip": "TransitionShaderWarm default OFF A/B",
+  "date": "2026-11-05",
+  "status": "PASS",
+  "gate": "transition-shader-warm-default-off",
+  "transitionShaderWarmDefaultOff": true,
+  "transitionShaderWarmManualOnWorks": true,
+  "transitionShaderWarmGates": true,
+  "gates": {
+    "begin/watch": "no-op when TRANSITION_SHADER_WARM_ENABLED=false (no director_after_draw)",
+    "onFrame": "early return when OFF",
+    "hold/note/arm": "callable empty when OFF (BalloonTransit/Board/Sail callers safe)",
+    "setTransitionShaderWarmEnabled(false)": "tear-down via resetTransitionShaderWarm"
+  },
+  "why": "PM deep dig: live COUNT16 but CRITICAL_CACHE_NEEDLES still COUNT53/73 → needlesMissing forever → criticalPending never 0 → every-frame compile (CRITICAL_PER_FRAME=3) + SCAN_EVERY=10 absorb. Feel-control 0421cfff had no TSW / smooth. Five prior A/Bs zero gain with TSW zero-intrusion.",
+  "kept": {
+    "COUNT_GLB_pair": "e3fbce98 + meta 6fd22962 (NOT broken)",
+    "StandupProgramWarm": "default OFF",
+    "MorphIdleDrive": "default OFF",
+    "PeriodHeavyRefresh": "default OFF",
+    "SceneAudioPoll": "default OFF",
+    "MorphGpuGate": "ad76cf64 retained",
+    "BalloonTransit_sea_landing": "visuals retained; hold/note APIs empty when OFF"
+  },
+  "next_if_fail": "COUNT16↔FAT Morph A/B (#2; FAT more likely hurts standup than kills period after_draw tax)",
+  "offline": "node tools/walk-driver/test_standup_program_warm.cjs + node tools/meadow/test_transition_shader_warm.cjs + identity peel",
+  "upload": "等 PM"
+}

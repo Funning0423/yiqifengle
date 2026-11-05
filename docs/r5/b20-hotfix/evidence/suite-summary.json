@@ -1,0 +1,14 @@
+{
+  "model": "journey-integration-suite",
+  "status": "BLOCKED",
+  "total": 370,
+  "passed": 369,
+  "failed": 0,
+  "blocked": ["navigation-guard"],
+  "blockedReason": "BLOCKED_BROWSER",
+  "node": "v22.23.3",
+  "codeHead": "04d62636a54c81f05a1afc2376d07dec97947ac2",
+  "suiteRecordedHead": "04d62636a54c81f05a1afc2376d07dec97947ac2",
+  "startedAt": "2026-11-02T18:22:20.161Z",
+  "note": "Suite ran on the live-cache spike-bag warm (771f99ae + text manifest). 370 checks, 369 PASS, 0 FAIL. The only blocked check is navigation-guard (browser launch). Runner exit is non-zero when any check is BLOCKED. No FAIL. transition-shader-warm and manifests-fresh passed. The docs commit that records this file is after the suite, so git HEAD at suite start is the code commit."
+}

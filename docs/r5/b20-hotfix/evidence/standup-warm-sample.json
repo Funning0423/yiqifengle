@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "strategy": "C_standup_only_isolation+morph_drive_fps",
+  "date": "2026-11-05",
+  "isolation": {
+    "bindVisual": false,
+    "performStand": true,
+    "lakeside": true,
+    "armStandupShaderBurst": false,
+    "TransitionShaderWarm": false,
+    "StandupProgramWarm": true,
+    "COUNT16_15_3": true,
+    "COUNT53": false,
+    "BalloonTransit": false
+  },
+  "boot": {
+    "openStandupWarmWindow": "bindVisual / re-seat / sit complete",
+    "closeStandupWarmWindow": "leave sit / warmSample / dispose / non-sit clip",
+    "stepGate": "sit_hold && windowOpen only"
+  },
+  "offline": {
+    "test_standup_warm_sample.cjs": "PASS",
+    "test_standup_program_warm.cjs": "PASS"
+  },
+  "stack": "e3fbce98 COUNT GLB + 6fd22962 meta / integrate 6bd40657",
+  "acceptance": "whole-UI FPS + standup feel — NOT setCamera/board=0 veto"
+}

@@ -1,0 +1,43 @@
+{
+  "model": "transition-shader-warm",
+  "defaultOff": true,
+  "killSwitch": "setTransitionShaderWarmEnabled",
+  "macFrames": {
+    "animateCamera1803": {
+      "ms": 772,
+      "shaders": 70,
+      "tip": "8e93c02b"
+    }
+  },
+  "budgetMs": 4,
+  "criticalPerFrame": 3,
+  "variants": 11,
+  "morphCounts": [
+    53,
+    16,
+    3,
+    73
+  ],
+  "departureMacros": [
+    "CC_DIR_SHADOW_PCF_TYPE=2",
+    "CC_SHADOW_TYPE=2"
+  ],
+  "setcamMacros": [
+    "CC_DIR_SHADOW_PCF_TYPE=2",
+    "no CC_SHADOW_TYPE"
+  ],
+  "extraFamilies": [
+    "CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS",
+    "CC_PIPELINE_TYPE",
+    "reflect-map-fs"
+  ],
+  "maxKicksPerFrame": 1,
+  "maxCompilesPerFrame": 1,
+  "runtimeCompilesPerFrame": 6,
+  "maxFrameMs": 0.75,
+  "sailSkips": 1,
+  "heldFrameCompiles": 0,
+  "cameraDelayed": false,
+  "meadowTargetMounts": true,
+  "note": "2026-11-05 period stutter A/B: TRANSITION_SHADER_WARM_ENABLED default false (director_after_draw peel). Behavioral suite re-enables via setTransitionShaderWarmEnabled(true). No burst/DIR_LIGHT. Acceptance=whole-UI period stutter + standup feel; NOT setCamera/board=0."
+}

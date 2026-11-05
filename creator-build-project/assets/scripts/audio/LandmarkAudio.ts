@@ -4,6 +4,7 @@ import { GameAudio } from './GameAudio';
 import { ambienceBedGain } from './AmbienceAudio';
 import { LandmarkAudioCore, LandmarkLoopPair, type LandmarkPort } from './LandmarkAudioCore';
 import { type LandmarkSpec } from './SceneAudioTable';
+import { SCENE_AUDIO_POLL_ENABLED } from './SceneAudioPoll';
 const { ccclass } = _decorator;
 class Voice implements LandmarkPort {
   ready = false;
@@ -110,6 +111,8 @@ export class LandmarkAudio extends Component {
   quiet() { if (this.core) this.core.quiet(); }
   onDestroy() { this.quiet(); if (LandmarkAudio.instance === this) LandmarkAudio.instance = null; this.boot = null; this.anchors = {}; }
   update(dt: number) {
+    // A/B: when SCENE_AUDIO_POLL_ENABLED is false, skip 0.5 s anchor rediscovery + per-frame landmark step.
+    if (!SCENE_AUDIO_POLL_ENABLED) return;
     const core = this.core, audio = GameAudio.instance;
     if (!core) return;
     const bed = (globalThis as any).__sceneAudioBed, place = bed ? bed.place : '';

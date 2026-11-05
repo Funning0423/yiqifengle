@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "gate": "morph-drive-fps+standup-window",
+  "date": "2026-11-05",
+  "isolation": {
+    "TransitionShaderWarm": false,
+    "armStandupShaderBurst": false,
+    "BalloonTransit": false,
+    "sea-landing": false,
+    "K.s1": false,
+    "black-fence": false
+  },
+  "runtime": {
+    "morphWeights": "sparse active-set (clip morph curves + wind flutter); zero inactive leftovers",
+    "MorphDriver": {
+      "gpuGate": "REAL tear-down: enableMorph + _watchMorphInMesh (or mesh-reassign STRIP) + setMorphRendering(null) + PSO refresh",
+      "priorBug": "Cocos 3.8.8 enableMorph setter only flips _enableMorph; tip 4c668c91 flag-only left MorphRenderingInstance + CC_USE_MORPH|COUNT alive",
+      "observability": "gateFlips/gatePath/gpuGateOn/morphInstance via diagnostics + Boot logEvent kind=morph-gpu-gate"
+    },
+    "StandupProgramWarm": {
+      "bag": {
+        "APRON": 16,
+        "DRESS": 15,
+        "BODY": 15,
+        "BOW": 3,
+        "unique": [
+          16,
+          15,
+          3
+        ]
+      },
+      "window": "sit_hold only (openStandupWarmWindow / closeStandupWarmWindow)",
+      "step": "no-op unless windowOpen (force only for flush)",
+      "killSwitch": "STANDUP_PROGRAM_WARM_ENABLED / setStandupProgramWarmEnabled — DEFAULT false (A/B peel warm keep COUNT16+meta); manual true restores",
+      "legacyNotWarmed": [
+        53,
+        73
+      ],
+      "defaultEnabled": false
+    }
+  },
+  "offline": {
+    "test_standup_program_warm.cjs": "PASS",
+    "test_standup_warm_sample.cjs": "PASS",
+    "windowGate": {
+      "armNoStep": true,
+      "closeDisarm": true
+    },
+    "morphSparse": {
+      "walkActive": [
+        "task21_walk_layer_gap"
+      ],
+      "sitSeat": true
+    },
+    "gpuGate": {
+      "unloadOnZero": true,
+      "reloadOnLive": true,
+      "watchTearDown": true,
+      "stripFallback": true,
+      "killSwitch": true
+    }
+  },
+  "acceptance": "whole-UI FPS + standup feel — NOT setCamera/board=0 veto",
+  "stackNote": "pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL GPU morph gate; StandupProgramWarm DEFAULT OFF",
+  "verifyOnDevice": [
+    "confirm STANDUP_PROGRAM_WARM_ENABLED default false (source / no warm compile during sit_hold)",
+    "grep morph-gpu-gate still fires on leave sit_hold",
+    "Funning: whole-UI / periodic stutter? standup still smooth?"
+  ],
+  "abIfStillJanky": {
+    "thisTip": "default StandupProgramWarm OFF — peel warm, keep COUNT16 GLB e3fbce98 + meta 6fd22962 + Morph GPU gate",
+    "ifWarmOffStillJanks": "peel COUNT16 → FAT (label A/B; breaks pair) OR chase periodic timer/interval/GC/sync/log-flush",
+    "ifStandupGetsJanky": "warm had contribution — need alternate standup path; whole-UI root still elsewhere"
+  }
+}

@@ -79,6 +79,11 @@ export const DEFAULT_MORPH_TARGETS:{readonly [name:string]:number}={curl:0,flutt
 export const DEFAULT_EXTRA_MORPH_MESHES:ReadonlyArray<{readonly mesh:string;readonly targets:{readonly [name:string]:number}}>=[{mesh:'LOD0_G2_DRESS',targets:{sit_drape:0,sit_drape_mid:1}}];
 /** setWeight is called only when a target weight moved by more than this since the last write (or reached exactly 0 / 1). */
 export const MORPH_EPS=1e-3;
+/** A/B (2026-11-05): when false (default), MorphDriver only drives sit_hold/sit_down/stand_up.
+ *  Idle/walk/UI hard-unloads GPU morph — including BODY correctives that previously stayed gated ON after ad76cf64.
+ *  Seat window always drives (standup feel preserved). setMorphIdleDriveEnabled(true) restores prior idle morph for rollback. */
+export let MORPH_IDLE_DRIVE_ENABLED=false;
+export function setMorphIdleDriveEnabled(on:boolean):void{MORPH_IDLE_DRIVE_ENABLED=!!on;}
 /** Agreed clip role names (all optional except the ones the old flow already required). */
 export const CLIP_ROLES={walk:'walk_loop',walkStart:'walk_start',stopL:'walk_stop_bodyL',stopR:'walk_stop_bodyR',turn90L:'walk_turn_90_bodyL',turn90R:'walk_turn_90_bodyR',turn180:'walk_turn_180',idle:'idle_breathing_loop',sitHold:'sit_hold',sitDown:'sit_down',standUp:'stand_up',doorReach:'door_reach',flutter:'wind_flutter_loop',apronLift:'apron_lift'} as const;
 export type Body='L'|'R';
@@ -472,53 +477,133 @@ export function restAheadFromRoutes(routes:any,chains?:ReadonlyArray<ReadonlyArr
 
 /* ---------------- morph targets (blend shapes) ---------------- */
 function curveAt(cfg:MotionConfig,clip:string,target:string,time:number):number {const m=cfg.clips[clip];const c=m&&m.morph&&m.morph.curves[target];return c&&c.length?piecewise(c,time):0;}
-/** Per-target weights for this frame, the same blend as the pose:
- *   base  = curve(base clip, base time) x (1 - fade) + curve(outgoing clip, its time) x fade        (crossfade weights)
- *   layer = sum over layers (wind_flutter_loop, apron_lift) of layerWeight x curve(layer clip, layer time)
- *   clip  = base + layer;  a clip without a curve for that target contributes 0.
- *   flutter only: w = max(clip, windToMorphFlutter(windDrive))  -- MAX, not sum, so a flutter curve authored in
- *   wind_flutter_loop AND a wind mapping never double up; with only one of them it is exactly that one.
- *   Every result clamped 0..1. Targets = keys of every cfg.morphMeshes[i].targets (cfg.morphTargets when absent). */
+/** Mark morph curve names authored on a clip (active-set for sparse morphWeights). */
+function markMorphCurveNames(cfg:MotionConfig,clip:string|null|undefined,into:{[t:string]:1}):void {
+  if(!clip)return;const m=cfg.clips[clip];const curves=m&&m.morph&&m.morph.curves;if(!curves)return;
+  for(const t in curves)if(Object.prototype.hasOwnProperty.call(curves,t))into[t]=1;}
+/** Active morph target names for this frame = base/out/layer curve keys (+ flutter when wind maps).
+ *  Idle/walk only touch a few correctives; seat_bake_* stay out of the set until sit/stand. */
+export function morphActiveTargets(cfg:MotionConfig,plan:Plan,windDrive:number):{[t:string]:1} {
+  const active:{[t:string]:1}={};const b=plan.base,o=plan.out;
+  if(b)markMorphCurveNames(cfg,b.clip,active);if(o)markMorphCurveNames(cfg,o.clip,active);
+  const ls=plan.morph||[];for(let i=0;i<ls.length;i++)markMorphCurveNames(cfg,ls[i].clip,active);
+  if(cfg.windToMorphFlutter){const ww=piecewise(cfg.windToMorphFlutter,windDrive);if(ww>0)active.flutter=1;}
+  return active;}
+/** Per-target weights for this frame, the same blend as the pose — but only for the active curve set.
+ *   Inactive keys already present in `out` are zeroed once so MorphDriver can clear last/GPU.
+ *   Idle/UI/walk therefore skip ~49-slot full-table curveAt; standup/sit keep full seat drive. */
 export function morphWeights(cfg:MotionConfig,plan:Plan,windDrive:number,out?:{[target:string]:number}):{[target:string]:number} {const res=out||{};const b=plan.base,o=plan.out;
-  const bs=cfg.morphMeshes&&cfg.morphMeshes.length?cfg.morphMeshes:null;const nb=bs?bs.length:1;
-  for(let m=0;m<nb;m++){const targets=bs?bs[m].targets:cfg.morphTargets;
-  for(const t in targets){if(!Object.prototype.hasOwnProperty.call(targets,t))continue;let w=0;
+  const active=morphActiveTargets(cfg,plan,windDrive);
+  // Zero previous keys that left the active set (sit→walk clears seat_bake without full-table curveAt).
+  for(const t in res){if(!Object.prototype.hasOwnProperty.call(res,t))continue;if(!Object.prototype.hasOwnProperty.call(active,t))res[t]=0;}
+  for(const t in active){if(!Object.prototype.hasOwnProperty.call(active,t))continue;let w=0;
     if(b){const fo=o?o.weight:0;w=curveAt(cfg,b.clip,t,b.time)*(1-fo);if(o)w+=curveAt(cfg,o.clip,t,o.time)*fo;}
     const ls=plan.morph||[];for(let i=0;i<ls.length;i++)w+=ls[i].weight*curveAt(cfg,ls[i].clip,t,ls[i].time);
     if(t==='flutter'&&cfg.windToMorphFlutter){const ww=piecewise(cfg.windToMorphFlutter,windDrive);if(ww>w)w=ww;}
-    res[t]=w>0?(w<1?w:1):0;}}
+    res[t]=w>0?(w<1?w:1):0;}
   return res;}
 /** Structural subset of Cocos MeshRenderer / SkinnedMeshRenderer (3.8.8: setWeight(weight, subMeshIndex, shapeIndex)). */
-export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:boolean;setWeight(weight:number,subMeshIndex:number,shapeIndex:number):void};
+export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:boolean;setWeight(weight:number,subMeshIndex:number,shapeIndex:number):void;
+  model?:any;_model?:any;_morphInstance?:any;_watchMorphInMesh?:()=>void;_onMaterialModified?:(i:number,m:any)=>void;getRenderMaterial?:(i:number)=>any;_materials?:any[]};
 export type MorphStatus='unbound'|'ok'|'not-found'|'morph-disabled'|'no-morph'|'too-few-targets'|'error';
 const meshName=(r:any):string=>{let n='';try{n=String(r&&r.mesh&&r.mesh.name||'');}catch{n='';}return n.replace(/\.mesh$/,'');};
+/** Cocos 3.8.8 MeshRenderer.enableMorph setter ONLY flips `_enableMorph` — it does NOT call `_watchMorphInMesh`,
+ *  so toggling the flag alone leaves MorphRenderingInstance + MorphModel CC_USE_MORPH patches alive (GPU still pays COUNT).
+ *  Tear-down / rebuild must re-run watch (or public `mesh=mesh` fallback for WeChat STRIP mangled privates) and clear
+ *  `model.setMorphRendering(null)` on unload (engine watch early-returns without clearing the model ref). */
+function applyRendererMorphGate(r:any,needOn:boolean):{flipped:boolean;path:string;hasInstance:boolean|null}{
+  const want=!!needOn;const cur=r.enableMorph!==false;if(want===cur){
+    let has:boolean|null=null;try{has=r._morphInstance!=null;}catch{has=null;}
+    return {flipped:false,path:'noop',hasInstance:has};}
+  r.enableMorph=want;let path='flag-only';
+  try{
+    if(typeof r._watchMorphInMesh==='function'){r._watchMorphInMesh();path='watch';}
+    else{const m=r.mesh;if(m){r.mesh=m;path='mesh-reassign';}} // public setter → watch (STRIP-safe)
+  }catch{path='flag-only';}
+  try{
+    const model=r.model||r._model;
+    if(model&&typeof model.setMorphRendering==='function'){
+      if(!want)model.setMorphRendering(null);
+      // when want=true, watch already setMorphRendering(instance) if model is MorphModel
+    }
+    if(model&&typeof model.onMacroPatchesChanged==='function')model.onMacroPatchesChanged();
+    else if(typeof r._onMaterialModified==='function'){
+      const mats=r._materials||[];for(let i=0;i<mats.length;i++){
+        const mat=typeof r.getRenderMaterial==='function'?r.getRenderMaterial(i):mats[i];
+        try{r._onMaterialModified(i,mat);}catch{/* best-effort */}
+      }
+    }else if(model&&typeof model.onGlobalPipelineStateChanged==='function')model.onGlobalPipelineStateChanged();
+  }catch{/* best-effort clear/PSO */}
+  let has:boolean|null=null;try{has=r._morphInstance!=null;}catch{has=null;}
+  return {flipped:true,path,hasInstance:has};
+}
 /** Binds one renderer by node name (first) or mesh name and writes target weights only when they change (> MORPH_EPS, or
  *  reaching exactly 0 / 1). Any problem = status + no-op; never throws into the frame. */
+/** True when the pose plan is in the sit/stand morph seat window (drive allowed even if idle-drive A/B is OFF). */
+export function morphPlanNeedsSeatDrive(plan:Plan):boolean {
+  const hit=(c:string|null|undefined)=>c===CLIP_ROLES.sitHold||c===CLIP_ROLES.sitDown||c===CLIP_ROLES.standUp;
+  return hit(plan.base?.clip)||hit(plan.out?.clip);}
 export class MorphDriver {
   status:MorphStatus='unbound';reason='';renderer:MorphRendererLike|null=null;node='';meshName='';subMeshes:number[]=[];targetCounts:number[]=[];targetNames:string[]|null=null;
   readonly need:number;readonly last:{[target:string]:number}={};readonly weights:{[target:string]:number}={};calls=0;
+  /** Last applied GPU gate (true=morph instance wanted on). */
+  gpuGateOn=true;gateFlips=0;gatePath='';gateHasInstance:boolean|null=null;private tipsEstablished=false;
   constructor(public mesh:string,public targets:{[name:string]:number}){let need=0;for(const t in targets)if(Object.prototype.hasOwnProperty.call(targets,t)&&targets[t]+1>need)need=targets[t]+1;this.need=need;}
   bind(renderers:ReadonlyArray<any>|null|undefined):MorphStatus {this.renderer=null;this.subMeshes=[];this.targetCounts=[];this.targetNames=null;this.reason='';
+    this.gpuGateOn=true;this.gateFlips=0;this.gatePath='';this.gateHasInstance=null;this.tipsEstablished=false;
     try{let r:any=null;const list=renderers||[];
       for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&x.node&&x.node.name===this.mesh)r=x;}
       for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&meshName(x)===this.mesh)r=x;}
       if(!r){this.status='not-found';this.reason='no MeshRenderer on a node / mesh named '+this.mesh;return this.status;}
       this.node=String(r.node&&r.node.name||'');this.meshName=meshName(r);
       if(typeof r.setWeight!=='function'){this.status='error';this.reason='renderer has no setWeight';return this.status;}
-      if(r.enableMorph===false){this.status='morph-disabled';this.reason='MeshRenderer.enableMorph=false';return this.status;}
       const morph=r.mesh&&r.mesh.struct&&r.mesh.struct.morph;const subs=morph&&morph.subMeshMorphs;
+      // enableMorph=false + no morph data → artist-off. enableMorph=false + morph data → our FPS gate (or remount while gated); still bind ok.
+      if(r.enableMorph===false&&!(subs&&subs.length)){this.status='morph-disabled';this.reason='MeshRenderer.enableMorph=false';return this.status;}
       if(!subs||!subs.length){this.status='no-morph';this.reason='mesh has no morph targets';return this.status;}
       if(Array.isArray(morph.targetNames))this.targetNames=morph.targetNames.map(String);
       for(let i=0;i<subs.length;i++){const n=subs[i]&&subs[i].targets?subs[i].targets.length:0;this.targetCounts.push(n);if(n>=this.need&&n>0)this.subMeshes.push(i);}
       if(!this.subMeshes.length){this.status='too-few-targets';this.reason='need '+this.need+' targets, sub-meshes have '+this.targetCounts.join(',');return this.status;}
-      this.renderer=r;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
-  /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made. */
-  apply(w:{[target:string]:number}):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;let n=0;
+      this.renderer=r;this.gpuGateOn=r.enableMorph!==false;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
+  /** GPU morph gate: all tip weights ~0 → destroy MorphRenderingInstance + clear MorphModel patches (idle/UI/walk
+   *  drop COUNT on DRESS/BOW; BODY stays on while correctives live). Re-create before next non-zero write. */
+  private syncGpuGate(needOn:boolean):void {const r=this.renderer as any;if(!r||this.status!=='ok')return;
+    try{const res=applyRendererMorphGate(r,needOn);this.gatePath=res.path;this.gateHasInstance=res.hasInstance;
+      if(res.flipped){this.gpuGateOn=!!needOn;this.gateFlips++;}}catch{/* best-effort */}}
+  /** True when any bound tip still has last weight > MORPH_EPS (seat→walk may still be decaying). */
+  private anyLiveLast():boolean {for(const t in this.last){if(!Object.prototype.hasOwnProperty.call(this.last,t))continue;const v=this.last[t];if(v!==undefined&&v>MORPH_EPS)return true;}return false;}
+  /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made.
+   *  角色动画bot STANDUP-PERF #4：仅在 |Δw|>MORPH_EPS（或触及精确 0/1）时 setWeight；起身段无整表清零重写、不重置 last。
+   *  maxCalls（可选）：起身首几帧软限流，未写完的 target 留待下帧（不清 last）。
+   *  FPS：all-zero mesh → tear down morph instance（真卸 GPU COUNT）；起身窗非零 → 再打开。 */
+  apply(w:{[target:string]:number},maxCalls?:number):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;
+    let incomingLive=false;
+    for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;if(v>MORPH_EPS){incomingLive=true;break;}}
+    const decaying=this.anyLiveLast();
+    // Steady all-zero after first establish: keep GPU unloaded, skip tip walk.
+    if(!incomingLive&&!decaying&&this.tipsEstablished){this.syncGpuGate(false);return 0;}
+    // Re-enable before any non-zero / decaying write. First all-zero establish still runs (last undefined → setWeight 0).
+    if(incomingLive||decaying)this.syncGpuGate(true);
+    let n=0;const cap=maxCalls!==undefined&&maxCalls>=0?maxCalls|0:-1;
     for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;this.weights[t]=v;const prev=this.last[t];
       if(prev!==undefined&&!(Math.abs(v-prev)>MORPH_EPS)&&!((v===0||v===1)&&v!==prev))continue;
+      if(cap>=0&&n+this.subMeshes.length>cap)break; // leave whole target for next frame (no partial sub-mesh write)
       try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(v,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=v;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
-    this.calls+=n;return n;}
-  diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls};}
+    this.calls+=n;this.tipsEstablished=true;
+    // After writes: every tip ~0 → unload GPU morph (DRESS/BOW idle/walk drop COUNT15/3).
+    if(!this.anyLiveLast())this.syncGpuGate(false);
+    return n;}
+  /** Idle/UI A/B: zero live tips + tear down MorphRenderingInstance WITHOUT re-enabling the gate first
+   *  (unlike apply(all-zero), which briefly syncGpuGate(true) while decaying). Steady already-unloaded = no-op. */
+  hardUnload():number {const r=this.renderer;if(!r||this.status!=='ok')return 0;
+    if(!this.anyLiveLast()&&this.gpuGateOn===false){this.tipsEstablished=true;return 0;}
+    let n=0;
+    for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const prev=this.last[t];this.weights[t]=0;
+      if(prev===undefined||!(prev>MORPH_EPS)){if(prev===undefined)this.last[t]=0;continue;}
+      try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(0,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=0;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
+    this.calls+=n;this.tipsEstablished=true;this.syncGpuGate(false);return n;}
+    diagnostics(){const r=this.renderer as any;let hasInst:boolean|null=this.gateHasInstance;try{if(r)hasInst=r._morphInstance!=null;}catch{/* keep */}
+    return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls,enableMorph:this.renderer?this.renderer.enableMorph:undefined,gpuGateOn:this.gpuGateOn,gateFlips:this.gateFlips,gatePath:this.gatePath,morphInstance:hasInst};}
 }
 
 /** Post-blend, world-space rigid sole contacts. Controller travel/yaw is already written before this solve.

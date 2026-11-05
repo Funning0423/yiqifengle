@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "gate": "morph-idle-drive-default-off-ab",
+  "date": "2026-11-05",
+  "vsFeel": "1.0.202611050621 @ tip c672511 (StandupProgramWarm OFF 5b990f8e) — Funning: period whole-UI stutter STILL there; standup still smooth → warm NOT primary",
+  "isolation": {
+    "TransitionShaderWarm": false,
+    "armStandupShaderBurst": false,
+    "BalloonTransit": false,
+    "sea-landing": false,
+    "K.s1": false,
+    "black-fence": false,
+    "COUNT_GLB_pair": "e3fbce98 + meta 6fd22962 UNTOUCHED",
+    "StandupProgramWarm": "kept DEFAULT OFF (5b990f8e)",
+    "MorphGpuGate": "REAL tear-down kept (ad76cf64)"
+  },
+  "change": {
+    "CharacterMotion.ts": "MORPH_IDLE_DRIVE_ENABLED default false; setMorphIdleDriveEnabled; morphPlanNeedsSeatDrive; MorphDriver.hardUnload (zero tips + gate OFF without re-enable flip)",
+    "WorldIntegrationBoot.ts": "applyMorph: when idle-drive OFF and plan not sit/stand → hardUnload + log morph-idle-unload; seat window still morphWeights+apply"
+  },
+  "runtime": {
+    "MORPH_IDLE_DRIVE_ENABLED": {
+      "default": false,
+      "killSwitch": "setMorphIdleDriveEnabled(true) restores idle/walk morph drive (BODY correctives etc.)",
+      "seatWindowAlwaysDrives": [
+        "sit_hold",
+        "sit_down",
+        "stand_up"
+      ]
+    },
+    "why": "After ad76cf64 GPU gate, BODY stayed gated ON during idle (correctives live). That Morph residual + per-frame applyMorph is the shortest peel that can falsify COUNT16/Morph vs other for fixed-interval stutter."
+  },
+  "timerSuspectsNotTouched": [
+    {
+      "id": "CamTraceLog.CAM_LOG_SINK.flushMs",
+      "interval": "1000ms",
+      "note": "default OFF (camTrace=1 only); release path should be inert"
+    },
+    {
+      "id": "SceneMusic.poll",
+      "interval": "POLL_S=0.25s",
+      "note": "audio scene resolve; light but periodic"
+    },
+    {
+      "id": "LandmarkAudio.poll",
+      "interval": "poll dt gate",
+      "note": "audio"
+    },
+    {
+      "id": "RegionNodeStage.finaleArm setInterval",
+      "interval": "100ms",
+      "note": "only while sky finale armed"
+    },
+    {
+      "id": "PersistentMainlinePort sync host IPC",
+      "interval": "per getter/redraw",
+      "note": "wx.getStorageSync style sync; not fixed wall clock but can hitch"
+    },
+    {
+      "id": "WorldIntegrationBoot.signRetryAt",
+      "interval": ">=1000ms",
+      "note": "sign retry path only"
+    },
+    {
+      "id": "sit_hold-out StandupProgramWarm.step",
+      "interval": "per frame while window",
+      "note": "already DEFAULT OFF; not a candidate this tip"
+    }
+  ],
+  "offline": {
+    "test_standup_program_warm.cjs": "PASS",
+    "test_standup_warm_sample.cjs": "PASS",
+    "morphIdleDriveDefaultOff": true,
+    "morphIdleHardUnload": true,
+    "morphIdleManualOnWorks": true,
+    "warmDefaultOff": true,
+    "gpuGate": {
+      "watchTearDown": true,
+      "stripFallback": true
+    }
+  },
+  "verifyDefaultOff": [
+    "source: MORPH_IDLE_DRIVE_ENABLED=false in CharacterMotion.ts",
+    "offline: node tools/walk-driver/test_standup_program_warm.cjs → morphIdleDriveDefaultOff=true",
+    "device: idle/UI → morph diagnostics gpuGateOn=false on APRON/DRESS/BODY/BOW; grep morph-idle-unload; sit→stand still drives; optional setMorphIdleDriveEnabled(true) rollback"
+  ],
+  "acceptance": "A/B: if period stutter GONE → Morph stack contributes; if STILL there → Morph NOT primary (next=timer/GC/sync or COUNT16→FAT labeled pair-break); standup must stay smooth; NOT setCamera/board=0 veto",
+  "stackNote": "pairs COUNT GLB e3fbce98 + meta 6fd22962; Morph GPU gate kept; StandupProgramWarm DEFAULT OFF; Morph idle-drive DEFAULT OFF",
+  "upload": "等 PM"
+}

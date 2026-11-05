@@ -17,9 +17,9 @@ export const createSkycityBoardBackground:LevelBackgroundFactory=async ctx=>{
  const lease=await createBuild05SkycityBoard(ctx);if(!lease)return lease;
  const rig:Node|null=ctx.parent.getChildByName(SKYCITY_BOARD_RIG);
  hideOtherBoardStates(rig);
- // items 10/11: the scene stays active under the still-hidden board host, so it switches on during the hidden pre-activation and
- // the swap frame only turns its camera on. The Build05 lease toggles rig+camera in setVisible; the rig is put straight back (its
- // setVisible(false) calls come with the host hidden: binding load, lease hide), the camera keeps following visibility.
+ // items 10/11: the scene stays active under the still-hidden board host, so prime uploads stay resident through flight
+ // (cam stays off). 230's flight-inactive regressed board-bg 0→138; e987 keepActive kept board=0. setCamera pressure
+ // is handled by not arming armTransitionHold in prime (not by killing rig).
  const keepActive=()=>{if(rig&&isValid(rig,true)&&!rig.active)rig.active=true;};keepActive();
  // item 9 (Mac r4: daytime sky behind the night journey): the board sky follows the world day/night mode and its toggles.
  const camNode=rig?rig.getChildByName('SkycityBackgroundCamera'):null,camera:Camera|null=camNode?camNode.getComponent(Camera):null;let dead=false;

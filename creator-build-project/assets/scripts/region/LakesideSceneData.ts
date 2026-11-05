@@ -335,13 +335,32 @@ export function lakesideDayClearColor(mode: 'dir' | 'points' = LAKESIDE_LIGHT_MO
   return '#' + linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear).map(v => ('0' + v.toString(16)).slice(-2)).join('');
 }
 export type LakesideInstance = Readonly<{ name: string; glb: string; group: string; pos: readonly number[]; rot_quat_xyzw: readonly number[]; scale: readonly number[]; animated?: boolean }>;
-/** The 2D board UI draws pieces, cells and selection. The live scene keeps the background and the static water dressing
- *  (lily pads, rope floats, buoy lanterns, white-balance lines, chime rafts), and drops what the 2D board already shows:
- *  3D match pieces, their contact shadows / ripple rings, and the board frame whose GLB is not in the subpackage. */
+/** Default (2D tray) path: keep the background + static water dressing (lily pads, rope floats, buoy lanterns,
+ *  white-balance lines, chime rafts), and drop what the 2D board already shows — 3D match pieces, contact shadows /
+ *  ripple rings, and the board frame (not in the subpackage). */
 export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
+/** Kit path (LAKESIDE_KIT / TRIAL default ON; opt-out ?qflakesidekit=0, Funning fusion sample): keep board_frame skipped (r5h3 dropped; water = carrier);
+ *  unskip contact_shadow + ripple_ring as aux; KEEP LK_piece_* (cancel whole-prefix filter — gameplay/scene piece pipeline A).
+ *  Default OFF keeps the 2D-tray skip list + piece filter. */
+const LAKESIDE_KIT_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb']);
+/** Engine type 0..5 → lakeside scene piece GLB (pipeline A; not board_art / not coast). */
+export const LAKESIDE_PIECE_GLBS: readonly string[] = Object.freeze([
+  'LK_piece_shell.glb', 'LK_piece_bell_pad.glb', 'LK_piece_paper_boat.glb',
+  'LK_piece_bobber.glb', 'LK_piece_lotus_lamp.glb', 'LK_piece_lake_light.glb',
+]);
+export function lakesidePieceGlbForType(type: number): string {
+  const t = ((Number(type) % 6) + 6) % 6;
+  return LAKESIDE_PIECE_GLBS[t];
+}
+let lakesideKitAssetsOn = false;
+/** Must be set BEFORE mountLakesideScenery / lakesideSceneInstances (board preload runs earlier than ManagedMobileBoardUI.initializeManaged). */
+export function setLakesideKitAssets(on: boolean): void { lakesideKitAssetsOn = !!on; }
+export function lakesideKitAssetsEnabled(): boolean { return lakesideKitAssetsOn; }
+export function lakesideSkippedGlb(): readonly string[] { return lakesideKitAssetsOn ? LAKESIDE_KIT_SKIPPED_GLB : LAKESIDE_SKIPPED_GLB; }
 export function lakesideSceneInstances(instances: readonly LakesideInstance[]): LakesideInstance[] {
   if (!Array.isArray(instances) || !instances.length) throw Error('lakeside transforms empty');
-  return instances.filter(i => i && typeof i.glb === 'string' && !LAKESIDE_SKIPPED_GLB.includes(i.glb) && !/^LK_piece_/.test(i.glb) && !isLakesideAssetTemplate(i));
+  const skip = lakesideSkippedGlb(), keepPieces = lakesideKitAssetsOn;
+  return instances.filter(i => i && typeof i.glb === 'string' && !skip.includes(i.glb) && (keepPieces || !/^LK_piece_/.test(i.glb)) && !isLakesideAssetTemplate(i));
 }
 /** The r5h3 export also wrote the 34 source meshes of the Blender ASSETS collection (hide_render, never visible in the
  *  reference) as instances named exactly after their GLB, all at the origin with identity transform. At the origin they stack a

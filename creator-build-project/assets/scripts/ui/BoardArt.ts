@@ -47,6 +47,8 @@ export const SLICES: Record<string, readonly number[]> = {
 };
 /** Board piece art by engine tile type 0..5: strawberry / leaf / blueberry / flower / acorn / scallop shell. */
 export const PIECE_KEYS: readonly string[] = ['board/piece_strawberry', 'board/piece_leaf', 'board/piece_blueberry', 'board/piece_flower', 'board/piece_acorn', 'board/piece_shell'];
+/** Board kit hook (additive): piece art for a region kit; the default kit returns PIECE_KEYS itself. */
+export function pieceKeysFor(kit: { readonly pieceKeys: readonly string[] } | null | undefined): readonly string[] { return kit && kit.pieceKeys && kit.pieceKeys.length === 6 ? kit.pieceKeys : PIECE_KEYS; }
 /** Tray and panel pictures. bomb / windBell / tideBottle stay on the board slices (tools-original.png is only their
  *  fallback, and that atlas is not replaced). tideNet / sunSeed / starShears use the signed-off r2 slices. */
 export const TOOL_KEYS: Record<string, string> = {

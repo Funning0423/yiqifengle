@@ -19,12 +19,19 @@ const dev={createTexture(i){return {info:i,destroy(){}};},createShader(){return{
 (function WarmButtonSkin_render(){const t=dev.createTexture({width:1000,height:104,format:55});t.destroy();})();
 const c=lines.find(l=>/TEX op=create 1000x104/.test(l)),d=lines.find(l=>/TEX op=destroy 1000x104/.test(l));
 assert.match(c,/ src=WarmButtonSkin_render/,c);assert.match(d,/ name=\? src=WarmButtonSkin_render/,d);
-// small textures skip the stack walk entirely
-lines.length=0;dev.createTexture({width:16,height:16,format:35}).destroy();assert.equal(lines.length,0);
+// sub-256KB creates do not take a TEX detail line or a stack walk; the per-second line carries the family
+lines.length=0;dev.createTexture({width:16,height:16,format:35}).destroy();
+assert.equal(lines.some(l=>/TEX op=/.test(l)),false,'16x16 is not a TEX detail line');
+const base={width:64,height:32};dev.createTexture({texture:base,format:35,type:1});
+M.gpuFrame(dev,null,0);M.gpuFrame(dev,null,1000);
+const small=lines.find(l=>/^\[QF_GPU\] s=/.test(l));
+assert.match(small,/smallN=2 /);
+assert.match(small,/f35:u0:g0:s0:t-1:v0:e0=1@16x16/);
+assert.match(small,/f35:u0:g0:s0:t1:v1:e0=1@64x32/);
 // negative: 3689d151 probe lines have no src=
 {const O=load(cp.execFileSync('git',['show','3689d151:'+REL],{cwd:path.join(__dirname,'../..'),encoding:'utf8'}));const L=[];O.gpuProbe.out=s=>L.push(s);O.gpuProbe.nameOf=()=>'';
  const d2={createTexture(i){return {info:i,destroy(){}};}};O.gpuWrapDevice(d2);d2.createTexture({width:1000,height:104,format:55}).destroy();
  assert.ok(L.length===2&&L.every(l=>!/ src=/.test(l)),'old probe cannot name: '+L.join(' | '));assert.equal(O.gpuCaller,undefined);}
 // stripped from release
 {const S=require('../build-guard/strip-probes.cjs');const out=S.stripText(cur,'CamTraceLog.ts').out;for(const k of ['gpuCaller','srcOf','GPU_PROBE_SRC',' src='])assert.ok(!out.includes(k),'stripped: '+k);}
-console.log('PASS gpu-probe-src (V8 + JSC stacks, engine-only = ?, create+destroy src=, small skipped, old probe has none, stripped)');
+console.log('PASS gpu-probe-src (V8 + JSC stacks, engine-only = ?, create+destroy src=, small histogram, old probe has none, stripped)');
