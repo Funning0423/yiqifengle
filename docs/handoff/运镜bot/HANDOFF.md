@@ -1,36 +1,82 @@
-# 运镜bot HANDOFF — skycity sea-landing fix
-Date: 2026-11-02 02:07 EST (America/New_York)
+# HANDOFF — cine/lakeside-board-cam-fix（湖畔进盘轻俯视相机）
 
-## Branches / SHA
-| branch | head (pre-push) | worktree |
-|---|---|---|
-| cine/skycity-sea-landing-fix | (this commit; was 606f434e @ 606f434e tip) | /workspace/yiqifengle/work/cine-skycity-sea-landing |
+**日期**：2026-11-05（America/New_York）  
+**分支**：`cine/lakeside-board-cam-fix`  
+**基线**：`gbt/r5-b20-integrate-landing-visual-bg2` @ `6bd40657`  
+**验收前**：不推 GitHub、不传微信。可 bundle。  
+**范围**：仅运镜（portrait 双机位 + kit flag 切换）。**零碰** TSW / morph / 气球 tip / kit 实例过滤与 preload 竞态（空盘资产挂载归 GGbot，见 PM `work/pm/lakeside-empty-on-trial-20261105.md` §2.1 / §4.1）。
 
-Base tip: `ggbot/b20-meadow-c-skycity-rt` @ `606f434e`. FX align data used as-is (env_skycity.glb == b3394140; anchors/S0_LOCAL match).
+---
 
-## Root cause
-B5 exit stand was `TRANSITION_STAGING.skycity.s0New ≈ S0 rim` ([5.25,−0.084,40.6] local, ~14 m from court). Board handoff uses `skycityVisitPose(anchor_spawn_girl, anchor_starcourt_center)`, so after the blend the player sees the character on/near soft cloudsea at the balloon rim with the island mass framed far away (“人站海上、岛在远”). Soft sea AABB y≈−40…+18 overlaps deck height; rim stand makes the misread worse. Not bridge_end; glb/placement/yaw already matched FX.
+## 1. 改了啥
 
-## Fix
-1. `s0New` → `anchor_spawn_girl` [-1.40009, −0.07002, 32.59992]; `s0YawDeg` 151.7° (face court); mid waypoint `s1` [1.9, −0.077, 36.6].
-2. B5 walk: stepDown → deckEdge → s1 → spawn_girl (~11.8 m, ~13.1 s @ 0.9 m/s). Basket touchdown **unchanged** (`S0_LOCAL` / `S0_GAME`).
-3. `seg4.toPath` 7.5 → 15; `TRANSITION_RETIME.caps.meadowToSkycity` 50 → **60** (measured timeline 58.72 s).
-4. `SKY_LAWN` += `env_sky_floor_seal` so arrival forces floor seal on (full8 night “没地” debt).
+### 根因（PM §2.2）
+- 不是「没进盘相机」：`LakesideBoardBackground.frame()` 已 `applyCameraPose(lakesideAlignedBoardPose)`。
+- portrait 机位本身是 b18 **岸边观光镜** `[2,6,33]→[.5,.7,2]`（≈22 m、俯角 ~−10°）——与 Funning 空盘坏样一致；样板要**带一点俯视、盘面可点**。
 
-## Tests (box)
-- `test-board-handoff.cjs` PASS (her = spawn)
-- `test-region-landing-hook.cjs` PASS
-- `test-transition-totals.cjs` PASS (cap 60)
-- `test_chain_ggbot.cjs` ok
-- `test_sky_resume_s6.cjs` PASS (S0DECK = spawn world)
-- `test_lake_continuity.cjs` PASS
-- `test_landing_move` / `test_basket_close`: need `DRACO3D` (not installed here); path arrays updated
+### 改法（PM §4.2）
+1. **保留两套 authored lens**（勿毁掉 kit OFF 观光镜）  
+   - `board.portrait` = b18 观光（kit OFF / 2D tray 路径：托盘下仍见南岸人物/桥）  
+   - `board.portraitFusion` = 轻俯视近景（kit ON）：`main [0,9.5,23]→[0,.15,10] fov 50` ≈ **−36°**；`short [0,10.2,24]→[0,.1,10] fov 50`
+2. **`lakesidePortraitLens` / `lakesideAlignedLookAt` / `lakesideAlignedBoardPose` / `lakesideScreenLanding` / `lakesideLandingBlend`** 全部经 `lakesidePortraitLens` → 当 `lakesideKitAssetsEnabled()` 为 true 用 fusion，否则观光。旅程终点与 lease.frame **同一 pose**（零缝）。
+3. **`LakesideSceneData`**：仅追加 `setLakesideKitAssets` / `lakesideKitAssetsEnabled`（默认 `false`）。**未改** `lakesideSceneInstances` 过滤（GGbot 负责竞态 + keep pieces / RING/SHD）。
+4. **`FreeOrbit` lakeside `pitchMaxDeg` 54→66**：仅使 kit-ON fusion 镜相对角色 look point（~63.6°）能 `seed` 零夹；kit OFF 观光仍 ≪ 54。
 
-## Not done / open
-- Device / Funning visual retest of meadow→skycity land → board (expected: feet on court deck, island fills frame).
-- Graph bake `S0` node still at old rim in `bake-region-nodes.cjs` (scene graph); runtime B5 end is spawn. Scene bot may want bake sync later.
-- No WeChat upload (fail gate). b18/lakeside path v4 untouched.
+### 文件
+| 文件 | 变更 |
+|---|---|
+| `creator-build-project/assets/scripts/region/LakesideCameraLayout.ts` | `portraitFusion` + kit 切换 |
+| `creator-build-project/assets/scripts/region/LakesideSceneData.ts` | flag getter/setter only |
+| `creator-build-project/assets/scripts/region/FreeOrbit.ts` | lakeside pitchMax 66（kit-ON seed） |
+| `tools/journey-integration/test-lakeside-camera.cjs` | K9 kit OFF/ON 双断言 |
 
-## Push
-Push: **403** to `Funning0423/yiqifengle` (denied). Bundle instead:
-`docs/handoff/运镜bot/cine-skycity-sea-landing-fix.bundle` (from `606f434e..656ea005` (code fix); tip `93b45802` adds this bundle file).
+---
+
+## 2. 怎么验
+
+```bash
+cd /workspace/yiqifengle/work/cine-lakeside-board-cam
+export QF_TYPESCRIPT_MODULE=/home/box/.local/lib/node_modules/typescript   # or Mac TS path
+node tools/journey-integration/test-lakeside-camera.cjs   # 期望 PASS，含 K9 OFF + K9 ON
+node tools/lakeside/test_lakeside_reveal_orbit.cjs
+node tools/journey-integration/test-lakeside-landing-hook.cjs
+```
+
+| 断言 | 期望 |
+|---|---|
+| kit OFF | pose = `[2,6,33]→[.5,.7,2]` fov 56，pitch ≈ −9.7°；K1–K8 原观光契约 PASS |
+| kit ON | pitch ∈ [−48,−28]；盘心 `[0,0.02,12]` 进画；近格 ≥ 44 px；`lakesideLandingBlend` gap ≈ 0 |
+| FreeOrbit kit ON | seedErr ≈ 0（pitchMax 66） |
+
+**真机**（需 GGbot 先修 preload 竞态，否则仍无 3D 棋子）：trial kit 默认 ON 时进湖畔盘，构图应对齐样板骨架（轻俯视可点格），不再是南岸远看。
+
+样板：`work/pm/lakeside-fusion-sample-funning-20261105.png`  
+坏样：`work/pm/balloon-bugs-20261105/lakeside-empty-board-050927.png`
+
+---
+
+## 3. 证据路径
+
+`previews/运镜bot/lakeside-board-cam/`
+- `pose-metrics-390x844.json` — kit OFF/ON 数值
+- `kitOFF-sightseeing-390x844.svg` / `kitON-fusion-mild-overhead-390x844.svg` — 投影示意
+- `SAMPLE-funning-fusion.png` / `BAD-empty-shore-far-050927.png` — 对照拷贝
+
+OFF：pitch −9.69°，dist≈21.9 m，cell≈48 px  
+ON：pitch −35.72°，dist≈14.5 m，cell≈88 px，seedErr 0
+
+---
+
+## 4. 已知未做
+
+1. **空盘竞态（GGbot §4.1）**：preload 时 kit flag 仍 false → 无 `LK_piece_*` / RING/SHD；本 tip 零碰。
+2. **莲座 / 棋子造型 / 夜景灯笼发光**：美术 + 场景特效（PM §2.3）。
+3. **未打 Creator / 未真机截图**：仅 Node 几何 + SVG 示意；合包后需真机对样板。
+4. **未推 GitHub / 未 upload**。
+5. 与气球门/甩海 tip **分支分离**（`cine/balloon-door-dismount-fix` 勿混）。
+
+---
+
+## 5. 给 Clonebot / 停工交接
+
+本 tip 交完后小游戏开发/测试整体暂停交 Clonebot。运镜侧本项可 pause；下一包需同时含本 tip（近景镜）+ GGbot 竞态 fix 才有「有棋子的俯视近景」真机观感。
