@@ -353,6 +353,7 @@ export function lakesidePieceGlbForType(type: number): string {
   return LAKESIDE_PIECE_GLBS[t];
 }
 let lakesideKitAssetsOn = false;
+/** Must be set BEFORE mountLakesideScenery / lakesideSceneInstances (board preload runs earlier than ManagedMobileBoardUI.initializeManaged). */
 export function setLakesideKitAssets(on: boolean): void { lakesideKitAssetsOn = !!on; }
 export function lakesideKitAssetsEnabled(): boolean { return lakesideKitAssetsOn; }
 export function lakesideSkippedGlb(): readonly string[] { return lakesideKitAssetsOn ? LAKESIDE_KIT_SKIPPED_GLB : LAKESIDE_SKIPPED_GLB; }

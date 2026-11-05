@@ -17,6 +17,8 @@ import {getGlobalWind} from '../render/GlobalWind';
 import {LAKESIDE_LIFE} from '../render/LakesideLifeCore';
 import {mountLakesideLife,isLakesideLifeNode} from './LakesideLife';
 import {LAKESIDE_SHORE_GLB,mountLakesideShore,isLakesideShoreMaterial,applyLakesideShoreMode} from './LakesideShoreFoam';
+/** Kit flag BEFORE scenery filter: preload/build mounts while UI initializeManaged has not run yet. */
+import {lakesideBoardKitFromFlag} from '../ui/BoardProjection';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
 /** water-ref candidate (VB) diagnostic, scene design asked: is tone mapping on? ONE console.log at the first board light apply,
@@ -270,6 +272,8 @@ export const LAKESIDE_PRELOAD_BATCH=24;
 type LakesideBoardLease=LevelBackgroundLease&{adopt(parent:Node,token:Cancellation):void};
 type LakesidePreloadMode={yieldFrame:()=>Promise<void>};
 const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;selection:any;token:Cancellation},pre:LakesidePreloadMode|null=null):Promise<LakesideBoardLease>=>{
+ /* TRIAL kit: apply flag BEFORE mountLakesideScenery filters instances (preload runs earlier than initializeManaged). Opt-out ?qflakesidekit=0 still honored. Camera unchanged — lakesideAlignedBoardPose stays 运镜/frame path. */
+ try{lakesideBoardKitFromFlag();}catch{/* board-projection optional in pure scene tests */}
  let token=buildToken,host:Node=parent,scenery:Node|null=null;
  let merged:MergeOut|null=null,guest:LakesideGuest|null=null;
  let step='start',rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
