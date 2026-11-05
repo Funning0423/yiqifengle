@@ -156,8 +156,8 @@ class FlowReferenceStandin implements CharacterAdapter {
  warmSampleStandUp(opts?:{restoreMorph?:boolean}):{ok:boolean;samples:number;setWeightCalls:number;restoreMorph:boolean;programWarm:any}{
   const restore=opts?.restoreMorph===true;const fail={ok:false,samples:0,setWeightCalls:0,restoreMorph:restore,programWarm:null};
   if(this.disposed||!this.rig||!this.clock)return fail;const name=CLIP_ROLES.standUp;if(!this.rig.has(name))return fail;
-  // COUNT53 skin+morph program warm (standalone): a couple variants immediately before sample, never a full dump.
-  let programWarm={pending:0,warmed:0,count53:false};try{programWarm=flushStandupProgramWarmBeforeStand(2);}catch{/* optional */}
+  // COUNT16/15/3 skin+morph program warm (standalone, new GLB bag): a couple variants immediately before sample, never a full dump.
+  let programWarm={pending:0,warmed:0,bagReady:false,count53:false};try{programWarm=flushStandupProgramWarmBeforeStand(2);}catch{/* optional */}
   const dur=this.rig.duration(name);if(!(dur>0))return fail;
   const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);
   const before=this.morphs.reduce((n,m)=>n+(m.calls|0),0);const N=4;let samples=0;

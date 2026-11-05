@@ -1,20 +1,31 @@
 /**
- * Standup-only GPU program warm for CC_USE_SKINNING|CC_USE_MORPH|CC_MORPH_TARGET_COUNT53.
+ * Standup-only GPU program warm for CC_USE_SKINNING|CC_USE_MORPH|CC_MORPH_TARGET_COUNT{16|15|3}.
+ *
+ * Paired with COUNT16/15 GLB (APRON16 / DRESS15 / BODY15 / BOW3; tip 6fd22962 / integrate 6bd40657).
+ * Only warms the new COUNT bag — does NOT warm legacy COUNT53/73.
  *
  * Independent of TransitionShaderWarm: do NOT import TSW, do NOT call its standup burst API,
  * do NOT enqueue into TSW critical/hold/burst. Spreads getProgramVariant / getShaderVariant
- * across sit_hold frames (1–2 / frame) so sit→stand does not live-compile the COUNT53 family.
+ * across sit_hold frames (1–2 / frame) so sit→stand does not live-compile the new COUNT family.
  *
  * Acceptance = Funning phone standup feel. Mac setCamera/board=0 is NOT a veto (CONTROL_FAIL_NOISE).
  */
 import {Node,director,isValid} from 'cc';
 import * as ccmod from 'cc';
 
-export const STANDUP_MORPH_COUNT=53;
+/** New GLB morph COUNT (mesh.extras.targetNames / CC_MORPH_TARGET_COUNT). */
+export const STANDUP_MORPH_APRON=16;
+export const STANDUP_MORPH_DRESS=15;
+export const STANDUP_MORPH_BODY=15;
+export const STANDUP_MORPH_BOW=3;
+/** Unique COUNT values to warm (shader name suffix CC_MORPH_TARGET_COUNT{N}). */
+export const STANDUP_MORPH_COUNTS:readonly number[]=[STANDUP_MORPH_APRON,STANDUP_MORPH_DRESS,STANDUP_MORPH_BOW];
+/** Primary / heaviest mesh COUNT (APRON) — single-number alias. */
+export const STANDUP_MORPH_COUNT=STANDUP_MORPH_APRON;
 /** Variants compiled per advance tick while priming. */
 export const STANDUP_WARM_PER_FRAME=2;
-/** Soft cap on frames spent priming (safety; queue is usually shorter). */
-export const STANDUP_WARM_MAX_FRAMES=8;
+/** Soft cap on frames spent priming (queue covers 16+15+3). */
+export const STANDUP_WARM_MAX_FRAMES=10;
 /** MorphDriver setWeight budget for the first STANDUP_MORPH_BUDGET_FRAMES of stand_up. */
 export const STANDUP_MORPH_BUDGET_FIRST=12;
 export const STANDUP_MORPH_BUDGET_FRAMES=4;
@@ -35,6 +46,9 @@ export type StandupWarmStats={
  warmed:number;
  frames:number;
  lastLabel:string;
+ /** True when the armed queue covers COUNT16 and COUNT15 (APRON/DRESS|BODY). */
+ bagReady:boolean;
+ /** @deprecated Always false — live GLB no longer COUNT53; kept for log/compat. */
  count53:boolean;
 };
 
@@ -49,8 +63,13 @@ let armed=false;
 let lastLabel='';
 let rootRef:Node|null=null;
 
-/** COUNT53 skin+morph define bag (standup-critical family). */
-export function standupCount53Defines(extra?:{
+function countInBag(n:number):boolean{
+ for(let i=0;i<STANDUP_MORPH_COUNTS.length;i++)if(STANDUP_MORPH_COUNTS[i]===n)return true;
+ return false;
+}
+
+/** Skin+morph define bag for one COUNT in the standup-critical family. */
+export function standupMorphDefines(count:number,extra?:{
  precomputed?:boolean;
  forwardAdd?:boolean;
  receiveShadow?:boolean;
@@ -64,7 +83,7 @@ export function standupCount53Defines(extra?:{
   CC_USE_SKINNING:true,
   CC_USE_REAL_TIME_JOINT_TEXTURE:false,
   CC_USE_MORPH:true,
-  CC_MORPH_TARGET_COUNT:STANDUP_MORPH_COUNT,
+  CC_MORPH_TARGET_COUNT:count,
   CC_MORPH_TARGET_HAS_POSITION:true,
  };
  if(extra?.receiveShadow!==false)d.CC_RECEIVE_SHADOW=true;
@@ -78,6 +97,11 @@ export function standupCount53Defines(extra?:{
  return d;
 }
 
+/** @deprecated Use standupMorphDefines(STANDUP_MORPH_COUNT, …). Kept as APRON16 alias. */
+export function standupCount53Defines(extra?:Parameters<typeof standupMorphDefines>[1]):StandupWarmDefines{
+ return standupMorphDefines(STANDUP_MORPH_COUNT,extra);
+}
+
 /** Synthetic fallback queue when no character materials are available (offline / early boot). */
 export function buildStandupWarmQueueSynthetic():StandupWarmJob[]{
  const out:StandupWarmJob[]=[];
@@ -85,14 +109,20 @@ export function buildStandupWarmQueueSynthetic():StandupWarmJob[]{
   out.push({key:label+'|'+program,program,defines,patches:null,pass:null,label});
  };
  const std='standard-vs|standard-fs';
- push(std,standupCount53Defines(),'std-count53');
- push(std,standupCount53Defines({precomputed:true}),'std-count53-pre');
- push(std,standupCount53Defines({forwardAdd:true}),'std-count53-fwd');
- push(std,standupCount53Defines({pipeline:true}),'std-count53-pipe');
- push('shadow-caster-vs|shadow-caster-fs',standupCount53Defines({hdr:false,fog:true,albedo:true}),'caster-count53');
- push('planar-shadow-vs|planar-shadow-fs',standupCount53Defines({fog:false,hdr:false,albedo:true}),'planar-count53');
- push('unlit-vs:vert|unlit-fs:frag',standupCount53Defines({vertexColor:false,albedo:false,fog:true,hdr:true}),'unlit-count53');
- push('unlit-vs:vert|unlit-fs:frag',Object.assign(standupCount53Defines({vertexColor:false,albedo:false,precomputed:true}),{USE_TEXTURE:true}),'unlit-count53-pre');
+ // Heavy meshes: APRON16 + DRESS/BODY15 — full-ish variant set.
+ const heavy=[STANDUP_MORPH_APRON,STANDUP_MORPH_DRESS];
+ for(let i=0;i<heavy.length;i++){
+  const c=heavy[i],tag='count'+c;
+  push(std,standupMorphDefines(c),`std-${tag}`);
+  push(std,standupMorphDefines(c,{precomputed:true}),`std-${tag}-pre`);
+  push(std,standupMorphDefines(c,{forwardAdd:true}),`std-${tag}-fwd`);
+  push('shadow-caster-vs|shadow-caster-fs',standupMorphDefines(c,{hdr:false,fog:true,albedo:true}),`caster-${tag}`);
+  push('unlit-vs:vert|unlit-fs:frag',standupMorphDefines(c,{vertexColor:false,albedo:false,fog:true,hdr:true}),`unlit-${tag}`);
+ }
+ // BOW3 — lighter bag (small COUNT, still skin+morph).
+ const b=STANDUP_MORPH_BOW,btag='count'+b;
+ push(std,standupMorphDefines(b),`std-${btag}`);
+ push(std,standupMorphDefines(b,{precomputed:true}),`std-${btag}-pre`);
  return out;
 }
 
@@ -132,7 +162,9 @@ function synthPatches(renderer:any,sub:number,forceReceive:boolean,forcePre:bool
  const sm=morph&&morph.subMeshMorphs&&morph.subMeshMorphs[sub];
  if(sm&&sm.targets&&sm.targets.length){
   const attrs=sm.attributes||[];
-  const count=sm.targets.length>=STANDUP_MORPH_COUNT?STANDUP_MORPH_COUNT:sm.targets.length;
+  const raw=sm.targets.length;
+  // Prefer exact live COUNT when it is in the new bag; otherwise clamp to primary (16).
+  const count=countInBag(raw)?raw:STANDUP_MORPH_COUNT;
   out.push({name:'CC_USE_MORPH',value:true});
   out.push({name:'CC_MORPH_TARGET_COUNT',value:count});
   if(attrHit(attrs,'position'))out.push({name:'CC_MORPH_TARGET_HAS_POSITION',value:true});
@@ -160,17 +192,18 @@ function mergePatches(a:Patch[],b:Patch[]):Patch[]{
 function effectOf(mat:any):string{return String(mat&&(mat.effectName||(mat.effectAsset&&mat.effectAsset.name))||'fx');}
 function passNameOf(pass:any,index:number):string{return String(pass&&(pass.programName||pass._programName||pass.program)||('p'+index));}
 
-function patchesHaveCount53(patches:Patch[]):boolean{
+function patchesHaveBagCount(patches:Patch[]):boolean{
  for(let i=0;i<patches.length;i++){
-  if(patches[i].name==='CC_MORPH_TARGET_COUNT'&&Number(patches[i].value)===STANDUP_MORPH_COUNT)return true;
+  if(patches[i].name==='CC_MORPH_TARGET_COUNT'&&countInBag(Number(patches[i].value)))return true;
  }
  return false;
 }
 
-function forceCount53(patches:Patch[]):Patch[]{
+function ensureMorphBag(patches:Patch[],count:number):Patch[]{
+ const c=countInBag(count)?count:STANDUP_MORPH_COUNT;
  const out=patches.slice();let hit=false;
- for(let i=0;i<out.length;i++)if(out[i].name==='CC_MORPH_TARGET_COUNT'){out[i]={name:'CC_MORPH_TARGET_COUNT',value:STANDUP_MORPH_COUNT};hit=true;}
- if(!hit)out.push({name:'CC_MORPH_TARGET_COUNT',value:STANDUP_MORPH_COUNT});
+ for(let i=0;i<out.length;i++)if(out[i].name==='CC_MORPH_TARGET_COUNT'){out[i]={name:'CC_MORPH_TARGET_COUNT',value:c};hit=true;}
+ if(!hit)out.push({name:'CC_MORPH_TARGET_COUNT',value:c});
  let morph=false,skin=false,pos=false;
  for(let i=0;i<out.length;i++){
   if(out[i].name==='CC_USE_MORPH')morph=true;
@@ -183,27 +216,28 @@ function forceCount53(patches:Patch[]):Patch[]{
  return out;
 }
 
-/** Collect COUNT53 skin+morph jobs from a character visual root (MeshRenderer tree). */
+/** Collect skin+morph jobs from a character visual root (MeshRenderer tree) for the new COUNT bag. */
 export function collectStandupWarmJobs(root:Node|null):StandupWarmJob[]{
  const out:StandupWarmJob[]=[],seen:string[]=[];
  if(!root||!isValid(root,true))return out;
  const take=(renderer:any,mat:any,pass:any,index:number,sub:number,forcePre:boolean)=>{
   if(!isHotRenderer(renderer,sub))return;
   const count=morphCountOf(renderer,sub);
-  // Prefer real COUNT53 meshes; also force-count53 on any skinned+morph so standup keys land.
-  if(count>0&&count!==STANDUP_MORPH_COUNT&&count<16)return;
+  // Only warm meshes whose live COUNT is in the new bag (16/15/3). Skip legacy 53/73 and tiny noise.
+  if(count>0&&!countInBag(count))return;
+  if(count===0)return;
   let patches=mergePatches(livePatches(renderer,sub),synthPatches(renderer,sub,true,forcePre));
-  patches=forceCount53(patches);
+  patches=ensureMorphBag(patches,count);
   if(forcePre){
    let pre=false;for(let i=0;i<patches.length;i++)if(patches[i].name==='CC_MORPH_PRECOMPUTED')pre=true;
    if(!pre)patches.push({name:'CC_MORPH_PRECOMPUTED',value:true});
   }
   const prog=passNameOf(pass,index);
-  const key=effectOf(mat)+'|'+prog+'|pre='+(forcePre?'1':'0')+'|sub='+sub;
+  const key=effectOf(mat)+'|'+prog+'|c='+count+'|pre='+(forcePre?'1':'0')+'|sub='+sub;
   if(seen.indexOf(key)>=0)return;seen.push(key);
   const defines:StandupWarmDefines={};
   for(let i=0;i<patches.length;i++)defines[patches[i].name]=patches[i].value;
-  out.push({key,program:prog,defines,patches,pass,label:(forcePre?'pre:':'')+effectOf(mat)+'|'+prog});
+  out.push({key,program:prog,defines,patches,pass,label:(forcePre?'pre:':'')+effectOf(mat)+'|'+prog+'|c'+count});
  };
  const walk=(node:any)=>{
   if(!node)return;
@@ -238,7 +272,7 @@ function compileJob(job:StandupWarmJob):boolean{
   try{
    const sh=pass.getShaderVariant(job.patches&&job.patches.length?job.patches:null);
    const nm=shaderNameOf(sh);
-   if(nm&&(nm.indexOf('CC_MORPH_TARGET_COUNT53')>=0||nm.indexOf('CC_USE_MORPH')>=0))return true;
+   if(nm&&(nm.indexOf('CC_MORPH_TARGET_COUNT16')>=0||nm.indexOf('CC_MORPH_TARGET_COUNT15')>=0||nm.indexOf('CC_MORPH_TARGET_COUNT3')>=0||nm.indexOf('CC_USE_MORPH')>=0))return true;
    if(sh)return true;
   }catch{/* fall through to lib */}
  }
@@ -258,7 +292,7 @@ function compileJob(job:StandupWarmJob):boolean{
  }catch{return false;}
 }
 
-/** Arm multi-frame COUNT53 warm against a character visual (or synthetic fallback). Idempotent. */
+/** Arm multi-frame COUNT16/15/3 warm against a character visual (or synthetic fallback). Idempotent. */
 export function armStandupProgramWarm(visual?:Node|null):StandupWarmStats{
  const root=visual&&isValid(visual,true)?visual:rootRef;
  if(root&&isValid(root,true))rootRef=root;
@@ -272,7 +306,7 @@ export function armStandupProgramWarm(visual?:Node|null):StandupWarmStats{
  return standupProgramWarmStats();
 }
 
-/** Compile up to `n` pending COUNT53 variants (default STANDUP_WARM_PER_FRAME). */
+/** Compile up to `n` pending bag variants (default STANDUP_WARM_PER_FRAME). */
 export function stepStandupProgramWarm(n:number=STANDUP_WARM_PER_FRAME):StandupWarmStats{
  if(!armed)return standupProgramWarmStats();
  if(frames>=STANDUP_WARM_MAX_FRAMES&&cursor>=jobs.length)return standupProgramWarmStats();
@@ -296,14 +330,25 @@ export function flushStandupProgramWarmBeforeStand(max:number=2):StandupWarmStat
 
 export function standupProgramWarmStats():StandupWarmStats{
  const pending=Math.max(0,jobs.length-cursor);
- let count53=false;
+ let has16=false,has15=false;
  for(let i=0;i<jobs.length;i++){
   const d=jobs[i].defines;
-  if(Number(d.CC_MORPH_TARGET_COUNT)===STANDUP_MORPH_COUNT&&d.CC_USE_SKINNING&&d.CC_USE_MORPH){count53=true;break;}
+  const c=Number(d.CC_MORPH_TARGET_COUNT);
+  if(d.CC_USE_SKINNING&&d.CC_USE_MORPH){
+   if(c===STANDUP_MORPH_APRON)has16=true;
+   if(c===STANDUP_MORPH_DRESS||c===STANDUP_MORPH_BODY)has15=true;
+  }
   const p=jobs[i].patches;
-  if(p&&patchesHaveCount53(p)){count53=true;break;}
+  if(p){
+   for(let j=0;j<p.length;j++){
+    if(p[j].name!=='CC_MORPH_TARGET_COUNT')continue;
+    const v=Number(p[j].value);
+    if(v===STANDUP_MORPH_APRON)has16=true;
+    if(v===STANDUP_MORPH_DRESS||v===STANDUP_MORPH_BODY)has15=true;
+   }
+  }
  }
- return {armed,pending,warmed,frames,lastLabel,count53};
+ return {armed,pending,warmed,frames,lastLabel,bagReady:has16&&has15,count53:false};
 }
 
 export function resetStandupProgramWarm():void{

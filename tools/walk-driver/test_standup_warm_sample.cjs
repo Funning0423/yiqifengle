@@ -23,9 +23,12 @@ assert.match(bootSrc,/warmSampleStandUp/);
 assert.match(bootSrc,/standup-warm-sample/);
 assert.match(adSrc,/warmSampleStandUp/);
 
-/* StandupProgramWarm COUNT53: present, isolated from TSW, wired in boot (not balloon) */
+/* StandupProgramWarm COUNT16/15/3: present, isolated from TSW, wired in boot (not balloon) */
 const spwSrc=fs.readFileSync(path.join(S,'region/StandupProgramWarm.ts'),'utf8');
-assert.match(spwSrc,/STANDUP_MORPH_COUNT\s*=\s*53/);
+assert.match(spwSrc,/STANDUP_MORPH_APRON\s*=\s*16/);
+assert.match(spwSrc,/STANDUP_MORPH_DRESS\s*=\s*15/);
+assert.match(spwSrc,/STANDUP_MORPH_BOW\s*=\s*3/);
+assert.doesNotMatch(spwSrc,/STANDUP_MORPH_COUNT\s*=\s*53/);
 assert.doesNotMatch(spwSrc,/from\s+['"]\.\/TransitionShaderWarm['"]/);
 assert.doesNotMatch(spwSrc,/\barmStandupShaderBurst\s*\(|export\s+function\s+armStandupShaderBurst/);
 assert.match(bootSrc,/armStandupProgramWarm|stepStandupProgramWarm|flushStandupProgramWarmBeforeStand/);
@@ -50,9 +53,9 @@ assert.doesNotMatch(pb,/armStandupShaderBurst/);
 assert.match(adSrc,/warmSampleStandUp\?\.?\(\{restoreMorph:false\}\)/);
 
 const classText=bootSrc.slice(bootSrc.indexOf('/** Explicit flow-reference stand-in.'),bootSrc.indexOf("@ccclass('WorldIntegrationBoot')"));
-const standupWarmStub={armed:false,pending:0,warmed:0,frames:0,lastLabel:'',count53:true};
+const standupWarmStub={armed:false,pending:0,warmed:0,frames:0,lastLabel:'',bagReady:true,count53:false};
 const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Cancelled,AnimationClip:{WrapMode:{Loop:2,Normal:1}},SkeletalAnimation:function(){},MeshRenderer:function MeshRenderer(){},pointOnPath:W.pointOnPath,
- armStandupProgramWarm:(v)=>{standupWarmStub.armed=true;standupWarmStub.pending=6;standupWarmStub.count53=true;return standupWarmStub;},
+ armStandupProgramWarm:(v)=>{standupWarmStub.armed=true;standupWarmStub.pending=6;standupWarmStub.bagReady=true;standupWarmStub.count53=false;return standupWarmStub;},
  stepStandupProgramWarm:(n)=>{const take=Math.min(n||2,standupWarmStub.pending);standupWarmStub.pending-=take;standupWarmStub.warmed+=take;standupWarmStub.frames++;return Object.assign({},standupWarmStub);},
  flushStandupProgramWarmBeforeStand:(max)=>ctx.stepStandupProgramWarm(max||2),
  standupProgramWarmStats:()=>Object.assign({},standupWarmStub),
@@ -95,7 +98,7 @@ const flush=()=>new Promise(r=>setImmediate(r));
  assert.ok(ev.length>=2,'standup-warm-sample events');
  assert.ok(first3<200,'first3 setWeight '+first3);
  const out={status:'PASS',strategy:'C_standup_only_isolation',warm,deltaWarm2:delta,first3,warmEvents:ev.length,repairedStates:repaired1.length,glb:path.basename(GLB),
-  isolation:{bindVisual:false,performStand:true,lakeside:true,armStandupShaderBurst:false,TransitionShaderWarm:false,StandupProgramWarm:true,COUNT53:true},
-  stack:'299afe73 anim/standup-perf-morph (optional companion)',acceptance:'standup feel / frame marks — NOT setCamera/board=0 veto'};
+  isolation:{bindVisual:false,performStand:true,lakeside:true,armStandupShaderBurst:false,TransitionShaderWarm:false,StandupProgramWarm:true,COUNT16_15_3:true,COUNT53:false},
+  stack:'6fd22962 COUNT16/15 GLB+meta / integrate 6bd40657',acceptance:'standup feel / frame marks — NOT setCamera/board=0 veto'};
  console.log(JSON.stringify(out,null,1));
 })().catch(e=>{console.error(e);process.exitCode=1;});

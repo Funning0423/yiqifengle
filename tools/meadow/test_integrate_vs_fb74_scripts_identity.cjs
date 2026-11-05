@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Strategy C CONTROL_FAIL_NOISE: lock transition/board/balloon paths bit-identical to
- * over-line Mac tip fb74d437. Character standup warmSample + StandupProgramWarm COUNT53 are ALLOWED in
+ * over-line Mac tip fb74d437. Character standup warmSample + StandupProgramWarm COUNT16/15/3 are ALLOWED in
  * WorldIntegrationBoot / RegionJourneyAdapter / CharacterMotion / StandupProgramWarm.ts.
  * Do NOT peel BalloonTransit / black-fence / K.s1. Do NOT put warmSample into
  * TransitionShaderWarm / SkycityBoard* / BalloonTransit.
@@ -93,7 +93,7 @@ if (burstCode.length) {
   console.log('OK no armStandupShaderBurst wiring');
 }
 
-// Standup COUNT53 program warm must live outside TransitionShaderWarm.
+// Standup COUNT16/15/3 program warm must live outside TransitionShaderWarm.
 const warmMod = 'creator-build-project/assets/scripts/region/StandupProgramWarm.ts';
 const fs = require('fs');
 if (!fs.existsSync(warmMod)) {
@@ -104,11 +104,14 @@ if (!fs.existsSync(warmMod)) {
   if (/from\s+['"]\.\/TransitionShaderWarm['"]/.test(body) || /\barmStandupShaderBurst\s*\(/.test(body) || /export\s+function\s+armStandupShaderBurst/.test(body)) {
     console.error('FORBIDDEN: StandupProgramWarm imports/calls TSW burst');
     failed++;
-  } else if (!/CC_MORPH_TARGET_COUNT/.test(body) || !/getProgramVariant/.test(body)) {
-    console.error('EXPECTED COUNT53 + getProgramVariant in StandupProgramWarm');
+  } else if (!/STANDUP_MORPH_APRON\s*=\s*16/.test(body) || !/STANDUP_MORPH_DRESS\s*=\s*15/.test(body) || !/STANDUP_MORPH_BOW\s*=\s*3/.test(body) || !/CC_MORPH_TARGET_COUNT/.test(body) || !/getProgramVariant/.test(body)) {
+    console.error('EXPECTED COUNT16/15/3 bag + getProgramVariant in StandupProgramWarm');
+    failed++;
+  } else if (/STANDUP_MORPH_COUNT\s*=\s*53/.test(body) || /CC_MORPH_TARGET_COUNT53/.test(body)) {
+    console.error('FORBIDDEN: StandupProgramWarm still warms legacy COUNT53');
     failed++;
   } else {
-    console.log('OK StandupProgramWarm isolated COUNT53 warm');
+    console.log('OK StandupProgramWarm isolated COUNT16/15/3 warm');
   }
 }
 const boot = fs.readFileSync('creator-build-project/assets/scripts/WorldIntegrationBoot.ts', 'utf8');
