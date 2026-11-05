@@ -2,7 +2,7 @@
 
 ## Tip / feature
 - **feature** `8f520d0004ae82b8f06b75b3ef8e6a66616db5e2`
-- **tip** `TIP_SHA_PENDING`
+- **tip** `7374aea05646a59f3e31c82cfd7f496d9997b97f`
 
 ## 一句话
 PM 深挖报告对齐：前五轮「零侵入 TransitionShaderWarm」零改善；流畅基线 `0421cfff` **没有** TSW；live 已是 COUNT16（`e3fbce98`）但 TSW `CRITICAL_CACHE_NEEDLES` 仍要 COUNT53/73 → `needlesMissing()` 永久>0 → `criticalPending` 永不归零 → 每帧 compile（`CRITICAL_PER_FRAME=3`）+ 每10帧 absorb。本 tip 把 `TRANSITION_SHADER_WARM_ENABLED` **默认 false**：关掉 `director_after_draw` 常驻暖机；hold/note/arm API **空转**（BalloonTransit / Board / Sail 不抛）；**保起身**；保留 BalloonTransit/sea-landing 视觉。**本 tip 故意动 TSW——不再「零侵入」；这正是本刀。**
