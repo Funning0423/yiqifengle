@@ -64,6 +64,8 @@ assert.match(cmSrc,/_watchMorphInMesh/);
 assert.match(cmSrc,/setMorphRendering/);
 assert.match(cmSrc,/mesh-reassign/);
 assert.match(warmSrc,/STANDUP_PROGRAM_WARM_ENABLED/);
+assert.match(warmSrc,/STANDUP_PROGRAM_WARM_ENABLED\s*=\s*false/,'default OFF for A/B peel warm');
+assert.doesNotMatch(warmSrc,/STANDUP_PROGRAM_WARM_ENABLED\s*=\s*true/);
 assert.match(warmSrc,/windowOpen/);
 assert.match(warmSrc,/openStandupWarmWindow/);
 assert.match(warmSrc,/closeStandupWarmWindow/);
@@ -101,7 +103,11 @@ assert.equal(W.STANDUP_MORPH_BOW,3);
 assert.deepEqual([...W.STANDUP_MORPH_COUNTS],[16,15,3]);
 assert.equal(W.STANDUP_MORPH_COUNT,16);
 assert.equal(W.STANDUP_WARM_PER_FRAME,2);
+assert.equal(W.STANDUP_PROGRAM_WARM_ENABLED,false,'runtime default OFF');
 
+/* Functional warm path still works when manually re-enabled (rollback). */
+W.setStandupProgramWarmEnabled(true);
+assert.equal(W.STANDUP_PROGRAM_WARM_ENABLED,true);
 W.resetStandupProgramWarm();
 const syn=W.buildStandupWarmQueueSynthetic();
 assert.ok(syn.length>=8,'synthetic queue');
@@ -230,6 +236,10 @@ W.stepStandupProgramWarm(4);
 assert.equal(fakeLib.calls.length,killCalls,'kill switch: step compiles nothing');
 assert.equal(W.flushStandupProgramWarmBeforeStand(2).armed,false);
 W.setStandupProgramWarmEnabled(true);
+assert.equal(W.STANDUP_PROGRAM_WARM_ENABLED,true,'manual ON restores warm path');
+/* restore A/B default OFF so leftover state matches product default */
+W.setStandupProgramWarmEnabled(false);
+assert.equal(W.STANDUP_PROGRAM_WARM_ENABLED,false);
 
 /* sparse morphWeights: walk only evaluates active curves, not full tip table */
 const cfg=motion.defaultMotionConfig();
@@ -265,7 +275,9 @@ const out={
   morphBudget:{first:n1,second:n2,totalCalls:calls.length},
   morphSparse:{walkActive:Object.keys(active),sitSeat:true},
   gpuGate:{unloadOnZero:true,reloadOnLive:true,watchTearDown:true,stripFallback:true,killSwitch:true},
-  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto',
-  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL enableMorph tear-down (_watchMorphInMesh/setMorphRendering); StandupProgramWarm kill switch A/B',
+  warmDefaultOff:true,
+  warmManualOnWorks:true,
+  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B default StandupProgramWarm OFF',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL GPU morph gate kept; StandupProgramWarm DEFAULT OFF (setStandupProgramWarmEnabled still toggles)',
 };
 console.log(JSON.stringify(out,null,1));
