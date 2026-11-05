@@ -17,6 +17,7 @@ import {onDayNightChange} from '../world-r1/DayNightContract';
 import {gradeSkycityCloudsea,gradeSkycityNight} from './SkycityNightApply';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {BALLOON_DOOR,INFLATE,basketDoorRestYaw,basketDoorYawDeg,chainMark,continuousTransitions,doorAngleAt,doorInAngleAt,guardBeforeWalk,inflateAt} from './TransitionChain';
+import {applyEnvelopeDrape,poseLoadFrameFromEnvelope} from './BalloonDrape';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING} from './TransitionStaging';
 import {basketToWorld,pathLength} from './TransitionStagingMath';
 import {seatFromBench} from './TransportLeg';
@@ -83,11 +84,11 @@ export function loadTransitPrefab(name:string):Promise<Prefab|null>{return loadB
  *  awaited: 0 s on island→meadow. The stand-in only turns on while the meadow is hidden or the yard is outside the live camera's
  *  view cone (read-only check, no camera write). */
 export const YARD_BALLOON={name:'yard_balloon',pos:[3.6,6.6,-23.4] as Vec,yawDeg:344,centerUpM:5,radiusM:6};
-/** Envelope at inflate time t (= the ride's applyInflate math; drop = envelope mesh bottom in node units, from the mesh AABB). */
-export function yardEnvelope(envelope:Node,t:number):void{const f=inflateAt(t);let lo=NaN;
- for(const r of envelope.getComponents(MeshRenderer)){const y=(r as any).mesh?.struct?.minPosition?.y;if(Number.isFinite(y))lo=Number.isFinite(lo)?Math.min(lo,y):y;}
- const p=envelope.position.clone(),sc=envelope.scale.clone(),drop=Number.isFinite(lo)?lo*sc.y:0;
- envelope.setScale(sc.x*f.sxz,sc.y*f.sy,sc.z*f.sxz);envelope.setPosition(p.x,p.y+drop*sc.y*(1-f.sy),p.z);}
+/** Envelope + load frame at inflate time t. Cloth drapes into the basket; the frame stays inside it until the mouth rises.
+ *  (Replaces the flat-disc scale that left the poles / platform / rods standing as scaffolding.) */
+export function yardEnvelope(envelope:Node,t:number):void{
+ const p=envelope.position.clone(),sc=envelope.scale.clone();
+ applyEnvelopeDrape(envelope,t,{p,s:sc});poseLoadFrameFromEnvelope(envelope,t);}
 /** Pure view-cone test (exported for the gate): is the sphere (q, r) wholly outside the camera's view cone? */
 export function outsideView(cam:Pose|null,q:Vec,r=YARD_BALLOON.radiusM):boolean{if(!cam)return true;
  const f=[cam.target[0]-cam.position[0],cam.target[1]-cam.position[1],cam.target[2]-cam.position[2]],d=[q[0]-cam.position[0],q[1]-cam.position[1],q[2]-cam.position[2]];
@@ -632,14 +633,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const vYawDeg=()=>{const v=plan.vehicle(0);return v.yaw*180/Math.PI;};
    // B2 inflate (compress: Grok Bot 2026-10-25): ignition + fill start with the B1 walk to the basket (overlap), so the ride
    // clock no longer waits at 0 after she sits unless the walk was shorter than INFLATE.durationS; burner brightness synced.
-   const envHome=envelope&&isValid(envelope,true)?{p:envelope.position.clone(),s:envelope.scale.clone(),drop:NaN}:null;
+   const envHome=envelope&&isValid(envelope,true)?{p:envelope.position.clone(),s:envelope.scale.clone()}:null;
    let inflateT=contChain&&envHome?0:INFLATE.durationS;let inflateMarked=false;
-   const applyInflate=()=>{if(!envHome||!envelope||!isValid(envelope,true))return;const f=inflateAt(inflateT);
-    if(!Number.isFinite(envHome.drop)){envHome.drop=0;try{let lo=Infinity;for(const r of envelope.getComponentsInChildren(MeshRenderer)){const b:any=(r as any).model?.worldBounds;if(b)lo=Math.min(lo,b.center.y-b.halfExtents.y);}
-      const ps=envelope.parent?envelope.parent.worldScale.y:1;if(Number.isFinite(lo))envHome.drop=(lo-envelope.worldPosition.y)/(ps||1);}catch{envHome.drop=0;}}
-    envelope.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
-    envelope.setPosition(envHome.p.x,envHome.p.y+envHome.drop*envHome.s.y*(1-f.sy),envHome.p.z)/* bottom stays on the burner ring */;
-    if(flame){flame.active=inflateT>0;const k=f.flame*(1+0.12*Math.sin(inflateT*18));flame.setScale(k,k,k);}};
+   const applyInflate=()=>{if(!envHome||!envelope||!isValid(envelope,true))return;applyEnvelopeDrape(envelope,inflateT,envHome);poseLoadFrameFromEnvelope(envelope,inflateT);
+    if(flame){flame.active=inflateT>0;const k=inflateAt(inflateT).flame*(1+0.12*Math.sin(inflateT*18));flame.setScale(k,k,k);}};
    // full9c B1 first frame (m 600–602 / mday 536–538 clear colour; m2 camTrace f3515→3516 = 278 ms frame): the balloon was
    // first moved into view on the B1 cut (vehicle under rig at its prefab origin until then), so its first draw (double-sided
    // material instances, pipeline/shader, mesh upload) stalled the cut frame. Moor it on its B1 t=0 pose BEFORE the pre-walk
@@ -793,7 +790,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    });
    rideToken.check();
    if(setWind)setWind.call(actor,()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
-   if(envHome&&envelope&&isValid(envelope,true)){envelope.setScale(envHome.s);envelope.setPosition(envHome.p);}
+   if(envHome&&envelope&&isValid(envelope,true)){envelope.setScale(envHome.s);envelope.setPosition(envHome.p);poseLoadFrameFromEnvelope(envelope,INFLATE.durationS);}
    if(contChain&&girl&&isValid(girl,true)){
     // B5 (after the B4 settle 29–30 s): the door opens (door_reach), she leaves stand_point over the sill and walks inland
     // to anchor_spawn_girl (TRANSITION_STAGING.skycity.s0New). Basket touchdown stays S0_LOCAL; board frames spawn+court.

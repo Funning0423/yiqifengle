@@ -4,6 +4,7 @@ import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,e
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME,lakeBoardS} from './TransitionStaging';
 import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt,basketDoorRestYaw,basketDoorYawDeg} from './TransitionChain';
+import {applyEnvelopeDrape,poseLoadFrameFromEnvelope} from './BalloonDrape';
 import {SKY_LAKE_CONT,lakeBasketYaw,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
 import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './TransitionAnchorData';
 import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
@@ -324,7 +325,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
     held=true;coverAudioIn(WINDWIPE.inS);fadingIn=true;await fade!(0,WINDWIPE.inS);emitWipeRevealed(wipeEv);};
    const ldoor=find(vehicle,'basket_door')||find(vehicle,'basket_door_leaf'),lenv=find(vehicle,'balloon_envelope'),lflame=find(vehicle,'burner_flame');
    const envHome=lenv&&isValid(lenv,true)?{p:lenv.position.clone(),s:lenv.scale.clone()}:null;
-   const inflate=(it:number)=>{const f=inflateAt(it);if(envHome&&lenv&&isValid(lenv,true))lenv.setScale(envHome.s.x*f.sxz,envHome.s.y*f.sy,envHome.s.z*f.sxz);
+   const inflate=(it:number)=>{const f=inflateAt(it);if(envHome&&lenv&&isValid(lenv,true)){applyEnvelopeDrape(lenv,it,envHome);poseLoadFrameFromEnvelope(lenv,it);}
     if(lflame&&isValid(lflame,true)){lflame.active=it>0;const k=f.flame;lflame.setScale(k,k,k);}};
    let stepInS:number=SKY_LAKE_CONT.stepInS,inflateTau0=0;let boardFn:()=>void=()=>{};
    if(contLake){

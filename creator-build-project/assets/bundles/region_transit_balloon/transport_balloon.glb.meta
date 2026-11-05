@@ -47,7 +47,7 @@
       "name": "balloon_basket.mesh",
       "userData": {
         "gltfIndex": 0,
-        "triangleCount": 545
+        "triangleCount": 324
       },
       "ver": "1.1.1",
       "imported": true,
@@ -253,6 +253,24 @@
         ".json"
       ],
       "subMetas": {}
+    },
+    "a4c17": {
+      "importer": "gltf-mesh",
+      "uuid": "5c12e899-95e9-4fd1-90d1-3c7bf293a963@a4c17",
+      "displayName": "",
+      "id": "a4c17",
+      "name": "balloon_load_frame.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 221
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
     }
   },
   "userData": {
@@ -299,7 +317,8 @@
         "5c12e899-95e9-4fd1-90d1-3c7bf293a963@79340",
         "5c12e899-95e9-4fd1-90d1-3c7bf293a963@bb93b",
         "5c12e899-95e9-4fd1-90d1-3c7bf293a963@0b64f",
-        "5c12e899-95e9-4fd1-90d1-3c7bf293a963@56643"
+        "5c12e899-95e9-4fd1-90d1-3c7bf293a963@56643",
+        "5c12e899-95e9-4fd1-90d1-3c7bf293a963@a4c17"
       ],
       "skeletons": [],
       "textures": [

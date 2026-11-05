@@ -68,8 +68,11 @@ const res={};
 // ---------- condition 3 ----------
 {const base=gitShow('region/BalloonTransit.ts');
  if(base){const pick=(s,a,b)=>{const i=s.indexOf(a);assert.ok(i>=0,'C3: missing '+a);return s.slice(i,s.indexOf(b,i));};
-  for(const [a,b] of [['const applyInflate=()=>{','};'],['const cam0=plan.camera(0)','\n'],['const plan=balloonBeats(','\n'],['let inflateT=','\n']])
+  // P0 2026-11-05: applyInflate no longer pins a flat disc on the burner ring (that left the load frame
+  // standing as scaffolding). Camera / plan / inflate clock stay byte-pinned; the drape itself is test_balloon_drape.cjs.
+  for(const [a,b] of [['const cam0=plan.camera(0)','\n'],['const plan=balloonBeats(','\n'],['let inflateT=','\n']])
    assert.equal(pick(src,a,b),pick(base,a,b),'C3: B1 first-frame code changed vs '+BASE+': '+a);
+  assert.match(src,/applyEnvelopeDrape\(envelope,inflateT,envHome\)/,'C3: ride inflate must drape the envelope');
   // final-cam b1-ease (运镜bot): B1 eases from the held live lens (b1Hold) instead of cam0, no cam0 end blend; exact pin, nothing else may differ.
   assert.equal(pick(src,'const b1Lens=():Pose=>','\n'),'const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(b1Hold??cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return close;};','C3: B1 lens line != final-cam b1-ease');
   const body=s=>{const i=s.indexOf('const b1Draw=()=>{');return s.slice(i,s.indexOf('director.on(Director.EVENT_BEFORE_DRAW,b1Draw)',i)).replace(/\n\s*if\(!b1Drawn\)\{gapPh\('firstDraw-wait'\);[\s\S]*?\/\* hold the real previous frame, single writer \(before-draw\) \*\//,'');};
@@ -82,9 +85,11 @@ const res={};
  {const f='region/TransitionChain.ts',b=gitShow(f);if(b!==null)require('./c3-transition-chain.cjs').checkTransitionChain(b,fs.readFileSync(S+f,'utf8'),f,BASE);}
  const plan=planFor(M2),v0=plan.vehicle(0),c0=plan.camera(0),PIN={v0:[-5.3,5.25,102.5],c0:[-20.6,8.25,89.6]}/* m run plan0 (3 dp log) */;
  for(let i=0;i<3;i++){assert.ok(Math.abs(v0.pos[i]-PIN.v0[i])<0.06,'C3 v0 '+v0.pos);assert.ok(Math.abs(c0.position[i]-PIN.c0[i])<6e-4,'C3 cam0 '+c0.position);}
+ const Drape=H.load(S+'region/BalloonDrape.ts');
  const o={p:{x:0,y:-3.05,z:0},s:{x:1,y:1,z:1}},e={get position(){return {...o.p,clone(){return {...o.p};}};},get scale(){return {...o.s,clone(){return {...o.s};}};},setScale(x,y,z){o.s={x,y,z};},setPosition(x,y,z){o.p={x,y,z};},getComponents(){return [{mesh:{struct:{minPosition:{y:3.05}}}}];}};
- BT.yardEnvelope(e,0);const f0=TC.inflateAt(0),wantY=-3.05+3.05*(1-f0.sy),eps=1e-9;
- assert.ok(Math.abs(o.s.x-f0.sxz)<eps&&Math.abs(o.s.y-f0.sy)<eps&&Math.abs(o.s.z-f0.sxz)<eps&&Math.abs(o.p.y-wantY)<eps,'C3: stand-in envelope != applyInflate(0)');
+ BT.yardEnvelope(e,0);const pose=Drape.balloonDrapePose(0),wantY=Drape.envelopeLocalY(pose,{p:{x:0,y:-3.05,z:0},s:{x:1,y:1,z:1}}),eps=1e-9;
+ assert.ok(Math.abs(o.s.x-pose.sxz)<eps&&Math.abs(o.s.y-pose.sy)<eps&&Math.abs(o.s.z-pose.sxz)<eps&&Math.abs(o.p.y-wantY)<eps,'C3: stand-in envelope != drape(0)');
+ assert.ok(pose.mouthY<1.02&&pose.crownY<1.6&&!pose.frameVisible,'C3: deflated cloth must sit in the basket with the load frame hidden');
  assert.ok(src.indexOf('director.on(Director.EVENT_AFTER_DRAW,b1AfterDraw)')<src.indexOf("await actor.perform({kind:'walk',path:pre.path"),'C3: first-draw listener after the pre-walk');
- res.c3={base:BASE,codeCompared:!!base,v0:v0.pos.map(x=>+x.toFixed(4)),yawDeg:+(v0.yaw*180/Math.PI).toFixed(4),cam0:c0.position,envelope:{sxz:f0.sxz,sy:f0.sy,y:+wantY.toFixed(6)}};}
+ res.c3={base:BASE,codeCompared:!!base,v0:v0.pos.map(x=>+x.toFixed(4)),yawDeg:+(v0.yaw*180/Math.PI).toFixed(4),cam0:c0.position,envelope:{sxz:pose.sxz,sy:pose.sy,mouthY:pose.mouthY,crownY:pose.crownY,y:+wantY.toFixed(6)}};}
 console.log(JSON.stringify(res));console.log('b1-yard-balloon: PASS');
