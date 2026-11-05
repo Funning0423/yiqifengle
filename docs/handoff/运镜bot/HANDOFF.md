@@ -4,7 +4,7 @@ Date: 2026-11-05 (America/New_York)
 ## Branches / SHA
 | branch | tip | worktree |
 |---|---|---|
-| `cine/balloon-door-dismount-fix` | `24fd2f22` / `24fd2f220272cae527e63784d37a1b31394a6f2f` | `/workspace/yiqifengle/work/cine-balloon-door-dismount` |
+| `cine/balloon-door-dismount-fix` | `b388a5b8` / `b388a5b8f93acadc93171a5caddca8601f6bd652` | `/workspace/yiqifengle/work/cine-balloon-door-dismount` |
 
 Base: `github/gbt/r5-b20-integrate-landing-visual-bg2` @ `9ec8410c`（体验版 `1.0.202611050927`）。
 
