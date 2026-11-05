@@ -120,16 +120,25 @@ export function lakesideBoardKitPose(w: number, h: number): { position: [number,
   const d = Math.hypot(pose.position[0] - look[0], pose.position[1] - look[1], pose.position[2] - look[2]);
   return { position: [pose.position[0], pose.position[1], pose.position[2]], rotationXYZW: [pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]], fovVerticalDeg: pose.fovVerticalDeg, distanceM: d };
 }
-/** Lakeside fusion-kit switch (Funning sample: wb_line + buoy_lantern + chime_raft + LK_piece_*). OFF by default.
+/** Lakeside fusion-kit switch (Funning sample: wb_line + buoy_lantern + chime_raft + LK_piece_*).
+ *  TRIAL tip: default ON (WeChat trial cannot pass ?qflakesidekit=1). Formal tip 05ca7c50 stays OFF.
  *  On = LAKESIDE_KIT registered for region 'lake' (and 'lakeside' alias) + setLakesideKitAssets(true) (keep pieces, unskip RING/SHD).
- *  Test / preview: globalThis.__qfLakesideBoardKit === true or '?qflakesidekit=1'. */
+ *  Opt-out: globalThis.__qfLakesideBoardKit === false or '?qflakesidekit=0'. Force on: true / '?qflakesidekit=1'. */
 export function setLakesideBoardKit(on: boolean): void {
   if (on) { registerBoardKit('lake', LAKESIDE_KIT); registerBoardKit('lakeside', LAKESIDE_KIT); }
   else { unregisterBoardKit('lake'); unregisterBoardKit('lakeside'); }
   try { setLakesideKitAssets(on); } catch { /* scene data optional in pure board tests */ }
 }
 export function lakesideBoardKitFromFlag(): boolean {
-  const g = globalThis as any; let on = g.__qfLakesideBoardKit === true;
-  try { if (!on && g.location && typeof g.location.search === 'string') on = /[?&]qflakesidekit=1(&|$)/.test(g.location.search); } catch { /* no location */ }
+  const g = globalThis as any; let on = true;
+  if (g.__qfLakesideBoardKit === false) on = false;
+  else if (g.__qfLakesideBoardKit === true) on = true;
+  try {
+    if (g.location && typeof g.location.search === 'string') {
+      const s = g.location.search;
+      if (/[?&]qflakesidekit=0(&|$)/.test(s)) on = false;
+      else if (/[?&]qflakesidekit=1(&|$)/.test(s)) on = true;
+    }
+  } catch { /* no location */ }
   setLakesideBoardKit(on); return on;
 }

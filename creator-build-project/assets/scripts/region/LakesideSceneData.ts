@@ -339,7 +339,7 @@ export type LakesideInstance = Readonly<{ name: string; glb: string; group: stri
  *  white-balance lines, chime rafts), and drop what the 2D board already shows — 3D match pieces, contact shadows /
  *  ripple rings, and the board frame (not in the subpackage). */
 export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
-/** Kit path (LAKESIDE_KIT / ?qflakesidekit=1, Funning fusion sample): keep board_frame skipped (r5h3 dropped; water = carrier);
+/** Kit path (LAKESIDE_KIT / TRIAL default ON; opt-out ?qflakesidekit=0, Funning fusion sample): keep board_frame skipped (r5h3 dropped; water = carrier);
  *  unskip contact_shadow + ripple_ring as aux; KEEP LK_piece_* (cancel whole-prefix filter — gameplay/scene piece pipeline A).
  *  Default OFF keeps the 2D-tray skip list + piece filter. */
 const LAKESIDE_KIT_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb']);

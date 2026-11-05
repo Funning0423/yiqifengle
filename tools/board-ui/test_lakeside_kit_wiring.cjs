@@ -1,15 +1,20 @@
 'use strict';
-/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. OFF without ?qflakesidekit=1 even on a lake board
+/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. TRIAL default ON; opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false
  * (2D tray, grid cellAt). ON: cells on the projected water-grid centres (tap hit), tray + tile bases + 2D piece art hidden
  * (scene LK_piece_* / wb_line / buoy / raft are the visual), cellAt = nearest projected centre, fallback = 0, no camera writes.
- * Kit scene keep = default 813 + 49 RING + 49 SHD + 52 LK_piece_* (=963); board_frame still skipped. Default path untouched. */
+ * Kit scene keep = default 813 + 49 RING + 49 SHD + 52 LK_piece_* (=963); board_frame still skipped. Formal tip 05ca7c50 stays OFF. */
 const assert = require('node:assert/strict');
 const { createHarness } = require('./harness.cjs');
 const { createBoard, snapshot } = require('./board-fixture.cjs');
 async function mk(on, w, h, region) {
   const H = createHarness();
-  if (on) globalThis.location = { search: '?qflakesidekit=1' }; else delete globalThis.location;
-  delete globalThis.__qfLakesideBoardKit;
+  if (on) {
+    delete globalThis.__qfLakesideBoardKit;
+    globalThis.location = { search: '?qflakesidekit=1' };
+  } else {
+    globalThis.__qfLakesideBoardKit = false;
+    globalThis.location = { search: '?qflakesidekit=0' };
+  }
   const s = snapshot('regional-r05', 1); s.active.region = region;
   const b = createBoard({ harness: H, provider: 'regional-r05', snapshot: s, width: w, height: h });
   await H.flush(); b.render(); b.u.update(0); return { H, b };
