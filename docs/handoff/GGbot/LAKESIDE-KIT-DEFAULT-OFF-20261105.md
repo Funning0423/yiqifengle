@@ -2,7 +2,7 @@
 
 ## Tip / feature
 - **feature** `51b6e4ed8b171ed8e359ba5e4e4a76e54bde7388`
-- **tip** `TIP_SHA_TBD`
+- **tip** `783952c04910963cf0612d7805e0e270e582fb75`
 
 ## 一句话
 Funning 要原版 board-kit（停浮标格）；美术方案 ACK。合回 `ec9bd651` 的 `BoardKit` / `BoardProjection` / `CoastBoardPieces`，仿 `f10bc3b0` 加 `LAKESIDE_KIT` + `?qflakesidekit=1`（**默认 OFF**）。kit 路径从 `LAKESIDE_SKIPPED_GLB` **拿掉** `LK_contact_shadow.glb` + `LK_ripple_ring.glb`（models 已有 49×）；**继续 skip** `LK_board_frame`（r5h3 已 drop，水面=载体）；**禁** coast slab。board 锚 `[0,0,12]`，cellM=1.1，topY=0.02；投影相机只读 `lakesideAlignedBoardPose`。
