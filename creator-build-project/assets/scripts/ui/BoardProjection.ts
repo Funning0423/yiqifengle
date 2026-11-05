@@ -123,7 +123,8 @@ export function lakesideBoardKitPose(w: number, h: number): { position: [number,
 /** Lakeside fusion-kit switch (Funning sample: wb_line + buoy_lantern + chime_raft + LK_piece_*).
  *  TRIAL tip: default ON (WeChat trial cannot pass ?qflakesidekit=1). Formal tip 05ca7c50 stays OFF.
  *  On = LAKESIDE_KIT registered for region 'lake' (and 'lakeside' alias) + setLakesideKitAssets(true) (keep pieces, unskip RING/SHD).
- *  Opt-out: globalThis.__qfLakesideBoardKit === false or '?qflakesidekit=0'. Force on: true / '?qflakesidekit=1'. */
+ *  Opt-out: globalThis.__qfLakesideBoardKit === false or '?qflakesidekit=0'. Force on: true / '?qflakesidekit=1'.
+ *  Also invoked at start of buildLakesideBoard so preload/filter sees the flag (initializeManaged alone is too late). */
 export function setLakesideBoardKit(on: boolean): void {
   if (on) { registerBoardKit('lake', LAKESIDE_KIT); registerBoardKit('lakeside', LAKESIDE_KIT); }
   else { unregisterBoardKit('lake'); unregisterBoardKit('lakeside'); }

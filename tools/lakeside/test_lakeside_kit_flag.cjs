@@ -53,4 +53,8 @@ assert.ok(Math.abs(tw24[0]) < 1e-9 && Math.abs(tw24[2] - 12) < 1e-9, 'cell24');
 assert.ok(Math.abs(tw0[1] - 0.02) < 1e-9, 'topY');
 const pose = B.lakesideBoardKitPose(390, 844);
 assert.ok(pose.fovVerticalDeg > 0 && pose.position.length === 3);
+// race fix: board preload/build must apply flag before scenery filter (UI initializeManaged is too late)
+const bgSrc = fs.readFileSync(path.join(__dirname, '../../creator-build-project/assets/scripts/region/LakesideBoardBackground.ts'), 'utf8');
+const bi = bgSrc.indexOf('const buildLakesideBoard=async'), mi = bgSrc.indexOf("step='scenery'", bi), fi = bgSrc.indexOf('lakesideBoardKitFromFlag()', bi);
+assert.ok(bi > 0 && fi > bi && fi < mi, 'buildLakesideBoard calls fromFlag before scenery mount');
 console.log('lakeside-kit-flag: PASS', { defaultOn: true, anchor: kit.board.anchor, cellM: kit.board.cellM, poseFov: +pose.fovVerticalDeg.toFixed(2) });
