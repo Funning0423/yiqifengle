@@ -28,6 +28,7 @@ import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
 import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,SoleContactSolver,supportPose,
   planWalk,walkDistanceAt,stopCandidates,stopLateralAt,piecewise,restAheadFromRoutes,FOOT_DEDUPE_S,DEFAULT_NATIVE_SPEED} from './CharacterMotion';
 import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterMotion';
+import {armStandupProgramWarm,stepStandupProgramWarm,flushStandupProgramWarmBeforeStand,standupProgramWarmStats,STANDUP_WARM_PER_FRAME,STANDUP_MORPH_BUDGET_FIRST,STANDUP_MORPH_BUDGET_FRAMES} from './region/StandupProgramWarm';
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
 import {FIRSTSLICE} from './world-r1/FirstsliceFacts';
 import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/WorldFlowCore';
@@ -94,7 +95,7 @@ class FlowReferenceStandin implements CharacterAdapter {
  private windSource:(()=>number|null)|null=null;private wind=0;private idleFor=0;private nextGust=-1;
  private restAhead:((path:readonly (readonly number[])[])=>number|null)|null=null;private lastFoot:Body|null=null;private lastFootEmit:{bone:string;clip:string;t:number}|null=null;private footDeduped=0;private motionT=0;
  private lastSpeed=0;private stopRoot:{clip:string;end:[number,number,number];yaw:number;S:number;scale:number;forward:Array<[number,number]>;lateral:Array<[number,number]>|null}|null=null;private stopHold=0;private lastPlan:any=null;
- private morphs:MorphDriver[]=[];private morphW:{[target:string]:number}={};private standUpWarmPrimed=false;private footListeners:Array<(e:FootEvent)=>void>=[];private apronListeners:Array<(strength:'full'|'soft',durationSec:number)=>void>=[];
+ private morphs:MorphDriver[]=[];private morphW:{[target:string]:number}={};private standUpWarmPrimed=false;private standupMorphBudgetLeft=0;private standupProgramWarmVisual:Node|null=null;private footListeners:Array<(e:FootEvent)=>void>=[];private apronListeners:Array<(strength:'full'|'soft',durationSec:number)=>void>=[];
  constructor(private node:Node){}
  private ninetyLandingSamples:any[]=[];private turnLandingSamples:any[]=[];private turnLandingIdle:any=null;private motionEvents:any[]=[];
  private logEvent(e:any){e.utc=new Date().toISOString();this.motionEvents.push(e);if(this.motionEvents.length>64)this.motionEvents.shift();}
@@ -123,7 +124,9 @@ class FlowReferenceStandin implements CharacterAdapter {
   this.morphs=this.motionConfig.morphMeshes.map(b=>{const m=new MorphDriver(b.mesh,b.targets);m.bind(rs);return m;});
   if(this.rig.has('walk_turn_90_bodyL')){const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);const times=new Set<number>();for(const t of [.35,.75,1.3333333333333333])for(const dt of [-1/240,0,1/240])times.add(t+dt);for(const time of Array.from(times).sort((a,b)=>a-b)){if(time<.2)this.rig.apply({base:{clip:'walk_turn_90_bodyL',time,loop:false},out:{clip:CLIP_ROLES.idle,time,weight:1-time/.2},layers:[],morph:[]});else (this.rig as any).sample('walk_turn_90_bodyL',time);this.ninetyLandingSamples.push({time,pose:supportPose(this.rig.joints)});}(this.rig as any).sample(CLIP_ROLES.idle,0);this.turnLandingIdle=supportPose(this.rig.joints);writePose(this.rig.joints,saved);}
   if(this.rig.has('walk_turn_180_bodyR')){const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);const times=new Set<number>();for(const t of [.075,.38,.4,.98,1.02,1.4])for(const dt of [-1/240,0,1/240])times.add(t+dt);for(const time of Array.from(times).sort((a,b)=>a-b)){if(time<.2)this.rig.apply({base:{clip:'walk_turn_180_bodyR',time,loop:false},out:{clip:CLIP_ROLES.idle,time,weight:1-time/.2},layers:[],morph:[]});else (this.rig as any).sample('walk_turn_180_bodyR',time);this.turnLandingSamples.push({time,pose:supportPose(this.rig.joints)});}(this.rig as any).sample(CLIP_ROLES.idle,0);this.turnLandingIdle=supportPose(this.rig.joints);writePose(this.rig.joints,saved);}
-  this.playNamed('sit_hold',true,0);}
+  this.playNamed('sit_hold',true,0);
+  // Standup-only COUNT53 program warm (independent of TransitionShaderWarm): spread over sit_hold frames.
+  this.standupProgramWarmVisual=visual;try{armStandupProgramWarm(visual);}catch{/* warm optional */}}
  private requireClip(name:string){const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);return clip.duration;}
  /** The controller is the sole clock (Creator 3.8.8: paused/unplayed states, public setTime/sample). keep: same clip stays at its phase. */
  private playNamed(name:string,loop:boolean,fade=-1,keep=false,time=0){if(this.disposed||!this.clock)return;
@@ -143,14 +146,18 @@ class FlowReferenceStandin implements CharacterAdapter {
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
-  for(let i=0;i<ms.length;i++){const m=ms[i];if(m.status!=='ok')continue;try{m.apply(this.morphW);}catch(e){m.status='error';m.reason=String(e);}}}
+  const budget=this.standupMorphBudgetLeft>0?STANDUP_MORPH_BUDGET_FIRST:undefined;
+  for(let i=0;i<ms.length;i++){const m=ms[i];if(m.status!=='ok')continue;try{m.apply(this.morphW,budget);}catch(e){m.status='error';m.reason=String(e);}}
+  if(this.standupMorphBudgetLeft>0)this.standupMorphBudgetLeft--;}
  /** 角色动画bot STANDUP-PERF #2 · Strategy C 隔离 tip：仅在真正 sit→stand 触发前 warm-sample stand_up（短窗），
   *  把将非零的 morph target 先 setWeight，避免首帧 20+ 路齐写。不重建 AnimRig、不 repairStates。
   *  **禁止** bindVisual 调用（避免 landing 叠 12+ sample）；**禁止** standup shader burst 接线 / 改 TransitionShaderWarm。
   *  restoreMorph=false（紧挨 playNamed(stand_up)）：末样本落在 t=0 且不回写 sit_hold。 */
- warmSampleStandUp(opts?:{restoreMorph?:boolean}):{ok:boolean;samples:number;setWeightCalls:number;restoreMorph:boolean}{
-  const restore=opts?.restoreMorph===true;const fail={ok:false,samples:0,setWeightCalls:0,restoreMorph:restore};
+ warmSampleStandUp(opts?:{restoreMorph?:boolean}):{ok:boolean;samples:number;setWeightCalls:number;restoreMorph:boolean;programWarm:any}{
+  const restore=opts?.restoreMorph===true;const fail={ok:false,samples:0,setWeightCalls:0,restoreMorph:restore,programWarm:null};
   if(this.disposed||!this.rig||!this.clock)return fail;const name=CLIP_ROLES.standUp;if(!this.rig.has(name))return fail;
+  // COUNT53 skin+morph program warm (standalone): a couple variants immediately before sample, never a full dump.
+  let programWarm={pending:0,warmed:0,count53:false};try{programWarm=flushStandupProgramWarmBeforeStand(2);}catch{/* optional */}
   const dur=this.rig.duration(name);if(!(dur>0))return fail;
   const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);
   const before=this.morphs.reduce((n,m)=>n+(m.calls|0),0);const N=4;let samples=0;
@@ -163,8 +170,9 @@ class FlowReferenceStandin implements CharacterAdapter {
    if(restore){try{this.applyMorph(this.clock.plan());}catch{/* restore best-effort */}}
   }
   const setWeightCalls=this.morphs.reduce((n,m)=>n+(m.calls|0),0)-before;
-  this.standUpWarmPrimed=true;this.logEvent({kind:'standup-warm-sample',samples,setWeightCalls,restoreMorph:restore,duration:dur});
-  return {ok:true,samples,setWeightCalls,restoreMorph:restore};}
+  this.standUpWarmPrimed=true;this.standupMorphBudgetLeft=STANDUP_MORPH_BUDGET_FRAMES;
+  this.logEvent({kind:'standup-warm-sample',samples,setWeightCalls,restoreMorph:restore,duration:dur,programWarm});
+  return {ok:true,samples,setWeightCalls,restoreMorph:restore,programWarm};}
  private setYaw(rad:number){this.yawRad=rad;this.node.setRotationFromEuler(0,rad*180/Math.PI,0);}
  playDoorReach(){if(this.disposed||this.job||!this.node.active||!this.rig?.has(CLIP_ROLES.doorReach))return false;this.pendingIdle=false;this.playNamed(CLIP_ROLES.doorReach,false);return true;}
  /** Optional WorldFlow contract. Missing door clip retains the legacy one-second door-only fallback. */
@@ -243,6 +251,8 @@ class FlowReferenceStandin implements CharacterAdapter {
   * (including a partial final interval), rather than dropping long frames or solving only their endpoint. */
  advance(dt:number){if(!Number.isFinite(dt)||dt<=0)return;let left=dt;while(left>1e-10){const step=Math.min(left,1/120);this.advanceStep(step);left-=step;}}
  private advanceStep(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0||!this.clock)return;const step=Math.min(dt,.1);const j=this.job;const c=this.clock;
+  // Spread COUNT53 program warm across sit_hold / pre-stand frames (1–2 / tick); never via TransitionShaderWarm.
+  try{const st=standupProgramWarmStats();if(st.armed&&st.pending>0)stepStandupProgramWarm(STANDUP_WARM_PER_FRAME);}catch{/* warm optional */}
   this.motionT+=step;
   if(this.pendingIdle&&!(j&&j.action.kind==='walk')){this.pendingFor+=step;if(j||this.pendingFor>=WALK_JOIN_GRACE_S){this.pendingIdle=false;if(!j)this.settleFromWalk();}}
   let ds:number|null=null;let entry:{dt1:number;ds1:number}|null=null;

@@ -22,6 +22,15 @@ const cmSrc=fs.readFileSync(path.join(S,'CharacterMotion.ts'),'utf8');
 assert.match(bootSrc,/warmSampleStandUp/);
 assert.match(bootSrc,/standup-warm-sample/);
 assert.match(adSrc,/warmSampleStandUp/);
+
+/* StandupProgramWarm COUNT53: present, isolated from TSW, wired in boot (not balloon) */
+const spwSrc=fs.readFileSync(path.join(S,'region/StandupProgramWarm.ts'),'utf8');
+assert.match(spwSrc,/STANDUP_MORPH_COUNT\s*=\s*53/);
+assert.doesNotMatch(spwSrc,/from\s+['"]\.\/TransitionShaderWarm['"]/);
+assert.doesNotMatch(spwSrc,/\barmStandupShaderBurst\s*\(|export\s+function\s+armStandupShaderBurst/);
+assert.match(bootSrc,/armStandupProgramWarm|stepStandupProgramWarm|flushStandupProgramWarmBeforeStand/);
+assert.doesNotMatch(balloonSrc,/StandupProgramWarm|armStandupProgramWarm/);
+assert.match(cmSrc,/maxCalls\?:number/);
 assert.match(cmSrc,/起身段无整表清零重写/);
 assert.match(cmSrc,/MORPH_EPS/);
 const hasBurstWiring=(s)=>/\barmStandupShaderBurst\s*\(|import\s*\{[^}]*armStandupShaderBurst|export\s+function\s+armStandupShaderBurst|armStandupShaderBurst\s*=/.test(s);
@@ -41,7 +50,14 @@ assert.doesNotMatch(pb,/armStandupShaderBurst/);
 assert.match(adSrc,/warmSampleStandUp\?\.?\(\{restoreMorph:false\}\)/);
 
 const classText=bootSrc.slice(bootSrc.indexOf('/** Explicit flow-reference stand-in.'),bootSrc.indexOf("@ccclass('WorldIntegrationBoot')"));
-const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Cancelled,AnimationClip:{WrapMode:{Loop:2,Normal:1}},SkeletalAnimation:function(){},MeshRenderer:function MeshRenderer(){},pointOnPath:W.pointOnPath,exports:{},console,Date,Math,Number,Float64Array,Error,Promise,globalThis:{}};
+const standupWarmStub={armed:false,pending:0,warmed:0,frames:0,lastLabel:'',count53:true};
+const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Cancelled,AnimationClip:{WrapMode:{Loop:2,Normal:1}},SkeletalAnimation:function(){},MeshRenderer:function MeshRenderer(){},pointOnPath:W.pointOnPath,
+ armStandupProgramWarm:(v)=>{standupWarmStub.armed=true;standupWarmStub.pending=6;standupWarmStub.count53=true;return standupWarmStub;},
+ stepStandupProgramWarm:(n)=>{const take=Math.min(n||2,standupWarmStub.pending);standupWarmStub.pending-=take;standupWarmStub.warmed+=take;standupWarmStub.frames++;return Object.assign({},standupWarmStub);},
+ flushStandupProgramWarmBeforeStand:(max)=>ctx.stepStandupProgramWarm(max||2),
+ standupProgramWarmStats:()=>Object.assign({},standupWarmStub),
+ STANDUP_WARM_PER_FRAME:2,STANDUP_MORPH_BUDGET_FIRST:12,STANDUP_MORPH_BUDGET_FRAMES:4,
+ exports:{},console,Date,Math,Number,Float64Array,Error,Promise,globalThis:{}};
 vm.runInNewContext(tx(classText+'\nexports.Standin=FlowReferenceStandin;'),ctx);
 const Standin=ctx.exports.Standin;
 const pick=()=>{for(const p of [process.env.WALK_GLB,'/workspace/yiqifengle/previews/角色动画bot/walk-v1/chr_b_r5g2_walk-v1_TEST.glb',path.join(ROOT,'creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')])if(p&&fs.existsSync(p))return p;throw Error('no walk glb');};
@@ -79,7 +95,7 @@ const flush=()=>new Promise(r=>setImmediate(r));
  assert.ok(ev.length>=2,'standup-warm-sample events');
  assert.ok(first3<200,'first3 setWeight '+first3);
  const out={status:'PASS',strategy:'C_standup_only_isolation',warm,deltaWarm2:delta,first3,warmEvents:ev.length,repairedStates:repaired1.length,glb:path.basename(GLB),
-  isolation:{bindVisual:false,performStand:true,lakeside:true,armStandupShaderBurst:false,TransitionShaderWarm:false},
+  isolation:{bindVisual:false,performStand:true,lakeside:true,armStandupShaderBurst:false,TransitionShaderWarm:false,StandupProgramWarm:true,COUNT53:true},
   stack:'299afe73 anim/standup-perf-morph (optional companion)',acceptance:'standup feel / frame marks — NOT setCamera/board=0 veto'};
  console.log(JSON.stringify(out,null,1));
 })().catch(e=>{console.error(e);process.exitCode=1;});

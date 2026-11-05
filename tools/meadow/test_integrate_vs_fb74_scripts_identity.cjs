@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Strategy C CONTROL_FAIL_NOISE: lock transition/board/balloon paths bit-identical to
- * over-line Mac tip fb74d437. Character standup warmSample is ALLOWED only in
- * WorldIntegrationBoot / RegionJourneyAdapter / CharacterMotion (MorphDriver comment).
+ * over-line Mac tip fb74d437. Character standup warmSample + StandupProgramWarm COUNT53 are ALLOWED in
+ * WorldIntegrationBoot / RegionJourneyAdapter / CharacterMotion / StandupProgramWarm.ts.
  * Do NOT peel BalloonTransit / black-fence / K.s1. Do NOT put warmSample into
  * TransitionShaderWarm / SkycityBoard* / BalloonTransit.
  */
@@ -21,6 +21,7 @@ const STANDUP_ALLOWED = [
   'creator-build-project/assets/scripts/WorldIntegrationBoot.ts',
   'creator-build-project/assets/scripts/CharacterMotion.ts',
   'creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts',
+  'creator-build-project/assets/scripts/region/StandupProgramWarm.ts',
 ];
 function revParse(spec) {
   try {
@@ -91,6 +92,36 @@ if (burstCode.length) {
 } else {
   console.log('OK no armStandupShaderBurst wiring');
 }
+
+// Standup COUNT53 program warm must live outside TransitionShaderWarm.
+const warmMod = 'creator-build-project/assets/scripts/region/StandupProgramWarm.ts';
+const fs = require('fs');
+if (!fs.existsSync(warmMod)) {
+  console.error('MISSING StandupProgramWarm.ts');
+  failed++;
+} else {
+  const body = fs.readFileSync(warmMod, 'utf8');
+  if (/from\s+['"]\.\/TransitionShaderWarm['"]/.test(body) || /\barmStandupShaderBurst\s*\(/.test(body) || /export\s+function\s+armStandupShaderBurst/.test(body)) {
+    console.error('FORBIDDEN: StandupProgramWarm imports/calls TSW burst');
+    failed++;
+  } else if (!/CC_MORPH_TARGET_COUNT/.test(body) || !/getProgramVariant/.test(body)) {
+    console.error('EXPECTED COUNT53 + getProgramVariant in StandupProgramWarm');
+    failed++;
+  } else {
+    console.log('OK StandupProgramWarm isolated COUNT53 warm');
+  }
+}
+const boot = fs.readFileSync('creator-build-project/assets/scripts/WorldIntegrationBoot.ts', 'utf8');
+if (!/armStandupProgramWarm|stepStandupProgramWarm|flushStandupProgramWarmBeforeStand/.test(boot)) {
+  console.error('EXPECTED WorldIntegrationBoot to wire StandupProgramWarm');
+  failed++;
+} else if (/\barmStandupShaderBurst\s*\(/.test(boot)) {
+  console.error('FORBIDDEN armStandupShaderBurst in WorldIntegrationBoot');
+  failed++;
+} else {
+  console.log('OK WorldIntegrationBoot wires StandupProgramWarm (no TSW burst)');
+}
+
 if (failed) {
   console.error(`FAIL ${failed}`);
   process.exit(1);
