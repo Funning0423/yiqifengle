@@ -1,8 +1,8 @@
 # tip · MorphDriver 稀疏权 + GPU 闸 · 整机不掉帧 + 起身仍顺 · 2026-11-05
 
 ## Tip / feature
-- **feature**（本轮 `fix(morph):…` commit；以 `git rev-parse` / PM handoff 为准）
-- **tip**（本 docs commit）
+- **feature** `4c668c9196077e9b43f1d1e460c46647354b6282`
+- **tip** `b6b2265c62cfc1e172fff7eb461647fb428b2ec9`
 
 ## 一句话根因
 体验包 `1.0.202611050458` @ integrate `6bd40657`（COUNT16/15 GLB + meta `6fd22962`）起身顺，但整界面掉帧：**非** anim_meta 把 seat 绑到 idle（角色动画bot 自查 PASS）；而是 runtime 每帧按 `morph.meshes` 全表（~49 tip）做 `curveAt`，且 GPU 仍对 COUNT16/15/15/3 求值（**w=0 也在网格上**）。次因：StandupProgramWarm 曾在 `armed&&pending` 时无 clip 闸门地 `getProgramVariant`。
