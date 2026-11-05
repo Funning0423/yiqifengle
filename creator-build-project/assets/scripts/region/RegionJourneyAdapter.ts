@@ -3,7 +3,7 @@ import {sailRideStarted} from './TransitionPreload';
 import {addWipeBeforeReveal,coverAudioIn,coverAudioOut,coverContent,coverReady,emitWipeCovered,emitWipeRevealed,newWipeEvent,onWipeCovered,onWipeRevealed,startWipeBeforeReveal,type WipeEvent} from '../world-r1/ScreenCover';
 import {WINDWIPE,wipeContentFor} from '../world-r2/WindWipeCore';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING,BASKET_RIDE_POSE,TRANSITION_RETIME,lakeBoardS} from './TransitionStaging';
-import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt} from './TransitionChain';
+import {BALLOON_DOOR,INFLATE,chainMark,continuousTransitions,guardBeforeWalk,inflateAt,basketDoorRestYaw,basketDoorYawDeg} from './TransitionChain';
 import {SKY_LAKE_CONT,lakeBasketYaw,skyLakeContinuous,type SkyLake} from './SkyLakeContinuous';
 import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './TransitionAnchorData';
 import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
@@ -424,7 +424,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    try{(globalThis as any).__qfLakesideTouchdownAt=R.T;director.emit(LAKESIDE_TOUCHDOWN.event,{atS:R.T,skipped,signAtS:LAKESIDE_TOUCHDOWN.signAtS,signS:LAKESIDE_TOUCHDOWN.signS,boardByS:lakesideBoardByS()/* option B: board blend START (touchdown +5.3); board reached when her walk is in, ≈ +12.0 */});}catch{/* listeners only */}
    landedOk();
    if(isValid(vehicle,true))vehicle.setRotationFromEuler(0,moored.doorYawDeg,0);
-   const door=find(vehicle,moored.exitDoorNode)||find(vehicle,'basket_door')/* two-door: the exit leaf (BASKET_DOORS) */;door?.setRotationFromEuler(0,0,0);
+   const door=find(vehicle,moored.exitDoorNode)||find(vehicle,'basket_door')/* two-door: the exit leaf (BASKET_DOORS) */;door?.setRotationFromEuler(0,basketDoorRestYaw(moored.exitDoorNode||'basket_door_b'),0);
    if(moored.exitDoorLegacy)try{console.info('[QF_TRANSITION] lakeside exit: single-door legacy (BASKET_DOORS.modelReady=false)');}catch{}
    // b15 acceptance (5a177b4c door strip): the engine kept her SkeletalAnimation 'sit_hold' state PLAYING (auto-played on
    // re-activation after board()/setParent), so Cocos overwrote the joints every frame and door_reach / walk_start / walk_loop
@@ -484,7 +484,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
    const rideToken=tailToken as any as Cancellation;
     let t=0,reached=false,walking=false,stepping=false,walkBase=0,walkLen=moored.length,lock:[number,number]=[0,0],lockYaw:number|null=null;    const waitUntil=(at:number)=>new Promise<void>((ok,bad)=>{const off=rideToken.onCancel(()=>bad(Error('cancelled')));const chk=()=>{if(t>=at){off();ok();}else setTimeout(chk,16);};chk();});
     // b16 P0 (运镜bot): keep a handle on the tail's own step, so the tail end clears ONLY it (see the end of the tail)
-    const tailStep=(dt:number)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,moored.doorDeg(t),0);if(t>=holdCapS)outOk();
+    const tailStep=(dt:number)=>{t+=dt;stopEngineStates();if(door&&isValid(door,true))door.setRotationFromEuler(0,basketDoorYawDeg(moored.exitDoorNode||'basket_door_b',moored.doorDeg(t)),0);if(t>=holdCapS)outOk();
      if(stepping){const u=t-moored.walkStartAt,r=stepdownRootAt(u),a=actor as any,P0=moored.start,sy=Math.sin(moored.startYawRad),cy=Math.cos(moored.startYawRad);
       // sd3: root Y = board (P0 0.602) + y_m while walk_start_stepdown plays; forward along the exit heading
       // b18 fix ①: off the board the root follows the measured lawn (v4 terrain profile), blended in by the drop fraction

@@ -80,7 +80,7 @@ export function segmentTotals(D=TRANSITION_DURATIONS):Record<string,number>{cons
  for(const [k,v] of Object.entries(D))o[k]=Math.round(Object.values(v as Record<string,number>).reduce((a,b)=>a+b,0)*100)/100;
  o.meadowToSkycity=Math.round((o.seg3+o.seg4)*100)/100;o.skycityToLakeside=Math.round((o.seg5a+o.seg5b)*100)/100;return o;}
 /** B5 deck walk as BalloonTransit plays it: min(table, max(1.5, path / walkMps)) over stepDown → deckEdge → s1 → spawn_girl. */
-export function b5ToPathS(cap:number=TRANSITION_DURATIONS.seg4.toPath):number{const K=TRANSITION_STAGING.skycity,p=[K.stepDown,K.deckEdge,K.s1,K.s0New];let L=0;
+export function b5ToPathS(cap:number=TRANSITION_DURATIONS.seg4.toPath):number{const K=TRANSITION_STAGING.skycity,via:[number,number,number]=[3.55,-0.05,39.05],p=[K.stepDown,K.deckEdge,via,K.s1,K.s0New];let L=0;
  for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return Math.min(cap,Math.max(1.5,L/TRANSITION_STAGING.walkMps));}
 export type Beat={id:string;t0:number;t1:number;overlapsWith?:string};
 const r2=(x:number)=>Math.round(x*100)/100;

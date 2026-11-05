@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420">
+  <rect width="720" height="420" fill="#0b1220"/>
+  <text x="24" y="36" fill="#e8eefc" font-family="sans-serif" font-size="18">balloon-door-dismount · door B rest + B5 land seat</text>
+  <text x="24" y="70" fill="#9db0d0" font-family="sans-serif" font-size="13">Bug B: door B closed must be rest yaw 180°, not euler 0</text>
+  <rect x="40" y="90" width="280" height="120" rx="10" fill="#152238" stroke="#3a527a"/>
+  <text x="56" y="118" fill="#ff8a8a" font-family="sans-serif" font-size="14">BEFORE (flight)</text>
+  <text x="56" y="142" fill="#cfd8ea" font-family="sans-serif" font-size="13">doorB.setRotationFromEuler(0,0,0)</text>
+  <text x="56" y="164" fill="#cfd8ea" font-family="sans-serif" font-size="13">→ wipes GLB rest 180° → looks OPEN</text>
+  <text x="56" y="186" fill="#cfd8ea" font-family="sans-serif" font-size="13">person visible through doorway</text>
+  <rect x="400" y="90" width="280" height="120" rx="10" fill="#132a1f" stroke="#3d7a55"/>
+  <text x="416" y="118" fill="#7dffa6" font-family="sans-serif" font-size="14">AFTER</text>
+  <text x="416" y="142" fill="#cfd8ea" font-family="sans-serif" font-size="13">closed = basketDoorRestYaw(B)=180</text>
+  <text x="416" y="164" fill="#cfd8ea" font-family="sans-serif" font-size="13">open = 180 + doorAngleAt(θ)</text>
+  <text x="416" y="186" fill="#cfd8ea" font-family="sans-serif" font-size="13">force-close each flight frame</text>
+  <text x="24" y="250" fill="#9db0d0" font-family="sans-serif" font-size="13">Bug A: B5 stand must not use meadow B1 seatDef (~125 m away)</text>
+  <rect x="40" y="270" width="280" height="120" rx="10" fill="#152238" stroke="#3a527a"/>
+  <text x="56" y="298" fill="#ff8a8a" font-family="sans-serif" font-size="14">BEFORE</text>
+  <text x="56" y="322" fill="#cfd8ea" font-family="sans-serif" font-size="13">stand(seatDef_B1_meadow)</text>
+  <text x="56" y="344" fill="#cfd8ea" font-family="sans-serif" font-size="13">lerp world → blue void / sea</text>
+  <text x="56" y="366" fill="#cfd8ea" font-family="sans-serif" font-size="13">then walk from wrong here</text>
+  <rect x="400" y="270" width="280" height="120" rx="10" fill="#132a1f" stroke="#3d7a55"/>
+  <text x="416" y="298" fill="#7dffa6" font-family="sans-serif" font-size="14">AFTER</text>
+  <text x="416" y="322" fill="#cfd8ea" font-family="sans-serif" font-size="13">landSeat = seatFromBench(now)</text>
+  <text x="416" y="344" fill="#cfd8ea" font-family="sans-serif" font-size="13">stand while parented to vehicle</text>
+  <text x="416" y="366" fill="#cfd8ea" font-family="sans-serif" font-size="13">detach → walk → hard stop spawn</text>
+</svg>
