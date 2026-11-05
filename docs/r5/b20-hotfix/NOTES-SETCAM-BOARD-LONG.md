@@ -148,3 +148,9 @@ PM 深挖：五轮零侵入 TSW 均无改善；流畅基线 `0421cfff` **无** T
 本 tip：`TRANSITION_SHADER_WARM_ENABLED=false`；`setTransitionShaderWarmEnabled` 回滚；hold/note/arm 空转保 BalloonTransit/Board。**故意动 TSW（不再零侵入）**。COUNT16↔FAT 降为失败后 #2（回 FAT 更可能伤起身而非消周期）。
 
 验收：周期 stutter 消 → TSW 命中；仍在 → 再 COUNT16↔FAT。不追 setCamera/board=0。upload=等 PM。
+
+## 2026-11-05 · SkycityLegHeavy 默认 OFF（升空 + 着陆后广场 共用重路径 A/B）
+
+体验 `1.0.202611050927` @ `9ec8410`（TSW OFF，「整机不卡了」）后 Funning：① 草原→天空岛**升空仍周期掉帧**；② **着陆后往广场走一直掉帧**。
+
+本 tip：`SKYCITY_LEG_HEAVY_ENABLED=false` 一刀闸 BalloonTransit 升空重 paint/scanSeas/双 apply + SkycityCloudsea 着陆后每帧 syncDay。**不重开 TSW**；保起身；湖畔 kit trial 仍 ON；upload=等 PM。
