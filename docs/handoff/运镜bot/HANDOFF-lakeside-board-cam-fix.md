@@ -2,6 +2,7 @@
 
 **日期**：2026-11-05（America/New_York）  
 **分支**：`cine/lakeside-board-cam-fix`  
+**tip**：`ef19b1af` / `ef19b1af39a7d8b8ed51cf1be31a8686dd92ca11`（fix `c6835e99`）  
 **基线**：`gbt/r5-b20-integrate-landing-visual-bg2` @ `6bd40657`  
 **验收前**：不推 GitHub、不传微信。可 bundle。  
 **范围**：仅运镜（portrait 双机位 + kit flag 切换）。**零碰** TSW / morph / 气球 tip / kit 实例过滤与 preload 竞态（空盘资产挂载归 GGbot，见 PM `work/pm/lakeside-empty-on-trial-20261105.md` §2.1 / §4.1）。
