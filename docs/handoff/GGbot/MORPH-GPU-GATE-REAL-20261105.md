@@ -2,7 +2,7 @@
 
 ## Tip / feature
 - **feature** `ad76cf64efe0fc6ed596cb5f7077e7a394c1f78e`
-- **tip** `3f9e7aa07ac7e376bebcae6c4282c01dbecbf97f`
+- **tip** `01a9a995a5bcfeb6214b94c2919b10148b220726`
 
 ## 一句话根因（相对 `4c668c91` / 体验 `1.0.202611050530`）
 上轮 tip 只把 `MeshRenderer.enableMorph=false`，**Cocos Creator 3.8.8 的 setter 仅翻转 `_enableMorph`，不会调用 `_watchMorphInMesh`**。结果：MorphRenderingInstance 仍在、`MorphModel.getMacroPatches` 仍打 `CC_USE_MORPH` + `CC_MORPH_TARGET_COUNT{16|15|3}` —— **flag 关了 GPU 税还在**。微信 STRIP 包上 unit mock「enableMorph===false」PASS 无法证伪。Funning 摸 `050530` 仍整机掉帧，与此一致。
