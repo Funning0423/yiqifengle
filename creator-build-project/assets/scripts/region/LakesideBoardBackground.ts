@@ -325,7 +325,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
  try{
   step='owner';token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('lakeside-background-owner-missing');
   if(scene.getComponentsInChildren(Camera).some(c=>c.enabled&&(c.visibility&LAKESIDE_LAYER)!==0))throw Error('lakeside-background-layer-conflict');
-  rig=new Node(LAKESIDE_NODES.rig);rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
+  rig=new Node(LAKESIDE_NODES.rig);((globalThis as any).__qfRegionRoots||=new Set()).add({key:'lakeside',node:rig})/* perf-r1 #3 registry (RegionLoader.regionMounted) */;rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
   scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
   // Voice Bot 4728814: the shared mountLakesideScenery (bundle, transforms, prefabs, Array.from missing-check, instantiate) also feeds the journey.
   step='scenery';if(pre)instances=await mountLakesideScenery(scenery,token,take,pre.yieldFrame);else instances=await mountLakesideScenery(scenery,token,take);if(!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');

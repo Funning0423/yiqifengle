@@ -376,7 +376,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   domeYaw0.forEach((e,n)=>{if(isValid(n,true))try{n.setRotationFromEuler(e[0],e[1],e[2]);}catch{/* */}});
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
-  try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
+  /* perf-r1 #2: scene-global shadows.enabled is never toggled by the transit, so release() has nothing to restore there. */
   rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();};
  try{
   const json=await loadFlightJson();token.check();if(json.format!==FLIGHT_FORMAT)throw Error('balloon-flight-format');
@@ -539,11 +539,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(isValid(meadow,true))meadow.active=meadowOn;
    scanSeas(t);applySailLeft(sailLeftoverShown(t,arrived)&&meadowOn);
    // Shadows on for meadow gameplay match; off after unload for DC ≤53.
+   // perf-r1 #2: only the main light's shadowEnabled toggles (drops the shadow pass → same DC saving; receivers read the light's
+   // shadow flag as a uniform). The scene-global pipelineSceneData.shadows.enabled is never written per frame any more: flipping it
+   // changes the global CC_SHADOW_TYPE macro and recompiled every live material (b3394140 meadow: 36 builtin-standard in the 155 ms
+   // frame 5327, then 27 again at arrival frame 7628).
    if(mainLight){
     const wantShadow=meadowOn&&mainShadow0;
-    try{(mainLight as any).shadowEnabled=wantShadow;}catch{}
-    try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=wantShadow;}catch{}
-    if(arrived){try{(mainLight as any).shadowEnabled=mainShadow0;}catch{} try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=mainShadow0;}catch{} if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}}
+    if(!!(mainLight as any).shadowEnabled!==wantShadow){try{(mainLight as any).shadowEnabled=wantShadow;}catch{}}
+    if(arrived){if(!!(mainLight as any).shadowEnabled!==mainShadow0){try{(mainLight as any).shadowEnabled=mainShadow0;}catch{}} if(mainIllum0>0){try{mainLight.illuminance=mainIllum0;}catch{}}}
     else if(mainIllum0>0){try{mainLight.illuminance=mainIllum0*balloonIllumFactor(t,night);}catch{}} // b17r10: night ramps x1 -> x0.22 over NIGHT_BLEND_S (was a one-frame cut at CITY_ON_T)
    }
    if(model){

@@ -1,5 +1,6 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import {setMeadowBoardStage} from '../region/MeadowStageLens';
+import {releaseRegionsExcept} from '../region/RegionLoader';
 import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
 import {LAKESIDE_L12_HOLD_MS,armSkycityWarmOnSailRide,warmMeadowLegStaged,warmSkycityLegStaged} from '../region/TransitionPreload';
 import {SKY_WARM_GAP_FAST_MS,continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
@@ -155,6 +156,7 @@ export class WorldNativeComposition extends Component {
     if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('enter-level');let result:Result;try{result=await this.world.commands().enterLevel(selection.stageId);}finally{if(held)this.world?.holdEnterLevel?.(false);}if(region==='lakeside')(globalThis as any).__qfArrivalMark?.('level-'+(result.ok?'interactive':'failed'),{reason:(result as any).reason});if(result.ok){this.pendingJourneySelection=null;this.markExplore(false);}
     // transitions-continuous: the last level of a region warms the next region + its vehicle (04 meadow+sail, 08 skycity+balloon, 12 lakeside+balloon)
     {let target:string|null=null;try{target=result.ok?preloadTargetForStage(selection.stageId):null;}catch{target=null;}if(target){const preload=(this.world.commands() as {preloadHiddenRegion?:(id:string)=>unknown}).preloadHiddenRegion;if(typeof preload==='function')void preload(target);}}
+    if(result.ok){try{let next:string|null=null;try{next=preloadTargetForStage(selection.stageId);}catch{next=null;}releaseRegionsExcept(region,{keep:next?[next]:[]});}catch{}}/* perf-r1 #3: free the previous region's bundles (never target / warmed next / mounted roots) */
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
     return result;

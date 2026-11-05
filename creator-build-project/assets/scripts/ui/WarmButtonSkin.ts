@@ -4,6 +4,9 @@ import { warmButtonPairGeometry } from './WarmButtonGeometry';
 const LAYER=1<<18;
 const MAX_BYTES=8*1024*1024;
 type Frames=[SpriteFrame,SpriteFrame];
+/** perf-r1: frames a re-sized skin must keep one size before it re-bakes (stretch meanwhile). */
+export const WARM_RESIZE_SETTLE_FRAMES=12;
+function frameNow(){try{return director.getTotalFrames();}catch{return 0;}}
 /** Extra frames a bake may wait for the RT before the flat fallback (full6 P2). */
 export const WARM_BAKE_RETRIES=2;
 /** Middle row of the side-by-side RT: both faces (centre of each half) must be opaque. Pure. */
@@ -134,9 +137,24 @@ export class WarmButtonSkin {
     this.node=new Node('WarmButton3DSurface');this.node.layer=parent.layer;parent.addChild(this.node);this.node.setSiblingIndex(0);
     this.node.addComponent(UITransform);this.sprite=this.node.addComponent(Sprite);this.sprite.sizeMode=Sprite.SizeMode.CUSTOM;
   }
+  /** perf-r1 P0 (Mac perf b3394140, skycity.landing-board: ~400 tex create+destroy/s, DepthStencil<n> +2 per frame, 527 MB in 16 s):
+   *  a button whose size follows a moving 3D target (the invisible wooden-sign hit area tracks the board while the camera flies in) was
+   *  re-keyed EVERY frame → a new RenderTexture + new off-screen window + readback per frame. Same root class as the RoomLightingRig
+   *  churn: never re-create an RT per frame. A re-size of an already keyed skin now only stretches the current surface and re-bakes
+   *  once the size has been stable for WARM_RESIZE_SETTLE_FRAMES frames (one bake per real size change, none during an animation). */
+  private settling=false;
+  private pending:{width:number,height:number,ivory:boolean,ready:()=>void,since:number}|null=null;
   configure(width:number,height:number,ivory:boolean,ready:()=>void){
     if(this.dead||!isValid(this.node,true))return;
-    const key=`${width}:${height}:${ivory?1:0}`;if(key===this.key){if(this.frames)ready();return;}
+    const key=`${width}:${height}:${ivory?1:0}`;
+    if(this.pending&&(key===this.key||!this.settling)){const p=this.pending;if(key!==this.key&&p.width===width&&p.height===height&&p.ivory===ivory){p.ready=ready;this.node.getComponent(UITransform)!.setContentSize(width,height);return;}if(key===this.key){this.pending=null;director.off(Director.EVENT_AFTER_DRAW,this.settle,this);}}
+    if(key===this.key){if(this.frames)ready();return;}
+    if(!this.settling&&this.key&&width>=1&&height>=1){
+      this.node.getComponent(UITransform)!.setContentSize(width,height);
+      if(!this.pending)director.on(Director.EVENT_AFTER_DRAW,this.settle,this);
+      this.pending={width,height,ivory,ready,since:frameNow()};return;
+    }
+    if(this.pending){this.pending=null;director.off(Director.EVENT_AFTER_DRAW,this.settle,this);}
     this.key=key;const generation=++this.generation;this.sprite.spriteFrame=null;this.frames=null;this.release?.();this.release=null;
     this.node.getComponent(UITransform)!.setContentSize(width,height);
     // full8b (Mac afb9a70c: 'Button RT did not produce both opaque faces' rt [2,1], alpha [0,0]): the caller laid the button out at
@@ -150,6 +168,11 @@ export class WarmButtonSkin {
       this.frames=frames;this.setPressed(this.pressed);ready();
     });
   }
+  private settle(){
+    const p=this.pending;if(!p||this.dead){this.pending=null;director.off(Director.EVENT_AFTER_DRAW,this.settle,this);return;}
+    if(frameNow()-p.since<WARM_RESIZE_SETTLE_FRAMES)return;
+    this.pending=null;director.off(Director.EVENT_AFTER_DRAW,this.settle,this);this.settling=true;try{this.configure(p.width,p.height,p.ivory,p.ready);}finally{this.settling=false;}
+  }
   setPressed(value:boolean){this.pressed=value;if(this.frames&&isValid(this.sprite,true))this.sprite.spriteFrame=this.frames[value?1:0];}
-  destroy(){if(this.dead)return;this.dead=true;this.generation++;if(isValid(this.sprite,true))this.sprite.spriteFrame=null;this.frames=null;this.release?.();this.release=null;if(isValid(this.node,true))this.node.destroy();}
+  destroy(){if(this.dead)return;this.dead=true;if(this.pending){this.pending=null;director.off(Director.EVENT_AFTER_DRAW,this.settle,this);}this.generation++;if(isValid(this.sprite,true))this.sprite.spriteFrame=null;this.frames=null;this.release?.();this.release=null;if(isValid(this.node,true))this.node.destroy();}
 }
