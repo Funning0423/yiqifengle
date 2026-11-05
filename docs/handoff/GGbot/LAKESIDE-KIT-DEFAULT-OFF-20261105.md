@@ -1,8 +1,8 @@
 # tip · 湖畔 LAKESIDE_KIT 改写（Funning 融合样板 · 默认 OFF · HOLD）· 2026-11-05
 
 ## Tip / feature
-- **feature** `FEATURE_SHA_TBD`
-- **tip** `TIP_SHA_TBD`
+- **feature** `ee791ad57bd204fbc80495139c91ea9d70bc2533`
+- **tip** `05ca7c50c1472829b45e2e4e91f0a56a2e578a86`
 - **相对旧 tip**：改写自 feature `51b6e4ed` / tip `783952c0`（HOLD 不合入；本 tip 替换其验收口径）
 
 ## 一句话
