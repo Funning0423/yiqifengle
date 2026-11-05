@@ -1,5 +1,7 @@
 > **【重点标记】ROOT HIT · 2026-11-05** 手机周期整机掉帧已确认：`TransitionShaderWarm` 在 live 上 `director_after_draw` 常驻（COUNT16 下 COUNT53/73 needle 永不齐 → 永久 after_draw 税）。体验版 `1.0.202611050759` @ `dc248d14`（AppID `wx3bdd911c5c06f591`）Funning「不卡了」。默认保持 `TRANSITION_SHADER_WARM_ENABLED=false`。未经 Funning 不要再开。全文 `docs/fps/PERIOD-STUTTER-TSW-ROOT-HIT-20261105.md`。
 
+> **【进度备注 · 2026-11-05】** 体验版 `1.0.202611060228` @ tip `02c9bd5e`。小游戏开发/测试暂停，交接 Clonebot。篮门飞行中关上 = PASS；周期掉帧「还是没有优化」、穿模「也是一样」= FAIL / 先不修。全文 `docs/handoff/PM/PROGRESS-060228-PAUSE-20261105.md` · Clonebot `docs/handoff/GGbot/CLONEBOT-BATCH-PAUSE-20261105.md`。
+
 # HANDOFF — 咦 起风了 (QIFENGLE) / release-b20
 
 ## Mac LONG+RT integrate tip (2026-11-02 / Funning)
