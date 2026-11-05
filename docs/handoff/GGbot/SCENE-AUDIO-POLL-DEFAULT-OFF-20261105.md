@@ -2,7 +2,7 @@
 
 ## Tip / feature
 - **feature** `761d1bf70126ffd9c5b077e42e69ba7418b7e383`
-- **tip** `TIP_SHA`
+- **tip** `b4e4c52681cf8847d82cb6ffc641aaf691fa784f`
 
 ## 一句话
 Funning 摸 `1.0.202611050717` @ tip `f2b89b7c`（PeriodHeavyRefresh 默认 OFF）：**周期卡顿一样、起身仍顺** → period-heavy 刷新 **非**主因（与 warm / Morph idle 一并排除）。本 tip 把 `SCENE_AUDIO_POLL_ENABLED` **默认 false**：关掉 SceneMusic **0.25 s** probe/resolve/publish（首曲仍一次 setMusic）与 LandmarkAudio **0.5 s** 锚点树扫 + 每帧 step；**起身路径零改动**。最短可测「场景音频固定间隔 vs 别的（含 COUNT16→FAT）」。
