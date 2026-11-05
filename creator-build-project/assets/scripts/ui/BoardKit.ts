@@ -64,11 +64,12 @@ export interface RegionBoardKit {
   readonly id: string;
   /** piece art by engine tile type 0..5 */
   readonly pieceKeys: PieceKeys;
-  /** asset bundle + dir that hold pieceKeys ('board_art' for the default) */
+  /** asset bundle + dir that hold pieceKeys ('board_art' for the default; lakeside kit uses scene LK_piece_* — not board_art) */
   readonly pieceBundle: string;
   /** GOAL_ART overrides (type0..5 always follow pieceKeys) */
   readonly goalArt?: Readonly<Record<string, string>>;
-  readonly hide2D: { readonly tray: boolean; readonly tiles: boolean };
+  /** pieces=true → hide 2D ProjectPieceArt (scene LK_piece_* / in-scene drive is the visual) */
+  readonly hide2D: { readonly tray: boolean; readonly tiles: boolean; readonly pieces?: boolean };
   /** world-space board (null = the 2D layout grid) */
   readonly board: null | { readonly anchor: readonly [number, number, number]; readonly yawDeg: number; readonly cellM: number; readonly topY: number };
   readonly camera: BoardKitCamera | null;
@@ -97,14 +98,15 @@ export const COAST_KIT: RegionBoardKit = Object.freeze({
   lighting: Object.freeze({ pieceFill: 0.75, anchorY: 0.18, shadowM: 0.62, shadowOpacity: 0.3, shadowColor: '#3d4a3a', tint: '#ffffff', source: 'r5d bb238126: sprites exported with the board_art method under the coast scene light (same as the slabs); fill 0.75 = REPORT coast 3D' }),
   topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
 });
-/** Lakeside kit (原版 board-kit，停浮标格). OFF by default (?qflakesidekit=1 / setLakesideBoardKit).
+/** Lakeside kit — Funning fusion sample (内景棋盘: LK_wb_line + 角灯笼桩 + 木筏 + LK_piece_*). OFF by default
+ *  (?qflakesidekit=1 / setLakesideBoardKit). NOT a coast kit / board_art answer.
  *  Board on the water: LAKESIDE_BOARD_BOUNDS.center=[0,0,12], cellM=1.1, topY=0.02; yaw 0 (local x=col, z=row).
- *  Camera: BoardProjection projects via lakesideAlignedBoardPose (read-only; kit never writes the world camera). The
- *  BoardKitCamera stub below is only so kit.camera is non-null for kitGrid; live distances/quat/FOV come from the aligned pose. */
+ *  Camera: BoardProjection projects via lakesideAlignedBoardPose (read-only; kit never writes the world camera).
+ *  hide2D.pieces=true → 2D ProjectPieceArt off; scene keeps LK_piece_* (pipeline A). RING/SHD unskipped as aux. */
 export const LAKESIDE_KIT: RegionBoardKit = Object.freeze({
-  id: 'lakeside', pieceBundle: 'board_art',
-  pieceKeys: PIECE_KEYS as unknown as PieceKeys,
-  hide2D: Object.freeze({ tray: true, tiles: true }),
+  id: 'lakeside', pieceBundle: 'region_lakeside',
+  pieceKeys: ['LK_piece_shell', 'LK_piece_bell_pad', 'LK_piece_paper_boat', 'LK_piece_bobber', 'LK_piece_lotus_lamp', 'LK_piece_lake_light'] as unknown as PieceKeys,
+  hide2D: Object.freeze({ tray: true, tiles: true, pieces: true }),
   board: Object.freeze({ anchor: [0, 0, 12] as const, yawDeg: 0, cellM: 1.1, topY: 0.02 }),
   camera: Object.freeze({ lookAtWorld: [0, 0.02, 12] as const, quatWorldXYZW: [0, 0, 0, 1] as const, fovVerticalDeg: 50,
     distanceByAspect: Object.freeze({ '390x844': 1, '414x896': 1, '360x780': 1, '375x667': 1, '320x568': 1, '390x520': 1, '768x1024': 1 }),
@@ -114,7 +116,7 @@ export const LAKESIDE_KIT: RegionBoardKit = Object.freeze({
     normal: Object.freeze({ source: 'BoardLayout.boardLayout + boardSafeInsets (shared with coast normal)', screens: Object.freeze({
       '390x844': [200, 698] as const, '414x896': [201.7, 750] as const, '360x780': [199.1, 634] as const, '375x667': [194, 521] as const, '320x568': [194, 422] as const, '390x520': [171.7, 374] as const, '768x1024': [208.4, 878] as const }) }),
   }) }),
-  lighting: Object.freeze({ pieceFill: 0.75, anchorY: 0.18, shadowM: 0.62, shadowOpacity: 0.28, shadowColor: '#2a3a3a', tint: '#ffffff', source: 'lakeside water board (kit); contact shadows also from LK_contact_shadow.glb when kit ON' }),
+  lighting: Object.freeze({ pieceFill: 0.75, anchorY: 0.18, shadowM: 0.62, shadowOpacity: 0.28, shadowColor: '#2a3a3a', tint: '#ffffff', source: 'lakeside fusion board; scene LK_piece_* + aux LK_contact_shadow when kit ON' }),
   topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
 });
 const KITS = new Map<string, RegionBoardKit>();

@@ -56,7 +56,7 @@ export class ManagedMobileBoardUI extends Component {
   private values = new Map<string, string>(); private attempt = 0; private dragStart: any = null;
   private journey = { readOnly: false, records: Array.from({ length: 12 }, () => ({ bestStars: 3 })) };
   private layoutInfo: any = null; private geo: BoardLayout | null = null; private cell = 42.6;
-  /** Board kit (lakeside): DEFAULT_KIT on every default path; lakeside only with ?qflakesidekit=1. */
+  /** Board kit: DEFAULT_KIT on every default path; lakeside fusion kit only with ?qflakesidekit=1 (scene LK_piece_*, not board_art). */
   private kit: RegionBoardKit = DEFAULT_KIT; private kitGridCache: KitGrid | null = null; private kitTrayHidden = false; private kitArt = new Map<string, SpriteFrame>(); private kitArtLoading = ''; private goalLabels: Label[] = [];
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
@@ -398,14 +398,17 @@ export class ManagedMobileBoardUI extends Component {
     const w = node.worldPosition, px = x - d.width / 2, upY = y - d.height / 2, downY = d.height / 2 - y;
     return Math.hypot(px - w.x, downY - w.y) + 0.5 < Math.hypot(px - w.x, upY - w.y);
   }
-  /** Lakeside kit layout (test mode only): cells on the projected water-grid centres, scaled by perspective; 2D tray hidden.
-   *  Invalid projection → BoardKit.kitGrid counts a fallback and the 2D board stays. Never writes the camera. */
+  /** Lakeside kit layout: cells on the projected water-grid centres (tap hit), scaled by perspective; 2D tray/tiles/pieces
+   *  hidden so scene LK_wb_line / buoy_lantern / chime_raft / LK_piece_* read as the fusion board. Invalid projection →
+   *  BoardKit.kitGrid counts a fallback and the 2D board stays. Never writes the camera. Does not load board_art for lakeside. */
   private layoutKit(g: BoardLayout) {
     const grid = this.kit.board ? kitGrid(this.kit, g) : null; this.kitGridCache = grid && grid.projected ? grid : null;
     const hide = !!this.kitGridCache && this.kit.hide2D.tray; for (const name of ['Tray', 'TrayShadow']) { const n = this.boardFrame.getChildByName(name); if (n) n.active = !hide; } this.kitTrayHidden = hide;
     if (!this.kitGridCache) { this.cells.forEach(n => n.setScale(1, 1, 1)); return; }
     const q = this.kitGridCache.quads!, P = g.pitch;
     this.cells.forEach((n, i) => { const c = this.kitGridCache!.centers[i], k = Math.hypot(q[i][1].x - q[i][0].x, q[i][1].y - q[i][0].y) / P; n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.setScale(k, k, 1); });
+    // Lakeside pipeline A: scene LK_piece_* is the visual — do not load board_art / coast sprites onto the water.
+    if (this.kit.hide2D.pieces || this.kit.id === 'lakeside') { this.kitArtLoading = this.kit.id; return; }
     if (this.kitArtLoading !== this.kit.id) { this.kitArtLoading = this.kit.id; const kit = this.kit;
       assetManager.loadBundle(kit.pieceBundle, (e, b) => { if (e || !b) { console.warn('[QF_BOARD_KIT] piece bundle ' + kit.pieceBundle + ' ' + (e && e.message)); return; }
         for (const key of kit.pieceKeys) b.load(key + '/spriteFrame', SpriteFrame, (er, f: SpriteFrame) => { if (!er && f) { this.kitArt.set(key, f); if (!this.disposing && this.snapshot) this.paint(); } }); }); }
@@ -842,7 +845,9 @@ export class ManagedMobileBoardUI extends Component {
       const mossOn = moss.indexOf(i) >= 0; this.moss[i].node.active = mossOn; if (mossOn) this.place(this.moss[i].node, x, y - 1, P * CELL.obstacle);
       this.under[i].node.active = bomb && !!tile; if (bomb) this.place(this.under[i].node, x, y + lift * 2, P * CELL.bomb);
       const art = n.getChildByName('ProjectPieceArt')!, sprite = art.getComponent(Sprite)!; Tween.stopAllByTarget(art);
-      sprite.spriteFrame = tile ? (this.kitGridCache ? this.kitPieceFrame(tile.type % 6) : BoardArt.shared().frame(PIECE_KEYS[tile.type % 6])) : null; art.active = !!tile;
+      const hidePieces = !!(this.kitGridCache && this.kit.hide2D.pieces);
+      if (hidePieces) { sprite.spriteFrame = null; art.active = false; }
+      else { sprite.spriteFrame = tile ? (this.kitGridCache ? this.kitPieceFrame(tile.type % 6) : BoardArt.shared().frame(PIECE_KEYS[tile.type % 6])) : null; art.active = !!tile; }
       const sel = this.selected === i, size = P * CELL.piece * (bomb ? CELL.bombPiece : 1);
       art.setPosition(0, lift + (sel ? 4 : 0), 0); art.getComponent(UITransform)!.setContentSize(size, size);
       const ribbon = special === 'row' ? 'board/special_line_h' : special === 'column' ? 'board/special_line_v' : null;
