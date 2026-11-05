@@ -33,7 +33,7 @@ function runFake(script,env='develop',withCc,opt){
   for(const k of ['TouchStart','TouchMove','TouchEnd','TouchCancel']){real[k]=[];wx['on'+k]=f=>real[k].push(f);wx['off'+k]=f=>{};}
   files.set('qf-autoplay/script.json',JSON.stringify(script));files.set(U+'/qf-autoplay/out/stale.jpg','old');
   const g={wx,console:{log(){},info(){},warn(){},error(){}},setTimeout,setInterval,clearInterval,Promise,Date,JSON,Math,Number,String,Array,Object,Error,isFinite,
-    clearTimeout,
+    clearTimeout,...(opt&&opt.search!=null?{location:{search:opt.search,href:'game.js'+opt.search}}:{}),
     canvas:{width:1170,height:2532,toTempFilePathSync:o=>{hostN.capSync++;throw Error('toTempFilePathSync must not be used');},
       toTempFilePath:o=>{hostN.cap++;assert.equal(o.fileType,'jpg');assert.equal(o.quality,0.6);assert(o.destWidth<=195);assert.equal(typeof o.success,'function');assert.equal(typeof o.fail,'function');
         if(cap==='never')return;/* host never calls back */setTimeout(()=>cap==='fail'?o.fail({errMsg:'toTempFilePath:fail'}):o.success({tempFilePath:'tmp://x'}),cap==='slow'?200:2);}}};
@@ -103,6 +103,10 @@ function runFake(script,env='develop',withCc,opt){
   assert.deepEqual(calls[0],['enable',true],'enable first (flag set)');assert.equal(calls[1][0],'island-board');
   assert.equal(pres.steps[0].ready,true);assert.deepEqual(pres.steps[0].tapped,{x:175,y:458});assert.ok(pt.events.some(e=>e[0]==='S'&&e[1]===175&&e[2]===458),'touch at returned point');
   assert.equal(pres.steps[1].ready,false);assert.equal(pres.ok,false,'failed setup marks ok=false');
+  // DevTools worker location.search is already non-empty, so launchQuery must still reach __qfQuery (qaQuery reads it)
+  {const q=runFake({steps:[{op:'wait',ms:20}],launchQuery:'?qfPre=skycity-lakeside'},'develop',false,{search:'?contextName=game&id=2'});
+   assert.equal(q.g.__qfQuery,'?qfPre=skycity-lakeside');assert.equal(q.g.location.search,'?contextName=game&id=2','DevTools search is left in place');
+   for(let i=0;i<40&&!fin(q);i++)await new Promise(s=>setTimeout(s,50));}
   const rel=runFake({steps:[{op:'tap',x:1,y:1}]},'release');assert(!rel.g.__QF_AUTOPLAY,'release envVersion -> harness refuses');
   // injector + release check on a fake output
   const d=fs.mkdtempSync(path.join(os.tmpdir(),'qfap-'));fs.writeFileSync(path.join(d,'game.js'),"require('./adapter');\n");

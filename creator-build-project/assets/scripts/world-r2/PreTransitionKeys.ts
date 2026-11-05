@@ -4,7 +4,7 @@
  *  scene transition; the tester then fires the transition with a normal touch on the named trigger, so the whole transition
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
-import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled } from './QaSkip';
+import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled, registerQaPreKey } from './QaSkip';
 export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'|'journal-sky-focus'/*QF_PROBE_END*/;
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
 export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;skyPage?:boolean;justWon?:boolean;focusSky?:boolean;/*QF_PROBE_END*/
@@ -53,6 +53,7 @@ export const PRE_SPECS:readonly PreSpec[]=[
 /*QF_PROBE_END*/
 ];
 export const PRE_KEYS:readonly PreKey[]=PRE_SPECS.map(s=>s.key);
+registerQaPreKey(k=>(PRE_KEYS as readonly string[]).includes(k));
 export function preSpec(key:string):PreSpec|null{return PRE_SPECS.find(s=>s.key===key)||null;}
 /** Transitions that exist in the game but cannot be staged (reported in the list so nobody assumes coverage). */
 export const PRE_UNSUPPORTED:readonly {key:string;reason:string}[]=[

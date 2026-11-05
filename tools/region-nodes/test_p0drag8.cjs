@@ -83,16 +83,18 @@ const FX=JSON.parse(fs.readFileSync(FIX,'utf8'));
  const QS=X.H.load(X.S('world-r2/QaSkip.ts')),L=X.H.load(X.S('world-r2/IslandPropsLayout.ts')),CP=X.H.load(X.S('world-r1/CameraPose.ts'));
  const normal=QS.qaSkipTarget(null,{location:{search:''}})===null&&QS.qaSkipTarget('?qfSkip=skycity-finale',{wx:{getAccountInfoSync:()=>({miniProgram:{envVersion:'release'}})}})===null&&QS.qaSkipTarget('?qfSkip=skycity-finale',{})==='skycity-finale';/* no param / WeChat release → closed; web QA URL → open */
  const Rg=rig('island','S1',X.RN.REGION_NODES.island.nodes[0].at.slice(),{});const st=Rg.st,cam=st.camera;st.exploring=true;
- const keys=['__qfTeleport','__qfAimAt'];for(const k of keys)delete X.sb[k];
- X.setQa(null);st.attach(cam);const offBuild=keys.every(k=>X.sb[k]===undefined);
- X.setQa('skycity-finale');st.attach(cam);const onBuild=keys.every(k=>typeof X.sb[k]==='function');st.camera=cam;
+ const keys=['__qfTeleport','__qfAimAt'];for(const k of keys.concat(['__qfBindTeleportHooks','__qfOpenExplore']))delete X.sb[k];
+ X.setQa(null);st.attach(cam);const offBuild=keys.every(k=>X.sb[k]===undefined)&&typeof X.sb.__qfBindTeleportHooks==='function';
+ const bindClosed=X.sb.__qfBindTeleportHooks()===false&&keys.every(k=>X.sb[k]===undefined);/* missing-hook: binder is installed, gate still closed */
+ X.setQa('skycity-finale');const late=X.sb.__qfBindTeleportHooks()===true&&keys.every(k=>typeof X.sb[k]==='function');/* startup: enable AFTER attach, no second attach */
+ for(const k of keys)delete X.sb[k];st.attach(cam);const onBuild=keys.every(k=>typeof X.sb[k]==='function');st.camera=cam;
  const r1=X.sb.__qfTeleport('I2',90,30),r2=X.sb.__qfTeleport('sign');const c=Rg.cam(),rect=L.signpostHitUi(CP.fromLookAt(c),390,844);
  X.setQa(null);for(const k of keys)delete X.sb[k];
  const boot=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/WorldIntegrationBoot.ts'),'utf8');
  const bootGated=/const skip=qaSkipTarget\(q\);[^\n]*\n\s*if\(skip!==null\|\|qaHooksEnabled\(q\)\)\(globalThis as any\)\.__qfBackToBoard=/.test(boot)&&(boot.match(/__qfBackToBoard=/g)||[]).length===1;
- const stageSrc=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8');const stageGated=/if\(qaHooksEnabled\(\)\)\{const G=globalThis as any;G\.__qfTeleport=.*G\.__qfAimAt=/.test(stageSrc)&&(stageSrc.match(/__qfTeleport=/g)||[]).length===1;
- ok('P4',normal&&offBuild&&onBuild&&bootGated&&stageGated&&r1.ok&&Math.abs(r1.yaw-90)<1e-6&&Math.abs(r1.pitch-30)<1e-6&&r2.ok,/* p0drag10: the sign shot now looks from the text side (test_p0drag10 Q3 checks it with her actually moved; this rig keeps her at I1) */
-  {qaSkipNullInNormalBuild:normal,hooksAbsentWhenGateClosed:offBuild,hooksPresentWhenOpen:onBuild,bootGated,stageGated,teleportYawPitch:r1,teleportSign:r2,signRect:rect});
+ const stageSrc=fs.readFileSync(X.S('world-r2/RegionNodeStage.ts'),'utf8');const stageGated=/G\.__qfBindTeleportHooks=\(\)=>\{if\(!qaHooksEnabled\(\)\)return false;G\.__qfTeleport=.*G\.__qfAimAt=/.test(stageSrc)&&(stageSrc.match(/__qfTeleport=/g)||[]).length===1&&/if\(qaHooksEnabled\(\)\)G\.__qfBindTeleportHooks\(\)/.test(stageSrc);
+ ok('P4',normal&&offBuild&&bindClosed&&late&&onBuild&&bootGated&&stageGated&&r1.ok&&Math.abs(r1.yaw-90)<1e-6&&Math.abs(r1.pitch-30)<1e-6&&r2.ok,/* p0drag10: the sign shot now looks from the text side (test_p0drag10 Q3 checks it with her actually moved; this rig keeps her at I1) */
+  {qaSkipNullInNormalBuild:normal,hooksAbsentWhenGateClosed:offBuild,bindWhileClosed:bindClosed,lateBindAfterEnable:late,hooksPresentWhenOpen:onBuild,bootGated,stageGated,teleportYawPitch:r1,teleportSign:r2,signRect:rect});
 }
 // ---------- P5
 {

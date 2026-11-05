@@ -20,6 +20,8 @@ import { setLastRegion } from '../ui/UiPrefs';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
+/** Scene attach installs __qfBindTeleportHooks even when the gate is still closed. enable / a real key call it once the flag is on. */
+function armTeleportHooks(){const G=globalThis as any;if(typeof G.__qfBindTeleportHooks==='function')G.__qfBindTeleportHooks();return G.__qfTeleport;}
 async function waitFor(pred:()=>any,ms:number,step=100):Promise<boolean>{const t=Date.now();while(Date.now()-t<ms){try{if(pred())return true;}catch{}await sleep(step);}return false;}
 const PANEL_FRAMES=120;/* rendered frames the host gets to enable the overlay / build the panel once its bundle is in */
 async function waitFrames(pred:()=>any,frames:number):Promise<boolean>{const f0=director.getTotalFrames();for(;;){try{if(pred())return true;}catch{}if(director.getTotalFrames()-f0>=frames)return false;await new Promise<void>(r=>director.once(Director.EVENT_AFTER_DRAW,()=>r()));}}
@@ -127,7 +129,7 @@ export class PreTransitionRunner{
    if(spec.place==='skycity'){
     /* full7 option (a): the skycity→lakeside key starts where a player who finished L12 stands (S6, the finale terrace; the
      * counted leg starts there). Lakeside assets are warmed as on the real checkpoint-12 path. */
-    if(spec.key==='skycity-lakeside'){try{void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{}const tp=(globalThis as any).__qfTeleport;if(typeof tp!=='function')return {ok:false,reason:'no-teleport-hook (S6)'};try{tp('S6');}catch(e){return {ok:false,reason:'teleport-S6: '+String(e)};}}
+    if(spec.key==='skycity-lakeside'){try{void prewarmLakesideAssets(LAKESIDE_L12_HOLD_MS);}catch{}const tp=armTeleportHooks();if(typeof tp!=='function')return {ok:false,reason:'no-teleport-hook (S6)'};try{let placed=tp('S6');if(placed&&placed.ok===false&&placed.reason==='explore-not-open'){const open=(globalThis as any).__qfOpenExplore;if(typeof open==='function'){open('skycity');placed=tp('S6');}}if(placed&&placed.ok===false)return {ok:false,reason:'teleport-S6: '+String(placed.reason)};}catch(e){return {ok:false,reason:'teleport-S6: '+String(e)};}}
     return r;}
    r=await this.step(()=>this.d.composition.enterMainline(),'level','enter lakeside',300000);if(!r.ok)return r;
    if(spec.place==='lake-result'){const id=this.boardSnap()?.active?.stageId;if(id&&id!==spec.stage)return {ok:false,reason:'lake-stage-mismatch ('+id+')'};return await this.swapToResult(spec,prof?.lastAction);}
@@ -151,7 +153,7 @@ export class PreTransitionRunner{
   return {kind:'lighthouse',node:'island lighthouse',point:null};
  }
  async run(key:string,opts?:{setupTimeScale?:number}):Promise<R>{
-  if(key==='enable'){if(!qaSkipAllowed())return {ok:false,reason:'pre-transition-disabled'};(globalThis as any).__qfHooksEnable=true;return {ok:true,enabled:true,note:'__qfTeleport 在场景 attach 时注册；需要它时请在启动后尽早 enable'};}
+  if(key==='enable'){if(!qaSkipAllowed())return {ok:false,reason:'pre-transition-disabled'};(globalThis as any).__qfHooksEnable=true;armTeleportHooks();return {ok:true,enabled:true,teleport:typeof (globalThis as any).__qfTeleport==='function'};}
   if(!preTransitionEnabled())return {ok:false,reason:'pre-transition-disabled',hint:"call __qfPreTransition('enable') first (test builds only)"};
   if(key==='list')return {ok:true,keys:PRE_SPECS.map(s=>({key:s.key,label:s.label,trigger:s.trigger,expect:s.expect})),unsupported:PRE_UNSUPPORTED};
   if(key==='tap')return this.tap();
@@ -159,6 +161,7 @@ export class PreTransitionRunner{
   if(this.running)return {ok:false,reason:'pre-transition-running'};
   this.running=true;this.scale=Math.max(1,Math.min(6,Number(opts?.setupTimeScale)||3));
   try{
+   (globalThis as any).__qfHooksEnable=true;armTeleportHooks();/* auto ?qfPre= never calls 'enable'; the stage may already have attached with the gate closed */
    const r=await this.setup(spec);if(!r.ok)return {...r,key};
    await sleep(300);this.last={spec};
    const taps=spec.taps.map(t=>this.tapInfo(t));
