@@ -1,11 +1,17 @@
 {
   "gate": "standup-warm-sample",
-  "status": "ACTIVE",
+  "status": "ACTIVE_PLUS_PROGRAM_WARM",
   "strategy": "C_standup_only_isolation",
   "control_verdict": "CONTROL_FAIL_NOISE",
   "control_evidence": {
-    "fb74d437_KEEP_CACHE_0": {"setCamera_max": 156, "board_bg_max": 127},
-    "integrate_905bd9f1_ZERO_DIFF": {"setCamera_max": 181, "board_bg_max": 115},
+    "fb74d437_KEEP_CACHE_0": {
+      "setCamera_max": 156,
+      "board_bg_max": 127
+    },
+    "integrate_905bd9f1_ZERO_DIFF": {
+      "setCamera_max": 181,
+      "board_bg_max": 115
+    },
     "dirs": [
       "/workspace/yiqifengle/mac-selftest-fb74d437-control-landing/",
       "/workspace/yiqifengle/mac-selftest-905bd9f1-landing/",
@@ -23,13 +29,13 @@
       "evidence": "warmSampleStandUp short window N=4 only at perform(stand) and lakeside playNamed; NOT in bindVisual; no TransitionShaderWarm / board / BalloonTransit wiring"
     },
     "3_shader_warm_MORPH_COUNT_PRECOMPUTED_DIR_LIGHT": {
-      "ok": false,
-      "deferred_forever_for_gates": true,
-      "evidence": "armStandupShaderBurst / DIR_LIGHT bag / TransitionShaderWarm critical/hold/burst changes FORBIDDEN (falsified + smashed integrate)"
+      "ok": true,
+      "via": "StandupProgramWarm (NOT TransitionShaderWarm)",
+      "evidence": "COUNT53 skin+morph getProgramVariant spread on sit_hold; flush≤2 before stand; zero TSW critical/hold/burst / no armStandupShaderBurst"
     },
     "4_MorphDriver_no_full_clear": {
       "ok": true,
-      "evidence": "CharacterMotion MorphDriver.apply keeps MORPH_EPS; standup comment restored (no full-table clear)"
+      "evidence": "MORPH_EPS retained; optional maxCalls soft budget on first standup frames; no full-table clear"
     }
   },
   "forbidden": [
@@ -39,10 +45,7 @@
     "warmSampleStandUp in bindVisual",
     "peeling BalloonTransit / K.s1 / black-fence / sea-landing for setCamera/board"
   ],
-  "acceptance": {
-    "primary": "standup feel / standup-segment frame marks on Mac + Funning phone",
-    "not_veto": "setCamera/board-bg == 0 (same-day CONTROL also FAIL 156/127)"
-  },
+  "acceptance": "Funning phone standup feel — NOT setCamera/board=0 veto",
   "stack": {
     "anim_morph_reduction": "299afe73 anim/standup-perf-morph (optional companion; anim_meta only; not cherry-picked into this runtime tip)",
     "docs": "docs/handoff/角色动画bot/STANDUP-PERF-20261104.md"
@@ -55,5 +58,16 @@
     ]
   },
   "upload": "NO",
-  "live": "1.0.202611031613 @ fb74d437"
+  "live": "1.0.202611031613 @ fb74d437",
+  "programWarm": {
+    "module": "region/StandupProgramWarm.ts",
+    "count53": true,
+    "perFrame": 2,
+    "flushBeforeStand": 2,
+    "morphBudgetFirst": 12,
+    "morphBudgetFrames": 4,
+    "viaTSW": false,
+    "armStandupShaderBurst": false
+  },
+  "stackNote": "may stack anim tip that culls mesh COUNT53 morph targets"
 }

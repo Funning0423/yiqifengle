@@ -105,3 +105,6 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 6. upload=NO；live 仍 `1.0.202611031613` @ fb74d437。
 
 锁测：`test_standup_warm_sample.cjs`（隔离断言 + 短窗 runtime）、`test_transition_shader_warm.cjs`（无 burst；warmSample 仅角色路径）、`test_integrate_vs_fb74_scripts_identity.cjs`（transition/board/balloon == fb74）。
+
+## 2026-11-05 standup COUNT53 program warm (zero TSW)
+Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insufficient. Tip adds StandupProgramWarm (independent getProgramVariant COUNT53), morph soft budget. Acceptance=phone standup feel. setCamera/board still CONTROL_FAIL_NOISE — not a veto.

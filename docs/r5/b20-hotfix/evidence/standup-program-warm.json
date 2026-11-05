@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "gate": "standup-program-warm-count53",
+  "date": "2026-11-05",
+  "isolation": {
+    "TransitionShaderWarm": false,
+    "armStandupShaderBurst": false,
+    "BalloonTransit": false,
+    "sea-landing": false,
+    "K.s1": false,
+    "black-fence": false
+  },
+  "runtime": {
+    "module": "creator-build-project/assets/scripts/region/StandupProgramWarm.ts",
+    "count": 53,
+    "perFrame": 2,
+    "maxFrames": 8,
+    "morphBudgetFirst": 12,
+    "morphBudgetFrames": 4,
+    "arm": "bindVisual → sit_hold (spread only)",
+    "step": "advanceStep while armed&&pending",
+    "flush": "warmSampleStandUp before stand (≤2)",
+    "sample": "warmSampleStandUp N=4 short window"
+  },
+  "offline": {
+    "test_standup_program_warm.cjs": "PASS",
+    "test_standup_warm_sample.cjs": "PASS",
+    "test_integrate_vs_fb74_scripts_identity.cjs": "PASS",
+    "test_transition_shader_warm.cjs": "PASS"
+  },
+  "acceptance": "Funning phone standup feel — NOT Mac setCamera/board=0 veto (CONTROL_FAIL_NOISE)",
+  "stackNote": "may stack anim tip that culls mesh COUNT53 morph targets; curves-only cull 299afe73 already falsified on phone"
+}
