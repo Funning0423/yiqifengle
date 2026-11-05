@@ -2,6 +2,8 @@
 
 > **【重点标记】ROOT HIT · 2026-11-05** 手机周期整机掉帧已确认命中 `TransitionShaderWarm`。体验版 `1.0.202611050759` @ integrate `dc248d14`（feature `8f520d00`，叠在 `324e50b1` 上），Funning ~08:32 America/New_York：「不卡了」。默认保持 `TRANSITION_SHADER_WARM_ENABLED=false`。未经 Funning 不要 `setTransitionShaderWarmEnabled(true)` 或把默认改回 ON。COUNT16↔FAT 仅当 stutter 再现才做对照。全文：`docs/fps/PERIOD-STUTTER-TSW-ROOT-HIT-20261105.md`。
 
+> **【进度备注 · 2026-11-05】** 体验版 `1.0.202611060228` @ `02c9bd5e`：篮门飞行中关上 PASS；周期掉帧与穿模仍 FAIL / 先不修。小游戏开发/测试暂停，交接 Clonebot。不要为了这条备注重开 TSW 或翻转 kit 默认。全文 `docs/handoff/PM/PROGRESS-060228-PAUSE-20261105.md`。
+
 ## 三态对照
 | tip | setCamera | board-bg | 关键差异 |
 |-----|-----------|----------|---------|
