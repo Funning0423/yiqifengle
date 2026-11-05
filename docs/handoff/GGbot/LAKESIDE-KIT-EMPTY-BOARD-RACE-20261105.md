@@ -2,7 +2,7 @@
 
 ## Tip / feature
 - **feature** `28f5b386d997fc0c9651cb07324cabbaee25b787`
-- **tip** `TIP_SHA_PENDING`
+- **tip** `d626718b6a9046fd16f0a671fbd91db3f3a8cf35`
 - **叠合**：trial default-ON feature `457b359c` / tip `02808214`（integrate 父链含 `9ec8410` meta-allowlist）
 - **upload / 合入 = 等 PM**；本 tip 只修露出接线，不传微信
 
