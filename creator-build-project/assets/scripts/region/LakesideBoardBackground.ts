@@ -253,6 +253,7 @@ let prewarm:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;t
 export function prewarmLakesideAssets(holdMs=120000):Promise<void>{
  if(prewarm){if(prewarm.timer&&holdMs>120000){clearTimeout(prewarm.timer);const st=prewarm;st.timer=setTimeout(()=>{if(prewarm===st)releaseLakesidePrewarm();},holdMs);}return prewarm.promise;}
  const st:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}={promise:Promise.resolve(),held:[],timer:null};prewarm=st;
+ {const pins:Map<string,number>=((globalThis as any).__qfRegionPins||=new Map());pins.set('lakeside',(pins.get('lakeside')||0)+1);(st as any).pinned=true;}/* perf-land: pin region_lakeside while prewarm refs are held (RegionLoader.regionPinned) */
  const keep=<T extends {addRef():unknown;decRef(auto?:boolean):unknown}>(a:T|null)=>{if(a&&prewarm===st){a.addRef();st.held.push(a);}return a;};
  st.promise=(async()=>{try{const t0=Date.now(),b=await loadBundle(LAKESIDE_BUNDLE);keep(await loadJson(b,LAKESIDE_TRANSFORMS));
    for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir'&&(await probeLakesideWaterPack(b)).state!=='failed')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
@@ -262,7 +263,7 @@ export function prewarmLakesideAssets(holdMs=120000):Promise<void>{
  return st.promise;
 }
 /** Drops the prewarm refs (the lease holds its own by then). Assets nobody else holds are released by the asset manager. */
-export function releaseLakesidePrewarm(){const st=prewarm;prewarm=null;if(!st)return;if(st.timer)clearTimeout(st.timer);for(const a of st.held.splice(0)){try{a.decRef();}catch{}}}
+export function releaseLakesidePrewarm(){const st=prewarm;prewarm=null;if(!st)return;if(st.timer)clearTimeout(st.timer);for(const a of st.held.splice(0)){try{a.decRef();}catch{}}if((st as any).pinned){(st as any).pinned=false;const pins:Map<string,number>=((globalThis as any).__qfRegionPins||=new Map());pins.set('lakeside',Math.max(0,(pins.get('lakeside')||0)-1));}}
 /** v3.3: the one reason a failed lakeside load surfaces with (player copy is chosen by the HUD; details only in the [QF_LAKESIDE] log). */
 export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
 /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
@@ -383,7 +384,7 @@ const nextFrame=()=>new Promise<void>(resolve=>{let done=false;const go=()=>{if(
 /** Starts building the 风铃湖畔 board lease now (idempotent): a batch of instances per frame under a hidden holder, camera off. Never rejects. */
 export function preloadLakesideBoard():Promise<unknown>{
  if(boardPreload)return boardPreload.promise;const scene=director.getScene();if(!scene)return Promise.resolve(null);
- const holder=new Node('LakesideBoardPreload');scene.addChild(holder);
+ const holder=new Node('LakesideBoardPreload');((globalThis as any).__qfRegionRoots||=new Set()).add({key:'lakeside',node:holder})/* perf-land: preload holder blocks release of region_lakeside until destroyed */;scene.addChild(holder);
  const st:LakesideBoardPreload={token:new Cancellation(),holder,promise:Promise.resolve(null),adopted:false};boardPreload=st;const t0=Date.now();
  st.promise=buildLakesideBoard({parent:holder,selection:{stageId:'lakeside-preload'},token:st.token},{yieldFrame:nextFrame}).then(lease=>{
    try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'board-preload',ms:Date.now()-t0}));}catch{}return lease;},

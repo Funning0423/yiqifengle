@@ -106,8 +106,12 @@ export function regionKey(x:string):string{const k=String(x||'').toLowerCase().r
  *  destroyed (inactive/hidden roots still hold the bundle's meshes/materials). No name search, no new component. */
 const liveRoots:Set<{key:string;node:Node}>=((globalThis as any).__qfRegionRoots||=new Set())/* shared with lakeside files that register without importing RegionLoader */;
 export function registerRegionRoot(region:string,node:Node):void{const key=regionKey(region);if(key&&node)liveRoots.add({key,node});}
+/** perf-land: asset holders with no scene root (lakeside chapter-page prewarm, held up to 120 s+) pin their region so a
+ *  release can never releaseAll() assets they still ref. Shared via globalThis so lakeside files pin without importing RegionLoader. */
+const regionPins:Map<string,number>=((globalThis as any).__qfRegionPins||=new Map());
+export function regionPinned(region:string):boolean{return (regionPins.get(regionKey(region))||0)>0;}
 export function regionMounted(region:string,valid:(n:any)=>boolean=(n)=>isValid(n,true)):boolean{
-  const key=regionKey(region);let hit=false;for(const e of Array.from(liveRoots)){if(!valid(e.node)){liveRoots.delete(e);continue;}if(e.key===key)hit=true;}return hit;}
+  const key=regionKey(region);let hit=regionPinned(key);for(const e of Array.from(liveRoots)){if(!valid(e.node)){liveRoots.delete(e);continue;}if(e.key===key)hit=true;}return hit;}
 /** Pure plan: which regions' bundles may go now. */
 export function planRegionRelease(target: string, opts: { keep?: readonly string[]; mounted?: (region: string) => boolean }): string[] {
   const mounted = opts.mounted || ((r: string) => regionMounted(r));

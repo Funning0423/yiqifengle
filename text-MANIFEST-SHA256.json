@@ -2831,8 +2831,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts",
-    "bytes": 49593,
-    "sha256": "2aeb5c75b97f54389e1a5c4821c1a1eeceeb8e699c759f485a49ce5611a097c8"
+    "bytes": 50195,
+    "sha256": "cce0b063e3214e5acd50c215779d876ea8224b86d65455b1142a8d2e33c7e3e6"
   },
   {
     "path": "creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta",
@@ -3241,8 +3241,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 9974,
-    "sha256": "0e18c4f5745d9581382cade53707fc4b2506eab012d4e64d398cf1e0c0278232"
+    "bytes": 10432,
+    "sha256": "90c97b06f238d47b888cece32e08cefabaa95a9dbc09f98fda11ff633c6503a4"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -5216,8 +5216,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 35662,
-    "sha256": "d3834276b501e10fa219ef9197141a1cea635d5e8d493c17ec13d05fc31364d0"
+    "bytes": 35727,
+    "sha256": "d6085620fe499cb22ca624509ff3dad349fb3e269881a89eca40220e60028791"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
