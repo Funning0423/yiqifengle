@@ -1,8 +1,8 @@
 # tip · StandupProgramWarm 默认 OFF（A/B 剥 warm）· 2026-11-05
 
 ## Tip / feature
-- **feature** `FEATURE_SHA_PENDING`
-- **tip** `TIP_SHA_PENDING`
+- **feature** `5b990f8ee892682fe0c080a4f200899b4f5a7173`
+- **tip** `ba8ea27e0eb8ae2ae24a502519c4871fc3712618`
 
 ## 一句话
 Funning 摸 `1.0.202611050605` @ integrate tip `04998c82`（Morph 真 GPU 闸 `ad76cf64`）：**仍整机掉帧**，且为**固定间隔周期性 stutter**；**起身仍顺**。本 tip 把 `STANDUP_PROGRAM_WARM_ENABLED` **默认改为 false**，boot 上 open/step/flush 全 no-op，保留 COUNT16+meta + 真 GPU 闸，作最短 A/B。
