@@ -1,8 +1,8 @@
 'use strict';
-/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside kit branch. OFF without ?qflakesidekit=1 even on a lake board
- * (2D tray, grid cellAt). ON (test mode): cells on the projected water-grid centres (≤ 0.5 pt), scaled by perspective,
- * tray + tile bases hidden, cellAt = nearest projected centre (±8 pt jitter), fallback = 0, no camera writes.
- * Default path (island) untouched. */
+/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. OFF without ?qflakesidekit=1 even on a lake board
+ * (2D tray, grid cellAt). ON: cells on the projected water-grid centres (tap hit), tray + tile bases + 2D piece art hidden
+ * (scene LK_piece_* / wb_line / buoy / raft are the visual), cellAt = nearest projected centre, fallback = 0, no camera writes.
+ * Kit scene keep = default 813 + 49 RING + 49 SHD + 52 LK_piece_* (=963); board_frame still skipped. Default path untouched. */
 const assert = require('node:assert/strict');
 const { createHarness } = require('./harness.cjs');
 const { createBoard, snapshot } = require('./board-fixture.cjs');
@@ -30,6 +30,7 @@ async function mk(on, w, h, region) {
       const n = u.cells[i], c = pb.centers[i];
       assert.ok(Math.abs(n.position.x - (c.x - g.grid.x)) < 0.5 && Math.abs(n.position.y - (g.grid.y - c.y)) < 0.5, 'cell on water ' + i);
       assert.equal(u.bases[i].node.active, false, 'tile base hidden');
+      assert.equal(n.getChildByName('ProjectPieceArt').active, false, '2D piece art hidden (scene LK_piece_*)');
       assert.equal(u.cellAt(c.x, c.y, true), i, 'exact centre yDown');
       assert.equal(u.cellAt(c.x, h - c.y, false), i, 'exact centre yUp');
       for (let k = 0; k < 20; k++) {
@@ -52,11 +53,16 @@ async function mk(on, w, h, region) {
   SD.setLakesideKitAssets(false);
   assert.equal(SD.lakesideSceneInstances(tr.instances).length, 813, 'default keep 813');
   assert.equal(SD.lakesideSkippedGlb().length, 3, 'default skip 3');
+  assert.equal(SD.lakesideSceneInstances(tr.instances).filter(i => /^LK_piece_/.test(i.glb)).length, 0, 'default filters pieces');
   SD.setLakesideKitAssets(true);
   const on = SD.lakesideSceneInstances(tr.instances);
-  assert.equal(on.length, 911, 'kit keep 813+98');
+  assert.equal(on.length, 963, 'kit keep 813+98 RING/SHD +52 pieces');
   assert.equal(on.filter(i => i.glb === 'LK_contact_shadow.glb').length, 49);
   assert.equal(on.filter(i => i.glb === 'LK_ripple_ring.glb').length, 49);
+  assert.equal(on.filter(i => /^LK_piece_/.test(i.glb)).length, 52, 'kit keeps LK_piece_*');
+  assert.equal(on.filter(i => i.glb === 'LK_wb_line.glb').length, 16);
+  assert.equal(on.filter(i => i.glb === 'LK_buoy_lantern.glb').length, 4);
+  assert.equal(on.filter(i => i.glb === 'LK_chime_raft.glb').length, 2);
   assert.equal(on.filter(i => i.glb === 'LK_board_frame.glb').length, 0);
   assert.deepEqual(SD.lakesideSkippedGlb(), ['LK_board_frame.glb']);
   console.log('lakeside-kit-wiring: PASS');

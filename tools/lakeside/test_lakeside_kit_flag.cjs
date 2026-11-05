@@ -1,6 +1,7 @@
 'use strict';
-/* lakeside-kit-flag: LAKESIDE_KIT default OFF; ?qflakesidekit=1 / __qfLakesideBoardKit registers lake; cellM=1.1 anchor [0,0,12];
- * kit path unskips contact_shadow + ripple_ring only (board_frame stays skipped). */
+/* lakeside-kit-flag: LAKESIDE_KIT (Funning fusion) default OFF; ?qflakesidekit=1 / __qfLakesideBoardKit registers lake;
+ * cellM=1.1 anchor [0,0,12]; kit path unskips contact_shadow + ripple_ring, keeps LK_piece_* (board_frame stays skipped);
+ * pieceKeys = LK_piece_* (not board_art); hide2D.pieces=true. */
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
@@ -21,6 +22,10 @@ assert.equal(kit.board.topY, 0.02);
 assert.equal(kit.board.yawDeg, 0);
 assert.equal(kit.hide2D.tray, true);
 assert.equal(kit.hide2D.tiles, true);
+assert.equal(kit.hide2D.pieces, true, 'scene LK_piece_* = visual');
+assert.equal(kit.pieceBundle, 'region_lakeside');
+assert.equal(kit.pieceKeys[0], 'LK_piece_shell');
+assert.equal(S.lakesidePieceGlbForType(0), 'LK_piece_shell.glb');
 assert.equal(S.lakesideKitAssetsEnabled(), true);
 assert.deepEqual([...S.lakesideSkippedGlb()], ['LK_board_frame.glb']);
 delete globalThis.__qfLakesideBoardKit;

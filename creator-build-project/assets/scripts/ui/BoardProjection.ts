@@ -120,7 +120,8 @@ export function lakesideBoardKitPose(w: number, h: number): { position: [number,
   const d = Math.hypot(pose.position[0] - look[0], pose.position[1] - look[1], pose.position[2] - look[2]);
   return { position: [pose.position[0], pose.position[1], pose.position[2]], rotationXYZW: [pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]], fovVerticalDeg: pose.fovVerticalDeg, distanceM: d };
 }
-/** Lakeside kit switch. OFF by default. On = LAKESIDE_KIT registered for region 'lake' (and 'lakeside' alias).
+/** Lakeside fusion-kit switch (Funning sample: wb_line + buoy_lantern + chime_raft + LK_piece_*). OFF by default.
+ *  On = LAKESIDE_KIT registered for region 'lake' (and 'lakeside' alias) + setLakesideKitAssets(true) (keep pieces, unskip RING/SHD).
  *  Test / preview: globalThis.__qfLakesideBoardKit === true or '?qflakesidekit=1'. */
 export function setLakesideBoardKit(on: boolean): void {
   if (on) { registerBoardKit('lake', LAKESIDE_KIT); registerBoardKit('lakeside', LAKESIDE_KIT); }
