@@ -1,8 +1,8 @@
 # tip · Morph idle-drive 默认 OFF（A/B 剥 idle Morph 残留）· 2026-11-05
 
 ## Tip / feature
-- **feature** `FEATURE_SHA_PENDING`
-- **tip** `TIP_SHA_PENDING`
+- **feature** `5acfa98d2ae82cdaccb7a03397b58c0b45491656`
+- **tip** `148f1cbcaaf662754b6f2bb94fa70c5ba6a61f05`
 
 ## 一句话
 Funning 摸 `1.0.202611050621` @ tip `c672511`（StandupProgramWarm 默认 OFF）：**周期整机掉帧还在、起身仍顺** → warm **非**周期 stutter 主因。本 tip 把 `MORPH_IDLE_DRIVE_ENABLED` **默认 false**：idle/walk/UI 走 `MorphDriver.hardUnload`（含曾在 ad76cf64 后仍闸开的 BODY correctives）；**sit_hold / sit_down / stand_up 仍满驱动**（保住起身）。最短可测「COUNT16/Morph 栈 vs 别的」。
