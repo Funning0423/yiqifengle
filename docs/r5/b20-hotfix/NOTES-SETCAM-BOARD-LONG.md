@@ -117,3 +117,10 @@ Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insu
 - 角色动画bot 自查：`walk-morph-drive` — idle/walk∩seat=∅ PASS；根因转 runtime 全表+GPU COUNT。
 - tip：稀疏 morphWeights + MorphDriver enableMorph 闸 + StandupProgramWarm sit_hold 窗。
 - 成对：GLB e3fbce98… + meta 6fd22962；upload=等 PM；零 TSW。
+
+## MorphDriver 真 GPU 闸（本轮 · 050530 FAIL 跟进）
+
+- 根因：Cocos 3.8.8 `enableMorph` setter **不** `_watchMorphInMesh`；`4c668c91` flag-only → MorphRenderingInstance + COUNT macro 仍活。
+- tip：`applyRendererMorphGate`（watch / mesh-reassign STRIP + `setMorphRendering(null)`）+ `morph-gpu-gate` 日志 + StandupProgramWarm kill switch（A/B 剥 warm 保 COUNT16）。
+- 成对 e3fbce98 + 6fd22962 **未拆**；零 TSW；upload=等 PM。
+- 验收：整机 FPS + 起身；gate 用日志 `morph-gpu-gate` / diagnostics.gatePath 验证。

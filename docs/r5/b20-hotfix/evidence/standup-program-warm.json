@@ -12,26 +12,62 @@
   },
   "runtime": {
     "morphWeights": "sparse active-set (clip morph curves + wind flutter); zero inactive leftovers",
-    "MorphDriver": "enableMorph gate — unload when all tip weights ~0; re-enable before live write",
+    "MorphDriver": {
+      "gpuGate": "REAL tear-down: enableMorph + _watchMorphInMesh (or mesh-reassign STRIP) + setMorphRendering(null) + PSO refresh",
+      "priorBug": "Cocos 3.8.8 enableMorph setter only flips _enableMorph; tip 4c668c91 flag-only left MorphRenderingInstance + CC_USE_MORPH|COUNT alive",
+      "observability": "gateFlips/gatePath/gpuGateOn/morphInstance via diagnostics + Boot logEvent kind=morph-gpu-gate"
+    },
     "StandupProgramWarm": {
-      "bag": {"APRON": 16, "DRESS": 15, "BODY": 15, "BOW": 3, "unique": [16, 15, 3]},
+      "bag": {
+        "APRON": 16,
+        "DRESS": 15,
+        "BODY": 15,
+        "BOW": 3,
+        "unique": [
+          16,
+          15,
+          3
+        ]
+      },
       "window": "sit_hold only (openStandupWarmWindow / closeStandupWarmWindow)",
       "step": "no-op unless windowOpen (force only for flush)",
-      "flush": "warmSampleStandUp before stand (≤2)",
-      "legacyNotWarmed": [53, 73]
-    },
-    "perFrame": 2,
-    "maxFrames": 10,
-    "morphBudgetFirst": 12,
-    "morphBudgetFrames": 4
+      "killSwitch": "STANDUP_PROGRAM_WARM_ENABLED / setStandupProgramWarmEnabled — A/B peel warm keep COUNT16+meta",
+      "legacyNotWarmed": [
+        53,
+        73
+      ]
+    }
   },
   "offline": {
     "test_standup_program_warm.cjs": "PASS",
     "test_standup_warm_sample.cjs": "PASS",
-    "windowGate": {"armNoStep": true, "closeDisarm": true},
-    "morphSparse": true,
-    "gpuGate": true
+    "windowGate": {
+      "armNoStep": true,
+      "closeDisarm": true
+    },
+    "morphSparse": {
+      "walkActive": [
+        "task21_walk_layer_gap"
+      ],
+      "sitSeat": true
+    },
+    "gpuGate": {
+      "unloadOnZero": true,
+      "reloadOnLive": true,
+      "watchTearDown": true,
+      "stripFallback": true,
+      "killSwitch": true
+    }
   },
-  "acceptance": "whole-UI FPS + standup feel — NOT Mac setCamera/board=0 veto (CONTROL_FAIL_NOISE)",
-  "stackNote": "pairs COUNT GLB e3fbce98 + meta 6fd22962 / integrate 6bd40657 @ 1.0.202611050458; primary MorphDriver; secondary StandupProgramWarm sit_hold window"
+  "acceptance": "whole-UI FPS + standup feel — NOT setCamera/board=0 veto",
+  "stackNote": "pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL enableMorph tear-down (_watchMorphInMesh/setMorphRendering); StandupProgramWarm kill switch A/B",
+  "verifyOnDevice": [
+    "grep QF_MORPH_GPU_GATE / morph-gpu-gate in autoplay or boot log after leave sit_hold → walk/idle",
+    "expect gatePath=watch|mesh-reassign, morphInstance=false/null on DRESS/BOW when all tips ~0",
+    "BODY may stay gpuGateOn=true (correctives live on idle/walk) — expected"
+  ],
+  "abIfStillJanky": {
+    "shortest": "setStandupProgramWarmEnabled(false) at boot — peel StandupProgramWarm, keep COUNT16 GLB e3fbce98 + meta 6fd22962",
+    "alt": "peel COUNT16 → FAT only if warm-off still janks (label A/B explicitly; breaks pair)"
+  }
 }
