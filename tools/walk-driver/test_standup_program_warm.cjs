@@ -66,6 +66,17 @@ assert.match(cmSrc,/mesh-reassign/);
 assert.match(warmSrc,/STANDUP_PROGRAM_WARM_ENABLED/);
 assert.match(warmSrc,/STANDUP_PROGRAM_WARM_ENABLED\s*=\s*false/,'default OFF for A/B peel warm');
 assert.doesNotMatch(warmSrc,/STANDUP_PROGRAM_WARM_ENABLED\s*=\s*true/);
+assert.match(cmSrc,/MORPH_IDLE_DRIVE_ENABLED/);
+assert.match(cmSrc,/MORPH_IDLE_DRIVE_ENABLED\s*=\s*false/,'default OFF idle morph drive (A/B peel Morph idle residual)');
+assert.doesNotMatch(cmSrc,/MORPH_IDLE_DRIVE_ENABLED\s*=\s*true/);
+assert.match(cmSrc,/setMorphIdleDriveEnabled/);
+assert.match(cmSrc,/morphPlanNeedsSeatDrive/);
+assert.match(cmSrc,/hardUnload\(\)/);
+assert.match(bootSrc,/MORPH_IDLE_DRIVE_ENABLED/);
+assert.match(bootSrc,/morphPlanNeedsSeatDrive/);
+assert.match(bootSrc,/hardUnload/);
+assert.match(bootSrc,/morph-idle-unload/);
+
 assert.match(warmSrc,/windowOpen/);
 assert.match(warmSrc,/openStandupWarmWindow/);
 assert.match(warmSrc,/closeStandupWarmWindow/);
@@ -241,6 +252,43 @@ assert.equal(W.STANDUP_PROGRAM_WARM_ENABLED,true,'manual ON restores warm path')
 W.setStandupProgramWarmEnabled(false);
 assert.equal(W.STANDUP_PROGRAM_WARM_ENABLED,false);
 
+/* Morph idle-drive A/B: default OFF; seat window still drives; hardUnload peels without re-enable flip */
+assert.equal(motion.MORPH_IDLE_DRIVE_ENABLED,false,'idle morph drive default OFF');
+assert.equal(typeof motion.setMorphIdleDriveEnabled,'function');
+assert.equal(typeof motion.morphPlanNeedsSeatDrive,'function');
+assert.equal(motion.morphPlanNeedsSeatDrive({base:{clip:'idle_breathing_loop',time:0,loop:true},out:null,layers:[],morph:[]}),false);
+assert.equal(motion.morphPlanNeedsSeatDrive({base:{clip:'walk_loop',time:0,loop:true},out:null,layers:[],morph:[]}),false);
+assert.equal(motion.morphPlanNeedsSeatDrive({base:{clip:'sit_hold',time:0,loop:true},out:null,layers:[],morph:[]}),true);
+assert.equal(motion.morphPlanNeedsSeatDrive({base:{clip:'stand_up',time:0.2,loop:false},out:null,layers:[],morph:[]}),true);
+assert.equal(motion.morphPlanNeedsSeatDrive({base:{clip:'stand_up',time:0.1,loop:false},out:{clip:'sit_hold',time:0,weight:0.5},layers:[],morph:[]}),true);
+// hardUnload: live → zero + gate off without enableMorph=true mid-path
+const huCalls=[];const huWatch=[];
+const huModel={setMorphRendering(inst){this.last=inst;},onMacroPatchesChanged(){}};
+const huR={node:{name:'body'},mesh:{name:'body',struct:{morph:{subMeshMorphs:[{targets:new Array(4).fill(0)}]}}},enableMorph:true,
+  _morphInstance:{id:'b'},model:huModel,
+  _watchMorphInMesh(){huWatch.push(this.enableMorph);if(this.enableMorph===false)this._morphInstance=null;else this._morphInstance={id:'b'};},
+  setWeight(w,sub,shape){huCalls.push([w,sub,shape]);}};
+const hu=new motion.MorphDriver('body',{a:0,b:1});
+assert.equal(hu.bind([huR]),'ok');
+hu.apply({a:0.8,b:0.2});
+assert.equal(huR.enableMorph,true);
+const flipsHu=hu.gateFlips;const watchBefore=huWatch.length;
+hu.hardUnload();
+assert.equal(huR.enableMorph,false,'hardUnload tears down GPU');
+assert.ok(hu.gateFlips>flipsHu);
+assert.ok(huWatch.indexOf(false)>=0);
+assert.ok(huWatch.slice(watchBefore).indexOf(true)<0,'hardUnload must NOT re-enable mid-path');
+assert.equal(hu.diagnostics().gpuGateOn,false);
+const callsAfter=huCalls.length;hu.hardUnload();
+assert.equal(huCalls.length,callsAfter,'steady hardUnload is no-op');
+// seat drive path still works with idle-drive OFF (MorphDriver.apply unchanged)
+hu.apply({a:0.5,b:0});
+assert.equal(huR.enableMorph,true,'seat/stand apply still re-enables');
+motion.setMorphIdleDriveEnabled(true);
+assert.equal(motion.MORPH_IDLE_DRIVE_ENABLED,true,'manual ON restores idle morph drive');
+motion.setMorphIdleDriveEnabled(false);
+assert.equal(motion.MORPH_IDLE_DRIVE_ENABLED,false);
+
 /* sparse morphWeights: walk only evaluates active curves, not full tip table */
 const cfg=motion.defaultMotionConfig();
 cfg.morphMeshes=[{mesh:'LOD0_G2_APRON',targets:{task21_walk_layer_gap:0,seat_bake_sit_0:1,sit_drape:2}},
@@ -277,7 +325,10 @@ const out={
   gpuGate:{unloadOnZero:true,reloadOnLive:true,watchTearDown:true,stripFallback:true,killSwitch:true},
   warmDefaultOff:true,
   warmManualOnWorks:true,
-  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B default StandupProgramWarm OFF',
-  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL GPU morph gate kept; StandupProgramWarm DEFAULT OFF (setStandupProgramWarmEnabled still toggles)',
+  morphIdleDriveDefaultOff:true,
+  morphIdleHardUnload:true,
+  morphIdleManualOnWorks:true,
+  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B Morph idle-drive DEFAULT OFF (seat window still drives)',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL GPU morph gate kept; StandupProgramWarm DEFAULT OFF; Morph idle-drive DEFAULT OFF (hardUnload outside sit/stand)',
 };
 console.log(JSON.stringify(out,null,1));
