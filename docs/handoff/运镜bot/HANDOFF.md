@@ -4,7 +4,7 @@ Date: 2026-11-05 (America/New_York)
 ## Branches / SHA
 | branch | tip | worktree |
 |---|---|---|
-| `cine/balloon-door-dismount-fix` | `050b77d4` / `050b77d471914fef55efbaeace0c21db5f027c58` (fix `24fd2f22`) | `/workspace/yiqifengle/work/cine-balloon-door-dismount` |
+| `cine/balloon-door-dismount-fix` | `263f72bf` / `263f72bfcab344cec140928ec8955ce39b7c299b` (fix `24fd2f22`) | `/workspace/yiqifengle/work/cine-balloon-door-dismount` |
 
 Base: `github/gbt/r5-b20-integrate-landing-visual-bg2` @ `9ec8410c`（体验版 `1.0.202611050927`）。
 
@@ -63,4 +63,4 @@ B5 `perform({kind:'stand', seat:seatDef})` 复用 **B1 草原** `seatFromBench` 
 box `git push github` → **403**（`Permission denied to Funning0423`）。请 Mac / PM 用 bundle 推：
 `docs/handoff/运镜bot/cine-balloon-door-dismount-fix.bundle`
 `/workspace/yiqifengle/bundles/push-cine-balloon-door-dismount-fix-20261105.bundle`
-基线 `9ec8410c`..`050b77d4`。
+基线 `9ec8410c`..`263f72bf`。
