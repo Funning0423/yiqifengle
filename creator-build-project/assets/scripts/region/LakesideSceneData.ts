@@ -117,7 +117,7 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   /** r5 per-part fill (VB): plants (reeds, flowers, lotus, lily pads) and small props (posts, chimes, lanterns, boats, barrel, porch
    *  steps, clothesline) get their own class. Still never filled: water, bridge (+ steps), shore foam, ripples/splashes, grass
    *  tufts, ducks / dragonfly (guests), board pieces (LK_piece_*), the untextured rope/float/shadow meshes. */
-  plantFillGlbs: ['LK_reed_card.glb', 'LK_flower_clump.glb', 'LK_flowerpot.glb', 'LK_lotus.glb', 'LK_lilypad.glb'] as const,
+  plantFillGlbs: ['LK_reed_card.glb', 'LK_flower_clump.glb', 'LK_flowerpot.glb', 'LK_lotus.glb', 'LK_lilypad.glb', 'LK_lotus_pedestal.glb'] as const,
   propFillGlbs: ['LK_chime_post.glb', 'LK_chime_raft.glb', 'LK_windchime.glb', 'LK_buoy_lantern.glb', 'LK_lantern.glb', 'LK_lantern_boat.glb',
     'LK_paper_boat.glb', 'LK_barrel.glb', 'LK_porch_steps.glb', 'LK_clothesline.glb'] as const,
   foliageFillLinear: [0.019, 0.065, 0] as const, wallFillLinear: [0.023, 0.02, 0.017] as const,
@@ -341,6 +341,7 @@ export type LakesideInstance = Readonly<{ name: string; glb: string; group: stri
 export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
 /** Kit path (LAKESIDE_KIT / TRIAL default ON; opt-out ?qflakesidekit=0, Funning fusion sample): keep board_frame skipped (r5h3 dropped; water = carrier);
  *  unskip contact_shadow + ripple_ring as aux; KEEP LK_piece_* (cancel whole-prefix filter — gameplay/scene piece pipeline A).
+ *  LK_lotus_pedestal (scene/lakeside-lotus-props) is board dressing under pieces — never skipped.
  *  Default OFF keeps the 2D-tray skip list + piece filter. */
 const LAKESIDE_KIT_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb']);
 /** Engine type 0..5 → lakeside scene piece GLB (pipeline A; not board_art / not coast). */
