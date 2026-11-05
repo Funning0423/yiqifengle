@@ -103,6 +103,25 @@ assert.match(sapSrc,/SCENE_AUDIO_POLL_ENABLED\s*=\s*false/,'default OFF for A/B 
 assert.doesNotMatch(sapSrc,/SCENE_AUDIO_POLL_ENABLED\s*=\s*true/);
 assert.match(sapSrc,/setSceneAudioPollEnabled/);
 assert.doesNotMatch(sapSrc,/TransitionShaderWarm|StandupProgramWarm|BalloonTransit|PeriodHeavyRefresh/);
+
+/* SkycityLegHeavy A/B (ascent paint + post-land Cloudsea syncDay; TSW stays OFF) */
+const slhSrc=fs.readFileSync(path.join(S,'region/SkycityLegHeavy.ts'),'utf8');
+const cloudseaSrc=fs.readFileSync(path.join(S,'region/SkycityCloudsea.ts'),'utf8');
+assert.match(slhSrc,/SKYCITY_LEG_HEAVY_ENABLED/);
+assert.match(slhSrc,/SKYCITY_LEG_HEAVY_ENABLED\s*=\s*false/,'default OFF for A/B peel skycity-leg heavy');
+assert.doesNotMatch(slhSrc,/SKYCITY_LEG_HEAVY_ENABLED\s*=\s*true/);
+assert.match(slhSrc,/setSkycityLegHeavyEnabled/);
+assert.match(slhSrc,/skycityLegHeavyFromFlag/);
+assert.match(slhSrc,/qfskyheavy/);
+assert.match(slhSrc,/__qfSkyLegHeavy/);
+assert.doesNotMatch(slhSrc,/TRANSITION_SHADER_WARM_ENABLED\s*=\s*true/);
+assert.match(balloonSrc,/SkycityLegHeavy/);
+assert.match(balloonSrc,/SKYCITY_LEG_HEAVY_ENABLED/);
+assert.match(balloonSrc,/skycityLegHeavyFromFlag/);
+assert.match(balloonSrc,/runVis/);
+assert.match(cloudseaSrc,/SKYCITY_LEG_HEAVY_ENABLED/);
+assert.match(cloudseaSrc,/daySynced/);
+assert.match(tswSrc,/TRANSITION_SHADER_WARM_ENABLED\s*=\s*false/,'TSW must stay default OFF');
 assert.match(smSrc,/SCENE_AUDIO_POLL_ENABLED/);
 assert.match(smSrc,/if\s*\(!SCENE_AUDIO_POLL_ENABLED\s*&&\s*this\.firstLoadAt\s*!==\s*null\)\s*return/);
 assert.match(smSrc,/POLL_S\s*=\s*0\.25/);
@@ -413,6 +432,26 @@ const transitionShaderWarmDefaultOff=true;
 const transitionShaderWarmManualOnWorks=true;
 const transitionShaderWarmGates=true;
 
+/* SkycityLegHeavy runtime: default OFF + manual ON kill-switch + flag */
+const slhMod=new (module.constructor)();
+slhMod.paths=module.paths;
+/* transpile DebugQuery import — provide stub require */
+const slhJs=tx(slhSrc).replace("require(\"./DebugQuery\")","({debugSearch:(h)=>{try{const s=h&&h.location&&h.location.search;return typeof s==='string'?s:'';}catch{return '';}}})");
+slhMod._compile(slhJs,path.join(S,'region/SkycityLegHeavy.ts'));
+const SLH=slhMod.exports;
+assert.equal(SLH.SKYCITY_LEG_HEAVY_ENABLED,false,'skycity-leg heavy default OFF');
+SLH.setSkycityLegHeavyEnabled(true);
+assert.equal(SLH.SKYCITY_LEG_HEAVY_ENABLED,true,'manual ON works');
+SLH.setSkycityLegHeavyEnabled(false);
+assert.equal(SLH.SKYCITY_LEG_HEAVY_ENABLED,false,'manual OFF restore');
+assert.equal(SLH.skycityLegHeavyFromFlag({__qfSkyLegHeavy:true,location:{search:''}}),true,'__qfSkyLegHeavy true');
+assert.equal(SLH.skycityLegHeavyFromFlag({__qfSkyLegHeavy:false,location:{search:''}}),false,'__qfSkyLegHeavy false');
+assert.equal(SLH.skycityLegHeavyFromFlag({location:{search:'?qfskyheavy=1'}}),true,'query=1 ON');
+assert.equal(SLH.skycityLegHeavyFromFlag({location:{search:'?qfskyheavy=0'}}),false,'query=0 OFF');
+const skycityLegHeavyDefaultOff=true;
+const skycityLegHeavyManualOnWorks=true;
+const skycityLegHeavyGates=true;
+
 
 const out={
   status:'PASS',
@@ -442,7 +481,10 @@ const out={
   transitionShaderWarmDefaultOff:true,
   transitionShaderWarmManualOnWorks:true,
   transitionShaderWarmGates:true,
+  skycityLegHeavyDefaultOff:true,
+  skycityLegHeavyManualOnWorks:true,
+  skycityLegHeavyGates:true,
   acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B TransitionShaderWarm DEFAULT OFF (director_after_draw + orphan COUNT53/73)',
-  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962 KEPT; Morph GPU gate + warm/idle/period/sceneAudio OFF kept; TSW DEFAULT OFF (intentional peel, not zero-intrusion)',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962 KEPT; Morph GPU gate + warm/idle/period/sceneAudio OFF kept; TSW DEFAULT OFF; SkycityLegHeavy DEFAULT OFF (ascent+post-land)',
 };
 console.log(JSON.stringify(out,null,1));

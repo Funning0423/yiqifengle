@@ -6,12 +6,12 @@
  * Do NOT peel BalloonTransit / black-fence / K.s1. Do NOT put warmSample into
  * TransitionShaderWarm / SkycityBoard* / BalloonTransit.
  * 2026-11-05: TransitionShaderWarm is INTENTIONALLY peeled (default OFF kill-switch for period stutter A/B).
- * BalloonTransit / SkycityBoard* stay LOCK_SAME; TSW hold/note APIs remain callable empty when OFF.
+ * SkycityBoard* stay LOCK_SAME; BalloonTransit intentionally peeled (skycity-leg heavy default OFF).
+ * TSW hold/note APIs remain callable empty when OFF.
  */
 const { execSync } = require('child_process');
 const PASS = 'fb74d437d96d1201f597b36f669b22115988077d';
 const LOCK_SAME = [
-  'creator-build-project/assets/scripts/region/BalloonTransit.ts',
   'creator-build-project/assets/scripts/region/TransitionStaging.ts',
   'creator-build-project/assets/scripts/region/BalloonFlight.ts',
   'creator-build-project/assets/scripts/region/SailPreload.ts',
@@ -20,6 +20,8 @@ const LOCK_SAME = [
 ];
 /* 2026-11-05 TSW tip: TransitionShaderWarm intentionally DIFF vs fb74 (default OFF kill-switch). Not zero-intrusion. */
 const LOCK_TSW_PEEL='creator-build-project/assets/scripts/region/TransitionShaderWarm.ts';
+/* 2026-11-05 skycity-leg tip: BalloonTransit intentionally DIFF (ascent+post-land heavy paint gate). K.s1 / sea-landing visual kept. */
+const LOCK_BALLOON_PEEL='creator-build-project/assets/scripts/region/BalloonTransit.ts';
 
 const STANDUP_ALLOWED = [
   'creator-build-project/assets/scripts/WorldIntegrationBoot.ts',
@@ -74,6 +76,27 @@ for (const f of LOCK_SAME) {
     failed++;
   } else {
     console.log(`PEEL OK ${f} (intentional DIFF + default OFF)`);
+  }
+}
+/* BalloonTransit peel: must DIFF vs fb74 and carry skycity-leg default-OFF kill-switch */
+{
+  const f = LOCK_BALLOON_PEEL;
+  const passBlob = revParse(`${PASS}:${f}`);
+  let cur = null;
+  try { cur = execSync(`git hash-object ${f}`, { encoding: 'utf8' }).trim(); } catch { cur = revParse(`HEAD:${f}`); }
+  const body = require('fs').readFileSync(f, 'utf8');
+  const heavy = require('fs').readFileSync('creator-build-project/assets/scripts/region/SkycityLegHeavy.ts', 'utf8');
+  if (!/SKYCITY_LEG_HEAVY_ENABLED\s*=\s*false/.test(heavy) || !/setSkycityLegHeavyEnabled/.test(heavy)) {
+    console.error('skycity-leg heavy missing default-OFF kill-switch');
+    failed++;
+  } else if (!/SKYCITY_LEG_HEAVY_ENABLED/.test(body) || !/skycityLegHeavyFromFlag/.test(body)) {
+    console.error('BalloonTransit peel missing SkycityLegHeavy gate');
+    failed++;
+  } else if (passBlob && cur && passBlob === cur) {
+    console.error('BalloonTransit peel expected DIFF vs fb74 but SAME');
+    failed++;
+  } else {
+    console.log(`PEEL OK ${f} (intentional DIFF + skycity-leg heavy default OFF)`);
   }
 }
 const warmHits = execSync(
@@ -150,4 +173,4 @@ if (failed) {
   console.error(`FAIL ${failed}`);
   process.exit(1);
 }
-console.log('PASS Strategy C: board/balloon == fb74; TSW peeled default OFF; standup warmSample isolated');
+console.log('PASS Strategy C: board == fb74; TSW+BalloonTransit peeled default OFF; standup warmSample isolated');

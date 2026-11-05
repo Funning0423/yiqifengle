@@ -158,6 +158,12 @@
       },
       "why": "new-regions r4 2026-10-30: Creator image meta (sprite-frame, same settings as reward_seal_lake.png.meta). Needs Grok Bot review per this file's rule."
     },
+    "creator-build-project/assets/scripts/region/SkycityLegHeavy.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 hotfix A/B: SkycityLegHeavy.ts gates BalloonTransit ascent paint + SkycityCloudsea post-land syncDay (meadow→skycity ascent AND walk-to-plaza with TSW OFF). Grok Bot assigned this hotfix."
+    },
     "creator-build-project/assets/bundles/board_art/r2/region_coast.png.meta": {
       "allowAdd": {
         "importer": "image"
