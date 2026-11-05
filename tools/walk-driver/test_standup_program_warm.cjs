@@ -94,6 +94,23 @@ assert.match(wfcSrc,/PERIOD_HEAVY_REFRESH_ENABLED/);
 assert.match(wfcSrc,/if\(!PERIOD_HEAVY_REFRESH_ENABLED\)return this\.orbitBoxes/);
 assert.match(wfcSrc,/PERIOD_HEAVY_REFRESH_ENABLED&&Date\.now\(\)-this\.lastDiagnosticAt>=5000/);
 
+/* SceneAudioPoll A/B (SceneMusic 0.25s / Landmark 0.5s fixed-interval suspects) */
+const sapSrc=fs.readFileSync(path.join(S,'audio/SceneAudioPoll.ts'),'utf8');
+const smSrc=fs.readFileSync(path.join(S,'audio/SceneMusic.ts'),'utf8');
+const laSrc=fs.readFileSync(path.join(S,'audio/LandmarkAudio.ts'),'utf8');
+assert.match(sapSrc,/SCENE_AUDIO_POLL_ENABLED/);
+assert.match(sapSrc,/SCENE_AUDIO_POLL_ENABLED\s*=\s*false/,'default OFF for A/B peel scene-audio poll');
+assert.doesNotMatch(sapSrc,/SCENE_AUDIO_POLL_ENABLED\s*=\s*true/);
+assert.match(sapSrc,/setSceneAudioPollEnabled/);
+assert.doesNotMatch(sapSrc,/TransitionShaderWarm|StandupProgramWarm|BalloonTransit|PeriodHeavyRefresh/);
+assert.match(smSrc,/SCENE_AUDIO_POLL_ENABLED/);
+assert.match(smSrc,/if\s*\(!SCENE_AUDIO_POLL_ENABLED\s*&&\s*this\.firstLoadAt\s*!==\s*null\)\s*return/);
+assert.match(smSrc,/POLL_S\s*=\s*0\.25/);
+assert.match(laSrc,/SCENE_AUDIO_POLL_ENABLED/);
+assert.match(laSrc,/if\s*\(!SCENE_AUDIO_POLL_ENABLED\)\s*return/);
+assert.doesNotMatch(smSrc,/TransitionShaderWarm|StandupProgramWarm|BalloonTransit/);
+assert.doesNotMatch(laSrc,/TransitionShaderWarm|StandupProgramWarm|BalloonTransit/);
+
 assert.match(warmSrc,/windowOpen/);
 assert.match(warmSrc,/openStandupWarmWindow/);
 assert.match(warmSrc,/closeStandupWarmWindow/);
@@ -341,6 +358,20 @@ const periodHeavyRefreshDefaultOff=true;
 const periodHeavyRefreshManualOnWorks=true;
 const periodHeavyRefreshGates=true;
 
+/* SceneAudioPoll runtime: default OFF + manual ON kill-switch */
+const sapMod=new (module.constructor)();
+sapMod.paths=module.paths;
+sapMod._compile(tx(sapSrc),path.join(S,'audio/SceneAudioPoll.ts'));
+const SAP=sapMod.exports;
+assert.equal(SAP.SCENE_AUDIO_POLL_ENABLED,false,'scene-audio poll default OFF');
+SAP.setSceneAudioPollEnabled(true);
+assert.equal(SAP.SCENE_AUDIO_POLL_ENABLED,true,'manual ON works');
+SAP.setSceneAudioPollEnabled(false);
+assert.equal(SAP.SCENE_AUDIO_POLL_ENABLED,false,'manual OFF restore');
+const sceneAudioPollDefaultOff=true;
+const sceneAudioPollManualOnWorks=true;
+const sceneAudioPollGates=true;
+
 
 const out={
   status:'PASS',
@@ -364,7 +395,10 @@ const out={
   periodHeavyRefreshDefaultOff:true,
   periodHeavyRefreshManualOnWorks:true,
   periodHeavyRefreshGates:true,
-  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B period-heavy refresh DEFAULT OFF (orbit AABB / sector / markers / tick)',
-  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; Morph GPU gate + warm OFF + Morph idle OFF kept; PeriodHeavyRefresh DEFAULT OFF',
+  sceneAudioPollDefaultOff:true,
+  sceneAudioPollManualOnWorks:true,
+  sceneAudioPollGates:true,
+  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B SceneAudioPoll DEFAULT OFF (SceneMusic 0.25s / Landmark poll)',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; Morph GPU gate + warm OFF + Morph idle OFF + PeriodHeavy OFF kept; SceneAudioPoll DEFAULT OFF',
 };
 console.log(JSON.stringify(out,null,1));

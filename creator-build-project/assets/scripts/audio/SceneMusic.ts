@@ -7,6 +7,7 @@ import { _decorator, Component, director, Director, isValid } from 'cc';
 import { GameAudio } from './GameAudio';
 import { BGM, SCENE_AUDIO_CROSSFADE_S, resolveSceneAudio, publishSceneBed, applyTransitCue } from './SceneAudioTable';
 import type { SceneAudioProbe, SceneTrackId } from './SceneAudioTable';
+import { SCENE_AUDIO_POLL_ENABLED } from './SceneAudioPoll';
 const { ccclass } = _decorator;
 
 export type { SceneTrackId };
@@ -55,6 +56,8 @@ export class SceneMusic extends Component {
   onDestroy() { if (SceneMusic.instance === this) SceneMusic.instance = null; this.flow = null; this.board = null; this.worldBoot = null; }
 
   update(dt: number) {
+    // A/B: when SCENE_AUDIO_POLL_ENABLED is false, keep one-shot first BGM then freeze (no 0.25 s probe).
+    if (!SCENE_AUDIO_POLL_ENABLED && this.firstLoadAt !== null) return;
     this.poll -= dt; if (this.poll > 0) return; this.poll = POLL_S;
     try { this.step(dt); } catch (e) { /* observation only */ }
   }
