@@ -41,3 +41,20 @@ B5 `perform({kind:'stand', seat:seatDef})` 复用 **B1 草原** `seatFromBench` 
 ## Push
 验收前 **不推 GitHub**。403 预期则打 bundle：
 `docs/handoff/运镜bot/cine-balloon-door-dismount-fix.bundle`
+
+## 怎么验（Clonebot / 真机）
+1. 体验版合入本 tip 后走 **草原→天空岛** 气球全段。
+2. **门**：升空巡航篮门贴墙关闭（对照 `ascent-door-open.png` 不应再复现右侧大开）；B5 出篮仅 exit 门（door B）打开。
+3. **甩海**：着陆/起身瞬间角色不得单独出现在蓝空虚空（对照 `dismount-fling-sea.png`）；人相对篮座偏移 ≤ 数 cm，随后 walk 从篮侧起步。
+4. **不停走**：到 `anchor_spawn_girl` 后停在 idle，不得继续往广场/楼梯无限走。
+5. **HUD**：过场与 B5 walk 期间底栏无「继续旅程 →」「主页」（对照 `skycity-keep-walking-hud.png`）；过场结束后再露。
+6. **横石**：下篮往 spawn/广场路径不穿横石；可目视或沿 viaRock 折线。
+7. 盒测：`node tools/transitions-continuous/test_balloon_door_dismount.cjs`；`test_chain_ggbot.cjs` meadow→skycity ≤60s。
+8. **回归**：湖畔 getout/stand 不回退；勿为掉帧回退本 tip 的 BalloonTransit 门/seat 改动（掉帧归 GGbot TSW，另 tip）。
+
+## 已知未做
+- 真机目视验收（Funning）仍 open；本 tip 未推 GitHub。
+- 飞行/着陆 **周期掉帧**（Bug C）归 GGbot / TSW，**本 tip 未改**。
+- viaRock 为本地折线规避，非完整 navmesh；若横石资产位移需再调点。
+- 未做微信上传包；未与 sea-landing / FPS tip 绑同一 PR。
+- 湖畔棋盘进盘轻俯视相机为**另一 tip**（停工前最后一项），不在本分支。
