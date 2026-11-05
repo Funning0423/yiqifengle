@@ -513,10 +513,12 @@ export class MorphDriver {
       if(!this.subMeshes.length){this.status='too-few-targets';this.reason='need '+this.need+' targets, sub-meshes have '+this.targetCounts.join(',');return this.status;}
       this.renderer=r;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
   /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made.
-   *  角色动画bot STANDUP-PERF #4：仅在 |Δw|>MORPH_EPS（或触及精确 0/1）时 setWeight；起身段无整表清零重写、不重置 last。 */
-  apply(w:{[target:string]:number}):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;let n=0;
+   *  角色动画bot STANDUP-PERF #4：仅在 |Δw|>MORPH_EPS（或触及精确 0/1）时 setWeight；起身段无整表清零重写、不重置 last。
+   *  maxCalls（可选）：起身首几帧软限流，未写完的 target 留待下帧（不清 last）。 */
+  apply(w:{[target:string]:number},maxCalls?:number):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;let n=0;const cap=maxCalls!==undefined&&maxCalls>=0?maxCalls|0:-1;
     for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;this.weights[t]=v;const prev=this.last[t];
       if(prev!==undefined&&!(Math.abs(v-prev)>MORPH_EPS)&&!((v===0||v===1)&&v!==prev))continue;
+      if(cap>=0&&n+this.subMeshes.length>cap)break; // leave whole target for next frame (no partial sub-mesh write)
       try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(v,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=v;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
     this.calls+=n;return n;}
   diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls};}
