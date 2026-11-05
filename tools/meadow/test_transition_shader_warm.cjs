@@ -2,7 +2,7 @@
 /** b20: the animateCamera spikes (70 + 31 createShader) move into a meadow-C schedule.
  *  One kick and one compile per frame, sail frame 0, hold frame 0. The camera track is not awaited or held. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
+const ts=process.env.QF_TYPESCRIPT_MODULE?require(process.env.QF_TYPESCRIPT_MODULE):require('../qf-env.cjs').typescript();
 const ROOT=path.join(__dirname,'../..');
 const SRC=path.join(ROOT,'creator-build-project/assets/scripts/region/TransitionShaderWarm.ts');
 const MEADOW=path.join(ROOT,'creator-build-project/assets/scripts/region/MeadowSailWarm.ts');
@@ -52,6 +52,16 @@ function load(){
 }
 const L=load();
 const T=L.api;
+assert.equal(T.TRANSITION_SHADER_WARM_ENABLED,false,'A/B default OFF (period stutter peel)');
+assert.equal(typeof T.setTransitionShaderWarmEnabled,'function');
+T.beginTransitionShaderWarm();
+assert.equal(L.listeners.length,0,'default OFF: begin does not attach director_after_draw');
+T.watchTransitionRoot(null);
+assert.equal(L.listeners.length,0,'default OFF: watch no-ops');
+T.noteTransitionSailFrame();T.noteTransitionHeavyFrames(3);T.armTransitionHold(4);T.holdTransitionShaders(true);T.holdTransitionShaders(false);
+/* Re-enable for behavioral warm suite (rollback path + existing coverage). */
+T.setTransitionShaderWarmEnabled(true);
+assert.equal(T.TRANSITION_SHADER_WARM_ENABLED,true);
 function node(name){return {name,children:[],components:[],parent:null};}
 function add(parent,child){child.parent=parent;parent.children.push(child);return child;}
 function renderer(mesh,materials,extra){return Object.assign({sharedMaterials:materials,mesh:mesh||{struct:{}},model:null},extra||{});}
@@ -115,6 +125,9 @@ const wnc=fs.readFileSync(path.join(ROOT,'creator-build-project/assets/scripts/w
 assert.ok(wnc.includes("target!=='meadow'")&&wnc.includes("target==='meadow'"),'meadow target still mounts');
 assert.ok(!wnc.includes("!!s.journey?.target?'gone'"));
 assert.ok(src.includes('CC_DIR_SHADOW_PCF_TYPE')&&src.includes('CC_SHADOW_TYPE'));
+assert.match(src,/TRANSITION_SHADER_WARM_ENABLED\s*=\s*false/);
+assert.doesNotMatch(src,/TRANSITION_SHADER_WARM_ENABLED\s*=\s*true/);
+assert.match(src,/setTransitionShaderWarmEnabled/);
 assert.equal(T.departureAlreadyLive({CC_DIR_SHADOW_PCF_TYPE:0,CC_SHADOW_TYPE:2}),false);
 assert.equal(T.departureAlreadyLive({CC_DIR_SHADOW_PCF_TYPE:2,CC_SHADOW_TYPE:2,CC_USE_FOG:4,CC_SUPPORT_CASCADED_SHADOW_MAP:1,CC_USE_HDR:1,CC_SHADOWMAP_FORMAT:1,CC_SHADOWMAP_USE_LINEAR_DEPTH:1}),true);
 const savedPcf=L.macros.CC_DIR_SHADOW_PCF_TYPE,savedType=L.macros.CC_SHADOW_TYPE;
@@ -278,13 +291,13 @@ assert.doesNotMatch(src,/\bnew (Map|Set)\b/);assert.doesNotMatch(src,/for\s*\(\s
 assert.doesNotMatch(meadowSrc,/\bnew (Map|Set)\b/);assert.doesNotMatch(meadowSrc,/for\s*\(\s*(const|let|var)\s+[^;]*\bof\b/);
 const es5opts={compilerOptions:{module:1,target:1,...(ts.version.startsWith('6.')?{ignoreDeprecations:'6.0'}:{})},reportDiagnostics:true};
 for(const file of [src,meadowSrc]){const es5=ts.transpileModule(file,es5opts);assert.equal((es5.diagnostics||[]).length,0,'ES5 transpile');}
-const evidence={model:'transition-shader-warm',macFrames:{animateCamera1803:{ms:772,shaders:70,tip:'8e93c02b'}},
+const evidence={model:'transition-shader-warm',defaultOff:true,killSwitch:'setTransitionShaderWarmEnabled',macFrames:{animateCamera1803:{ms:772,shaders:70,tip:'8e93c02b'}},
  budgetMs:4,criticalPerFrame:T.CRITICAL_PER_FRAME,variants:jobs.length,morphCounts:[53,16,3,73],
  departureMacros:['CC_DIR_SHADOW_PCF_TYPE=2','CC_SHADOW_TYPE=2'],setcamMacros:['CC_DIR_SHADOW_PCF_TYPE=2','no CC_SHADOW_TYPE'],
  extraFamilies:['CC_FORWARD_ADD+CC_IS_TRANSPARENCY_PASS','CC_PIPELINE_TYPE','reflect-map-fs'],
  maxKicksPerFrame:run.maxK,maxCompilesPerFrame:run.maxC,runtimeCompilesPerFrame:maxCompile,maxFrameMs:run.st.stats().maxFrameMs,
  sailSkips:1,heldFrameCompiles:0,cameraDelayed:false,meadowTargetMounts:true,
- note:'Strategy C CONTROL_FAIL_NOISE: stop chasing setCamera/board≈0. TransitionShaderWarm unchanged (no burst/DIR_LIGHT). standup warmSample isolated to perform(stand)+lakeside; bindVisual forbidden. Acceptance=standup feel.'};
+ note:'2026-11-05 period stutter A/B: TRANSITION_SHADER_WARM_ENABLED default false (director_after_draw peel). Behavioral suite re-enables via setTransitionShaderWarmEnabled(true). No burst/DIR_LIGHT. Acceptance=whole-UI period stutter + standup feel; NOT setCamera/board=0.'};
 fs.mkdirSync(evDir,{recursive:true});
 fs.writeFileSync(path.join(evDir,'transition-shader-warm.json'),JSON.stringify(evidence,null,2)+'\n');
 console.log('PASS transition-shader-warm variants='+jobs.length+' maxFrameMs='+evidence.maxFrameMs+' compiles='+run.c);

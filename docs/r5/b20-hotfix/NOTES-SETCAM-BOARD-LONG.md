@@ -122,3 +122,68 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 - 锁测：`tools/meadow/test_integrate_vs_fb74_scripts_identity.cjs`（gate 文件 == fb74 + 无 warmSampleStandUp）。
 - **不**回退 K.s1 / BalloonTransit middle / black-fence；**不**重引入 standup burst/warmSample。
 - integrate 合入后相对 `6f785228` 预期 scripts 仍 == fb74（noop 或文档对齐）；Mac 必须 `KEEP_CACHE=0` CONTROL 复测 `fb74d437` 同日对照。
+
+
+
+## Strategy C′：CONTROL_FAIL_NOISE → standup-only 隔离（停门禁追逐）
+
+同日 `KEEP_CACHE=0`：
+| tip | setCamera | board-bg | scripts vs fb74 |
+|-----|-----------|----------|-----------------|
+| CONTROL `fb74d437` | **156 FAIL** | **127 FAIL** | —（历史 PASS 0/0） |
+| integrate `905bd9f1` ← cec2a99e | **181 FAIL** | **115 FAIL** | **ZERO_DIFF** |
+
+判定：**门禁噪声 / 非 git**。证据：`mac-selftest-fb74d437-control-landing/STRATEGY_C_VERDICT.md`。
+
+### 本 tip 动作
+1. **停** transition 门禁追逐；接受当日噪声带；**勿再回退** sea-landing / BalloonTransit / K.s1 / black-fence。
+2. **standup-only 隔离**：`warmSampleStandUp` 短窗 N=4，仅 `perform(stand)` + lakeside `playNamed('stand_up')`；**禁止 bindVisual**；**禁止** `armStandupShaderBurst` / DIR_LIGHT / 改 TransitionShaderWarm。
+3. MorphDriver EPS 注释恢复（STANDUP-PERF #4）。
+4. 可叠 `299afe73` anim morph 减负（本 tip 不 cherry-pick anim_meta）。
+5. **验收**：起身体感指标 + Funning 手机；**不再**以 setCamera/board=0 一票否决。
+6. upload=NO；live 仍 `1.0.202611031613` @ fb74d437。
+
+锁测：`test_standup_warm_sample.cjs`（隔离断言 + 短窗 runtime）、`test_transition_shader_warm.cjs`（无 burst；warmSample 仅角色路径）、`test_integrate_vs_fb74_scripts_identity.cjs`（transition/board/balloon == fb74）。
+
+## 2026-11-05 standup COUNT53 program warm (zero TSW)
+Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insufficient. Tip adds StandupProgramWarm (independent getProgramVariant COUNT53), morph soft budget. Acceptance=phone standup feel. setCamera/board still CONTROL_FAIL_NOISE — not a veto.
+
+## 2026-11-05 standup program warm follow-up · COUNT16/15/3
+体验包 `1.0.202611050458` @ `6bd40657` 已叠 APRON16/DRESS15/BODY15/BOW3 GLB+meta，但 Warm 仍按 COUNT53。本 tip 只改 StandupProgramWarm 预热袋 → `CC_MORPH_TARGET_COUNT{16|15|3}`；零侵入 TSW/Board/BalloonTransit/K.s1；不接 armStandupShaderBurst。upload=等 Funning 摸完本包。
+
+## MorphDriver 整机 FPS（本轮 · 主攻）
+
+- 角色动画bot 自查：`walk-morph-drive` — idle/walk∩seat=∅ PASS；根因转 runtime 全表+GPU COUNT。
+- tip：稀疏 morphWeights + MorphDriver enableMorph 闸 + StandupProgramWarm sit_hold 窗。
+- 成对：GLB e3fbce98… + meta 6fd22962；upload=等 PM；零 TSW。
+
+## MorphDriver 真 GPU 闸（本轮 · 050530 FAIL 跟进）
+
+- 根因：Cocos 3.8.8 `enableMorph` setter **不** `_watchMorphInMesh`；`4c668c91` flag-only → MorphRenderingInstance + COUNT macro 仍活。
+- tip：`applyRendererMorphGate`（watch / mesh-reassign STRIP + `setMorphRendering(null)`）+ `morph-gpu-gate` 日志 + StandupProgramWarm kill switch（A/B 剥 warm 保 COUNT16）。
+- 成对 e3fbce98 + 6fd22962 **未拆**；零 TSW；upload=等 PM。
+- 验收：整机 FPS + 起身；gate 用日志 `morph-gpu-gate` / diagnostics.gatePath 验证。
+
+## StandupProgramWarm 默认 OFF（本轮 · 050605 A/B）
+
+- Funning `1.0.202611050605` @ 04998c82：整机仍掉帧（**固定间隔周期 stutter**）；起身仍顺。Morph 真 GPU 闸已上。
+- tip：`STANDUP_PROGRAM_WARM_ENABLED` **默认 false**；`setStandupProgramWarmEnabled(true)` 可回滚。COUNT16+meta + GPU 闸保留；零 TSW。
+- 读法：起身变卡 → warm 有贡献；整机仍掉 → warm 非主因 → 剥 COUNT16/FAT 或盯 timer/GC/定期 sync/日志 flush。
+- upload=等 PM。
+
+## Morph idle-drive 默认 OFF（本轮 · 050621 A/B）
+
+- Funning `1.0.202611050621` @ c672511：warm OFF 后 **周期整机 stutter 仍在**、起身仍顺 → warm 非主因。
+- tip：`MORPH_IDLE_DRIVE_ENABLED` **默认 false**；idle/UI `hardUnload`（含 BODY）；sit/stand 仍驱动；`setMorphIdleDriveEnabled(true)` 可回滚。COUNT16+meta + GPU 闸 + warm OFF 保留；零 TSW。
+- 读法：周期 stutter 消失 → Morph 有贡献；仍在 → Morph 非主因 → timer/GC/sync 或剥 FAT（标明拆对）。
+- upload=等 PM。
+
+
+
+## 2026-11-05 · TransitionShaderWarm 默认 OFF（周期整机 stutter A/B · 本刀）
+
+PM 深挖：五轮零侵入 TSW 均无改善；流畅基线 `0421cfff` **无** TSW；live tip 仍 `director_after_draw` 常驻；COUNT16 在线但 `CRITICAL_CACHE_NEEDLES` 仍等 COUNT53/73 → `needlesMissing` 永久>0 → `criticalPending` 永不归零 → 每帧 compile + 每10帧 absorb。对得上「整机周期卡、起身仍顺」。
+
+本 tip：`TRANSITION_SHADER_WARM_ENABLED=false`；`setTransitionShaderWarmEnabled` 回滚；hold/note/arm 空转保 BalloonTransit/Board。**故意动 TSW（不再零侵入）**。COUNT16↔FAT 降为失败后 #2（回 FAT 更可能伤起身而非消周期）。
+
+验收：周期 stutter 消 → TSW 命中；仍在 → 再 COUNT16↔FAT。不追 setCamera/board=0。upload=等 PM。

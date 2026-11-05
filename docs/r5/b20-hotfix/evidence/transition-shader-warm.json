@@ -1,5 +1,7 @@
 {
   "model": "transition-shader-warm",
+  "defaultOff": true,
+  "killSwitch": "setTransitionShaderWarmEnabled",
   "macFrames": {
     "animateCamera1803": {
       "ms": 772,
@@ -37,5 +39,5 @@
   "heldFrameCompiles": 0,
   "cameraDelayed": false,
   "meadowTargetMounts": true,
-  "note": "Strategy C CONTROL_FAIL_NOISE: stop chasing setCamera/board≈0. TransitionShaderWarm unchanged (no burst/DIR_LIGHT). standup warmSample isolated to perform(stand)+lakeside; bindVisual forbidden. Acceptance=standup feel."
+  "note": "2026-11-05 period stutter A/B: TRANSITION_SHADER_WARM_ENABLED default false (director_after_draw peel). Behavioral suite re-enables via setTransitionShaderWarmEnabled(true). No burst/DIR_LIGHT. Acceptance=whole-UI period stutter + standup feel; NOT setCamera/board=0."
 }

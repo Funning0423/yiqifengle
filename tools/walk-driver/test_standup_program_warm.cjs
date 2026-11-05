@@ -111,6 +111,16 @@ assert.match(laSrc,/if\s*\(!SCENE_AUDIO_POLL_ENABLED\)\s*return/);
 assert.doesNotMatch(smSrc,/TransitionShaderWarm|StandupProgramWarm|BalloonTransit/);
 assert.doesNotMatch(laSrc,/TransitionShaderWarm|StandupProgramWarm|BalloonTransit/);
 
+/* TransitionShaderWarm A/B (period stutter #1: director_after_draw + orphan COUNT53/73 needles) */
+assert.match(tswSrc,/TRANSITION_SHADER_WARM_ENABLED/);
+assert.match(tswSrc,/TRANSITION_SHADER_WARM_ENABLED\s*=\s*false/,'default OFF for A/B peel TSW after_draw tax');
+assert.doesNotMatch(tswSrc,/TRANSITION_SHADER_WARM_ENABLED\s*=\s*true/);
+assert.match(tswSrc,/setTransitionShaderWarmEnabled/);
+assert.match(tswSrc,/if\(!TRANSITION_SHADER_WARM_ENABLED\)return/);
+assert.match(tswSrc,/beginTransitionShaderWarm/);
+assert.match(tswSrc,/watchTransitionRoot/);
+assert.match(balloonSrc,/armTransitionHold|noteTransitionHeavyFrames|holdTransitionShaders/,'BalloonTransit still imports hold/note (empty when OFF)');
+
 assert.match(warmSrc,/windowOpen/);
 assert.match(warmSrc,/openStandupWarmWindow/);
 assert.match(warmSrc,/closeStandupWarmWindow/);
@@ -372,6 +382,37 @@ const sceneAudioPollDefaultOff=true;
 const sceneAudioPollManualOnWorks=true;
 const sceneAudioPollGates=true;
 
+/* TransitionShaderWarm runtime: default OFF + manual ON kill-switch; begin no-ops when OFF */
+const fakeCcTsw={director:{on(){},off(){},getScene:()=>null,root:{device:{id:'mock'},pipeline:{macros:{}}}},Node:function(){},isValid:()=>false};
+const tswExports={};
+vm.runInNewContext(tx(tswSrc),{
+  exports:tswExports,console,Math,Object,Array,String,Number,Boolean,Error,
+  require:(id)=>{
+    if(id==='cc')return fakeCcTsw;
+    if(id==='./MeadowSailWarm')return {isMeadowSailPassMaterial:()=>false};
+    throw new Error('unexpected '+id);
+  },
+});
+const TSW=tswExports;
+assert.equal(TSW.TRANSITION_SHADER_WARM_ENABLED,false,'TSW default OFF');
+assert.equal(typeof TSW.setTransitionShaderWarmEnabled,'function');
+let onCalls=0;fakeCcTsw.director.on=()=>{onCalls++;};
+TSW.beginTransitionShaderWarm();
+assert.equal(onCalls,0,'begin no-ops when OFF (no director_after_draw)');
+TSW.watchTransitionRoot(null);
+assert.equal(onCalls,0,'watch no-ops when OFF');
+TSW.noteTransitionHeavyFrames(8);TSW.armTransitionHold(4);TSW.holdTransitionShaders(true);TSW.holdTransitionShaders(false);
+TSW.setTransitionShaderWarmEnabled(true);
+assert.equal(TSW.TRANSITION_SHADER_WARM_ENABLED,true,'manual ON works');
+TSW.beginTransitionShaderWarm();
+assert.equal(onCalls,1,'begin attaches after_draw when ON');
+TSW.setTransitionShaderWarmEnabled(false);
+assert.equal(TSW.TRANSITION_SHADER_WARM_ENABLED,false,'manual OFF restore');
+assert.equal(onCalls,1,'OFF tear-down does not re-attach');
+const transitionShaderWarmDefaultOff=true;
+const transitionShaderWarmManualOnWorks=true;
+const transitionShaderWarmGates=true;
+
 
 const out={
   status:'PASS',
@@ -398,7 +439,10 @@ const out={
   sceneAudioPollDefaultOff:true,
   sceneAudioPollManualOnWorks:true,
   sceneAudioPollGates:true,
-  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B SceneAudioPoll DEFAULT OFF (SceneMusic 0.25s / Landmark poll)',
-  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; Morph GPU gate + warm OFF + Morph idle OFF + PeriodHeavy OFF kept; SceneAudioPoll DEFAULT OFF',
+  transitionShaderWarmDefaultOff:true,
+  transitionShaderWarmManualOnWorks:true,
+  transitionShaderWarmGates:true,
+  acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto; A/B TransitionShaderWarm DEFAULT OFF (director_after_draw + orphan COUNT53/73)',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962 KEPT; Morph GPU gate + warm/idle/period/sceneAudio OFF kept; TSW DEFAULT OFF (intentional peel, not zero-intrusion)',
 };
 console.log(JSON.stringify(out,null,1));
