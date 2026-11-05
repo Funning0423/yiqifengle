@@ -147,7 +147,10 @@ class FlowReferenceStandin implements CharacterAdapter {
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
   const budget=this.standupMorphBudgetLeft>0?STANDUP_MORPH_BUDGET_FIRST:undefined;
-  for(let i=0;i<ms.length;i++){const m=ms[i];if(m.status!=='ok')continue;try{m.apply(this.morphW,budget);}catch(e){m.status='error';m.reason=String(e);}}
+  for(let i=0;i<ms.length;i++){const m=ms[i];if(m.status!=='ok')continue;const flipsBefore=m.gateFlips|0;
+   try{m.apply(this.morphW,budget);}catch(e){m.status='error';m.reason=String(e);continue;}
+   if((m.gateFlips|0)>flipsBefore){ // QF_MORPH_GPU_GATE: Funning / autoplay can grep this for STRIP proof
+    try{this.logEvent({kind:'morph-gpu-gate',mesh:m.mesh,gpuGateOn:m.gpuGateOn,gatePath:m.gatePath,gateFlips:m.gateFlips,morphInstance:m.gateHasInstance,enableMorph:m.renderer?m.renderer.enableMorph:undefined,clip:c.base?.clip||null});}catch{/* log optional */}}}
   if(this.standupMorphBudgetLeft>0)this.standupMorphBudgetLeft--;}
  /** 角色动画bot STANDUP-PERF #2 · Strategy C 隔离 tip：仅在真正 sit→stand 触发前 warm-sample stand_up（短窗），
   *  把将非零的 morph target 先 setWeight，避免首帧 20+ 路齐写。不重建 AnimRig、不 repairStates。

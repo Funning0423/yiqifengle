@@ -59,6 +59,11 @@ assert.match(cmSrc,/MORPH_EPS/);
 assert.match(cmSrc,/morphActiveTargets/);
 assert.match(cmSrc,/syncGpuGate/);
 assert.match(cmSrc,/enableMorph/);
+assert.match(cmSrc,/applyRendererMorphGate/);
+assert.match(cmSrc,/_watchMorphInMesh/);
+assert.match(cmSrc,/setMorphRendering/);
+assert.match(cmSrc,/mesh-reassign/);
+assert.match(warmSrc,/STANDUP_PROGRAM_WARM_ENABLED/);
 assert.match(warmSrc,/windowOpen/);
 assert.match(warmSrc,/openStandupWarmWindow/);
 assert.match(warmSrc,/closeStandupWarmWindow/);
@@ -161,12 +166,17 @@ assert.ok(fl.warmed<=2);
 assert.ok(fakeLib.calls.length-before<=2);
 assert.equal(fl.windowOpen,true);
 
-/* MorphDriver maxCalls + GPU gate */
+/* MorphDriver maxCalls + GPU gate (real tear-down, not flag-only) */
 const motion={};
 vm.runInNewContext(tx(fs.readFileSync(path.join(S,'CharacterMotion.ts'),'utf8')),{exports:motion,Math,Float64Array,RegExp,Object,Array,String,Number,isFinite,Error});
 const targets={a:0,b:1,c:2,d:3,e:4,f:5};
 const calls=[];
+const watchLog=[];
+const morphSetLog=[];
+const model={_morph:Object,setMorphRendering(inst){morphSetLog.push(inst);this._morph=inst;},onMacroPatchesChanged(){morphSetLog.push('patches');}};
 const renderer={node:{name:'apron'},mesh:{name:'apron',struct:{morph:{subMeshMorphs:[{targets:new Array(8).fill(0)}],targetNames:[]}}},enableMorph:true,
+  _morphInstance:{id:'live'},model,
+  _watchMorphInMesh(){watchLog.push(this.enableMorph);if(this.enableMorph===false){this._morphInstance=null;}else{this._morphInstance={id:'live'};if(this.model)this.model.setMorphRendering(this._morphInstance);}},
   setWeight(w,sub,shape){calls.push([w,sub,shape]);}};
 const md=new motion.MorphDriver('apron',targets);
 assert.equal(md.bind([renderer]),'ok');
@@ -176,12 +186,50 @@ assert.equal(calls.length,2);
 assert.equal(renderer.enableMorph,true,'live weights keep enableMorph');
 const n2=md.apply({a:1,b:1,c:1,d:1,e:1,f:1},4);
 assert.ok(n2>=1&&calls.length<=6);
-// drain remaining then zero → GPU unload
+// drain remaining then zero → GPU unload (watch + clear MorphModel)
 md.apply({a:1,b:1,c:1,d:1,e:1,f:1});
+const flipsBefore=md.gateFlips;
 md.apply({a:0,b:0,c:0,d:0,e:0,f:0});
 assert.equal(renderer.enableMorph,false,'all-zero tips unload enableMorph (idle/walk DRESS/BOW)');
+assert.ok(md.gateFlips>flipsBefore,'gateFlips increments');
+assert.ok(watchLog.indexOf(false)>=0,'_watchMorphInMesh ran on unload');
+assert.equal(renderer._morphInstance,null,'morph instance destroyed');
+assert.ok(morphSetLog.indexOf(null)>=0,'setMorphRendering(null) on unload');
+assert.equal(md.diagnostics().gpuGateOn,false);
+assert.equal(md.diagnostics().gatePath,'watch');
+// steady zero early-return does not re-watch
+const watchN=watchLog.length;md.apply({a:0,b:0,c:0,d:0,e:0,f:0});
+assert.equal(watchLog.length,watchN,'steady zero skips tip walk / re-watch');
 md.apply({a:0.5,b:0,c:0,d:0,e:0,f:0});
 assert.equal(renderer.enableMorph,true,'non-zero re-enables before setWeight (standup window)');
+assert.ok(renderer._morphInstance,'morph instance recreated');
+assert.equal(md.diagnostics().gpuGateOn,true);
+// STRIP fallback path when _watchMorphInMesh missing
+const meshAssign=[];
+const r2={node:{name:'dress'},mesh:{name:'dress',struct:{morph:{subMeshMorphs:[{targets:new Array(4).fill(0)}],targetNames:[]}}},enableMorph:true,_morphInstance:{id:'x'},
+  model:{setMorphRendering(inst){this.last=inst;},onMacroPatchesChanged(){}},
+  set mesh(v){this._mesh=v;meshAssign.push(this.enableMorph);if(this.enableMorph===false)this._morphInstance=null;else this._morphInstance={id:'x'};},
+  get mesh(){return this._mesh||{name:'dress',struct:{morph:{subMeshMorphs:[{targets:new Array(4).fill(0)}]}}};},
+  setWeight(){}};
+r2._mesh=r2.mesh;
+const md2=new motion.MorphDriver('dress',{a:0,b:1});
+assert.equal(md2.bind([r2]),'ok');
+md2.apply({a:1,b:0});md2.apply({a:0,b:0});
+assert.equal(r2.enableMorph,false);
+assert.ok(meshAssign.indexOf(false)>=0,'STRIP fallback mesh-reassign on unload');
+assert.equal(md2.diagnostics().gatePath,'mesh-reassign');
+// kill switch
+assert.equal(typeof W.setStandupProgramWarmEnabled,'function');
+W.resetStandupProgramWarm();
+W.setStandupProgramWarmEnabled(false);
+const disabled=W.openStandupWarmWindow(null);
+assert.equal(disabled.windowOpen,false);
+assert.equal(disabled.armed,false);
+const killCalls=fakeLib.calls.length;
+W.stepStandupProgramWarm(4);
+assert.equal(fakeLib.calls.length,killCalls,'kill switch: step compiles nothing');
+assert.equal(W.flushStandupProgramWarmBeforeStand(2).armed,false);
+W.setStandupProgramWarmEnabled(true);
 
 /* sparse morphWeights: walk only evaluates active curves, not full tip table */
 const cfg=motion.defaultMotionConfig();
@@ -216,8 +264,8 @@ const out={
   windowGate:{armNoStep:true,closeDisarm:true},
   morphBudget:{first:n1,second:n2,totalCalls:calls.length},
   morphSparse:{walkActive:Object.keys(active),sitSeat:true},
-  gpuGate:{unloadOnZero:true,reloadOnLive:true},
+  gpuGate:{unloadOnZero:true,reloadOnLive:true,watchTearDown:true,stripFallback:true,killSwitch:true},
   acceptance:'whole-UI FPS + standup feel — NOT setCamera/board=0 veto',
-  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; sparse morphWeights + enableMorph gate; StandupProgramWarm sit_hold window',
+  stackNote:'pairs COUNT GLB e3fbce98 + meta 6fd22962; REAL enableMorph tear-down (_watchMorphInMesh/setMorphRendering); StandupProgramWarm kill switch A/B',
 };
 console.log(JSON.stringify(out,null,1));

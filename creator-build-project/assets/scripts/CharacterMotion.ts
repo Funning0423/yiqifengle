@@ -498,55 +498,94 @@ export function morphWeights(cfg:MotionConfig,plan:Plan,windDrive:number,out?:{[
     res[t]=w>0?(w<1?w:1):0;}
   return res;}
 /** Structural subset of Cocos MeshRenderer / SkinnedMeshRenderer (3.8.8: setWeight(weight, subMeshIndex, shapeIndex)). */
-export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:boolean;setWeight(weight:number,subMeshIndex:number,shapeIndex:number):void};
+export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:boolean;setWeight(weight:number,subMeshIndex:number,shapeIndex:number):void;
+  model?:any;_model?:any;_morphInstance?:any;_watchMorphInMesh?:()=>void;_onMaterialModified?:(i:number,m:any)=>void;getRenderMaterial?:(i:number)=>any;_materials?:any[]};
 export type MorphStatus='unbound'|'ok'|'not-found'|'morph-disabled'|'no-morph'|'too-few-targets'|'error';
 const meshName=(r:any):string=>{let n='';try{n=String(r&&r.mesh&&r.mesh.name||'');}catch{n='';}return n.replace(/\.mesh$/,'');};
+/** Cocos 3.8.8 MeshRenderer.enableMorph setter ONLY flips `_enableMorph` — it does NOT call `_watchMorphInMesh`,
+ *  so toggling the flag alone leaves MorphRenderingInstance + MorphModel CC_USE_MORPH patches alive (GPU still pays COUNT).
+ *  Tear-down / rebuild must re-run watch (or public `mesh=mesh` fallback for WeChat STRIP mangled privates) and clear
+ *  `model.setMorphRendering(null)` on unload (engine watch early-returns without clearing the model ref). */
+function applyRendererMorphGate(r:any,needOn:boolean):{flipped:boolean;path:string;hasInstance:boolean|null}{
+  const want=!!needOn;const cur=r.enableMorph!==false;if(want===cur){
+    let has:boolean|null=null;try{has=r._morphInstance!=null;}catch{has=null;}
+    return {flipped:false,path:'noop',hasInstance:has};}
+  r.enableMorph=want;let path='flag-only';
+  try{
+    if(typeof r._watchMorphInMesh==='function'){r._watchMorphInMesh();path='watch';}
+    else{const m=r.mesh;if(m){r.mesh=m;path='mesh-reassign';}} // public setter → watch (STRIP-safe)
+  }catch{path='flag-only';}
+  try{
+    const model=r.model||r._model;
+    if(model&&typeof model.setMorphRendering==='function'){
+      if(!want)model.setMorphRendering(null);
+      // when want=true, watch already setMorphRendering(instance) if model is MorphModel
+    }
+    if(model&&typeof model.onMacroPatchesChanged==='function')model.onMacroPatchesChanged();
+    else if(typeof r._onMaterialModified==='function'){
+      const mats=r._materials||[];for(let i=0;i<mats.length;i++){
+        const mat=typeof r.getRenderMaterial==='function'?r.getRenderMaterial(i):mats[i];
+        try{r._onMaterialModified(i,mat);}catch{/* best-effort */}
+      }
+    }else if(model&&typeof model.onGlobalPipelineStateChanged==='function')model.onGlobalPipelineStateChanged();
+  }catch{/* best-effort clear/PSO */}
+  let has:boolean|null=null;try{has=r._morphInstance!=null;}catch{has=null;}
+  return {flipped:true,path,hasInstance:has};
+}
 /** Binds one renderer by node name (first) or mesh name and writes target weights only when they change (> MORPH_EPS, or
  *  reaching exactly 0 / 1). Any problem = status + no-op; never throws into the frame. */
 export class MorphDriver {
   status:MorphStatus='unbound';reason='';renderer:MorphRendererLike|null=null;node='';meshName='';subMeshes:number[]=[];targetCounts:number[]=[];targetNames:string[]|null=null;
   readonly need:number;readonly last:{[target:string]:number}={};readonly weights:{[target:string]:number}={};calls=0;
+  /** Last applied GPU gate (true=morph instance wanted on). */
+  gpuGateOn=true;gateFlips=0;gatePath='';gateHasInstance:boolean|null=null;private tipsEstablished=false;
   constructor(public mesh:string,public targets:{[name:string]:number}){let need=0;for(const t in targets)if(Object.prototype.hasOwnProperty.call(targets,t)&&targets[t]+1>need)need=targets[t]+1;this.need=need;}
   bind(renderers:ReadonlyArray<any>|null|undefined):MorphStatus {this.renderer=null;this.subMeshes=[];this.targetCounts=[];this.targetNames=null;this.reason='';
+    this.gpuGateOn=true;this.gateFlips=0;this.gatePath='';this.gateHasInstance=null;this.tipsEstablished=false;
     try{let r:any=null;const list=renderers||[];
       for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&x.node&&x.node.name===this.mesh)r=x;}
       for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&meshName(x)===this.mesh)r=x;}
       if(!r){this.status='not-found';this.reason='no MeshRenderer on a node / mesh named '+this.mesh;return this.status;}
       this.node=String(r.node&&r.node.name||'');this.meshName=meshName(r);
       if(typeof r.setWeight!=='function'){this.status='error';this.reason='renderer has no setWeight';return this.status;}
-      if(r.enableMorph===false){this.status='morph-disabled';this.reason='MeshRenderer.enableMorph=false';return this.status;}
       const morph=r.mesh&&r.mesh.struct&&r.mesh.struct.morph;const subs=morph&&morph.subMeshMorphs;
+      // enableMorph=false + no morph data → artist-off. enableMorph=false + morph data → our FPS gate (or remount while gated); still bind ok.
+      if(r.enableMorph===false&&!(subs&&subs.length)){this.status='morph-disabled';this.reason='MeshRenderer.enableMorph=false';return this.status;}
       if(!subs||!subs.length){this.status='no-morph';this.reason='mesh has no morph targets';return this.status;}
       if(Array.isArray(morph.targetNames))this.targetNames=morph.targetNames.map(String);
       for(let i=0;i<subs.length;i++){const n=subs[i]&&subs[i].targets?subs[i].targets.length:0;this.targetCounts.push(n);if(n>=this.need&&n>0)this.subMeshes.push(i);}
       if(!this.subMeshes.length){this.status='too-few-targets';this.reason='need '+this.need+' targets, sub-meshes have '+this.targetCounts.join(',');return this.status;}
-      this.renderer=r;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
-  /** GPU morph gate: when all tip weights are ~0, unload MeshRenderer.enableMorph so COUNT16/15/3
-   *  shaders stop evaluating zero targets during idle/UI/walk. Re-enable before the next non-zero write.
-   *  Does not change status (bind-time enableMorph=false still → morph-disabled). */
-  private syncGpuGate(needOn:boolean):void {const r=this.renderer;if(!r||this.status!=='ok')return;
-    try{if(needOn){if(r.enableMorph===false)r.enableMorph=true;}else if(r.enableMorph!==false)r.enableMorph=false;}catch{/* best-effort */}}
+      this.renderer=r;this.gpuGateOn=r.enableMorph!==false;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
+  /** GPU morph gate: all tip weights ~0 → destroy MorphRenderingInstance + clear MorphModel patches (idle/UI/walk
+   *  drop COUNT on DRESS/BOW; BODY stays on while correctives live). Re-create before next non-zero write. */
+  private syncGpuGate(needOn:boolean):void {const r=this.renderer as any;if(!r||this.status!=='ok')return;
+    try{const res=applyRendererMorphGate(r,needOn);this.gatePath=res.path;this.gateHasInstance=res.hasInstance;
+      if(res.flipped){this.gpuGateOn=!!needOn;this.gateFlips++;}}catch{/* best-effort */}}
   /** True when any bound tip still has last weight > MORPH_EPS (seat→walk may still be decaying). */
   private anyLiveLast():boolean {for(const t in this.last){if(!Object.prototype.hasOwnProperty.call(this.last,t))continue;const v=this.last[t];if(v!==undefined&&v>MORPH_EPS)return true;}return false;}
   /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made.
    *  角色动画bot STANDUP-PERF #4：仅在 |Δw|>MORPH_EPS（或触及精确 0/1）时 setWeight；起身段无整表清零重写、不重置 last。
    *  maxCalls（可选）：起身首几帧软限流，未写完的 target 留待下帧（不清 last）。
-   *  FPS：all-zero mesh → early return + enableMorph=false（DRESS/BOW idle/walk 卸 COUNT）；起身窗非零 → 再打开。 */
+   *  FPS：all-zero mesh → tear down morph instance（真卸 GPU COUNT）；起身窗非零 → 再打开。 */
   apply(w:{[target:string]:number},maxCalls?:number):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;
     let incomingLive=false;
     for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;if(v>MORPH_EPS){incomingLive=true;break;}}
+    const decaying=this.anyLiveLast();
+    // Steady all-zero after first establish: keep GPU unloaded, skip tip walk.
+    if(!incomingLive&&!decaying&&this.tipsEstablished){this.syncGpuGate(false);return 0;}
     // Re-enable before any non-zero / decaying write. First all-zero establish still runs (last undefined → setWeight 0).
-    if(incomingLive||this.anyLiveLast())this.syncGpuGate(true);
+    if(incomingLive||decaying)this.syncGpuGate(true);
     let n=0;const cap=maxCalls!==undefined&&maxCalls>=0?maxCalls|0:-1;
     for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;this.weights[t]=v;const prev=this.last[t];
       if(prev!==undefined&&!(Math.abs(v-prev)>MORPH_EPS)&&!((v===0||v===1)&&v!==prev))continue;
       if(cap>=0&&n+this.subMeshes.length>cap)break; // leave whole target for next frame (no partial sub-mesh write)
       try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(v,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=v;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
-    this.calls+=n;
+    this.calls+=n;this.tipsEstablished=true;
     // After writes: every tip ~0 → unload GPU morph (DRESS/BOW idle/walk drop COUNT15/3).
     if(!this.anyLiveLast())this.syncGpuGate(false);
     return n;}
-  diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls,enableMorph:this.renderer?this.renderer.enableMorph:undefined};}
+  diagnostics(){const r=this.renderer as any;let hasInst:boolean|null=this.gateHasInstance;try{if(r)hasInst=r._morphInstance!=null;}catch{/* keep */}
+    return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls,enableMorph:this.renderer?this.renderer.enableMorph:undefined,gpuGateOn:this.gpuGateOn,gateFlips:this.gateFlips,gatePath:this.gatePath,morphInstance:hasInst};}
 }
 
 /** Post-blend, world-space rigid sole contacts. Controller travel/yaw is already written before this solve.
