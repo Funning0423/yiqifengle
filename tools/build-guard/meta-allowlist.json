@@ -49,10 +49,36 @@
       },
       "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
     },
-    "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "运镜bot b20 meadow-board-lens: new script MeadowStageLens.ts (per-stage meadow board lens); pending Grok Bot review"},
-    "creator-build-project/assets/scripts/region/MeadowSailWarm.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "b20 hotfix warm-up C: new script MeadowSailWarm.ts (sail env_meadow shader warm-up, one variant per frame). Grok Bot assigned this hotfix."},
-    "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "b20 hotfix: TransitionShaderWarm.ts spreads the animateCamera morph/skin/shadow variants one per frame. Grok Bot assigned this hotfix."},
-    "creator-build-project/assets/scripts/region/StandupProgramWarm.ts.meta": {"allowAdd": {"importer": "typescript"}, "why": "b20 standup-only: StandupProgramWarm.ts COUNT53 skin+morph getProgramVariant warm (tip 6dce6a7b / integrate 246c50db). Grok Bot assigned this hotfix."},
+    "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "运镜bot b20 meadow-board-lens: new script MeadowStageLens.ts (per-stage meadow board lens); pending Grok Bot review"
+    },
+    "creator-build-project/assets/scripts/region/MeadowSailWarm.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 hotfix warm-up C: new script MeadowSailWarm.ts (sail env_meadow shader warm-up, one variant per frame). Grok Bot assigned this hotfix."
+    },
+    "creator-build-project/assets/scripts/region/TransitionShaderWarm.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 hotfix: TransitionShaderWarm.ts spreads the animateCamera morph/skin/shadow variants one per frame. Grok Bot assigned this hotfix."
+    },
+    "creator-build-project/assets/scripts/region/StandupProgramWarm.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 standup-only: StandupProgramWarm.ts COUNT53 skin+morph getProgramVariant warm (tip 6dce6a7b / integrate 246c50db). Grok Bot assigned this hotfix."
+    },
+    "creator-build-project/assets/scripts/region/PeriodHeavyRefresh.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "b20 hotfix A/B: PeriodHeavyRefresh.ts gates orbit AABB / sector / markers / tick (feature 403462f1 → integrate 83c069cd). Grok Bot assigned this hotfix."
+    },
     "creator-build-project/assets/scripts/region/SkyFinaleRail.ts.meta": {
       "allowAdd": {
         "importer": "typescript"
