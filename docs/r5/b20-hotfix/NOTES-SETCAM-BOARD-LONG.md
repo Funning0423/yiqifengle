@@ -1,5 +1,7 @@
 # setCamera / board-bg 长帧续修笔记（Mac 230df8f6 → 同过两门）
 
+> **【重点标记】ROOT HIT · 2026-11-05** 手机周期整机掉帧已确认命中 `TransitionShaderWarm`。体验版 `1.0.202611050759` @ integrate `dc248d14`（feature `8f520d00`，叠在 `324e50b1` 上），Funning ~08:32 America/New_York：「不卡了」。默认保持 `TRANSITION_SHADER_WARM_ENABLED=false`。未经 Funning 不要 `setTransitionShaderWarmEnabled(true)` 或把默认改回 ON。COUNT16↔FAT 仅当 stutter 再现才做对照。全文：`docs/fps/PERIOD-STUTTER-TSW-ROOT-HIT-20261105.md`。
+
 ## 三态对照
 | tip | setCamera | board-bg | 关键差异 |
 |-----|-----------|----------|---------|
@@ -187,3 +189,7 @@ PM 深挖：五轮零侵入 TSW 均无改善；流畅基线 `0421cfff` **无** T
 本 tip：`TRANSITION_SHADER_WARM_ENABLED=false`；`setTransitionShaderWarmEnabled` 回滚；hold/note/arm 空转保 BalloonTransit/Board。**故意动 TSW（不再零侵入）**。COUNT16↔FAT 降为失败后 #2（回 FAT 更可能伤起身而非消周期）。
 
 验收：周期 stutter 消 → TSW 命中；仍在 → 再 COUNT16↔FAT。不追 setCamera/board=0。upload=等 PM。
+
+## 2026-11-05 · ROOT HIT 确认（Funning「不卡了」）
+
+体验版 `1.0.202611050759` @ integrate `dc248d14869750e64a3e086e5877c395c353a492`（feature `8f520d00`，叠在 SceneAudioPoll-OFF `324e50b1` 上）：Funning ~08:32 America/New_York「不卡了」。周期 stutter 消失。TSW 默认 OFF **命中**，保持 `false`。回滚仅 `setTransitionShaderWarmEnabled(true)`，且要 Funning 点头；不要把默认改回 ON。COUNT16↔FAT 只在 stutter 再现时做对照。全文：`docs/fps/PERIOD-STUTTER-TSW-ROOT-HIT-20261105.md`。

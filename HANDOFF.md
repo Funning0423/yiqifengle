@@ -1,3 +1,5 @@
+> **【重点标记】ROOT HIT · 2026-11-05** 手机周期整机掉帧已确认：`TransitionShaderWarm` 在 live 上 `director_after_draw` 常驻（COUNT16 下 COUNT53/73 needle 永不齐 → 永久 after_draw 税）。体验版 `1.0.202611050759` @ `dc248d14`（AppID `wx3bdd911c5c06f591`）Funning「不卡了」。默认保持 `TRANSITION_SHADER_WARM_ENABLED=false`。未经 Funning 不要再开。全文 `docs/fps/PERIOD-STUTTER-TSW-ROOT-HIT-20261105.md`。
+
 # HANDOFF — 咦 起风了 (QIFENGLE) / release-b20
 
 ## Mac LONG+RT integrate tip (2026-11-02 / Funning)
