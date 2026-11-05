@@ -79,6 +79,11 @@ export const DEFAULT_MORPH_TARGETS:{readonly [name:string]:number}={curl:0,flutt
 export const DEFAULT_EXTRA_MORPH_MESHES:ReadonlyArray<{readonly mesh:string;readonly targets:{readonly [name:string]:number}}>=[{mesh:'LOD0_G2_DRESS',targets:{sit_drape:0,sit_drape_mid:1}}];
 /** setWeight is called only when a target weight moved by more than this since the last write (or reached exactly 0 / 1). */
 export const MORPH_EPS=1e-3;
+/** A/B (2026-11-05): when false (default), MorphDriver only drives sit_hold/sit_down/stand_up.
+ *  Idle/walk/UI hard-unloads GPU morph — including BODY correctives that previously stayed gated ON after ad76cf64.
+ *  Seat window always drives (standup feel preserved). setMorphIdleDriveEnabled(true) restores prior idle morph for rollback. */
+export let MORPH_IDLE_DRIVE_ENABLED=false;
+export function setMorphIdleDriveEnabled(on:boolean):void{MORPH_IDLE_DRIVE_ENABLED=!!on;}
 /** Agreed clip role names (all optional except the ones the old flow already required). */
 export const CLIP_ROLES={walk:'walk_loop',walkStart:'walk_start',stopL:'walk_stop_bodyL',stopR:'walk_stop_bodyR',turn90L:'walk_turn_90_bodyL',turn90R:'walk_turn_90_bodyR',turn180:'walk_turn_180',idle:'idle_breathing_loop',sitHold:'sit_hold',sitDown:'sit_down',standUp:'stand_up',doorReach:'door_reach',flutter:'wind_flutter_loop',apronLift:'apron_lift'} as const;
 export type Body='L'|'R';
@@ -534,6 +539,10 @@ function applyRendererMorphGate(r:any,needOn:boolean):{flipped:boolean;path:stri
 }
 /** Binds one renderer by node name (first) or mesh name and writes target weights only when they change (> MORPH_EPS, or
  *  reaching exactly 0 / 1). Any problem = status + no-op; never throws into the frame. */
+/** True when the pose plan is in the sit/stand morph seat window (drive allowed even if idle-drive A/B is OFF). */
+export function morphPlanNeedsSeatDrive(plan:Plan):boolean {
+  const hit=(c:string|null|undefined)=>c===CLIP_ROLES.sitHold||c===CLIP_ROLES.sitDown||c===CLIP_ROLES.standUp;
+  return hit(plan.base?.clip)||hit(plan.out?.clip);}
 export class MorphDriver {
   status:MorphStatus='unbound';reason='';renderer:MorphRendererLike|null=null;node='';meshName='';subMeshes:number[]=[];targetCounts:number[]=[];targetNames:string[]|null=null;
   readonly need:number;readonly last:{[target:string]:number}={};readonly weights:{[target:string]:number}={};calls=0;
@@ -584,7 +593,16 @@ export class MorphDriver {
     // After writes: every tip ~0 → unload GPU morph (DRESS/BOW idle/walk drop COUNT15/3).
     if(!this.anyLiveLast())this.syncGpuGate(false);
     return n;}
-  diagnostics(){const r=this.renderer as any;let hasInst:boolean|null=this.gateHasInstance;try{if(r)hasInst=r._morphInstance!=null;}catch{/* keep */}
+  /** Idle/UI A/B: zero live tips + tear down MorphRenderingInstance WITHOUT re-enabling the gate first
+   *  (unlike apply(all-zero), which briefly syncGpuGate(true) while decaying). Steady already-unloaded = no-op. */
+  hardUnload():number {const r=this.renderer;if(!r||this.status!=='ok')return 0;
+    if(!this.anyLiveLast()&&this.gpuGateOn===false){this.tipsEstablished=true;return 0;}
+    let n=0;
+    for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const prev=this.last[t];this.weights[t]=0;
+      if(prev===undefined||!(prev>MORPH_EPS)){if(prev===undefined)this.last[t]=0;continue;}
+      try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(0,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=0;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
+    this.calls+=n;this.tipsEstablished=true;this.syncGpuGate(false);return n;}
+    diagnostics(){const r=this.renderer as any;let hasInst:boolean|null=this.gateHasInstance;try{if(r)hasInst=r._morphInstance!=null;}catch{/* keep */}
     return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls,enableMorph:this.renderer?this.renderer.enableMorph:undefined,gpuGateOn:this.gpuGateOn,gateFlips:this.gateFlips,gatePath:this.gatePath,morphInstance:hasInst};}
 }
 

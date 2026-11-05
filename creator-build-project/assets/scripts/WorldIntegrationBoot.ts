@@ -25,7 +25,7 @@ import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
-import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,SoleContactSolver,supportPose,
+import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,MORPH_IDLE_DRIVE_ENABLED,morphPlanNeedsSeatDrive,SoleContactSolver,supportPose,
   planWalk,walkDistanceAt,stopCandidates,stopLateralAt,piecewise,restAheadFromRoutes,FOOT_DEDUPE_S,DEFAULT_NATIVE_SPEED} from './CharacterMotion';
 import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterMotion';
 import {openStandupWarmWindow,closeStandupWarmWindow,standupWarmWindowOpen,stepStandupProgramWarm,flushStandupProgramWarmBeforeStand,standupProgramWarmStats,STANDUP_WARM_PER_FRAME,STANDUP_MORPH_BUDGET_FIRST,STANDUP_MORPH_BUDGET_FRAMES} from './region/StandupProgramWarm';
@@ -145,6 +145,13 @@ class FlowReferenceStandin implements CharacterAdapter {
   this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&(this.support.settling()||/^walk_(loop|start|stop_body[LR]|turn_180_bodyR|turn_90_bodyL)$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&(this.support.hasContacts()||(plan.out?.clip==='walk_turn_180_bodyR'||plan.out?.clip==='walk_turn_90_bodyL'))),dt,plan);for(const bone of this.support?.takeSettleLandings()||[]){const body=bone==='foot.L'?'R':'L';this.noteSettle({def:{name:'settle:'+body,bone,body,type:'settle'},clip:plan.base?.clip});}this.applyMorph(plan);}
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
+  // A/B: idle/walk/UI peel Morph stack (hard unload GPU, incl. BODY). Seat window always drives (standup feel).
+  if(!MORPH_IDLE_DRIVE_ENABLED&&!morphPlanNeedsSeatDrive(plan)){
+   for(let i=0;i<ms.length;i++){const m=ms[i];if(m.status!=='ok')continue;const flipsBefore=m.gateFlips|0;
+    try{m.hardUnload();}catch(e){m.status='error';m.reason=String(e);continue;}
+    if((m.gateFlips|0)>flipsBefore){
+     try{this.logEvent({kind:'morph-idle-unload',mesh:m.mesh,gpuGateOn:m.gpuGateOn,gatePath:m.gatePath,gateFlips:m.gateFlips,morphInstance:m.gateHasInstance,enableMorph:m.renderer?m.renderer.enableMorph:undefined,clip:c.base?.clip||null});}catch{/* log optional */}}}
+   return;}
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
   const budget=this.standupMorphBudgetLeft>0?STANDUP_MORPH_BUDGET_FIRST:undefined;
   for(let i=0;i<ms.length;i++){const m=ms[i];if(m.status!=='ok')continue;const flipsBefore=m.gateFlips|0;
