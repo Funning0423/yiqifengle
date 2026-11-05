@@ -1,5 +1,5 @@
 {
-  "tip": "skycity-leg-heavy-default-off",
+  "tip": "0773db7382c4268fa64a6461880003fc09b60a81",
   "date": "2026-11-05",
   "parentExperience": "1.0.202611050927",
   "parentIntegrate": "9ec8410c",
@@ -10,8 +10,21 @@
     "post-land: SkycityCloudsea syncDay/camera every BEFORE_DRAW after setFlightHidden(false)"
   ],
   "default": "SKYCITY_LEG_HEAVY_ENABLED=false",
-  "killSwitch": ["setSkycityLegHeavyEnabled(true)", "?qfskyheavy=1", "__qfSkyLegHeavy=true"],
-  "keptOff": ["TRANSITION_SHADER_WARM_ENABLED", "STANDUP_PROGRAM_WARM_ENABLED", "MORPH_IDLE_DRIVE_ENABLED", "PERIOD_HEAVY_REFRESH_ENABLED", "SCENE_AUDIO_POLL_ENABLED"],
+  "killSwitch": [
+    "setSkycityLegHeavyEnabled(true)",
+    "?qfskyheavy=1",
+    "__qfSkyLegHeavy=true"
+  ],
+  "keptOff": [
+    "TRANSITION_SHADER_WARM_ENABLED",
+    "STANDUP_PROGRAM_WARM_ENABLED",
+    "MORPH_IDLE_DRIVE_ENABLED",
+    "PERIOD_HEAVY_REFRESH_ENABLED",
+    "SCENE_AUDIO_POLL_ENABLED"
+  ],
   "lakesideKitTrial": "default ON unchanged",
-  "upload": "wait-PM"
+  "upload": "wait-PM",
+  "feature": "2beb1cd44355a11fcfa092b49f26cc165c2e91f8",
+  "featureShort": "2beb1cd4",
+  "tipShort": "0773db73"
 }

@@ -1,8 +1,8 @@
 # tip · SkycityLegHeavy 默认 OFF（升空 + 着陆后往广场 共用重路径 A/B）· 2026-11-05
 
 ## Tip / feature
-- **feature** （本 tip 提交后填）
-- **tip** （本 tip 提交后填）
+- **feature** `2beb1cd44355a11fcfa092b49f26cc165c2e91f8`
+- **tip** `0773db7382c4268fa64a6461880003fc09b60a81`
 - **父 tip / 对照体验**：integrate `9ec8410` / 体验版 `1.0.202611050927`（TSW 已默认 OFF，Funning「整机不卡了」）
 - **叠合 tip 栈**：`ggbot/b20-meadow-c-skycity-rt` @ lakeside trial ON `8aa88827` 之上
 
