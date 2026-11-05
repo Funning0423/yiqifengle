@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "gate": "period-heavy-refresh-default-off-ab",
+  "date": "2026-11-05",
+  "vsFeel": "1.0.202611050645 @ tip 6954a20b (Morph idle-drive OFF 5acfa98d) — Funning: period whole-UI stutter STILL there (no improvement); standup still smooth → Morph idle residual NOT primary. Prior warm-OFF c672511 same.",
+  "isolation": {
+    "TransitionShaderWarm": false,
+    "armStandupShaderBurst": false,
+    "BalloonTransit": false,
+    "sea-landing": false,
+    "K.s1": false,
+    "black-fence": false,
+    "COUNT_GLB_pair": "e3fbce98 + meta 6fd22962 UNTOUCHED (no FAT peel)",
+    "StandupProgramWarm": "kept DEFAULT OFF (5b990f8e)",
+    "MorphGpuGate": "REAL tear-down kept (ad76cf64)",
+    "MorphIdleDrive": "kept DEFAULT OFF (5acfa98d)"
+  },
+  "change": {
+    "PeriodHeavyRefresh.ts": "PERIOD_HEAVY_REFRESH_ENABLED default false; setPeriodHeavyRefreshEnabled kill-switch",
+    "RegionNodeStage.ts": "gate refreshOrbitBoxes (~400ms scene MeshRenderer AABB); sector 0.25s timed rebuild; MapExplore/FollowWalk 0.25s markers createMesh",
+    "WorldFlowComponent.ts": "gate fillBoxes (~400ms AABB); gate reportRuntime('tick') ~5s snapshot"
+  },
+  "runtime": {
+    "PERIOD_HEAVY_REFRESH_ENABLED": {
+      "default": false,
+      "killSwitch": "setPeriodHeavyRefreshEnabled(true) restores prior periodic refreshes",
+      "gated": [
+        {"id": "RegionNodeStage.refreshOrbitBoxes", "interval": "~400ms", "why": "full-scene getComponentsInChildren(MeshRenderer)+worldBounds"},
+        {"id": "WorldFlowComponent.fillBoxes", "interval": "~400ms", "why": "ownedModel MeshRenderer AABB walk on orbit write"},
+        {"id": "RegionNodeStage.sectorTarget secC", "interval": "~0.25s", "why": "72-yaw occlusion grid; time expiry gated (move still refreshes)"},
+        {"id": "RegionNodeStage.rebuildMarkers timer", "interval": "0.25s", "why": "utils.createMesh every 250ms → GC hitch pattern; event rebuilds kept"},
+        {"id": "WorldFlowComponent.reportRuntime tick", "interval": "~5s", "why": "flow.snapshot + object build each tick"}
+      ]
+    },
+    "why": "After Morph warm OFF + Morph idle OFF still period stutter, peel the strongest wall-clock Mesh/occlusion/marker/diagnostic refreshes that match fixed-interval hitch — before COUNT16→FAT pair-break."
+  },
+  "notTouchedStillSuspect": [
+    {"id": "CamTraceLog.CAM_LOG_SINK.flushMs", "interval": "1000ms", "note": "default OFF (camTrace=1 only)"},
+    {"id": "SceneMusic.poll", "interval": "0.25s", "note": "light audio resolve; left for next tip if this A/B fails"},
+    {"id": "LandmarkAudio.poll", "interval": "0.5s", "note": "audio"},
+    {"id": "RegionNodeStage.finaleArm setInterval", "interval": "100ms", "note": "sky finale armed only"},
+    {"id": "PersistentMainlinePort", "interval": "per getter (cached write-through)", "note": "not wall-clock; already write-through"},
+    {"id": "COUNT16→FAT peel", "interval": "n/a", "note": "next if this tip still stutters; MUST label pair-break e3fbce98+6fd22962"}
+  ],
+  "offline": {
+    "test_standup_program_warm.cjs": "PASS",
+    "test_standup_warm_sample.cjs": "PASS",
+    "periodHeavyRefreshDefaultOff": true,
+    "periodHeavyRefreshManualOnWorks": true,
+    "periodHeavyRefreshGates": true,
+    "warmDefaultOff": true,
+    "morphIdleDriveDefaultOff": true
+  },
+  "verifyDefaultOff": [
+    "source: PERIOD_HEAVY_REFRESH_ENABLED=false in PeriodHeavyRefresh.ts",
+    "offline: node tools/walk-driver/test_standup_program_warm.cjs → periodHeavyRefreshDefaultOff=true",
+    "device: idle/explore should no longer hitch on ~0.25s/400ms/5s walls; optional setPeriodHeavyRefreshEnabled(true) rollback; standup path untouched"
+  ],
+  "acceptance": "A/B: if period stutter GONE/lighter → period-heavy refresh contributes (narrow which of the 5 next); if STILL there → next=SceneMusic/Landmark light polls OR COUNT16→FAT labeled pair-break; standup must stay smooth; NOT setCamera/board=0 veto",
+  "stackNote": "pairs COUNT GLB e3fbce98 + meta 6fd22962; Morph GPU gate + StandupProgramWarm OFF + Morph idle OFF kept; PeriodHeavyRefresh DEFAULT OFF",
+  "upload": "等 PM"
+}
