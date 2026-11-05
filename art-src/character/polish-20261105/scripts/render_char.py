@@ -1,6 +1,8 @@
 # Reproducible heroine render (v2). Usage: blender -b -P render_char.py -- <abs in.glb> <abs outdir>
 # - vertex-colour multiply removed (Cocos builtin-standard ignores COLOR_0; Blender importer multiplies it in)
 # - material-less helper meshes hidden; framing from measured bbox per pose
+# - hands: hand_front / hand_side / hand_34 (fixed camera at rest-pose left hand)
+# - seated_game_*: sit_hold + game morph weights when GAME_MORPH=<anim_meta.json> is set
 # - render: Workbench STUDIO light, texture colour, fixed light dir + bg
 # - shots: front / side / back34 / face_close / face_34 (rest pose) + seated_front / seated_side (sit_hold, mid frame)
 import bpy,sys,math,json
@@ -51,6 +53,7 @@ def shot(name,yaw,tgt,scale):
     cd.ortho_scale=scale; cd.clip_end=H*20; sc.render.filepath=f'{out}/{name}.png'; bpy.ops.render.render(write_still=True)
 shot('front',0,c,H*1.05); shot('side',90,c,H*1.05); shot('back34',150,c,H*1.05)
 head=Vector((c.x,c.y,mx.z-H*0.10)); shot('face_close',0,head,H*0.24); shot('face_34',35,head,H*0.24)
+hand=Vector((-0.27,-0.12,0.84)); shot('hand_front',0,hand,0.26); shot('hand_side',-90,hand,0.26); shot('hand_34',-40,hand,0.26)
 # seated: sit_hold, middle frame, fixed camera relative to rest-pose bbox (not re-framed, so before/after are identical)
 act=[x for x in bpy.data.actions if x.name.split('_R5G2')[0].split('.')[0]=='sit_hold' or x.name.startswith('sit_hold')]
 if act:
@@ -64,4 +67,10 @@ if act:
     sm,sx=bbox(); print('SEATED bbox',list(sm),list(sx))
     sc_c=Vector((c.x,c.y,mn.z+H*0.38))
     shot('seated_front',0,sc_c,H*0.8); shot('seated_side',90,sc_c,H*0.8); shot('seated_34',35,sc_c,H*0.8)
+    # same pose with the game's sit_hold morph weights (anim_meta.json, as CharacterMotion.morphWeights): GAME_MORPH=<anim_meta.json>
+    import os
+    if os.environ.get('GAME_MORPH'):
+        exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'tools','game_morph.py')).read(),{'__name__':'gm'})
+        bpy.app.handlers.frame_change_pre[-1](sc); bpy.context.view_layer.update(); print('GAME clip',sc.get('game_morph_clip'))
+        shot('seated_game_front',0,sc_c,H*0.8); shot('seated_game_side',90,sc_c,H*0.8); shot('seated_game_34',35,sc_c,H*0.8)
 else: print('NO sit_hold action', [x.name for x in bpy.data.actions])

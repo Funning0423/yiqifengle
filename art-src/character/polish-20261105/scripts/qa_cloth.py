@@ -1,5 +1,5 @@
 # blender -b -P qa_cloth.py -- <glb> <out.json> : apron<->dress / dress<->legs overlap + seated skirt reach, sit_hold & walk_loop
-import bpy,sys,json
+import bpy,sys,json,os
 from mathutils.bvhtree import BVHTree
 a=sys.argv[sys.argv.index('--')+1:]; glb,out=a
 bpy.ops.wm.read_factory_settings(use_empty=True); bpy.ops.import_scene.gltf(filepath=glb)
@@ -17,10 +17,15 @@ for name in ('sit_hold','walk_loop','sit_down','stand_up'):
     if act.slots: arm.animation_data.action_slot=act.slots[0]
     for t in arm.animation_data.nla_tracks: t.mute=True
     f0,f1=[int(x) for x in act.frame_range]; r=dict(apron_dress=0,dress_legs=0,reach_fwd_m=0)
-    for fr in range(f0,f1+1,max(1,(f1-f0)//8)):
+    for fr in range(f0,f1+1,2):
         sc.frame_set(fr); Vd,Fd=ev(dress); Va,Fa=ev(apron); Vb,_=ev(body)
         Td=BVHTree.FromPolygons(Vd,Fd); Ta=BVHTree.FromPolygons(Va,Fa); Tl=BVHTree.FromPolygons(Vb,legf)
-        r['apron_dress']=max(r['apron_dress'],len(Td.overlap(Ta))); r['dress_legs']=max(r['dress_legs'],len(Td.overlap(Tl)))
+        ov=Td.overlap(Ta); r['apron_dress']=max(r['apron_dress'],len(ov))
+        if os.environ.get('QA_WHERE') and len(ov)==r['apron_dress']:
+            gd={g.index:g.name for g in dress.vertex_groups}; from collections import Counter
+            dom=lambda o,vi:max(((g.weight,gd[g.group]) for g in o.data.vertices[vi].groups),default=(0,'-'))[1]
+            r['where_dress']=dict(Counter(dom(dress,Fd[a][0]) for a,b in ov).most_common(6)); r['where_apron']=dict(Counter(dom(apron,Fa[b][0]) for a,b in ov).most_common(6)); r['where_frame']=fr
+        r['dress_legs']=max(r['dress_legs'],len(Td.overlap(Tl)))
         r['reach_fwd_m']=max(r['reach_fwd_m'],-min(v.y for v in Vd+Va))
     r['reach_fwd_m']=round(r['reach_fwd_m'],3); res[name]=r; print('QA',name,r)
 json.dump(res,open(out,'w'),indent=1)

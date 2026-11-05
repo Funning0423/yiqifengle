@@ -5,17 +5,17 @@
   "reach_fwd_m": 0.62
  },
  "walk_loop": {
-  "apron_dress": 92,
+  "apron_dress": 124,
   "dress_legs": 286,
   "reach_fwd_m": 0.569
  },
  "sit_down": {
-  "apron_dress": 155,
-  "dress_legs": 249,
-  "reach_fwd_m": 0.591
+  "apron_dress": 156,
+  "dress_legs": 258,
+  "reach_fwd_m": 0.607
  },
  "stand_up": {
-  "apron_dress": 150,
+  "apron_dress": 156,
   "dress_legs": 244,
   "reach_fwd_m": 0.62
  }

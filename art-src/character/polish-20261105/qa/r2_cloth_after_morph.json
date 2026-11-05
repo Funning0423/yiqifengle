@@ -1,0 +1,22 @@
+{
+ "sit_hold": {
+  "apron_dress": 19,
+  "dress_legs": 0,
+  "reach_fwd_m": 0.67
+ },
+ "walk_loop": {
+  "apron_dress": 0,
+  "dress_legs": 172,
+  "reach_fwd_m": 0.585
+ },
+ "sit_down": {
+  "apron_dress": 171,
+  "dress_legs": 161,
+  "reach_fwd_m": 0.656
+ },
+ "stand_up": {
+  "apron_dress": 757,
+  "dress_legs": 85,
+  "reach_fwd_m": 0.67
+ }
+}

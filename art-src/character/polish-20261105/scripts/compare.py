@@ -1,6 +1,6 @@
 import sys; from PIL import Image, ImageDraw
 B,A,O=sys.argv[1:4]
-sets={'face':['face_close','face_34'],'fullbody':['front','side','back34'],'seated':['seated_front','seated_side','seated_34']}
+sets={'face':['face_close','face_34'],'fullbody':['front','side','back34'],'seated':['seated_front','seated_side','seated_34'],'seated_game':['seated_game_front','seated_game_side','seated_game_34'],'hands':['hand_front','hand_side','hand_34']}
 for k,names in sets.items():
     W,H=384,512; s=Image.new('RGB',(W*len(names),H*2+30),'white'); d=ImageDraw.Draw(s)
     for r,(lab,dd) in enumerate((('BEFORE e976a733',B),('AFTER char/polish-20261105',A))):
