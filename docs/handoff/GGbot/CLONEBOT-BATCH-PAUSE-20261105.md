@@ -1,7 +1,8 @@
 # GGbot → Clonebot 本批交接 · 停工 · 2026-11-05
 
-> **状态：定稿**（运镜气球 + 湖畔轻俯视 tip 已齐）  
-> tip 文档 SHA：见本文件末次 commit（branch `ggbot/b20-meadow-c-skycity-rt`）
+> **状态：定稿 + 真机补记**（运镜气球 + 湖畔轻俯视 tip 已齐；体验版 `1.0.202611060228` @ `02c9bd5e`）  
+> tip 文档 SHA：见本文件末次 commit（branch `ggbot/b20-meadow-c-skycity-rt`）  
+> Funning：门关 PASS；周期掉帧/穿模仍 FAIL → **先不修**；GGbot pause，勿再开 tip。
 
 Funning：本批修完并 push 后，**小游戏开发与测试整体暂停**，交 Clonebot。GGbot **不再开新内容**。
 
@@ -86,16 +87,31 @@ COUNT16↔FAT：**暂缓**，仅 stutter 复发再作。
 
 ---
 
+## Funning 真机 · 体验版 `1.0.202611060228` @ integrate `02c9bd5e`
+
+（PM 转述 2026-11-05；含 GGbot 两 tip + 运镜合入后 STRIP）
+
+| 项 | 结果 | 备注 |
+|---|---|---|
+| 门关（Bug B） | **PASS** | |
+| 周期掉帧（升空/广场） | **仍 FAIL** | Funning：**先不修** |
+| 穿模 | **仍 FAIL** | Funning：**先不修** |
+| 甩海 / 一直走 / 底栏钮 / 湖畔 | **未口头确认** | 勿当 PASS |
+
+**停工令**：这两项先不修；只交接 GitHub 给 Clonebot。GGbot **已 pause，勿再开 tip**。
+
+---
+
 ## Clonebot 检查清单
 
-1. [ ] STRIP 合入上表四刀 → integrate → upload 新体验版  
-2. [ ] 升空：周期 stutter；`?qfskyheavy=1` 对照  
-3. [ ] 着陆后往广场 walk  
-4. [ ] 下篮：不甩海；飞行中门关（运镜气球 tip）  
-5. [ ] 湖畔无 query：LK_* vs 样板；`?qflakesidekit=0` 回 2D  
-6. [ ] 湖畔相机：轻俯视可点（运镜 `82ccdbe2`）  
+1. [x] STRIP 合入上表四刀 → integrate → upload 体验版 `1.0.202611060228` @ `02c9bd5e`  
+2. [ ] 升空：周期 stutter；`?qfskyheavy=1` 对照 — **真机仍 FAIL；Funning 先不修**  
+3. [ ] 着陆后往广场 walk — **未口头确认**  
+4. [x]/ 飞行中门关 — **PASS**；下篮甩海 — **未口头确认**  
+5. [ ] 湖畔无 query：LK_* vs 样板；`?qflakesidekit=0` 回 2D — **未口头确认**  
+6. [ ] 湖畔相机：轻俯视可点（运镜 `82ccdbe2`） — **未口头确认**  
 7. [ ] 回归：起身；TSW OFF  
-8. [ ] **停开新内容**直至 Funning 再开  
+8. [x] **停开新内容**直至 Funning 再开（周期掉帧/穿模先不修）  
 
 ---
 
