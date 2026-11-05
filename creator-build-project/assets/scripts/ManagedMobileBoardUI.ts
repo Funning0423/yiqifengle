@@ -5,6 +5,9 @@ import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/Lev
 import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
 import { MINIGAME } from 'cc/env';
+import { assetManager, SpriteFrame } from 'cc';
+import { DEFAULT_KIT, boardKitFor, kitGrid, kitCellAt, type KitGrid, type RegionBoardKit } from './ui/BoardKit';
+import { lakesideBoardKitFromFlag } from './ui/BoardProjection';
 import { ruleGuideDy, RULE_GUIDE_MAX_LINES, wrapKinsoku, boardLayout, boardSafeInsets, cellCenter, pickToolBar, qaForcedToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
 import { PopupStack, popupScale, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
@@ -31,7 +34,7 @@ const TOAST_OUT_S = 0.15;
 export class ManagedMobileBoardUI extends Component {
   private managed: any = null; private disposing = false; private frameKinds = new Set<string>(); private presentationError: string | null = null;
   initializeManaged(fixture: any, binding: any, backgroundFrame?: (portrait: boolean, layout?: LevelBackgroundFrame) => void, backgroundStatus?: () => LevelBackgroundStatus) {
-    if (this.managed || this.root) throw Error('Already initialized'); if (this.deferPresentation) this.presented = false; this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
+    if (this.managed || this.root) throw Error('Already initialized'); lakesideBoardKitFromFlag(); if (this.deferPresentation) this.presented = false; this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
   }
   managedViewVersion() { return 'mobile-managed-v2-board-ui'; }
   diagnostics() {
@@ -52,7 +55,9 @@ export class ManagedMobileBoardUI extends Component {
   private snapshot: any; private fixture: any; private epoch = 0; private timer: any = null;
   private values = new Map<string, string>(); private attempt = 0; private dragStart: any = null;
   private journey = { readOnly: false, records: Array.from({ length: 12 }, () => ({ bestStars: 3 })) };
-  private layoutInfo: any = null; private geo: BoardLayout | null = null; private cell = 42.6; private goalLabels: Label[] = [];
+  private layoutInfo: any = null; private geo: BoardLayout | null = null; private cell = 42.6;
+  /** Board kit (lakeside): DEFAULT_KIT on every default path; lakeside only with ?qflakesidekit=1. */
+  private kit: RegionBoardKit = DEFAULT_KIT; private kitGridCache: KitGrid | null = null; private kitTrayHidden = false; private kitArt = new Map<string, SpriteFrame>(); private kitArtLoading = ''; private goalLabels: Label[] = [];
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
@@ -393,8 +398,21 @@ export class ManagedMobileBoardUI extends Component {
     const w = node.worldPosition, px = x - d.width / 2, upY = y - d.height / 2, downY = d.height / 2 - y;
     return Math.hypot(px - w.x, downY - w.y) + 0.5 < Math.hypot(px - w.x, upY - w.y);
   }
+  /** Lakeside kit layout (test mode only): cells on the projected water-grid centres, scaled by perspective; 2D tray hidden.
+   *  Invalid projection → BoardKit.kitGrid counts a fallback and the 2D board stays. Never writes the camera. */
+  private layoutKit(g: BoardLayout) {
+    const grid = this.kit.board ? kitGrid(this.kit, g) : null; this.kitGridCache = grid && grid.projected ? grid : null;
+    const hide = !!this.kitGridCache && this.kit.hide2D.tray; for (const name of ['Tray', 'TrayShadow']) { const n = this.boardFrame.getChildByName(name); if (n) n.active = !hide; } this.kitTrayHidden = hide;
+    if (!this.kitGridCache) { this.cells.forEach(n => n.setScale(1, 1, 1)); return; }
+    const q = this.kitGridCache.quads!, P = g.pitch;
+    this.cells.forEach((n, i) => { const c = this.kitGridCache!.centers[i], k = Math.hypot(q[i][1].x - q[i][0].x, q[i][1].y - q[i][0].y) / P; n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.setScale(k, k, 1); });
+    if (this.kitArtLoading !== this.kit.id) { this.kitArtLoading = this.kit.id; const kit = this.kit;
+      assetManager.loadBundle(kit.pieceBundle, (e, b) => { if (e || !b) { console.warn('[QF_BOARD_KIT] piece bundle ' + kit.pieceBundle + ' ' + (e && e.message)); return; }
+        for (const key of kit.pieceKeys) b.load(key + '/spriteFrame', SpriteFrame, (er, f: SpriteFrame) => { if (!er && f) { this.kitArt.set(key, f); if (!this.disposing && this.snapshot) this.paint(); } }); }); }
+  }
+  private kitPieceFrame(t: number): SpriteFrame | null { return this.kitArt.get(this.kit.pieceKeys[t]) || BoardArt.shared().frame(PIECE_KEYS[t]); }
   private cellAt(x: number, y: number, yDown?: boolean) {
-    const d = this.layoutInfo; if (!d) return -1; const g = this.grid.worldPosition;
+    const d = this.layoutInfo; if (!d) return -1; if (this.kitGridCache) return kitCellAt(this.kitGridCache, x, yDown ? y : d.height - y); const g = this.grid.worldPosition;
     const wy = yDown ? d.height / 2 - y : y - d.height / 2, lx = x - d.width / 2 - g.x, ly = wy - g.y;
     const col = Math.round(lx / this.cell) + 3, row = 3 - Math.round(ly / this.cell); if (Math.abs(lx) >= this.cell * 3.5 || Math.abs(ly) >= this.cell * 3.5 || col < 0 || col > 6 || row < 0 || row > 6) return -1; return row * 7 + col;
   }
@@ -636,6 +654,7 @@ export class ManagedMobileBoardUI extends Component {
     this.place(this.boardFrame.getChildByName('Tray')!, 0, 0, g.tray.width, g.tray.height);
     const sh = this.boardFrame.getChildByName('TrayShadow')!.getComponent(Graphics)!; sh.clear(); for (let i = 0; i < 4; i++) { sh.fillColor = new Color(40, 30, 20, 14 - i * 3); sh.roundRect(-g.tray.width / 2 - i * 3 + 3, -g.tray.height / 2 - 8 - i * 3, g.tray.width + i * 6, g.tray.height + i * 6, 18 + i * 3); sh.fill(); }
     this.cells.forEach((n, i) => { const c = cellCenter(g, i); n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.getComponent(UITransform)!.setContentSize(P, P); });
+    if (this.kit !== DEFAULT_KIT || this.kitGridCache || this.kitTrayHidden) this.layoutKit(g);
     this.place(this.pause, X(g.pause.x), Y(g.pause.y), g.pause.hit); this.place(this.pause.getChildByName('Face')!.getChildByName('Art')!, 0, 0, g.pause.size * 126 / 128, g.pause.size);
     this.layoutPlate();
     this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast(); this.regionTitle?.place(w, h, g.toast.y, { top: g.plate.y + g.plate.height / 2, bottom: g.tray.y - g.tray.height / 2 });
@@ -777,7 +796,8 @@ export class ManagedMobileBoardUI extends Component {
   private playing() { const s = this.snapshot; return !!s?.active && !this.isResult(s) && !['book.ready', 'stage.detail'].includes(s.state); }
   private render(s: any) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
-    this.snapshot = s; if (s.visual?.kind) this.frameKinds.add(s.visual.kind); if (!this.managed) (globalThis as any).__forestLiveSnapshot = s;
+    this.snapshot = s; { const kit = s?.provider === 'regional-r05' && s.active?.region === 'lake' ? boardKitFor('lake') : DEFAULT_KIT; if (kit !== this.kit) { this.kit = kit; if (this.geo) { this.layout(); return; } } }
+    if (s.visual?.kind) this.frameKinds.add(s.visual.kind); if (!this.managed) (globalThis as any).__forestLiveSnapshot = s;
     const back = this.boardWasHidden && !s.hidden;
     this.boardWasHidden = !!s.hidden;
     if (s.hidden || s.state !== 'run.paused' || !s.active) this.returnPause = false;
@@ -818,11 +838,11 @@ export class ManagedMobileBoardUI extends Component {
     const pieces: any[] = a.regionPieces || [], roots: any[] = a.roots || [], moss: number[] = a.moss || [];
     for (let i = 0; i < 49; i++) {
       const n = this.cells[i], x = n.position.x, y = n.position.y, tile = a.board[i], special = tile?.special || null, bomb = special === 'bomb' || special === 'color';
-      this.place(this.bases[i].node, x, y, P * CELL.tile);
+      this.place(this.bases[i].node, x, y, P * CELL.tile); if (this.kitGridCache && this.kit.hide2D.tiles) this.bases[i].node.active = false;
       const mossOn = moss.indexOf(i) >= 0; this.moss[i].node.active = mossOn; if (mossOn) this.place(this.moss[i].node, x, y - 1, P * CELL.obstacle);
       this.under[i].node.active = bomb && !!tile; if (bomb) this.place(this.under[i].node, x, y + lift * 2, P * CELL.bomb);
       const art = n.getChildByName('ProjectPieceArt')!, sprite = art.getComponent(Sprite)!; Tween.stopAllByTarget(art);
-      sprite.spriteFrame = tile ? BoardArt.shared().frame(PIECE_KEYS[tile.type % 6]) : null; art.active = !!tile;
+      sprite.spriteFrame = tile ? (this.kitGridCache ? this.kitPieceFrame(tile.type % 6) : BoardArt.shared().frame(PIECE_KEYS[tile.type % 6])) : null; art.active = !!tile;
       const sel = this.selected === i, size = P * CELL.piece * (bomb ? CELL.bombPiece : 1);
       art.setPosition(0, lift + (sel ? 4 : 0), 0); art.getComponent(UITransform)!.setContentSize(size, size);
       const ribbon = special === 'row' ? 'board/special_line_h' : special === 'column' ? 'board/special_line_v' : null;

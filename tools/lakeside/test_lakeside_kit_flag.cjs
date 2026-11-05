@@ -1,0 +1,38 @@
+'use strict';
+/* lakeside-kit-flag: LAKESIDE_KIT default OFF; ?qflakesidekit=1 / __qfLakesideBoardKit registers lake; cellM=1.1 anchor [0,0,12];
+ * kit path unskips contact_shadow + ripple_ring only (board_frame stays skipped). */
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const fs = require('node:fs');
+const { createHarness } = require('../board-ui/harness.cjs');
+const H = createHarness();
+const K = H.load('ui/BoardKit'), B = H.load('ui/BoardProjection'), S = H.load('region/LakesideSceneData');
+assert.equal(K.boardKitFor('lake').id, 'default', 'unregistered → default');
+assert.equal(B.lakesideBoardKitFromFlag(), false, 'no flag → OFF');
+assert.equal(K.boardKitFor('lake').id, 'default');
+assert.equal(S.lakesideKitAssetsEnabled(), false);
+delete globalThis.location; globalThis.__qfLakesideBoardKit = true;
+assert.equal(B.lakesideBoardKitFromFlag(), true);
+const kit = K.boardKitFor('lake');
+assert.equal(kit.id, 'lakeside');
+assert.deepEqual(kit.board.anchor, [0, 0, 12]);
+assert.equal(kit.board.cellM, 1.1);
+assert.equal(kit.board.topY, 0.02);
+assert.equal(kit.board.yawDeg, 0);
+assert.equal(kit.hide2D.tray, true);
+assert.equal(kit.hide2D.tiles, true);
+assert.equal(S.lakesideKitAssetsEnabled(), true);
+assert.deepEqual([...S.lakesideSkippedGlb()], ['LK_board_frame.glb']);
+delete globalThis.__qfLakesideBoardKit;
+globalThis.location = { search: '?qflakesidekit=1' };
+B.setLakesideBoardKit(false);
+assert.equal(B.lakesideBoardKitFromFlag(), true, 'query opens kit');
+// world centres match LAKESIDE_GRID
+const tw0 = K.kitTileWorld(kit, 0), tw48 = K.kitTileWorld(kit, 48), tw24 = K.kitTileWorld(kit, 24);
+assert.ok(Math.abs(tw0[0] + 3.3) < 1e-9 && Math.abs(tw0[2] - 8.7) < 1e-9, 'cell0');
+assert.ok(Math.abs(tw48[0] - 3.3) < 1e-9 && Math.abs(tw48[2] - 15.3) < 1e-9, 'cell48');
+assert.ok(Math.abs(tw24[0]) < 1e-9 && Math.abs(tw24[2] - 12) < 1e-9, 'cell24');
+assert.ok(Math.abs(tw0[1] - 0.02) < 1e-9, 'topY');
+const pose = B.lakesideBoardKitPose(390, 844);
+assert.ok(pose.fovVerticalDeg > 0 && pose.position.length === 3);
+console.log('lakeside-kit-flag: PASS', { anchor: kit.board.anchor, cellM: kit.board.cellM, poseFov: +pose.fovVerticalDeg.toFixed(2) });
