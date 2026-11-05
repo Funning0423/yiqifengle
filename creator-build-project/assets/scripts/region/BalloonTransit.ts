@@ -32,6 +32,7 @@ import {followPose} from './ExploreCameraCore';
 import {camTag,camLog,camActorProbe,camActorPose} from './CamTraceLog';
 import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
 import {armTransitionHold,noteTransitionHeavyFrames,holdTransitionShaders} from './TransitionShaderWarm';
+import {SKYCITY_LEG_HEAVY_ENABLED,skycityLegHeavyFromFlag} from './SkycityLegHeavy';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
  ISLET_NODES, ISLETS_ON_T, RIDE_DURATION, rideToFlightT, LAND_T, MEADOW_OFF_T, NIGHT_MOON_HIDE, P_SEAM, S0_LOCAL,
@@ -357,6 +358,7 @@ function publishFlight(doc:FlightDoc):void{(globalThis as any).__QF_BALLOON_FLIG
  */
 export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start:Vec;token:Cancellation;progress:(n:number)=>void}):Promise<JourneySceneLease&{model:Node|null}>{
  if(!opts.meadow||!isValid(opts.meadow,true))throw Error('journey-meadow-lease-missing');
+ try{skycityLegHeavyFromFlag();}catch{/* query optional */}/* A/B: skycity-leg heavy default OFF (ascent+post-land) */
  const token=opts.token,progress=opts.progress,meadow=opts.meadow;
  const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token,VEHICLE_ASSET_WAIT_MS);token.check();
  prefab.addRef();
@@ -439,7 +441,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   // (audit b17-cand-76a0433, 15.8-17 s). Hide EVERY live env_sea_surface each frame (rescanned, not one cached node) whenever
   // islandSeaShown() says so; paint runs on EVENT_BEFORE_DRAW so this is the last write before the frame.
   const seas:Node[]=[];let seaScanAt=-1;
-  const scanSeas=(t:number)=>{if(seaScanAt>=0&&Math.abs(t-seaScanAt)<0.5&&seas.every(n=>isValid(n,true))&&sailLeft.every(n=>isValid(n,true)))return;seaScanAt=t;seas.length=0;sailLeft.length=0;const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(n.name==='env_sea_surface')seas.push(n);else if(n.name==='SailArt'){sailLeft.push(n);if(!sailHome.has(n))sailHome.set(n,n.active);}});};
+  const scanSeas=(t:number)=>{const valid=seas.every(n=>isValid(n,true))&&sailLeft.every(n=>isValid(n,true));/* A/B: OFF → rescan only when list empty/invalid (no 0.5s full-scene walk). ON → prior 0.5s cadence. */if(seas.length&&valid&&(!SKYCITY_LEG_HEAVY_ENABLED||(seaScanAt>=0&&Math.abs(t-seaScanAt)<0.5)))return;seaScanAt=t;seas.length=0;sailLeft.length=0;const sc=director.getScene();if(sc)eachNamed(sc,n=>{if(n.name==='env_sea_surface')seas.push(n);else if(n.name==='SailArt'){sailLeft.push(n);if(!sailHome.has(n))sailHome.set(n,n.active);}});};
   // b17r7 B1 (Mac diagDump 3efe2a0c): the blocker is the SAIL leg's leftover SailArt (WorldFlowOwner/RegionJourney-meadow/SailArt:
   // transit_sea/sea_plane, world y=-0.91, AABB half-extent 832 m around (-3.7,30.4)). SailArt is a sibling of the meadow model,
   // disposed only with the meadow lease, so hiding the meadow at MEADOW_OFF_T left it on; the post-seam lens climbs through
@@ -464,7 +466,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   if(scene){const lights=scene.getComponentsInChildren(DirectionalLight);mainLight=lights[0]||null;if(mainLight){mainYaw0=mainLight.node.eulerAngles.y;mainPitch0=mainLight.node.eulerAngles.x;mainRoll0=mainLight.node.eulerAngles.z;mainIllum0=mainLight.illuminance;mainShadow0=!!(mainLight as any).shadowEnabled;}}
   // Shadows stay on during meadow board/liftoff so windmill/bell match normal meadow gameplay; drop after unload for DC.
   let seaRestored=false,backdropRestored=false,arrived=false;
-  let canopyClipped=false,cityNoShadow=false,foliageHidden=false,paintDebt=0,lastFlightCam:Pose|null=null,prevThreshKey='';
+  let canopyClipped=false,cityNoShadow=false,foliageHidden=false,paintDebt=0,lastFlightCam:Pose|null=null,prevThreshKey='',lastVisKey='';
   (globalThis as any).__QF_BALLOON_SEA_PLAN={plan:SEA_PLAN,handoffCoverT:HANDOFF_COVER_T,handoffFade:true};
   const contChain=continuousTransitions();
   const handoffFade=(t:number):number=>{
@@ -532,6 +534,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    // HANDOFF_COVER_T/STRATA_OFF_T until the arrived flag flipped *after* the walk-out, so she stood
    // on restored cloudsea with only far floatingrocks visible (skycity-sea-landing).
    const showIsland=arrived||t+1e-9>=LAND_T||(cityOn&&t+1e-9<plan.strataOffAt&&!cover);
+   const visKey=`${meadowOn?1:0}${cityOn?1:0}${showIsland?1:0}${Number(t>=GRASS_OFF_T)}${Number(t>=4.8&&t<7.5)}${Number(t>=FAR_CARD_ON_T&&t<21)}${Number(t>=ISLETS_ON_T&&t>=27)}${Number(t<ISLETS_ON_T)}${arrived?1:0}${handoff?1:0}${night?1:0}`;
+   const runVis=SKYCITY_LEG_HEAVY_ENABLED||visKey!==lastVisKey;if(runVis)lastVisKey=visKey;
    if(isValid(meadow,true))meadow.active=meadowOn;
    scanSeas(t);applySailLeft(sailLeftoverShown(t,arrived)&&meadowOn);
    // Shadows on for meadow gameplay match; off after unload for DC ≤53.
@@ -545,21 +549,24 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(model){
     model.active=cityOn;
     // Skip city tree walks while inactive — early-flight LONGs were walking showNamed×8 on a disabled model every frame.
+    // A/B: when skycity-leg heavy OFF, showNamed×N only on visKey change (thresholds / arrival).
     if(cityOn){
      model.getComponent(SkycityCloudsea)!.setFlightHidden(!arrived);
      if(!cityNoShadow){cityNoShadow=true;noShadow(model);}
-     showNamed(model,ALWAYS_HIDDEN,false);
-     if(!arrived)showNamed(model,FLIGHT_FAR_CLOUDS,false);
-     showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
-     showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],t>=ISLETS_ON_T&&t>=27);
-     showNamed(model,['env_sky_islets_far'],false);
-     showNamed(model,CITY_RIDE_HIDE,false);
-     showNamed(model,ISLAND_BODY,showIsland);
-     showNamed(model,ISLAND_VINES,arrived);
-     if(!arrived){if(!foliageHidden){foliageHidden=true;eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name)&&n.active)n.active=false;});}}else foliageHidden=false;
+     if(runVis){
+      showNamed(model,ALWAYS_HIDDEN,false);
+      if(!arrived)showNamed(model,FLIGHT_FAR_CLOUDS,false);
+      showNamed(model,['env_sky_floatingrocks_cards_1','env_sky_floatingrocks_cards_2','env_sky_floatingrocks_cards_3'],false);
+      showNamed(model,['env_sky_floatingrocks_1','env_sky_floatingrocks_2','env_sky_floatingrocks_3'],t>=ISLETS_ON_T&&t>=27);
+      showNamed(model,['env_sky_islets_far'],false);
+      showNamed(model,CITY_RIDE_HIDE,false);
+      showNamed(model,ISLAND_BODY,showIsland);
+      showNamed(model,ISLAND_VINES,arrived);
+      if(!arrived){if(!foliageHidden){foliageHidden=true;eachNamed(model,n=>{if(/foliage_card|env_sky_static_foliage|env_sky_static_flower|Icosphere/.test(n.name)&&n.active)n.active=false;});}}else foliageHidden=false;
+     }
     }else{cityNoShadow=false;foliageHidden=false;}
    }
-   if(!arrived){
+   if(!arrived&&runVis){
    showNamed(clouds,CITY_CLOUD,cityOn);
    showNamed(clouds,ALWAYS_CLOUD,true);
    // Board (t≈0.9): keep far/horizon transit clouds so the sky matches meadow gameplay (not empty blue).
@@ -569,7 +576,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(cityOn){showNamed(clouds,['clouds_far','clouds_deck_loose'],false);showNamed(clouds,['clouds_horizon'],t<ISLETS_ON_T);}
    }
    // Skip the meadow tree walk once it is off — was every flight frame and stacked with setCamera.
-   if(meadowOn&&isValid(meadow,true)){eachNamed(meadow,n=>{
+   // A/B: when skycity-leg heavy OFF, only re-walk meadow on visKey change.
+   if(runVis&&meadowOn&&isValid(meadow,true)){eachNamed(meadow,n=>{
     if(n.name.startsWith('meadow_grass')){const want=t<GRASS_OFF_T;if(n.active!==want)n.active=want;}
     if(n.name==='meadow_clouds_near'||n.name==='meadow_far_hills'){if(!n.active)n.active=true;}
    });}
@@ -577,8 +585,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const farOn=t>=FAR_CARD_ON_T&&t<21&&!handoff&&!meadowOn;
    if(farRoot&&isValid(farRoot,true)){
     farRoot.active=farOn;
-    eachNamed(farRoot,n=>{for(const r of n.getComponents(MeshRenderer))r.enabled=farOn;});
-    if(farOn)tintFarCard(farRoot,night);
+    if(runVis){eachNamed(farRoot,n=>{for(const r of n.getComponents(MeshRenderer))r.enabled=farOn;});if(farOn)tintFarCard(farRoot,night);}
    }
    const frame=t+1e-9>=SEAM_T?postFrame:meadowFrame;
    setRigid(transitFrame,frame);
@@ -606,8 +613,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    if(model&&cityOn&&!arrived){if(!canopyClipped){canopyClipped=true;clipCanopy(model);hideCityNightGlow(model,night);}if(night)dimCityNight(model,true,cityNightDimmed);}
    if(flame){const burn=!arrived&&t>=0.4&&t<LAND_T;flame.active=burn;const s=burn?1+0.15*Math.sin(t*18):1;flame.setScale(s,s,s);}
    if(arrived){
-    const dress=[model,clouds,farRoot,seaFallback,nightDome];
-    for(const root of dress){if(!root||!isValid(root,true))continue;eachNamed(root,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;else if(want==='off')n.active=false;});}
+    // A/B: when skycity-leg heavy OFF, arrival dress tree walk only on visKey change (once at arrived flip).
+    if(runVis){const dress=[model,clouds,farRoot,seaFallback,nightDome];
+    for(const root of dress){if(!root||!isValid(root,true))continue;eachNamed(root,n=>{const want=skyNodeAfterArrival(n.name);if(want==='on')n.active=true;else if(want==='off')n.active=false;});}}
     (globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;(globalThis as any).__QF_BALLOON_FADE=0;
    }else{(globalThis as any).__QF_BALLOON_FADE=fade;}
    (globalThis as any).__QF_BALLOON_HANDOFF={t,coverT:HANDOFF_COVER_T,fade:arrived?0:fade,seaRestored,backdropRestored,seaPlan:SEA_PLAN,farOn:arrived?false:farOn,meadowOn,cityOn,showIsland,arrived};
@@ -767,7 +775,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      const hidden=typeof document!=='undefined'&&!!document.hidden;
      if(inflateT<INFLATE.durationS){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}if(!hidden)inflateT=Math.min(INFLATE.durationS,inflateT+Math.max(0,Math.min(.1,dt)));}
      else if(!(hold!=null&&rideToFlightT(clock.t)>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
-     const t=apply(Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)))>=plan.total&&hold==null)/* full9b single writer: beforeDraw writes the lens; the step only on its last frame (beforeDraw is removed below) */;if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
+     /* A/B: when skycity-leg heavy OFF, beforeDraw alone paints; step only advances clock + end detect (avoid double paint/showNamed). */
+     const endNow=Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)))>=plan.total&&hold==null;
+     const t=(!SKYCITY_LEG_HEAVY_ENABLED&&!endNow)?Math.max(0,Math.min(plan.total,rideToFlightT(clock.t))):apply(endNow)/* full9b single writer: beforeDraw writes the lens; the step only on its last frame (beforeDraw is removed below) */;if(inflateT<INFLATE.durationS||!flightMarked)applyInflate();
      {const m=t>=LAND_T;if(m!==landRopeOn){landRopeOn=m;setMooringRopes(model,'landing',m);}}/* cand7: landing rope only with the basket down */
      if(contChain&&inflateT>=INFLATE.durationS&&!flightMarked){flightMarked=true;chainMark('balloon','B3-flight');}
      if(contChain&&!settleMarked&&clock.t>=BALLOON_DOOR.settleT0){settleMarked=true;chainMark('balloon','B4-settle');}

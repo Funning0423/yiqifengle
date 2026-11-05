@@ -1,5 +1,6 @@
 import {_decorator,Camera,Color,Component,Director,Material,MeshRenderer,Node,Prefab,director,instantiate,isValid} from 'cc';
 import {REGION_BOARD_NIGHT_CLEAR,regionNightNow} from './RegionBoardNight';
+import {SKYCITY_LEG_HEAVY_ENABLED} from './SkycityLegHeavy';
 const {ccclass}=_decorator;
 export const SKY_CLOUDSEA_HIDDEN=['env_sky_cloudsea','env_sky_cumulus_far'];
 const seaOwners=new Set<SkycityCloudsea>();
@@ -16,6 +17,10 @@ export class SkycityCloudsea extends Component{
   private soft:Node|null=null;
   private prefab:Prefab|null=null;
   private flightHidden=false;
+  /** A/B: when skycity-leg heavy OFF, syncDay/camera far only on night flip or flightHidden change. */
+  private daySynced=false;
+  private farDone=false;
+  private lastNight:boolean|null=null;
   mount(prefab:Prefab){
     this.prefab=prefab;prefab.addRef();this.soft=instantiate(prefab);this.soft.name='SkycityCloudseaSoft';
     this.node.parent!.addChild(this.soft);
@@ -26,7 +31,7 @@ export class SkycityCloudsea extends Component{
     for(const r of this.soft.getComponentsInChildren(MeshRenderer)){r.setSharedMaterial(palette,0);r.shadowCastingMode=0;r.receiveShadow=0;}
     this.sync();
   }
-  setFlightHidden(value:boolean){this.flightHidden=value;this.sync();}
+  setFlightHidden(value:boolean){if(this.flightHidden===value){this.sync();return;}this.flightHidden=value;this.daySynced=false;this.farDone=false;this.sync();}
   private restoreDay(){
     dayOwners.delete(this);
     if(dayOwners.size)return;
@@ -81,15 +86,22 @@ export class SkycityCloudsea extends Component{
     this.soft.active=this.node.activeInHierarchy&&!this.flightHidden;
     const layer=(n:Node)=>{n.layer=this.node.layer;for(const c of n.children)layer(c);};layer(this.soft);
     for(const name of SKY_CLOUDSEA_HIDDEN){const n=find(this.node,name);if(n)n.active=false;}
-    if(!this.soft.active){this.restoreSea();return;}
+    if(!this.soft.active){this.restoreSea();this.daySynced=false;this.farDone=false;this.lastNight=null;return;}
     for(const name of ['env_sky_cloud_small','env_sky_islets_far']){const n=find(this.node,name);if(n)n.active=true;}
     const scene=director.getScene();
     if(scene){
-      this.syncDay(scene);
-      seaOwners.add(this);
+      const night=regionNightNow();
+      // A/B: OFF → skip per-frame syncDay full-scene walk + camera far sweep after first settle / night flip.
+      // Covers post-land walk-to-plaza continuous hitch (soft cloudsea enabled after setFlightHidden(false)).
+      const needDay=SKYCITY_LEG_HEAVY_ENABLED||!this.daySynced||this.lastNight!==night;
+      if(needDay){this.syncDay(scene);this.daySynced=true;this.lastNight=night;}
+      else {seaOwners.add(this);}
       if(!savedSeas.size){const sea=find(scene,'env_sea_surface');if(sea)savedSeas.set(sea,sea.active);}
       for(const sea of savedSeas.keys())if(isValid(sea,true))sea.active=false;
-      for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0&&camera.far<1200)camera.far=1200;
+      if(SKYCITY_LEG_HEAVY_ENABLED||!this.farDone){
+        for(const camera of scene.getComponentsInChildren(Camera))if(camera.enabled&&(camera.visibility&this.node.layer)!==0&&camera.far<1200)camera.far=1200;
+        this.farDone=true;
+      }
     }
   };
   onEnable(){director.on(Director.EVENT_BEFORE_DRAW,this.sync);}

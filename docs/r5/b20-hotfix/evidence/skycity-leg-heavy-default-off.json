@@ -1,0 +1,17 @@
+{
+  "tip": "skycity-leg-heavy-default-off",
+  "date": "2026-11-05",
+  "parentExperience": "1.0.202611050927",
+  "parentIntegrate": "9ec8410c",
+  "hypothesis": "With TSW OFF, meadow→skycity ascent period hitch + post-land walk-to-plaza continuous hitch share BalloonTransit heavy paint and SkycityCloudsea per-frame syncDay.",
+  "evidenceLevel": "hypothesis-for-AB",
+  "covers": [
+    "ascent: BalloonTransit scanSeas 0.5s + redundant showNamed/grass/clouds + double apply",
+    "post-land: SkycityCloudsea syncDay/camera every BEFORE_DRAW after setFlightHidden(false)"
+  ],
+  "default": "SKYCITY_LEG_HEAVY_ENABLED=false",
+  "killSwitch": ["setSkycityLegHeavyEnabled(true)", "?qfskyheavy=1", "__qfSkyLegHeavy=true"],
+  "keptOff": ["TRANSITION_SHADER_WARM_ENABLED", "STANDUP_PROGRAM_WARM_ENABLED", "MORPH_IDLE_DRIVE_ENABLED", "PERIOD_HEAVY_REFRESH_ENABLED", "SCENE_AUDIO_POLL_ENABLED"],
+  "lakesideKitTrial": "default ON unchanged",
+  "upload": "wait-PM"
+}
