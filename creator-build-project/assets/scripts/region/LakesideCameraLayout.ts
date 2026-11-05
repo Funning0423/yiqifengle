@@ -3,6 +3,7 @@ import {arrivalPose,journeyCamera,routeLength,type JourneyLanding,type JourneyTi
 import {boardLayout,type SafeArea} from '../ui/BoardLayout';
 import {fromLookAt,type AuthoredPose,type CameraPose} from '../world-r1/CameraPose';
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus} from './RegionJourneyLayout';
+import {lakesideKitAssetsEnabled} from './LakesideSceneData';
 /** Lakeside (r5h3) camera data: journey into the region, Landing A arrival and the board framing. Pure numbers and maths, no
  * engine imports, so tools/journey-integration/test-lakeside-camera.cjs checks exactly these values against the committed
  * region_lakeside GLBs placed by scene_r5h_slim_transforms.json. Coordinates marked Local are lakeside-root (Y-up, metres).
@@ -79,7 +80,13 @@ export const LAKESIDE_CAMERA_LAYOUT={
    *  b18 path v4 (Grok Bot 2026-10-22: main lens fixed at 6 m): screens with h/w ≥ splitHW use `main` (6 m: [2,6,33] →
    *  [1,−0.5,2]); shorter screens use `short` ([2.5,6.5,34] → [−3,−0.5,0]); orbit pitch to her pivot ≈ 28° on both. position /
    *  target = main (older readers). Her stop is the v4 end (stopLocal); see docs/r5/cine/b18_endpoint_v2.md. */
-  portrait:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,main:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,fovVerticalDeg:56},short:{position:[2.5,6.5,34] as Vec,target:[-1.9,-.5,0] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
+  portrait:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,main:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,fovVerticalDeg:56},short:{position:[2.5,6.5,34] as Vec,target:[-1.9,-.5,0] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},
+  /** kit-ON fusion mild-overhead (运镜bot 2026-11-05, Funning sample lakeside-fusion-sample-funning-20261105.png):
+   *  带一点俯视、盘面可点. Used ONLY when lakesideKitAssetsEnabled() — kit OFF keeps `portrait` sightseeing above
+   *  (opaque 2D tray still needs south-bank heroine/bridge). main: [0,9.5,23]→[0,.15,10] fov 50 ≈ −36° pitch;
+   *  short: [0,10.2,24]→[0,.1,10] fov 50. Board centre [0,0.02,12] mid-frame; near cell ≈ 88 px on 390×844. */
+  portraitFusion:{position:[0,9.5,23] as Vec,target:[0,.15,10] as Vec,main:{position:[0,9.5,23] as Vec,target:[0,.15,10] as Vec,fovVerticalDeg:50},short:{position:[0,10.2,24] as Vec,target:[0,.1,10] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},
+  grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
 } as const;
 const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};
 /** Placement + route pieces for RegionJourneyAdapter: model.setRotationFromEuler(0,yawDeg,0); model.setWorldPosition(...root);
@@ -134,11 +141,11 @@ export function lakesideLandingLocal(frame?:Readonly<{width:number;height:number
  const e=arrivalPose(L.walkLocal,L.focusLocal,L.landing);
  return {position:[e.position[0],e.position[1],e.position[2]],target:[e.target[0],e.target[1],e.target[2]],fovVerticalDeg:L.landing.arrivalFovDeg||48};}
 /** Lakeside board-background camera for a board-UI frame (Local).
- * Portrait (b18): the authored lens B′ (board.portrait), FOV from lakesidePortraitFov(aspect); the old grid-alignment solve is
- * retired (the 2D board is opaque, aligning the hidden 3D grid only forced the low lawn view).
- * Landscape: closed form — with the view direction fixed (landscape.pitchDeg, facing −Z) the 3D centre row is at one depth D,
- * so its projected width 7.7/(D·tan(fov/2)·aspect) (NDC) equals the 2D grid width; the camera then shifts in its own image
- * plane so the 3D board centre lands on the 2D grid centre. */
+ * Portrait: lakesidePortraitLens(aspect) — kit OFF = b18 sightseeing board.portrait; kit ON = portraitFusion mild-overhead;
+ * FOV from lakesidePortraitFov(aspect). lakesideAlignedBoardPose / lakesideScreenLanding / lakesideLandingBlend all go through
+ * this path so journey end and lease.frame share one pose.
+ * Landscape: closed form — view fixed (landscape.pitchDeg, facing −Z); 3D centre-row width = 2D grid width; camera shifts in
+ * its image plane so the 3D board centre lands on the 2D grid centre. */
 export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
  const B=LAKESIDE_CAMERA_LAYOUT.board,G=B.grid,rect=lakesideBoardRect(frame),w=frame.width,h=frame.height,aspect=w/h,c=G.centre;
  const q=(v:number)=>+v.toFixed(4);
@@ -150,7 +157,10 @@ export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
  return {position:[q(pos[0]),q(pos[1]),q(pos[2])],target:[q(pos[0]+f[0]*D),q(pos[1]+f[1]*D),q(pos[2]+f[2]*D)],fovVerticalDeg:fov};
 }
 /** b18 portrait lens for a screen (w/h aspect): main when h/w ≥ splitHW, else short. */
-export function lakesidePortraitLens(aspect:number):{position:Vec;target:Vec;fovVerticalDeg:number}{const P=LAKESIDE_CAMERA_LAYOUT.board.portrait,L=1/Math.max(.01,aspect)>=P.splitHW-1e-9?P.main:P.short;
+/** Active portrait board lens: kit ON → portraitFusion (mild overhead); kit OFF → b18 sightseeing `portrait`. */
+export function lakesidePortraitLens(aspect:number):{position:Vec;target:Vec;fovVerticalDeg:number}{
+ const P=lakesideKitAssetsEnabled()?LAKESIDE_CAMERA_LAYOUT.board.portraitFusion:LAKESIDE_CAMERA_LAYOUT.board.portrait;
+ const L=1/Math.max(.01,aspect)>=P.splitHW-1e-9?P.main:P.short;
  return {position:[L.position[0],L.position[1],L.position[2]],target:[L.target[0],L.target[1],L.target[2]],fovVerticalDeg:L.fovVerticalDeg};}
 /** b18 portrait board FOV for a screen aspect (w/h): vertical 50° on 390×844 and shorter screens, the 390×844 horizontal
  * coverage on taller ones, capped at maxFovDeg. */

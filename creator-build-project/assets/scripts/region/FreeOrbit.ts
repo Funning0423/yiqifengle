@@ -98,9 +98,10 @@ export const ORBIT_LIMITS: Readonly<Record<OrbitPlace, OrbitLimits>> = Object.fr
   meadow: { pitchMinDeg: 5, pitchMaxDeg: 48, distMin: 3.2, distMax: 12, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
     pitchFloor: { nearDeg: 9, farDeg: 5, fromM: 3.2, toM: 14 } },
   skycity: { pitchMinDeg: 5, pitchMaxDeg: 55, distMin: 4, distMax: 12, yawHalfDeg: Infinity, lookM: 1.25, fovDeg: 48 },
-  // b15: pitchMax 42 -> 54 and distMax 16 -> 16.5 so the landscape board lens (pitch 53.3, 16.16 m from her look point)
-  // seeds without a clamp (the old limits moved the lens on the first drag). revealWiden: moored balloon reveal (+8 deg max).
-  lakeside: { pitchMinDeg: 5, pitchMaxDeg: 54, distMin: 3.6, distMax: 16.5, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
+  // b15: pitchMax 42 -> 54 / distMax 16 -> 16.5 so landscape board seeds without clamp.
+  // cine/lakeside-board-cam-fix (kit-ON only): portraitFusion ~63.6° / 8.7 m from her look point → pitchMax 54 -> 66
+  // so FreeOrbit.seed matches the mild-overhead board lens (kit OFF sightseeing stays ≪ 54). distMax stays 16.5.
+  lakeside: { pitchMinDeg: 5, pitchMaxDeg: 66, distMin: 3.6, distMax: 16.5, yawHalfDeg: Infinity, lookM: 1.15, fovDeg: 48,
     revealWiden: { fovAddDeg: 8, fullDeg: 70 }, revealLift: { aimUpM: 2.0 }, seedAimBlend: { minDeg: 18, perJumpDeg: 1.6 } },
   board: { pitchMinDeg: -2, pitchMaxDeg: 2, distMin: 6.6, distMax: 7.8, yawHalfDeg: 4, lookM: 1.1, fovDeg: 48 },
 });

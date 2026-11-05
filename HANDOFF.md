@@ -125,3 +125,7 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 - Merged: `66937792` / `de045cb6` (pipeline-bag PCF write + girl/room families before camera; no animateCamera hold)
 - Mac LONG+RT selftest pending; **no WeChat upload** until PASS + PM says so
 - Live trial stays `1.0.202611020627` until a later PASS upload
+
+## 2026-11-05 lakeside board-cam (cine/lakeside-board-cam-fix)
+- tip source `c6835e99`: kit-ON uses `portraitFusion` mild-overhead; kit OFF keeps b18 sightseeing.
+- Does not change lakesideSceneInstances / preload ordering (GGbot `28f5b386`).
