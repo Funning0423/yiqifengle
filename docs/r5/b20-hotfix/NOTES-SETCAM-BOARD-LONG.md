@@ -111,3 +111,9 @@ Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insu
 
 ## 2026-11-05 standup program warm follow-up · COUNT16/15/3
 体验包 `1.0.202611050458` @ `6bd40657` 已叠 APRON16/DRESS15/BODY15/BOW3 GLB+meta，但 Warm 仍按 COUNT53。本 tip 只改 StandupProgramWarm 预热袋 → `CC_MORPH_TARGET_COUNT{16|15|3}`；零侵入 TSW/Board/BalloonTransit/K.s1；不接 armStandupShaderBurst。upload=等 Funning 摸完本包。
+
+## MorphDriver 整机 FPS（本轮 · 主攻）
+
+- 角色动画bot 自查：`walk-morph-drive` — idle/walk∩seat=∅ PASS；根因转 runtime 全表+GPU COUNT。
+- tip：稀疏 morphWeights + MorphDriver enableMorph 闸 + StandupProgramWarm sit_hold 窗。
+- 成对：GLB e3fbce98… + meta 6fd22962；upload=等 PM；零 TSW。

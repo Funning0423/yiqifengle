@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "gate": "standup-program-warm-count16-15",
+  "gate": "morph-drive-fps+standup-window",
   "date": "2026-11-05",
   "isolation": {
     "TransitionShaderWarm": false,
@@ -11,33 +11,27 @@
     "black-fence": false
   },
   "runtime": {
-    "module": "creator-build-project/assets/scripts/region/StandupProgramWarm.ts",
-    "bag": {
-      "APRON": 16,
-      "DRESS": 15,
-      "BODY": 15,
-      "BOW": 3,
-      "unique": [16, 15, 3],
-      "shaderDefines": [
-        "CC_MORPH_TARGET_COUNT16",
-        "CC_MORPH_TARGET_COUNT15",
-        "CC_MORPH_TARGET_COUNT3"
-      ],
+    "morphWeights": "sparse active-set (clip morph curves + wind flutter); zero inactive leftovers",
+    "MorphDriver": "enableMorph gate — unload when all tip weights ~0; re-enable before live write",
+    "StandupProgramWarm": {
+      "bag": {"APRON": 16, "DRESS": 15, "BODY": 15, "BOW": 3, "unique": [16, 15, 3]},
+      "window": "sit_hold only (openStandupWarmWindow / closeStandupWarmWindow)",
+      "step": "no-op unless windowOpen (force only for flush)",
+      "flush": "warmSampleStandUp before stand (≤2)",
       "legacyNotWarmed": [53, 73]
     },
     "perFrame": 2,
     "maxFrames": 10,
     "morphBudgetFirst": 12,
-    "morphBudgetFrames": 4,
-    "arm": "bindVisual → sit_hold (spread only)",
-    "step": "advanceStep while armed&&pending",
-    "flush": "warmSampleStandUp before stand (≤2)",
-    "sample": "warmSampleStandUp N=4 short window"
+    "morphBudgetFrames": 4
   },
   "offline": {
     "test_standup_program_warm.cjs": "PASS",
-    "test_standup_warm_sample.cjs": "PASS"
+    "test_standup_warm_sample.cjs": "PASS",
+    "windowGate": {"armNoStep": true, "closeDisarm": true},
+    "morphSparse": true,
+    "gpuGate": true
   },
-  "acceptance": "Funning phone standup feel — NOT Mac setCamera/board=0 veto (CONTROL_FAIL_NOISE)",
-  "stackNote": "pairs with COUNT16/15 GLB + formal anim_meta (6fd22962 / integrate 6bd40657 @ 1.0.202611050458); follow-up to 5bde177a/6dce6a7b which still warmed COUNT53"
+  "acceptance": "whole-UI FPS + standup feel — NOT Mac setCamera/board=0 veto (CONTROL_FAIL_NOISE)",
+  "stackNote": "pairs COUNT GLB e3fbce98 + meta 6fd22962 / integrate 6bd40657 @ 1.0.202611050458; primary MorphDriver; secondary StandupProgramWarm sit_hold window"
 }
