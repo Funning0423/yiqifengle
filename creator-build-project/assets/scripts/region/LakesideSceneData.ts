@@ -339,9 +339,16 @@ export type LakesideInstance = Readonly<{ name: string; glb: string; group: stri
  *  (lily pads, rope floats, buoy lanterns, white-balance lines, chime rafts), and drops what the 2D board already shows:
  *  3D match pieces, their contact shadows / ripple rings, and the board frame whose GLB is not in the subpackage. */
 export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
+/** Kit path (LAKESIDE_KIT / ?qflakesidekit=1): keep board_frame skipped (r5h3 dropped; water = carrier), unskip contact_shadow + ripple_ring. Default OFF keeps the 2D-tray skip list. */
+const LAKESIDE_KIT_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb']);
+let lakesideKitAssetsOn = false;
+export function setLakesideKitAssets(on: boolean): void { lakesideKitAssetsOn = !!on; }
+export function lakesideKitAssetsEnabled(): boolean { return lakesideKitAssetsOn; }
+export function lakesideSkippedGlb(): readonly string[] { return lakesideKitAssetsOn ? LAKESIDE_KIT_SKIPPED_GLB : LAKESIDE_SKIPPED_GLB; }
 export function lakesideSceneInstances(instances: readonly LakesideInstance[]): LakesideInstance[] {
   if (!Array.isArray(instances) || !instances.length) throw Error('lakeside transforms empty');
-  return instances.filter(i => i && typeof i.glb === 'string' && !LAKESIDE_SKIPPED_GLB.includes(i.glb) && !/^LK_piece_/.test(i.glb) && !isLakesideAssetTemplate(i));
+  const skip = lakesideSkippedGlb();
+  return instances.filter(i => i && typeof i.glb === 'string' && !skip.includes(i.glb) && !/^LK_piece_/.test(i.glb) && !isLakesideAssetTemplate(i));
 }
 /** The r5h3 export also wrote the 34 source meshes of the Blender ASSETS collection (hide_render, never visible in the
  *  reference) as instances named exactly after their GLB, all at the origin with identity transform. At the origin they stack a
