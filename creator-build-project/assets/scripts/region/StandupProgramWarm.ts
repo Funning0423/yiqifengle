@@ -71,6 +71,9 @@ let armed=false;
 let windowOpen=false;
 let lastLabel='';
 let rootRef:Node|null=null;
+/** A/B kill switch: false = arm/step/flush no-op (peel warm, keep COUNT16+meta). Default true. */
+export let STANDUP_PROGRAM_WARM_ENABLED=true;
+export function setStandupProgramWarmEnabled(on:boolean):void{STANDUP_PROGRAM_WARM_ENABLED=!!on;if(!on){windowOpen=false;jobs=[];cursor=0;warmed=0;frames=0;armed=false;lastLabel='';}}
 
 function countInBag(n:number):boolean{
  for(let i=0;i<STANDUP_MORPH_COUNTS.length;i++)if(STANDUP_MORPH_COUNTS[i]===n)return true;
@@ -304,6 +307,7 @@ function compileJob(job:StandupWarmJob):boolean{
 /** Arm multi-frame COUNT16/15/3 warm against a character visual (or synthetic fallback). Idempotent.
  *  Does NOT open the sit_hold window by itself — prefer openStandupWarmWindow from boot. */
 export function armStandupProgramWarm(visual?:Node|null):StandupWarmStats{
+ if(!STANDUP_PROGRAM_WARM_ENABLED)return standupProgramWarmStats();
  const root=visual&&isValid(visual,true)?visual:rootRef;
  if(root&&isValid(root,true))rootRef=root;
  let next=root?collectStandupWarmJobs(root):[];
@@ -318,6 +322,7 @@ export function armStandupProgramWarm(visual?:Node|null):StandupWarmStats{
 
 /** Open sit_hold warm window + arm. Call on bindVisual / re-seat. */
 export function openStandupWarmWindow(visual?:Node|null):StandupWarmStats{
+ if(!STANDUP_PROGRAM_WARM_ENABLED){windowOpen=false;return standupProgramWarmStats();}
  const st=armStandupProgramWarm(visual);
  windowOpen=true;
  return standupProgramWarmStats();
@@ -336,6 +341,7 @@ export function standupWarmWindowOpen():boolean{return windowOpen;}
 /** Compile up to `n` pending bag variants (default STANDUP_WARM_PER_FRAME).
  *  No-op when the sit_hold window is closed (force=true only for pre-stand flush). */
 export function stepStandupProgramWarm(n:number=STANDUP_WARM_PER_FRAME,force=false):StandupWarmStats{
+ if(!STANDUP_PROGRAM_WARM_ENABLED)return standupProgramWarmStats();
  if(!armed)return standupProgramWarmStats();
  if(!windowOpen&&!force)return standupProgramWarmStats();
  if(frames>=STANDUP_WARM_MAX_FRAMES&&cursor>=jobs.length)return standupProgramWarmStats();
@@ -354,6 +360,7 @@ export function stepStandupProgramWarm(n:number=STANDUP_WARM_PER_FRAME,force=fal
 /** Drain a few remaining jobs right before sit→stand (never the whole queue at once).
  *  Force-steps even if window already closing; caller should closeStandupWarmWindow after. */
 export function flushStandupProgramWarmBeforeStand(max:number=2):StandupWarmStats{
+ if(!STANDUP_PROGRAM_WARM_ENABLED)return standupProgramWarmStats();
  if(!armed)armStandupProgramWarm(rootRef);
  if(!windowOpen)windowOpen=true;
  return stepStandupProgramWarm(max,true);
