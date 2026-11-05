@@ -249,11 +249,11 @@ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:
  *  takes its own (or 120 s pass), then dropped; the asset manager shares in-flight requests, so an early tap costs nothing extra.
  *  Shader variants are NOT compiled here: they depend on the scene fog macro (island fog off -> lake layered), which only exists
  *  while the lake shows. Never throws; failures only log. */
-let prewarm:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}|null=null;
+let prewarm:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any;pinned?:boolean}|null=null;
 export function prewarmLakesideAssets(holdMs=120000):Promise<void>{
  if(prewarm){if(prewarm.timer&&holdMs>120000){clearTimeout(prewarm.timer);const st=prewarm;st.timer=setTimeout(()=>{if(prewarm===st)releaseLakesidePrewarm();},holdMs);}return prewarm.promise;}
- const st:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}={promise:Promise.resolve(),held:[],timer:null};prewarm=st;
- {const pins:Map<string,number>=((globalThis as any).__qfRegionPins||=new Map());pins.set('lakeside',(pins.get('lakeside')||0)+1);(st as any).pinned=true;}/* perf-land: pin region_lakeside while prewarm refs are held (RegionLoader.regionPinned) */
+ const st:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any;pinned?:boolean}={promise:Promise.resolve(),held:[],timer:null};prewarm=st;
+ {const pins:Map<string,number>=((globalThis as any).__qfRegionPins||=new Map());pins.set('lakeside',(pins.get('lakeside')||0)+1);st.pinned=true;}/* perf-land: pin region_lakeside while prewarm refs are held (RegionLoader.regionPinned) */
  const keep=<T extends {addRef():unknown;decRef(auto?:boolean):unknown}>(a:T|null)=>{if(a&&prewarm===st){a.addRef();st.held.push(a);}return a;};
  st.promise=(async()=>{try{const t0=Date.now(),b=await loadBundle(LAKESIDE_BUNDLE);keep(await loadJson(b,LAKESIDE_TRANSFORMS));
    for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir'&&(await probeLakesideWaterPack(b)).state!=='failed')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
@@ -263,7 +263,7 @@ export function prewarmLakesideAssets(holdMs=120000):Promise<void>{
  return st.promise;
 }
 /** Drops the prewarm refs (the lease holds its own by then). Assets nobody else holds are released by the asset manager. */
-export function releaseLakesidePrewarm(){const st=prewarm;prewarm=null;if(!st)return;if(st.timer)clearTimeout(st.timer);for(const a of st.held.splice(0)){try{a.decRef();}catch{}}if((st as any).pinned){(st as any).pinned=false;const pins:Map<string,number>=((globalThis as any).__qfRegionPins||=new Map());pins.set('lakeside',Math.max(0,(pins.get('lakeside')||0)-1));}}
+export function releaseLakesidePrewarm(){const st=prewarm;prewarm=null;if(!st)return;if(st.timer)clearTimeout(st.timer);for(const a of st.held.splice(0)){try{a.decRef();}catch{}}if(st.pinned){st.pinned=false;const pins=Reflect.get(globalThis,'__qfRegionPins');if(pins)pins.set('lakeside',Math.max(0,(pins.get('lakeside')||0)-1));}}
 /** v3.3: the one reason a failed lakeside load surfaces with (player copy is chosen by the HUD; details only in the [QF_LAKESIDE] log). */
 export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
 /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */

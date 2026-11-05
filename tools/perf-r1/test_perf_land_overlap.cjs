@@ -23,7 +23,7 @@ assert.ok(!R.planRegionRelease('island',{}).includes('lakeside'),'board-preload 
 holder.destroyed=true;assert.ok(R.planRegionRelease('island',{}).includes('lakeside'),'destroyed holder frees it');
 const lb=fs.readFileSync(path.join(S,'region/LakesideBoardBackground.ts'),'utf8');
 assert.match(lb,/pins\.set\('lakeside',\(pins\.get\('lakeside'\)\|\|0\)\+1\)/,'prewarm pins');
-assert.match(lb,/function releaseLakesidePrewarm[^\n]*pins\.set\('lakeside',Math\.max\(0/,'prewarm release unpins');
+assert.match(lb,/function releaseLakesidePrewarm[^\n]*Reflect\.get\(globalThis,'__qfRegionPins'\)[^\n]*pins\.set\('lakeside',Math\.max\(0/,'prewarm release unpins');
 assert.match(lb,/new Node\('LakesideBoardPreload'\);\(\(globalThis as any\)\.__qfRegionRoots\|\|=new Set\(\)\)\.add\(\{key:'lakeside',node:holder\}\)/,'preload holder registered');
 assert.match(lb,/new Node\(LAKESIDE_NODES\.rig\);\(\(globalThis as any\)\.__qfRegionRoots/,'kit board rig registered');
 console.log('PASS perf-land-overlap tsw-off+identical lakeside pin/holder negatives=2');
