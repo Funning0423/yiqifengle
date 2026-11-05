@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "gate": "standup-program-warm-count53",
+  "gate": "standup-program-warm-count16-15",
   "date": "2026-11-05",
   "isolation": {
     "TransitionShaderWarm": false,
@@ -12,9 +12,21 @@
   },
   "runtime": {
     "module": "creator-build-project/assets/scripts/region/StandupProgramWarm.ts",
-    "count": 53,
+    "bag": {
+      "APRON": 16,
+      "DRESS": 15,
+      "BODY": 15,
+      "BOW": 3,
+      "unique": [16, 15, 3],
+      "shaderDefines": [
+        "CC_MORPH_TARGET_COUNT16",
+        "CC_MORPH_TARGET_COUNT15",
+        "CC_MORPH_TARGET_COUNT3"
+      ],
+      "legacyNotWarmed": [53, 73]
+    },
     "perFrame": 2,
-    "maxFrames": 8,
+    "maxFrames": 10,
     "morphBudgetFirst": 12,
     "morphBudgetFrames": 4,
     "arm": "bindVisual → sit_hold (spread only)",
@@ -24,10 +36,8 @@
   },
   "offline": {
     "test_standup_program_warm.cjs": "PASS",
-    "test_standup_warm_sample.cjs": "PASS",
-    "test_integrate_vs_fb74_scripts_identity.cjs": "PASS",
-    "test_transition_shader_warm.cjs": "PASS"
+    "test_standup_warm_sample.cjs": "PASS"
   },
   "acceptance": "Funning phone standup feel — NOT Mac setCamera/board=0 veto (CONTROL_FAIL_NOISE)",
-  "stackNote": "may stack anim tip that culls mesh COUNT53 morph targets; curves-only cull 299afe73 already falsified on phone"
+  "stackNote": "pairs with COUNT16/15 GLB + formal anim_meta (6fd22962 / integrate 6bd40657 @ 1.0.202611050458); follow-up to 5bde177a/6dce6a7b which still warmed COUNT53"
 }

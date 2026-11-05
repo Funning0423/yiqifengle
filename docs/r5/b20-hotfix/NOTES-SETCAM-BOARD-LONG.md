@@ -108,3 +108,6 @@ setCamera LONG **&lt;100ms**（最好≈0）**且** board-bg LONG **&lt;100ms**�
 
 ## 2026-11-05 standup COUNT53 program warm (zero TSW)
 Funning A/B: 0421 walk smooth / standup stutter; 067a warmSample+curve cull insufficient. Tip adds StandupProgramWarm (independent getProgramVariant COUNT53), morph soft budget. Acceptance=phone standup feel. setCamera/board still CONTROL_FAIL_NOISE — not a veto.
+
+## 2026-11-05 standup program warm follow-up · COUNT16/15/3
+体验包 `1.0.202611050458` @ `6bd40657` 已叠 APRON16/DRESS15/BODY15/BOW3 GLB+meta，但 Warm 仍按 COUNT53。本 tip 只改 StandupProgramWarm 预热袋 → `CC_MORPH_TARGET_COUNT{16|15|3}`；零侵入 TSW/Board/BalloonTransit/K.s1；不接 armStandupShaderBurst。upload=等 Funning 摸完本包。

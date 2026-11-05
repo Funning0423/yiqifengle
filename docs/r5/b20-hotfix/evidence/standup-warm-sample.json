@@ -31,7 +31,7 @@
     "3_shader_warm_MORPH_COUNT_PRECOMPUTED_DIR_LIGHT": {
       "ok": true,
       "via": "StandupProgramWarm (NOT TransitionShaderWarm)",
-      "evidence": "COUNT53 skin+morph getProgramVariant spread on sit_hold; flush≤2 before stand; zero TSW critical/hold/burst / no armStandupShaderBurst"
+      "evidence": "COUNT16/15/3 (APRON/DRESS|BODY/BOW) skin+morph getProgramVariant spread on sit_hold; flush≤2 before stand; zero TSW critical/hold/burst / no armStandupShaderBurst; no legacy COUNT53/73"
     },
     "4_MorphDriver_no_full_clear": {
       "ok": true,
@@ -47,8 +47,9 @@
   ],
   "acceptance": "Funning phone standup feel — NOT setCamera/board=0 veto",
   "stack": {
-    "anim_morph_reduction": "299afe73 anim/standup-perf-morph (optional companion; anim_meta only; not cherry-picked into this runtime tip)",
-    "docs": "docs/handoff/角色动画bot/STANDUP-PERF-20261104.md"
+    "anim_count_glb_meta": "6fd22962 + integrate 6bd40657 (1.0.202611050458)",
+    "prior_warm": "5bde177a / 6dce6a7b (COUNT53 — superseded by this follow-up)",
+    "docs": "docs/handoff/GGbot/STANDUP-PROGRAM-WARM-COUNT16-20261105.md"
   },
   "unit": {
     "status": "see tools/walk-driver/test_standup_warm_sample.cjs",
@@ -61,7 +62,19 @@
   "live": "1.0.202611031613 @ fb74d437",
   "programWarm": {
     "module": "region/StandupProgramWarm.ts",
-    "count53": true,
+    "bag": {
+      "APRON": 16,
+      "DRESS": 15,
+      "BODY": 15,
+      "BOW": 3,
+      "unique": [
+        16,
+        15,
+        3
+      ]
+    },
+    "count53": false,
+    "bagReady": true,
     "perFrame": 2,
     "flushBeforeStand": 2,
     "morphBudgetFirst": 12,
@@ -69,5 +82,5 @@
     "viaTSW": false,
     "armStandupShaderBurst": false
   },
-  "stackNote": "may stack anim tip that culls mesh COUNT53 morph targets"
+  "stackNote": "pairs with COUNT16/15 GLB + formal anim_meta (6fd22962 / 6bd40657); StandupProgramWarm follow-up retargets bag off COUNT53"
 }
