@@ -1,0 +1,32 @@
+{
+  "specimen": "proposed-geometry-only",
+  "runtimeImplementation": false,
+  "cruiseMesh": "unchanged transport_balloon.glb",
+  "basket": "authored balloon_basket, unscaled",
+  "colors": "envelope baseColorTexture, unchanged",
+  "view": {
+    "eye": [
+      0.15,
+      2.35,
+      2.55
+    ],
+    "target": [
+      0.0,
+      0.72,
+      0.0
+    ],
+    "fov": 32.0,
+    "note": "\u79bb\u7ebf\u5f62\u6001\u5c0f\u6837\uff0c\u975e\u6e38\u620f\u955c\u5934\u9a8c\u6536"
+  },
+  "rejectedCap": {
+    "mouthY": 0.55,
+    "crownY": 1.3585000000000003,
+    "sy": 0.11,
+    "sxz": 0.1672800267648043
+  },
+  "proposedPile": {
+    "yMin": 0.376,
+    "yMax": 0.996,
+    "rMax": 0.836
+  }
+}

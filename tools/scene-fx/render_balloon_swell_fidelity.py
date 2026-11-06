@@ -149,7 +149,7 @@ def main():
         pose = dict(pack["times"][0][kind])
         pose["t"] = 0
         checked(pose, kind + " t=0")
-        zh = "修复前 运行时" if kind == "before" else "修复后 运行时"
+        zh = "离线姿态复现 修复前" if kind == "before" else "离线姿态复现 修复后"
         img = shoot(pose, eye, target, fov, f"{zh} t=0")
         img.save(OUT / f"fidelity-close-{kind}-t0.png")
         pair.append(img)
