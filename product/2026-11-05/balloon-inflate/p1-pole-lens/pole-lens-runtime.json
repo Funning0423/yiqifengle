@@ -1,0 +1,1015 @@
+{
+  "notCocosDevice": true,
+  "source": "node",
+  "note": "Node runs balloonDrapePose and envelopeCameraGap, the pose BalloonTransit.applyInflate and the lakeside inflate() call. Pole gaps are point-triangle distances from the 48 foot vertices to balloon_basket. Camera gaps are the ring-sample surface (ENV_RINGS), not a continuous mesh proof and not a Cocos/device PASS. Flight number is center distance minus the 2.989 m equator, a lower bound.",
+  "sample": {
+    "poleAndCameraT0": 0,
+    "t1": 3,
+    "stepS": 0.1,
+    "flightT0": 0,
+    "flightT1": 12,
+    "flightStepS": 0.1,
+    "skyWalkStepS": 0.2
+  },
+  "pole": {
+    "footCount": 48,
+    "maxBasketGapM": 0,
+    "atT": 0.6,
+    "pivotYM": 1.096175,
+    "rows": [
+      {
+        "t": 0.6,
+        "frameSy": 0.571,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 0.7,
+        "frameSy": 0.68,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 0.8,
+        "frameSy": 0.773,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 0.9,
+        "frameSy": 0.852,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1,
+        "frameSy": 0.915,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.1,
+        "frameSy": 0.964,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.2,
+        "frameSy": 0.998,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.3,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.4,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.5,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.6,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.7,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.8,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 1.9,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.1,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.2,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.3,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.4,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.5,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.6,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.7,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.8,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 2.9,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      },
+      {
+        "t": 3,
+        "frameSy": 1,
+        "footMinYM": 1.0962,
+        "basketGapM": 0
+      }
+    ],
+    "negativeLiftM": 0.08,
+    "negativeGapM": 0.0583
+  },
+  "camera": {
+    "b1CloseLocal": [
+      4.858,
+      1.55,
+      5.896
+    ],
+    "skyWalkNearest": {
+      "t": 16,
+      "local": [
+        -0.437,
+        2.04,
+        5.828
+      ],
+      "horizM": 5.844
+    },
+    "lakeBoardCloseLocal": [
+      -4.448,
+      1.49,
+      6.983
+    ],
+    "minGapM": 4.588,
+    "minAt": {
+      "lens": "sky-walk-nearest",
+      "t": 2.5
+    },
+    "flightCamRootMinM": 12.894,
+    "flightCamRootAtT": 11.4,
+    "flightSurfaceLowerM": 9.905,
+    "insideControlM": -2.959,
+    "rows": [
+      {
+        "lens": "b1-close",
+        "t": 0,
+        "gapM": 7.201,
+        "mouthY": 0.22,
+        "sxz": 0.167,
+        "crownY": 0.96
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.1,
+        "gapM": 7.073,
+        "mouthY": 0.64,
+        "sxz": 0.189,
+        "crownY": 2.37
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.2,
+        "gapM": 6.649,
+        "mouthY": 1.03,
+        "sxz": 0.347,
+        "crownY": 3.65
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.3,
+        "gapM": 6.544,
+        "mouthY": 1.37,
+        "sxz": 0.423,
+        "crownY": 4.79
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.4,
+        "gapM": 6.506,
+        "mouthY": 1.68,
+        "sxz": 0.491,
+        "crownY": 5.83
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.5,
+        "gapM": 6.499,
+        "mouthY": 1.96,
+        "sxz": 0.552,
+        "crownY": 6.75
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.6,
+        "gapM": 6.514,
+        "mouthY": 2.2,
+        "sxz": 0.606,
+        "crownY": 7.57
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.7,
+        "gapM": 6.554,
+        "mouthY": 2.42,
+        "sxz": 0.653,
+        "crownY": 8.29
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.8,
+        "gapM": 6.608,
+        "mouthY": 2.6,
+        "sxz": 0.694,
+        "crownY": 8.91
+      },
+      {
+        "lens": "b1-close",
+        "t": 0.9,
+        "gapM": 6.664,
+        "mouthY": 2.76,
+        "sxz": 0.728,
+        "crownY": 9.42
+      },
+      {
+        "lens": "b1-close",
+        "t": 1,
+        "gapM": 6.702,
+        "mouthY": 2.88,
+        "sxz": 0.756,
+        "crownY": 9.84
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.1,
+        "gapM": 6.735,
+        "mouthY": 2.98,
+        "sxz": 0.777,
+        "crownY": 10.16
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.2,
+        "gapM": 6.76,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.39
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.3,
+        "gapM": 6.774,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.49
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.4,
+        "gapM": 6.78,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.53
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.5,
+        "gapM": 6.78,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.53
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.6,
+        "gapM": 6.743,
+        "mouthY": 3.05,
+        "sxz": 0.809,
+        "crownY": 10.5
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.7,
+        "gapM": 6.642,
+        "mouthY": 3.05,
+        "sxz": 0.857,
+        "crownY": 10.46
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.8,
+        "gapM": 6.555,
+        "mouthY": 3.05,
+        "sxz": 0.899,
+        "crownY": 10.42
+      },
+      {
+        "lens": "b1-close",
+        "t": 1.9,
+        "gapM": 6.484,
+        "mouthY": 3.05,
+        "sxz": 0.934,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2,
+        "gapM": 6.429,
+        "mouthY": 3.05,
+        "sxz": 0.962,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.1,
+        "gapM": 6.386,
+        "mouthY": 3.05,
+        "sxz": 0.984,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.2,
+        "gapM": 6.355,
+        "mouthY": 3.05,
+        "sxz": 1,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.3,
+        "gapM": 6.335,
+        "mouthY": 3.05,
+        "sxz": 1.01,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.4,
+        "gapM": 6.325,
+        "mouthY": 3.05,
+        "sxz": 1.016,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.5,
+        "gapM": 6.322,
+        "mouthY": 3.05,
+        "sxz": 1.017,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.6,
+        "gapM": 6.327,
+        "mouthY": 3.05,
+        "sxz": 1.015,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.7,
+        "gapM": 6.335,
+        "mouthY": 3.05,
+        "sxz": 1.011,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.8,
+        "gapM": 6.344,
+        "mouthY": 3.05,
+        "sxz": 1.006,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 2.9,
+        "gapM": 6.352,
+        "mouthY": 3.05,
+        "sxz": 1.002,
+        "crownY": 10.4
+      },
+      {
+        "lens": "b1-close",
+        "t": 3,
+        "gapM": 6.355,
+        "mouthY": 3.05,
+        "sxz": 1,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0,
+        "gapM": 5.526,
+        "mouthY": 0.22,
+        "sxz": 0.167,
+        "crownY": 0.96
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.1,
+        "gapM": 5.299,
+        "mouthY": 0.64,
+        "sxz": 0.189,
+        "crownY": 2.37
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.2,
+        "gapM": 4.821,
+        "mouthY": 1.03,
+        "sxz": 0.347,
+        "crownY": 3.65
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.3,
+        "gapM": 4.686,
+        "mouthY": 1.37,
+        "sxz": 0.423,
+        "crownY": 4.79
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.4,
+        "gapM": 4.645,
+        "mouthY": 1.68,
+        "sxz": 0.491,
+        "crownY": 5.83
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.5,
+        "gapM": 4.641,
+        "mouthY": 1.96,
+        "sxz": 0.552,
+        "crownY": 6.75
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.6,
+        "gapM": 4.671,
+        "mouthY": 2.2,
+        "sxz": 0.606,
+        "crownY": 7.57
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.7,
+        "gapM": 4.735,
+        "mouthY": 2.42,
+        "sxz": 0.653,
+        "crownY": 8.29
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.8,
+        "gapM": 4.798,
+        "mouthY": 2.6,
+        "sxz": 0.694,
+        "crownY": 8.91
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 0.9,
+        "gapM": 4.853,
+        "mouthY": 2.76,
+        "sxz": 0.728,
+        "crownY": 9.42
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1,
+        "gapM": 4.908,
+        "mouthY": 2.88,
+        "sxz": 0.756,
+        "crownY": 9.84
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.1,
+        "gapM": 4.948,
+        "mouthY": 2.98,
+        "sxz": 0.777,
+        "crownY": 10.16
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.2,
+        "gapM": 4.972,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.39
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.3,
+        "gapM": 4.982,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.49
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.4,
+        "gapM": 4.986,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.53
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.5,
+        "gapM": 4.986,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.53
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.6,
+        "gapM": 4.956,
+        "mouthY": 3.05,
+        "sxz": 0.809,
+        "crownY": 10.5
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.7,
+        "gapM": 4.871,
+        "mouthY": 3.05,
+        "sxz": 0.857,
+        "crownY": 10.46
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.8,
+        "gapM": 4.798,
+        "mouthY": 3.05,
+        "sxz": 0.899,
+        "crownY": 10.42
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 1.9,
+        "gapM": 4.736,
+        "mouthY": 3.05,
+        "sxz": 0.934,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2,
+        "gapM": 4.685,
+        "mouthY": 3.05,
+        "sxz": 0.962,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.1,
+        "gapM": 4.645,
+        "mouthY": 3.05,
+        "sxz": 0.984,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.2,
+        "gapM": 4.617,
+        "mouthY": 3.05,
+        "sxz": 1,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.3,
+        "gapM": 4.599,
+        "mouthY": 3.05,
+        "sxz": 1.01,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.4,
+        "gapM": 4.589,
+        "mouthY": 3.05,
+        "sxz": 1.016,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.5,
+        "gapM": 4.588,
+        "mouthY": 3.05,
+        "sxz": 1.017,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.6,
+        "gapM": 4.591,
+        "mouthY": 3.05,
+        "sxz": 1.015,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.7,
+        "gapM": 4.599,
+        "mouthY": 3.05,
+        "sxz": 1.011,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.8,
+        "gapM": 4.607,
+        "mouthY": 3.05,
+        "sxz": 1.006,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 2.9,
+        "gapM": 4.614,
+        "mouthY": 3.05,
+        "sxz": 1.002,
+        "crownY": 10.4
+      },
+      {
+        "lens": "sky-walk-nearest",
+        "t": 3,
+        "gapM": 4.617,
+        "mouthY": 3.05,
+        "sxz": 1,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0,
+        "gapM": 7.829,
+        "mouthY": 0.22,
+        "sxz": 0.167,
+        "crownY": 0.96
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.1,
+        "gapM": 7.714,
+        "mouthY": 0.64,
+        "sxz": 0.189,
+        "crownY": 2.37
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.2,
+        "gapM": 7.291,
+        "mouthY": 1.03,
+        "sxz": 0.347,
+        "crownY": 3.65
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.3,
+        "gapM": 7.182,
+        "mouthY": 1.37,
+        "sxz": 0.423,
+        "crownY": 4.79
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.4,
+        "gapM": 7.138,
+        "mouthY": 1.68,
+        "sxz": 0.491,
+        "crownY": 5.83
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.5,
+        "gapM": 7.128,
+        "mouthY": 1.96,
+        "sxz": 0.552,
+        "crownY": 6.75
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.6,
+        "gapM": 7.132,
+        "mouthY": 2.2,
+        "sxz": 0.606,
+        "crownY": 7.57
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.7,
+        "gapM": 7.161,
+        "mouthY": 2.42,
+        "sxz": 0.653,
+        "crownY": 8.29
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.8,
+        "gapM": 7.204,
+        "mouthY": 2.6,
+        "sxz": 0.694,
+        "crownY": 8.91
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 0.9,
+        "gapM": 7.252,
+        "mouthY": 2.76,
+        "sxz": 0.728,
+        "crownY": 9.42
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1,
+        "gapM": 7.297,
+        "mouthY": 2.88,
+        "sxz": 0.756,
+        "crownY": 9.84
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.1,
+        "gapM": 7.325,
+        "mouthY": 2.98,
+        "sxz": 0.777,
+        "crownY": 10.16
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.2,
+        "gapM": 7.346,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.39
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.3,
+        "gapM": 7.359,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.49
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.4,
+        "gapM": 7.364,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.53
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.5,
+        "gapM": 7.364,
+        "mouthY": 3.05,
+        "sxz": 0.792,
+        "crownY": 10.53
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.6,
+        "gapM": 7.327,
+        "mouthY": 3.05,
+        "sxz": 0.809,
+        "crownY": 10.5
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.7,
+        "gapM": 7.224,
+        "mouthY": 3.05,
+        "sxz": 0.857,
+        "crownY": 10.46
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.8,
+        "gapM": 7.136,
+        "mouthY": 3.05,
+        "sxz": 0.899,
+        "crownY": 10.42
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 1.9,
+        "gapM": 7.063,
+        "mouthY": 3.05,
+        "sxz": 0.934,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2,
+        "gapM": 7.002,
+        "mouthY": 3.05,
+        "sxz": 0.962,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.1,
+        "gapM": 6.954,
+        "mouthY": 3.05,
+        "sxz": 0.984,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.2,
+        "gapM": 6.919,
+        "mouthY": 3.05,
+        "sxz": 1,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.3,
+        "gapM": 6.897,
+        "mouthY": 3.05,
+        "sxz": 1.01,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.4,
+        "gapM": 6.886,
+        "mouthY": 3.05,
+        "sxz": 1.016,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.5,
+        "gapM": 6.884,
+        "mouthY": 3.05,
+        "sxz": 1.017,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.6,
+        "gapM": 6.888,
+        "mouthY": 3.05,
+        "sxz": 1.015,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.7,
+        "gapM": 6.897,
+        "mouthY": 3.05,
+        "sxz": 1.011,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.8,
+        "gapM": 6.907,
+        "mouthY": 3.05,
+        "sxz": 1.006,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 2.9,
+        "gapM": 6.916,
+        "mouthY": 3.05,
+        "sxz": 1.002,
+        "crownY": 10.4
+      },
+      {
+        "lens": "lake-board-close",
+        "t": 3,
+        "gapM": 6.92,
+        "mouthY": 3.05,
+        "sxz": 1,
+        "crownY": 10.4
+      }
+    ]
+  },
+  "stages": {
+    "0": {
+      "sy": 0.1,
+      "sxz": 0.167,
+      "mouthY": 0.22,
+      "crownY": 0.96,
+      "frameVisible": false,
+      "frameSy": 0,
+      "frameSxz": 1,
+      "b1GapM": 7.201,
+      "skyGapM": 5.526
+    },
+    "3": {
+      "sy": 1,
+      "sxz": 1,
+      "mouthY": 3.05,
+      "crownY": 10.4,
+      "frameVisible": true,
+      "frameSy": 1,
+      "frameSxz": 1,
+      "b1GapM": 6.355,
+      "skyGapM": 4.617
+    },
+    "0.4": {
+      "sy": 0.564,
+      "sxz": 0.491,
+      "mouthY": 1.68,
+      "crownY": 5.83,
+      "frameVisible": false,
+      "frameSy": 0,
+      "frameSxz": 1,
+      "b1GapM": 6.506,
+      "skyGapM": 4.645
+    },
+    "0.6": {
+      "sy": 0.73,
+      "sxz": 0.606,
+      "mouthY": 2.2,
+      "crownY": 7.57,
+      "frameVisible": true,
+      "frameSy": 0.571,
+      "frameSxz": 1,
+      "b1GapM": 6.514,
+      "skyGapM": 4.671
+    },
+    "1.2": {
+      "sy": 0.999,
+      "sxz": 0.792,
+      "mouthY": 3.05,
+      "crownY": 10.39,
+      "frameVisible": true,
+      "frameSy": 0.998,
+      "frameSxz": 1,
+      "b1GapM": 6.76,
+      "skyGapM": 4.972
+    }
+  },
+  "cruiseUnchanged": {
+    "sy": 1,
+    "sxz": 1,
+    "mouthY": 3.05,
+    "frameSy": 1,
+    "frameSxz": 1,
+    "frameLocalY": 0
+  }
+}
