@@ -37,7 +37,9 @@ for(let t=0;t<=3.0001;t+=1/30){
   samples.push(p);
 }
 const z=D.balloonDrapePose(0),full=D.balloonDrapePose(3),mid=D.balloonDrapePose(0.9);
-assert.ok(z.crownY>1.25&&z.crownY<2.15&&z.mouthY<1.15,'deflated cloth crests the rim so the lip and the mound are both visible, and it is not a full balloon');
+assert.ok(z.crownY>1.18&&z.crownY<1.45&&z.mouthY<0.7,'deflated crown is a low crest, mouth is down in the basket');
+assert.ok(z.crownY-1.12<0.35,'only a low crest stands over the rim, not a balloon sitting on it');
+assert.ok(1.12-z.mouthY>0.4,'the body of the cloth is inside the basket');
 assert.ok(z.sxz<0.45&&z.sy/z.sxz>0.35,'deflated aspect is a pile, not the old 0.12/0.55 disc');
 const swellAt=(t)=>D.balloonDrapePose(t);
 const s0=swellAt(0),s1=swellAt(1),s15=swellAt(1.5),s3=swellAt(3);
@@ -53,6 +55,11 @@ const y0=D.envelopeLocalY(z,home);
 const mouthW=3.05+y0+P.mouthMeshY*z.sy;
 assert.ok(Math.abs(mouthW-z.mouthY)<1e-6,'local Y puts the mouth on the drape target');
 assert.ok(Math.abs(full.sy-1)<1e-9&&Math.abs(full.sxz-1)<1e-9&&Math.abs(full.mouthY-3.05)<1e-9,'t=3 is the authored envelope');
+delete globalThis.__QF_BALLOON_STAGE;
+D.noteBalloonStage('meadow',0);D.noteBalloonStage('meadow',0.1);
+assert.equal(globalThis.__QF_BALLOON_STAGE.events.length,1,'stage log does not repeat the same stage');
+D.noteBalloonStage('meadow',1);D.noteBalloonStage('meadow',1.5);D.noteBalloonStage('meadow',3);
+assert.deepEqual(globalThis.__QF_BALLOON_STAGE.events.map(e=>e.stage),['deflated','early','mid','cruise']);
 assert.ok(full.frameVisible&&Math.abs(full.frameSy-1)<1e-9&&Math.abs(full.frameLocalY)<1e-9&&Math.abs(full.frameSxz-1)<1e-9,'t=3 frame is identity');
 assert.ok(Math.abs(D.envelopeLocalY(full,home)+3.05)<1e-9,'t=3 envelope local Y is the glTF rest -3.05');
 assert.ok(mid.crownY>z.crownY+1.5&&mid.sxz>z.sxz,'mid-inflate has grown up and out');

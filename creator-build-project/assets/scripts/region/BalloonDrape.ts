@@ -16,9 +16,10 @@ import {INFLATE} from './TransitionChain';
  * This pose drapes the cloth into the basket and keeps the load frame inside the cloth
  * until the throat is wide enough for the cables to meet the mouth. While any ring of the
  * cloth is still at or below the rim, horizontal scale is capped so the shell stays inside
- * the basket walls, the four rim corners and both door frames. The resting mound crests
- * the rim so the boarding camera sees cloth and the lip together; the shape then follows
- * swell01, not the flame clock, so a mound, a small bubble and a mid balloon stay apart.
+ * the basket walls, the four rim corners and both door frames. The resting pile sits in
+ * the basket with only a low crown over the lip (collapsed cloth, not a scaled-down taut
+ * balloon). The shape then follows swell01, not the flame clock, so that pile, a small
+ * bubble and a mid balloon stay apart.
  * At t = INFLATE.durationS the envelope and the frame are back on their authored transforms,
  * so the cruise look does not move. INFLATE itself (timing, flame, vertical-first) is unchanged.
  */
@@ -26,12 +27,12 @@ export const BALLOON_DRAPE=Object.freeze({
   mouthMeshY:3.05,
   crownMeshY:10.4,
   mouthFullY:3.05,
-  /** deflated mouth, just under the rim (rim top ≈ 1.12) so the colored mound crests the lip */
-  mouthFlatY:0.92,
-  /** plump mound, not a paper disc (old ratio flatY/flatXZ = 0.22). Crown ≈ 1.80, above the lip. */
-  flatSy:0.12,
+  /** deflated mouth, down in the basket (floor 0.10, rim top ≈ 1.12). The body stays inside the lip. */
+  mouthFlatY:0.55,
+  /** squat pile. Height/width stays well under the taut teardrop, so t=0 is collapsed cloth, not a small round balloon. Crown ≈ 1.36. */
+  flatSy:0.11,
   /** resting width. The basket cap below can only pull this down, never push it out. */
-  flatSxz:0.16,
+  flatSxz:0.20,
   /** horizontal scale follows the vertical rise so the bubble stays round */
   roundFollow:0.75,
   /**
@@ -99,11 +100,11 @@ export function swell01(t:number):number{
   const u=Math.max(0,t/INFLATE.durationS);
   return u*u*(3-2*u);
 }
-/** Width lags the rise by 0.35 s so the bubble stays inside the rim and the boarding
- *  lens (the sky-walk nearest spot sits 5.8 m out at y 2.0) keeps its sampled clearance. */
+/** Width lags the rise so the low, still-wide belly does not step inside the sampled
+ *  lens clearance. Exactly 1 at the end of the inflate. */
 function swellHoriz(t:number):number{
   if(t>=INFLATE.durationS)return 1;
-  const u=Math.max(0,(t-0.35)/(INFLATE.durationS-0.35));
+  const u=Math.max(0,(t-0.8)/(INFLATE.durationS-0.8));
   return u*u*(3-2*u);
 }
 export function balloonDrapePose(t:number):BalloonDrapePose{
@@ -125,6 +126,26 @@ export function balloonDrapePose(t:number):BalloonDrapePose{
   const flameLocalY=frameSy>0.02?flameOnFrame:Math.min(crownY-0.45,Math.max(0.45,mouthY+0.15));
   const burnerLocalY=frameSy>0.02?D.frameBaseY+(D.burnerHomeY-D.frameBaseY)*frameSy:flameLocalY;
   return {sy,sxz,mouthY,crownY,frameVisible:frameSy>0.02,frameSy,frameSxz,frameLocalY,flameLocalY,burnerLocalY};
+}
+
+/** Inflate-clock stages the Mac harness can align to screenshots. Not a camera pose. */
+export function balloonStageId(t:number):'deflated'|'early'|'mid'|'cruise'{
+  if(t>=2.6)return 'cruise';
+  if(t>=1.35)return 'mid';
+  if(t>=0.75)return 'early';
+  return 'deflated';
+}
+/** One console line per stage per call site. The runtime object is {events:[...]}. */
+export function noteBalloonStage(where:string,t:number):void{
+  const stage=balloonStageId(t),g=globalThis as any;
+  const box=g.__QF_BALLOON_STAGE||(g.__QF_BALLOON_STAGE={events:[] as any[]});
+  const prev=box.events[box.events.length-1];
+  if(prev&&prev.where===where&&prev.stage===stage)return;
+  const p=balloonDrapePose(Math.max(0,t));
+  const atMs=typeof performance!=='undefined'&&performance.now?Math.round(performance.now()):Date.now();
+  const ev={where,stage,t:Math.round(t*1000)/1000,atMs,crownY:Math.round(p.crownY*1000)/1000,mouthY:Math.round(p.mouthY*1000)/1000,sy:Math.round(p.sy*1000)/1000,sxz:Math.round(p.sxz*1000)/1000,frame:p.frameVisible};
+  box.events.push(ev);
+  try{console.info('[QF_BALLOON_STAGE] '+JSON.stringify(ev));}catch{/* console optional */}
 }
 
 /**

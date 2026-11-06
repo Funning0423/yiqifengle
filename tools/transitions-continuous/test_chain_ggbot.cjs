@@ -138,7 +138,10 @@ assert.ok(/kind:'stand',seat:seatDef/.test(bal)&&/guardBeforeWalk\(anim,'B5 stan
  delete globalThis.__QF_TRANSITION_FALLBACK;delete globalThis.__QF_CHAIN;
  assert.equal(C.chainMark('balloon','B1-basket-in'),true);
  const fresh=globalThis.__QF_TRANSITION_FALLBACK;
- assert.ok(fresh&&fresh.count===0&&Array.isArray(fresh.events)&&fresh.events.length===0,'fresh chain publishes fallback {count:0,events:[]}');
+ assert.ok(fresh&&typeof fresh==='object','fresh chain publishes an object, not the dump sentinel undef');
+ assert.deepEqual({count:fresh.count,events:fresh.events},{count:0,events:[]},'runtime object is {count,events}');
+ // qfDump serializes a different shape: {count, last: events.slice(-3)} (qf-autoplay.js). Empty dump is last:[], not events:[].
+ assert.deepEqual({count:fresh.count,last:(fresh.events||[]).slice(-3)},{count:0,last:[]},'dump field is last, not events');
  assert.equal(C.recordFallback('balloon',3,'load'),1);
  assert.equal(C.chainMark('balloon','B2-ignite-inflate'),true);
  assert.equal(globalThis.__QF_TRANSITION_FALLBACK.count,1,'a later mark does not clobber a recorded fallback');
