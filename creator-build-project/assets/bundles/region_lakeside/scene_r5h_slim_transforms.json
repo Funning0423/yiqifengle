@@ -21216,78 +21216,15 @@
         15.3
       ],
       "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.9585288109544828,
-        1.0,
-        0.9585288109544828
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_0_2",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -3.3,
         0.0,
-        13.1
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.1010921931157729,
-        1.0,
-        1.1010921931157729
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_0_3",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -3.3,
+        0.5948227867513413,
         0.0,
-        12
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
+        0.8038568606172173
       ],
       "scale": [
-        0.9758769270112091,
+        1.0983413281108207,
         1.0,
-        0.9758769270112091
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_0_4",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -3.3,
-        0.0,
-        10.9
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.9179889354412459,
-        1.0,
-        0.9179889354412459
+        1.0983413281108207
       ],
       "parent": null
     },
@@ -21300,57 +21237,15 @@
         9.8
       ],
       "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.8706337172936524,
-        1.0,
-        0.8706337172936524
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_1_0",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -2.2,
         0.0,
-        15.3
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.8707447485700578,
-        1.0,
-        0.8707447485700578
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_1_1",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -2.2,
+        0.6293203910498374,
         0.0,
-        14.2
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
+        0.7771459614569709
       ],
       "scale": [
-        0.9186342777211479,
+        1.0901413505066098,
         1.0,
-        0.9186342777211479
+        1.0901413505066098
       ],
       "parent": null
     },
@@ -21363,183 +21258,15 @@
         13.1
       ],
       "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.8707122164872179,
-        1.0,
-        0.8707122164872179
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_1_3",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -2.2,
         0.0,
-        12
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.051562979326104,
-        1.0,
-        1.051562979326104
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_1_6",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -2.2,
+        0.6156614753256582,
         0.0,
-        8.7
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
+        0.788010753606722
       ],
       "scale": [
-        0.9880009698930906,
+        1.0785157203856217,
         1.0,
-        0.9880009698930906
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_2_0",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -1.1,
-        0.0,
-        15.3
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.9176351198898044,
-        1.0,
-        0.9176351198898044
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_2_1",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -1.1,
-        0.0,
-        14.2
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.1048231833219924,
-        1.0,
-        1.1048231833219924
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_2_5",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -1.1,
-        0.0,
-        9.8
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.1031702024946253,
-        1.0,
-        1.1031702024946253
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_3_1",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        0,
-        0.0,
-        14.2
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.9172854721120047,
-        1.0,
-        0.9172854721120047
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_3_3",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        0,
-        0.0,
-        12
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.9820409053452294,
-        1.0,
-        0.9820409053452294
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_3_4",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        0,
-        0.0,
-        10.9
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.1047642448915471,
-        1.0,
-        1.1047642448915471
+        1.0785157203856217
       ],
       "parent": null
     },
@@ -21547,62 +21274,20 @@
       "name": "LK_lotus_pedestal_PC_3_6",
       "glb": "LK_lotus_pedestal.glb",
       "pos": [
-        0,
+        0.0,
         0.0,
         8.7
       ],
       "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.033305754364139,
-        1.0,
-        1.033305754364139
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_4_0",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        1.1,
         0.0,
-        15.3
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.1041424416384433,
-        1.0,
-        1.1041424416384433
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_4_2",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        1.1,
+        0.6560590289905072,
         0.0,
-        13.1
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
+        0.7547095802227721
       ],
       "scale": [
-        0.9189315735890358,
+        1.1159934425199316,
         1.0,
-        0.9189315735890358
+        1.1159934425199316
       ],
       "parent": null
     },
@@ -21615,36 +21300,15 @@
         10.9
       ],
       "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.0381180712285814,
-        1.0,
-        1.0381180712285814
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_5_0",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        2.2,
         0.0,
-        15.3
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
+        0.6494480483301837,
+        0.0,
+        0.7604059656000309
       ],
       "scale": [
-        0.9147042091883679,
+        1.1025239747900102,
         1.0,
-        0.9147042091883679
+        1.1025239747900102
       ],
       "parent": null
     },
@@ -21657,99 +21321,15 @@
         14.2
       ],
       "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.0507852831320952,
-        1.0,
-        1.0507852831320952
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_5_2",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        2.2,
         0.0,
-        13.1
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.9742853351346044,
-        1.0,
-        0.9742853351346044
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_5_5",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        2.2,
+        0.636078220277764,
         0.0,
-        9.8
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
+        0.77162458338772
       ],
       "scale": [
-        1.1047799966900314,
+        1.1158245472886998,
         1.0,
-        1.1047799966900314
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_6_3",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        3.3,
-        0.0,
-        12
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.1048051531278542,
-        1.0,
-        1.1048051531278542
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_6_4",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        3.3,
-        0.0,
-        10.9
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.101164174025902,
-        1.0,
-        1.101164174025902
+        1.1158245472886998
       ],
       "parent": null
     },
@@ -21762,57 +21342,15 @@
         9.8
       ],
       "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1.038250888010631,
-        1.0,
-        1.038250888010631
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_6_0",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        3.3,
         0.0,
-        15.3
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        0.9128571464901893,
-        1.0,
-        0.9128571464901893
-      ],
-      "parent": null
-    },
-    {
-      "name": "LK_lotus_pedestal_PC_0_6",
-      "glb": "LK_lotus_pedestal.glb",
-      "pos": [
-        -3.3,
+        0.6691306063588582,
         0.0,
-        8.7
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
+        0.7431448254773942
       ],
       "scale": [
-        1.0957142966134215,
+        1.1026634324111624,
         1.0,
-        1.0957142966134215
+        1.1026634324111624
       ],
       "parent": null
     }
