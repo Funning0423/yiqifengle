@@ -168,15 +168,145 @@ for(const t of [0,0.45,0.9,3]){
     corners:Object.fromEntries(Object.entries(gaps).map(([k,v])=>[k,+v.toFixed(4)])), minM:+Math.min(...Object.values(gaps)).toFixed(4)};
 }
 assert.ok(Math.abs(stages['3'].sxz-1)<1e-9&&Math.abs(stages['3'].sy-1)<1e-9,'full inflate is still the authored scale');
+
+// Whole wood frame, four sides, doors, and the load frame: triangle intersection plus
+// vertex/edge-midpoint distance. This replays balloonDrapePose. It is not a Cocos device run.
+function sub(p,q){return [p[0]-q[0],p[1]-q[1],p[2]-q[2]];}
+function cross(p,q){return [p[1]*q[2]-p[2]*q[1], p[2]*q[0]-p[0]*q[2], p[0]*q[1]-p[1]*q[0]];}
+function dot(p,q){return p[0]*q[0]+p[1]*q[1]+p[2]*q[2];}
+function triList(pts, idx){
+  const t=[];
+  for(let i=0;i<idx.length;i+=3)t.push([pts[idx[i]], pts[idx[i+1]], pts[idx[i+2]]]);
+  return t;
+}
+function triSamples(tris){
+  const s=[];
+  for(const T of tris){
+    s.push(T[0],T[1],T[2]);
+    for(let i=0;i<3;i++){const a=T[i], b=T[(i+1)%3]; s.push([(a[0]+b[0])*0.5,(a[1]+b[1])*0.5,(a[2]+b[2])*0.5]);}
+  }
+  return s;
+}
+function triAABB(T){
+  let x0=Infinity,y0=Infinity,z0=Infinity,x1=-Infinity,y1=-Infinity,z1=-Infinity;
+  for(const p of T){if(p[0]<x0)x0=p[0]; if(p[0]>x1)x1=p[0]; if(p[1]<y0)y0=p[1]; if(p[1]>y1)y1=p[1]; if(p[2]<z0)z0=p[2]; if(p[2]>z1)z1=p[2];}
+  return [x0,y0,z0,x1,y1,z1];
+}
+function aabbOverlap(a,b){return a[0]<=b[3]&&a[3]>=b[0]&&a[1]<=b[4]&&a[4]>=b[1]&&a[2]<=b[5]&&a[5]>=b[2];}
+function separated(A,B,axis){
+  const n=Math.hypot(axis[0],axis[1],axis[2]);
+  if(n<1e-12)return false;
+  let a0=Infinity,a1=-Infinity,b0=Infinity,b1=-Infinity;
+  for(const p of A){const d=dot(p,axis); if(d<a0)a0=d; if(d>a1)a1=d;}
+  for(const p of B){const d=dot(p,axis); if(d<b0)b0=d; if(d>b1)b1=d;}
+  return a1<b0-1e-7||b1<a0-1e-7;
+}
+function triHit(A,B){
+  const axes=[cross(sub(A[1],A[0]),sub(A[2],A[0])), cross(sub(B[1],B[0]),sub(B[2],B[0]))];
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++)axes.push(cross(sub(A[(i+1)%3],A[i]), sub(B[(j+1)%3],B[j])));
+  for(const ax of axes)if(separated(A,B,ax))return false;
+  return true;
+}
+function anyHit(cloth, solid){
+  const ca=cloth.map(triAABB), sa=solid.map(triAABB);
+  for(let i=0;i<cloth.length;i++)for(let j=0;j<solid.length;j++){
+    if(!aabbOverlap(ca[i], sa[j]))continue;
+    if(triHit(cloth[i], solid[j]))return true;
+  }
+  return false;
+}
+function minSep(samples, tris){
+  let m=Infinity;
+  for(const T of tris){const d=distOne(samples, T[0], T[1], T[2]); if(d<m)m=d;}
+  return m;
+}
+function clothOf(pose){
+  const X=envMesh.pw.map(p=>[p[0]*pose.sxz, pose.mouthY+(p[1]-P.mouthMeshY)*pose.sy, p[2]*pose.sxz]);
+  return triList(X, envMesh.idx);
+}
+function frameOf(pose){
+  const sx=pose.frameVisible?pose.frameSxz:0.001, sy=pose.frameVisible?pose.frameSy:0.001;
+  const X=frameMesh.pw.map(p=>[p[0]*sx, p[1]*sy+pose.frameLocalY, p[2]*sx]);
+  return triList(X, frameMesh.idx);
+}
+function sideOf(p){
+  return Math.abs(p[0])>=Math.abs(p[2])?(p[0]>=0?'+X':'-X'):(p[2]>=0?'+Z':'-Z');
+}
+function shellReport(pose){
+  const cloth=clothOf(pose), frame=frameOf(pose), posedFrameSamples=triSamples(frame);
+  const basketHit=anyHit(cloth, basketTris), doorHit=anyHit(cloth, doorTris.concat(doorTrisB));
+  const frameBody=posedFrameSamples.filter(p=>p[1]<pose.mouthY-0.05);
+  const basketGap=minSep(basketSamples, cloth), doorGap=Math.min(minSep(doorSamples, cloth), minSep(doorSamplesB, cloth));
+  const sides={};
+  for(const name of ['+X','-X','+Z','-Z']){
+    const pts=basketSamples.filter(p=>sideOf(p)===name);
+    sides[name]=minSep(pts, cloth);
+  }
+  return {
+    basketIntersects:basketHit, doorIntersects:doorHit,
+    basketMinM:basketGap, doorMinM:doorGap, sides,
+    frameIntersects:anyHit(cloth, frame),
+    frameBelowMouthMinM:frameBody.length?minSep(frameBody, cloth):null,
+  };
+}
+const basketMesh=meshWorld(raw.json, raw.bin, 'balloon_basket');
+const doorMesh=meshWorld(raw.json, raw.bin, 'basket_door_leaf');
+const doorMeshB=meshWorld(raw.json, raw.bin, 'basket_door_leaf_b');
+const frameMesh=meshWorld(raw.json, raw.bin, 'balloon_load_frame');
+const basketTris=triList(basketMesh.pw, basketMesh.idx);
+const doorTris=triList(doorMesh.pw, doorMesh.idx);
+const doorTrisB=triList(doorMeshB.pw, doorMeshB.idx);
+const basketSamples=triSamples(basketTris), doorSamples=triSamples(doorTris), doorSamplesB=triSamples(doorTrisB);
+const badPose={sy:0.55,sxz:1.15,mouthY:0.35,crownY:0.35+(P.crownMeshY-P.mouthMeshY)*0.55,frameVisible:false,frameSy:0,frameSxz:1,frameLocalY:P.frameBaseY,flameLocalY:0.5,burnerLocalY:0.5};
+const negative=shellReport(badPose);
+assert.equal(negative.basketIntersects, true, 'negative case: a cloth scaled through the basket must be reported as an intersection');
+const shellTimes=[0,0.35,0.7,1.2,1.8,3];
+let releaseT=null;
+for(let t=0;t<=3.0001;t+=0.01){const p=D.balloonDrapePose(t); if(D.basketSxzCap(p.mouthY,p.sy)>2){releaseT=t; break;}}
+for(let t=Math.max(0,releaseT-0.16);t<=releaseT+0.16;t+=0.02)shellTimes.push(+t.toFixed(3));
+const shellRows=[];
+for(const t of [...new Set(shellTimes)].sort((a,b)=>a-b)){
+  const pose=D.balloonDrapePose(t), row=shellReport(pose);
+  assert.equal(row.basketIntersects, false, `basket intersects the cloth at t=${t}`);
+  assert.equal(row.doorIntersects, false, `a door intersects the cloth at t=${t}`);
+  assert.ok(row.basketMinM>=0.04, `basket shell gap ${row.basketMinM} at t=${t}`);
+  assert.ok(row.doorMinM>=0.04, `door gap ${row.doorMinM} at t=${t}`);
+  for(const name of ['+X','-X','+Z','-Z'])assert.ok(row.sides[name]>=0.04, `side ${name} gap ${row.sides[name]} at t=${t}`);
+  if(row.frameBelowMouthMinM!=null)assert.ok(row.frameBelowMouthMinM>=0.02, `load frame below the mouth is ${row.frameBelowMouthMinM} m from the cloth at t=${t}`);
+  shellRows.push({t:+t.toFixed(3), basketMinM:+row.basketMinM.toFixed(4), doorMinM:+row.doorMinM.toFixed(4), sides:Object.fromEntries(Object.entries(row.sides).map(([k,v])=>[k,+v.toFixed(4)])), frameIntersects:row.frameIntersects, frameBelowMouthMinM:row.frameBelowMouthMinM==null?null:+row.frameBelowMouthMinM.toFixed(4)});
+}
+let prevS=null, maxStep=0, stepAt=0;
+const curve=[];
+for(let t=0;t<=3.0001;t+=0.01){
+  const p=D.balloonDrapePose(t);
+  if(prevS){const d=Math.abs(p.sxz-prevS); if(d>maxStep){maxStep=d; stepAt=t;}}
+  prevS=p.sxz;
+  if(Math.abs(t/0.02-Math.round(t/0.02))<1e-6)curve.push({t:+t.toFixed(2), sxz:+p.sxz.toFixed(4), sy:+p.sy.toFixed(4), mouthY:+p.mouthY.toFixed(3), crownY:+p.crownY.toFixed(3), horizR:+(2.989*p.sxz).toFixed(4)});
+}
+assert.ok(maxStep<0.02, `sxz steps ${maxStep} in 0.01 s at t=${stepAt.toFixed(3)} (cap release pop)`);
+const outDir=path.join(ROOT,'product/2026-11-05/balloon-inflate/r2');
+fs.mkdirSync(outDir,{recursive:true});
+const shellReportOut={
+  kind:'pose-replay',
+  notCocosDevice:true,
+  note:'Node runs balloonDrapePose, the same function BalloonTransit.applyInflate and the lakeside inflate call, then tests the posed triangles. This is not a Cocos editor or device run. Device check stays with the test team.',
+  negativeCase:{intentionalClip:true, basketIntersects:negative.basketIntersects, basketMinM:+negative.basketMinM.toFixed(4), expect:'basketIntersects true', pose:'sy 0.55, sxz 1.15, mouthY 0.35'},
+  frameAtFull:'t=3 frameIntersects is the authored cable top, 2.2 cm inside the mouth. Samples more than 5 cm below the mouth stay clear (frameBelowMouthMinM).',
+  capReleaseT:+releaseT.toFixed(3),
+  maxAbsDsxzPer001s:+maxStep.toFixed(4),
+  maxAbsDsxzAtT:+stepAt.toFixed(3),
+  rows:shellRows,
+};
+fs.mkdirSync(outDir,{recursive:true});
+fs.writeFileSync(path.join(outDir,'clearance-shell-runtime.json'), JSON.stringify(shellReportOut,null,2)+'\n');
+fs.writeFileSync(path.join(outDir,'swell-curve-runtime.json'), JSON.stringify({kind:'pose-replay', notCocosDevice:true, stepS:0.02, capReleaseT:+releaseT.toFixed(3), maxAbsDsxzPer001s:+maxStep.toFixed(4), samples:curve},null,2)+'\n');
 const runtimeReport={
   source:'runtime',
-  note:'Node harness executes BalloonDrape.balloonDrapePose (the function BalloonTransit and the lakeside adapter call) and measures distance from each rim-corner wood vertex to the posed envelope triangles. Positive metres. Minimum over t=0..3 step 0.1 s.',
+  note:'Pose replay, not a Cocos device run. Node executes balloonDrapePose and measures rim-corner wood vertices against the posed envelope. Device check stays with the test team. Whole-shell numbers are in clearance-shell-runtime.json.',
   minimumM:+worst.gap.toFixed(4), atT:worst.t,
   cornersAtMinimum:Object.fromEntries(Object.entries(worst.corners).map(([k,v])=>[k,+v.toFixed(4)])),
   stages,
 };
-const outDir=path.join(ROOT,'product/2026-11-05/balloon-inflate/r2');
-fs.mkdirSync(outDir,{recursive:true});
 fs.writeFileSync(path.join(outDir,'clearance-runtime.json'), JSON.stringify(runtimeReport,null,2)+'\n');
 console.log(JSON.stringify({
   deflated:{mouthY:+z.mouthY.toFixed(3),crownY:+z.crownY.toFixed(3),sy:+z.sy.toFixed(3),sxz:+z.sxz.toFixed(3),frame:z.frameVisible},

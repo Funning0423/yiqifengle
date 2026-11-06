@@ -1,5 +1,5 @@
 import type {Node} from 'cc';
-import {INFLATE, inflateAt} from './TransitionChain';
+import {INFLATE} from './TransitionChain';
 
 /**
  * Hot-air balloon inflate pose.
@@ -65,20 +65,28 @@ function envRadiusAt(meshY:number):number{
   }
   return 0;
 }
-/** Largest sxz that keeps every ring still inside the basket inside basketClearR. Infinity once the mouth has cleared the rim. */
+/**
+ * Largest sxz that keeps rings at or below the rim inside basketClearR.
+ * A ring that has risen through `releaseWindowM` above the rim drops out of the cap
+ * on a straight ramp, so the width does not step when one sample ring crosses the rim.
+ */
 export function basketSxzCap(mouthY:number,sy:number):number{
   const D=BALLOON_DRAPE;
   if(!(sy>1e-4))return D.basketClearR/2.989;
-  let maxR=0,any=false;
+  const fade=0.55;
+  let cap=1e9;
   const consider=(h:number)=>{
     const wy=mouthY+(h-D.mouthMeshY)*sy;
-    if(wy<=D.basketTopY){any=true;const r=envRadiusAt(h);if(r>maxR)maxR=r;}
+    const k=Math.max(0,Math.min(1,(D.basketTopY+fade-wy)/fade));
+    if(k<=0)return;
+    const r=envRadiusAt(h);
+    if(r<1e-4)return;
+    const limit=D.basketClearR/r;
+    const allowed=limit+(1-k)*8;
+    if(allowed<cap)cap=allowed;
   };
-  for(const ring of ENV_RINGS)consider(ring[0]);
-  const hCut=D.mouthMeshY+(D.basketTopY-mouthY)/sy;
-  if(hCut>=D.mouthMeshY&&hCut<=D.crownMeshY)consider(hCut);
-  if(!any||maxR<1e-4)return 1e9;
-  return D.basketClearR/maxR;
+  for(let h=D.mouthMeshY;h<=D.crownMeshY;h+=0.02)consider(h);
+  return cap;
 }
 
 export type BalloonDrapePose={
@@ -87,13 +95,20 @@ export type BalloonDrapePose={
   flameLocalY:number;burnerLocalY:number;
 };
 
+/** 0 at t=0, 1 at the end of the inflate. Slow at the start so the cloth domes out of the
+ *  basket instead of jumping from a flat pile to a small balloon in the first third of a second.
+ *  Flame timing still follows inflateAt in the callers. t >= duration is the authored cruise pose. */
+export function swell01(t:number):number{
+  if(t>=INFLATE.durationS)return 1;
+  const u=Math.max(0,t/INFLATE.durationS);
+  const s=u*u*(3-2*u);
+  return 0.35*u+0.65*s;
+}
 export function balloonDrapePose(t:number):BalloonDrapePose{
-  const I=INFLATE,f=inflateAt(t),D=BALLOON_DRAPE;
-  const uY=(f.sy-I.flatY)/(1-I.flatY),uX=(f.sxz-I.flatXZ)/(1-I.flatXZ);
-  const sy=D.flatSy+(1-D.flatSy)*uY;
-  const mouthY=uY>=1?D.mouthFullY:D.mouthFlatY+(D.mouthFullY-D.mouthFlatY)*Math.max(0,uY);
-  const uSxz=uX>1?uX:Math.max(uX,Math.min(1,Math.max(0,uY))*D.roundFollow);
-  const sxzWant=D.flatSxz+(1-D.flatSxz)*uSxz;
+  const D=BALLOON_DRAPE,w=swell01(t);
+  const sy=D.flatSy+(1-D.flatSy)*w;
+  const mouthY=w>=1?D.mouthFullY:D.mouthFlatY+(D.mouthFullY-D.mouthFlatY)*w;
+  const sxzWant=D.flatSxz+(1-D.flatSxz)*w;
   const sxz=Math.min(sxzWant,basketSxzCap(mouthY,sy));
   const crownY=mouthY+(D.crownMeshY-D.mouthMeshY)*sy;
   const tuck=D.frameTopY-D.mouthFullY;

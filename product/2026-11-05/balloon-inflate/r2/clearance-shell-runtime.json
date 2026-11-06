@@ -1,0 +1,304 @@
+{
+  "kind": "pose-replay",
+  "notCocosDevice": true,
+  "note": "Node runs balloonDrapePose, the same function BalloonTransit.applyInflate and the lakeside inflate call, then tests the posed triangles. This is not a Cocos editor or device run. Device check stays with the test team.",
+  "negativeCase": {
+    "intentionalClip": true,
+    "basketIntersects": true,
+    "basketMinM": 0.0029,
+    "expect": "basketIntersects true",
+    "pose": "sy 0.55, sxz 1.15, mouthY 0.35"
+  },
+  "frameAtFull": "t=3 frameIntersects is the authored cable top, 2.2 cm inside the mouth. Samples more than 5 cm below the mouth stay clear (frameBelowMouthMinM).",
+  "capReleaseT": 1.29,
+  "maxAbsDsxzPer001s": 0.0133,
+  "maxAbsDsxzAtT": 0.94,
+  "rows": [
+    {
+      "t": 0,
+      "basketMinM": 0.1844,
+      "doorMinM": 0.3315,
+      "sides": {
+        "+X": 0.1844,
+        "-X": 0.1844,
+        "+Z": 0.271,
+        "-Z": 0.271
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": null
+    },
+    {
+      "t": 0.35,
+      "basketMinM": 0.1952,
+      "doorMinM": 0.3157,
+      "sides": {
+        "+X": 0.1952,
+        "-X": 0.1952,
+        "+Z": 0.2825,
+        "-Z": 0.2825
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": null
+    },
+    {
+      "t": 0.7,
+      "basketMinM": 0.2434,
+      "doorMinM": 0.3412,
+      "sides": {
+        "+X": 0.2434,
+        "-X": 0.2434,
+        "+Z": 0.3224,
+        "-Z": 0.3224
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": null
+    },
+    {
+      "t": 1.13,
+      "basketMinM": 0.3514,
+      "doorMinM": 0.4148,
+      "sides": {
+        "+X": 0.3514,
+        "-X": 0.3514,
+        "+Z": 0.4118,
+        "-Z": 0.4118
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.2597
+    },
+    {
+      "t": 1.15,
+      "basketMinM": 0.367,
+      "doorMinM": 0.4306,
+      "sides": {
+        "+X": 0.367,
+        "-X": 0.367,
+        "+Z": 0.4277,
+        "-Z": 0.4277
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.2778
+    },
+    {
+      "t": 1.17,
+      "basketMinM": 0.3821,
+      "doorMinM": 0.4464,
+      "sides": {
+        "+X": 0.3821,
+        "-X": 0.3821,
+        "+Z": 0.4437,
+        "-Z": 0.4437
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.2959
+    },
+    {
+      "t": 1.19,
+      "basketMinM": 0.3931,
+      "doorMinM": 0.4622,
+      "sides": {
+        "+X": 0.3931,
+        "-X": 0.3931,
+        "+Z": 0.4597,
+        "-Z": 0.4597
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3141
+    },
+    {
+      "t": 1.2,
+      "basketMinM": 0.3986,
+      "doorMinM": 0.4701,
+      "sides": {
+        "+X": 0.3986,
+        "-X": 0.3986,
+        "+Z": 0.4677,
+        "-Z": 0.4677
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3232
+    },
+    {
+      "t": 1.21,
+      "basketMinM": 0.404,
+      "doorMinM": 0.4781,
+      "sides": {
+        "+X": 0.404,
+        "-X": 0.404,
+        "+Z": 0.4757,
+        "-Z": 0.4757
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3323
+    },
+    {
+      "t": 1.23,
+      "basketMinM": 0.4149,
+      "doorMinM": 0.4939,
+      "sides": {
+        "+X": 0.4149,
+        "-X": 0.4149,
+        "+Z": 0.4907,
+        "-Z": 0.4907
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3505
+    },
+    {
+      "t": 1.25,
+      "basketMinM": 0.4258,
+      "doorMinM": 0.5098,
+      "sides": {
+        "+X": 0.4258,
+        "-X": 0.4258,
+        "+Z": 0.5021,
+        "-Z": 0.5021
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3687
+    },
+    {
+      "t": 1.27,
+      "basketMinM": 0.4367,
+      "doorMinM": 0.5222,
+      "sides": {
+        "+X": 0.4367,
+        "-X": 0.4367,
+        "+Z": 0.5133,
+        "-Z": 0.5133
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3874
+    },
+    {
+      "t": 1.29,
+      "basketMinM": 0.4475,
+      "doorMinM": 0.5331,
+      "sides": {
+        "+X": 0.4475,
+        "-X": 0.4475,
+        "+Z": 0.5246,
+        "-Z": 0.5246
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4069
+    },
+    {
+      "t": 1.31,
+      "basketMinM": 0.4586,
+      "doorMinM": 0.5441,
+      "sides": {
+        "+X": 0.4586,
+        "-X": 0.4586,
+        "+Z": 0.5358,
+        "-Z": 0.5358
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.427
+    },
+    {
+      "t": 1.33,
+      "basketMinM": 0.4707,
+      "doorMinM": 0.555,
+      "sides": {
+        "+X": 0.4707,
+        "-X": 0.4707,
+        "+Z": 0.547,
+        "-Z": 0.547
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4476
+    },
+    {
+      "t": 1.35,
+      "basketMinM": 0.4839,
+      "doorMinM": 0.5659,
+      "sides": {
+        "+X": 0.4839,
+        "-X": 0.4839,
+        "+Z": 0.5582,
+        "-Z": 0.5582
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4687
+    },
+    {
+      "t": 1.37,
+      "basketMinM": 0.498,
+      "doorMinM": 0.5768,
+      "sides": {
+        "+X": 0.498,
+        "-X": 0.498,
+        "+Z": 0.5696,
+        "-Z": 0.5696
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4903
+    },
+    {
+      "t": 1.39,
+      "basketMinM": 0.513,
+      "doorMinM": 0.5877,
+      "sides": {
+        "+X": 0.513,
+        "-X": 0.513,
+        "+Z": 0.5819,
+        "-Z": 0.5819
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.5122
+    },
+    {
+      "t": 1.41,
+      "basketMinM": 0.5288,
+      "doorMinM": 0.5994,
+      "sides": {
+        "+X": 0.5288,
+        "-X": 0.5288,
+        "+Z": 0.595,
+        "-Z": 0.595
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.5344
+    },
+    {
+      "t": 1.43,
+      "basketMinM": 0.5453,
+      "doorMinM": 0.6119,
+      "sides": {
+        "+X": 0.5453,
+        "-X": 0.5453,
+        "+Z": 0.6089,
+        "-Z": 0.6089
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.557
+    },
+    {
+      "t": 1.8,
+      "basketMinM": 0.9233,
+      "doorMinM": 0.939,
+      "sides": {
+        "+X": 0.9233,
+        "-X": 0.9233,
+        "+Z": 0.953,
+        "-Z": 0.953
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.1032
+    },
+    {
+      "t": 3,
+      "basketMinM": 1.9316,
+      "doorMinM": 1.9107,
+      "sides": {
+        "+X": 1.9316,
+        "-X": 1.9316,
+        "+Z": 1.9367,
+        "-Z": 1.9367
+      },
+      "frameIntersects": true,
+      "frameBelowMouthMinM": 0.1295
+    }
+  ]
+}
