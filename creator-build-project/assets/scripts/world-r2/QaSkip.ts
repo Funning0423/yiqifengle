@@ -38,11 +38,17 @@ export function qaQuery(host:any=globalThis):string{
  const addObj=(q:any)=>{if(!q||typeof q!=='object')return;for(const k of Object.keys(q))out.set(k,String(q[k]));};
  try{addSearch(host?.location?.search);}catch{}
  try{addObj(wxLaunchQuery(host?.wx));}catch{}/* enter then launch, read once per wx object */
+ try{const f=host?.__qfQuery;if(typeof f==='string')addSearch(f);else if(f&&typeof f==='object')for(const k of Object.keys(f))out.set(k,String(f[k]));}catch{}/* harness script query wins: DevTools location.search is already ?contextName=… and cli open drops 启动参数 */
  if(!out.size)return '';const parts:string[]=[];out.forEach((v,k)=>{parts.push(k+'='+v);});return '?'+parts.join('&');
 }
 /*QF_TRIAL_BEGIN*//** Harness enable without launch params (DevTools `cli open` ignores 编译模式 启动参数): the autoplay tool sets
  *  globalThis.__qfHooksEnable=true or calls __qfPreTransition('enable'). Still behind qaSkipAllowed (WeChat release never). *//*QF_TRIAL_END*/
 export function qaHarnessEnabled(host:any=globalThis):boolean{try{return host?.__qfHooksEnable===true;}catch{return false;}}
+/*QF_TRIAL_BEGIN*/
+let qaPreOk:(k:string)=>boolean=()=>false;
+/** Valid pre-transition keys (registered by PreTransitionKeys). A recognised key opens the teleport gate the same way qfHooks=1 does. */
+export function registerQaPreKey(ok:(k:string)=>boolean){qaPreOk=ok;}
+/*QF_TRIAL_END*/
 export function qaSkipTarget(search?:string|null,host:any=globalThis):QaSkipTarget|null{
  let q=search;
  if(q==null)q=qaQuery(host);
@@ -56,6 +62,7 @@ export function qaHooksEnabled(search?:string|null,host:any=globalThis):boolean{
  let q=search;if(q==null)q=qaQuery(host);
  if(!qaSkipAllowed(host))return false;
  if(qaHarnessEnabled(host))return true;
+ /*QF_TRIAL_BEGIN*/{const m=/(?:^|[?&])qfPre=([a-z-]+)(?:&|$)/.exec(q||'');if(m&&qaPreOk(m[1]))return true;}/*QF_TRIAL_END*/
  return qaSkipTarget(q,host)!==null||/(?:^|[?&])qfHooks=1(?:&|$)/.test(q||'');
 }
 /** FreeOrbit / camTrace yaw (degrees, world): the lens sits at her look point + d·(sin yaw·cos p, sin p, cos yaw·cos p), i.e. the camera

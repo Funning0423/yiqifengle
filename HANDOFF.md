@@ -131,3 +131,38 @@ It must have 0 FAIL. The only allowed miss is BLOCKED_BROWSER (navigation-guard)
 ## 2026-11-05 lakeside board-cam (cine/lakeside-board-cam-fix)
 - tip source `c6835e99`: kit-ON uses `portraitFusion` mild-overhead; kit OFF keeps b18 sightseeing.
 - Does not change lakesideSceneInstances / preload ordering (GGbot `28f5b386`).
+
+---
+
+# 2026-11-05 test-hook：skycity-lakeside `no-teleport-hook` / waitState skycity 停在 home
+
+## 原因
+两条测试入口都断在「钩子注册太早、查询又看不见」，生产路程没有坏。
+
+1. **L1** `qfPre=skycity-lakeside` 返回 `no-teleport-hook (S6)`。`__qfTeleport` 只在 `RegionNodeStage.attach` 里、且当时 `qaHooksEnabled()` 已经为真时赋值。DevTools `cli open` 不套用启动参数，场景 attach 时门是关的。自动播放等到 `__qfPreTransition` 出现后才 `__qfHooksEnable=true` 并调用 `'enable'`，而 `'enable'` 以前只翻标志，不再绑定已经 attach 的舞台。摆位走到天空城后调用 S6，函数不存在。
+2. **L2** `waitState skycity` 300s 超时，停在 `home`，`shots=0`，控制台错误 0。DevTools worker 的 `location.search` 已经是 `?contextName=game&id=2`。自动播放只在 search 为空时才把脚本 `launchQuery` 写进 location，而且以前只在带 `camTrace=1` 时才写 `__qfQuery`。`qaQuery` 又不读 `__qfQuery`，所以 `?qfPre=skycity-lakeside` 到不了 `preTransitionKey()`，1500ms 的自动摆位根本不会排上，世界留在 home。
+
+自然湖畔验收走 `ensureRegion` → `resumeSkyAtS6`（走到 S6，不传送）。这条没改。
+
+## 复现（Node）
+- 缺钩子：`__qfPreTransition('skycity-lakeside')` 在没有 `__qfTeleport` 时立刻返回 `no-teleport-hook (S6)`，不占用 300s。
+- 启动时序负例：binder 把钩子放到检查返回之后才赋值，仍然是 `no-teleport-hook (S6)`。
+- 查询被 DevTools search 挡住：只有 `?contextName=game&id=2` 时 `preTransitionKey` 为 null，快照停在 `home`，`waitState` 的名字对不上 `skycity`。
+
+## 修复（只动测试钩子）
+- `attach` 始终装上 `__qfBindTeleportHooks`（门关着不赋值）。`'enable'` 和真正的 key 在把 `__qfHooksEnable` 设上之后调用它。attach 若发生在 enable 之后，门已开，attach 自己会绑定。
+- 合法 `?qfPre=`（`registerQaPreKey`，正式包随 `QF_TRIAL` 剥掉）和 `?qfHooks=1` 一样打开传送门。微信 release 仍然关。
+- `qaQuery` 合并 `__qfQuery`，盖过 DevTools 的 context search。自动播放对每条 `launchQuery` 都写 `__qfQuery`，不再只限 `camTrace=1`。
+- `skycity-lakeside` 若传送返回 `explore-not-open`，经测试专用 `__qfOpenExplore('skycity')` 再试一次。没有 open 函数则失败原因是 `teleport-S6: explore-not-open`，不假装已经站上 S6。
+- `TransitionShaderWarm` 默认仍是 `false`。没改气球 GLB、角色、走路速度、加载 UI、生产路线。
+
+## 必要的 RegionNodeStage 差异（冻结控制器）
+只改了 `attach`：把原来的 `if (qaHooksEnabled()) { __qfTeleport=…; __qfAimAt=… }` 收成 `__qfBindTeleportHooks`，门开时立即调用，门关时留着等 enable。同一个函数里多赋一个测试专用 `__qfOpenExplore`。`__qfTeleport=` 仍只有一处，仍由 `qaHooksEnabled()` 把守。`qaTeleport` / 镜头 / 走路 / `resumeSkyAtS6` 未改。
+
+## 测试
+- `tools/journey-integration/test-pre-transition-teleport.cjs`（套件 id `pre-transition-teleport`）
+- `tools/region-nodes/test_p0drag8.cjs` P4：门关不注册、enable 之后不重新 attach 也能注册。探索镜头测试夹具补上 `PERIOD_HEAVY_REFRESH_ENABLED=false`（与生产默认一致）；否则 `sectorTarget` 在 P1 就抛 ReferenceError，P4 跑不到。这不是把周期重刷新打开。
+- `tools/wx-autoplay/test-wx-autoplay.cjs`：context search 已存在时 `launchQuery` 仍写入 `__qfQuery`
+
+## 仍待 Mac
+真机 / DevTools 上再跑一遍 L1（`preTransition skycity-lakeside` 应 `ok` 且 state 为 `skycity`）和 L2（`waitState skycity` 应在现有 300s 内命中，而不是停在 home）。本环境没有微信开发者工具。不要放宽超时。自然路线的湖畔画面验收另走，不靠这次传送。

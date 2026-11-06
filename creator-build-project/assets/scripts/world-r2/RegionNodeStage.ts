@@ -109,7 +109,7 @@ export class RegionNodeStage extends Component{
  private entry:{from:Pose;t:number;T:number}|null=null;
  private orbitBoxAt=0;
 
- attach(camera:Camera){this.camera=camera;camTraceStart();if(qaHooksEnabled()){const G=globalThis as any;G.__qfTeleport=(key:string,yaw?:number,pitch?:number)=>this.qaTeleport(key,yaw,pitch);G.__qfAimAt=(at:string|readonly number[]|{x:number;y:number;z:number})=>this.qaAimAt(at);}}
+ attach(camera:Camera){this.camera=camera;camTraceStart();const G=globalThis as any;/* test-only: keep the binder after a closed-gate attach so a later harness enable (DevTools cli open sets the flag only once the world is up) can still register the hooks */G.__qfBindTeleportHooks=()=>{if(!qaHooksEnabled())return false;G.__qfTeleport=(key:string,yaw?:number,pitch?:number)=>this.qaTeleport(key,yaw,pitch);G.__qfAimAt=(at:string|readonly number[]|{x:number;y:number;z:number})=>this.qaAimAt(at);G.__qfOpenExplore=(region:string)=>{try{this.openExplore(region as any);return true;}catch{return false;}};return true;};if(qaHooksEnabled())G.__qfBindTeleportHooks();}
  bindCharacter(character:CharacterAdapter|null){this.character=character;}
  /** b17r12b: the composition's calibrated girl. A fresh save that leaves the island board before any reward walk never called bindCharacter, so explore/ground taps pull her from here. */
  characterSource:(()=>CharacterAdapter|null)|null=null;
