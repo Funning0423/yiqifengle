@@ -14,7 +14,9 @@ import {INFLATE, inflateAt} from './TransitionChain';
  *    same frame towers above it (the 2026-11-05 preview).
  *
  * This pose drapes the cloth into the basket and keeps the load frame inside the cloth
- * until the throat is wide enough for the cables to meet the mouth. At t = INFLATE.durationS
+ * until the throat is wide enough for the cables to meet the mouth. While any ring of the
+ * cloth is still at or below the rim, horizontal scale is capped so the shell stays inside
+ * the basket walls, the four rim corners and both door frames. At t = INFLATE.durationS
  * the envelope and the frame are back on their authored transforms, so the cruise look
  * does not move. INFLATE itself (timing, flame, vertical-first) is unchanged.
  */
@@ -25,10 +27,18 @@ export const BALLOON_DRAPE=Object.freeze({
   /** deflated mouth, inside the basket (floor board is y 0.10, rim ≈ 1.12) */
   mouthFlatY:0.22,
   /** plump mound, not a paper disc (old ratio flatY/flatXZ = 0.22) */
-  flatSy:0.16,
-  flatSxz:0.34,
+  flatSy:0.10,
+  /** resting width. The basket cap below can only pull this down, never push it out. */
+  flatSxz:0.17,
   /** horizontal scale follows the vertical rise so the bubble stays round */
   roundFollow:0.75,
+  /**
+   * While any of the cloth is still at or below the rim (doors end at y 1.15), its radius stays
+   * inside the basket. Inner wall is about 0.63 m; 0.52 m leaves a gap at the rim corners.
+   * Above the rim the cap drops away and the cruise pose is the authored scale 1.
+   */
+  basketTopY:1.28,
+  basketClearR:0.50,
   /** balloon_load_frame bounds in transport_balloon space (split from balloon_basket) */
   frameBaseY:1.096175,
   frameTopY:3.071971,
@@ -37,6 +47,39 @@ export const BALLOON_DRAPE=Object.freeze({
   /** hide the frame until the throat can cover the cable tops (mouth radius ≈ 0.62) */
   frameShowSxz:0.58,
 });
+
+/** Max envelope radius (m) at mesh height, sampled from balloon_envelope. The clearance test checks this table. */
+const ENV_RINGS:[number,number][]=[
+  [3.05,0.620],[3.54,1.000],[4.03,1.487],[4.52,1.935],[5.01,2.309],[5.50,2.640],
+  [5.99,2.819],[6.48,2.958],[6.97,2.989],[7.46,2.946],[7.95,2.860],[8.44,2.590],
+  [8.93,2.245],[9.42,1.769],[9.91,1.080],[10.40,0],
+];
+function envRadiusAt(meshY:number):number{
+  const R=ENV_RINGS;
+  if(meshY<=R[0][0])return R[0][1];
+  const last=R[R.length-1];
+  if(meshY>=last[0])return last[1];
+  for(let i=1;i<R.length;i++){
+    const y0=R[i-1][0],r0=R[i-1][1],y1=R[i][0],r1=R[i][1];
+    if(meshY<=y1){const u=(meshY-y0)/(y1-y0);return r0+(r1-r0)*u;}
+  }
+  return 0;
+}
+/** Largest sxz that keeps every ring still inside the basket inside basketClearR. Infinity once the mouth has cleared the rim. */
+export function basketSxzCap(mouthY:number,sy:number):number{
+  const D=BALLOON_DRAPE;
+  if(!(sy>1e-4))return D.basketClearR/2.989;
+  let maxR=0,any=false;
+  const consider=(h:number)=>{
+    const wy=mouthY+(h-D.mouthMeshY)*sy;
+    if(wy<=D.basketTopY){any=true;const r=envRadiusAt(h);if(r>maxR)maxR=r;}
+  };
+  for(const ring of ENV_RINGS)consider(ring[0]);
+  const hCut=D.mouthMeshY+(D.basketTopY-mouthY)/sy;
+  if(hCut>=D.mouthMeshY&&hCut<=D.crownMeshY)consider(hCut);
+  if(!any||maxR<1e-4)return 1e9;
+  return D.basketClearR/maxR;
+}
 
 export type BalloonDrapePose={
   sy:number;sxz:number;mouthY:number;crownY:number;
@@ -48,9 +91,10 @@ export function balloonDrapePose(t:number):BalloonDrapePose{
   const I=INFLATE,f=inflateAt(t),D=BALLOON_DRAPE;
   const uY=(f.sy-I.flatY)/(1-I.flatY),uX=(f.sxz-I.flatXZ)/(1-I.flatXZ);
   const sy=D.flatSy+(1-D.flatSy)*uY;
-  const uSxz=uX>1?uX:Math.max(uX,Math.min(1,Math.max(0,uY))*D.roundFollow);
-  const sxz=D.flatSxz+(1-D.flatSxz)*uSxz;
   const mouthY=uY>=1?D.mouthFullY:D.mouthFlatY+(D.mouthFullY-D.mouthFlatY)*Math.max(0,uY);
+  const uSxz=uX>1?uX:Math.max(uX,Math.min(1,Math.max(0,uY))*D.roundFollow);
+  const sxzWant=D.flatSxz+(1-D.flatSxz)*uSxz;
+  const sxz=Math.min(sxzWant,basketSxzCap(mouthY,sy));
   const crownY=mouthY+(D.crownMeshY-D.mouthMeshY)*sy;
   const tuck=D.frameTopY-D.mouthFullY;
   const wantTop=Math.min(D.frameTopY,mouthY+tuck);

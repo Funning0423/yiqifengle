@@ -1,0 +1,70 @@
+{
+  "source": "runtime",
+  "note": "Node harness executes BalloonDrape.balloonDrapePose (the function BalloonTransit and the lakeside adapter call) and measures distance from each rim-corner wood vertex to the posed envelope triangles. Positive metres. Minimum over t=0..3 step 0.1 s.",
+  "minimumM": 0.2977,
+  "atT": 0.1,
+  "cornersAtMinimum": {
+    "NE": 0.2977,
+    "NW": 0.2977,
+    "SE": 0.2977,
+    "SW": 0.2977
+  },
+  "stages": {
+    "0": {
+      "sxz": 0.1673,
+      "sy": 0.1,
+      "mouthY": 0.22,
+      "crownY": 0.955,
+      "frameVisible": false,
+      "corners": {
+        "NE": 0.4249,
+        "NW": 0.4249,
+        "SE": 0.4249,
+        "SW": 0.4249
+      },
+      "minM": 0.4249
+    },
+    "3": {
+      "sxz": 1,
+      "sy": 1,
+      "mouthY": 3.05,
+      "crownY": 10.4,
+      "frameVisible": true,
+      "corners": {
+        "NE": 1.9367,
+        "NW": 1.9367,
+        "SE": 1.9367,
+        "SW": 1.9367
+      },
+      "minM": 1.9367
+    },
+    "0.45": {
+      "sxz": 0.5223,
+      "sy": 0.6094,
+      "mouthY": 1.822,
+      "crownY": 6.301,
+      "frameVisible": false,
+      "corners": {
+        "NE": 0.8371,
+        "NW": 0.8371,
+        "SE": 0.8371,
+        "SW": 0.8371
+      },
+      "minM": 0.8371
+    },
+    "0.9": {
+      "sxz": 0.7281,
+      "sy": 0.9069,
+      "mouthY": 2.757,
+      "crownY": 9.423,
+      "frameVisible": true,
+      "corners": {
+        "NE": 1.67,
+        "NW": 1.67,
+        "SE": 1.67,
+        "SW": 1.67
+      },
+      "minM": 1.67
+    }
+  }
+}
