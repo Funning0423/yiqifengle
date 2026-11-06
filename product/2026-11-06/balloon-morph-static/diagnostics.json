@@ -1,0 +1,169 @@
+{
+  "label": "NON-ENGINE Python raster. Not Cocos, not liveWorldPose, not a device frame.",
+  "weightsAreSamples": "0, 0.5 and 1 only. Not a proof of the in-between curve.",
+  "camera": {
+    "eye": [
+      4.858393277797973,
+      1.55,
+      5.895614309156518
+    ],
+    "lookAt": [
+      -0.072,
+      0.95,
+      1.25
+    ],
+    "fovVerticalDeg": 46.0,
+    "aspect": 0.46208530805687204,
+    "framePx": [
+      390,
+      844
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "provenance": [
+      "BasketCloseShot.basketCloseSpot(TRANSITION_STAGING.basket.doorOut, [0,0,0], boxes=[], prefer omitted)",
+      "sideDeg 50, the first entry, because no occluder box and no plan.camera(0) prefer",
+      "basketClosePose looks at doorOut feet + lookUpM 0.95, fovDeg 46, upM 1.55",
+      "aspect 390/844 is BalloonTransit.ts fallback when view.getFrameSize is absent (fw||390, fh||844)",
+      "Not applied: liveWorldPose, the blend from cam0, meadow occluders, lensClearStep",
+      "Raster near clip is 0.08 m in render_balloon_inflate.py. Game camera near is CAMERA_FIXED.near 0.05. Not the same projection."
+    ]
+  },
+  "endpoint": {
+    "movedWelds": 265,
+    "lateral": [
+      0.6857750930481389,
+      0.0,
+      -0.7278135212778178
+    ],
+    "view": [
+      -0.7278135212778177,
+      0.0,
+      -0.6857750930481388
+    ]
+  },
+  "samples": {
+    "0.0": {
+      "positionMaxAbsVsFile": 0.0,
+      "normalMaxAbsVsFile": 0.0,
+      "uvUnchanged": true,
+      "seamGapM": 0.0,
+      "nonadjacentCrossings": 0,
+      "crossingCentroidDistM": [],
+      "mouthToLoadFrame": {
+        "min": 0.0198,
+        "median": 0.1478,
+        "within05": 16,
+        "within15": 32,
+        "n": 48
+      },
+      "envelopeToRimVerts": {
+        "min": 1.9367,
+        "median": 5.6267,
+        "within05": 0,
+        "within15": 0,
+        "n": 490
+      },
+      "envelopeToPoleVerts": {
+        "min": 0.0198,
+        "median": 4.0434,
+        "within05": 16,
+        "within15": 32,
+        "n": 490
+      },
+      "vertsBelowFloor0_10": 0,
+      "note": "Distances are vertex-to-vertex samples, not a continuous contact proof."
+    },
+    "0.5": {
+      "positionMaxAbsVsFile": null,
+      "normalMaxAbsVsFile": null,
+      "uvUnchanged": true,
+      "seamGapM": 0.0,
+      "nonadjacentCrossings": 68,
+      "crossingCentroidDistM": [
+        0.346,
+        0.333,
+        0.308,
+        0.342,
+        0.327,
+        0.357,
+        0.326,
+        0.351,
+        0.352,
+        0.357,
+        0.357,
+        0.357
+      ],
+      "mouthToLoadFrame": {
+        "min": 0.0198,
+        "median": 0.1478,
+        "within05": 16,
+        "within15": 32,
+        "n": 48
+      },
+      "envelopeToRimVerts": {
+        "min": 1.7632,
+        "median": 2.6847,
+        "within05": 0,
+        "within15": 0,
+        "n": 490
+      },
+      "envelopeToPoleVerts": {
+        "min": 0.0198,
+        "median": 1.0636,
+        "within05": 22,
+        "within15": 85,
+        "n": 490
+      },
+      "vertsBelowFloor0_10": 0,
+      "note": "Distances are vertex-to-vertex samples, not a continuous contact proof."
+    },
+    "1.0": {
+      "positionMaxAbsVsFile": null,
+      "normalMaxAbsVsFile": null,
+      "uvUnchanged": true,
+      "seamGapM": 0.0,
+      "nonadjacentCrossings": 2633,
+      "crossingCentroidDistM": [
+        0.896,
+        0.626,
+        0.788,
+        0.388,
+        0.172,
+        0.275,
+        0.524,
+        0.518,
+        0.822,
+        0.633,
+        0.519,
+        0.8
+      ],
+      "mouthToLoadFrame": {
+        "min": 0.0198,
+        "median": 0.1478,
+        "within05": 16,
+        "within15": 32,
+        "n": 48
+      },
+      "envelopeToRimVerts": {
+        "min": 0.0582,
+        "median": 0.8931,
+        "within05": 0,
+        "within15": 27,
+        "n": 490
+      },
+      "envelopeToPoleVerts": {
+        "min": 0.0198,
+        "median": 0.4807,
+        "within05": 16,
+        "within15": 49,
+        "n": 490
+      },
+      "vertsBelowFloor0_10": 0,
+      "note": "Distances are vertex-to-vertex samples, not a continuous contact proof."
+    }
+  }
+}
