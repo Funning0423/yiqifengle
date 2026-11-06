@@ -1,0 +1,32 @@
+{
+  "kind": "pose-replay",
+  "notCocosDevice": true,
+  "note": "At t=3 the pose is the authored cruise mesh. Intersections are classified by triangle, not waived.",
+  "nodes": {
+    "frame": "balloon_load_frame",
+    "envelope": "balloon_envelope",
+    "basket": "balloon_basket",
+    "doors": [
+      "basket_door_leaf",
+      "basket_door_leaf_b"
+    ]
+  },
+  "jointBand": {
+    "what": "eight load-cable end caps on the mouth hem",
+    "y": [
+      3.068,
+      3.072
+    ],
+    "r": [
+      0.588,
+      0.612
+    ],
+    "frameTris": 48,
+    "envelopeRule": "every hit envelope triangle includes the mouth ring y=3.050"
+  },
+  "nonJoint": {
+    "what": "poles, burner platform, and cable shafts whose triangles stay at or below y=3.05",
+    "intersectingFrameTris": 0
+  },
+  "basketDoorGapAtT3M": 1.9316
+}

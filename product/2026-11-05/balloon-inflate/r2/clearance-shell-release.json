@@ -1,0 +1,362 @@
+{
+  "kind": "pose-replay",
+  "notCocosDevice": true,
+  "note": "Whole-shell sample around the radius-cap release. Sampled results only, not a continuous proof. Basket triangles, four sides, both doors, and the load frame.",
+  "sampleStartT": 1.05,
+  "sampleEndT": 1.55,
+  "stepS": 0.02,
+  "capReleaseT": 1.29,
+  "rows": [
+    {
+      "t": 1.05,
+      "basketMinM": 0.2894,
+      "doorMinM": 0.3517,
+      "sides": {
+        "+X": 0.2894,
+        "-X": 0.2894,
+        "+Z": 0.3479,
+        "-Z": 0.3479
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": null
+    },
+    {
+      "t": 1.07,
+      "basketMinM": 0.3049,
+      "doorMinM": 0.3674,
+      "sides": {
+        "+X": 0.3049,
+        "-X": 0.3049,
+        "+Z": 0.3639,
+        "-Z": 0.3639
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": null
+    },
+    {
+      "t": 1.09,
+      "basketMinM": 0.3204,
+      "doorMinM": 0.3832,
+      "sides": {
+        "+X": 0.3204,
+        "-X": 0.3204,
+        "+Z": 0.3798,
+        "-Z": 0.3798
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": null
+    },
+    {
+      "t": 1.11,
+      "basketMinM": 0.3359,
+      "doorMinM": 0.399,
+      "sides": {
+        "+X": 0.3359,
+        "-X": 0.3359,
+        "+Z": 0.3958,
+        "-Z": 0.3958
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.2417
+    },
+    {
+      "t": 1.13,
+      "basketMinM": 0.3514,
+      "doorMinM": 0.4148,
+      "sides": {
+        "+X": 0.3514,
+        "-X": 0.3514,
+        "+Z": 0.4118,
+        "-Z": 0.4118
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.2597
+    },
+    {
+      "t": 1.15,
+      "basketMinM": 0.367,
+      "doorMinM": 0.4306,
+      "sides": {
+        "+X": 0.367,
+        "-X": 0.367,
+        "+Z": 0.4277,
+        "-Z": 0.4277
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.2778
+    },
+    {
+      "t": 1.17,
+      "basketMinM": 0.3821,
+      "doorMinM": 0.4464,
+      "sides": {
+        "+X": 0.3821,
+        "-X": 0.3821,
+        "+Z": 0.4437,
+        "-Z": 0.4437
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.2959
+    },
+    {
+      "t": 1.19,
+      "basketMinM": 0.3931,
+      "doorMinM": 0.4622,
+      "sides": {
+        "+X": 0.3931,
+        "-X": 0.3931,
+        "+Z": 0.4597,
+        "-Z": 0.4597
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3141
+    },
+    {
+      "t": 1.2,
+      "basketMinM": 0.3986,
+      "doorMinM": 0.4701,
+      "sides": {
+        "+X": 0.3986,
+        "-X": 0.3986,
+        "+Z": 0.4677,
+        "-Z": 0.4677
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3232
+    },
+    {
+      "t": 1.21,
+      "basketMinM": 0.404,
+      "doorMinM": 0.4781,
+      "sides": {
+        "+X": 0.404,
+        "-X": 0.404,
+        "+Z": 0.4757,
+        "-Z": 0.4757
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3323
+    },
+    {
+      "t": 1.23,
+      "basketMinM": 0.4149,
+      "doorMinM": 0.4939,
+      "sides": {
+        "+X": 0.4149,
+        "-X": 0.4149,
+        "+Z": 0.4907,
+        "-Z": 0.4907
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3505
+    },
+    {
+      "t": 1.25,
+      "basketMinM": 0.4258,
+      "doorMinM": 0.5098,
+      "sides": {
+        "+X": 0.4258,
+        "-X": 0.4258,
+        "+Z": 0.5021,
+        "-Z": 0.5021
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3687
+    },
+    {
+      "t": 1.27,
+      "basketMinM": 0.4367,
+      "doorMinM": 0.5222,
+      "sides": {
+        "+X": 0.4367,
+        "-X": 0.4367,
+        "+Z": 0.5133,
+        "-Z": 0.5133
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.3874
+    },
+    {
+      "t": 1.29,
+      "basketMinM": 0.4475,
+      "doorMinM": 0.5331,
+      "sides": {
+        "+X": 0.4475,
+        "-X": 0.4475,
+        "+Z": 0.5246,
+        "-Z": 0.5246
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4069
+    },
+    {
+      "t": 1.31,
+      "basketMinM": 0.4586,
+      "doorMinM": 0.5441,
+      "sides": {
+        "+X": 0.4586,
+        "-X": 0.4586,
+        "+Z": 0.5358,
+        "-Z": 0.5358
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.427
+    },
+    {
+      "t": 1.33,
+      "basketMinM": 0.4707,
+      "doorMinM": 0.555,
+      "sides": {
+        "+X": 0.4707,
+        "-X": 0.4707,
+        "+Z": 0.547,
+        "-Z": 0.547
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4476
+    },
+    {
+      "t": 1.35,
+      "basketMinM": 0.4839,
+      "doorMinM": 0.5659,
+      "sides": {
+        "+X": 0.4839,
+        "-X": 0.4839,
+        "+Z": 0.5582,
+        "-Z": 0.5582
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4687
+    },
+    {
+      "t": 1.37,
+      "basketMinM": 0.498,
+      "doorMinM": 0.5768,
+      "sides": {
+        "+X": 0.498,
+        "-X": 0.498,
+        "+Z": 0.5696,
+        "-Z": 0.5696
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.4903
+    },
+    {
+      "t": 1.39,
+      "basketMinM": 0.513,
+      "doorMinM": 0.5877,
+      "sides": {
+        "+X": 0.513,
+        "-X": 0.513,
+        "+Z": 0.5819,
+        "-Z": 0.5819
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.5122
+    },
+    {
+      "t": 1.41,
+      "basketMinM": 0.5288,
+      "doorMinM": 0.5994,
+      "sides": {
+        "+X": 0.5288,
+        "-X": 0.5288,
+        "+Z": 0.595,
+        "-Z": 0.595
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.5344
+    },
+    {
+      "t": 1.43,
+      "basketMinM": 0.5453,
+      "doorMinM": 0.6119,
+      "sides": {
+        "+X": 0.5453,
+        "-X": 0.5453,
+        "+Z": 0.6089,
+        "-Z": 0.6089
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.557
+    },
+    {
+      "t": 1.45,
+      "basketMinM": 0.5625,
+      "doorMinM": 0.6252,
+      "sides": {
+        "+X": 0.5625,
+        "-X": 0.5625,
+        "+Z": 0.6236,
+        "-Z": 0.6236
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.5798
+    },
+    {
+      "t": 1.47,
+      "basketMinM": 0.5803,
+      "doorMinM": 0.6392,
+      "sides": {
+        "+X": 0.5803,
+        "-X": 0.5803,
+        "+Z": 0.6389,
+        "-Z": 0.6389
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.6028
+    },
+    {
+      "t": 1.49,
+      "basketMinM": 0.5987,
+      "doorMinM": 0.6539,
+      "sides": {
+        "+X": 0.5987,
+        "-X": 0.5987,
+        "+Z": 0.6549,
+        "-Z": 0.6549
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.1977
+    },
+    {
+      "t": 1.51,
+      "basketMinM": 0.6176,
+      "doorMinM": 0.6693,
+      "sides": {
+        "+X": 0.6176,
+        "-X": 0.6176,
+        "+Z": 0.6714,
+        "-Z": 0.6714
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.1965
+    },
+    {
+      "t": 1.53,
+      "basketMinM": 0.6369,
+      "doorMinM": 0.6852,
+      "sides": {
+        "+X": 0.6369,
+        "-X": 0.6369,
+        "+Z": 0.6885,
+        "-Z": 0.6885
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.1953
+    },
+    {
+      "t": 1.55,
+      "basketMinM": 0.6566,
+      "doorMinM": 0.7018,
+      "sides": {
+        "+X": 0.6566,
+        "-X": 0.6566,
+        "+Z": 0.7061,
+        "-Z": 0.7061
+      },
+      "frameIntersects": false,
+      "frameBelowMouthMinM": 0.1941
+    }
+  ]
+}

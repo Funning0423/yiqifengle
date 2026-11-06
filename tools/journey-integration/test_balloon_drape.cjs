@@ -263,7 +263,9 @@ assert.equal(negative.basketIntersects, true, 'negative case: a cloth scaled thr
 const shellTimes=[0,0.35,0.7,1.2,1.8,3];
 let releaseT=null;
 for(let t=0;t<=3.0001;t+=0.01){const p=D.balloonDrapePose(t); if(D.basketSxzCap(p.mouthY,p.sy)>2){releaseT=t; break;}}
-for(let t=Math.max(0,releaseT-0.16);t<=releaseT+0.16;t+=0.02)shellTimes.push(+t.toFixed(3));
+// Release-zone whole shell. Sample only; not a continuous proof.
+const RELEASE_T0=1.05, RELEASE_T1=1.55, RELEASE_DT=0.02;
+for(let t=RELEASE_T0;t<=RELEASE_T1+1e-9;t+=RELEASE_DT)shellTimes.push(+t.toFixed(3));
 const shellRows=[];
 for(const t of [...new Set(shellTimes)].sort((a,b)=>a-b)){
   const pose=D.balloonDrapePose(t), row=shellReport(pose);
@@ -299,6 +301,38 @@ const shellReportOut={
 };
 fs.mkdirSync(outDir,{recursive:true});
 fs.writeFileSync(path.join(outDir,'clearance-shell-runtime.json'), JSON.stringify(shellReportOut,null,2)+'\n');
+const releaseRows=shellRows.filter(r=>r.t>=RELEASE_T0-1e-9&&r.t<=RELEASE_T1+1e-9);
+fs.writeFileSync(path.join(outDir,'clearance-shell-release.json'), JSON.stringify({
+  kind:'pose-replay', notCocosDevice:true,
+  note:'Whole-shell sample around the radius-cap release. Sampled results only, not a continuous proof. Basket triangles, four sides, both doors, and the load frame.',
+  sampleStartT:RELEASE_T0, sampleEndT:RELEASE_T1, stepS:RELEASE_DT, capReleaseT:+releaseT.toFixed(3),
+  rows:releaseRows,
+},null,2)+'\n');
+// t=3: which frame triangles meet the envelope. Joint band = cable ends at the mouth hem.
+const cruise=D.balloonDrapePose(3), cloth=clothOf(cruise), frameTrisCruise=frameOf(cruise);
+const jointHits=[], belowHits=[]; let envAboveHem=0;
+frameTrisCruise.forEach((B,j)=>{
+  const ymax=Math.max(B[0][1],B[1][1],B[2][1]);
+  let hit=false;
+  for(const A of cloth){if(!aabbOverlap(triAABB(A), triAABB(B)))continue; if(triHit(A,B)){hit=true; const ymin=Math.min(A[0][1],A[1][1],A[2][1]); if(ymin>3.06)envAboveHem++; break;}}
+  if(!hit)return;
+  const c=[(B[0][0]+B[1][0]+B[2][0])/3,(B[0][1]+B[1][1]+B[2][1])/3,(B[0][2]+B[1][2]+B[2][2])/3];
+  const rec={frameTri:j, ymin:+Math.min(B[0][1],B[1][1],B[2][1]).toFixed(4), ymax:+ymax.toFixed(4), r:+Math.hypot(c[0],c[2]).toFixed(4), deg:+(Math.atan2(c[0],c[2])*180/Math.PI).toFixed(1)};
+  if(ymax<3.05)belowHits.push(rec); else jointHits.push(rec);
+});
+const envMouthHits=cloth.filter(A=>Math.min(A[0][1],A[1][1],A[2][1])<=3.051);
+assert.equal(belowHits.length, 0, 'frame triangles that stay below the mouth must not meet the envelope');
+assert.ok(jointHits.length>0, 'cable ends at the mouth are the triangles that meet the skirt');
+assert.equal(envAboveHem, 0, 'envelope triangles met by the cables must include the mouth hem, not the gore above it');
+const jointJson={
+  kind:'pose-replay', notCocosDevice:true,
+  note:'At t=3 the pose is the authored cruise mesh. Intersections are classified by triangle, not waived.',
+  nodes:{frame:'balloon_load_frame', envelope:'balloon_envelope', basket:'balloon_basket', doors:['basket_door_leaf','basket_door_leaf_b']},
+  jointBand:{what:'eight load-cable end caps on the mouth hem', y:[3.068,3.072], r:[0.588,0.612], frameTris:jointHits.length, envelopeRule:'every hit envelope triangle includes the mouth ring y=3.050'},
+  nonJoint:{what:'poles, burner platform, and cable shafts whose triangles stay at or below y=3.05', intersectingFrameTris:belowHits.length},
+  basketDoorGapAtT3M:shellRows.find(r=>r.t===3).basketMinM,
+};
+fs.writeFileSync(path.join(outDir,'mouth-joint-runtime.json'), JSON.stringify(jointJson,null,2)+'\n');
 fs.writeFileSync(path.join(outDir,'swell-curve-runtime.json'), JSON.stringify({kind:'pose-replay', notCocosDevice:true, stepS:0.02, capReleaseT:+releaseT.toFixed(3), maxAbsDsxzPer001s:+maxStep.toFixed(4), samples:curve},null,2)+'\n');
 const runtimeReport={
   source:'runtime',
