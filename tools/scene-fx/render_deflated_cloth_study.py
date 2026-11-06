@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "product/2026-11-06/balloon-deflated-cloth-study"
 HERE = Path(__file__).resolve().parent
 BANNER = "离线形态小样，非游戏镜头验收"
+DIR_BANNER = "离线方向小样，非游戏镜头，未接运行时"
 
 
 def load_render():
@@ -84,6 +85,38 @@ def limp_pile_r1(P):
     return np.column_stack((r * np.cos(theta), y_out, r * np.sin(theta)))
 
 
+def direction_lobes(P, is_blue):
+    """Sagging skin, height order kept. Two broad gathers of different size,
+    not eight equal teeth. Blue vertices stay a band and dip into one tuck.
+    A patch of upper red/yellow lays over that tuck. Not runtime."""
+    u = np.clip((P[:, 1] - 3.05) / 7.35, 0.0, 1.0)
+    th = np.arctan2(P[:, 2], P[:, 0])
+    # Camera is on +Z. Gathers are stronger there, and not a full equal ring.
+    face = np.clip(np.cos(th - 1.35), 0.0, 1.0)
+    g1 = np.sin(th * 2.1 + 0.4)
+    g2 = np.sin(th * 3.4 - 0.9)
+    gather = face * (0.10 * g1 + 0.04 * g2)
+    tuck = np.clip((u - 0.86) / 0.14, 0.0, 1.0)
+    y = 0.46 + 0.52 * u + 0.05 * gather
+    r = 0.20 + 0.28 * np.clip(u, 0.0, 1.0) + gather
+    r = np.clip(r, 0.12, 0.58)
+    blue = is_blue.astype(np.float64)
+    # One gap in the band: blue on the right-front drops under the cloth.
+    hide = blue * np.clip(np.cos(th - 2.0), 0.0, 1.0)
+    y = y * (1.0 - 0.45 * hide) + 0.48 * hide
+    r = r * (1.0 - 0.25 * hide)
+    # Upper red/yellow lays across that gap.
+    cover = (1.0 - blue) * np.clip((u - 0.58) / 0.12, 0.0, 1.0) * np.clip(np.cos(th - 1.9), 0.0, 1.0)
+    cover = cover * (1.0 - tuck)
+    y = y * (1.0 - cover) + 0.70 * cover
+    r = r * (1.0 - 0.2 * cover)
+    th2 = th + 0.35 * cover
+    y = y * (1.0 - tuck) + 0.50 * tuck
+    r = r * (1.0 - 0.5 * tuck) + 0.14 * tuck
+    y = np.clip(y, 0.44, 1.05)
+    return np.column_stack((r * np.cos(th2), y, r * np.sin(th2)))
+
+
 def limp_pile_r2(P):
     """Two unequal broad humps and one overlapping sheet. The back half stays
     low, so there is no full ring of teeth. Crest stays near the lip, not above
@@ -140,6 +173,57 @@ def label(img, font, line):
     return img
 
 
+def build_board(pair, board_dir, font):
+    """One sheet: source crops with limits, then the same-eye r1 vs proposal."""
+    ref = board_dir / "reference"
+    r1 = Image.open(ref / "R1_deflating_a_hot_air_balloon_1.jpg").convert("RGB")
+    r3 = Image.open(ref / "R3_westown_deflating_envelope.jpg").convert("RGB")
+    # Bottom pool of R1, where the bands wrinkle into the ground. Not a basket.
+    r1c = r1.crop((0, int(r1.height * 0.62), r1.width, r1.height))
+    # Lower sidewall of R3, where the skin sags. Not our colors, not our basket.
+    r3c = r3.crop((80, 180, 780, 640))
+    small = font.font_variant(size=18) if hasattr(font, "font_variant") else font
+    cap_h = 78
+    def tile(im, w, h, lines):
+        im = im.resize((w, h - cap_h), Image.Resampling.LANCZOS)
+        canvas = Image.new("RGB", (w, h), (245, 242, 234))
+        canvas.paste(im, (0, 0))
+        d = ImageDraw.Draw(canvas)
+        d.rectangle((0, h - cap_h, w, h), fill=(245, 242, 234))
+        for i, line in enumerate(lines):
+            d.text((8, h - cap_h + 6 + i * 22), line, fill=(40, 36, 28), font=small)
+        return canvas
+    tw, th = 560, 360
+    t1 = tile(r1c, tw, th, ["R1 Neuroxic CC BY 4.0", "底部色带随布弯、松堆。不是篮内高度。"])
+    t3 = tile(r3c, tw, th, ["R3 Pennington CC BY-SA 2.0", "侧壁塌软。不是我们的配色，也不是篮内折法。"])
+    note_h = 150
+    width = pair.width
+    # scale reference row to the pair width
+    gap = 12
+    scale = (width - gap) / (tw * 2)
+    t1 = t1.resize((int(tw * scale), int(th * scale)), Image.Resampling.LANCZOS)
+    t3 = t3.resize((width - gap - t1.width, int(th * scale)), Image.Resampling.LANCZOS)
+    head_h = 168
+    board = Image.new("RGB", (width, head_h + t1.height + gap + note_h + gap + pair.height + 64), (245, 242, 234))
+    d = ImageDraw.Draw(board)
+    d.text((16, 12), DIR_BANNER, fill=(90, 40, 20), font=font)
+    d.text((16, 44), "结构：低丘搭覆。蓝环带贴在同一张皮上，翻过红黄丘时是断开的弯条。", fill=(40, 36, 28), font=small)
+    d.text((16, 70), "不是一整块竖直蓝板，不是等距尖峰，不是缩小的满气球。", fill=(40, 36, 28), font=small)
+    d.text((16, 96), "R2 地面长堆、F1 厚布层叠只借丘和搭覆，不作篮内事实。", fill=(40, 36, 28), font=small)
+    d.text((16, 122), "篮内是压缩转译，不声称与实拍篮内一致。吊篮与巡航网格未改。", fill=(40, 36, 28), font=small)
+    y = head_h
+    board.paste(t1, (0, y))
+    board.paste(t3, (t1.width + gap, y))
+    y += t1.height + gap
+    d.text((16, y), "下图与 r1 同一只眼、同一盏灯。左 r1，右本次提案。未接运行时。", fill=(40, 36, 28), font=small)
+    y += note_h - 40
+    board.paste(pair, (0, y))
+    y += pair.height + 8
+    d.text((12, y), "来源：R1 commons File:Deflating_a_hot_air_balloon_1.JPG · R3 Geograph 3607030 / CC BY-SA 2.0", fill=(70, 64, 54), font=small)
+    board.save(board_dir / "direction-board.png")
+    print("board", board.size)
+
+
 def main():
     R = load_render()
     R.W, R.H = 390, 844
@@ -163,8 +247,19 @@ def main():
     env_i = names["balloon_envelope"]
     pos, nrm, uv, idx, _ = envelope_local(R, js, blob)
     pile_r1 = limp_pile_r1(pos)
-    pile_r2 = limp_pile_r2(pos)
-    pose = rejected_pose()
+    prim = js["meshes"][js["nodes"][env_i]["mesh"]]["primitives"][0]
+    tex_i = js["materials"][prim["material"]]["pbrMetallicRoughness"]["baseColorTexture"]["index"]
+    tex = images[js["textures"][tex_i]["source"]]
+    thH, thW = tex.shape[:2]
+    uv = R.read_acc(js, blob, prim["attributes"]["TEXCOORD_0"]).astype(np.float64).reshape(-1, 2)
+    is_blue = np.zeros(len(pos), dtype=bool)
+    for k in range(len(pos)):
+        uu, vv = uv[k]
+        x = int(np.clip(uu, 0, 0.999) * (thW - 1))
+        yy = int(np.clip(vv, 0, 0.999) * (thH - 1))
+        c = tex[yy, x].astype(int)
+        is_blue[k] = c[2] > c[0] + 25 and c[2] > 80
+    pile_dir = direction_lobes(pos, is_blue)
     basket_tris = []
     for i, n in enumerate(js["nodes"]):
         if "mesh" not in n or n["name"] in ("balloon_envelope", "balloon_load_frame", "burner_flame"):
@@ -176,48 +271,47 @@ def main():
     font = ImageFont.truetype("/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 22)
     ident = np.eye(4)
     r1_tris = tris_from(R, js, blob, images, env_i, pile_r1, nrm, uv, idx, ident)
-    r2_tris = tris_from(R, js, blob, images, env_i, pile_r2, nrm, uv, idx, ident)
+    dir_tris = tris_from(R, js, blob, images, env_i, pile_dir, nrm, uv, idx, ident)
     left = label(Image.fromarray(R.render(basket_tris + r1_tris, eye, target, fov)), font, "r1 已否：直立硬折扇（未接入运行时）")
-    right = label(Image.fromarray(R.render(basket_tris + r2_tris, eye, target, fov)), font, "r2 提案：低堆缓折（未接入运行时）")
+    right = label(Image.fromarray(R.render(basket_tris + dir_tris, eye, target, fov)), font, "方向提案：低丘搭覆（未接入运行时）")
+    # Retitle with the direction banner on the pair used for the board.
+    def retitle(img, sub):
+        d = ImageDraw.Draw(img)
+        d.rectangle((0, 0, img.width, 72), fill=(12, 16, 24))
+        d.text((8, 6), DIR_BANNER, fill=(255, 220, 160), font=font)
+        d.text((8, 38), sub, fill=(255, 255, 255), font=font)
+        return img
+    left, right = retitle(left, "r1 已否：等距尖峰"), retitle(right, "提案：蓝带随丘弯折")
     both = Image.new("RGB", (left.width * 2 + 8, left.height), (12, 16, 24))
     both.paste(left, (0, 0))
     both.paste(right, (left.width + 8, 0))
-    # Same azimuth as the study eye, pulled out to about the boarding-close distance.
-    # Aim stays on the basket, so this is not BasketCloseShot and not an acceptance frame.
-    horiz = float(np.hypot(eye[0] - target[0], eye[2] - target[2]))
-    far_s = 7.6 / horiz
-    far_eye = np.array([target[0] + (eye[0] - target[0]) * far_s, 2.6, target[2] + (eye[2] - target[2]) * far_s])
-    far_dist = float(np.linalg.norm(far_eye - target))
-    far = label(
-        Image.fromarray(R.render(basket_tris + r2_tris, far_eye, target, 46.0)),
-        font,
-        f"近似距离 {far_dist:.1f} m，非验收",
-    )
-    OUT.mkdir(parents=True, exist_ok=True)
-    left.save(OUT / "study-r1.png")
-    right.save(OUT / "study-r2.png")
-    both.save(OUT / "study-r1-vs-r2.png")
-    far.save(OUT / "study-r2-approx-distance.png")
-    y = pile_r2[:, 1]
-    rad = np.hypot(pile_r2[:, 0], pile_r2[:, 2])
-    (OUT / "study.json").write_text(json.dumps({
+    board_dir = ROOT / "product/2026-11-06/balloon-direction-study"
+    board_dir.mkdir(parents=True, exist_ok=True)
+    left.save(board_dir / "direction-r1.png")
+    right.save(board_dir / "direction-proposed.png")
+    both.save(board_dir / "direction-same-view.png")
+    build_board(both, board_dir, font)
+    y = pile_dir[:, 1]
+    rad = np.hypot(pile_dir[:, 0], pile_dir[:, 2])
+    (board_dir / "direction.json").write_text(json.dumps({
         "specimen": "proposed-geometry-only",
         "runtimeImplementation": False,
-        "productionTransition": "not approved; this study does not change it",
+        "productionPR72": "A observability and B scale-shape both unapproved; this board does not change them",
         "cruiseMesh": "unchanged transport_balloon.glb",
         "basket": "authored balloon_basket, unscaled",
-        "colors": "envelope baseColorTexture, unchanged",
-        "sameView": {"eye": eye.tolist(), "target": target.tolist(), "fov": fov, "light": "render_balloon_inflate.render fixed light"},
-        "approxDistance": {
-            "eye": far_eye.tolist(), "target": target.tolist(), "fov": 46,
-            "distanceM": round(far_dist, 2),
-            "note": "about the boarding-close distance, aim is the basket, not the game lens",
-        },
-        "r2Pile": {"yMin": round(float(y.min()), 3), "yMax": round(float(y.max()), 3), "rMax": round(float(rad.max()), 3)},
-        "label": BANNER,
+        "sameEyeAsR1Review": {"eye": eye.tolist(), "target": target.tolist(), "fov": fov, "light": "render_balloon_inflate.render fixed light"},
+        "structure": "unequal low lobes; blue band is the lower-mid skin and should cross the lobes as curved strips; upper red/yellow is the crest; one overlap",
+        "proposed": {"yMin": round(float(y.min()), 3), "yMax": round(float(y.max()), 3), "rMax": round(float(rad.max()), 3)},
+        "label": DIR_BANNER,
+        "sources": [
+            "R1 Neuroxic CC BY 4.0 https://commons.wikimedia.org/wiki/File:Deflating_a_hot_air_balloon_1.JPG",
+            "R3 Mike Pennington CC BY-SA 2.0 https://commons.wikimedia.org/wiki/File:Deflating_the_envelope_of_a_hot_air_balloon_at_Westown_-_geograph.org.uk_-_3607030.jpg",
+            "R2 Neuroxic CC BY 4.0 ground layout, not basket evidence",
+            "F1 Elinkorn CC BY-SA 4.0 upholstery overlap only, not balloon nylon",
+        ],
     }, indent=2) + "\n")
-    print("r2 y", round(float(y.min()), 3), round(float(y.max()), 3), "r", round(float(rad.max()), 3), "far", round(far_dist, 2))
-    print("wrote", OUT)
+    print("direction y", round(float(y.min()), 3), round(float(y.max()), 3), "r", round(float(rad.max()), 3))
+    print("wrote", board_dir)
 
 
 if __name__ == "__main__":
