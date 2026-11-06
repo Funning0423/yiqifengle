@@ -1,0 +1,58 @@
+{
+  "source": "offline",
+  "note": "Python point-triangle distance. after poses are BalloonDrape.ts via the node harness. before is the tip drape (1fe19f29), no basket cap.",
+  "after": {
+    "0.0": {
+      "NE": 0.4249,
+      "NW": 0.4249,
+      "SE": 0.4249,
+      "SW": 0.4249,
+      "minM": 0.4249
+    },
+    "0.45": {
+      "NE": 0.8371,
+      "NW": 0.8371,
+      "SE": 0.8371,
+      "SW": 0.8371,
+      "minM": 0.8371
+    },
+    "3.0": {
+      "NE": 1.9367,
+      "NW": 1.9367,
+      "SE": 1.9367,
+      "SW": 1.9367,
+      "minM": 1.9367
+    }
+  },
+  "before": {
+    "0.0": {
+      "NE": 0.0048,
+      "NW": 0.0,
+      "SE": 0.0,
+      "SW": 0.0048,
+      "minM": 0.0
+    },
+    "0.45": {
+      "NE": 0.8057,
+      "NW": 0.8057,
+      "SE": 0.8057,
+      "SW": 0.8057,
+      "minM": 0.8057
+    },
+    "3.0": {
+      "NE": 1.9367,
+      "NW": 1.9367,
+      "SE": 1.9367,
+      "SW": 1.9367,
+      "minM": 1.9367
+    }
+  },
+  "afterMinimumM": 0.2977,
+  "afterMinimumAtT": 0.1,
+  "afterCornersAtMinimum": {
+    "NE": 0.2977,
+    "NW": 0.2977,
+    "SE": 0.2977,
+    "SW": 0.2977
+  }
+}
