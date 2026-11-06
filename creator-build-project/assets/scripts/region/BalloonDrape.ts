@@ -1,5 +1,5 @@
 import type {Node} from 'cc';
-import {INFLATE, inflateAt} from './TransitionChain';
+import {INFLATE} from './TransitionChain';
 
 /**
  * Hot-air balloon inflate pose.
@@ -16,20 +16,22 @@ import {INFLATE, inflateAt} from './TransitionChain';
  * This pose drapes the cloth into the basket and keeps the load frame inside the cloth
  * until the throat is wide enough for the cables to meet the mouth. While any ring of the
  * cloth is still at or below the rim, horizontal scale is capped so the shell stays inside
- * the basket walls, the four rim corners and both door frames. At t = INFLATE.durationS
- * the envelope and the frame are back on their authored transforms, so the cruise look
- * does not move. INFLATE itself (timing, flame, vertical-first) is unchanged.
+ * the basket walls, the four rim corners and both door frames. The resting mound crests
+ * the rim so the boarding camera sees cloth and the lip together; the shape then follows
+ * swell01, not the flame clock, so a mound, a small bubble and a mid balloon stay apart.
+ * At t = INFLATE.durationS the envelope and the frame are back on their authored transforms,
+ * so the cruise look does not move. INFLATE itself (timing, flame, vertical-first) is unchanged.
  */
 export const BALLOON_DRAPE=Object.freeze({
   mouthMeshY:3.05,
   crownMeshY:10.4,
   mouthFullY:3.05,
-  /** deflated mouth, inside the basket (floor board is y 0.10, rim ≈ 1.12) */
-  mouthFlatY:0.22,
-  /** plump mound, not a paper disc (old ratio flatY/flatXZ = 0.22) */
-  flatSy:0.10,
+  /** deflated mouth, just under the rim (rim top ≈ 1.12) so the colored mound crests the lip */
+  mouthFlatY:0.92,
+  /** plump mound, not a paper disc (old ratio flatY/flatXZ = 0.22). Crown ≈ 1.80, above the lip. */
+  flatSy:0.12,
   /** resting width. The basket cap below can only pull this down, never push it out. */
-  flatSxz:0.17,
+  flatSxz:0.16,
   /** horizontal scale follows the vertical rise so the bubble stays round */
   roundFollow:0.75,
   /**
@@ -87,13 +89,28 @@ export type BalloonDrapePose={
   flameLocalY:number;burnerLocalY:number;
 };
 
+/** 0 at t=0, 1 at the end of the inflate. Smoothstep, not inflateAt: the flame clock is
+ *  vertical-first and is already near full height by t=1 s, which is why the boarding
+ *  camera jumped from an empty basket to a cropped balloon. The visual shape stays slow
+ *  enough that a mound, a small bubble and a mid balloon are different sizes, and is
+ *  exactly the authored cruise pose at t = duration. */
+export function swell01(t:number):number{
+  if(t>=INFLATE.durationS)return 1;
+  const u=Math.max(0,t/INFLATE.durationS);
+  return u*u*(3-2*u);
+}
+/** Width lags the rise by 0.35 s so the bubble stays inside the rim and the boarding
+ *  lens (the sky-walk nearest spot sits 5.8 m out at y 2.0) keeps its sampled clearance. */
+function swellHoriz(t:number):number{
+  if(t>=INFLATE.durationS)return 1;
+  const u=Math.max(0,(t-0.35)/(INFLATE.durationS-0.35));
+  return u*u*(3-2*u);
+}
 export function balloonDrapePose(t:number):BalloonDrapePose{
-  const I=INFLATE,f=inflateAt(t),D=BALLOON_DRAPE;
-  const uY=(f.sy-I.flatY)/(1-I.flatY),uX=(f.sxz-I.flatXZ)/(1-I.flatXZ);
-  const sy=D.flatSy+(1-D.flatSy)*uY;
-  const mouthY=uY>=1?D.mouthFullY:D.mouthFlatY+(D.mouthFullY-D.mouthFlatY)*Math.max(0,uY);
-  const uSxz=uX>1?uX:Math.max(uX,Math.min(1,Math.max(0,uY))*D.roundFollow);
-  const sxzWant=D.flatSxz+(1-D.flatSxz)*uSxz;
+  const D=BALLOON_DRAPE,w=swell01(t),wx=swellHoriz(t);
+  const sy=D.flatSy+(1-D.flatSy)*w;
+  const mouthY=w>=1?D.mouthFullY:D.mouthFlatY+(D.mouthFullY-D.mouthFlatY)*w;
+  const sxzWant=D.flatSxz+(1-D.flatSxz)*wx;
   const sxz=Math.min(sxzWant,basketSxzCap(mouthY,sy));
   const crownY=mouthY+(D.crownMeshY-D.mouthMeshY)*sy;
   const tuck=D.frameTopY-D.mouthFullY;

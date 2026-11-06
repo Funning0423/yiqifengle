@@ -37,8 +37,15 @@ for(let t=0;t<=3.0001;t+=1/30){
   samples.push(p);
 }
 const z=D.balloonDrapePose(0),full=D.balloonDrapePose(3),mid=D.balloonDrapePose(0.9);
-assert.ok(z.mouthY<0.5&&z.crownY>0.7&&z.crownY<1.05,'deflated cloth is a mound under the rim wood, not a disc at y 3');
+assert.ok(z.crownY>1.25&&z.crownY<2.15&&z.mouthY<1.15,'deflated cloth crests the rim so the lip and the mound are both visible, and it is not a full balloon');
 assert.ok(z.sxz<0.45&&z.sy/z.sxz>0.35,'deflated aspect is a pile, not the old 0.12/0.55 disc');
+const swellAt=(t)=>D.balloonDrapePose(t);
+const s0=swellAt(0),s1=swellAt(1),s15=swellAt(1.5),s3=swellAt(3);
+assert.ok(s1.crownY>s0.crownY+1.5&&s1.crownY<6,'t=1 is a small balloon, not the mound and not already full');
+assert.ok(s15.crownY>s1.crownY+1.2&&s15.crownY<s3.crownY-2,'t=1.5 sits between the small balloon and cruise');
+let prevS=s0.sxz,maxStep=0;
+for(let t=0.1;t<=3.001;t+=0.1){const sxz=swellAt(+t.toFixed(1)).sxz;maxStep=Math.max(maxStep,Math.abs(sxz-prevS));prevS=sxz;}
+assert.ok(maxStep<0.08,'sxz step per 0.1 s stays smooth, got '+maxStep.toFixed(4));
 assert.equal(z.frameVisible,false);
 const home={p:{x:0,y:-3.05,z:0},s:{x:1,y:1,z:1}};
 const y0=D.envelopeLocalY(z,home);
