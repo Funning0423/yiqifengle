@@ -110,6 +110,28 @@ export function balloonDrapePose(t:number):BalloonDrapePose{
   return {sy,sxz,mouthY,crownY,frameVisible:frameSy>0.02,frameSy,frameSxz,frameLocalY,flameLocalY,burnerLocalY};
 }
 
+/**
+ * Signed gap (m) from a balloon-local point to the draped envelope, using the same
+ * ring samples as the basket cap. Negative means the point sits inside the cloth:
+ * between the mouth and the crown, and inside that ring's radius. A positive value
+ * is the distance to the nearest ring. Samples only — not a continuous proof, and
+ * not a substitute for a device frame.
+ */
+export function envelopeCameraGap(x:number,y:number,z:number,pose:BalloonDrapePose):number{
+  const D=BALLOON_DRAPE,h=Math.hypot(x,z),sy=pose.sy,sxz=pose.sxz,mouth=pose.mouthY,crown=pose.crownY;
+  if(sy>1e-4&&y>mouth&&y<crown){
+    const r=envRadiusAt(D.mouthMeshY+(y-mouth)/sy)*sxz;
+    if(h<r-1e-6)return h-r;
+  }
+  let best=1e9;
+  for(const [my,r0] of ENV_RINGS){
+    const wy=mouth+(my-D.mouthMeshY)*sy,rr=r0*sxz;
+    const d=Math.hypot(h-rr,y-wy);
+    if(d<best)best=d;
+  }
+  return best;
+}
+
 type Trs={x:number;y:number;z:number};
 type EnvelopeLike={setScale:(x:number,y:number,z:number)=>void;setPosition:(x:number,y:number,z:number)=>void};
 
