@@ -133,5 +133,23 @@ assert.ok(/kind:'stand',seat:seatDef/.test(bal)&&/guardBeforeWalk\(anim,'B5 stan
  assert.ok(comp.includes('continueJourney(){return this.skyFinaleActive()?this.continueFromSkyFinale()'),'继续旅程 button kept');
  assert.ok(fs.existsSync(path.join(ROOT,'creator-build-project/assets/scripts/region/SkyFinaleDeparture.ts.meta'))&&!/@ccclass\(/.test(src('region/SkyFinaleDeparture.ts')));
  out.departure={autoContinueAtS:SD.finaleAutoContinueAtS(1.4),gazeS:+a.gazedS().toFixed(2),wasS:6.9};}
+// 14 fallback object exists after the first chain mark, and a later mark does not zero a trigger
+{const savedF=globalThis.__QF_TRANSITION_FALLBACK,savedC=globalThis.__QF_CHAIN;
+ delete globalThis.__QF_TRANSITION_FALLBACK;delete globalThis.__QF_CHAIN;
+ assert.equal(C.chainMark('balloon','B1-basket-in'),true);
+ const fresh=globalThis.__QF_TRANSITION_FALLBACK;
+ assert.ok(fresh&&typeof fresh==='object','fresh chain publishes an object, not the dump sentinel undef');
+ assert.deepEqual({count:fresh.count,events:fresh.events},{count:0,events:[]},'runtime object is {count,events}');
+ // qfDump serializes a different shape: {count, last: events.slice(-3)} (qf-autoplay.js). Empty dump is last:[], not events:[].
+ assert.deepEqual({count:fresh.count,last:(fresh.events||[]).slice(-3)},{count:0,last:[]},'dump field is last, not events');
+ assert.equal(C.recordFallback('balloon',3,'load'),1);
+ assert.equal(C.chainMark('balloon','B2-ignite-inflate'),true);
+ assert.equal(globalThis.__QF_TRANSITION_FALLBACK.count,1,'a later mark does not clobber a recorded fallback');
+ assert.equal(globalThis.__QF_TRANSITION_FALLBACK.events.length,1);
+ assert.equal(globalThis.__QF_TRANSITION_FALLBACK.events[0].leg,'balloon');
+ C.resetChainTrace();
+ assert.equal(C.fallbackCount(),0,'resetChainTrace still zeros the counter');
+ globalThis.__QF_TRANSITION_FALLBACK=savedF;globalThis.__QF_CHAIN=savedC;
+ out.fallbackInit={freshCount:0,afterTrigger:1};}
 console.error=ce;console.warn=cw;console.log(JSON.stringify({ok:true,...out}));
 })().catch(e=>{console.error=ce;console.warn=cw;console.error(e);process.exit(1);});
