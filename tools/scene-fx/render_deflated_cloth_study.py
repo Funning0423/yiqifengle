@@ -56,10 +56,9 @@ def envelope_local(R, js, blob):
     return pos, nrm, uv, idx, i
 
 
-def limp_pile(P):
-    """One authored slack pose of the real teardrop. No accordion, so the long
-    triangles stay short. The white crown is stuffed under the colored gores.
-    Not applied at cruise."""
+def limp_pile_r1(P):
+    """Review r1. Kept only so the comparison uses the same eye and the same light.
+    Eight equal creases made the upright paper-fan edge."""
     y = P[:, 1]
     u = np.clip((y - 3.05) / 7.35, 0.0, 1.0)
     theta = np.arctan2(P[:, 2], P[:, 0])
@@ -74,7 +73,6 @@ def limp_pile(P):
     r_in = r_in * (0.88 + 0.12 * crease)
     r_in = np.minimum(r_in, 0.58)
     y_in = np.clip(y_in, 0.40, 1.02)
-    # A short flap of the colored body lies on the near lip. It does not pierce the wall.
     near = np.clip(np.cos(theta - 1.15), 0.0, 1.0)
     spill = near * np.clip((vis - 0.50) / 0.30, 0.0, 1.0) * (1.0 - stuffed)
     r_lip = 0.62 + 0.22 * spill
@@ -84,6 +82,35 @@ def limp_pile(P):
     y_out = y_out * (1.0 - stuffed) + (0.40 + 0.05 * np.sin(theta * 5.0)) * stuffed
     r = r * (1.0 - 0.70 * stuffed) + 0.14 * stuffed
     return np.column_stack((r * np.cos(theta), y_out, r * np.sin(theta)))
+
+
+def limp_pile_r2(P):
+    """Two unequal broad humps and one overlapping sheet. The back half stays
+    low, so there is no full ring of teeth. Crest stays near the lip, not above
+    it as spikes. Not runtime."""
+    u = np.clip((P[:, 1] - 3.05) / 7.35, 0.0, 1.0)
+    theta = np.arctan2(P[:, 2], P[:, 0])
+    stuffed = np.clip((u - 0.80) / 0.20, 0.0, 1.0)
+    vis = np.clip(u / 0.80, 0.0, 1.0)
+    hump_a = np.exp(-0.5 * ((theta - 1.05) / 0.95) ** 2)
+    hump_b = np.exp(-0.5 * ((theta + 0.35) / 0.42) ** 2)
+    # Cloth below the blue band stays in the basket. Cloth above it lays over that
+    # sheet, higher on one wide hump and only a little on a second, smaller hump.
+    # 0.46 sits just under the blue band (u ≈ 0.50), so the band rides the draped sheet.
+    upper = np.clip((u - 0.46) / 0.05, 0.0, 1.0) * (1.0 - stuffed)
+    y0 = 0.52 + 0.08 * hump_a
+    r0 = np.minimum(0.18 + 0.30 * np.clip(u / 0.55, 0.0, 1.0), 0.50)
+    y1 = 0.86 + 0.28 * hump_a + 0.06 * hump_b
+    r1 = 0.26 + 0.18 * hump_a
+    y_out = y0 * (1.0 - upper) + y1 * upper
+    r = r0 * (1.0 - upper) + r1 * upper
+    x = r * np.cos(theta) + 0.14 * upper * hump_a
+    z = r * np.sin(theta) - 0.05 * upper
+    y_out = y_out * (1.0 - stuffed) + 0.48 * stuffed
+    x = x * (1.0 - 0.75 * stuffed)
+    z = z * (1.0 - 0.75 * stuffed)
+    y_out = np.clip(y_out, 0.44, 1.18)
+    return np.column_stack((x, y_out, z))
 
 
 def tris_from(R, js, blob, images, node_i, pos, nrm, uv, idx, M):
@@ -135,44 +162,61 @@ def main():
 
     env_i = names["balloon_envelope"]
     pos, nrm, uv, idx, _ = envelope_local(R, js, blob)
-    pile = limp_pile(pos)
-    # Proposed specimen stays a copy. Cruise vertices are the glTF positions, unused here except as input.
+    pile_r1 = limp_pile_r1(pos)
+    pile_r2 = limp_pile_r2(pos)
     pose = rejected_pose()
-    cap_ov = {"translation": [0, pose["localY"], 0], "scale": [pose["sxz"], pose["sy"], pose["sxz"]]}
     basket_tris = []
     for i, n in enumerate(js["nodes"]):
         if "mesh" not in n or n["name"] in ("balloon_envelope", "balloon_load_frame", "burner_flame"):
             continue
         basket_tris.extend(R.mesh_tris(js, blob, images, i, world_of(i, {})))
-    cap_tris = tris_from(R, js, blob, images, env_i, pos, nrm, uv, idx, world_matrix(env_i, cap_ov))
-    # limp_pile already emits root-space metres.
-    limp_tris = tris_from(R, js, blob, images, env_i, pile, nrm, uv, idx, np.eye(4))
     eye = np.array([0.15, 2.35, 2.55])
     target = np.array([0.0, 0.72, 0.0])
     fov = 32.0
     font = ImageFont.truetype("/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 22)
-    left = label(Image.fromarray(R.render(basket_tris + cap_tris, eye, target, fov)), font, "已否：均匀缩小的硬顶")
-    right = label(Image.fromarray(R.render(basket_tris + limp_tris, eye, target, fov)), font, "提案：一层松垮褶皱（未接入运行时）")
+    ident = np.eye(4)
+    r1_tris = tris_from(R, js, blob, images, env_i, pile_r1, nrm, uv, idx, ident)
+    r2_tris = tris_from(R, js, blob, images, env_i, pile_r2, nrm, uv, idx, ident)
+    left = label(Image.fromarray(R.render(basket_tris + r1_tris, eye, target, fov)), font, "r1 已否：直立硬折扇（未接入运行时）")
+    right = label(Image.fromarray(R.render(basket_tris + r2_tris, eye, target, fov)), font, "r2 提案：低堆缓折（未接入运行时）")
     both = Image.new("RGB", (left.width * 2 + 8, left.height), (12, 16, 24))
     both.paste(left, (0, 0))
     both.paste(right, (left.width + 8, 0))
+    # Same azimuth as the study eye, pulled out to about the boarding-close distance.
+    # Aim stays on the basket, so this is not BasketCloseShot and not an acceptance frame.
+    horiz = float(np.hypot(eye[0] - target[0], eye[2] - target[2]))
+    far_s = 7.6 / horiz
+    far_eye = np.array([target[0] + (eye[0] - target[0]) * far_s, 2.6, target[2] + (eye[2] - target[2]) * far_s])
+    far_dist = float(np.linalg.norm(far_eye - target))
+    far = label(
+        Image.fromarray(R.render(basket_tris + r2_tris, far_eye, target, 46.0)),
+        font,
+        f"近似距离 {far_dist:.1f} m，非验收",
+    )
     OUT.mkdir(parents=True, exist_ok=True)
-    left.save(OUT / "study-rejected-cap.png")
-    right.save(OUT / "study-proposed-limp.png")
-    both.save(OUT / "study-compare.png")
-    y = pile[:, 1]
-    r = np.hypot(pile[:, 0], pile[:, 2])
+    left.save(OUT / "study-r1.png")
+    right.save(OUT / "study-r2.png")
+    both.save(OUT / "study-r1-vs-r2.png")
+    far.save(OUT / "study-r2-approx-distance.png")
+    y = pile_r2[:, 1]
+    rad = np.hypot(pile_r2[:, 0], pile_r2[:, 2])
     (OUT / "study.json").write_text(json.dumps({
         "specimen": "proposed-geometry-only",
         "runtimeImplementation": False,
+        "productionTransition": "not approved; this study does not change it",
         "cruiseMesh": "unchanged transport_balloon.glb",
         "basket": "authored balloon_basket, unscaled",
         "colors": "envelope baseColorTexture, unchanged",
-        "view": {"eye": eye.tolist(), "target": target.tolist(), "fov": fov, "note": BANNER},
-        "rejectedCap": {"mouthY": pose["mouthY"], "crownY": pose["crownY"], "sy": pose["sy"], "sxz": pose["sxz"]},
-        "proposedPile": {"yMin": round(float(y.min()), 3), "yMax": round(float(y.max()), 3), "rMax": round(float(r.max()), 3)},
+        "sameView": {"eye": eye.tolist(), "target": target.tolist(), "fov": fov, "light": "render_balloon_inflate.render fixed light"},
+        "approxDistance": {
+            "eye": far_eye.tolist(), "target": target.tolist(), "fov": 46,
+            "distanceM": round(far_dist, 2),
+            "note": "about the boarding-close distance, aim is the basket, not the game lens",
+        },
+        "r2Pile": {"yMin": round(float(y.min()), 3), "yMax": round(float(y.max()), 3), "rMax": round(float(rad.max()), 3)},
+        "label": BANNER,
     }, indent=2) + "\n")
-    print("pile y", round(float(y.min()), 3), round(float(y.max()), 3), "r", round(float(r.max()), 3))
+    print("r2 y", round(float(y.min()), 3), round(float(y.max()), 3), "r", round(float(rad.max()), 3), "far", round(far_dist, 2))
     print("wrote", OUT)
 
 
