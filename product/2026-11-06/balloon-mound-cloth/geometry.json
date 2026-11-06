@@ -1,0 +1,50 @@
+{
+  "samples": {
+    "0": {
+      "seam": 0,
+      "crossings": 0,
+      "shape": 0
+    },
+    "3": {
+      "seam": 0,
+      "crossings": 0,
+      "shape": 1
+    },
+    "0.75": {
+      "seam": 0,
+      "crossings": 0,
+      "shape": 0.0156
+    },
+    "1.5": {
+      "seam": 0,
+      "crossings": 0,
+      "shape": 0.125
+    },
+    "2.25": {
+      "seam": 0,
+      "crossings": 0,
+      "shape": 0.4219
+    }
+  },
+  "blueY": [
+    0.579,
+    0.748
+  ],
+  "blueN": 48,
+  "clearance": {
+    "poleDeflatedM": 0.3152,
+    "rimDeflatedM": 0.2201,
+    "poleCruiseM": 0.19,
+    "mouthCapVerts": 96,
+    "poleVerts": 567
+  },
+  "bytes": {
+    "verts": 5362,
+    "tris": 9216,
+    "positionBytes": 64344,
+    "moundBytes": 64344,
+    "indexBytes": 110592
+  },
+  "levels": 2,
+  "note": "Crossings are non-adjacent edge stabs at the listed clocks only. Not a continuous proof and not an engine frame."
+}

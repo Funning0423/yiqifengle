@@ -1,5 +1,6 @@
 import type {Node} from 'cc';
 import {INFLATE, inflateAt} from './TransitionChain';
+import {syncBalloonCloth} from './BalloonClothView';
 
 /**
  * Hot-air balloon inflate pose.
@@ -142,9 +143,12 @@ export function envelopeLocalY(pose:BalloonDrapePose,home:{p:Trs;s:Trs}):number{
 }
 
 export function applyEnvelopeDrape(envelope:EnvelopeLike,t:number,home:{p:Trs;s:Trs}):void{
-  const pose=balloonDrapePose(t);
-  envelope.setScale(home.s.x*pose.sxz,home.s.y*pose.sy,home.s.z*pose.sxz);
-  envelope.setPosition(home.p.x,envelopeLocalY(pose,home),home.p.z);
+  // The node stays on the authored rest. The shell moves vertices; scaling the teardrop
+  // as well would squash that shell into the rejected mini-balloon.
+  envelope.setScale(home.s.x,home.s.y,home.s.z);
+  envelope.setPosition(home.p.x,home.p.y,home.p.z);
+  const node=envelope as unknown as Node;
+  if(typeof node.getComponent==='function')syncBalloonCloth(node,t);
 }
 
 const homeY=new WeakMap<Node,number>();
@@ -174,27 +178,15 @@ function placeY(node:Node|null,y:number):void{
  * Collapse or grow balloon_load_frame about the basket rim, and park the flame on the burner.
  * Missing frame (stub / pre-split asset) is a no-op. Flame local scale is left to the caller.
  */
-export function poseLoadFrameFromEnvelope(envelope:Node|null|undefined,t:number):void{
+export function poseLoadFrameFromEnvelope(envelope:Node|null|undefined,_t:number):void{
   const root=balloonRootOf(envelope??null);
   if(!root)return;
-  const pose=balloonDrapePose(t);
+  // Poles, rim and burner stay on the authored rig. The shell has to clear them;
+  // hiding the frame was the old way of pretending the cables were inside the cloth.
   const frame=root.getChildByName('balloon_load_frame');
-  if(frame){
-    frame.active=pose.frameVisible;
-    if(pose.frameVisible)frame.setScale(pose.frameSxz,pose.frameSy,pose.frameSxz);
-    else frame.setScale(0.001,0.001,0.001);
-    frame.setPosition(0,pose.frameLocalY,0);
-  }
+  if(frame){frame.active=true; frame.setScale(1,1,1); frame.setPosition(frame.position.x,0,frame.position.z);}
   const flame=root.getChildByName('burner_flame');
   const burner=root.getChildByName('burner_root');
-  if(flame){
-    const y0=authoredY(flame);
-    const y=pose.frameVisible?BALLOON_DRAPE.frameBaseY+(y0-BALLOON_DRAPE.frameBaseY)*pose.frameSy:pose.flameLocalY;
-    placeY(flame,y);
-  }
-  if(burner){
-    const y0=authoredY(burner);
-    const y=pose.frameVisible?BALLOON_DRAPE.frameBaseY+(y0-BALLOON_DRAPE.frameBaseY)*pose.frameSy:pose.burnerLocalY;
-    placeY(burner,y);
-  }
+  if(flame)placeY(flame,authoredY(flame));
+  if(burner)placeY(burner,authoredY(burner));
 }
