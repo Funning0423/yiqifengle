@@ -29,7 +29,7 @@
       "name": "LK_lotus_pedestal.mesh",
       "userData": {
         "gltfIndex": 0,
-        "triangleCount": 30
+        "triangleCount": 256
       },
       "ver": "1.1.1",
       "imported": true,
