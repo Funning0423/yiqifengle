@@ -212,6 +212,12 @@
       },
       "why": "perf/r5-p0-p2: release unreferenced region bundles after leave; reload on return."
     },
+    "creator-build-project/assets/scripts/region/SkycityBoardSlot.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "perf/r5-p0-p2: slot that hands the flight-warmed sky-city board model to mountRegion. No engine import."
+    },
     "creator-build-project/assets/scripts/region/SkycityBoardBatch.ts.meta": {
       "allowAdd": {
         "importer": "typescript"

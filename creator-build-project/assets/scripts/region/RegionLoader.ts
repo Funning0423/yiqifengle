@@ -1,5 +1,7 @@
 import {assetManager,AssetManager,Prefab,Node,instantiate,isValid,MeshRenderer,Material} from 'cc';
 import {setMooringRopes} from './SkyMooringRopes';
+import {takeSkycityBoardModel} from './SkycityBoardSlot';
+import {prepareRegionBundle} from './RegionGpuLease';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkycityPennantWind} from './SkycityPennantWind';
 import {SkycityRobotInteract} from './SkycityRobotInteract';
@@ -37,6 +39,7 @@ export const SKY_MOORING_PREFAB='sky_mooring_props';
 /** Loads the region's bundle and prefab. Rejects on failure so callers can show retry UI. */
 async function loadPrefab(def:RegionDef,progress?:(fraction:number)=>void):Promise<Prefab>{
   progress?.(0);
+  try{await prepareRegionBundle(def.bundle);}catch{/* dirty bundle reload is best-effort */}
   const bundle=await loadBundle(def.bundle);progress?.(.15);
   if(def.prefabUuid)return new Promise<Prefab>((ok,fail)=>assetManager.loadAny({uuid:def.prefabUuid!},{},(finished:number,total:number)=>progress?.(.15+.8*finished/Math.max(1,total)),(e:any,p:Prefab)=>{if(e||!p)fail(e||Error('no prefab'));else{progress?.(1);ok(p);}}));
   return new Promise<Prefab>((ok,fail)=>bundle.loadDir('',Prefab,(e,list:Prefab[])=>{
@@ -58,6 +61,10 @@ export async function loadRegionPrefab(def:RegionDef,progress?:(fraction:number)
 }
 /** Instantiates a loaded region prefab under parent and starts its ambient loops. */
 export function mountRegion(def:RegionDef,prefab:Prefab,parent:Node):Node{
+  if(def.bundle==='region_skycity'){
+   const warmed=takeSkycityBoardModel();
+   if(warmed&&isValid(warmed,true)){if(warmed.parent)warmed.removeFromParent();if(isValid(parent,true))parent.addChild(warmed);return warmed;}
+  }
   const model=instantiate(prefab);
   if(def.ambientClips?.length||def.ambientClipUuids?.length||def.gestureClips?.length){const a=model.addComponent(RegionAmbientAnimation);a.clipNames=def.ambientClips||[];a.clipUuids=def.ambientClipUuids||[];a.gestureNames=def.gestureClips||[];if(def.gestureClips?.length)model.addComponent(SkycityRobotInteract);}
   if(def.bundle==='region_skycity')model.addComponent(SkycityPennantWind); // R5 S3: pennants follow GlobalWind

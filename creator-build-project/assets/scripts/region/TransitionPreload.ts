@@ -1,5 +1,5 @@
 import {Director,EffectAsset,JsonAsset,assetManager,director,type Node} from 'cc';
-import {meadowSplitLoad,preloadMeadowForSail} from './SailPreload';
+import {meadowSplitLoad,preloadMeadowForSail,sailWarmNode} from './SailPreload';
 import {beginTransitionShaderWarm,watchTransitionRoot} from './TransitionShaderWarm';
 import {MEADOW_LEG_STAGES,PRELOAD_PLAN,SKY_LEG_STAGES,SKY_WARM_GAP_MS,logBundleLoad,type PreloadItem} from './TransitionChain';
 import {REGIONS,loadRegionPrefab} from './RegionLoader';
@@ -74,7 +74,7 @@ export function warmMeadowLegStaged(parent:Node,stable:()=>boolean|'gone',gap=SK
   'bundle:transport_sail':()=>bundle('transport_sail').then(ok=>{if(!ok)throw Error('bundle');}),
   'split:env_meadow':()=>meadowSplitLoad(stable),
   'prefab:env_meadow':()=>loadRegionPrefab(REGIONS.meadow),
-  'mount:meadow-warm-rig':async()=>{let s;while((s=stable())===false)await wait(gap);if(s==='gone')throw Error('left-island');await preloadMeadowForSail(parent);},/* 'gone': she left the island side; the sail prepare mounts */
+  'mount:meadow-warm-rig':async()=>{let s;while((s=stable())===false)await wait(gap);if(s==='gone')throw Error('left-island');await preloadMeadowForSail(parent);try{(globalThis as any).__qfJourneyPrime?.(sailWarmNode());}catch{/* setCamera variants compile on island frames, not the handoff */}},/* 'gone': she left the island side; the sail prepare mounts */
  };
  meadowStaged=(async()=>{let all=true;
   for(const st of MEADOW_LEG_STAGES){

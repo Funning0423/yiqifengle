@@ -95,7 +95,9 @@ assert.doesNotMatch(fs.readFileSync(path.join(S,'region/JourneyShaderPrime.ts'),
 assert.doesNotMatch(fs.readFileSync(path.join(S,'region/SkycityBoardBackground.ts'),'utf8'),/batchSkycityBoard|__qfBoardSpread/);
 assert.match(fs.readFileSync(path.join(S,'region/RegionBoardLanding.ts'),'utf8'),/primeReveal\?\(\):void/);
 assert.match(fs.readFileSync(path.join(S,'world-r2/LevelBackground.ts'),'utf8'),/__qfOnBoardVisible/);
-assert.match(fs.readFileSync(path.join(S,'region/LakesideBoardGuest.ts'),'utf8'),/__qfBoardSpread/);
+assert.match(fs.readFileSync(path.join(S,'region/LakesideBoardGuest.ts'),'utf8'),/__qfBatchSkycityBoard/);
+assert.doesNotMatch(fs.readFileSync(path.join(S,'region/SkycityBoardBatch.ts'),'utf8'),/USE_INSTANCING/);
+assert.match(fs.readFileSync(path.join(S,'region/RegionGpuLease.ts'),'utf8'),/_gfxTexture|getGFXTexture/);
 
 const fakeTsw={
  TRANSITION_SHADER_WARM_ENABLED:false,

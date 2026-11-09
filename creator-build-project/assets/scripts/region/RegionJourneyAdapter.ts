@@ -10,7 +10,7 @@ import {SKY_5A_LIFT_KEYS,SKY_5A_WALK_PLAN,transitionOccluderBoxes} from './Trans
 import {C2_CLOSE,basketClosePose,basketCloseSpot,boardFeetAt,c2ClosePose} from './BasketCloseShot';
 import {SKYCITY_LENS_OCCLUDERS} from './SkycityLensOccluders';
 import {camTag,camLog,camActorProbe/*QF_PROBE_BEGIN*/,camProbeLake/*QF_PROBE_END*/} from './CamTraceLog';
-import {REGION_GPU_SWEEP,sweepUnreferenced} from './RegionGpuLease';
+import {REGION_GPU_SWEEP,releaseSubtreeGpu,sweepUnreferenced} from './RegionGpuLease';
 import {SKY_PRE_FOLLOW,SKY_LAKE_AT_S6_M,skyLakePreWalk,skyPreFollowPose} from './SkyLakePreWalk';
 import {skyResumeBegin} from './SkyResumeLens'/* full9c: 运镜bot f3ad48bb, pose-only; we stay the only writer */;
 import {skyLakeEntry} from './SkyLakeEntry';
@@ -99,7 +99,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
    prefab.addRef();const owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-'+to);rig.active=false;options.parent.addChild(rig);
    let effect:any=null,dead=false,model:Node|null=null,motion:MeadowSceneMotion|null=null,boardLocal:Mat4|null=null,boardSrc:RegionBoardSource|null=null,sailArt:SailArt|null=null;
-   const release=()=>{if(dead)return;dead=true;sailArt?.dispose();if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();try{sweepUnreferenced(REGION_GPU_SWEEP);}catch{/* gpu release optional */}};
+   const release=()=>{if(dead)return;dead=true;sailArt?.dispose();if(boardSrc&&regionBoardSource(to as BoardLandingRegion)===boardSrc)setRegionBoardSource(to as BoardLandingRegion,null);if(mounted.get(to)===model)mounted.delete(to);try{releaseSubtreeGpu(rig);}catch{/* gpu textures optional */}rig.active=false;rig.destroy();for(const asset of owned)asset.destroy();effect?.decRef();prefab.decRef();try{sweepUnreferenced(REGION_GPU_SWEEP);}catch{/* gpu release optional */}};
    try{
     const sail=true;
     // 运镜bot r5 (meadow-girlsize A): the sail arrival ends at M1 → closer board camera.

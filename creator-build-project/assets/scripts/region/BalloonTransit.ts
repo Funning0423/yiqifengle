@@ -34,7 +34,8 @@ import {camTag,camLog,camActorProbe,camActorPose} from './CamTraceLog';
 import {regionBoardSource,setRegionBoardSource,type RegionBoardSource} from './RegionBoardLanding';
 import {armTransitionHold,noteTransitionHeavyFrames,holdTransitionShaders} from './TransitionShaderWarm';
 import {armFlightShaderPrime,flightPrimePending,stepFlightShaderPrime} from './FlightShaderPrime';
-import {REGION_GPU_SWEEP,sweepUnreferenced} from './RegionGpuLease';
+import {REGION_GPU_SWEEP,releaseSubtreeGpu,sweepUnreferenced} from './RegionGpuLease';
+import {stepSkycityBoardWarm} from './SkycityBoardBatch';
 import {SKYCITY_LEG_HEAVY_ENABLED,skycityLegHeavyFromFlag} from './SkycityLegHeavy';
 import {
  ALWAYS_CLOUD, ALWAYS_HIDDEN, BACKDROP_HIDE, CITY_CLOUD, CITY_ON_T, FAR_CARD_ON_T, FLIGHT_FAR_CLOUDS, FLIGHT_FORMAT, GRASS_OFF_T,
@@ -380,7 +381,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   for(const s of skyHome){if(s.shared&&isValid(s.r,true))try{s.r.setSharedMaterial(s.shared,0);}catch{/* */}}
   try{if(mainLight){(mainLight as any).shadowEnabled=mainShadow0;if(mainIllum0>0)mainLight.illuminance=mainIllum0;}}catch{}
   try{const g=(director as any).root?.pipeline?.pipelineSceneData?.shadows;if(g)g.enabled=true;}catch{}
-  rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();try{sweepUnreferenced(REGION_GPU_SWEEP);}catch{/* gpu release optional */}};
+  try{releaseSubtreeGpu(rig);}catch{/* gpu textures optional */}rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();try{sweepUnreferenced(REGION_GPU_SWEEP);}catch{/* gpu release optional */}};
  try{
   const json=await loadFlightJson();token.check();if(json.format!==FLIGHT_FORMAT)throw Error('balloon-flight-format');
   publishFlight(json);
@@ -772,7 +773,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    };
    let flightMarked=!contChain,settleMarked=!contChain;
    try{holdTransitionShaders(true);noteTransitionHeavyFrames(8);}catch{/* warm optional */}
-   beforeDraw=()=>{if(!dead){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}apply();if(inflateT<INFLATE.durationS)applyInflate();}};
+   beforeDraw=()=>{if(!dead){try{noteTransitionHeavyFrames(2);}catch{/* warm optional */}apply();if(inflateT<INFLATE.durationS)applyInflate();try{if(clock.t>3)stepSkycityBoardWarm();}catch{/* board warm stays off the takeoff */}}};
    director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
    await new Promise<void>((ok,bad)=>{
     const off=rideToken.onCancel(()=>bad(Error('cancelled')));
