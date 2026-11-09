@@ -15,7 +15,7 @@ export const REGION_DEFS: ReadonlyArray<RegionDef> = [
   { id: 'coast', name: '星光灯塔海岸', short: '灯塔海岸', description: '沿着海滩捡贝壳，一步步走向灯塔。', stages: 9, color: [0xE2, 0xB2, 0x5A], provider: 'r5', unlock: { requires: ['main:12'], label: '主线12后' } },
   { id: 'snow', name: '雪山风铃山口', short: '雪山山口', description: '踩着新雪，去山口听风铃。', stages: 6, color: [0x7F, 0x98, 0xCC], provider: 'r5', unlock: { requires: ['lake'], label: '湖畔通关后' } },
   { id: 'rail', name: '秋日铁路', short: '秋日铁路', description: '踩着落叶，去站台听风铃。', stages: 6, color: [0xC9, 0x77, 0x3A], provider: 'r5', unlock: { requires: ['snow'], label: '雪山通关后' } },
-  { id: 'cloud', name: '黎明云海', short: '黎明云海', description: '', stages: 8, color: [0xE8, 0xA0, 0xA8], provider: 'r5', unlock: { requires: ['snow'], label: '雪山通关后' } },
+  { id: 'cloud', name: '黎明云海', short: '黎明云海', description: '踩着晨光，去云台上听风铃。', stages: 6, color: [0xE8, 0xA0, 0xA8], provider: 'r5', unlock: { requires: ['rail'], label: '铁路通关后' } },
   { id: 'spring', name: '温泉谷', short: '温泉谷', description: '', stages: 8, color: [0x6F, 0xB8, 0xA8], provider: 'r5', unlock: { requires: ['rail', 'cloud'], label: '铁路云海后' } },
 ];
 /** Same journey record as the provider (progress-journal LAKE_GATE_RECORD / COAST_GATE_RECORD = 11): mainline 12 ≥1 star. */
