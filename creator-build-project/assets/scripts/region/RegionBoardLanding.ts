@@ -118,6 +118,8 @@ export type RegionLandingDeps=Readonly<{
  /** the board pose (journey world) for a viewport, or null (no journey copy registered). */
  boardPose(viewport:Readonly<{width:number;height:number}>):Pose|null;
  log?(entry:Record<string,unknown>):void;
+ /** Perf only: warm / stagger the sky-city board before the lens write. Must not move the camera. */
+ primeReveal?():void;
 }>;
 export type RegionLandingResult=Readonly<{ok:boolean;result:string}>;
 const sub=(a:readonly number[],b:readonly number[])=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
@@ -133,7 +135,7 @@ export function poseBlend(from:Pose,to:Pose,seconds:number):(t:number)=>Pose{
   const k0=th>1e-9?Math.sin((1-e)*th)/sn:1-e,k1=th>1e-9?Math.sin(e*th)/sn:e,d=unit([d0[0]*k0+d1[0]*k1,d0[1]*k0+d1[1]*k1,d0[2]*k0+d1[2]*k1]);
   return {position:p,target:[p[0]+d[0]*10,p[1]+d[1]*10,p[2]+d[2]*10],fovVerticalDeg:f0+(f1-f0)*e};};}
 export async function regionLandingToBoard(context:Readonly<{region:BoardLandingRegion;stageId:string;deps?:RegionLandingDeps}>):Promise<RegionLandingResult>{
- const d=context.deps;if(!d)return {ok:false,result:'no-deps'};let stage='plan';
+ const d=context.deps;if(!d)return {ok:false,result:'no-deps'};try{d.primeReveal?.();}catch{/* reveal warm must not move the lens */}let stage='plan';
  const done=(ok:boolean,result:string,e:Record<string,unknown>={}):RegionLandingResult=>{try{d.log?.({event:'landing-board',region:context.region,stageId:context.stageId,result,hold:ok,...e});}catch{}return {ok,result};};
  try{
   const from=d.readCamera();if(!from)return done(false,'no-camera');const v=d.viewport(),to=d.boardPose(v);if(!to)return done(false,'no-board-pose');
@@ -154,7 +156,7 @@ export async function regionLandingToBoard(context:Readonly<{region:BoardLanding
  *  and the board camera takes over at the identical pose. Near / exact / no pose / no camera: no write, the hook decides as before. */
 export const BOARD_HANDOFF={maxS:12} as const;
 export async function regionBoardHandoff(context:Readonly<{region:BoardLandingRegion;stageId:string;deps?:RegionLandingDeps}>):Promise<RegionLandingResult>{
- const d=context.deps;if(!d)return {ok:false,result:'no-deps'};
+ const d=context.deps;if(!d)return {ok:false,result:'no-deps'};try{d.primeReveal?.();}catch{/* reveal warm must not move the lens */}
  const done=(ok:boolean,result:string,e:Record<string,unknown>={}):RegionLandingResult=>{try{d.log?.({event:'board-handoff',region:context.region,stageId:context.stageId,result,...e});}catch{}return {ok,result};};
  try{
   const from=d.readCamera();if(!from)return done(false,'no-camera');const to=d.boardPose(d.viewport());if(!to)return done(false,'no-board-pose');

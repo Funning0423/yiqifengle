@@ -33,7 +33,7 @@ export function warmTransition(target:string):Promise<boolean>{
  * with SKY_WARM_GAP_MS between, so the sail keeps its frame rate. */
 let skyArmed=false;let skyStaged:Promise<boolean>|null=null;
 export function armSkycityWarmOnSailRide():void{skyArmed=true;}
-export function sailRideStarted():void{if(!skyArmed)return;skyArmed=false;void warmSkycityLegStaged();}
+export function sailRideStarted():void{if(!skyArmed)return;skyArmed=false;void warmSkycityLegStaged().then(()=>{try{const prime=(require('./SkycityBoardBatch') as {primeSkycityBoardTextures?:()=>void}).primeSkycityBoardTextures;if(prime)prime();}catch{/* board textures stream during the ride */}});}
 function bundleAsset(bundleName:string,name:string,type:any):Promise<boolean>{
  return new Promise(ok=>assetManager.loadBundle(bundleName,(err,b)=>{if(err||!b||typeof (b as any).load!=='function'){ok(false);return;}b.load(name,type,(e:any,a:any)=>ok(!e&&!!a));}));
 }

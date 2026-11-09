@@ -32,6 +32,8 @@ import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
 import {lakesideQaPhase,LAKESIDE_QA_FREEZE,lakesideRevealPose} from '../region/LakesideQaShot';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {regionBoardHandoff,regionBoardPose,regionBoardSource,regionLandingToBoard,type BoardLandingRegion,type RegionLandingDeps} from '../region/RegionBoardLanding';
+import {installSkycityBoardPerf,primeSkycityBoardTextures} from '../region/SkycityBoardBatch';
+import {REGION_GPU_SWEEP,sweepUnreferenced} from '../region/RegionGpuLease';
 import {boardSafeInsets} from '../ui/BoardLayout';
 /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
@@ -93,6 +95,7 @@ export class WorldNativeComposition extends Component {
   start(){try{if(!this.skyLakeOff&&typeof registerSkyLakeContinuous==='function')this.skyLakeOff=registerSkyLakeContinuous(this as any)/* T-02 → segment 6 continuous */;}catch{/* hook optional: fallback = enterMainline */}void this.initializeWorld().catch(error=>console.error('World composition initialization failed',error));}
   private async initializeOnce(){
     if(!this.firstsliceModel||!this.worldCamera||!this.smokeFixture)throw Error('Bind combined prefab, dedicated world camera and R4 smoke fixture');
+    try{installSkycityBoardPerf();(globalThis as any).__qfSweepRegions=(names:readonly string[])=>sweepUnreferenced(names&&names.length?names:REGION_GPU_SWEEP);}catch{/* perf hooks optional */}
     installR5PersistenceProbe();
     this.previousCameraVisibility=this.worldCamera.visibility;this.worldCamera.visibility &= ~Layers.Enum.UI_2D;
     this.owner=new Node('WorldFlowOwner');this.node.addChild(this.owner);
@@ -191,6 +194,7 @@ export class WorldNativeComposition extends Component {
       nextFrame:()=>new Promise<number>(resolve=>this.scheduleOnce(()=>resolve(director.getDeltaTime()),0)),
       viewport:()=>lakesideViewport(view.getFrameSize()),
       boardPose:v=>{const src=regionBoardSource(region);return src?regionBoardPose(src,v.width/v.height,v):null;},
+      primeReveal:()=>{if(region==='skycity'){try{primeSkycityBoardTextures();}catch{/* textures stream ahead of the reveal */}try{(globalThis as any).__qfBoardSpread=true;}catch{}}},
       log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_REGION] '+JSON.stringify(entry));}catch{}},
     };
   }

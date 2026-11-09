@@ -275,6 +275,7 @@ export class RegionJourneyController {
  /** Continuous handoff: every camera write of the ride (sail onFrame via observe, balloon/lakeside own writes) is blended
   *  from the live level lens it left; an authored TransitionCamera shot (data from 运镜bot) drives the lens first if present. */
  private patchCamera(world:WorldLease,from:Pose,first:Pose|null,shotId:string){
+  try{(globalThis as any).__qfJourneyMotion?.(120);}catch{/* skip shader prime while LiveHandoff owns the lens */}
   const orig=world.setCamera;let hand:LiveHandoff|null=new LiveHandoff(from,first);let run:TransitionRun|null=null;
   try{run=beginTransition(shotId,{pose:from});}catch{run=null;}
   let last=journeyNow(),latest:Pose|null=first;
@@ -397,10 +398,13 @@ export class RegionJourneyController {
   *  prefab decRef, owned meshes/materials, SailArt, board source). Hidden-only nodes, so nothing visible changes. */
  private pruneScenes():void{
   const cur=this.lease;if(!cur)return;const keep=new Set<JourneySceneLease>([cur]);
-  for(const s of this.scenes)if(s!==cur&&s.route?.to===cur.route.from)keep.add(s);
+  // Once the ride has arrived at skycity or lakeside, the region it left is not the next departure. Drop it so its GPU refcount can fall.
+  const keepPrev=cur.route?.to!=='skycity'&&cur.route?.to!=='lakeside';
+  for(const s of this.scenes)if(s!==cur&&keepPrev&&s.route?.to===cur.route.from)keep.add(s);
   const drop=this.scenes.filter(s=>!keep.has(s));if(!drop.length)return;
   this.scenes=this.scenes.filter(s=>keep.has(s));
   for(const s of drop){try{s.dispose();}catch(e){console.warn('journey-prune dispose failed',String(e));}}
+  try{const sweep=(globalThis as any).__qfSweepRegions;if(typeof sweep==='function')sweep();}catch{/* gpu sweep optional */}
   try{(globalThis as any).__QF_JOURNEY_PRUNED=((globalThis as any).__QF_JOURNEY_PRUNED||[]).concat(drop.map(s=>s.route.from+'-'+s.route.to));}catch{/* */}
  }
  private leaseProgress(){const l=this.lease;if(!l?.progress)return;try{l.progress(this.distance);}catch{}}

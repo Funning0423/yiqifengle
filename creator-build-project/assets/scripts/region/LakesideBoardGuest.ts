@@ -101,10 +101,13 @@ export function withRegionBoardGuest(region:string,rigName:string,layer:number,f
    journey=model&&jr?jr.children.find(c=>c.name===model!.name)||null:null;
    if(model)guest=mountRegionBoardGuest(region,model,layer);}catch{guest=null;}
   if(!guest&&!(model&&journey))return lease;const g=guest,dispose=lease.dispose,m=model,j=journey;let synced=false,ambient=0;
+  // Sky-city perf (scene-design follow-up keeps SkycityBoardBackground frozen): batch the rig, then let staging
+  // keep enabling across the reveal instead of flushing every renderer on the show frame. Meadow is unchanged.
+  try{if(region==='skycity'){const batch=(globalThis as any).__qfBatchSkycityBoard;if(typeof batch==='function'&&rigNode)batch(rigNode);}}catch{/* batch optional */}
   // r5 G1: spread model creation + first-draw shader compiles over the level-loading frames (RegionBoardStaging); the reveal finishes it.
   let staging:BoardStaging|null=null;try{staging=stageRegionBoard(rigNode);}catch{staging=null;}
   return {frame:(p,l)=>lease.frame(p,l),
-   setVisible:v=>{if(v&&staging)staging.finish('reveal');lease.setVisible(v);if(v&&!synced){synced=true;try{ambient=syncRegionAmbient(j,m);}catch{ambient=0;}
+   setVisible:v=>{if(v&&staging){const spread=region==='skycity'&&(globalThis as any).__qfBoardSpread===true&&!staging.stats().done;if(!spread)staging.finish('reveal');}lease.setVisible(v);if(v&&!synced){synced=true;try{ambient=syncRegionAmbient(j,m);}catch{ambient=0;}
     try{if((globalThis as any).__worldFlowLog)console.info('[QF_REGION] '+JSON.stringify({event:'board-ambient-sync',region,clips:ambient}));}catch{}}},
    setPaused:v=>lease.setPaused?.(v),
    ...(lease.setFade?{setFade:(a:number)=>lease.setFade!(a)}:{})/* cand8b: the 0.3 s dissolve reaches the wrapped lease */,

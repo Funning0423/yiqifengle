@@ -40,6 +40,13 @@ export function b1PreWalk(here:Vec,firstB1?:Vec):B1PreWalk{
  if(path.length<2)return null;
  const L=len(path);return {path,lengthM:L,durationS:L/WALK_SPEED_MPS,fromKey:near.key};
 }
+/** Frames of prewalk + B1 walk that exist before the B1→flight setCamera (default 60 Hz).
+ *  Shader priming spends this window. The path, the gate and the turn cap are unchanged. */
+export function b1ShaderWarmFrames(prewalkS:number,b1WalkS:number,fps:number=60):number{
+ const s=Math.max(0,Number(prewalkS)||0)+Math.max(0,Number(b1WalkS)||0);
+ const rate=fps>0?fps:60;
+ return Math.max(0,Math.floor(s*rate));
+}
 /** B1 door path [start, outside, doorOut] without in-place turns > MAX_TURN_DEG (world or local; rigid-invariant). */
 export function b1DoorPath(start:Vec,outside:Vec,doorOut:Vec):Vec[]{
  if(nearXZ(start,M6_LOCAL))return [start,M6_DOOR_VIA,outside,doorOut];
