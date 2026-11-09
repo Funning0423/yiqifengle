@@ -139,6 +139,42 @@
       },
       "why": "region/cloudsea-wireup: region_cloudsea board lease, terrace camera only"
     },
+    "creator-build-project/assets/bundles/region_hotspring.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/hotspring-wireup: hot spring valley subpackage (wx_subpackage, same shape as region_cloudsea)"
+    },
+    "creator-build-project/assets/bundles/region_hotspring/models.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/hotspring-wireup: env_hotspring.glb folder"
+    },
+    "creator-build-project/assets/bundles/region_hotspring/models/env_hotspring.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "region/hotspring-wireup: procedural hot-spring blockout; Creator fills sub-assets on import"
+    },
+    "creator-build-project/assets/scripts/regional-r05/runtime/spring-levels-data.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/hotspring-wireup: spring stage data (r09-spring-01..08) joined beside cloud-levels-data.js"
+    },
+    "creator-build-project/assets/scripts/region/HotspringSceneData.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/hotspring-wireup: deck board seat (pure numbers, no engine)"
+    },
+    "creator-build-project/assets/scripts/region/HotspringBoardBackground.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/hotspring-wireup: region_hotspring board lease, deck camera only"
+    },
     "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {
       "allowAdd": {
         "importer": "typescript"

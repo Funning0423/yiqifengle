@@ -34,7 +34,7 @@ t('stage → scene routing: lake ids use the lakeside lease and board chapter, o
  for(const id of ['r05-tide-01','r05-meadow-01','r05-sky-01','mainline-05','mainline-09'])assert(!LR.requiresLakesideScene({stageId:id}),id);
  const comp=fs.readFileSync(path.join(A,'scripts/world-r2/WorldNativeComposition.ts'),'utf8');
  assert(/requiresLakesideScene\(context\.selection\)\?createLakesideBoardBackground\(context\)/.test(comp),'composition routes lake to the lakeside lease');
- assert(/challenges:Record<string,number>=\{tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0,rail:0,cloud:0\}/.test(comp));
+ assert(/challenges:Record<string,number>=\{tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0,rail:0,cloud:0,spring:0\}/.test(comp));
  assert(/'region_lakeside'/.test(fs.readFileSync(path.join(A,'scripts/SharedBundles.ts'),'utf8')),'region_lakeside loads shared_effects first');
  assert(/enterRegion\('lake'\)/.test(fs.readFileSync(path.join(A,'scripts/WorldIntegrationBoot.ts'),'utf8')));});
 t('journey book: 4th chapter 风铃湖畔, x/6 challenges, no mainline stars, milestone 12, chapter art present',()=>{

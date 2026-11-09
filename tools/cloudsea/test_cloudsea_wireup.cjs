@@ -111,8 +111,8 @@ t('wiring: RegionLoader, scene route, journey enter, return without the balloon 
   const boot = fs.readFileSync(path.join(A, 'scripts/WorldIntegrationBoot.ts'), 'utf8');
   assert(/r08-cloud-\\d\+/.test(comp) && /createCloudseaBoardBackground\(context\)/.test(comp));
   assert(/requiresLakesideScene\(context\.selection\)\?createLakesideBoardBackground\(context\)/.test(comp));
-  assert(/createRailBoardBackground\(context\):\/\^r08-cloud-\\d\+\$\/\.test\(String\(context\.selection\?\.stageId\|\|''\)\)\?createCloudseaBoardBackground\(context\)/.test(comp));
-  assert(/const onShelf=\/\^r06-snow-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r07-rail-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r08-cloud-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)/.test(comp));
+  assert(/createRailBoardBackground\(context\):\/\^r08-cloud-\\d\+\$\/\.test\(String\(context\.selection\?\.stageId\|\|''\)\)\?createCloudseaBoardBackground\(context\):\/\^r09-spring-\\d\+\$\/\.test\(String\(context\.selection\?\.stageId\|\|''\)\)\?createHotspringBoardBackground\(context\)/.test(comp));
+  assert(/const onShelf=\/\^r06-snow-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r07-rail-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r08-cloud-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r09-spring-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)/.test(comp));
   assert(/if\(!onShelf\)\{const arrived=await this\.ensureRegion\(region\)/.test(comp));
   assert(/this\.button\('cloud','黎明云海',\(\)=>this\.composition\.enterRegion\('cloud'\)\)/.test(boot));
   assert(/this\.button\('rail','秋日铁路',\(\)=>this\.composition\.enterRegion\('rail'\)\)/.test(boot));

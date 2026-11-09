@@ -34,6 +34,8 @@ export const REGIONS:Record<string,RegionDef>={
   rail:{bundle:'region_rail',prefabName:'env_rail'},
   // Dawn cloud-sea blockout. Prefab name is the glTF file; Creator fills prefabUuid on import.
   cloud:{bundle:'region_cloudsea',prefabName:'env_cloudsea'},
+  // Hot-spring valley blockout. Prefab name is the glTF file; Creator fills prefabUuid on import.
+  spring:{bundle:'region_hotspring',prefabName:'env_hotspring'},
 };
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 const cloudseaPrefabs=new WeakMap<Prefab,Prefab>();

@@ -645,6 +645,21 @@
     "sha256": "782c1104b33ce07dc4bb728b4aa924ea04b269eec238758caacba47aafc7a0d4"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_hotspring.meta",
+    "bytes": 411,
+    "sha256": "fa7a0f4caf626c321b3a07351f62fb4dbc521e4dd73913e79a0586b385c68097"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_hotspring/models.meta",
+    "bytes": 169,
+    "sha256": "03a5df66508a942f8110fc406e39580ed458a97f12192a4ff976f09b7a704af7"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_hotspring/models/env_hotspring.glb.meta",
+    "bytes": 166,
+    "sha256": "840d3115b76cdbb34af410a1401e9c63258b3d1d837ae3a08c46081f9144cced"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island.meta",
     "bytes": 408,
     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
@@ -2141,8 +2156,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 119613,
-    "sha256": "57f7024ac2c0d6ef92ce9827f6d3c31bdff8d6df1e58b300dee5281e4a0a5aca"
+    "bytes": 119690,
+    "sha256": "273581713f409056adaa97dd4710a899c83b71356cfade50e9cf3f01ba243098"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -2840,6 +2855,26 @@
     "sha256": "48279ed7563ec6f9bf301ee5130c7b0621116b344526120f72763b39798002b8"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/HotspringBoardBackground.ts",
+    "bytes": 4798,
+    "sha256": "4f2d5098707f95524036c4fe1f371282bf3cf65ef52cccd19968c1f40dc41d3d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/HotspringBoardBackground.ts.meta",
+    "bytes": 171,
+    "sha256": "66a60418f5c90718c47b9f34eb70587191ce5e7e23f67e44129dfb3e8239efa2"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/HotspringSceneData.ts",
+    "bytes": 3387,
+    "sha256": "81c8969b3c6686ba8cc1a6c5e5f382bba3c626176863f564b0d60cfdf8119fba"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/HotspringSceneData.ts.meta",
+    "bytes": 171,
+    "sha256": "1d5a37bf2082fac66dd6b119ed4591849635729d93f72134896f8eb617b79801"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/IslandLensOccluders.ts",
     "bytes": 20635,
     "sha256": "37fb2f079b33ce035ae47e6deea98a9f806fcf8444983457113ee8d2719658e7"
@@ -3321,8 +3356,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 6676,
-    "sha256": "f714a998efb2652cc93434662662c96ff8cffd3fb3138c7605e04dd83de88b5e"
+    "bytes": 6840,
+    "sha256": "a01129e7e0b4957a7a3043255b8936816e9e872ee2e908970624ce79f3279f65"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -4071,8 +4106,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js",
-    "bytes": 1179,
-    "sha256": "0ccac9b294610d0ffc5c00fed206770623a31ea91de61beb4b5a261e19103d87"
+    "bytes": 1228,
+    "sha256": "42dd8eb7c9db113bbba06ea38f03358d3931d80a33407899104d59e22b335f3e"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta",
@@ -4091,8 +4126,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js",
-    "bytes": 11187,
-    "sha256": "0f6d18c97a4e68cadec65892220999913498d5b9c68dc2792ecb993e8e66551b"
+    "bytes": 11888,
+    "sha256": "662381b5f8d92aeb3345460571def3662529ac3be1e3c862461be4b61e8dc0ec"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta",
@@ -4111,8 +4146,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
-    "bytes": 12343,
-    "sha256": "14a2e6f9ac3f9fb80bda7c0d9648cf9899e8e4855f507e933bdf7a07f0740a45"
+    "bytes": 12394,
+    "sha256": "151ea22efa6122af772d17f70de62847acb6338c6830c91a8396a8e0e91e9879"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta",
@@ -4121,8 +4156,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
-    "bytes": 5274,
-    "sha256": "e8610c5cb6d7a181f6ed1c5c557bafbd31762b0b2d8c54119a786bf39671d1ba"
+    "bytes": 5654,
+    "sha256": "c38a2fa31eb5a0a964bd94cb881c929b5f90597075992e4fc061fa6cab736c67"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js.meta",
@@ -4138,6 +4173,16 @@
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/snowpass-levels-data.js.meta",
     "bytes": 171,
     "sha256": "be2f829c97a64d11e04c21b460ea0d378c7fa78a079f4a2ac145e2793a569b5b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/spring-levels-data.js",
+    "bytes": 5435,
+    "sha256": "b853b00426901dbffcb20607263054b713ea299ef417009da06a8f259e48427b"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/spring-levels-data.js.meta",
+    "bytes": 171,
+    "sha256": "1f6858222df955dee8c9c2c348e1910b08fbd774b2afb3d1b479a54bd0ebbddf"
   },
   {
     "path": "creator-build-project/assets/scripts/render.meta",
@@ -4496,8 +4541,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts",
-    "bytes": 9222,
-    "sha256": "39102f24bfb7a848f878aef8d5019956e8b365c85ae8c945b4bc5bc91425bbae"
+    "bytes": 9261,
+    "sha256": "faed07d82f7be722b6af70f88ec327a0241473cf25a728aaa7855805c983fea7"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts.meta",
@@ -5026,8 +5071,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts",
-    "bytes": 1771,
-    "sha256": "80611f01e82515f2464ce51736a883e3e5cb87d58db7dcd1933aa750559f3cef"
+    "bytes": 2035,
+    "sha256": "4e2009d5fd7fc2960e95371444e3ec0a347cd578e2757dcdad28045e42706fb2"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts.meta",
@@ -5216,8 +5261,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 60394,
-    "sha256": "94acfe3c22c4eebeb53e39fe34ab9101692f07a0a9d52cc13272b081889fb120"
+    "bytes": 60691,
+    "sha256": "15089ce482b780a90703bf31a3f0ed6f1c44c97457a4433b8bd5f0db1746a7e8"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -5346,8 +5391,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 35691,
-    "sha256": "9456d50d44eeacafc92db9339161459209cf0c78f5446921b3e5ed7130a3a035"
+    "bytes": 35816,
+    "sha256": "97db570267f39f93f63e9ce52ec009a71d18e124559fce69c287613d1b5f2fd5"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",
