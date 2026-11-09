@@ -133,7 +133,7 @@ function coastWorldCamera(scene: Node | null): Camera | null {
 }
 export const createCoastBoardBackground: LevelBackgroundFactory = async (ctx) => {
   const on = coastBoardKitFromFlag();
-  if (!on) { reportCoastResourceGap(false, 'kit-off: 2D tray on the island board picture'); return createIslandBoardBackground(ctx); }
+  if (!on) { reportCoastResourceGap(false, 'kit-off: coast scene not mounted; 2D tray on the island board picture'); return createIslandBoardBackground(ctx); }
   const scene = director.getScene();
   for (const mesh of ['reuse_palm_tall', 'reuse_palm_lean']) if (!coastReuseFrom(scene, mesh)) reportCoastResourceGap(true, 'reuse unresolved: ' + mesh + ' -> ' + COAST_REUSE_SOURCES[mesh].src);
   const palette = await loadSharedPalette();
@@ -166,7 +166,7 @@ export const createCoastBoardBackground: LevelBackgroundFactory = async (ctx) =>
   try { const lights = scene ? scene.getComponentsInChildren(DirectionalLight).length : 0; console.info('[QF_COAST] ' + JSON.stringify({ event: 'scene-mounted', planned: h.planned, placed: h.placed, reusePlaced: h.reusePlaced, root: h.root.worldPosition.toString(), worldCamera: world ? world.node.name : null, dirLights: lights })); } catch { /* console gone */ }
   let offCancel = () => { };
   const dispose = () => { if (disposed) return; disposed = true; offCancel(); if (isValid(camera, true)) camera.enabled = false; h.dispose(); if (isValid(rig)) rig.destroy(); };
-  offCancel = ctx.token.onCancel(dispose);
+  if (typeof (ctx.token as any).onCancel === 'function') offCancel = ctx.token.onCancel(dispose);
   return {
     frame: (_portrait, layout) => { if (disposed || !layout || !(layout.width > 0 && layout.height > 0)) return; lastPose = pose(layout.width, layout.height); },
     setVisible: (v: boolean) => { if (disposed) return; visible = v; bgCamWant(camera, v); },

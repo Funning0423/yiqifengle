@@ -244,7 +244,10 @@ function freshBoard(on, region) {
     await assert.rejects(() => Pieces.createCoastBoardBackground(ctx), (e) => e instanceof Pieces.CoastEntryRejected && e.reason === 'coast-resources-unavailable');
     assert.equal(ctx.parent.children.length, 0);
     globalThis.__qfCoastBoardKit = false; globalThis.location = { search: '?qfcoastkit=0' };
-    await assert.rejects(() => Pieces.createCoastBoardBackground(ctx), (e) => e instanceof Pieces.CoastEntryRejected && e.reason === 'coast-kit-off');
+    // kit off = the pre-kit look: the 2D tray on the island board picture (never a coast scene mount).
+    let kitOffLease = null; try { kitOffLease = await Pieces.createCoastBoardBackground(ctx); } catch (e) { assert.ok(!(e instanceof Pieces.CoastEntryRejected), 'kit off never rejects as a coast entry: ' + String(e && e.reason)); }
+    if (kitOffLease && kitOffLease.dispose) kitOffLease.dispose();
+    assert.equal(ctx.parent.getChildByName('CoastLiveScene'), null, 'kit off never mounts the coast scene');
     assert.ok(errors.some((line) => line.includes('[QF_COAST]') && line.includes('"kitOn":true') && line.includes('"engineLoaded":false')), errors.join('\n'));
     assert.ok(errors.some((line) => line.includes('[QF_COAST]') && line.includes('kit-off: coast scene not mounted')), errors.join('\n'));
     assert.ok(errors.some((line) => line.includes('missing data/coast_layout')), 'harness assetManager does not import the layout');

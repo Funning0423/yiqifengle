@@ -370,8 +370,15 @@ const { createHarness } = require('../board-ui/harness.cjs');
   contract.dispose();
   const scene = H.cc.director.getScene();
   scene.addChild(tall); scene.addChild(lean);
-  await assert.rejects(() => P.createCoastBoardBackground(ctx), (e) => e instanceof P.CoastEntryRejected && e.reason === 'coast-runtime-evidence-unavailable');
-  assert.equal(ctx.parent.getChildByName('region_coast_root'), null, 'typed assets are not left mounted as a coast board');
+  // scene/coast01-creator-import: a typed Creator mount IS the board background (lease with its own kit-pose camera).
+  const lease = await P.createCoastBoardBackground(ctx);
+  const rig = ctx.parent.getChildByName('CoastLiveScene');
+  assert.ok(rig && rig.getChildByName('region_coast_root'), 'coast scene mounted under the lease rig');
+  assert.equal(lease.diagnostics().renderer, 'coast-scene');
+  lease.frame(true, { width: 390, height: 844 });
+  assert.ok(lease.diagnostics().camera && lease.diagnostics().camera.fovVerticalDeg > 0, 'camera posed from COAST_KIT');
+  lease.dispose();
+  assert.equal(ctx.parent.getChildByName('CoastLiveScene'), null, 'dispose removes the coast rig');
   for (const asset of [legalJsonAsset, legalTex, legalSand, ...built]) asset.label = 'mock-not-cocos';
   for (const prefab of built) prefab.data.walk((n) => { const r = n.getComponent(H.cc.MeshRenderer); if (r && r.mesh) r.mesh.label = 'mock-not-cocos'; });
   useBundle(legalJsonAsset, legalTex, legalSand, built, 'mock-not-cocos');
