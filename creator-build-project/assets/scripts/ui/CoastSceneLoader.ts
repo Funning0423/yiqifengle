@@ -7,7 +7,10 @@
  * Class identity accepts a mount. Empty nativeUrl is legal for Prefab and JsonAsset. That acceptance is not a Creator render pass:
  * engineEvidence stays unavailable. An explicit mock label is rejected. Duck-typed constructor names are not assets.
  */
-import { assetManager, Asset, gfx, instantiate, isValid, JsonAsset, Material, MaterialInstance, Mesh, MeshRenderer, Node, Prefab, Texture2D, Vec3, Vec4 } from 'cc';
+import { assetManager, Asset, gfx, instantiate, isValid, JsonAsset, Material, MaterialInstance, Mesh, MeshRenderer, Node, Prefab, renderer, Texture2D, Vec3, Vec4 } from 'cc';
+/** Creator 3.8.8 runtime: MaterialInstance is only exported as cc.renderer.MaterialInstance (top-level import is undefined in the
+ *  WeChat build: "h is not a constructor"). Top-level first keeps the node harness doubles working. */
+const MaterialInstanceCtor: typeof MaterialInstance = ((MaterialInstance as unknown) || (renderer as any)?.MaterialInstance) as typeof MaterialInstance;
 import { coastBoardKitFromFlag } from './BoardProjection';
 import { COAST_BUNDLE, COAST_LAYOUT_PATH, COAST_PALETTE_PATH, COAST_PALETTE_SAND_PATH, COAST_MODELS_DIR, COAST_REUSE_SOURCES, COAST_ROOT, coastInstances, type CoastLayout, type CoastInstance, type MatKind } from './CoastSceneLayout';
 
@@ -211,8 +214,8 @@ function coastFinishMaterial(base: Material | null, key: CoastMaterialKey, tex: 
   if (!(key.alpha < 1) && !key.emit) { owned.push(parent); return { material: parent, reason: '' }; }
   // v3.8.8 Material.overridePipelineStates is warnID(16371) and does not change the pass. States live on MaterialInstance → PassInstance.
   let inst: MaterialInstance;
-  try { inst = new MaterialInstance({ parent }); } catch { parent.destroy(); return { material: null, reason: 'MaterialInstance failed for ' + key.mesh }; }
-  if (!inst || inst === (parent as unknown) || !(inst instanceof MaterialInstance)) { inst?.destroy(); parent.destroy(); return { material: null, reason: 'MaterialInstance was not isolated for ' + key.mesh }; }
+  try { inst = new MaterialInstanceCtor({ parent }); } catch (e) { parent.destroy(); return { material: null, reason: 'MaterialInstance failed for ' + key.mesh + ' (' + String((e as Error)?.message || e) + ')' }; }
+  if (!inst || inst === (parent as unknown) || !(inst instanceof MaterialInstanceCtor)) { inst?.destroy(); parent.destroy(); return { material: null, reason: 'MaterialInstance was not isolated for ' + key.mesh }; }
   if (key.alpha < 1) {
     const alpha = applyAlpha(inst, key.alpha);
     if (!alpha.ok) { inst.destroy(); parent.destroy(); return { material: null, reason: alpha.reason + ' for ' + key.mesh }; }
