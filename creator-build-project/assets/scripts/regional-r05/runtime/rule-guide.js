@@ -9,6 +9,7 @@ var RULES={
   tide:{title:'退潮开贝，涨潮取珠',goal:'珍珠',rule:'退潮时消除贝壳所在格，每波打开一层。全部打开后，在涨潮时再次消除该格才能收集珍珠，并触发整列水流。',tool:'潮汐锚消耗1步，固定当前潮位，让接下来两次棋盘行动保持此潮位；不直接收集珍珠。'},
   meadow:{title:'顺着风向传递花粉',goal:'花朵',rule:'按花朵标出的图案顺序送粉。横向风看本格和左右相邻格，纵向风看本格和上下相邻格；范围内消除当前所需图案，每波前进一步。完成后沿当时风向清除整行或整列。',tool:'阳光种子消耗1步，把选中的普通果实变为纵线果实；本次不送粉、不切换风向，之后启动它仍需1步。'},
   lake:{title:'敲响湖上的风铃',goal:'风铃',rule:'在风铃格本格或上下左右相邻格发生消除，风铃响一次；同一波（含特殊爆炸）最多响一次，响满所需次数完成。横向特殊扫过整行时，该行风铃各响一次。',tool:'本地区暂无道具。'},
+  snow:{title:'敲响雪上的风铃',goal:'风铃',rule:'在风铃格本格或上下左右相邻格发生消除，风铃响一次；同一波（含特殊爆炸）最多响一次，响满所需次数完成。横向特殊扫过整行时，该行风铃各响一次。苔藓与树根仍按原规则清除。',tool:'本地区暂无道具。'},
   sky:{title:'依次点亮明暗星门',goal:'星门',rule:'只处理当前星门。极性符合要求时，在星门本格消除指定图案才充能；未指定图案时任意图案均可。每波只充能一次，完成所需次数后才轮到下一门，并从伙伴格向十字邻格发出回声。',tool:'棱镜迁移消耗1步，交换当前星门与伙伴格的位置；保留充能进度、所需图案及极性，不切换明暗。'}
 };
 function guide(session) {
@@ -22,7 +23,7 @@ function guide(session) {
     }else if(region==='meadow'){
       target.requiredType=p.done?null:p.pollen[p.progress];target.pollen=p.pollen.slice();target.axis=phase;
       target.instruction=p.done?'花朵已开放':(phase==='horizontal'?'本格或左右相邻格':'本格或上下相邻格')+'消除所需图案，送入第'+(p.progress+1)+'份花粉';
-    }else if(region==='lake'){
+    }else if(region==='lake'||region==='snow'){
       target.instruction=p.done?'风铃已响满':'在本格或相邻格消除，还需响'+(p.hits-p.progress)+'次';
     }else{
       target.partner=cell(p.partner);target.polarity=p.polarity;target.phaseLabel=phaseName(p.polarity);target.requiredType=p.type===undefined?null:p.type;
