@@ -17,14 +17,14 @@ run('single source: day = LAKESIDE_DIR_LIGHT_PARAMS.landFill*, night its own, bo
  assert.equal(N.landFillNearLinear,D.LAKESIDE_NIGHT_LIGHT_PARAMS.landFillNearLinear);assert.equal(N.landFillFarLinear,D.LAKESIDE_NIGHT_LIGHT_PARAMS.landFillFarLinear);
  assert.deepEqual([...P.landFillNearLinear],[0.104,0.196,0.025]);assert.deepEqual([...P.landFillFarLinear],[0.043,0.087,0.107]);
  // r4 prop fill: foliage / wall / rock / cloud, same single source (day = P, night = its own), values locked
- const PF={foliageFillLinear:[[0.019,0.065,0],[0.0006,0.0058,0.0029]],wallFillLinear:[[0.023,0.02,0.017],[0.0085,0.013,0.0232]],rockFillLinear:[[0.079,0.079,0.079],[0.0049,0.0116,0.0356]],cloudFillLinear:[[0.33,0.24,0.218],[0.0078,0.0091,0.0145]],plantFillLinear:[[0.03,0.09,0.04],[0.016,0.048,0.052]],propFillLinear:[[0.06,0.045,0.035],[0.0015,0.016,0.026]]};
+ const PF={foliageFillLinear:[[0.019,0.065,0],[0.0006,0.0058,0.0029]],wallFillLinear:[[0.023,0.02,0.017],[0.0085,0.013,0.0232]],rockFillLinear:[[0.079,0.079,0.079],[0.0049,0.0116,0.0356]],cloudFillLinear:[[0.33,0.24,0.218],[0.0078,0.0091,0.0145]],plantFillLinear:[[0.03,0.09,0.04],[0.016,0.048,0.052]],propFillLinear:[[0.06,0.045,0.035],[0.0015,0.016,0.026]],lineFillLinear:[[0.42,0.5,0.52],[0.2,0.3,0.36]]};
  for(const k of Object.keys(PF)){assert.equal(Dy[k],P[k],k+' day = P');assert.equal(N[k],D.LAKESIDE_NIGHT_LIGHT_PARAMS[k],k+' night own');assert.deepEqual(Array.from(P[k]),PF[k][0],k+' day');assert.deepEqual(Array.from(N[k]),PF[k][1],k+' night');}
- const CK={near:'landFillNearLinear',far:'landFillFarLinear',foliage:'foliageFillLinear',wall:'wallFillLinear',rock:'rockFillLinear',cloud:'cloudFillLinear',plant:'plantFillLinear',prop:'propFillLinear'};
+ const CK={near:'landFillNearLinear',far:'landFillFarLinear',foliage:'foliageFillLinear',wall:'wallFillLinear',rock:'rockFillLinear',cloud:'cloudFillLinear',plant:'plantFillLinear',prop:'propFillLinear',line:'lineFillLinear'};
  for(const md of ['day','night'])for(const c of Object.keys(CK)){const v=D.lakesideFillLinear(md,c);assert.equal(v,D.lakesideModeLighting(md)[CK[c]],md+' '+c+' via lakesideFillLinear');assert(v.every(x=>x>=0),md+' '+c+' no negative emissive');}
  const all=fs.readdirSync(path.join(A,'scripts'),{recursive:true}).filter(f=>String(f).endsWith('.ts')&&/Lakeside|RegionJourney/.test(String(f))); // the lakeside paths (other scenes have their own emissive uses)
  for(const f of all){const src=fs.readFileSync(path.join(A,'scripts',String(f)),'utf8');
   if(String(f).replace(/\\/g,'/')!=='region/LakesideBoardBackground.ts')assert(!/setProperty\('emissive(Scale|Map)?'/.test(src),f+': no second land-fill writer');
-  if(String(f).replace(/\\/g,'/')!=='region/LakesideSceneData.ts')assert(!/(landFill(Near|Far)|foliageFill|wallFill|rockFill|cloudFill|plantFill|propFill)Linear\s*:\s*\[/.test(src),f+': no second copy of the fill values');}
+  if(String(f).replace(/\\/g,'/')!=='region/LakesideSceneData.ts')assert(!/(landFill(Near|Far)|foliageFill|wallFill|rockFill|cloudFill|plantFill|propFill|lineFill)Linear\s*:\s*\[/.test(src),f+': no second copy of the fill values');}
  const bg=fs.readFileSync(S+'LakesideBoardBackground.ts','utf8');assert.equal((bg.match(/setProperty\('emissiveScale'/g)||[]).length,1);assert.equal((bg.match(/setProperty\('emissive'/g)||[]).length,1);
  assert.equal((bg.match(/setProperty\('emissiveMap'/g)||[]).length,1);
  assert.match(bg,/const c=lakesideFillLinear\(mode,cls\),k=lakesideFillWeight\(weight\);m\.setProperty\('emissiveScale',new Vec3\(c\[0\]\*k,c\[1\]\*k,c\[2\]\*k\)\);/);});
@@ -33,7 +33,8 @@ run('land = the landform GLBs only (principled list), every other GLB in the bun
  const glbs=fs.readdirSync(path.join(A,'bundles/region_lakeside/models')).filter(f=>f.endsWith('.glb'));assert(glbs.length>40);
  const WANT={'LK_terrain.glb':'near','LK_far_hills.glb':'far','LK_far_shore.glb':'far','LK_tree_conifer.glb':'foliage','LK_tree_round.glb':'foliage','LK_bush.glb':'foliage','LK_house_A.glb':'wall','LK_house_B.glb':'wall','LK_house_C.glb':'wall','LK_rock.glb':'rock','LK_cloud.glb':'cloud','LK_pavilion.glb':'wall'};
  const PLANT=['LK_reed_card.glb','LK_flower_clump.glb','LK_flowerpot.glb','LK_lotus.glb','LK_lilypad.glb'],PROP=['LK_chime_post.glb','LK_chime_raft.glb','LK_windchime.glb','LK_buoy_lantern.glb','LK_lantern.glb','LK_lantern_boat.glb','LK_paper_boat.glb','LK_barrel.glb','LK_porch_steps.glb','LK_clothesline.glb'];
- for(const g of PLANT)WANT[g]='plant';for(const g of PROP)WANT[g]='prop';
+ for(const g of PLANT)WANT[g]='plant';for(const g of PROP)WANT[g]='prop';WANT['LK_wb_line.glb']='line'; // L2 board-fusion: the grid lines' own fill class
+ assert.deepEqual(Array.from(P.lineFillGlbs),['LK_wb_line.glb']);
  assert.deepEqual(Array.from(P.plantFillGlbs),PLANT);assert.deepEqual(Array.from(P.propFillGlbs),PROP);
  assert.deepEqual(Array.from(P.foliageFillGlbs),['LK_tree_conifer.glb','LK_tree_round.glb','LK_bush.glb']);assert.deepEqual(Array.from(P.wallFillGlbs),['LK_house_A.glb','LK_house_B.glb','LK_house_C.glb','LK_pavilion.glb']);assert.deepEqual(Array.from(P.rockFillGlbs),['LK_rock.glb']);assert.deepEqual(Array.from(P.cloudFillGlbs),['LK_cloud.glb']);
  for(const g of Object.keys(WANT))assert(glbs.includes(g),g+' in the bundle');
