@@ -1,0 +1,196 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0",
+  "files": [],
+  "subMetas": {
+    "44158": {
+      "importer": "gltf-scene",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@44158",
+      "displayName": "",
+      "id": "44158",
+      "name": "coast_reuse.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "cba7e": {
+      "importer": "gltf-mesh",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@cba7e",
+      "displayName": "",
+      "id": "cba7e",
+      "name": "env_prop_grass_tuft_01.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 33
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "734e6": {
+      "importer": "gltf-mesh",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@734e6",
+      "displayName": "",
+      "id": "734e6",
+      "name": "env_prop_grass_tuft_02.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 48
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ff0d3": {
+      "importer": "gltf-mesh",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@ff0d3",
+      "displayName": "",
+      "id": "ff0d3",
+      "name": "env_prop_flowers_01.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 156
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ac71c": {
+      "importer": "gltf-mesh",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@ac71c",
+      "displayName": "",
+      "id": "ac71c",
+      "name": "env_prop_rock_01.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 80
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c0fa2": {
+      "importer": "gltf-mesh",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@c0fa2",
+      "displayName": "",
+      "id": "c0fa2",
+      "name": "env_prop_rock_02.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 80
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "05cd3": {
+      "importer": "gltf-mesh",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@05cd3",
+      "displayName": "",
+      "id": "05cd3",
+      "name": "env_prop_rock_03.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 192
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f06f9": {
+      "importer": "gltf-mesh",
+      "uuid": "93af8926-3f73-4510-8670-0ccba21a90c0@f06f9",
+      "displayName": "",
+      "id": "f06f9",
+      "name": "env_prop_hydrangea_bush_01.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 350
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "93af8926-3f73-4510-8670-0ccba21a90c0@cba7e",
+        "93af8926-3f73-4510-8670-0ccba21a90c0@734e6",
+        "93af8926-3f73-4510-8670-0ccba21a90c0@ff0d3",
+        "93af8926-3f73-4510-8670-0ccba21a90c0@ac71c",
+        "93af8926-3f73-4510-8670-0ccba21a90c0@c0fa2",
+        "93af8926-3f73-4510-8670-0ccba21a90c0@05cd3",
+        "93af8926-3f73-4510-8670-0ccba21a90c0@f06f9"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [],
+      "scenes": [
+        "93af8926-3f73-4510-8670-0ccba21a90c0@44158"
+      ]
+    },
+    "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}

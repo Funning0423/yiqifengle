@@ -1,0 +1,234 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35",
+  "files": [],
+  "subMetas": {
+    "19291": {
+      "importer": "gltf-scene",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@19291",
+      "displayName": "",
+      "id": "19291",
+      "name": "coast_terrain.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c2632": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@c2632",
+      "displayName": "",
+      "id": "c2632",
+      "name": "arrival_steps.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 1068
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1456f": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@1456f",
+      "displayName": "",
+      "id": "1456f",
+      "name": "beacon_lamp.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 42
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "83b76": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@83b76",
+      "displayName": "",
+      "id": "83b76",
+      "name": "beacon_post.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 76
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a410d": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@a410d",
+      "displayName": "",
+      "id": "a410d",
+      "name": "drift.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 36
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ef55f": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@ef55f",
+      "displayName": "",
+      "id": "ef55f",
+      "name": "foam.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 160
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e4c49": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@e4c49",
+      "displayName": "",
+      "id": "e4c49",
+      "name": "foam_inner.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 140
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "23e8d": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@23e8d",
+      "displayName": "",
+      "id": "23e8d",
+      "name": "headland.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 1592
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7679f": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@7679f",
+      "displayName": "",
+      "id": "7679f",
+      "name": "sidepool.mesh",
+      "userData": {
+        "gltfIndex": 7,
+        "triangleCount": 16
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "88b25": {
+      "importer": "gltf-mesh",
+      "uuid": "28424964-6559-4ea4-a3fb-1a91a497cf35@88b25",
+      "displayName": "",
+      "id": "88b25",
+      "name": "terrain.mesh",
+      "userData": {
+        "gltfIndex": 8,
+        "triangleCount": 2870
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@c2632",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@1456f",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@83b76",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@a410d",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@ef55f",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@e4c49",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@23e8d",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@7679f",
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@88b25"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [],
+      "scenes": [
+        "28424964-6559-4ea4-a3fb-1a91a497cf35@19291"
+      ]
+    },
+    "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}
