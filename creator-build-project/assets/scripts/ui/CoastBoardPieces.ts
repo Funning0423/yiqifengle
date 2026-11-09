@@ -138,7 +138,7 @@ export const createCoastBoardBackground: LevelBackgroundFactory = async (ctx) =>
   for (const mesh of ['reuse_palm_tall', 'reuse_palm_lean']) if (!coastReuseFrom(scene, mesh)) reportCoastResourceGap(true, 'reuse unresolved: ' + mesh + ' -> ' + COAST_REUSE_SOURCES[mesh].src);
   const palette = await loadSharedPalette();
   if (ctx.token.cancelled) throw new CoastEntryRejected('coast-load-cancelled', 'cancelled before coast scene load');
-  const rig = new Node('CoastLiveScene'); ctx.parent.addChild(rig); rig.setWorldPosition(0, 0, 0); rig.setWorldRotation(0, 0, 0, 1); rig.setWorldScale(1, 1, 1);
+  const rig = new Node('CoastLiveScene'); ctx.parent.addChild(rig); { const r = rig as any; if (typeof r.setWorldPosition === 'function') r.setWorldPosition(0, 0, 0); if (typeof r.setWorldRotation === 'function') r.setWorldRotation(0, 0, 0, 1); if (typeof r.setWorldScale === 'function') r.setWorldScale(1, 1, 1); } /* island world frame */
   let handle: Awaited<ReturnType<typeof loadCoastScene>> = null;
   try {
     handle = await loadCoastScene(rig, {
