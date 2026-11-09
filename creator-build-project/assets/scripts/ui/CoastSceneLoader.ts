@@ -64,8 +64,11 @@ function geometryOf(n: Node): { renderer: Rend; mesh: NonNullable<Rend['mesh']> 
 function assignMaterial(r: Rend, m: Material): boolean {
   if (typeof r.setMaterial !== 'function') return false;
   const slots = Array.isArray(r.mesh?.struct?.primitives) && r.mesh!.struct!.primitives!.length > 0 ? r.mesh!.struct!.primitives!.length : 1;
-  try { for (let s = 0; s < slots; s++) r.setMaterial(m, s); } catch { return false; }
-  const back = typeof r.getMaterial === 'function' ? r.getMaterial(0) : r.sharedMaterials?.[0];
+  // A MaterialInstance goes into the instance slot (setMaterialInstance); writing it into a shared slot is Cocos error 12012.
+  const ri = r as Rend & { setMaterialInstance?: (m: Material, index: number) => void; getRenderMaterial?: (index: number) => Material | null };
+  const asInstance = !!MaterialInstanceCtor && m instanceof MaterialInstanceCtor && typeof ri.setMaterialInstance === 'function';
+  try { for (let s = 0; s < slots; s++) { if (asInstance) ri.setMaterialInstance!(m, s); else r.setMaterial(m, s); } } catch { return false; }
+  const back = asInstance && typeof ri.getRenderMaterial === 'function' ? ri.getRenderMaterial(0) : (typeof r.getMaterial === 'function' ? r.getMaterial(0) : r.sharedMaterials?.[0]);
   return back === m;
 }
 const MOCK = 'mock-not-cocos';
