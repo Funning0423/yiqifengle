@@ -130,8 +130,18 @@ export function unregisterBoardKit(region: string): void { KITS.delete(region); 
 /** Kit for a board chapter / region id ('' = mainline island). Unknown or unconverted regions get DEFAULT_KIT. */
 export function boardKitFor(region: string | null | undefined): RegionBoardKit { return (region && KITS.get(region)) || DEFAULT_KIT; }
 export function kitPieceKey(kit: RegionBoardKit, type: number): string { return kit.pieceKeys[type]; }
-/** Same contract as ManagedMobileBoardUI.goalArt: type0..5 → piece art, otherwise the goal table (kit override first). */
+/** COAST01 collects engine type 5. Shipped default art for that type is the shell (`board/piece_shell`).
+ *  The coast kit's historical slot 5 is `board/piece_badge`; that slot is not the objective. Slots 0..4 stay as authored. */
+export const COAST_TYPE5_SHELL = 'board/piece_shell';
+export function coastObjectiveKey(type: number): string {
+  const t = ((Number(type) % 6) + 6) % 6;
+  if (t === 5) return COAST_TYPE5_SHELL;
+  return COAST_KIT.pieceKeys[t];
+}
+/** Same contract as ManagedMobileBoardUI.goalArt: type0..5 → piece art, otherwise the goal table (kit override first).
+ *  Coast type 5 uses the shell objective, not pieceKeys[5]. */
 export function kitGoalArt(kit: RegionBoardKit, key: string, base: Readonly<Record<string, string>>): string {
+  if (kit.id === 'coast' && key === 'type5') return COAST_TYPE5_SHELL;
   return /^type[0-5]$/.test(key) ? kit.pieceKeys[Number(key.slice(4))] : (kit.goalArt && kit.goalArt[key]) || base[key] || 'board/piece_flower';
 }
 /** Screen grid the board is drawn and hit-tested on (top-left pt, y down). */
@@ -145,7 +155,9 @@ export function setProjectGridHook(f: typeof projectGridHook): void { projectGri
 export function kitGrid(kit: RegionBoardKit, layout: BoardLayout): KitGrid {
   if (kit.board) {
     const b = kit.camera ? projectGridHook && projectGridHook(kit, layout.width, layout.height) : null;
-    if (b) return b; kitFallback((kit.camera ? 'projection-invalid:' : 'no-camera:') + kit.id);
+    if (b) return b;
+    if (kit.id === 'coast') { try { console.error('[QF_COAST] ' + JSON.stringify({ event: 'projection-invalid', id: kit.id })); } catch { /* console gone */ } }
+    kitFallback((kit.camera ? 'projection-invalid:' : 'no-camera:') + kit.id);
   }
   const centers: { x: number; y: number }[] = []; for (let i = 0; i < 49; i++) centers.push(cellCenter(layout, i));
   return { centers, pitch: layout.pitch, projected: false };

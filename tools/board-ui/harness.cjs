@@ -14,6 +14,7 @@ function pngSize(file) { const b = fs.readFileSync(file); return b.toString('asc
 function createCc(state) {
   class Emitter { constructor() { this._ev = new Map(); } on(t, f, c) { if (!this._ev.has(t)) this._ev.set(t, []); this._ev.get(t).push([f, c]); } off(t, f, c) { this._ev.set(t, (this._ev.get(t) || []).filter(x => x[0] !== f || (c !== undefined && x[1] !== c))); } emit(t, ...a) { for (const [f, c] of [...(this._ev.get(t) || [])]) f.apply(c, a); } listeners(t) { return (this._ev.get(t) || []).length; } }
   class Vec3 { constructor(x = 0, y = 0, z = 0) { this.x = x; this.y = y; this.z = z; } set(x, y, z) { if (x && typeof x === 'object') { y = x.y; z = x.z; x = x.x; } this.x = x; this.y = y || 0; this.z = z || 0; return this; } clone() { return new Vec3(this.x, this.y, this.z); } }
+  class Vec4 { constructor(x = 0, y = 0, z = 0, w = 0) { this.x = x; this.y = y; this.z = z; this.w = w; } }
   Vec3.ONE = new Vec3(1, 1, 1); Vec3.ZERO = new Vec3();
   class Vec2 { constructor(x = 0, y = 0) { this.x = x; this.y = y; } set(x, y) { this.x = x; this.y = y; return this; } }
   class Quat { constructor() { this.x = 0; this.y = 0; this.z = 0; this.w = 1; } set(q) { Object.assign(this, { x: q.x, y: q.y, z: q.z, w: q.w }); return this; } static fromEuler(out, x, y, z) { out.ex = x; out.ey = y; out.ez = z; return out; } static multiply(out) { return out; } }
@@ -73,7 +74,7 @@ function createCc(state) {
   class Canvas extends Component { constructor() { super(); this.alignCanvasWithScreen = true; this.cameraComponent = null; } }
   class Camera extends Component { constructor() { super(); this.camera = null; this.orthoHeight = 0; } }
   Camera.ProjectionType = { ORTHO: 0, PERSPECTIVE: 1 }; Camera.ClearFlag = { SOLID_COLOR: 7, DEPTH_ONLY: 6 }; Camera.FOVAxis = { VERTICAL: 0, HORIZONTAL: 1 };
-  class MeshRenderer extends Component { constructor() { super(); this.sharedMaterials = []; } setSharedMaterial(m, i) { this.sharedMaterials[i] = m; } }
+  class MeshRenderer extends Component { constructor() { super(); this.sharedMaterials = []; this.mesh = null; } setSharedMaterial(m, i) { this.sharedMaterials[i] = m; } setMaterial(m, i = 0) { this.sharedMaterials[i] = m; } getMaterial(i = 0) { return this.sharedMaterials[i] || null; } }
   MeshRenderer.ShadowCastingMode = { OFF: 0, ON: 1 };
   class SphereLight extends Component { constructor() { super(); this.luminance = 1; } }
   class EventTouch {}
@@ -82,7 +83,101 @@ function createCc(state) {
   Texture2D.Filter = { NONE: 0, LINEAR: 1 }; Texture2D.WrapMode = { CLAMP_TO_EDGE: 0, REPEAT: 1 }; Texture2D.PixelFormat = { RGBA8888: 35 };
   class SpriteFrame { constructor() { this.originalSize = new Size(); this.insetLeft = 0; this.insetRight = 0; this.insetTop = 0; this.insetBottom = 0; } set texture(t) { this._texture = t; const i = t && t.image; if (i) this.originalSize = new Size(i.width, i.height); } get texture() { return this._texture; } destroy() { this.destroyed = true; } }
   class TextAsset { constructor(text = '') { this.text = text; } }
-  class Prefab {} class Material {} class RenderTexture { reset() {} destroy() {} } class JsonAsset {} class AudioSource extends Component {} class AudioClip {}
+  class Prefab {}
+  class Mesh {}
+  /** Cocos 3.8.8 Pass. overridePipelineStates is warnID(12102) and does not change state. getUniform reads the uploaded block, not Material._props. */
+  class Pass {
+    constructor(src = {}) {
+      this.defines = { ...(src.defines || {}) };
+      this.rasterizerState = { ...(src.rasterizerState || {}) };
+      this.depthStencilState = { ...(src.depthStencilState || {}) };
+      this.blendState = { targets: ((src.blendState && src.blendState.targets) || [{ blend: false }]).map((t) => ({ ...t })) };
+      this._getHandle = src._getHandle || src.getHandle;
+      this.properties = {};
+      const meta = src.properties || {};
+      for (const k of Object.keys(meta)) this.properties[k] = { ...meta[k] };
+      this.uniforms = {};
+      const seed = (name, x, y, z, w) => { if (this.getHandle(name)) this.uniforms[name] = { x, y, z, w }; };
+      seed('mainColor', 1, 1, 1, 1);
+      seed('emissive', 0, 0, 0, 1);
+      seed('emissiveScale', 1, 1, 1, 0);
+      if (src.uniforms) for (const k of Object.keys(src.uniforms)) this.uniforms[k] = { ...src.uniforms[k] };
+    }
+    getHandle(name) { return this._getHandle && this._getHandle(name) ? { name } : 0; }
+    setUniform(handle, val) { if (!handle || !handle.name) return; const v = val || {}; this.uniforms[handle.name] = { x: v.x || 0, y: v.y || 0, z: v.z || 0, w: v.w || 0 }; }
+    getUniform(handle, out) { const v = handle && handle.name ? this.uniforms[handle.name] : null; out.x = v ? v.x : 0; out.y = v ? v.y : 0; out.z = v ? v.z : 0; out.w = v ? v.w : 0; return out; }
+    overridePipelineStates() { console.warn('[cc.warnID] 12102 Base pass cannot override states, please use pass instance instead.'); }
+  }
+  /** Cocos 3.8.8 PassInstance. overridePipelineStates updates this instance only (pass-instance.ts), never the parent Pass. */
+  class PassInstance extends Pass {
+    constructor(parent, owner) { super(parent); this.parent = parent; this.owner = owner; }
+    overridePipelineStates(_original, overrides) {
+      const state = overrides || _original || {};
+      if (state.rasterizerState) this.rasterizerState = { ...this.rasterizerState, ...state.rasterizerState };
+      if (state.depthStencilState) this.depthStencilState = { ...this.depthStencilState, ...state.depthStencilState };
+      if (state.blendState) this.blendState = { targets: state.blendState.targets.map((t) => ({ ...(this.blendState.targets[0] || {}), ...t })) };
+    }
+  }
+  /**
+   * Cocos 3.8.8 Material (v3.8.8 cocos/asset/assets/material.ts).
+   * overridePipelineStates only warnID(16371). setProperty uploads through Pass.setUniform and also stores _props.
+   * getProperty returns that cache, which can diverge from Pass.getUniform.
+   */
+  class Material {
+    constructor() { this.passes = []; this._props = {}; this.props = this._props; this.name = ''; this.isValid = true; this.label = ''; this.effectName = 'builtin-standard'; }
+    copy(o) {
+      this.effectName = o.effectName || this.effectName; this.name = o.name || ''; this.label = o.label || '';
+      this.passes = (o.passes || []).map((p) => new Pass(p));
+      this._props = {}; this.props = this._props;
+      const src = o._props || o.props || {};
+      for (const k of Object.keys(src)) this.setProperty(k, src[k]);
+      return this;
+    }
+    setProperty(name, val) {
+      let ok = false;
+      for (const pass of this.passes) {
+        const handle = pass.getHandle(name);
+        if (!handle) continue;
+        // v3.8.8 material.ts _uploadProperty: pass.properties[name].linear → SRGBToLinear (component square) then v4_1.w = v4.w.
+        let uploaded = val;
+        if (pass.properties && pass.properties[name] && pass.properties[name].linear && val && typeof val.x === 'number') {
+          uploaded = { x: val.x * val.x, y: val.y * val.y, z: val.z * val.z, w: val.w };
+        }
+        if (typeof pass.setUniform === 'function') pass.setUniform(handle, uploaded);
+        this._props[name] = val; ok = true;
+      }
+      if (!ok) console.warn('[cc.warnID] 16373 ' + name);
+    }
+    getProperty(name) { return Object.prototype.hasOwnProperty.call(this._props, name) ? this._props[name] : null; }
+    overridePipelineStates() { console.warn('[cc.warnID] 16371 Pipeline states in material asset \'' + (this.name || '') + '\' cannot be modified at runtime, please instantiate the material first.'); }
+    recompileShaders() { console.warn('[cc.warnID] 16370 Shaders in material asset \'' + (this.name || '') + '\' cannot be modified at runtime, please instantiate the material first.'); }
+    destroy() { this.isValid = false; this.destroyed = true; }
+  }
+  /** Cocos 3.8.8 MaterialInstance. Passes are PassInstances. overridePipelineStates and recompileShaders change those passes only. */
+  class MaterialInstance extends Material {
+    constructor(info) {
+      super();
+      this.parent = info && info.parent;
+      this.owner = info && info.owner || null;
+      const parent = this.parent;
+      this.effectName = parent && parent.effectName || 'builtin-standard';
+      this.name = parent && parent.name || '';
+      this.passes = ((parent && parent.passes) || []).map((p) => new PassInstance(p, this));
+      this._props = {}; this.props = this._props;
+      const src = (parent && (parent._props || parent.props)) || {};
+      for (const k of Object.keys(src)) this.setProperty(k, src[k]);
+    }
+    overridePipelineStates(overrides, passIdx = 0) {
+      const pass = this.passes[passIdx];
+      if (pass instanceof PassInstance) pass.overridePipelineStates(null, overrides);
+    }
+    recompileShaders(overrides, passIdx) {
+      const list = passIdx === undefined ? this.passes : [this.passes[passIdx]];
+      for (const pass of list) if (pass instanceof PassInstance && overrides) Object.assign(pass.defines, overrides);
+    }
+  }
+  class RenderTexture { reset() {} destroy() {} } class JsonAsset {} class AudioSource extends Component {} class AudioClip {}
+  const gfx = { BlendOp: { ADD: 0 }, BlendFactor: { ZERO: 0, ONE: 1, SRC_ALPHA: 2, DST_ALPHA: 3, ONE_MINUS_SRC_ALPHA: 4 }, CullMode: { NONE: 0, FRONT: 1, BACK: 2 }, ComparisonFunc: { NEVER: 0, LESS: 1, EQUAL: 2, LESS_EQUAL: 3, ALWAYS: 7 } };
   const game = new Emitter(); game.canvas = null;
   const view = new Emitter(); view.resizeWithBrowserSize = () => {}; view.getFrameSize = () => ({ ...state.viewport }); view.setDesignResolutionSize = () => {};
   const scene = new Node('Scene');
@@ -132,8 +227,8 @@ function createCc(state) {
   const input = new Emitter(); input.getTouchCount = () => 0;
   const property = (...a) => (a.length >= 2 && typeof a[1] === 'string') ? undefined : () => {};
   return {
-    Emitter, Vec2, Vec3, Quat, Color, Size, Rect, Component, Node, UITransform, Sprite, Label, Graphics, UIOpacity, BlockInputEvents, Mask, ScrollView, Canvas, Camera, MeshRenderer, SphereLight, EventTouch,
-    ImageAsset, Texture2D, SpriteFrame, TextAsset, Prefab, Material, RenderTexture, JsonAsset, AudioSource, AudioClip, TTFFont: class TTFFont { },
+    Emitter, Vec2, Vec3, Vec4, Quat, Color, Size, Rect, Component, Node, UITransform, Sprite, Label, Graphics, UIOpacity, BlockInputEvents, Mask, ScrollView, Canvas, Camera, MeshRenderer, SphereLight, EventTouch,
+    ImageAsset, Texture2D, SpriteFrame, TextAsset, Prefab, Mesh, Pass, PassInstance, Material, MaterialInstance, RenderTexture, JsonAsset, AudioSource, AudioClip, gfx, TTFFont: class TTFFont { },
     Director: { EVENT_AFTER_SCENE_LAUNCH: 'director_after_scene_launch' }, game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, view, ResolutionPolicy: { EXACT_FIT: 1 }, Layers: { Enum: { UI_2D: 1 << 25, DEFAULT: 1 } }, director, sys, assetManager, AssetManager: {}, resources,
     isValid: (o, strict) => !!o && o.isValid !== false, profiler: { hideStats() {} }, _decorator: { ccclass: () => c => c, property }, tween, Tween, input, Input: { EventType: { TOUCH_START: 'touch-start' } },
     instantiate: p => new Node('Instance'), geometry: { Ray: class { constructor() { this.o = new Vec3(); this.d = new Vec3(); } }, ERaycastMode: { ANY: 0, CLOSEST: 1 }, intersect: { rayModel: () => 0 } },

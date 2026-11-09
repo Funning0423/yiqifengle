@@ -15,3 +15,8 @@ export function requiresLakesideScene(selection:RegionSelection):boolean {
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }
+
+/** COAST01 only. r06-coast-02..09 are not a scene on this candidate. */
+export function requiresCoastScene(selection:RegionSelection):boolean {
+ return String(selection?.stageId||'')==='r06-coast-01';
+}
