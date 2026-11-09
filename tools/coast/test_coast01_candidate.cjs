@@ -262,7 +262,8 @@ function freshBoard(on, region) {
     const flagAt = coastBg.indexOf('coastBoardKitFromFlag()', fn);
     const body = coastBg.slice(fn);
     assert.ok(fn > 0 && flagAt > fn, 'coast background reads the flag first');
-    assert.equal(body.includes('createIslandBoardBackground'), false, 'a missing coast scene does not become the island picture');
+    const islandUses = body.split('\n').filter((l) => l.includes('createIslandBoardBackground'));
+    assert.ok(islandUses.length === 1 && islandUses[0].includes('if (!on)'), 'only an explicit kit-off uses the island picture; a missing coast scene does not become it');
     assert.equal(body.includes('coast-kit-projected'), false);
     const wnc = fs.readFileSync(path.join(SCRIPTS, 'world-r2/WorldNativeComposition.ts'), 'utf8');
     assert.ok(wnc.indexOf('requiresCoastScene(context.selection)?createCoastBoardBackground') < wnc.indexOf('requiresMeadowScene(context.selection)?meadowBoardWithGuest'), 'coast background is chosen before the island/meadow fallback');
