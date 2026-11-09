@@ -49,6 +49,24 @@
       },
       "why": "Grok Bot 2026-10-29: Creator import meta for 场景设计部 glb (commit-sea-metas.sh convention)"
     },
+    "creator-build-project/assets/scripts/regional-r05/runtime/snowpass-levels-data.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/snowpass-wireup: snow stage data (r06-snow-01..06) joined beside lakeside-levels-data.js"
+    },
+    "creator-build-project/assets/scripts/region/SnowpassSceneData.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/snowpass-wireup: snow shelf board seat (pure numbers, no engine)"
+    },
+    "creator-build-project/assets/scripts/region/SnowpassBoardBackground.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/snowpass-wireup: region_snowpass board lease, shelf camera only"
+    },
     "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {
       "allowAdd": {
         "importer": "typescript"

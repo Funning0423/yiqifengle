@@ -12,6 +12,11 @@ export function requiresLakesideScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r0[45]-lake-\d+$/.test(id)||/^mainline-1[3-6]$/.test(id)/* b18: mainline 13–16 = 风铃湖畔 */;
 }
 
+/** 雪山风铃山口 (r06-snow-*) renders the live region_snowpass scene. The board sits on the snow shelf. */
+export function requiresSnowpassScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r06-snow-\d+$/.test(id);
+}
+
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }

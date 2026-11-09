@@ -8,11 +8,11 @@ function freeze(x) { if (x && typeof x === 'object' && !Object.isFrozen(x)) { Ob
 function rng(seed) { var f=function(){f.state=(Math.imul(f.state,1664525)+1013904223)>>>0;return f.state/4294967296;};f.state=seed>>>0;return f; }
 function validIndex(i) { return Number.isInteger(i) && i>=0 && i<49; }
 function neighbors(i) { return [i,i%7?i-1:-1,i%7<6?i+1:-1,i>=7?i-7:-1,i<42?i+7:-1].filter(validIndex); }
-function goalKey(region) { return region==='tide'?'pearls':region==='meadow'?'blooms':region==='lake'?'chimes':'relays'; }
+function goalKey(region) { return region==='tide'?'pearls':region==='meadow'?'blooms':region==='lake'||region==='snow'?'chimes':'relays'; }
 function signature(stage) { return JSON.stringify([stage.id,stage.contentRevision,stage.config,stage.rules,stage.tool]); }
 function RegionalSession(stage, seed, options) {
  options=options||{};
- if(!stage || !['tide','meadow','sky','lake'].includes(stage.region))throw Error('Unknown region');
+ if(!stage || !['tide','meadow','sky','lake','snow'].includes(stage.region))throw Error('Unknown region');
  if(!Number.isInteger(seed)||seed<0||seed>0xffffffff)throw Error('Invalid seed');
  if(!options.authoring && !stage.seedBank.includes(seed))throw Error('Seed has no shipped witness');
  this.stage=freeze(copy(stage));this.seed=seed;this.random=rng(seed);this.actions=[];this.clock=0;this.hold=0;this.toolCharges=stage.tool?stage.tool.charges:0;this.tokenSerial=0;this.instance=++serial;this.pending=null;this.frames=[];
@@ -35,7 +35,7 @@ RegionalSession.prototype._valid=function(a){var e=this.engine;if(!Array.isArray
 };
 RegionalSession.prototype.legalActions=function(options){var e=this.engine,a=e.possibleMoves().map(function(x){return ['swap',x[0],x[1]];});e.possibleActivations().forEach(function(i){a.push(['activate',i]);});
  if(!e._canStart())return [];
- if(!options||options.tools!==false){if(this.stage.tool.kind==='sunSeed'){for(var i=0;i<49;i++)if(this._valid(['tool','sunSeed',i]))a.push(['tool','sunSeed',i]);}else{var t=['tool',this.stage.tool.kind];if(this._valid(t))a.push(t);}}return a;
+ if(this.stage.tool&&(!options||options.tools!==false)){if(this.stage.tool.kind==='sunSeed'){for(var i=0;i<49;i++)if(this._valid(['tool','sunSeed',i]))a.push(['tool','sunSeed',i]);}else{var t=['tool',this.stage.tool.kind];if(this._valid(t))a.push(t);}}return a;
 };
 RegionalSession.prototype.preview=function(action){if(!this._valid(action))return freeze({ok:false,reason:'illegal-action'});var token='r5:'+this.instance+':'+(++this.tokenSerial);this.pending={token:token,action:action.slice(),state:JSON.stringify(this._export())};return freeze({ok:true,token:token,action:action.slice(),moveCost:1,phase:this.phase()});};
 RegionalSession.prototype.cancelPreview=function(){this.pending=null;};
@@ -53,7 +53,7 @@ RegionalSession.prototype._regional=function(wave){var s=this,events=[],effects=
  else if(region==='meadow')this.pieces.forEach(function(p){if(p.done)return;var desired=p.pollen[p.progress];var valid=removed.some(function(t){var near=phase==='horizontal'?Math.floor(t.index/7)===Math.floor(p.index/7)&&Math.abs(t.index-p.index)<=1:t.index%7===p.index%7&&Math.abs(t.index-p.index)<=7;return near&&t.type===desired;});
   if(!valid)return;p.progress++;events.push({kind:'pollen-delivered',index:p.index,type:desired,step:p.progress});if(p.progress===p.pollen.length){p.done=true;events.push({kind:'bloom-opened',index:p.index});effects.push({kind:'wind-burst',index:p.index,axis:phase,cells:Array.from(s.engine._area(phase==='horizontal'?'row':'column',p.index))});}
  });
- else if(region==='lake')this.pieces.forEach(function(p){if(p.done)return; // chime: one ring per wave when the cell or a 4-neighbour clears (a row special covers its whole row)
+ else if(region==='lake'||region==='snow')this.pieces.forEach(function(p){if(p.done)return; // chime: one ring per wave when the cell or a 4-neighbour clears (a row special covers its whole row). Snow reuses this; no new rule.
   if(!removed.some(function(t){return neighbors(p.index).indexOf(t.index)>=0;}))return;p.progress++;events.push({kind:'chime-rang',index:p.index,step:p.progress});if(p.progress===p.hits){p.done=true;events.push({kind:'chime-complete',index:p.index});effects.push({kind:'chime-ripple',index:p.index,cells:neighbors(p.index)});}
  });
  else if(this.cursor<this.pieces.length){var p=this.pieces[this.cursor];if(phase===p.polarity&&removed.some(function(t){return t.index===p.index&&(p.type===undefined||t.type===p.type);})){p.progress++;events.push({kind:'relay-charged',index:p.index,step:p.progress});if(p.progress===p.hits){p.done=true;this.cursor++;events.push({kind:'relay-linked',index:p.index,partner:p.partner});effects.push({kind:'portal-echo',index:p.partner,cells:neighbors(p.partner)});}}}
