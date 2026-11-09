@@ -98,8 +98,8 @@ export const COAST_KIT: RegionBoardKit = Object.freeze({
   lighting: Object.freeze({ pieceFill: 0.75, anchorY: 0.18, shadowM: 0.62, shadowOpacity: 0.3, shadowColor: '#3d4a3a', tint: '#ffffff', source: 'r5d bb238126: sprites exported with the board_art method under the coast scene light (same as the slabs); fill 0.75 = REPORT coast 3D' }),
   topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
 });
-/** Lakeside kit — Funning fusion sample (内景棋盘: LK_wb_line + 角灯笼桩 + 木筏 + LK_piece_*). TRIAL default ON
- *  (opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false; formal tip 05ca7c50 stays OFF). NOT a coast kit / board_art answer.
+/** Lakeside kit — Funning fusion sample (内景棋盘: LK_wb_line + 角灯笼桩 + 木筏 + LK_piece_*). Default OFF
+ *  (force on ?qflakesidekit=1 / __qfLakesideBoardKit=true; formal tip 05ca7c50 stays OFF). NOT a coast kit / board_art answer.
  *  Board on the water: LAKESIDE_BOARD_BOUNDS.center=[0,0,12], cellM=1.1, topY=0.02; yaw 0 (local x=col, z=row).
  *  Camera: BoardProjection projects via lakesideAlignedBoardPose (read-only; kit never writes the world camera).
  *  hide2D.pieces=true → 2D ProjectPieceArt off; scene keeps LK_piece_* (pipeline A). RING/SHD unskipped as aux. */

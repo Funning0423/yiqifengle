@@ -56,7 +56,7 @@ export class ManagedMobileBoardUI extends Component {
   private values = new Map<string, string>(); private attempt = 0; private dragStart: any = null;
   private journey = { readOnly: false, records: Array.from({ length: 12 }, () => ({ bestStars: 3 })) };
   private layoutInfo: any = null; private geo: BoardLayout | null = null; private cell = 42.6;
-  /** Board kit: DEFAULT_KIT on default path; lakeside fusion kit when lakesideBoardKitFromFlag() (TRIAL default ON; scene LK_piece_*, not board_art). */
+  /** Board kit: DEFAULT_KIT on default path; lakeside fusion kit when lakesideBoardKitFromFlag() (default OFF; force on with ?qflakesidekit=1). */
   private kit: RegionBoardKit = DEFAULT_KIT; private kitGridCache: KitGrid | null = null; private kitTrayHidden = false; private kitArt = new Map<string, SpriteFrame>(); private kitArtLoading = ''; private goalLabels: Label[] = [];
   private goalNodes: Node[] = []; private goalKeys: string[] = []; private targets: Record<string, Node> = {}; private boardCenter = new Vec3();
   private pause!: Node; private plate!: Node; private plateSprite!: Sprite; private titleLabel!: Label; private moves!: Label; private movesIcon!: Sprite; private plateDivider!: Graphics;

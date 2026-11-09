@@ -1,5 +1,5 @@
 'use strict';
-/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. TRIAL default ON; opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false
+/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. Default OFF; force on ?qflakesidekit=1 / __qfLakesideBoardKit=true; opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false
  * (2D tray, grid cellAt). ON: cells on the projected water-grid centres (tap hit), tray + tile bases + 2D piece art hidden
  * (scene LK_piece_* / wb_line / buoy / raft are the visual), cellAt = nearest projected centre, fallback = 0, no camera writes.
  * Kit scene keep = default 813 + 49 RING + 49 SHD + 52 LK_piece_* (=963); board_frame still skipped. Formal tip 05ca7c50 stays OFF. */

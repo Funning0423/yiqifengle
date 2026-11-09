@@ -121,9 +121,10 @@ export function lakesideBoardKitPose(w: number, h: number): { position: [number,
   return { position: [pose.position[0], pose.position[1], pose.position[2]], rotationXYZW: [pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]], fovVerticalDeg: pose.fovVerticalDeg, distanceM: d };
 }
 /** Lakeside fusion-kit switch (Funning sample: wb_line + buoy_lantern + chime_raft + LK_piece_*).
- *  TRIAL tip: default ON (WeChat trial cannot pass ?qflakesidekit=1). Formal tip 05ca7c50 stays OFF.
+ *  Default OFF. The trial default was ON, which hid the live 2D pieces and left 52 static LK_piece_* on the water,
+ *  so a lakeside level could not be played. Force on: globalThis.__qfLakesideBoardKit === true or '?qflakesidekit=1'.
+ *  Opt-out (also the no-flag path): false or '?qflakesidekit=0'.
  *  On = LAKESIDE_KIT registered for region 'lake' (and 'lakeside' alias) + setLakesideKitAssets(true) (keep pieces, unskip RING/SHD).
- *  Opt-out: globalThis.__qfLakesideBoardKit === false or '?qflakesidekit=0'. Force on: true / '?qflakesidekit=1'.
  *  Also invoked at start of buildLakesideBoard so preload/filter sees the flag (initializeManaged alone is too late). */
 export function setLakesideBoardKit(on: boolean): void {
   if (on) { registerBoardKit('lake', LAKESIDE_KIT); registerBoardKit('lakeside', LAKESIDE_KIT); }
@@ -131,7 +132,7 @@ export function setLakesideBoardKit(on: boolean): void {
   try { setLakesideKitAssets(on); } catch { /* scene data optional in pure board tests */ }
 }
 export function lakesideBoardKitFromFlag(): boolean {
-  const g = globalThis as any; let on = true;
+  const g = globalThis as any; let on = false;
   if (g.__qfLakesideBoardKit === false) on = false;
   else if (g.__qfLakesideBoardKit === true) on = true;
   try {
