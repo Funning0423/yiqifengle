@@ -25,6 +25,18 @@ const FILES = [
 ];
 const META_DIRS = [REL, REL + '/board', REL + '/data', REL + '/models', REL + '/textures'];
 assert.equal(FILES.length, 14);
+/* scene/coast01-creator-import: the 21 metas now exist, written by Creator 3.8.8 import (never by hand). Pin importer + uuid. */
+const CREATOR_METAS = {
+  'board/piece_badge.png': ['image', '51ec7042-cd33-43f2-9fdc-f4118b5dcff9'], 'board/piece_conch.png': ['image', '2f49b550-0a7a-45ca-b0ef-9fd2e0d77a13'],
+  'board/piece_coral.png': ['image', '498df1fa-d03e-4973-adb8-c01b58ad565d'], 'board/piece_float.png': ['image', 'f10620f0-7826-468a-9512-be6be86701c6'],
+  'board/piece_scallop.png': ['image', 'ef30945f-32a3-43ff-a01a-f236bf301263'], 'board/piece_star.png': ['image', 'e108213a-655a-4a9b-9905-3e59c278d01d'],
+  'data/coast_layout.json': ['json', '42338540-cc4d-4599-a716-207402d1cf03'],
+  'models/coast_board.glb': ['gltf', 'd5862b08-94c4-465d-b2d3-414c81fcb119'], 'models/coast_props.glb': ['gltf', 'd522a302-f334-4943-b008-a31bacc65fc9'],
+  'models/coast_reuse.glb': ['gltf', '93af8926-3f73-4510-8670-0ccba21a90c0'], 'models/coast_rocks.glb': ['gltf', 'bc70efc2-a41d-4fe6-91f6-063550b92aec'],
+  'models/coast_terrain.glb': ['gltf', '28424964-6559-4ea4-a3fb-1a91a497cf35'],
+  'textures/coast_palette_256.png': ['image', '0c9e211a-63e5-4fd9-990f-fddac4f1ca45'], 'textures/coast_palette_sand_256.png': ['image', '4ccf9bb6-0714-4cfc-a107-7f56e2c0051b'],
+};
+const CREATOR_DIR_METAS = { [REL]: '671a1b3b-eb4d-440a-bc3e-215c9d34aa63', [REL + '/board']: '55f4f573-7258-4708-bc0e-2872f153016f', [REL + '/data']: '38c1df22-2f38-44f8-ae19-ff907b8cd0cd', [REL + '/models']: '5c7827e1-be7d-4b84-a599-23fec067b3b1', [REL + '/textures']: '894ce136-960b-40c9-8109-21490e3d074a' };
 const missingMetas = [];
 for (const [rel, size, sha] of FILES) {
   const abs = path.join(ROOT, REL, rel);
@@ -32,8 +44,10 @@ for (const [rel, size, sha] of FILES) {
   assert.equal(buf.length, size, rel);
   assert.equal(crypto.createHash('sha256').update(buf).digest('hex'), sha, rel);
   const meta = abs + '.meta';
-  assert.equal(fs.existsSync(meta), false, 'hand-written meta refused ' + rel);
-  missingMetas.push(REL + '/' + rel + '.meta');
+  if (!fs.existsSync(meta)) missingMetas.push(REL + '/' + rel + '.meta');
+  else { const m = JSON.parse(fs.readFileSync(meta, 'utf8')); assert.deepEqual([m.importer, m.uuid], CREATOR_METAS[rel], 'Creator meta ' + rel);
+    if (rel.startsWith('board/')) assert.equal(m.userData.type, 'sprite-frame', rel + ' loads as key/spriteFrame');
+    if (rel.endsWith('.glb')) assert.deepEqual(m.userData.meshCompress, { enable: true, compress: true, quantize: true, encode: true }, rel + ' meshCompress (region_lakeside settings)'); }
   if (rel.endsWith('.png')) assert.equal(buf.toString('ascii', 1, 4), 'PNG', rel);
   if (rel.endsWith('.glb')) {
     assert.equal(buf.toString('ascii', 0, 4), 'glTF', rel);
@@ -46,7 +60,9 @@ for (const [rel, size, sha] of FILES) {
     assert.ok(Array.isArray(doc.nodes) && doc.nodes.length > 0, rel + ' nodes');
   }
 }
-for (const dir of META_DIRS) assert.equal(fs.existsSync(path.join(ROOT, dir + '.meta')), false, dir + '.meta');
+for (const dir of META_DIRS) { const m = JSON.parse(fs.readFileSync(path.join(ROOT, dir + '.meta'), 'utf8')); assert.deepEqual([m.importer, m.uuid], ['directory', CREATOR_DIR_METAS[dir]], dir + '.meta'); }
+{ const b = JSON.parse(fs.readFileSync(path.join(ROOT, REL + '.meta'), 'utf8')).userData; assert.equal(b.isBundle, true); assert.equal(b.bundleName, 'region_coast'); assert.equal(b.compressionType.wechatgame, 'subpackage'); }
+assert.equal(missingMetas.length, 0, 'all 14 resource metas present: ' + missingMetas.join(','));
 assert.equal(fs.existsSync(path.join(ROOT, REL, 'scripts/CoastSceneLoader.ts')), false, 'divergent loader script was not copied');
 assert.equal(fs.existsSync(path.join(ROOT, REL, 'scripts/CoastSceneLayout.ts')), false, 'divergent layout script was not copied');
 const layout = JSON.parse(fs.readFileSync(path.join(ROOT, REL, 'data/coast_layout.json'), 'utf8'));
@@ -364,7 +380,7 @@ const { createHarness } = require('../board-ui/harness.cjs');
   console.log('coast-resource-layer: PASS', JSON.stringify({
     files: FILES.length,
     missingMetas: missingMetas.length,
-    folderMetasAlsoMissing: META_DIRS.length,
+    folderMetasAlsoMissing: 0,
     ordinaryFactoryCalls: 223,
     materialAssignments: 223,
     geometryPresent: 223,

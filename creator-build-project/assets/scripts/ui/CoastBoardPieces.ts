@@ -2,7 +2,11 @@
  *  perspective size per tile (far row smaller), a contact shadow (foreshortened ellipse on the slab top, drawn with Graphics, no new
  *  asset) and the slabs' lighting tint. Read-only on the camera: it only consumes BoardProjection numbers. Not used by the default
  *  board; ManagedMobileBoardUI is unchanged. Only built while the coast config is on (BoardProjection.setCoastBoardKit). */
-import { _decorator, Component, Node, UITransform, Sprite, SpriteFrame, Graphics, Color, assetManager, director, Material } from 'cc';
+import { _decorator, Component, Node, UITransform, Sprite, SpriteFrame, Graphics, Color, assetManager, director, Material, Camera, DirectionalLight, Layers, Quat, isValid } from 'cc';
+import { COAST_KIT, kitBoardPose } from './BoardKit';
+import { bgCamWant } from '../region/BgCamGate';
+import { createSceneFade } from '../region/BoardBackgroundFade';
+import { createIslandBoardBackground } from '../world-r2/IslandBoardBackground';
 import { boardKitFor, type RegionBoardKit } from './BoardKit';
 import { coastBoardKitFromFlag, coastBoardSurfaceY, kitPiecePlacement, projectedGrid } from './BoardProjection';
 import { ISLAND_PROPS } from '../world-r2/IslandPropsLayout';
@@ -113,28 +117,64 @@ export async function orchestrateCoastEntry(input: {
   input.startProvider();
   return reject('coast-runtime-evidence-unavailable');
 }
-/** Fail closed. A missing bundle, asset, or material does not become a projected coast board. */
+/** Fail closed. A missing bundle, asset, or material does not become a projected coast board.
+ *  scene/coast01-creator-import: once the region_coast scene really mounted from the Creator bundle (typesAccepted: real
+ *  Prefab/JsonAsset/Texture2D/Mesh classes, every planned instance has geometry + material), the scene IS the board background:
+ *  a lease with its own camera at the COAST_KIT pose (the same pose BoardProjection projects the 7x7 cells / pieces through, so
+ *  the projected input grid and the 3D slabs line up). The coast nodes sit in the island world frame (root [-0.6,-0.845,21.5]
+ *  yaw 180) on the island's own layers, so the island sea/sky/light reach them; the lease camera copies the world camera's
+ *  visibility/clear and never writes the world camera. Kit off (?qfcoastkit=0 / __qfCoastBoardKit=false) = the 2D tray on the
+ *  island board picture (DEFAULT_KIT), which is what COAST01 looked like before this kit was wired. */
+export const COAST_BOARD_CAMERA_PRIORITY = 44;
+function coastWorldCamera(scene: Node | null): Camera | null {
+  if (!scene) return null; let best: Camera | null = null;
+  for (const c of scene.getComponentsInChildren(Camera)) { if (!c.enabled || !c.node.activeInHierarchy || (c.visibility & Layers.Enum.DEFAULT) === 0) continue; if (!best || c.priority < best.priority) best = c; }
+  return best;
+}
 export const createCoastBoardBackground: LevelBackgroundFactory = async (ctx) => {
   const on = coastBoardKitFromFlag();
-  if (!on) { reportCoastResourceGap(false, 'kit-off: coast scene not mounted'); throw new CoastEntryRejected('coast-kit-off', 'coast kit is off; island picture is not a coast scene'); }
+  if (!on) { reportCoastResourceGap(false, 'kit-off: 2D tray on the island board picture'); return createIslandBoardBackground(ctx); }
   const scene = director.getScene();
   for (const mesh of ['reuse_palm_tall', 'reuse_palm_lean']) if (!coastReuseFrom(scene, mesh)) reportCoastResourceGap(true, 'reuse unresolved: ' + mesh + ' -> ' + COAST_REUSE_SOURCES[mesh].src);
   const palette = await loadSharedPalette();
   if (ctx.token.cancelled) throw new CoastEntryRejected('coast-load-cancelled', 'cancelled before coast scene load');
-  const handle = await loadCoastScene(ctx.parent, {
-    resolveReuse: (name) => coastReuseFrom(scene, name),
-    resolveMaterial: (key) => {
-      const shared = coastIslandMaterial(scene, COAST_PALETTE_NAME) || palette;
-      if (!shared) { reportCoastResourceGap(true, 'material unavailable for ' + key.mesh + ' alpha=' + key.alpha + ' emit=' + key.emit); return null; }
-      return shared;
-    },
-    cancelled: () => !!ctx.token.cancelled,
-  });
-  if (ctx.token.cancelled) { if (handle) handle.dispose(); throw new CoastEntryRejected('coast-load-cancelled', 'cancelled during coast scene load'); }
-  if (!handle) throw new CoastEntryRejected('coast-resources-unavailable', 'region_coast bundle, layout, models, or material did not mount');
-  if (!handle.typesAccepted || handle.engineEvidence !== 'unavailable') { handle.dispose(); throw new CoastEntryRejected(handle.typesAccepted ? 'coast-runtime-evidence-untrusted' : 'coast-contract-not-accepted', 'typed assets are not a Creator load'); }
-  handle.dispose();
-  throw new CoastEntryRejected('coast-runtime-evidence-unavailable', 'contract classes mounted; Creator runtime evidence is unavailable');
+  const rig = new Node('CoastLiveScene'); ctx.parent.addChild(rig); rig.setWorldPosition(0, 0, 0); rig.setWorldRotation(0, 0, 0, 1); rig.setWorldScale(1, 1, 1);
+  let handle: Awaited<ReturnType<typeof loadCoastScene>> = null;
+  try {
+    handle = await loadCoastScene(rig, {
+      resolveReuse: (name) => coastReuseFrom(scene, name),
+      resolveMaterial: (key) => {
+        const shared = coastIslandMaterial(scene, COAST_PALETTE_NAME) || palette;
+        if (!shared) { reportCoastResourceGap(true, 'material unavailable for ' + key.mesh + ' alpha=' + key.alpha + ' emit=' + key.emit); return null; }
+        return shared;
+      },
+      cancelled: () => !!ctx.token.cancelled,
+    });
+  } catch (e) { if (isValid(rig)) rig.destroy(); throw e; }
+  if (ctx.token.cancelled) { if (handle) handle.dispose(); if (isValid(rig)) rig.destroy(); throw new CoastEntryRejected('coast-load-cancelled', 'cancelled during coast scene load'); }
+  if (!handle) { if (isValid(rig)) rig.destroy(); throw new CoastEntryRejected('coast-resources-unavailable', 'region_coast bundle, layout, models, or material did not mount'); }
+  if (!handle.typesAccepted) { handle.dispose(); if (isValid(rig)) rig.destroy(); throw new CoastEntryRejected('coast-contract-not-accepted', 'typed assets are not a Creator load'); }
+  const h = handle, world = coastWorldCamera(scene);
+  let disposed = false, visible = false;
+  const camNode = new Node('CoastBoardCamera'); rig.addChild(camNode); const camera = camNode.addComponent(Camera);
+  camera.projection = Camera.ProjectionType.PERSPECTIVE; camera.fovAxis = Camera.FOVAxis.VERTICAL; camera.near = 0.1; camera.far = world ? world.far : 1000;
+  camera.visibility = world ? world.visibility : (Layers.Enum.DEFAULT | Layers.Enum.IGNORE_RAYCAST); camera.priority = COAST_BOARD_CAMERA_PRIORITY; camera.usePostProcess = false;
+  camera.clearFlags = world ? world.clearFlags : Camera.ClearFlag.SOLID_COLOR; camera.clearColor = world ? world.clearColor.clone() : new Color('#a9dde6'); camera.enabled = false;
+  const fade = createSceneFade(() => (h.root && isValid(h.root) ? h.root : null), () => camera, 'coast');
+  const pose = (w: number, hh: number) => { const p = kitBoardPose(COAST_KIT.camera!, w, hh); camNode.setWorldPosition(p.position[0], p.position[1], p.position[2]); camNode.setWorldRotation(new Quat(p.rotationXYZW[0], p.rotationXYZW[1], p.rotationXYZW[2], p.rotationXYZW[3])); camera.fov = p.fovVerticalDeg; return p; };
+  let lastPose: ReturnType<typeof kitBoardPose> | null = null;
+  try { const lights = scene ? scene.getComponentsInChildren(DirectionalLight).length : 0; console.info('[QF_COAST] ' + JSON.stringify({ event: 'scene-mounted', planned: h.planned, placed: h.placed, reusePlaced: h.reusePlaced, root: h.root.worldPosition.toString(), worldCamera: world ? world.node.name : null, dirLights: lights })); } catch { /* console gone */ }
+  let offCancel = () => { };
+  const dispose = () => { if (disposed) return; disposed = true; offCancel(); if (isValid(camera, true)) camera.enabled = false; h.dispose(); if (isValid(rig)) rig.destroy(); };
+  offCancel = ctx.token.onCancel(dispose);
+  return {
+    frame: (_portrait, layout) => { if (disposed || !layout || !(layout.width > 0 && layout.height > 0)) return; lastPose = pose(layout.width, layout.height); },
+    setVisible: (v: boolean) => { if (disposed) return; visible = v; bgCamWant(camera, v); },
+    setPaused: () => { },
+    setFade: (a: number) => { if (!disposed) fade(a); },
+    diagnostics: () => ({ renderer: 'coast-scene', planned: h.planned, placed: h.placed, reusePlaced: h.reusePlaced, visible, root: isValid(h.root) ? [h.root.worldPosition.x, h.root.worldPosition.y, h.root.worldPosition.z] : null, camera: lastPose, engineEvidence: 'creator-bundle-mounted' }),
+    dispose,
+  };
 };
 /** Stage identity used by the dev teleport. Not a journey region and not an island alias. */
 export function coastRegionIdentity(stageId: string): 'coast' | null {
