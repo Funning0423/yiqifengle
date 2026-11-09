@@ -14,6 +14,15 @@ export function lakesideCellCenter(index: number): [number, number, number] {
   const col = index % 7, row = Math.floor(index / 7);
   return [+(LAKESIDE_GRID.x0 + LAKESIDE_GRID.cell * col).toFixed(4), LAKESIDE_GRID.y, +(LAKESIDE_GRID.z0 + LAKESIDE_GRID.cell * row).toFixed(4)];
 }
+/** Playable cell-face height (m above the water, which stays at y=0). Taken from LK_ripple_ring world Y on
+ *  origin/scene/lakeside-board-fusion @ 700aed6d (commit ff0d9c55, parent 95dc672d): neighbouring rings are
+ *  lifted off each other so they do not share a plane. (col + row) even → 0.018 (25 cells), odd → 0.020 (24 cells).
+ *  Row 0 is the far row (z = 8.7). Piece sprites project onto this face; the static LK_piece_* meshes do not. */
+export function lakesideCellFaceY(index: number): number {
+  if (!Number.isInteger(index) || index < 0 || index >= 49) throw Error('lakeside cell out of range: ' + index);
+  const col = index % 7, row = Math.floor(index / 7);
+  return (col + row) % 2 === 0 ? 0.018 : 0.02;
+}
 /** Outer edges of the 7×7 cells (half a cell beyond the outer centres). */
 export const LAKESIDE_BOARD_BOUNDS = Object.freeze({ min: [-3.85, 0, 8.15] as const, max: [3.85, 0, 15.85] as const, center: [0, 0, 12] as const });
 /** Handoff §4 board camera, authored for 720×1280 portrait. */
@@ -340,8 +349,8 @@ export type LakesideInstance = Readonly<{ name: string; glb: string; group: stri
  *  ripple rings, and the board frame (not in the subpackage). */
 export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
 /** Kit path (LAKESIDE_KIT / default OFF; force on ?qflakesidekit=1, Funning fusion sample): keep board_frame skipped (r5h3 dropped; water = carrier);
- *  unskip contact_shadow + ripple_ring as aux; KEEP LK_piece_* (cancel whole-prefix filter — gameplay/scene piece pipeline A).
- *  Default OFF keeps the 2D-tray skip list + piece filter. */
+ *  unskip contact_shadow + ripple_ring as the cell face and its contact shadow. Static LK_piece_* stay out on both paths:
+ *  they are 52 baked meshes and do not follow swaps, clears or drops. Kit ON draws the shipped board_art sprites on the faces. */
 const LAKESIDE_KIT_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb']);
 /** Engine type 0..5 → lakeside scene piece GLB (pipeline A; not board_art / not coast). */
 export const LAKESIDE_PIECE_GLBS: readonly string[] = Object.freeze([
@@ -359,8 +368,9 @@ export function lakesideKitAssetsEnabled(): boolean { return lakesideKitAssetsOn
 export function lakesideSkippedGlb(): readonly string[] { return lakesideKitAssetsOn ? LAKESIDE_KIT_SKIPPED_GLB : LAKESIDE_SKIPPED_GLB; }
 export function lakesideSceneInstances(instances: readonly LakesideInstance[]): LakesideInstance[] {
   if (!Array.isArray(instances) || !instances.length) throw Error('lakeside transforms empty');
-  const skip = lakesideSkippedGlb(), keepPieces = lakesideKitAssetsOn;
-  return instances.filter(i => i && typeof i.glb === 'string' && !skip.includes(i.glb) && (keepPieces || !/^LK_piece_/.test(i.glb)) && !isLakesideAssetTemplate(i));
+  const skip = lakesideSkippedGlb();
+  // Static LK_piece_* never enter the scene. Kit ON projects board_art sprites from the live board instead.
+  return instances.filter(i => i && typeof i.glb === 'string' && !skip.includes(i.glb) && !/^LK_piece_/.test(i.glb) && !isLakesideAssetTemplate(i));
 }
 /** The r5h3 export also wrote the 34 source meshes of the Blender ASSETS collection (hide_render, never visible in the
  *  reference) as instances named exactly after their GLB, all at the origin with identity transform. At the origin they stack a

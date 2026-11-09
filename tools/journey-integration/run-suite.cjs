@@ -123,7 +123,7 @@ const tests=[
  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
  ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],['lakeside-land-fill','tools/lakeside/test_lakeside_land_fill.cjs'],['lakeside-journey-water-fallback','tools/lakeside/test_lakeside_journey_water_fallback.cjs'],['lakeside-journey-sun','tools/lakeside/test_lakeside_journey_sun.cjs'],['lakeside-journey-water-prewarm','tools/lakeside/test_lakeside_journey_water_prewarm.cjs'],
  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
- ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],['region-board-ambient','tools/lakeside/test_region_board_ambient.cjs'],
+ ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],['lakeside-kit-pieces','tools/lakeside/test_lakeside_kit_pieces.cjs'],['region-board-ambient','tools/lakeside/test_region_board_ambient.cjs'],
  ['lakeside-balloon-mooring','tools/lakeside/test_lakeside_balloon_mooring.cjs'],
  ['lakeside-reveal-orbit','tools/lakeside/test_lakeside_reveal_orbit.cjs'],
  ['lakeside-qashot','tools/lakeside/test_lakeside_qashot.cjs'],

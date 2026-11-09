@@ -398,17 +398,19 @@ export class ManagedMobileBoardUI extends Component {
     const w = node.worldPosition, px = x - d.width / 2, upY = y - d.height / 2, downY = d.height / 2 - y;
     return Math.hypot(px - w.x, downY - w.y) + 0.5 < Math.hypot(px - w.x, upY - w.y);
   }
-  /** Lakeside kit layout: cells on the projected water-grid centres (tap hit), scaled by perspective; 2D tray/tiles/pieces
-   *  hidden so scene LK_wb_line / buoy_lantern / chime_raft / LK_piece_* read as the fusion board. Invalid projection →
-   *  BoardKit.kitGrid counts a fallback and the 2D board stays. Never writes the camera. Does not load board_art for lakeside. */
+  /** Lakeside kit layout: cells on the projected water-grid centres (tap hit), scaled by perspective; 2D tray and tile
+   *  bases hidden so scene LK_wb_line / buoy_lantern / chime_raft read as the fusion board. Piece sprites stay on those
+   *  cells and follow the live board (hide2D.pieces is false). Invalid projection → BoardKit.kitGrid counts a fallback
+   *  and the 2D board stays. Never writes the camera. */
   private layoutKit(g: BoardLayout) {
     const grid = this.kit.board ? kitGrid(this.kit, g) : null; this.kitGridCache = grid && grid.projected ? grid : null;
     const hide = !!this.kitGridCache && this.kit.hide2D.tray; for (const name of ['Tray', 'TrayShadow']) { const n = this.boardFrame.getChildByName(name); if (n) n.active = !hide; } this.kitTrayHidden = hide;
     if (!this.kitGridCache) { this.cells.forEach(n => n.setScale(1, 1, 1)); return; }
     const q = this.kitGridCache.quads!, P = g.pitch;
     this.cells.forEach((n, i) => { const c = this.kitGridCache!.centers[i], k = Math.hypot(q[i][1].x - q[i][0].x, q[i][1].y - q[i][0].y) / P; n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.setScale(k, k, 1); });
-    // Lakeside pipeline A: scene LK_piece_* is the visual — do not load board_art / coast sprites onto the water.
-    if (this.kit.hide2D.pieces || this.kit.id === 'lakeside') { this.kitArtLoading = this.kit.id; return; }
+    // hide2D.pieces is the only reason to skip piece art. Lakeside used to take this branch by id and leave
+    // 52 static LK_piece_* as the picture; the live sprites now follow the board, so the id is not a second switch.
+    if (this.kit.hide2D.pieces) { this.kitArtLoading = this.kit.id; return; }
     if (this.kitArtLoading !== this.kit.id) { this.kitArtLoading = this.kit.id; const kit = this.kit;
       assetManager.loadBundle(kit.pieceBundle, (e, b) => { if (e || !b) { console.warn('[QF_BOARD_KIT] piece bundle ' + kit.pieceBundle + ' ' + (e && e.message)); return; }
         for (const key of kit.pieceKeys) b.load(key + '/spriteFrame', SpriteFrame, (er, f: SpriteFrame) => { if (!er && f) { this.kitArt.set(key, f); if (!this.disposing && this.snapshot) this.paint(); } }); }); }
