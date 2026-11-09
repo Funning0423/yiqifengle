@@ -82,11 +82,11 @@ export const LAKESIDE_CAMERA_LAYOUT={
    *  target = main (older readers). Her stop is the v4 end (stopLocal); see docs/r5/cine/b18_endpoint_v2.md. */
   portrait:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,main:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,fovVerticalDeg:56},short:{position:[2.5,6.5,34] as Vec,target:[-1.9,-.5,0] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},
   /** kit-ON fusion board lens. Used ONLY when lakesideKitAssetsEnabled() — kit OFF keeps `portrait` sightseeing above.
-   *  L6 r2 (2026-11-09): vertical FOV 55, pitch −32°. main (h/w ≥ splitHW: 390×844, 402×874) is [0,16.25,29.5]→[0,.32,4].
-   *  Farther and higher than the fov-66 pass [0,15,24]→[0,2.5,4], so the 7×7 stays inside the 47/34 safe area and the
-   *  bridge arch stays fully in the upper half. 85–90% board width at 50–55° pushes that arch off the side edges; 55°
-   *  at this pose is the widest the arch still fits (~79% of 390). short is unchanged ([0,10.2,24]→[0,.1,10] fov 50). */
-  portraitFusion:{position:[0,16.25,29.5] as Vec,target:[0,.32,4] as Vec,main:{position:[0,16.25,29.5] as Vec,target:[0,.32,4] as Vec,fovVerticalDeg:55},short:{position:[0,10.2,24] as Vec,target:[0,.1,10] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:55,refAspect:390/844,maxFovDeg:75},
+   *  L6 r3: main (h/w ≥ splitHW) is [0,17.4,28.25]→[0,1.502,2.809], fov 52, pitch −32°. On 390×844 the 7×7 is ~87% of
+   *  the width, its bottom sits ~30 px above the 34 px safe inset, and the deck centre is at mid-screen. The fov-55
+   *  pass looked down onto the near foam sheet (world z ≳ 19) which the offline lake raster paints as a dark band;
+   *  this pose's bottom rays stay on open water around z 17. short is unchanged. */
+  portraitFusion:{position:[0,17.4,28.25] as Vec,target:[0,1.502,2.809] as Vec,main:{position:[0,17.4,28.25] as Vec,target:[0,1.502,2.809] as Vec,fovVerticalDeg:52},short:{position:[0,10.2,24] as Vec,target:[0,.1,10] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:52,refAspect:390/844,maxFovDeg:75},
   grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
 } as const;
 const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};

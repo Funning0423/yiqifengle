@@ -1,8 +1,39 @@
 {
-  "binding": "At pitch -32 and vertical FOV 50-55, a board at 85-90% of 390 px width puts the bridge arch past the left and right edges. The arch is 14.8 m wide and the board is 7.7 m; the depth gap between them is fixed by the -32 degree look. Safe area does not bind. This pose is the widest arch-fit at FOV 55 with about 6 px of side margin.",
-  "cellIndex": "index=row*7+col, x=-3.3+1.1*col, z=8.7+1.1*row, row 0 is far",
+  "darkBand": {
+    "what": "On c1cebdb5 the bottom ~30 px is a flat dark brown (~29,18,10). Rays from that camera through the bottom row hit the lake top (normal +Y) at world z 19.4–19.9, with LK_shore_foam on the same spot. The lake mesh continues to world z 37, so this is not a hole and not the lake boundary. The foam sheet there has UVs far outside 0–1; the offline raster samples a dark palette edge. 95dc672d and 39c3801f bottom rays hit open water around z 16–17 and stay the lake teal (105,135,97).",
+    "avoid": "Bottom-of-frame rays must meet the lake at z below about 19. This pose meets it at z 17.3–17.4 on all three sizes."
+  },
+  "deckPoint": "[0, 1.6, 0], midspan of the bridge deck (vertex mass of the arch is y 1.5–2.5; the railing crown is y 3.6).",
+  "k9NearEdgeCellPx": [
+    {
+      "screen": "390x844",
+      "lens": "main",
+      "nearEdgeCellPx": 48.22
+    },
+    {
+      "screen": "414x896",
+      "lens": "main",
+      "nearEdgeCellPx": 51.19
+    },
+    {
+      "screen": "360x780",
+      "lens": "main",
+      "nearEdgeCellPx": 44.51
+    },
+    {
+      "screen": "375x667",
+      "lens": "short",
+      "nearEdgeCellPx": 62.55
+    },
+    {
+      "screen": "390x520",
+      "lens": "short",
+      "nearEdgeCellPx": 48.77
+    }
+  ],
+  "k9MinPx": 44.51,
   "cameras": {
-    "before": {
+    "95dc672d": {
       "390x844": {
         "pose": {
           "position": [
@@ -16,23 +47,13 @@
             10
           ],
           "fovVerticalDeg": 50,
-          "pitchDeg": -35.72,
-          "distanceToBoardCentreM": 14.52
+          "pitchDeg": -35.72
         },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": -112.25,
-          "minY": 371.86,
-          "maxX": 502.25,
-          "maxY": 703.02
-        },
-        "boardWidthFraction": 1.58,
         "boardWidthPercent": 157.56,
+        "boardCentreYRatio": 0.637,
+        "bridgeDeckCentreYRatio": 0.177,
+        "bridgeCrownYRatio": 0.1,
+        "boardBottomGapToSafeAreaPx": 106.98,
         "marginToEdgePx": {
           "left": -112.25,
           "right": -112.25,
@@ -45,7 +66,7 @@
           "top": 324.86,
           "bottom": 106.98
         },
-        "cellsNotFullyInsideSafeArea": [
+        "cellsOutsideSafeArea": [
           0,
           6,
           7,
@@ -65,64 +86,10 @@
           47,
           48
         ],
-        "centresOff": [
-          21,
-          27,
-          28,
-          34,
-          35,
-          41,
-          42,
-          48
-        ],
-        "midlineY": 422,
-        "bridge": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 148,
-          "bboxPx": {
-            "minX": -104.34,
-            "minY": 51.98,
-            "maxX": 494.34,
-            "maxY": 237.59
-          },
-          "fullyInUpperHalf": false
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 248,
-          "bboxPx": {
-            "minX": -129.73,
-            "minY": 131.58,
-            "maxX": 519.73,
-            "maxY": 232.65
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 32,
-          "bboxPx": {
-            "minX": -279.38,
-            "minY": 138.75,
-            "maxX": -44.34,
-            "maxY": 247.58
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 38,
-          "bboxPx": {
-            "minX": 430.11,
-            "minY": 137.65,
-            "maxX": 641.83,
-            "maxY": 227.88
-          },
-          "fullyInUpperHalf": false
+        "bottomRayLakeZ": {
+          "left": 17.66,
+          "centre": 17.66,
+          "right": 17.66
         }
       },
       "402x874": {
@@ -137,24 +104,14 @@
             0.15,
             10
           ],
-          "fovVerticalDeg": 50.2,
-          "pitchDeg": -35.72,
-          "distanceToBoardCentreM": 14.52
+          "fovVerticalDeg": 50.203,
+          "pitchDeg": -35.72
         },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": -115.7,
-          "minY": 385.31,
-          "maxX": 517.7,
-          "maxY": 726.67
-        },
-        "boardWidthFraction": 1.58,
         "boardWidthPercent": 157.56,
+        "boardCentreYRatio": 0.636,
+        "bridgeDeckCentreYRatio": 0.178,
+        "bridgeCrownYRatio": 0.102,
+        "boardBottomGapToSafeAreaPx": 113.33,
         "marginToEdgePx": {
           "left": -115.7,
           "right": -115.7,
@@ -167,7 +124,7 @@
           "top": 338.31,
           "bottom": 113.33
         },
-        "cellsNotFullyInsideSafeArea": [
+        "cellsOutsideSafeArea": [
           0,
           6,
           7,
@@ -187,64 +144,10 @@
           47,
           48
         ],
-        "centresOff": [
-          21,
-          27,
-          28,
-          34,
-          35,
-          41,
-          42,
-          48
-        ],
-        "midlineY": 437,
-        "bridge": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 148,
-          "bboxPx": {
-            "minX": -107.55,
-            "minY": 55.6,
-            "maxX": 509.55,
-            "maxY": 246.91
-          },
-          "fullyInUpperHalf": false
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 248,
-          "bboxPx": {
-            "minX": -133.73,
-            "minY": 137.65,
-            "maxX": 535.73,
-            "maxY": 241.83
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 32,
-          "bboxPx": {
-            "minX": -287.97,
-            "minY": 145.04,
-            "maxX": -45.7,
-            "maxY": 257.21
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 38,
-          "bboxPx": {
-            "minX": 443.34,
-            "minY": 143.9,
-            "maxX": 661.58,
-            "maxY": 236.91
-          },
-          "fullyInUpperHalf": false
+        "bottomRayLakeZ": {
+          "left": 17.69,
+          "centre": 17.69,
+          "right": 17.69
         }
       },
       "1206x2622": {
@@ -259,24 +162,14 @@
             0.15,
             10
           ],
-          "fovVerticalDeg": 50.2,
-          "pitchDeg": -35.72,
-          "distanceToBoardCentreM": 14.52
+          "fovVerticalDeg": 50.203,
+          "pitchDeg": -35.72
         },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": -347.11,
-          "minY": 1155.94,
-          "maxX": 1553.11,
-          "maxY": 2180
-        },
-        "boardWidthFraction": 1.58,
         "boardWidthPercent": 157.56,
+        "boardCentreYRatio": 0.636,
+        "bridgeDeckCentreYRatio": 0.178,
+        "bridgeCrownYRatio": 0.102,
+        "boardBottomGapToSafeAreaPx": 408,
         "marginToEdgePx": {
           "left": -347.11,
           "right": -347.11,
@@ -289,7 +182,7 @@
           "top": 1108.94,
           "bottom": 408
         },
-        "cellsNotFullyInsideSafeArea": [
+        "cellsOutsideSafeArea": [
           0,
           6,
           7,
@@ -309,352 +202,14 @@
           47,
           48
         ],
-        "centresOff": [
-          21,
-          27,
-          28,
-          34,
-          35,
-          41,
-          42,
-          48
-        ],
-        "midlineY": 1311,
-        "bridge": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 148,
-          "bboxPx": {
-            "minX": -322.66,
-            "minY": 166.8,
-            "maxX": 1528.66,
-            "maxY": 740.74
-          },
-          "fullyInUpperHalf": false
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 248,
-          "bboxPx": {
-            "minX": -401.18,
-            "minY": 412.94,
-            "maxX": 1607.18,
-            "maxY": 725.48
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 32,
-          "bboxPx": {
-            "minX": -863.92,
-            "minY": 435.11,
-            "maxX": -137.11,
-            "maxY": 771.64
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 38,
-          "bboxPx": {
-            "minX": 1330.02,
-            "minY": 431.71,
-            "maxX": 1984.74,
-            "maxY": 710.72
-          },
-          "fullyInUpperHalf": false
+        "bottomRayLakeZ": {
+          "left": 17.69,
+          "centre": 17.69,
+          "right": 17.69
         }
       }
     },
-    "mid": {
-      "390x844": {
-        "pose": {
-          "position": [
-            0,
-            15,
-            24
-          ],
-          "target": [
-            0,
-            2.5,
-            4
-          ],
-          "fovVerticalDeg": 66,
-          "pitchDeg": -32.01,
-          "distanceToBoardCentreM": 19.19
-        },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": 26.53,
-          "minY": 552.77,
-          "maxX": 363.47,
-          "maxY": 788.84
-        },
-        "boardWidthFraction": 0.86,
-        "boardWidthPercent": 86.39,
-        "marginToEdgePx": {
-          "left": 26.53,
-          "right": 26.53,
-          "top": 552.77,
-          "bottom": 55.16
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 26.53,
-          "right": 26.53,
-          "top": 505.77,
-          "bottom": 21.16
-        },
-        "cellsNotFullyInsideSafeArea": [],
-        "centresOff": [],
-        "midlineY": 422,
-        "bridge": {
-          "fullyOnScreen": true,
-          "vertsBelowMidline": 52,
-          "vertsOffScreen": 0,
-          "bboxPx": {
-            "minX": 13.1,
-            "minY": 330.66,
-            "maxX": 376.9,
-            "maxY": 444.64
-          },
-          "fullyInUpperHalf": false
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 48,
-          "vertsOffScreen": 12,
-          "bboxPx": {
-            "minX": -2.37,
-            "minY": 373.01,
-            "maxX": 392.37,
-            "maxY": 442.86
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 4,
-          "vertsOffScreen": 20,
-          "bboxPx": {
-            "minX": -92.27,
-            "minY": 368.88,
-            "maxX": 48.07,
-            "maxY": 457.2
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 3,
-          "vertsOffScreen": 26,
-          "bboxPx": {
-            "minX": 338.54,
-            "minY": 367.92,
-            "maxX": 467.58,
-            "maxY": 441.03
-          },
-          "fullyInUpperHalf": false
-        }
-      },
-      "402x874": {
-        "pose": {
-          "position": [
-            0,
-            15,
-            24
-          ],
-          "target": [
-            0,
-            2.5,
-            4
-          ],
-          "fovVerticalDeg": 66.24,
-          "pitchDeg": -32.01,
-          "distanceToBoardCentreM": 19.19
-        },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": 27.35,
-          "minY": 571.79,
-          "maxX": 374.65,
-          "maxY": 815.13
-        },
-        "boardWidthFraction": 0.86,
-        "boardWidthPercent": 86.39,
-        "marginToEdgePx": {
-          "left": 27.35,
-          "right": 27.35,
-          "top": 571.79,
-          "bottom": 58.87
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 27.35,
-          "right": 27.35,
-          "top": 524.79,
-          "bottom": 24.87
-        },
-        "cellsNotFullyInsideSafeArea": [],
-        "centresOff": [],
-        "midlineY": 437,
-        "bridge": {
-          "fullyOnScreen": true,
-          "vertsBelowMidline": 52,
-          "vertsOffScreen": 0,
-          "bboxPx": {
-            "minX": 13.51,
-            "minY": 342.85,
-            "maxX": 388.49,
-            "maxY": 460.34
-          },
-          "fullyInUpperHalf": false
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 48,
-          "vertsOffScreen": 12,
-          "bboxPx": {
-            "minX": -2.44,
-            "minY": 386.51,
-            "maxX": 404.44,
-            "maxY": 458.51
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 4,
-          "vertsOffScreen": 20,
-          "bboxPx": {
-            "minX": -95.11,
-            "minY": 382.24,
-            "maxX": 49.55,
-            "maxY": 473.28
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 3,
-          "vertsOffScreen": 26,
-          "bboxPx": {
-            "minX": 348.96,
-            "minY": 381.26,
-            "maxX": 481.97,
-            "maxY": 456.62
-          },
-          "fullyInUpperHalf": false
-        }
-      },
-      "1206x2622": {
-        "pose": {
-          "position": [
-            0,
-            15,
-            24
-          ],
-          "target": [
-            0,
-            2.5,
-            4
-          ],
-          "fovVerticalDeg": 66.24,
-          "pitchDeg": -32.01,
-          "distanceToBoardCentreM": 19.19
-        },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": 82.05,
-          "minY": 1715.38,
-          "maxX": 1123.95,
-          "maxY": 2445.39
-        },
-        "boardWidthFraction": 0.86,
-        "boardWidthPercent": 86.39,
-        "marginToEdgePx": {
-          "left": 82.05,
-          "right": 82.05,
-          "top": 1715.38,
-          "bottom": 176.61
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 82.05,
-          "right": 82.05,
-          "top": 1668.38,
-          "bottom": 142.61
-        },
-        "cellsNotFullyInsideSafeArea": [],
-        "centresOff": [],
-        "midlineY": 1311,
-        "bridge": {
-          "fullyOnScreen": true,
-          "vertsBelowMidline": 52,
-          "vertsOffScreen": 0,
-          "bboxPx": {
-            "minX": 40.52,
-            "minY": 1028.54,
-            "maxX": 1165.48,
-            "maxY": 1381.01
-          },
-          "fullyInUpperHalf": false
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 48,
-          "vertsOffScreen": 12,
-          "bboxPx": {
-            "minX": -7.33,
-            "minY": 1159.52,
-            "maxX": 1213.33,
-            "maxY": 1375.52
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 4,
-          "vertsOffScreen": 20,
-          "bboxPx": {
-            "minX": -285.34,
-            "minY": 1146.73,
-            "maxX": 148.65,
-            "maxY": 1419.84
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 3,
-          "vertsOffScreen": 26,
-          "bboxPx": {
-            "minX": 1046.87,
-            "minY": 1143.78,
-            "maxX": 1445.91,
-            "maxY": 1369.85
-          },
-          "fullyInUpperHalf": false
-        }
-      }
-    },
-    "after": {
+    "c1cebdb5": {
       "390x844": {
         "pose": {
           "position": [
@@ -668,23 +223,13 @@
             4
           ],
           "fovVerticalDeg": 55,
-          "pitchDeg": -31.99,
-          "distanceToBoardCentreM": 23.87
+          "pitchDeg": -31.99
         },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": 40.31,
-          "minY": 496.47,
-          "maxX": 349.69,
-          "maxY": 684.49
-        },
-        "boardWidthFraction": 0.79,
         "boardWidthPercent": 79.33,
+        "boardCentreYRatio": 0.7,
+        "bridgeDeckCentreYRatio": 0.406,
+        "bridgeCrownYRatio": 0.369,
+        "boardBottomGapToSafeAreaPx": 125.51,
         "marginToEdgePx": {
           "left": 40.31,
           "right": 40.31,
@@ -697,56 +242,11 @@
           "top": 449.47,
           "bottom": 125.51
         },
-        "cellsNotFullyInsideSafeArea": [],
-        "centresOff": [],
-        "midlineY": 422,
-        "bridge": {
-          "fullyOnScreen": true,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 0,
-          "bboxPx": {
-            "minX": 6.14,
-            "minY": 281.11,
-            "maxX": 383.86,
-            "maxY": 399.35
-          },
-          "fullyInUpperHalf": true
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 14,
-          "bboxPx": {
-            "minX": -10.21,
-            "minY": 326.7,
-            "maxX": 400.21,
-            "maxY": 397.04
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 25,
-          "bboxPx": {
-            "minX": -101.65,
-            "minY": 324.49,
-            "maxX": 40.57,
-            "maxY": 409.82
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 31,
-          "bboxPx": {
-            "minX": 344.78,
-            "minY": 323.54,
-            "maxX": 479.14,
-            "maxY": 394.74
-          },
-          "fullyInUpperHalf": false
+        "cellsOutsideSafeArea": [],
+        "bottomRayLakeZ": {
+          "left": 19.9,
+          "centre": 19.9,
+          "right": 19.9
         }
       },
       "402x874": {
@@ -761,24 +261,14 @@
             0.32,
             4
           ],
-          "fovVerticalDeg": 55.22,
-          "pitchDeg": -31.99,
-          "distanceToBoardCentreM": 23.87
+          "fovVerticalDeg": 55.217,
+          "pitchDeg": -31.99
         },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": 41.55,
-          "minY": 513.76,
-          "maxX": 360.45,
-          "maxY": 707.56
-        },
-        "boardWidthFraction": 0.79,
         "boardWidthPercent": 79.33,
+        "boardCentreYRatio": 0.699,
+        "bridgeDeckCentreYRatio": 0.407,
+        "bridgeCrownYRatio": 0.37,
+        "boardBottomGapToSafeAreaPx": 132.44,
         "marginToEdgePx": {
           "left": 41.55,
           "right": 41.55,
@@ -791,56 +281,11 @@
           "top": 466.76,
           "bottom": 132.44
         },
-        "cellsNotFullyInsideSafeArea": [],
-        "centresOff": [],
-        "midlineY": 437,
-        "bridge": {
-          "fullyOnScreen": true,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 0,
-          "bboxPx": {
-            "minX": 6.33,
-            "minY": 291.78,
-            "maxX": 395.67,
-            "maxY": 413.65
-          },
-          "fullyInUpperHalf": true
-        },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 14,
-          "bboxPx": {
-            "minX": -10.53,
-            "minY": 338.77,
-            "maxX": 412.53,
-            "maxY": 411.27
-          },
-          "fullyInUpperHalf": false
-        },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 25,
-          "bboxPx": {
-            "minX": -104.78,
-            "minY": 336.49,
-            "maxX": 41.82,
-            "maxY": 424.45
-          },
-          "fullyInUpperHalf": false
-        },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 31,
-          "bboxPx": {
-            "minX": 355.39,
-            "minY": 335.51,
-            "maxX": 493.88,
-            "maxY": 408.9
-          },
-          "fullyInUpperHalf": false
+        "cellsOutsideSafeArea": [],
+        "bottomRayLakeZ": {
+          "left": 19.95,
+          "centre": 19.95,
+          "right": 19.95
         }
       },
       "1206x2622": {
@@ -855,24 +300,14 @@
             0.32,
             4
           ],
-          "fovVerticalDeg": 55.22,
-          "pitchDeg": -31.99,
-          "distanceToBoardCentreM": 23.87
+          "fovVerticalDeg": 55.217,
+          "pitchDeg": -31.99
         },
-        "safeInsets": {
-          "top": 47,
-          "bottom": 34,
-          "left": 0,
-          "right": 0
-        },
-        "boardBBoxPx": {
-          "minX": 124.64,
-          "minY": 1541.27,
-          "maxX": 1081.36,
-          "maxY": 2122.69
-        },
-        "boardWidthFraction": 0.79,
         "boardWidthPercent": 79.33,
+        "boardCentreYRatio": 0.699,
+        "bridgeDeckCentreYRatio": 0.407,
+        "bridgeCrownYRatio": 0.37,
+        "boardBottomGapToSafeAreaPx": 465.31,
         "marginToEdgePx": {
           "left": 124.64,
           "right": 124.64,
@@ -885,56 +320,130 @@
           "top": 1494.27,
           "bottom": 465.31
         },
-        "cellsNotFullyInsideSafeArea": [],
-        "centresOff": [],
-        "midlineY": 1311,
-        "bridge": {
-          "fullyOnScreen": true,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 0,
-          "bboxPx": {
-            "minX": 18.98,
-            "minY": 875.34,
-            "maxX": 1187.02,
-            "maxY": 1240.94
-          },
-          "fullyInUpperHalf": true
+        "cellsOutsideSafeArea": [],
+        "bottomRayLakeZ": {
+          "left": 19.96,
+          "centre": 19.96,
+          "right": 19.96
+        }
+      }
+    },
+    "after": {
+      "390x844": {
+        "pose": {
+          "position": [
+            0,
+            17.4,
+            28.25
+          ],
+          "target": [
+            0,
+            1.502,
+            2.809
+          ],
+          "fovVerticalDeg": 52,
+          "pitchDeg": -32
         },
-        "abutments": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 14,
-          "bboxPx": {
-            "minX": -31.58,
-            "minY": 1016.31,
-            "maxX": 1237.58,
-            "maxY": 1233.81
-          },
-          "fullyInUpperHalf": false
+        "boardWidthPercent": 86.6,
+        "boardCentreYRatio": 0.792,
+        "bridgeDeckCentreYRatio": 0.45,
+        "bridgeCrownYRatio": 0.414,
+        "boardBottomGapToSafeAreaPx": 29.75,
+        "marginToEdgePx": {
+          "left": 26.13,
+          "right": 26.13,
+          "top": 556.69,
+          "bottom": 63.75
         },
-        "leftShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 25,
-          "bboxPx": {
-            "minX": -314.33,
-            "minY": 1009.46,
-            "maxX": 125.45,
-            "maxY": 1273.34
-          },
-          "fullyInUpperHalf": false
+        "marginInsideSafeAreaPx": {
+          "left": 26.13,
+          "right": 26.13,
+          "top": 509.69,
+          "bottom": 29.75
         },
-        "rightShore": {
-          "fullyOnScreen": false,
-          "vertsBelowMidline": 0,
-          "vertsOffScreen": 31,
-          "bboxPx": {
-            "minX": 1066.18,
-            "minY": 1006.54,
-            "maxX": 1481.64,
-            "maxY": 1226.71
-          },
-          "fullyInUpperHalf": false
+        "cellsOutsideSafeArea": [],
+        "bottomRayLakeZ": {
+          "left": 17.36,
+          "centre": 17.36,
+          "right": 17.36
+        }
+      },
+      "402x874": {
+        "pose": {
+          "position": [
+            0,
+            17.4,
+            28.25
+          ],
+          "target": [
+            0,
+            1.502,
+            2.809
+          ],
+          "fovVerticalDeg": 52.209,
+          "pitchDeg": -32
+        },
+        "boardWidthPercent": 86.6,
+        "boardCentreYRatio": 0.791,
+        "bridgeDeckCentreYRatio": 0.45,
+        "bridgeCrownYRatio": 0.414,
+        "boardBottomGapToSafeAreaPx": 33.72,
+        "marginToEdgePx": {
+          "left": 26.93,
+          "right": 26.93,
+          "top": 575.83,
+          "bottom": 67.72
+        },
+        "marginInsideSafeAreaPx": {
+          "left": 26.93,
+          "right": 26.93,
+          "top": 528.83,
+          "bottom": 33.72
+        },
+        "cellsOutsideSafeArea": [],
+        "bottomRayLakeZ": {
+          "left": 17.4,
+          "centre": 17.4,
+          "right": 17.4
+        }
+      },
+      "1206x2622": {
+        "pose": {
+          "position": [
+            0,
+            17.4,
+            28.25
+          ],
+          "target": [
+            0,
+            1.502,
+            2.809
+          ],
+          "fovVerticalDeg": 52.209,
+          "pitchDeg": -32
+        },
+        "boardWidthPercent": 86.6,
+        "boardCentreYRatio": 0.791,
+        "bridgeDeckCentreYRatio": 0.45,
+        "bridgeCrownYRatio": 0.414,
+        "boardBottomGapToSafeAreaPx": 169.17,
+        "marginToEdgePx": {
+          "left": 80.8,
+          "right": 80.8,
+          "top": 1727.5,
+          "bottom": 203.17
+        },
+        "marginInsideSafeAreaPx": {
+          "left": 80.8,
+          "right": 80.8,
+          "top": 1680.5,
+          "bottom": 169.17
+        },
+        "cellsOutsideSafeArea": [],
+        "bottomRayLakeZ": {
+          "left": 17.41,
+          "centre": 17.41,
+          "right": 17.41
         }
       }
     }
