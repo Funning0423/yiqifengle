@@ -27,16 +27,16 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
   assert.deepEqual(J.REGION_DEFS.find(d=>d.id==='spring').unlock.requires,['rail','cloud']);
   assert.equal(row(6,{},'sky').state,'locked');for(const id of ['lake','coast','snow','rail','cloud','spring'])assert.equal(row(6,{},id).state,'locked',id+' (P3 r4: data + locked → locked, never 远方)');
   assert.equal(row(8,{},'coast').state,'locked','after mainline 8: coast known-locked');assert.equal(row(12,{},'coast').state,'open');assert(row(12,{},'coast').isNew);assert(!row(12,{},'coast',ALL,['coast']).isNew);
-  assert.equal(row(12,{},'lake').state,'open');assert.equal(row(12,{},'snow').state,'locked');assert.equal(row(12,{},'rail').state,'locked','coast open → rail known-locked');assert.equal(row(12,{},'cloud').state,'locked','snow not open → cloud still locked (has data)');
-  assert.equal(row(12,{coast:8},'rail').state,'locked');assert.equal(row(12,{coast:9},'rail').state,'open','rail after coast fully cleared');
+  assert.equal(row(12,{},'lake').state,'open');assert.equal(row(12,{},'snow').state,'locked');assert.equal(row(12,{},'rail').state,'locked','snow not cleared → rail stays locked');assert.equal(row(12,{},'cloud').state,'locked','snow not open → cloud still locked (has data)');
+  assert.equal(row(12,{coast:9},'rail').state,'locked','coast alone does not open the railway');assert.equal(row(12,{lake:6,snow:5},'rail').state,'locked');assert.equal(row(12,{lake:6,snow:6},'rail').state,'open','rail after snow 6 clears');
   assert.equal(row(12,{lake:6},'cloud').state,'locked');assert.equal(row(12,{lake:6,snow:6},'cloud').state,'open','cloud after snow fully cleared');
   assert.equal(row(12,{coast:9},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:7},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:8},'spring').state,'open','spring after rail and cloud');
   const S=[...SHIPPED,...COAST];for(const id of ['snow','rail','cloud','spring']){const r=row(12,{lake:6,coast:9},id,S);assert.equal(r.state,'far','no data → 远方 '+id);assert(!r.tappable);}
   assert.equal(row(12,{},'coast',SHIPPED).state,'far','coast without data: 远方');
-  assert.equal(B.rowStatusText(row(12,{},'snow')),'湖畔通关后');assert.equal(B.rowStatusText(row(12,{},'rail')),'海岸通关后');assert.equal(B.rowName(row(6,{},'coast',SHIPPED)),'远方');assert.equal(B.rowStatusText(row(6,{},'coast',SHIPPED)),'· · ·');assert.equal(B.rowName(row(6,{},'coast')),'灯塔海岸');assert.equal(B.rowStatusText(row(6,{},'coast')),'12 关后开启');/* r5 final: main:N grid cell → UI设计部 「N 关后开启」, no 主线 */
+  assert.equal(B.rowStatusText(row(12,{},'snow')),'湖畔通关后');assert.equal(B.rowStatusText(row(12,{},'rail')),'雪山通关后');assert.equal(B.rowName(row(6,{},'coast',SHIPPED)),'远方');assert.equal(B.rowStatusText(row(6,{},'coast',SHIPPED)),'· · ·');assert.equal(B.rowName(row(6,{},'coast')),'灯塔海岸');assert.equal(B.rowStatusText(row(6,{},'coast')),'12 关后开启');/* r5 final: main:N grid cell → UI设计部 「N 关后开启」, no 主线 */
   assert.equal(B.rowStatusText(row(12,{coast:9},'coast')),'9/9 ✓');assert.equal(B.rowStatusText(row(12,{coast:3},'coast')),'3/9');assert.equal(B.rowStatusText(row(12,{},'coast')),'可前往');
   assert.equal(J.focusRegion({records:rec(12),regionDone:{lake:2},stages:S}),'lake');assert.equal(J.focusRegion({records:rec(12),regionDone:{lake:2},stages:S,lastPlayed:'coast'}),'coast');
-  ok('unlock = requires + label: coast/lake cell 12 关后开启 (r5 final template), snow 湖畔通关后, rail after coast, cloud after snow, spring after rail+cloud; locked whenever data exists (P3 r4), 远方 only without data; no data → 远方 untappable; focus rule');
+  ok('unlock = requires + label: coast/lake cell 12 关后开启 (r5 final template), snow 湖畔通关后, rail after snow 6 clears, cloud after snow, spring after rail+cloud; locked whenever data exists (P3 r4), 远方 only without data; no data → 远方 untappable; focus rule');
 }
 { // names (§13.4) + chapter buttons
   const n=id=>J.REGION_DEFS.find(d=>d.id===id);assert.equal(n('sky').name,'天空之城');assert.equal(n('sky').subtitle,'天空回声');assert.equal(n('snow').short,'雪山山口');assert.equal(n('coast').short,'灯塔海岸');

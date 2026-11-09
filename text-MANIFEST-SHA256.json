@@ -1320,6 +1320,21 @@
     "sha256": "af3a064588893b86b7193a265342314b0616191fae07043aa0cda9e32b3f2ba3"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_rail.meta",
+    "bytes": 406,
+    "sha256": "96a4047d82bef49891b1a39e82b462de22f6db33838036f10383d7248f0b0e0f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_rail/models.meta",
+    "bytes": 169,
+    "sha256": "d711d2c1028244d2428e6627c691d3c3a9ae019255fab5b50ba5785bb35f6b58"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_rail/models/env_rail.glb.meta",
+    "bytes": 166,
+    "sha256": "8d2e73812613024736e8ec52d4534e921da677f22dc1faf11b50cd57aed96eed"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity.meta",
     "bytes": 409,
     "sha256": "9f7151b9fbece3a4f96c081cc168f8b5952333c291987159684628b481031501"
@@ -2111,8 +2126,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 119459,
-    "sha256": "f7a59026aea8ab43b1df801fc095e651ea22c103bf3dca39351fcad203899d2e"
+    "bytes": 119535,
+    "sha256": "6f7c9a2fd0fae519ba708bf18738682d70b549ac1994a43afc5bfab4d38a4f71"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -3180,6 +3195,26 @@
     "sha256": "0d39994133dfe4139775c300b3e8cec496e3b2ccfbbca8c2f236ee1fab69b032"
   },
   {
+    "path": "creator-build-project/assets/scripts/region/RailBoardBackground.ts",
+    "bytes": 4655,
+    "sha256": "3b588eaf3f925a9a2fce3e74fdbd3c5a0e27a2fd984232aa24db47cfa3f81eb3"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RailBoardBackground.ts.meta",
+    "bytes": 171,
+    "sha256": "f94933ef7d57ebe75dfa7bfdcb2d6241ac8de0b28e26746edc2ef7a029bb0082"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RailSceneData.ts",
+    "bytes": 3227,
+    "sha256": "81b6613b9e8a443dd51a34c9f8f27707f7839a84c75a6041b58d1ff8660e0036"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/region/RailSceneData.ts.meta",
+    "bytes": 171,
+    "sha256": "c901b32cd6e323e8615a35721bbfa02db4b751a6e949a840acee5dee75b241e1"
+  },
+  {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts",
     "bytes": 7895,
     "sha256": "b7b3be8d17f64cc5cfd9821d981ec130eeeb1d1723644468424cc7ec0452f3a8"
@@ -3251,8 +3286,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 6369,
-    "sha256": "7302869503d836292671fee17c90d30b9111cb81e203a9c75784e57679ae9bf2"
+    "bytes": 6518,
+    "sha256": "1b05cd6e247d2d4ad659e7d30dcc1713ea6ebe476f86eb0c7b46519e536ad773"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -3991,8 +4026,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js",
-    "bytes": 1072,
-    "sha256": "5cd174668cb6383d1e027b916d8c8fdbb582e8853f4feb53bcecc61d19e970e3"
+    "bytes": 1127,
+    "sha256": "06e67b86be05ac5e44e4151c1cad67d6e35503e52c5541c9ef6406daae4e6e11"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta",
@@ -4011,8 +4046,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js",
-    "bytes": 10268,
-    "sha256": "120af6a5ab7587d72dba5dbc6e47163cb6e49598ff55be866a6b0febb6cb4408"
+    "bytes": 10725,
+    "sha256": "84fef0474648e1762825540bc4cf344b48e4aaf20410d824a531b22dc423e327"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta",
@@ -4020,9 +4055,19 @@
     "sha256": "a607238c34f22bb088b56de2b0302c295be03a935ecaea241b1f918bcb0d2e3d"
   },
   {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/rail-levels-data.js",
+    "bytes": 4159,
+    "sha256": "e9fe90e2be720e80f91beaa1589f4f789b8ffff60b41b4724a3c2631aaecafe6"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/regional-r05/runtime/rail-levels-data.js.meta",
+    "bytes": 171,
+    "sha256": "56ae06243f6c7b6dfb2206e80c9c4046d0a0e01651b2f108f78220ac313cd3ff"
+  },
+  {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
-    "bytes": 12216,
-    "sha256": "96af55b891218981710f3ef31987c3ce254593e41cfad363cc3eab1c4fb3ee98"
+    "bytes": 12279,
+    "sha256": "4838ad53c0e8d4cd42b767fa6a6ee315a77ff93052983e12a670143b535b74c8"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta",
@@ -4031,8 +4076,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
-    "bytes": 4500,
-    "sha256": "f7a8b4e459712a165b8d26865ab0e25c65e75e24ea36c7b1aed5d85b0de4fd01"
+    "bytes": 4894,
+    "sha256": "14d89bba47103962190cd306737715192a27eda617f8bf5c0908b5c44408c81c"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js.meta",
@@ -4406,8 +4451,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts",
-    "bytes": 9148,
-    "sha256": "de73c9aa83229c13308033ea4bf009abb6cbc63283c4f4716117e312197192b8"
+    "bytes": 9183,
+    "sha256": "683de0122d752d6fd9f5d6b23cfa7904aaf576be142adfd04c1edb4612cc0a1f"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts.meta",
@@ -4936,8 +4981,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts",
-    "bytes": 1248,
-    "sha256": "efa2accd3337c4185a8ca2f31663234aeac300926f850763da423bc56d38e1ae"
+    "bytes": 1506,
+    "sha256": "653d846f5fa263d303f8f635cd2f734ffba0d745523d3366ee918138f5e64c3e"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/LevelRegion.ts.meta",
@@ -5126,8 +5171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 59810,
-    "sha256": "f88e94af551c3004861397cbe1bd951c7b4c58861800bc4dcb607a0e36e1b5ec"
+    "bytes": 60100,
+    "sha256": "e006f70e0fee42e3e1ea0498da2e8c477a73f986191c1e3f5a0a56223447a1cc"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -5256,8 +5301,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 35408,
-    "sha256": "10d812d182a81d5ffb302c8158c24ee984b798860a5c913ac4925c1f733f60c3"
+    "bytes": 35508,
+    "sha256": "de50956567f4f9896e0d23b0dc7fd1f4c36d38a743fd73e511a77756e7a543d0"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

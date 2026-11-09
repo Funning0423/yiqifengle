@@ -67,6 +67,42 @@
       },
       "why": "region/snowpass-wireup: region_snowpass board lease, shelf camera only"
     },
+    "creator-build-project/assets/bundles/region_rail.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/rail-wireup: autumn railway subpackage (wx_subpackage, same shape as region_snowpass)"
+    },
+    "creator-build-project/assets/bundles/region_rail/models.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/rail-wireup: env_rail.glb folder"
+    },
+    "creator-build-project/assets/bundles/region_rail/models/env_rail.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "region/rail-wireup: procedural autumn railway blockout; Creator fills sub-assets on import"
+    },
+    "creator-build-project/assets/scripts/regional-r05/runtime/rail-levels-data.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/rail-wireup: rail stage data (r07-rail-01..06) joined beside snowpass-levels-data.js"
+    },
+    "creator-build-project/assets/scripts/region/RailSceneData.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/rail-wireup: platform board seat (pure numbers, no engine)"
+    },
+    "creator-build-project/assets/scripts/region/RailBoardBackground.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/rail-wireup: region_rail board lease, platform camera only"
+    },
     "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {
       "allowAdd": {
         "importer": "typescript"

@@ -17,6 +17,11 @@ export function requiresSnowpassScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r06-snow-\d+$/.test(id);
 }
 
+/** 秋日铁路 (r07-rail-*) renders the live region_rail scene. The board sits on the station platform. */
+export function requiresRailScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r07-rail-\d+$/.test(id);
+}
+
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }
