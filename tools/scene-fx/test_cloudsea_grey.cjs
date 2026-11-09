@@ -4,7 +4,7 @@ const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '../..');
 const DIR = path.join(ROOT, 'creator-build-project/assets/bundles/region_cloudsea');
 const F = path.join(DIR, 'models/env_cloudsea.glb');
-const { cloudseaBoardBounds, CLOUDSEA_PLATFORM } = require('../board-ui/harness.cjs').createHarness().load('region/CloudseaSceneData');
+const { cloudseaBoardBounds, CLOUDSEA_PLATFORM, cloudseaBoardLook } = require('../board-ui/harness.cjs').createHarness().load('region/CloudseaSceneData');
 let fail = 0; const check = (n, ok, d) => { if (!ok) fail++; console.log((ok ? 'PASS ' : 'FAIL ') + n + (d === undefined ? '' : ' ' + JSON.stringify(d))); };
 function walk(dir, out = []) { for (const name of fs.readdirSync(dir)) { const p = path.join(dir, name); const st = fs.statSync(p); if (st.isDirectory()) walk(p, out); else out.push(st.size); } return out; }
 const bytes = walk(DIR).reduce((a, b) => a + b, 0);
@@ -61,5 +61,23 @@ const plat = j.nodes.find(n => n.name === 'CS_platform');
 const ppos = floats(j.meshes[plat.mesh].primitives[0].attributes.POSITION);
 const tops = ppos.filter(p => Math.abs(p[1] - y) < eps);
 check('platform-top-covers-shelf', tops.length >= 4 && Math.min(...tops.map(p => p[0])) === CLOUDSEA_PLATFORM.minX && Math.max(...tops.map(p => p[0])) === CLOUDSEA_PLATFORM.maxX && Math.min(...tops.map(p => p[2])) === CLOUDSEA_PLATFORM.minZ && Math.max(...tops.map(p => p[2])) === CLOUDSEA_PLATFORM.maxZ, { verts: tops.length });
+function norm(a) { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+function sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+const look = cloudseaBoardLook(9 / 19.5);
+const eye = look.position, target = look.target, f = norm(sub(target, eye)), right = norm(cross(f, [0, 1, 0])), up = cross(right, f);
+const fy = Math.tan(look.fovVerticalDeg * Math.PI / 360), fx = fy * (9 / 19.5);
+const outside = [];
+for (const node of j.nodes) {
+  if (!['CS_platform', 'CS_pads', 'CS_flags', 'CS_walk', 'CS_birds', 'CS_sun'].includes(node.name)) continue;
+  const pos = floats(j.meshes[node.mesh].primitives[0].attributes.POSITION);
+  for (const p of pos) {
+    const d = sub(p, eye), zc = dot(d, f);
+    const nx = zc > 0.05 ? dot(d, right) / zc / fx : 99, ny = zc > 0.05 ? dot(d, up) / zc / fy : 99;
+    if (Math.abs(nx) > 0.98 || Math.abs(ny) > 0.98) outside.push({ node: node.name, x: +p[0].toFixed(2), y: +p[1].toFixed(2), z: +p[2].toFixed(2), nx: +nx.toFixed(3), ny: +ny.toFixed(3) });
+  }
+}
+check('main-props-inside-9x19.5', outside.length === 0, outside.slice(0, 8));
 console.log(fail ? 'FAIL cloudsea grey ' + fail : 'PASS cloudsea grey (' + tris + ' tris, ' + bytes + ' B, terrace y ' + y + ')');
 process.exit(fail ? 1 : 0);

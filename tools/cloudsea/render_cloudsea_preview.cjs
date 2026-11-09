@@ -95,7 +95,7 @@ const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a
 const norm = a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
 const { tris, pngBuf } = loadGlb(GLB), sample = palette(pngBuf);
 fs.mkdirSync(OUT, { recursive: true });
-const shots = [['cloudsea-board-720x1280', 720, 1280], ['cloudsea-board-390x844', 390, 844]];
+const shots = [['cloudsea-board-720x1280', 720, 1280], ['cloudsea-board-390x844', 390, 844], ['cloudsea-board-9x19.5', 720, 1560]];
 for (const [name, w, h] of shots) {
   const look = D.cloudseaBoardLook(w / h);
   const file = path.join(OUT, name + '.png');

@@ -4041,8 +4041,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/cloud-levels-data.js",
-    "bytes": 4528,
-    "sha256": "a33703a6519ff3eb33112ab3fabb7a867856fa38a9e7089ebcc4433a1ab00194"
+    "bytes": 5416,
+    "sha256": "1e9afc4b060f77bfe857ddae196a22b83eb24b45f55f4fbb704006e943852d64"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/cloud-levels-data.js.meta",
@@ -4101,8 +4101,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rail-levels-data.js",
-    "bytes": 4159,
-    "sha256": "e9fe90e2be720e80f91beaa1589f4f789b8ffff60b41b4724a3c2631aaecafe6"
+    "bytes": 4155,
+    "sha256": "637d753aeeb5956bd4dcda43296ab38568e378528d2853325db106bcb5a2aa59"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rail-levels-data.js.meta",
@@ -4131,8 +4131,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/snowpass-levels-data.js",
-    "bytes": 4919,
-    "sha256": "1b6bd80e7f1ddc94ecaefc27a2b491fcf7b6047104875f32b097eb07376e5f17"
+    "bytes": 4194,
+    "sha256": "7df3d277ba2ca967df3e18577f5cd40f7ad7e2b4b793474e2ed8ebe3e70e1ce7"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/snowpass-levels-data.js.meta",
@@ -4497,7 +4497,7 @@
   {
     "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts",
     "bytes": 9222,
-    "sha256": "2342c5c4332428612281c675d8faa4e3d743d773dae48dce94017660847cf0ef"
+    "sha256": "39102f24bfb7a848f878aef8d5019956e8b365c85ae8c945b4bc5bc91425bbae"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/JourneyCore.ts.meta",
@@ -5346,8 +5346,8 @@
   },
   {
     "path": "tools/journey-integration/run-suite.cjs",
-    "bytes": 35628,
-    "sha256": "c7caadd4aabd1da09ec91d7442384bcb38ce0d7f3f3ed83fffbe88e3b94e704c"
+    "bytes": 35691,
+    "sha256": "9456d50d44eeacafc92db9339161459209cf0c78f5446921b3e5ed7130a3a035"
   },
   {
     "path": "tools/lakeside/test_home_fade_tail.cjs",

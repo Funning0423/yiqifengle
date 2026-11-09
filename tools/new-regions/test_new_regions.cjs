@@ -10,16 +10,16 @@ const rec=n=>Array.from({length:12},(_,i)=>({bestStars:i<n?1:0}));
 const SHIPPED=[...Array.from({length:12},(_,i)=>({id:'r05-x-'+i,region:['tide','meadow','sky'][i%3]})),...Array.from({length:6},(_,i)=>({id:'r05-lake-0'+(i+1),region:'lake'}))];
 const COAST=Array.from({length:9},(_,i)=>({id:'r06-coast-0'+(i+1),region:'coast'})),SNOW=Array.from({length:6},(_,i)=>({id:'r06-snow-0'+(i+1),region:'snow'}));
 const mk=(r,n,pre='r06-')=>Array.from({length:n},(_,i)=>({id:pre+r+'-0'+(i+1),region:r}));
-const RAIL=mk('rail',6),CLOUD=mk('cloud',6),SPRING=mk('spring',8),ALL=[...SHIPPED,...COAST,...SNOW,...RAIL,...CLOUD,...SPRING];
+const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPED,...COAST,...SNOW,...RAIL,...CLOUD,...SPRING];
 { // denominator (§13.3)
   assert.equal(J.journeyProgress({records:rec(0),stages:SHIPPED}).total,18);
   const p27=J.journeyProgress({records:rec(12),regionDone:{lake:2,coast:3},stages:[...SHIPPED,...COAST]});
   assert.equal(p27.total,27);assert.equal(p27.segments.length,5);assert.equal(p27.done,12+2+3);
   const p33=J.journeyProgress({records:rec(12),regionDone:{lake:6},stages:[...SHIPPED,...COAST,...SNOW]});assert.equal(p33.total,33);assert.equal(p33.segments.length,6);
-  const p55=J.journeyProgress({records:rec(12),stages:ALL});assert.equal(p55.total,53);assert.equal(p55.segments.length,9);assert(Math.abs(p55.segments[8].x1-1)<1e-9);
+  const p55=J.journeyProgress({records:rec(12),stages:ALL});assert.equal(p55.total,55);assert.equal(p55.segments.length,9);assert(Math.abs(p55.segments[8].x1-1)<1e-9);
   const narrow=w=>Math.min(...p55.segments.map(g=>(g.x1-g.x0)*(w-64)-2));assert(narrow(330)>=12&&narrow(272)>=12,'narrowest segment ≥ 12 pt (§13.3: 19.3 / 15.7)');
   assert.equal(J.journeyProgress({records:rec(0),regionDone:{coast:5},stages:[...SHIPPED,...COAST]}).done,0,'locked coast never counts');
-  ok('9-segment bar: denominator = Σ stages of regions with data: 18 (this build), 27 with coast, 33 with snow, 53 with all 9; narrowest segment ≥12 pt');
+  ok('9-segment bar: denominator = Σ stages of regions with data: 18 (this build), 27 with coast, 33 with snow, 55 with all 9; narrowest segment ≥12 pt');
 }
 { // unlock interface (§13.2)
   const row=(n,d,id,st=ALL,seen)=>J.regionRow(id,{records:rec(n),regionDone:d,stages:st,seen});
@@ -30,7 +30,7 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',6),SPRING=mk('spring',8),ALL=[...SHIPPE
   assert.equal(row(12,{},'lake').state,'open');assert.equal(row(12,{},'snow').state,'locked');assert.equal(row(12,{},'rail').state,'locked','snow not cleared → rail stays locked');assert.equal(row(12,{},'cloud').state,'locked','rail not cleared → cloud stays locked (has data)');
   assert.equal(row(12,{coast:9},'rail').state,'locked','coast alone does not open the railway');assert.equal(row(12,{lake:6,snow:5},'rail').state,'locked');assert.equal(row(12,{lake:6,snow:6},'rail').state,'open','rail after snow 6 clears');
   assert.equal(row(12,{lake:6},'cloud').state,'locked');assert.equal(row(12,{lake:6,snow:6},'cloud').state,'locked','snow alone does not open the cloud sea');assert.equal(row(12,{lake:6,snow:6,rail:5},'cloud').state,'locked');assert.equal(row(12,{lake:6,snow:6,rail:6},'cloud').state,'open','cloud after rail 6 clears');
-  assert.equal(row(12,{coast:9},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:5},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:6},'spring').state,'open','spring after rail and cloud');
+  assert.equal(row(12,{coast:9},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:7},'spring').state,'locked');assert.equal(row(12,{coast:9,rail:6,lake:6,snow:6,cloud:8},'spring').state,'open','spring after rail and cloud');
   const S=[...SHIPPED,...COAST];for(const id of ['snow','rail','cloud','spring']){const r=row(12,{lake:6,coast:9},id,S);assert.equal(r.state,'far','no data → 远方 '+id);assert(!r.tappable);}
   assert.equal(row(12,{},'coast',SHIPPED).state,'far','coast without data: 远方');
   assert.equal(B.rowStatusText(row(12,{},'snow')),'湖畔通关后');assert.equal(B.rowStatusText(row(12,{},'rail')),'雪山通关后');assert.equal(B.rowStatusText(row(12,{},'cloud')),'铁路通关后');assert.equal(B.rowName(row(6,{},'coast',SHIPPED)),'远方');assert.equal(B.rowStatusText(row(6,{},'coast',SHIPPED)),'· · ·');assert.equal(B.rowName(row(6,{},'coast')),'灯塔海岸');assert.equal(B.rowStatusText(row(6,{},'coast')),'12 关后开启');/* r5 final: main:N grid cell → UI设计部 「N 关后开启」, no 主线 */

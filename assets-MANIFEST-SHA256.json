@@ -516,8 +516,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_cloudsea/models/env_cloudsea.glb",
-    "bytes": 41952,
-    "sha256": "ce514afe8ede94c4758cf105fed0a5230627a54575afb927f5b267b358a7eb9e"
+    "bytes": 41988,
+    "sha256": "45bba513fb053cea4f7084380c75f32951389ba4b5fc7b999e7ddfc0863468e8"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3",

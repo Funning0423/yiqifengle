@@ -35,12 +35,12 @@ function clearPack(prov, stages, witnesses) {
   }
 }
 
-t('six cloud stages are playable data, off the shipped catalog, ids r08-cloud-01..06', () => {
-  assert.equal(Cloud.length, 6);
-  assert.deepEqual(Cloud.map(s => s.id), ['r08-cloud-01', 'r08-cloud-02', 'r08-cloud-03', 'r08-cloud-04', 'r08-cloud-05', 'r08-cloud-06']);
-  assert.deepEqual(Cloud.map(s => s.ordinal), [1, 2, 3, 4, 5, 6]);
+t('eight cloud stages are playable data, off the shipped catalog, ids r08-cloud-01..08', () => {
+  assert.equal(Cloud.length, 8);
+  assert.deepEqual(Cloud.map(s => s.id), ['r08-cloud-01', 'r08-cloud-02', 'r08-cloud-03', 'r08-cloud-04', 'r08-cloud-05', 'r08-cloud-06', 'r08-cloud-07', 'r08-cloud-08']);
+  assert.deepEqual(Cloud.map(s => s.ordinal), [1, 2, 3, 4, 5, 6, 7, 8]);
   assert.equal(API.catalog.some(s => s.region === 'cloud'), false);
-  assert.equal(API.allStages.filter(s => s.region === 'cloud').length, 6);
+  assert.equal(API.allStages.filter(s => s.region === 'cloud').length, 8);
   for (const s of Cloud) {
     assert.equal(s.region, 'cloud'); assert(s.rules.chimes && s.rules.chimes.length); assert.equal(s.tool, null);
     assert(!s.rules.phaseCycle && !s.rules.windCycle && !s.rules.beaconRoute);
@@ -81,8 +81,8 @@ t('journey: cloud opens after the railway is fully saved, and stays 远方 until
   const snowOnly = J.regionRow('cloud', { records: rec(12), regionDone: { lake: 6, snow: 6 }, stages: withCloud });
   assert.equal(snowOnly.state, 'locked');
   const open = J.regionRow('cloud', { records: rec(12), regionDone: { lake: 6, snow: 6, rail: 6 }, stages: withCloud });
-  assert.equal(open.state, 'open'); assert.equal(open.tappable, true); assert.equal(open.total, 6);
-  const done = J.regionRow('cloud', { records: rec(12), regionDone: { lake: 6, snow: 6, rail: 6, cloud: 6 }, stages: withCloud });
+  assert.equal(open.state, 'open'); assert.equal(open.tappable, true); assert.equal(open.total, 8);
+  const done = J.regionRow('cloud', { records: rec(12), regionDone: { lake: 6, snow: 6, rail: 6, cloud: 8 }, stages: withCloud });
   assert.equal(done.state, 'done');
   const bar = J.journeyProgress({ records: rec(12), regionDone: { lake: 6, snow: 6, rail: 6 }, stages: withCloud });
   assert.equal(bar.segments.some(s => s.id === 'cloud'), true);
@@ -135,7 +135,9 @@ t('random-play win rate steps between about 0.90 and 0.60, with an up and a down
   assert(rates[3] < rates[2] - 0.1, rates.map(x => x.toFixed(3)).join(' '));
   assert(rates[4] > rates[3] + 0.08, rates.map(x => x.toFixed(3)).join(' '));
   assert(rates[5] < rates[4] - 0.04, rates.map(x => x.toFixed(3)).join(' '));
-  assert(rates[0] >= 0.86 && rates[3] <= 0.72 && rates[3] >= 0.56);
+  assert(rates[6] > rates[5] + 0.08, rates.map(x => x.toFixed(3)).join(' '));
+  assert(rates[7] < rates[6] - 0.08, rates.map(x => x.toFixed(3)).join(' '));
+  assert(rates[0] >= 0.86 && rates[3] <= 0.72 && rates[3] >= 0.56 && rates[7] >= 0.56);
   console.log(' rates', rates.map(x => +x.toFixed(3)).join(' → '));
 });
 console.log(JSON.stringify({ status: 'PASS', cases: n, scope: 'Pure logic + Cocos doubles. Not a device render.' }));

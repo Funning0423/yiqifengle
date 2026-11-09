@@ -66,12 +66,12 @@ function bird(m, x, y, z, s) {
   addTri(m, [x - s, y, z], [x, y + s * 0.22, z + s * 0.7], [x - s * 0.08, y + 0.04, z - s * 0.25], 9);
   addTri(m, [x + s, y, z], [x + s * 0.08, y + 0.04, z - s * 0.25], [x, y + s * 0.22, z + s * 0.7], 9);
 }
-function flag(m, x, y0, z, h, flip) {
-  const dir = flip ? -1 : 1;
+function flag(m, x, y0, z, h, flip, span) {
+  const dir = flip ? -1 : 1, reach = span || 0.85;
   box(m, x - 0.05, y0, z - 0.05, x + 0.05, y0 + h, z + 0.05, 12);
-  const top = y0 + h - 0.05, bot = y0 + h - 0.72;
-  addQuad(m, [x, top, z], [x + dir * 0.7, top - 0.1, z + 0.08], [x + dir * 0.7, bot + 0.04, z + 0.04], [x, bot + 0.08, z], 10);
-  addQuad(m, [x + dir * 0.7, top - 0.1, z + 0.08], [x + dir * 1.25, top - 0.28, z - 0.04], [x + dir * 1.25, bot - 0.12, z], [x + dir * 0.7, bot + 0.04, z + 0.04], 11);
+  const top = y0 + h - 0.05, bot = y0 + h - 0.62, mid = reach * 0.55;
+  addQuad(m, [x, top, z], [x + dir * mid, top - 0.08, z + 0.06], [x + dir * mid, bot + 0.04, z + 0.03], [x, bot + 0.06, z], 10);
+  addQuad(m, [x + dir * mid, top - 0.08, z + 0.06], [x + dir * reach, top - 0.18, z - 0.03], [x + dir * reach, bot - 0.08, z], [x + dir * mid, bot + 0.04, z + 0.03], 11);
 }
 const parts = [];
 function part(name, build) { const m = mesh(); build(m); parts.push({ name, m }); }
@@ -100,19 +100,19 @@ part('CS_walk', m => {
   box(m, 0.4, 0.0, 4.15, 0.55, 0.26, 4.29, 2);
 });
 part('CS_pads', m => {
-  box(m, 3.35, 0.14, -1.35, 5.15, 0.4, 0.85, 0);
-  box(m, 3.55, 0.02, -1.05, 4.9, 0.14, 0.55, 15);
-  box(m, -5.15, 0.1, -1.35, -3.25, 0.36, 0.85, 0);
+  box(m, 2.55, 0.14, -0.7, 2.92, 0.4, 0.7, 0);
+  box(m, 2.6, 0.02, -0.5, 2.86, 0.14, 0.5, 15);
+  box(m, -2.92, 0.1, -0.7, -2.55, 0.36, 0.7, 0);
 });
 part('CS_flags', m => {
-  flag(m, -0.95, 0.4, 3.55, 1.45, true);
-  flag(m, -4.15, 0.36, -0.15, 1.55, true);
-  flag(m, 4.15, 0.4, -0.2, 1.4, false);
+  flag(m, -0.42, 0.4, 3.05, 1.15, true, 0.55);
+  flag(m, -2.68, 0.36, 0.05, 1.2, true, 0.22);
+  flag(m, 2.68, 0.4, -0.05, 1.15, false, 0.22);
 });
 part('CS_birds', m => {
-  bird(m, -3.4, 2.55, -1.2, 0.62);
-  bird(m, 3.15, 2.85, 0.4, 0.5);
-  bird(m, -0.2, 3.35, -4.4, 0.42);
+  bird(m, -1.7, 2.45, -3.15, 0.42);
+  bird(m, 1.85, 2.7, -3.55, 0.34);
+  bird(m, 0.15, 3.05, -4.55, 0.28);
 });
 part('CS_sun', m => { discZ(m, 1.35, 2.55, -6.7, 0.72, 8, 8); discZ(m, 1.35, 2.55, -6.62, 0.38, 6, 7); });
 const png = png16();
