@@ -10,19 +10,22 @@
  *   - kind "record": a historical before/after hash in an evidence/scope record, not a pin of a current file (reason required).
  *   - kind "unchecked": known debt awaiting a verifying check; its values are frozen by valuesSha256 so they cannot change
  *     silently, and every one is printed as UNCHECKED. Exit 0 only if nothing is unregistered/stale/miscounted/changed.
- *  Usage: node tools/build-guard/sha-pin-coverage.cjs [--root DIR] [--registry FILE] [--strict]   (--strict: debt also fails) */
+ *  Usage: node tools/build-guard/sha-pin-coverage.cjs [--root DIR] [--registry FILE] [--strict]   (--strict: debt also fails)
+ *  Root: --root | REPO_ROOT | git rev-parse --show-toplevel (cwd). Not the script directory. Zero scanned files is NO_TARGETS. */
 const fs=require('fs'),path=require('path'),cp=require('child_process'),crypto=require('crypto');
+const {repoRoot}=require('./lib-gates.cjs');
 const arg=(n,d)=>{const i=process.argv.indexOf(n);return i>0?process.argv[i+1]:d;};
 const RE=/["']?([A-Za-z0-9_]*(?:sha256|Sha256|SHA256|sha))["']?\s*[:=]\s*["']([0-9a-f]{64})["']/g;
 const EXT=/\.(ts|js|cjs|mjs|json|py|sh)$/;
 const vhash=vals=>crypto.createHash('sha256').update(vals.join('\n')).digest('hex');
 function scan(root){const ls=cp.execFileSync('git',['ls-files','-z','--','creator-build-project/assets/scripts','tools'],{cwd:root,encoding:'utf8',maxBuffer:1<<26}).split('\0').filter(f=>f&&EXT.test(f)&&!/(^|\/)reports\//.test(f)&&f!=='tools/build-guard/sha-pin-registry.json');
-  const found={};for(const f of ls){const p=path.join(root,f);if(!fs.existsSync(p))continue;const t=fs.readFileSync(p,'utf8');let m;RE.lastIndex=0;
+  const found={};let scanned=0;for(const f of ls){const p=path.join(root,f);if(!fs.existsSync(p))continue;scanned++;const t=fs.readFileSync(p,'utf8');let m;RE.lastIndex=0;
     while((m=RE.exec(t))){const k=f+'#'+m[1];(found[k]=found[k]||{file:f,key:m[1],values:[]}).values.push(m[2]);}}
-  return found;}
+  return {found,scanned};}
 function run(o={}){
-  const root=path.resolve(o.root||path.resolve(__dirname,'../..')),reg=JSON.parse(fs.readFileSync(o.registry||path.join(__dirname,'sha-pin-registry.json'),'utf8'));
-  const res={fail:[],debt:[],ok:0,found:0};const found=scan(root);res.found=Object.keys(found).length;
+  const root=repoRoot(o.root),reg=JSON.parse(fs.readFileSync(o.registry||path.join(__dirname,'sha-pin-registry.json'),'utf8'));
+  const res={fail:[],debt:[],ok:0,found:0,scanned:0};const scanned=scan(root);const found=scanned.found;res.scanned=scanned.scanned;res.found=Object.keys(found).length;
+  if(!res.scanned)res.fail.push('NO_TARGETS: sha-pin-coverage scanned 0 files');
   const entries={};for(const e of reg.pins){const k=e.file+'#'+e.key;if(entries[k])res.fail.push('DUP_REGISTRY '+k);entries[k]=e;}
   let suite='';try{suite=fs.readFileSync(path.join(root,'tools/journey-integration/run-suite.cjs'),'utf8');}catch(e){}
   let emb=[];try{emb=JSON.parse(fs.readFileSync(path.join(root,'tools/journey-integration/frozen-production-inputs.json'),'utf8')).embeddedPins||[];}catch(e){}
@@ -41,7 +44,8 @@ function run(o={}){
   for(const k of Object.keys(entries))if(!found[k])res.fail.push('STALE_REGISTRY '+k+' (pin gone; remove the entry)');
   return res;}
 module.exports={run,scan,vhash};
-if(require.main===module){const r=run({root:arg('--root'),registry:arg('--registry')}),strict=process.argv.includes('--strict');
+if(require.main===module){let r;try{r=run({root:arg('--root'),registry:arg('--registry')});}catch(e){if(e.code==='NO_ROOT'){console.error(e.message);process.exit(1);}throw e;}
+  const strict=process.argv.includes('--strict');
   for(const l of r.fail)console.log('FAIL '+l);for(const l of r.debt)console.log(l);
   const pass=!r.fail.length&&!(strict&&r.debt.length);
   console.log(`${pass?'PASS':'FAIL'} sha-pin-coverage pins=${r.found} covered=${r.ok} unchecked=${r.debt.length} fails=${r.fail.length}${strict?' strict':''}`);process.exit(pass?0:1);}

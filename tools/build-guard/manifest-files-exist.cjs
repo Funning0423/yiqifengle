@@ -5,12 +5,13 @@
  *  must be present in that bundle of the build output: the bundle dir exists and its config.json lists the asset's uuid
  *  (compressed form, as the main asset or as uuid@sub). Catches dead entries like a manifest listing a .glb that is gone.
  *  Usage: node tools/build-guard/manifest-files-exist.cjs [--manifest FILE ...] [--build-dir DIR] [--root DIR]
- *  Default manifests: assets-MANIFEST-SHA256.json, text-MANIFEST-SHA256.json. Exit 0 = PASS, 1 = FAIL. */
+ *  Root: --root | REPO_ROOT | git rev-parse --show-toplevel (cwd). Not the script directory.
+ *  Default manifests: assets-MANIFEST-SHA256.json, text-MANIFEST-SHA256.json. Zero entries is NO_TARGETS. Exit 0 = PASS, 1 = FAIL. */
 const fs=require('fs'),path=require('path');
-const {compressUuid,git,bundleDir}=require('./lib-gates.cjs');
+const {compressUuid,git,bundleDir,repoRoot}=require('./lib-gates.cjs');
 const BIN=/\.(glb|gltf|bin|png|jpe?g|webp|gif|mp3|wav|ogg|m4a|aac|ttf|otf|astc|pkm|ktx)$/i;
 function run(opts){
-  const root=path.resolve(opts.root||path.resolve(__dirname,'../..'));
+  const root=repoRoot(opts.root);
   const manifests=(opts.manifests&&opts.manifests.length?opts.manifests:['assets-MANIFEST-SHA256.json','text-MANIFEST-SHA256.json']);
   const tracked=new Set(git(root,['ls-files','-z']).split('\0').filter(Boolean));
   const res={entries:0,fail:[],checkedInBuild:0};
@@ -32,12 +33,14 @@ function run(opts){
       if(!cfgCache.has(bd)){const cf=fs.readdirSync(bd).find(f=>/^config(\.[0-9a-f]+)?\.json$/.test(f));let ids=[];try{const c=JSON.parse(fs.readFileSync(path.join(bd,cf),'utf8'));ids=(c.uuids||[]).concat(Object.values(c.redirect||{}));}catch(e){}cfgCache.set(bd,new Set(ids.map(x=>String(x).split('@')[0])));}
       const ids=cfgCache.get(bd);if(!ids.has(compressUuid(uuid))&&!ids.has(uuid))res.fail.push(`NOT_IN_BUILD ${p} uuid=${uuid} bundle=${bundle}`);
     }}
+  if(!res.entries)res.fail.push('NO_TARGETS: manifest-files-exist scanned 0 entries');
   return res;
 }
 module.exports={run};
 if(require.main===module){
   const a=process.argv,ms=[];let bd,root;for(let i=2;i<a.length;i++){if(a[i]==='--manifest')ms.push(a[++i]);else if(a[i]==='--build-dir')bd=a[++i];else if(a[i]==='--root')root=a[++i];}
-  const r=run({manifests:ms,buildDir:bd,root});for(const l of r.fail)console.log('FAIL '+l);
+  let r;try{r=run({manifests:ms,buildDir:bd,root});}catch(e){if(e.code==='NO_ROOT'){console.error(e.message);process.exit(1);}throw e;}
+  for(const l of r.fail)console.log('FAIL '+l);
   console.log(`${r.fail.length?'FAIL':'PASS'} manifest-files-exist entries=${r.entries} checkedInBuild=${r.checkedInBuild} fails=${r.fail.length}`);
   process.exit(r.fail.length?1:0);
 }

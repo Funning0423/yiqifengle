@@ -5,9 +5,9 @@ HERE=$(cd "$(dirname "$0")" && pwd); SCR=${QF_SCRATCH_ROOT:-$HOME/wt}; mkdir -p 
 export QF_STAGE_ROOT=$T/stage PRELOAD_GATE=0 NODE=${NODE:-node}   # cases 1-10: build mechanics only; preload gate in cases 11-12
 fail(){ echo "SELFTEST FAIL: $*"; exit 1; }
 mkrepo(){ R=$T/repo$1; mkdir -p "$R/creator-build-project/assets/scripts" "$R/tools/build-guard"
-  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$HERE/meta-allowlist.cjs" "$HERE/meta-allowlist.json" "$HERE/manifest-files-exist.cjs" "$HERE/lib-gates.cjs" "$R/tools/build-guard/"
+  cp "$HERE/build-wechat-guarded.sh" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$HERE/meta-allowlist.cjs" "$HERE/meta-allowlist.json" "$HERE/manifest-files-exist.cjs" "$HERE/lib-gates.cjs" "$HERE/check-no-placeholder.cjs" "$R/tools/build-guard/"
   printf 'export const a=1;/*QF_PROBE_BEGIN*/(globalThis as any).__QF_PROBE_HER=1;log("[QF_HER_FRAME] x");/*QF_PROBE_END*/\n' > "$R/creator-build-project/assets/scripts/probe.ts"
-  printf '[]\n' > "$R/assets-MANIFEST-SHA256.json"; printf '[]' > "$R/text-MANIFEST-SHA256.json"
+  printf '[{"path":"creator-build-project/assets/scripts/probe.ts"}]\n' > "$R/assets-MANIFEST-SHA256.json"; printf '[]\n' > "$R/text-MANIFEST-SHA256.json"
   printf 'build/\nlibrary/\ntemp/\ntools/build-guard/logs/\n' > "$R/.gitignore"
   for i in 1 2 3; do printf '{"ver":"1.0.0","importer":"typescript","uuid":"u%s"}\n' $i > "$R/creator-build-project/assets/scripts/a$i.ts.meta"; done
   (cd "$R" && git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -qm init) ; echo "$R"; }
@@ -107,6 +107,17 @@ node "$HERE/check-no-placeholder.cjs" --root "$P/esc" > "$T/ph2" 2>&1 && fail "c
 node "$HERE/check-no-placeholder.cjs" --root "$P/src" > "$T/ph3" 2>&1 && fail "case15 source comment hit passed"
 node "$HERE/check-no-placeholder.cjs" --root "$P/good" > "$T/ph4" 2>&1 || { cat "$T/ph4"; fail "case15 clean sample failed"; }
 node "$HERE/check-no-placeholder.cjs" --root "$HERE/../.." > "$T/ph5" 2>&1 || { cat "$T/ph5"; fail "case15 repo source has the placeholder word"; }
+# 15b) a check that scans nothing fails. Empty root: 0 dirs. Empty build dir: 0 release-gate files.
+mkdir -p "$T/empty-root" "$T/empty-build"
+node "$HERE/check-no-placeholder.cjs" --root "$T/empty-root" > "$T/ph0" 2>&1 && fail "case15b empty root passed"
+grep -q "PLACEHOLDER GATE FAILED: root=$T/empty-root scanned 0 dir(s), 0 file(s)" "$T/ph0" || { cat "$T/ph0"; fail "case15b msg"; }
+grep -q "PLACEHOLDER GATE PASS" "$T/ph0" && fail "case15b passed"
+node "$HERE/release-gates.cjs" --probe-free "$T/empty-build" > "$T/rg0" 2>&1 && fail "case15b empty probe-free passed"
+grep -q "FAIL release-probe-free files=0" "$T/rg0" || fail "case15b probe-free"
+node "$HERE/release-gates.cjs" --formal-free "$T/empty-build" > "$T/rg1" 2>&1 && fail "case15b empty formal-free passed"
+grep -q "FAIL release-formal-free files=0" "$T/rg1" || fail "case15b formal-free"
+node "$HERE/release-gates.cjs" --size "$T/empty-build" > "$T/rg2" 2>&1 && fail "case15b empty size passed"
+grep -q "FAIL release-size files=0" "$T/rg2" || fail "case15b size"
 # Balloon meta: simulated git/stage state. Only the known meta may be restored; glb changes and the other gates still fail.
 mkbal(){ R=$(mkrepo "$1"); D="$R/creator-build-project/assets/bundles/region_transit_balloon"; mkdir -p "$D"
   printf '%s\n' '{"ver":"2.3.14","importer":"gltf","subMetas":{"a4c17":{"id":"a4c17","name":"balloon_load_frame.mesh","ver":"1.1.1"}}}' > "$D/transport_balloon.glb.meta"
@@ -136,4 +147,27 @@ grep -q "WARN: Creator rewrote only" "$T/out19" || { cat "$T/out19"; fail "case1
 grep -q "hash .* matches the pre-build baseline" "$T/out19" || fail "case19 hash"
 grep -q '"id":"a4c17"' "$R/creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta" || fail "case19 repo meta"
 [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case19 dirty"
-echo "SELFTEST PASS (19 cases + provenance)"
+# 20) scripts live outside the repo. Scan root is the cwd git toplevel, or REPO_ROOT, never the script directory.
+# A decoy tree at $T/creator-build-project is what $HERE/../.. would see from $T/outside/guard, and it has no placeholder word.
+R=$(mkrepo 20); W=$(printf '\345\215\240\344\275\215')
+printf 'export const hold="%s";\n' "$W" > "$R/creator-build-project/assets/scripts/hold.ts"
+(cd "$R" && git add -A && git -c user.email=t@t -c user.name=t commit -qm hold)
+mkdir -p "$T/creator-build-project/assets" "$T/outside" "$T/not-a-repo"
+printf 'export const clean=1;\n' > "$T/creator-build-project/assets/clean.ts"
+cp -a "$R/tools/build-guard" "$T/outside/guard"
+PLAN=$T/plan20; printf 'good\n' > "$PLAN"; rm -f "$PLAN.n"; export PLAN
+(cd "$R" && META_ALLOWLIST_BASE=HEAD CREATOR=$T/fake-creator SKIP_CREATOR_CHECK=1 MAX_TRIES=1 bash "$T/outside/guard/build-wechat-guarded.sh" wechat) > "$T/out20" 2>&1
+c=$?; [ "$c" = 2 ] || { cat "$T/out20"; fail "case20 exit $c"; }
+grep -q "PASS meta-allowlist" "$T/out20" || { cat "$T/out20"; fail "case20 meta gate"; }
+grep -q "root=$R" "$T/out20" || { cat "$T/out20"; fail "case20 root"; }
+grep -q "$R/creator-build-project/assets/scripts/hold.ts" "$T/out20" || { cat "$T/out20"; fail "case20 hit"; }
+grep -q "scanned 0 dir" "$T/out20" && fail "case20 scanned nothing"
+grep -q "placeholder gate failed" "$T/out20" || fail "case20 die"
+# copied checker, no --root: cwd toplevel, then REPO_ROOT from a directory that is not a worktree
+(cd "$R" && env -u REPO_ROOT node "$T/outside/guard/check-no-placeholder.cjs") > "$T/out20b" 2>&1 || true
+grep -q "root=$R" "$T/out20b" && grep -q "hold.ts" "$T/out20b" || { cat "$T/out20b"; fail "case20b cwd root"; }
+(cd "$T/not-a-repo" && env -u REPO_ROOT node "$T/outside/guard/check-no-placeholder.cjs") > "$T/out20c" 2>&1 || true
+grep -q "NO_ROOT" "$T/out20c" || { cat "$T/out20c"; fail "case20c"; }
+(cd "$T/not-a-repo" && REPO_ROOT="$R" node "$T/outside/guard/check-no-placeholder.cjs") > "$T/out20d" 2>&1 || true
+grep -q "root=$R" "$T/out20d" && grep -q "hold.ts" "$T/out20d" || { cat "$T/out20d"; fail "case20d REPO_ROOT"; }
+echo "SELFTEST PASS (20 cases + provenance)"

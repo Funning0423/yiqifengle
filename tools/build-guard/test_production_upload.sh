@@ -5,9 +5,9 @@ HERE=$(cd "$(dirname "$0")" && pwd); SCR=${QF_SCRATCH_ROOT:-$HOME/wt}; mkdir -p 
 export QF_STAGE_ROOT=$T/stage PRELOAD_GATE=0 NODE=${NODE:-node}   # cases 1-10: build mechanics only; preload gate in cases 11-12
 fail(){ echo "SELFTEST FAIL: $*"; exit 1; }
 mkrepo(){ R=$T/repo$1; mkdir -p "$R/creator-build-project/assets/scripts" "$R/tools/build-guard"
-  cp "$HERE/build-wechat-guarded.sh" "${UPLOAD_SH:-$HERE/build-production-upload.sh}" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$HERE/meta-allowlist.cjs" "$HERE/meta-allowlist.json" "$HERE/manifest-files-exist.cjs" "$HERE/lib-gates.cjs" "$R/tools/build-guard/"
+  cp "$HERE/build-wechat-guarded.sh" "${UPLOAD_SH:-$HERE/build-production-upload.sh}" "$HERE/wechat-release.json" "$HERE/web-test.json" "$HERE/strip-probes.cjs" "$HERE/release-gates.cjs" "$HERE/release-probe-symbols.json" "$HERE/meta-allowlist.cjs" "$HERE/meta-allowlist.json" "$HERE/manifest-files-exist.cjs" "$HERE/lib-gates.cjs" "$HERE/check-no-placeholder.cjs" "$R/tools/build-guard/"
   printf 'export const a=1;/*QF_PROBE_BEGIN*/(globalThis as any).__QF_PROBE_HER=1;log("[QF_HER_FRAME] x");/*QF_PROBE_END*/\n' > "$R/creator-build-project/assets/scripts/probe.ts"
-  printf '[]\n' > "$R/assets-MANIFEST-SHA256.json"; printf '[]' > "$R/text-MANIFEST-SHA256.json"
+  printf '[{"path":"creator-build-project/assets/scripts/probe.ts"}]\n' > "$R/assets-MANIFEST-SHA256.json"; printf '[]\n' > "$R/text-MANIFEST-SHA256.json"
   printf 'build/\nlibrary/\ntemp/\ntools/build-guard/logs/\n' > "$R/.gitignore"
   for i in 1 2 3; do printf '{"ver":"1.0.0","importer":"typescript","uuid":"u%s"}\n' $i > "$R/creator-build-project/assets/scripts/a$i.ts.meta"; done
   (cd "$R" && git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -qm init) ; echo "$R"; }

@@ -19,6 +19,8 @@
 # Env:   CREATOR=/path/to/CocosCreator.app/Contents/MacOS/CocosCreator  (required; or a fake builder for tests)
 #        MIN_BYTES=15000000  MAX_TRIES=3  KEEP_CACHE=0  LOG_DIR=<repo>/tools/build-guard/logs  SKIP_CREATOR_CHECK=0
 #        NODE=node (needed for release gates)
+#        REPO_ROOT=<dir>  repo the gates scan. Unset: git rev-parse --show-toplevel of the current directory.
+#        The script directory is not the root. A check that scans 0 targets fails.
 #        META_ALLOWLIST_BASE=<ref>  optional meta-allowlist diff base, used as given (--base on the node gate wins).
 #        Unset: merge-base HEAD origin/gbt/r5-b20-integrate-landing-visual-bg2, else that local branch, else 95dc672d.
 #        The node gate prints which of those was chosen. Unknown .meta changes vs the chosen base still fail.
@@ -29,8 +31,12 @@
 #        (the shared __qfPreTransition / ?qfPre= entry) and adds release-gates.cjs --formal-free. Default (0) = trial upload, unchanged.
 #        web is always a test build (probes kept). Stage dir: QF_STAGE_ROOT (default $HOME/wt/qf-stage, must be outside the repo).
 set -u
+die(){ echo; echo "################################################################"; echo "BUILD GUARD FAILED: $*"; echo "################################################################"; exit 2; }
 HERE=$(cd "$(dirname "$0")" && pwd)
-REPO=${REPO_ROOT:-$(cd "$HERE/../.." && pwd)}
+# Scan root follows REPO_ROOT, else the current directory's git toplevel. The script may live outside the repo.
+if [ -n "${REPO_ROOT:-}" ]; then REPO=$(cd "$REPO_ROOT" && pwd) || die "REPO_ROOT is not a directory: $REPO_ROOT"
+else REPO=$(git rev-parse --show-toplevel 2>/dev/null) || die "cannot resolve repo root from the current directory; set REPO_ROOT or run inside the worktree"
+fi
 P="$REPO/creator-build-project"
 MIN_BYTES=${MIN_BYTES:-15000000}; MAX_TRIES=${MAX_TRIES:-3}; KEEP_CACHE=${KEEP_CACHE:-0}
 LOG_DIR=${LOG_DIR:-$HERE/logs}; ERR_TEXT='当前初始场景不存在'
@@ -40,7 +46,6 @@ TARGET=${1:-wechat}
 PRELOAD_GATE=${PRELOAD_GATE:-1}; PRELOAD_TOL=${PRELOAD_TOL:-0.02}
 NODE=${NODE:-node}; STRIP_PROBES=${STRIP_PROBES:-1}; FORMAL_RELEASE=${FORMAL_RELEASE:-0}; QF_STAGE_ROOT=${QF_STAGE_ROOT:-$HOME/wt/qf-stage}
 MAX_TOTAL_BYTES=${MAX_TOTAL_BYTES:-24641536}; MAX_MAIN_BYTES=${MAX_MAIN_BYTES:-4000000}
-die(){ echo; echo "################################################################"; echo "BUILD GUARD FAILED: $*"; echo "################################################################"; exit 2; }
 if [ "$FORMAL_RELEASE" = 1 ] && [ "$STRIP_PROBES" != 1 ]; then echo "BUILD GUARD FAILED: FORMAL_RELEASE=1 needs STRIP_PROBES=1"; exit 2; fi
 FORMAL_ARG=""; [ "$FORMAL_RELEASE" = 1 ] && FORMAL_ARG="--formal"
 [ -n "${CREATOR:-}" ] || die "set CREATOR to the CocosCreator binary (…/CocosCreator.app/Contents/MacOS/CocosCreator)"
@@ -237,7 +242,9 @@ case "$TARGET" in
   *) die "target must be wechat, web or both";;
 esac
 # system-panels SPEC §1.4: authoritative artifact scan (build/wechatgame/**, literal + \u-escaped); any hit fails the build.
-if [ -f "$HERE/check-no-placeholder.cjs" ] && command -v node >/dev/null 2>&1; then node "$HERE/check-no-placeholder.cjs" --root "$HERE/../.." || die "placeholder word found in source/build output"; fi
+# Root is $REPO (REPO_ROOT or git toplevel), never the directory that contains this script. Zero dirs/files fails inside the gate.
+[ -f "$HERE/check-no-placeholder.cjs" ] || die "placeholder gate missing: $HERE/check-no-placeholder.cjs"
+"$NODE" "$HERE/check-no-placeholder.cjs" --root "$REPO" || die "placeholder gate failed"
 if [ "$KEEP_CACHE" != 1 ]; then clean_cache; echo "caches removed (library/temp); set KEEP_CACHE=1 to keep"; fi
 [ "$FORMAL_RELEASE" = 1 ] || [ "$TARGET" = web ] || echo "NOTE: not a production build (FORMAL_RELEASE=0, trial entry kept) - production uploads use tools/build-guard/build-production-upload.sh (FORMAL_RELEASE=1)"
 echo "BUILD GUARD PASSED: $SUMMARY  (output under creator-build-project/build/)  HEAD=$GUARD_SHORT tree=$GUARD_TREE"

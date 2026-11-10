@@ -16,9 +16,10 @@
  *   debug     /\bdebug\b/i, placeholder /\bplaceholder\b/i  whole word only
  *   TODO      /\b(TODO|FIXME|XXX)\b/ case-sensitive, so the English word "todo" in copy wouldn't trip it
  *   test      /\btest(s|ing|ed)?\b/i  whole word: 'latest', 'contest', 'attest' do not match
- *  Usage: node tools/build-guard/dev-wording.cjs [--root DIR] [--json]   exit 0 PASS, 1 FAIL. */
+ *  Usage: node tools/build-guard/dev-wording.cjs [--root DIR] [--json]   exit 0 PASS, 1 FAIL.
+ *  Root: --root | REPO_ROOT | git rev-parse --show-toplevel (cwd). Not the script directory. Zero files is a failure. */
 const fs=require('fs'),path=require('path');
-const ROOT=path.resolve(arg('--root',path.join(__dirname,'../..')));
+const {repoRoot}=require('./lib-gates.cjs');
 function arg(n,d){const i=process.argv.indexOf(n);return i>0?process.argv[i+1]:d;}
 const PATTERNS=[['3D',/(?<![A-Za-z0-9_])3[dD](?![A-Za-z0-9_])/],['场景',/场景/],['占位',/占位/],['测试',/测试/],['调试',/调试/],
   ['debug',/\bdebug\b/i],['placeholder',/\bplaceholder\b/i],['TODO',/\b(TODO|FIXME|XXX)\b/],['test',/\btest(s|ing|ed)?\b/i]];
@@ -51,13 +52,16 @@ function scanJson(rel,src,cfg,out){let j;try{j=JSON.parse(src);}catch(e){return;
     else if(Array.isArray(v))v.forEach(x=>walk(x,key));else if(v&&typeof v==='object')for(const [k,x] of Object.entries(v))walk(x,k);};walk(j,'');}
 function files(dir,exts,acc=[]){if(!fs.existsSync(dir))return acc;for(const e of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,e.name);
   if(e.isDirectory())files(p,exts,acc);else if(exts.some(x=>e.name.endsWith(x))&&!e.name.endsWith('.meta')&&!e.name.endsWith('.d.ts'))acc.push(p);}return acc;}
-function run(root=ROOT,cfgPath=path.join(__dirname,'dev-wording.json')){
+function run(root,cfgPath=path.join(__dirname,'dev-wording.json')){
+  root=repoRoot(root);
   const cfg=JSON.parse(fs.readFileSync(cfgPath,'utf8')),ts=loadTs(),out=[],A=path.join(root,'creator-build-project/assets');
   const list=[...files(A,['.ts','.js','.json']),...files(path.join(root,'creator-build-project/build-templates/wechatgame'),['.js'])];
   for(const f of list){const rel=path.relative(root,f).split(path.sep).join('/');if(cfg.excludeFiles&&cfg.excludeFiles[rel])continue;
     const src=fs.readFileSync(f,'utf8');if(f.endsWith('.json'))scanJson(rel,src,cfg,out);else scanCode(ts,rel,src,cfg,out);}
   return {files:list.length,hits:out};}
 module.exports={run,PATTERNS,stripProbes};
-if(require.main===module){const r=run();for(const h of r.hits)console.log(`HIT ${h.file}:${h.line} [${h.pattern}] ${JSON.stringify(h.string)}`);
+if(require.main===module){let r;try{r=run(arg('--root'));}catch(e){if(e.code==='NO_ROOT'){console.error(e.message);process.exit(1);}throw e;}
+  if(!r.files){console.log('FAIL dev-wording files=0 hits=0');process.exit(1);}
+  for(const h of r.hits)console.log(`HIT ${h.file}:${h.line} [${h.pattern}] ${JSON.stringify(h.string)}`);
   if(process.argv.includes('--json'))console.log(JSON.stringify(r,null,1));
   console.log((r.hits.length?'FAIL':'PASS')+` dev-wording files=${r.files} hits=${r.hits.length}`);process.exit(r.hits.length?1:0);}

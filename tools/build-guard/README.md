@@ -30,6 +30,12 @@ A `.meta` change that is not an exact allow rule still fails (`NOT_ALLOWED`, `ME
 
 Separately, a balloon `.meta` whose working-tree blob is identical to `META_BALLOON_BASELINE` (default `95dc672d`) is not counted as a change. A balloon meta that differs from that pin is still judged against the chosen base.
 
+## Scan root
+
+`build-wechat-guarded.sh` and the gates it runs (meta allowlist, manifest files, placeholder, and the other scanners under `tools/build-guard/`) take their repo root from `REPO_ROOT` when that is set, otherwise from `git rev-parse --show-toplevel` of the current directory. The directory that contains the script is not the root, so a copy of the guard outside the worktree still scans the repo you launched it from.
+
+A check that scans zero targets fails. That includes a placeholder run with no directories or text files, a meta allowlist with no `.meta` files, a manifest with no entries, a release gate with no build files, and the other scanners with nothing to read.
+
 ## Tests
 
 ```

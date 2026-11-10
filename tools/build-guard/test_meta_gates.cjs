@@ -215,5 +215,32 @@ try{
     fs.writeFileSync(path.join(b,'config.json'),JSON.stringify({uuids:['zz']}));assert.match(MF.run({root:r,manifests:['m.json'],buildDir:bd}).fail.join('\n'),/NOT_IN_BUILD/);
     fs.writeFileSync(path.join(b,'config.json'),JSON.stringify({uuids:['bbl4q72Qddur5aFMxk9eWW@85da7']}));assert.equal(MF.run({root:r,manifests:['m.json'],buildDir:bd}).fail.length,0);
     assert.match(MF.run({root:r,manifests:['m.json'],buildDir:path.join(tmp,'nobuild')}).fail.join('\n'),/BUNDLE_NOT_IN_BUILD/);});
+  t('no .meta files -> NO_TARGETS',()=>{
+    const r=path.join(tmp,'nometas');fs.mkdirSync(r);g(r,'init','-q');fs.writeFileSync(path.join(r,'README'),'x\n');
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','empty');
+    const x=MA.run({root:r,base:'HEAD',allowlist:AL});
+    assert.equal(x.targets,0);assert.match(x.fail.join('\n'),/NO_TARGETS: meta-allowlist scanned 0/);
+  });
+  t('empty manifests -> NO_TARGETS',()=>{
+    const r=repo();
+    fs.writeFileSync(path.join(r,'assets-MANIFEST-SHA256.json'),'[]\n');
+    fs.writeFileSync(path.join(r,'text-MANIFEST-SHA256.json'),'[]\n');
+    const x=MF.run({root:r});
+    assert.equal(x.entries,0);assert.match(x.fail.join('\n'),/NO_TARGETS: manifest-files-exist scanned 0 entries/);
+  });
+  t('meta gate copied outside the repo follows cwd toplevel and REPO_ROOT',()=>{
+    const r=repo();w(r,'creator-build-project/assets/sneaky-outside.meta',{uuid:'abcd'});
+    const outside=path.join(tmp,'outside-meta');fs.mkdirSync(outside);
+    for(const f of ['meta-allowlist.cjs','lib-gates.cjs','meta-allowlist.json'])fs.copyFileSync(path.join(__dirname,f),path.join(outside,f));
+    const env=Object.assign({},process.env);env.META_ALLOWLIST_BASE='HEAD';delete env.REPO_ROOT;
+    const runAt=(cwd,extraEnv)=>{let out='';try{out=cp.execFileSync(process.execPath,[path.join(outside,'meta-allowlist.cjs')],{cwd,encoding:'utf8',env:Object.assign({},env,extraEnv)});}catch(e){out=(e.stdout||'')+(e.stderr||'');}return out;};
+    const fromCwd=runAt(r,{});
+    assert.match(fromCwd,/META_ADDED .*sneaky-outside\.meta/);
+    const elsewhere=path.join(tmp,'not-a-worktree');fs.mkdirSync(elsewhere);
+    const fromEnv=runAt(elsewhere,{REPO_ROOT:r});
+    assert.match(fromEnv,/META_ADDED .*sneaky-outside\.meta/);
+    const missing=runAt(elsewhere,{});
+    assert.match(missing,/NO_ROOT/);
+  });
   console.log(results.map(x=>'ok - '+x).join('\n'));console.log(`PASS meta-gates selftest ${results.length} cases`);
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}
