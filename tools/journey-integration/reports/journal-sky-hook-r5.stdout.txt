@@ -1,0 +1,113 @@
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv87nj-2-kb7hyyfsqh:","completed":1,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv87r8-3-59bjxk5trsu:","completed":2,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv87vu-4-gs74xbidlbh:","completed":3,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv884k-5-gkr8brq9pq5:","completed":4,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv88en-6-rj524nqhqh:","completed":4,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv88or-7-9oaf3e8p0w:","completed":5,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv894j-8-8fyu2b8q1wh:","completed":6,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv89m2-9-872ajz9ldf:","completed":7,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8a8r-10-kku20jjq9at:","completed":8,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8az3-11-0orvcjd15gkd:","completed":8,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8bpu-12-teqfmypds4:","completed":9,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8cjf-13-emak8jf6jbv:","completed":10,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8dhz-14-udj5xmbcya:","completed":11,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8ete-15-0v2gcwiqy5y:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8g6b-16-5yrkbinxg7d:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8i2m-17-ef1zz5q8oa:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8olj-18-lt355ihx2yg:","completed":7,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8p83-19-jgtvbe3vgz:","completed":11,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8qha-20-314cb3wfbj9:","completed":1,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8qkh-21-45hxfdvdxd9:","completed":2,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8qp4-22-f53lgrqgorf:","completed":3,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8qxl-23-jbagq4jrkh:","completed":4,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8r7q-24-c7dt77m6o8i:","completed":4,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8rhh-25-k5sj6aeti4:","completed":5,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8s1q-26-w9xdo2xtkfo:","completed":6,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8slz-27-yikembgu74s:","completed":7,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8tae-28-k7avfxjs93i:","completed":8,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8u1q-29-c8avfpnt3st:","completed":8,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8uut-30-lu9qyrusvoe:","completed":9,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8vp2-31-6zpj4l4s19d:","completed":10,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8wnb-32-3etfnyn4ynl:","completed":11,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8y0x-33-l8fc4roehc:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv8zdi-34-owv9mlqne4k:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv91c4-35-pm9zu06i0ic:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv97mw-36-6caojgqff93:","completed":7,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9895-37-9lxfttucxr:","completed":11,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv99gr-38-twy65lp14yq:","completed":4,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv99q1-39-dq1pjv9it7j:","completed":10,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9am0-40-yc0zdxky4pf:","completed":10,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9bir-41-wblxd997uo:","completed":12,"finish":false,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9cuc-42-e1mzzunieq6:","completed":12,"finish":false,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9e61-43-3me8xexqhui:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9fhe-44-wmz77nkjgfh:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9gsp-45-9zcgt5gopdi:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9ikn-46-eqs57oycb3t:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9kf7-47-8vpz5qku0td:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9qq9-48-ey6b441kfe9:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9wtu-49-hylwlkv7mib:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvwv9ymx-50-b6fkpuhk1op:","completed":12,"finish":true,"lake":null}
+PASS N derived from region-campaign challengeUnlocked: {"tide":4,"meadow":8,"sky":12}
+PASS tide gate locked (cleared 1)@390: button 「通关第 4 关后开启」 grey · cell 「4 关后开启」 · focus 「4 关后开启」
+PASS tide gate locked (cleared 2)@390: button 「通关第 4 关后开启」 grey · cell 「4 关后开启」 · focus 「4 关后开启」
+PASS tide gate locked (cleared 3)@390: button 「通关第 4 关后开启」 grey · cell 「4 关后开启」 · focus 「4 关后开启」
+PASS tide gate opens (cleared 4)@390: button 「前往潮汐小径」 · cell 「可前往」
+PASS meadow gate locked (cleared 4)@390: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate locked (cleared 5)@390: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate locked (cleared 6)@390: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate locked (cleared 7)@390: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate opens (cleared 8)@390: button 「前往花粉草甸」 · cell 「可前往」
+PASS sky gate locked (cleared 8)@390: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate locked (cleared 9)@390: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate locked (cleared 10)@390: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate locked (cleared 11)@390: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate opens (cleared 12)@390: button 「前往天空之城」 · cell 「可前往」
+PASS sky 1/4@390: button 「继续 1/4」 · cell 「1/4」
+PASS sky cleared 4/4@390: button 「再访天空之城」 · cell 「4/4 ✓」
+PASS sky locked page (cleared 7)@390: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」
+PASS lake locked page (cleared 11)@390: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」
+PASS tide gate locked (cleared 1)@320: button 「通关第 4 关后开启」 grey · cell 「4 关后开启」 · focus 「4 关后开启」
+PASS tide gate locked (cleared 2)@320: button 「通关第 4 关后开启」 grey · cell 「4 关后开启」 · focus 「4 关后开启」
+PASS tide gate locked (cleared 3)@320: button 「通关第 4 关后开启」 grey · cell 「4 关后开启」 · focus 「4 关后开启」
+PASS tide gate opens (cleared 4)@320: button 「前往潮汐小径」 · cell 「可前往」
+PASS meadow gate locked (cleared 4)@320: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate locked (cleared 5)@320: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate locked (cleared 6)@320: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate locked (cleared 7)@320: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」 · focus 「8 关后开启」
+PASS meadow gate opens (cleared 8)@320: button 「前往花粉草甸」 · cell 「可前往」
+PASS sky gate locked (cleared 8)@320: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate locked (cleared 9)@320: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate locked (cleared 10)@320: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate locked (cleared 11)@320: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS sky gate opens (cleared 12)@320: button 「前往天空之城」 · cell 「可前往」
+PASS sky 1/4@320: button 「继续 1/4」 · cell 「1/4」
+PASS sky cleared 4/4@320: button 「再访天空之城」 · cell 「4/4 ✓」
+PASS sky locked page (cleared 7)@320: button 「通关第 8 关后开启」 grey · cell 「8 关后开启」
+PASS lake locked page (cleared 11)@320: button 「通关第 12 关后开启」 grey · cell 「12 关后开启」
+PASS sky cell (locked)=「8 关后开启」
+PASS hook journal-sky-gated @390: focus card sky 「12 关后开启」
+PASS hook journal-sky-gated @390: cleared 10 · sky gate closed · button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS hook journal-sky-gated @320: focus card sky 「12 关后开启」
+PASS hook journal-sky-gated @320: cleared 10 · sky gate closed · button 「通关第 12 关后开启」 grey · cell 「12 关后开启」 · focus 「12 关后开启」
+PASS hook journal-sky-just-unlocked @390: focus card lake 「前往 ›」
+PASS hook journal-sky-just-unlocked @390: cleared 12 · sky gate open · button 「前往天空之城」 · cell 「可前往」
+PASS hook journal-sky-just-unlocked @320: focus card lake 「前往 ›」
+PASS hook journal-sky-just-unlocked @320: cleared 12 · sky gate open · button 「前往天空之城」 · cell 「可前往」
+PASS hook journal-sky-open @390: focus card lake 「前往 ›」
+PASS hook journal-sky-open @390: cleared 12 · sky gate open · button 「前往天空之城」 · cell 「可前往」
+PASS hook journal-sky-open @320: focus card lake 「前往 ›」
+PASS hook journal-sky-open @320: cleared 12 · sky gate open · button 「前往天空之城」 · cell 「可前往」
+PASS hook journal-sky-progress @390: focus card lake 「前往 ›」
+PASS hook journal-sky-progress @390: cleared 12 · sky gate open · button 「继续 1/4」 · cell 「1/4」
+PASS hook journal-sky-progress @320: focus card lake 「前往 ›」
+PASS hook journal-sky-progress @320: cleared 12 · sky gate open · button 「继续 1/4」 · cell 「1/4」
+PASS hook journal-sky-cleared @390: focus card lake 「前往 ›」
+PASS hook journal-sky-cleared @390: cleared 12 · sky gate open · button 「再访天空之城」 · cell 「4/4 ✓」
+PASS hook journal-sky-cleared @320: focus card lake 「前往 ›」
+PASS hook journal-sky-cleared @320: cleared 12 · sky gate open · button 「再访天空之城」 · cell 「4/4 ✓」
+PASS hook journal-sky-focus @390: focus card sky 「继续 ›」
+PASS hook journal-sky-focus @390: cleared 12 · sky gate open · button 「继续 1/4」 · cell 「1/4」 · focus 「继续 ›」
+PASS hook journal-sky-focus @320: focus card sky 「继续 ›」
+PASS hook journal-sky-focus @320: cleared 12 · sky gate open · button 「继续 1/4」 · cell 「1/4」 · focus 「继续 ›」
+PASS just-unlocked vs open: same 12 cleared; just-unlocked state=result.saved (12th win committed on the island from a paused attempt) vs open state=result.saved
+PASS live gate path: 18 states × 390/320 (36), page button = journal cell = focus card, grey buttons alone (no text above), no truncation, no 主线 / 暂不可进入

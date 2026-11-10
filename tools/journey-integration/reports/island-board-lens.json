@@ -1,0 +1,1198 @@
+{
+ "wired": true,
+ "live": {
+  "position": [
+   -12,
+   15.5,
+   48
+  ],
+  "target": [
+   -1.8078393702827054,
+   3.7398146580185045,
+   11.151419261791311
+  ],
+  "fovVerticalDeg": 42
+ },
+ "end0": {
+  "position": [
+   -11.337509559068376,
+   14.735587952771203,
+   45.60484225201643
+  ],
+  "target": [
+   -1.8078393702827054,
+   3.7398146580185045,
+   11.151419261791311
+  ],
+  "fovVerticalDeg": 36
+ },
+ "nodes": {
+  "I1": {
+   "at": [
+    -2.1,
+    0,
+    5.3
+   ],
+   "screens": {
+    "390x844": {
+     "marginBefore": 0.626,
+     "marginAfter": 0.626,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "414x896": {
+     "marginBefore": 0.626,
+     "marginAfter": 0.626,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "360x780": {
+     "marginBefore": 0.626,
+     "marginAfter": 0.626,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "375x667": {
+     "marginBefore": 0.693,
+     "marginAfter": 0.693,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "320x568": {
+     "marginBefore": 0.693,
+     "marginAfter": 0.693,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "390x520": {
+     "marginBefore": 0.77,
+     "marginAfter": 0.77,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "768x1024": {
+     "marginBefore": 0.77,
+     "marginAfter": 0.77,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    }
+   }
+  },
+  "I2": {
+   "at": [
+    2.5,
+    -0.011,
+    8.1
+   ],
+   "screens": {
+    "390x844": {
+     "marginBefore": 0.343,
+     "marginAfter": 0.343,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "414x896": {
+     "marginBefore": 0.343,
+     "marginAfter": 0.343,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "360x780": {
+     "marginBefore": 0.343,
+     "marginAfter": 0.343,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "375x667": {
+     "marginBefore": 0.46,
+     "marginAfter": 0.46,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "320x568": {
+     "marginBefore": 0.461,
+     "marginAfter": 0.461,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "390x520": {
+     "marginBefore": 0.595,
+     "marginAfter": 0.595,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "768x1024": {
+     "marginBefore": 0.595,
+     "marginAfter": 0.595,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    }
+   }
+  },
+  "I3": {
+   "at": [
+    6.1,
+    -0.459,
+    9.1
+   ],
+   "screens": {
+    "390x844": {
+     "marginBefore": -0.327,
+     "marginAfter": 0.1,
+     "aimTurnDeg": 3.3,
+     "target": [
+      0.127,
+      3.198,
+      11.927
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "414x896": {
+     "marginBefore": -0.327,
+     "marginAfter": 0.1,
+     "aimTurnDeg": 3.3,
+     "target": [
+      0.128,
+      3.198,
+      11.927
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "360x780": {
+     "marginBefore": -0.328,
+     "marginAfter": 0.1,
+     "aimTurnDeg": 3.31,
+     "target": [
+      0.132,
+      3.197,
+      11.929
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "375x667": {
+     "marginBefore": -0.09,
+     "marginAfter": 0.1,
+     "aimTurnDeg": 1.79,
+     "target": [
+      -0.754,
+      3.442,
+      11.558
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "320x568": {
+     "marginBefore": -0.088,
+     "marginAfter": 0.1,
+     "aimTurnDeg": 1.77,
+     "target": [
+      -0.765,
+      3.444,
+      11.554
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "390x520": {
+     "marginBefore": 0.183,
+     "marginAfter": 0.183,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "768x1024": {
+     "marginBefore": 0.183,
+     "marginAfter": 0.183,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    }
+   }
+  },
+  "I4": {
+   "at": [
+    4.1,
+    0.093,
+    4.1
+   ],
+   "screens": {
+    "390x844": {
+     "marginBefore": 0.323,
+     "marginAfter": 0.323,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "414x896": {
+     "marginBefore": 0.323,
+     "marginAfter": 0.323,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "360x780": {
+     "marginBefore": 0.322,
+     "marginAfter": 0.322,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "375x667": {
+     "marginBefore": 0.444,
+     "marginAfter": 0.444,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "320x568": {
+     "marginBefore": 0.445,
+     "marginAfter": 0.445,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "390x520": {
+     "marginBefore": 0.583,
+     "marginAfter": 0.583,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "768x1024": {
+     "marginBefore": 0.583,
+     "marginAfter": 0.583,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    }
+   }
+  },
+  "I5": {
+   "at": [
+    -2.5,
+    0.133,
+    1.3
+   ],
+   "screens": {
+    "390x844": {
+     "marginBefore": 0.42,
+     "marginAfter": 0.42,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "414x896": {
+     "marginBefore": 0.42,
+     "marginAfter": 0.42,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "360x780": {
+     "marginBefore": 0.419,
+     "marginAfter": 0.419,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "375x667": {
+     "marginBefore": 0.523,
+     "marginAfter": 0.523,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "320x568": {
+     "marginBefore": 0.524,
+     "marginAfter": 0.524,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "390x520": {
+     "marginBefore": 0.643,
+     "marginAfter": 0.643,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    },
+    "768x1024": {
+     "marginBefore": 0.643,
+     "marginAfter": 0.643,
+     "aimTurnDeg": 0,
+     "target": [
+      -1.808,
+      3.74,
+      11.151
+     ],
+     "capsule": false,
+     "faceHidden": false
+    }
+   }
+  }
+ },
+ "push": {
+  "I1 390x844 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 390x844 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 414x896 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 414x896 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 360x780 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 360x780 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 375x667 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 375x667 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 320x568 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 320x568 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 390x520 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 390x520 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 768x1024 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I1 768x1024 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 390x844 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 390x844 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 414x896 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 414x896 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 360x780 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 360x780 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 375x667 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 375x667 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 320x568 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 320x568 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 390x520 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 390x520 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 768x1024 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I2 768x1024 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 390x844 60fps": {
+   "yawDegS": 5.3,
+   "pitchDegS": 1.4,
+   "accP99": 78,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 390x844 30fps": {
+   "yawDegS": 5.2,
+   "pitchDegS": 1.3,
+   "accP99": 62,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 414x896 60fps": {
+   "yawDegS": 5.3,
+   "pitchDegS": 1.4,
+   "accP99": 78,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 414x896 30fps": {
+   "yawDegS": 5.2,
+   "pitchDegS": 1.3,
+   "accP99": 62,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 360x780 60fps": {
+   "yawDegS": 5.3,
+   "pitchDegS": 1.4,
+   "accP99": 78,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 360x780 30fps": {
+   "yawDegS": 5.2,
+   "pitchDegS": 1.3,
+   "accP99": 62,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 375x667 60fps": {
+   "yawDegS": 2.9,
+   "pitchDegS": 0.8,
+   "accP99": 42,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 375x667 30fps": {
+   "yawDegS": 2.8,
+   "pitchDegS": 0.7,
+   "accP99": 34,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 320x568 60fps": {
+   "yawDegS": 2.9,
+   "pitchDegS": 0.8,
+   "accP99": 42,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 320x568 30fps": {
+   "yawDegS": 2.8,
+   "pitchDegS": 0.7,
+   "accP99": 33,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 390x520 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 390x520 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 768x1024 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I3 768x1024 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 390x844 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 390x844 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 414x896 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 414x896 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 360x780 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 360x780 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 375x667 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 375x667 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 320x568 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 320x568 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 390x520 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 390x520 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 768x1024 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I4 768x1024 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 390x844 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 390x844 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 414x896 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 414x896 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 360x780 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 360x780 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 375x667 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 375x667 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 320x568 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 320x568 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 390x520 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 390x520 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 768x1024 60fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 4.05,
+   "stepM": 0.067,
+   "fovPerFrame": 0.156,
+   "groundM": 99,
+   "solidM": 3
+  },
+  "I5 768x1024 30fps": {
+   "yawDegS": 0,
+   "pitchDegS": 0,
+   "accP99": 0,
+   "ms": 3.96,
+   "stepM": 0.132,
+   "fovPerFrame": 0.305,
+   "groundM": 99,
+   "solidM": 3
+  }
+ }
+}

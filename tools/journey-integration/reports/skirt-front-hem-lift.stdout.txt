@@ -1,0 +1,403 @@
+{
+ "gate": "skirt-front-hem-lift",
+ "status": "PASS",
+ "glb": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "limits": {
+  "lift": 0.03,
+  "belowKnee": 0.045,
+  "apron": 0.03,
+  "flare": 0.28,
+  "vert": 0.05
+ },
+ "results": [
+  {
+   "name": "strict clips 60",
+   "ok": true,
+   "frames": 1082,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "walk_turn_180_bodyR@1.2667/60"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "walk_turn_180_bodyR@1.2667/60"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "walk_turn_180_bodyR@1.2667/60"
+    },
+    "flare": {
+     "v": 0.2587,
+     "at": "walk_stop_bodyL@0.0333/60"
+    },
+    "vert": {
+     "v": 0.0478,
+     "at": "walk_start_stepdown@1.6000/60"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict clips 30",
+   "ok": true,
+   "frames": 549,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "walk_turn_180_bodyR@1.2667/30"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "walk_turn_180_bodyR@1.2667/30"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "walk_turn_180_bodyR@1.2667/30"
+    },
+    "flare": {
+     "v": 0.2587,
+     "at": "walk_stop_bodyL@0.0333/30"
+    },
+    "vert": {
+     "v": 0.0478,
+     "at": "walk_start_stepdown@1.6000/30"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict clips uneven",
+   "ok": true,
+   "frames": 1055,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.021,
+     "at": "walk_turn_180_bodyR@1.2681/uneven"
+    },
+    "belowKnee": {
+     "v": 0.0553,
+     "at": "walk_turn_180_bodyR@1.2681/uneven"
+    },
+    "apron": {
+     "v": 0.0276,
+     "at": "walk_turn_180_bodyR@1.2681/uneven"
+    },
+    "flare": {
+     "v": 0.258,
+     "at": "walk_stop_bodyL@0.0279/uneven"
+    },
+    "vert": {
+     "v": 0.0477,
+     "at": "walk_start_stepdown@1.5980/uneven"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict runtime 60",
+   "ok": true,
+   "frames": 3103,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "turns@9.283 walk_turn_180_bodyR/60"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "turns@9.283 walk_turn_180_bodyR/60"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "turns@9.283 walk_turn_180_bodyR/60"
+    },
+    "flare": {
+     "v": 0.2692,
+     "at": "ride@11.883 stand_up/60"
+    },
+    "vert": {
+     "v": 0.0497,
+     "at": "ride@11.817 stand_up/60"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict runtime 30",
+   "ok": true,
+   "frames": 1562,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "turns@9.333 walk_turn_180_bodyR/30"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "turns@9.333 walk_turn_180_bodyR/30"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "turns@9.333 walk_turn_180_bodyR/30"
+    },
+    "flare": {
+     "v": 0.2692,
+     "at": "ride@11.900 stand_up/30"
+    },
+    "vert": {
+     "v": 0.0497,
+     "at": "ride@11.833 stand_up/30"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict runtime uneven",
+   "ok": true,
+   "frames": 3112,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0204,
+     "at": "turns@9.284 walk_turn_180_bodyR/uneven"
+    },
+    "belowKnee": {
+     "v": 0.056,
+     "at": "turns@9.284 walk_turn_180_bodyR/uneven"
+    },
+    "apron": {
+     "v": 0.0277,
+     "at": "turns@4.713 walk_turn_90_bodyR/uneven"
+    },
+    "flare": {
+     "v": 0.2692,
+     "at": "ride@11.871 stand_up/uneven"
+    },
+    "vert": {
+     "v": 0.0495,
+     "at": "ride@11.802 stand_up/uneven"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict seated 60 (sit_down/sit_hold/stand_up clips + ride-seated runtime)",
+   "ok": true,
+   "frames": 85,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0169,
+     "at": "stand_up@1.1667/60"
+    },
+    "belowKnee": {
+     "v": 0.0595,
+     "at": "ride@12.017 stand_up/60"
+    },
+    "apron": {
+     "v": 0.0221,
+     "at": "ride@12.017 stand_up/60"
+    },
+    "flare": {
+     "v": 0.2692,
+     "at": "ride@11.883 stand_up/60"
+    },
+    "vert": {
+     "v": 0.0497,
+     "at": "stand_up@0.9667/60"
+    }
+   },
+   "fails": [],
+   "items": {
+    "clip:sit_hold/60": {
+     "frames": 0
+    },
+    "clip:stand_up/60": {
+     "frames": 24,
+     "lift": 0.01688,
+     "belowKnee": 0.0595,
+     "apron": 0.02212,
+     "flare": 0.2692,
+     "vert": 0.0497
+    },
+    "clip:sit_down/60": {
+     "frames": 13,
+     "lift": 0.01383,
+     "belowKnee": 0.06254,
+     "apron": 0.01953,
+     "flare": 0.26241,
+     "vert": 0.03621
+    },
+    "runtime:ride-seated/60": {
+     "frames": 48,
+     "lift": 0.01688,
+     "belowKnee": 0.0595,
+     "apron": 0.02212,
+     "flare": 0.2692,
+     "vert": 0.0497
+    }
+   }
+  },
+  {
+   "name": "strict seated 30 (sit_down/sit_hold/stand_up clips + ride-seated runtime)",
+   "ok": true,
+   "frames": 45,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0169,
+     "at": "stand_up@1.1667/30"
+    },
+    "belowKnee": {
+     "v": 0.0595,
+     "at": "ride@12.033 stand_up/30"
+    },
+    "apron": {
+     "v": 0.0221,
+     "at": "ride@12.033 stand_up/30"
+    },
+    "flare": {
+     "v": 0.2692,
+     "at": "ride@11.900 stand_up/30"
+    },
+    "vert": {
+     "v": 0.0497,
+     "at": "stand_up@0.9667/30"
+    }
+   },
+   "fails": [],
+   "items": {
+    "clip:sit_hold/30": {
+     "frames": 0
+    },
+    "clip:stand_up/30": {
+     "frames": 13,
+     "lift": 0.01688,
+     "belowKnee": 0.0595,
+     "apron": 0.02212,
+     "flare": 0.2692,
+     "vert": 0.0497
+    },
+    "clip:sit_down/30": {
+     "frames": 7,
+     "lift": 0.01383,
+     "belowKnee": 0.06254,
+     "apron": 0.01953,
+     "flare": 0.26241,
+     "vert": 0.03621
+    },
+    "runtime:ride-seated/30": {
+     "frames": 25,
+     "lift": 0.01688,
+     "belowKnee": 0.0595,
+     "apron": 0.02212,
+     "flare": 0.2692,
+     "vert": 0.0497
+    }
+   }
+  },
+  {
+   "name": "strict seated uneven (sit_down/sit_hold/stand_up clips + ride-seated runtime)",
+   "ok": true,
+   "frames": 86,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0162,
+     "at": "stand_up@1.1690/uneven"
+    },
+    "belowKnee": {
+     "v": 0.0602,
+     "at": "stand_up@1.1690/uneven"
+    },
+    "apron": {
+     "v": 0.0212,
+     "at": "stand_up@1.1690/uneven"
+    },
+    "flare": {
+     "v": 0.2692,
+     "at": "ride@11.871 stand_up/uneven"
+    },
+    "vert": {
+     "v": 0.0495,
+     "at": "ride@11.802 stand_up/uneven"
+    }
+   },
+   "fails": [],
+   "items": {
+    "clip:sit_hold/uneven": {
+     "frames": 0
+    },
+    "clip:stand_up/uneven": {
+     "frames": 24,
+     "lift": 0.01616,
+     "belowKnee": 0.06021,
+     "apron": 0.02121,
+     "flare": 0.26912,
+     "vert": 0.04921
+    },
+    "clip:sit_down/uneven": {
+     "frames": 14,
+     "lift": 0.01334,
+     "belowKnee": 0.06303,
+     "apron": 0.01884,
+     "flare": 0.26063,
+     "vert": 0.03598
+    },
+    "runtime:ride-seated/uneven": {
+     "frames": 48,
+     "lift": 0.01558,
+     "belowKnee": 0.0608,
+     "apron": 0.02074,
+     "flare": 0.26916,
+     "vert": 0.04953
+    }
+   }
+  },
+  {
+   "name": "negative: registered 773c061e seated values (stand_up + ride-seated, every dt) must FAIL strict",
+   "ok": true
+  },
+  {
+   "name": "negative: 773c061e stand_up curves + morph state must FAIL strict",
+   "ok": true,
+   "failCounts": {
+    "30": 31,
+    "60": 59,
+    "uneven": 65
+   }
+  },
+  {
+   "name": "negative: 773c061e walk_loop front curves must FAIL",
+   "ok": true,
+   "failCounts": {
+    "30": 220,
+    "60": 435,
+    "uneven": 430,
+    "runtime30": 1974
+   }
+  },
+  {
+   "name": "negative: 773c061e door_reach front curves must FAIL",
+   "ok": true,
+   "failCounts": {
+    "30": 104,
+    "60": 212,
+    "uneven": 210,
+    "runtime30": 208
+   }
+  },
+  {
+   "name": "negative: sit_down front panel pitched 5 deg further up must FAIL strict",
+   "ok": true,
+   "failCounts": {
+    "30": 8,
+    "60": 13
+   }
+  }
+ ]
+}

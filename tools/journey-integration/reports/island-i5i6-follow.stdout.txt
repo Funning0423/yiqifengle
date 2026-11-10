@@ -1,0 +1,16 @@
+390x844 per-occluder face s {} lighthouse 0.000
+390x844 {"face":0,"margin":0.144,"menu":0,"hud":0,"ground":99,"solid":2.35,"v":3.8,"step":0.127,"yaw":19,"pitch":42.4,"acc":127,"fov":0}
+414x896 per-occluder face s {} lighthouse 0.000
+414x896 {"face":0,"margin":0.144,"menu":0,"hud":0,"ground":99,"solid":2.35,"v":3.8,"step":0.127,"yaw":19,"pitch":42.4,"acc":127,"fov":0}
+360x780 per-occluder face s {} lighthouse 0.000
+360x780 {"face":0,"margin":0.144,"menu":0,"hud":0,"ground":99,"solid":2.35,"v":3.8,"step":0.127,"yaw":19,"pitch":42.4,"acc":127,"fov":0}
+375x667 per-occluder face s {} lighthouse 0.000
+375x667 {"face":0,"margin":0.151,"menu":0,"hud":0,"ground":99,"solid":2.37,"v":3.52,"step":0.117,"yaw":19,"pitch":39.5,"acc":120,"fov":0}
+320x568 per-occluder face s {} lighthouse 0.000
+320x568 {"face":0,"margin":0.144,"menu":0,"hud":0,"ground":99,"solid":2.35,"v":3.8,"step":0.127,"yaw":19,"pitch":42.4,"acc":127,"fov":0}
+390x520 per-occluder face s {} lighthouse 0.000
+390x520 {"face":0,"margin":0.151,"menu":0,"hud":0,"ground":99,"solid":2.37,"v":3.52,"step":0.117,"yaw":19,"pitch":39.5,"acc":120,"fov":0}
+768x1024 per-occluder face s {} lighthouse 0.000
+768x1024 {"face":0,"margin":0.144,"menu":0,"hud":0,"ground":99,"solid":2.35,"v":3.8,"step":0.127,"yaw":19,"pitch":42.4,"acc":127,"fov":0}
+walk I5>I6 9.161 m 7.634 s walkTiers {"lowRock":{"m":3,"who":null},"fence":{"m":0.416,"who":"fence_segment_01#2097"},"solid07":{"m":0.977,"who":"planter_hydrangea_01#2142"},"solid1m":{"m":1.489,"who":"beach_palm_tall:trunk"},"veg":{"m":0.197,"who":"grass_tuft_02#751"},"frond":{"m":1.328,"who":"beach_palm_tall:frond"}}
+island-i3i4-follow: PASS

@@ -1,0 +1,17 @@
+self-test path across low rock rock_01@5.588,1.609 FAIL as expected 0.000
+self-test path 0.3 m from fence_segment_01@8.2,2.95 FAIL as expected 0.052
+self-test path 0.25 m from rock_03@11.538,6.036 solid-1m FAIL as expected 0.000
+self-test path through palm_young crown frond FAIL as expected 0.000
+self-test synthetic 0.30 m gap FAIL as expected, y-ground 1.000
+self-test sand outside ramp west edge FAIL as expected, y-ground 0.485 edge 0.05
+self-test 3a05ca8a I5-I6 FAIL as expected, y-ground 0.000 [ -1.99, 3.04 ] edge 0.1 [ -1.76, 8.27 ]
+self-test 6a692409 I4-I6 vs grass_tuft_01 #1983 spike FAIL as expected 0.140 m at [ 4.27, 4.77 ]
+self-test 9d2bdc6f I3-I4 vegetation FAIL as expected 0.113 m at [ 3.7, 5.2 ]
+self-test 9d2bdc6f I4-I6 vegetation FAIL as expected 0.010 m at [ 2.8, 6 ]
+I1-I2 veg 0.155 grass_tuft_01#1546 [ -0.55, 6.68 ] | y-floor max 0.000 [ -0.13, 6.96 ] | trunk 1.302 beach_palm_tall | drop-off edge >0.15  | solids low-rock >0.65 fence >0.9 planter-bench >1 rock-0.5 >1 solid-1m >1.5 | frond >1  
+I2-I3 veg 0.890 grass_tuft_02#1516 [ 3.49, 8.45 ] | y-floor max 0.003 [ 3.17, 8.27 ] | trunk 1.184 env_prop_palm_lean_01 | drop-off edge >0.15  | solids low-rock >0.65 fence >0.9 planter-bench >1 rock-0.5 >1 solid-1m >1.5 | frond 0.824 env_prop_palm_lean_01 [ 4.86, 9.1 ]
+I3-I4 veg 0.203 grass_tuft_01#1983 [ 4.2, 4.7 ] | y-floor max 0.018 [ 3.14, 6.27 ] | trunk 1.215 env_prop_palm_lean_01 | drop-off edge 0.15 [ 3.8, 9.3 ] | solids low-rock >0.65 fence >0.9 planter-bench >1 rock-0.5 >1 solid-1m >1.5 | frond 0.608 env_prop_palm_young_01 [ 4.13, 4.13 ]
+I4-I5 veg 0.153 grass_tuft_02#751 [ -2.61, 2.44 ] | y-floor max 0.001 [ -2.34, 3.43 ] | trunk 1.127 env_prop_palm_young_01 | drop-off edge >0.15  | solids low-rock 0.212@2.21,4.12 rock_01#2041 fence 0.465@-2.17,1.59 fence_segment_01#2098 planter-bench 0.977@-2.46,1.33 planter_hydrangea_01#2142 rock-0.5 >1 solid-1m >1.5 | frond 0.518 env_prop_palm_young_01 [ 3.31, 4.16 ]
+I5-I6 veg 0.196 grass_tuft_02#751 [ -2.63, 2.38 ] | y-floor max 0.024 [ -1.67, 7.93 ] | trunk 1.472 beach_palm_tall | drop-off edge >0.15  | solids low-rock >0.65 fence 0.415@-2.14,1.48 fence_segment_01#2098 planter-bench 0.977@-2.46,1.32 planter_hydrangea_01#2142 rock-0.5 >1 solid-1m >1.5 | frond >1  
+I4-I6 veg 0.174 grass_tuft_01#598 [ -1.04, 7.72 ] | y-floor max 0.017 [ -1.5, 8.33 ] | trunk 1.201 beach_palm_tall | drop-off edge >0.15  | solids low-rock >0.65 fence >0.9 planter-bench >1 rock-0.5 >1 solid-1m >1.5 | frond 0.608 env_prop_palm_young_01 [ 4.11, 4.15 ]
+island-walk-gates PASS
