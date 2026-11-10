@@ -7,6 +7,9 @@ export function createPersistentMainlinePort(namespace=MAINLINE_NAMESPACE) {
  if(!/^dot-mainline-r1-(isolated|test)-[a-zA-Z0-9:_-]+:$/.test(namespace))throw Error('Isolated mainline namespace required');
  const ls=writeThroughStorage({getItem:(k:string)=>sys.localStorage.getItem(namespace+k),setItem:(k:string,v:string)=>sys.localStorage.setItem(namespace+k,v)});
  const port=MainlinePort.createPort(ls);
+ // Boot window, not the first setCamera frame: later createController reads hit memory (steady getItem stays 0).
+ const warmKeys=()=>{for(let i=0;i<MAINLINE_KEYS.length;i++)ls.getItem(MAINLINE_KEYS[i]);};
+ try{const later=(globalThis as any).setTimeout;if(typeof later==='function')later(warmKeys,0);else warmKeys();}catch{warmKeys();}
  return Object.assign(port,{namespace,storageCache:ls,inspect:()=>MAINLINE_KEYS.map(k=>[k,ls.getItem(k)])});
 }
 /** P0 freeze (Mac chainL b9fe8f39, CDP stack): ManagedMobileBoardUI render → paintToolTray → barTools → toolCatalog → tools →

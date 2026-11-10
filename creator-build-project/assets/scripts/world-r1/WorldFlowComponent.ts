@@ -269,9 +269,18 @@ export class WorldFlowComponent extends Component {
     // Periodic telemetry must not keep resetting the IDE's storage persistence debounce.
     // State transitions remain inspectable; tick details remain in console.
     // P0 finR: never a sync host write from a world state change; WeChat writes the diagnostic asynchronously.
-    try {if(event!=='tick'){const key='dot-runtime-diagnostics-20261010:world-flow',json=JSON.stringify(data),wx=(globalThis as any).wx;
-      if(wx&&typeof wx.setStorage==='function')wx.setStorage({key,data:json,fail:(e:any)=>console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(e?.errMsg||e))});
-      else sys.localStorage.setItem(key,json);}}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}
+    try {if(event!=='tick'){const key='dot-runtime-diagnostics-20261010:world-flow',json=JSON.stringify(data);
+      const g=globalThis as any;const slot=g.__qfDiagDirty||(g.__qfDiagDirty={at:0,json:'',timer:0,pending:''});
+      const now=Date.now();const flushing=event==='diag-flush';const payload:string=flushing?slot.pending:json;
+      if(!flushing){
+        if(slot.json===json&&slot.at&&now-slot.at<250)return;
+        if(slot.at&&now-slot.at<250){slot.pending=json;slot.json=json;if(!slot.timer){const wait=Math.max(0,250-(now-slot.at));slot.timer=setTimeout(()=>{slot.timer=0;this.reportRuntime('diag-flush');},wait);}return;}
+        slot.at=now;slot.json=json;slot.pending='';
+      }else{slot.pending='';slot.at=now;}
+      if(!payload)return;
+      const wx=g.wx;if(wx&&typeof wx.setStorage==='function')wx.setStorage({key,data:payload,fail:(e:any)=>console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(e?.errMsg||e))});
+      else sys.localStorage.setItem(key,payload);
+    }}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}
     // build05 DevTools check: the full snapshot (~11.7 KB) flooded the release console. Debug builds, or an explicit
     // opt-in (globalThis.__worldFlowLog = true, e.g. for a recording session), only. snapshot() itself is untouched.
     if(worldFlowConsoleEnabled(DEBUG,(globalThis as any).__worldFlowLog))console.info('[OI_WORLD_FLOW]',JSON.stringify(data));
@@ -382,7 +391,7 @@ export class WorldFlowComponent extends Component {
     finally {if(this.roomLookToken===token)this.roomLookToken=null;}
   }
   bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok){this.herAdapter=adapter;this.armTransitionShaderWarm();}/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
-  /** Spread character/island/meadow shader variants one per frame. Does not await, and does not hold animateCamera. */
+  /** TSW begin/watch only. Journey variants are not compiled from this update (#66 stays off; a per-frame getShaderVariant was the steady-frame sync). */
   private armTransitionShaderWarm():void{beginTransitionShaderWarm();const scene=director.getScene();if(scene)watchTransitionRoot(scene);if(this.ownedModel)watchTransitionRoot(this.ownedModel);const her=(this.herAdapter as any)&&((this.herAdapter as any).node||(this.herAdapter as any).root);if(her)watchTransitionRoot(her);}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
     token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);this.worldAmbient=ambient;ambient.clipUuids=REGIONS.island.ambientClipUuids!;this.ownedModel=model;this.node.addChild(model);

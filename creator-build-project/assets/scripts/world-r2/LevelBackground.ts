@@ -62,7 +62,12 @@ export class LevelBackgroundBinding {
    *  frame with the same layout): the board-background camera is re-posed only when portrait/layout actually change. */
   private framed='';
   frame=(portrait:boolean,layout?:LevelBackgroundFrame):void=>{if(this.disposed)return;this.portrait=portrait;this.layout=layout;if(!this.lease)return;const k=frameKey(portrait,layout);if(k===this.framed)return;this.framed=k;this.lease.frame(portrait,layout);};
-  setVisible(visible:boolean):void{if(this.disposed)return;this.lease?.setVisible(visible);}
+  setVisible(visible:boolean):void{
+    if(this.disposed)return;
+    // Sky-city reveal hook (SkycityBoardBackground stays frozen). Installs batching + staggered enable before the lease shows.
+    if(visible){try{const fn=(globalThis as any).__qfOnBoardVisible;if(typeof fn==='function')fn(this.selection);}catch{/* perf optional */}}
+    this.lease?.setVisible(visible);
+  }
   primeScene():void{if(this.disposed)return;this.lease?.primeScene?.();}
   setPaused(paused:boolean):void{if(this.disposed)return;this.paused=paused;this.lease?.setPaused?.(paused);}
   /** cand8: fade the background out over `seconds` (default 0.3 s) on the caller's frame clock, then dispose it.

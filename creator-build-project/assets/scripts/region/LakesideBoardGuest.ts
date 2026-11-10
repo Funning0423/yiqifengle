@@ -101,6 +101,9 @@ export function withRegionBoardGuest(region:string,rigName:string,layer:number,f
    journey=model&&jr?jr.children.find(c=>c.name===model!.name)||null:null;
    if(model)guest=mountRegionBoardGuest(region,model,layer);}catch{guest=null;}
   if(!guest&&!(model&&journey))return lease;const g=guest,dispose=lease.dispose,m=model,j=journey;let synced=false,ambient=0;
+  // Sky-city: merge static meshes that share a material (no new shader variant). Reveal still finish()es so the
+  // visible camera does not compile stragglers — the flight warm already drew those materials. Meadow is unchanged.
+  try{if(region==='skycity'){const batch=(globalThis as any).__qfBatchSkycityBoard;if(typeof batch==='function'&&rigNode)batch(rigNode);}}catch{/* batch optional */}
   // r5 G1: spread model creation + first-draw shader compiles over the level-loading frames (RegionBoardStaging); the reveal finishes it.
   let staging:BoardStaging|null=null;try{staging=stageRegionBoard(rigNode);}catch{staging=null;}
   return {frame:(p,l)=>lease.frame(p,l),

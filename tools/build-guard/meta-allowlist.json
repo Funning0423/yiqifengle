@@ -187,6 +187,42 @@
         "importer": "typescript"
       },
       "why": "b20 lakeside LAKESIDE_KIT base tip ships CoastBoardPieces.ts.meta alongside BoardKit (feature 51b6e4ed → integrate; coast kit stays unregistered). Grok Bot assigned lakeside fusion trial tip."
+    },
+    "creator-build-project/assets/scripts/region/PerfBudget.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "perf/r5-p0-p2: headless schedule for flight warm, board batch, GPU lease and dirty storage. Does not enable TransitionShaderWarm."
+    },
+    "creator-build-project/assets/scripts/region/FlightShaderPrime.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "perf/r5-p0-p2: one-shot BalloonTransit setCamera prime. TSW after_draw stays OFF (b2b1146 / #66)."
+    },
+    "creator-build-project/assets/scripts/region/JourneyShaderPrime.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "perf/r5-p0-p2: finite idle compile for LiveHandoff. Separate from TransitionShaderWarm; listener is not used."
+    },
+    "creator-build-project/assets/scripts/region/RegionGpuLease.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "perf/r5-p0-p2: release unreferenced region bundles after leave; reload on return."
+    },
+    "creator-build-project/assets/scripts/region/SkycityBoardSlot.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "perf/r5-p0-p2: slot that hands the flight-warmed sky-city board model to mountRegion. No engine import."
+    },
+    "creator-build-project/assets/scripts/region/SkycityBoardBatch.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "perf/r5-p0-p2: sky-city board instancing/merge outside the frozen SkycityBoardBackground so scene design can merge the in-scene board later."
     }
   },
   "watchRefs": [
