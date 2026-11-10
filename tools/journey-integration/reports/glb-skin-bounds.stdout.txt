@@ -1,0 +1,13 @@
+TRUNK_VS_SKINCJS [name, old m, fixed m] [["env_prop_palm_young_01",4.041,0.001],["env_prop_palm_lean_01",8.981,0],["env_prop_palm_tall_01",3.955,0]]
+SKIN_VS_RENDERED [name, old xz error m, fixed xz error m] [["env_prop_palm_young_01",4.024,0.03],["env_prop_palm_tall_01",5.765,0.128],["env_prop_palm_lean_01",9.92,0.4],["env_rear_window_palm",8.432,0.34],["env_anim_cat_tuxedo_01",5.834,0.011],["env_anim_crab_01",9.846,0.013],["env_anim_seagull_01",9.243,0.008],["env_anim_turtle_01",9.266,0]]
+PASS lib-glb load(): skinned node uses joint world · inverseBind (synthetic rig offset 10 m ignored as Creator does)
+PASS palm trunks (young/lean/tall) within 0.3 m of 场景设计部 skin.cjs reference; old path ≥3 m off
+PASS island skinned meshes (8, 4 palms): corrected xz centre within 0.5 m of the live Creator worldBounds; old path 4–10 m off
+{
+ "status": "PASS",
+ "checks": [
+  "lib-glb load(): skinned node uses joint world · inverseBind (synthetic rig offset 10 m ignored as Creator does)",
+  "palm trunks (young/lean/tall) within 0.3 m of 场景设计部 skin.cjs reference; old path ≥3 m off",
+  "island skinned meshes (8, 4 palms): corrected xz centre within 0.5 m of the live Creator worldBounds; old path 4–10 m off"
+ ]
+}

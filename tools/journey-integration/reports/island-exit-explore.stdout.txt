@@ -1,1 +1,1 @@
-PASS island-exit-explore (idle journey opens explore; ground tap walks 13.5 m)
+PASS island-exit-explore (idle journey opens explore; ground tap walks 3.2 m)

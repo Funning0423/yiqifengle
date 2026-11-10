@@ -1,0 +1,67 @@
+[QF_SKY_FRAME] {"root":[59.064,18.818,117.212],"seam":[59.06373,18.818369,117.212135],"liveRimDelta":[0,0,0],"yawDeg":-118.835,"yawErrDeg":0}
+[QF_SKY_FRAME] {"root":[59.064,18.818,117.212],"seam":[59.06373,18.818369,117.212135],"liveRimDelta":[-0.387,-0.187,26.619],"yawDeg":-118.835,"yawErrDeg":0}
+{
+ "bridge": {
+  "meadowRoot": [
+   -1.314,
+   -1.163,
+   52.481
+  ],
+  "skyRoot": [
+   59.064,
+   18.818,
+   117.212
+  ],
+  "deltaM": [
+   0,
+   0,
+   0
+  ],
+  "errM": 0,
+  "yawErrDeg": 0,
+  "finaleEndLocal": [
+   0.2,
+   0.034,
+   -27.8
+  ],
+  "finaleEndWorld": [
+   83.32,
+   18.852,
+   130.795
+  ],
+  "toS6M": 0.001,
+  "prewalkM": 0
+ },
+ "sail": {
+  "meadowRoot": [
+   -1.7,
+   -1.35,
+   79.1
+  ],
+  "skyRoot": [
+   59.064,
+   18.818,
+   117.212
+  ],
+  "deltaM": [
+   0,
+   0,
+   0
+  ],
+  "errM": 0,
+  "yawErrDeg": 0,
+  "finaleEndLocal": [
+   0.2,
+   0.034,
+   -27.8
+  ],
+  "finaleEndWorld": [
+   83.32,
+   18.852,
+   130.795
+  ],
+  "toS6M": 0.001,
+  "prewalkM": 0
+ }
+}
+skycity-root-frame: PASS
