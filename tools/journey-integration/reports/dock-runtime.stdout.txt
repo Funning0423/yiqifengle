@@ -1,0 +1,5 @@
+PASS SailGangwayExtras.ts matches sailboat.glb hinge extras {"stowedDeg":95,"meadowDeployDeg":-16,"islandHinge":[-0.8,0.585,0.15],"islandYawDeg":180,"islandDeployDeg":23,"lengthM":0.625,"widthM":0.5}
+PASS basket obstacles: meadow M4→liftoff, landing settle→released, 5a basket-in→liftoff
+PASS source contracts: real model > placeholder, late dock removes boxes, transit_pier off, ropes stowed, night dim skips placeholders, gangway driven
+PASS no console.error in the cand7 modules
+{"status":"PASS","passed":4}
