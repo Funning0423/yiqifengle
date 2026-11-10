@@ -1,0 +1,14 @@
+ok   390x844: 60fps lens 2532 push 0 | 30fps lens 2532 push 0 | uneven lens 2532 push 0
+ok   414x896: 60fps lens 2532 push 0 | 30fps lens 2532 push 0 | uneven lens 2532 push 0
+ok   360x780: 60fps lens 2532 push 0 | 30fps lens 2532 push 0 | uneven lens 2532 push 0
+ok   375x667: 60fps lens 2532 push 0 | 30fps lens 2532 push 0 | uneven lens 2532 push 0
+ok   320x568: 60fps lens 2532 push 0 | 30fps lens 2532 push 0 | uneven lens 2532 push 0
+ok   390x520: 60fps lens 2532 push 0 | 30fps lens 2532 push 0 | uneven lens 2532 push 0
+ok   768x1024: 60fps lens 2532 push 0 | 30fps lens 2532 push 0 | uneven lens 2532 push 0
+ok   negative: 2 writers (lens 2532 + rogue 2531, 2/frame) -> single-writer verdict FAILS as required
+ok   negative: selection change at frame 30 -> lens cancelled, push-in writes 720 -> verdict FAILS; quiet; scene disposed, her uninstalled
+ok   negative: no __qfCoast.runCoastArrival after loadBundle -> console.error [QF_COAST] (= FAIL on the Mac)
+ok   negative: loadCoastScene -> null (not cancelled) -> [QF_COAST] scene-null, NO arrival, no her
+ok   scene kept at the arrival end (board stands in it)
+ok   kit off: patched 156 = original 156 (no load, no her, same 0 enter-level writes, same order)
+PASS coast-arrival-single-writer
