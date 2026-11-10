@@ -1,0 +1,5 @@
+ok   7 screens: pose = fixture (quat/FOV identical, distance only), 49 tiles world exact, projection (slab top 0.12) worst 0.069 pt
+ok   BoardKit.ts writes no camera (setEnterLevelEnd provider only)
+     REPORT top info-board overlap (placeholder distances, open item for Grok Bot): 320x568: rim top y 181.2 < no-go bottom 194 (overlap 12.8 pt)
+     REPORT top info-board overlap (placeholder distances, open item for Grok Bot): 390x520: rim top y 159.9 < no-go bottom 171.7 (overlap 11.8 pt)
+board-kit-camera: PASS (2 screens overlap the top info board: REPORT until distances are final)
