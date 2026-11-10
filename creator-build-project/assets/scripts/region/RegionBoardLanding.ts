@@ -130,7 +130,7 @@ export async function regionLandingToBoard(context:Readonly<{region:BoardLanding
  try{
   const from=d.readCamera();if(!from)return done(false,'no-camera');const v=d.viewport(),to=d.boardPose(v);if(!to)return done(false,'no-board-pose');
   const gap=poseGap(from,to),X=REGION_BOARD_LANDING.exact,M=REGION_BOARD_LANDING.match;
-  if(gap.positionM<=X.positionM&&gap.viewDeg<=X.viewDeg&&Math.abs(gap.fovDeg)<=X.fovDeg){stage='write';return (camTag('regionLandingToBoard'),d.setCamera)(to)?done(true,'on-board-pose',{gap}):done(false,'camera-rejected',{gap});}
+  if(gap.positionM<=X.positionM&&gap.viewDeg<=X.viewDeg&&Math.abs(gap.fovDeg)<=X.fovDeg){stage='write';if(gap.positionM<1e-3)await d.nextFrame()/* onewriter: regionBoardHandoff wrote it this frame */;return (camTag('regionLandingToBoard'),d.setCamera)(to)?done(true,'on-board-pose',{gap}):done(false,'camera-rejected',{gap});}
   if(!(gap.positionM<=M.positionM&&gap.viewDeg<=M.viewDeg&&Math.abs(gap.fovDeg)<=M.fovDeg))return done(false,'not-at-landing',{gap});
   stage='blend';const R=REGION_BOARD_LANDING,seconds=Math.min(R.residualS[1],Math.max(R.residualS[0],gap.positionM/R.residualMps)),at=poseBlend(from,to,seconds);let t=0,frames=0;
   for(;;){if(!(camTag('regionLandingToBoard'),d.setCamera)(at(t)))return done(false,'camera-rejected',{gap,frames});if(t>=seconds)break;const dt=await d.nextFrame();frames++;t+=Number.isFinite(dt)&&dt>0?Math.min(.1,dt):0;}

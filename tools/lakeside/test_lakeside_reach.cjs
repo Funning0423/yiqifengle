@@ -67,7 +67,7 @@ t('production path has no ?lakeside=1 switch and no lakeside bridge strip',()=>{
  assert.match(prep,/awaitVehicle\(\{kind:'balloon'/);
  assert.match(prep,/loadTransitPrefab\('transport_balloon'\)/);
  assert.match(prep,/stepTransitClock/);
- assert.match(prep,/const L=lakesideJourney\(start\);model\.setRotationFromEuler\(0,L\.yawDeg,0\);model\.setWorldPosition\(L\.root\[0\],L\.root\[1\],L\.root\[2\]\);/);
+ assert.match(prep,/const M5C=TRANSITION_STAGING\.skyMooring5a,L=lakesideJourney\(continuousTransitions\(\)&&M5C\.option==='C'\?\[\.\.\.M5C\.walkWorld\[0\]\] as Vec:start\);model\.setRotationFromEuler\(0,L\.yawDeg,0\);model\.setWorldPosition\(L\.root\[0\],L\.root\[1\],L\.root\[2\]\);/);
  assert.match(adapter,/if\(to==='lakeside'\)return prepareLakesideJourney\(/);
  assert.doesNotMatch(adapter,/from==='lakeside'&&to==='meadow'/);
 });
