@@ -24,6 +24,7 @@ function repo(){const r=path.join(tmp,'r'+(++n));fs.mkdirSync(r);g(r,'init','-q'
 const check=(r,al=AL,extra={})=>MA.run({root:r,base:'HEAD',allowlist:al,...extra});
 const pass=x=>!x.fail.length&&!x.review.length;
 const results=[];const t=(name,fn)=>{fn();results.push(name);};
+function withEnv(key,value,fn){const prev=process.env[key];if(value===undefined)delete process.env[key];else process.env[key]=value;try{return fn();}finally{if(prev===undefined)delete process.env[key];else process.env[key]=prev;}}
 try{
   const emptyAl=path.join(tmp,'empty.json');fs.writeFileSync(emptyAl,JSON.stringify({files:{},watchRefs:[],forbidBuildRefs:[]}));
   t('allowed: encode true + remove 0e588 -> PASS',()=>{const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;delete m.subMetas['0e588'];w(r,MEADOW,m);const x=check(r);assert.ok(pass(x),JSON.stringify(x));assert.equal(x.ok.length,2);});
@@ -47,8 +48,108 @@ try{
   t('deleted .meta -> FAIL',()=>{const r=repo();fs.unlinkSync(path.join(r,'creator-build-project/assets/bundles/region_meadow/other.png.meta'));const x=check(r);assert.match(x.fail.join('\n'),/META_DELETED/);});
   t('uuid change -> FAIL',()=>{const r=repo(),m=baseMeta();m.uuid='bb978abb-0000-0000-0000-000000000000';w(r,MEADOW,m);const x=check(r);assert.match(x.fail.join('\n'),/UUID_CHANGED/);});
   t('sub-asset uuid change -> FAIL',()=>{const r=repo(),m=baseMeta();m.subMetas['85da7'].uuid=U+'@99999';w(r,MEADOW,m);assert.ok(!pass(check(r)));});
-  fs.writeFileSync(path.join(tmp,'nobase.json'),JSON.stringify({baseRef:'no/such-branch',files:{}}));
-  t('missing base ref -> FAIL',()=>{const r=repo();const x=MA.run({root:r,allowlist:path.join(tmp,'nobase.json')});assert.match(x.fail.join('\n'),/NO_BASE/);});
+  t('no integration ref and no 95dc672d -> NO_BASE (stale allowlist baseRef is ignored)',()=>{
+    const r=repo();
+    const stale=path.join(tmp,'stale-baseref.json');
+    fs.writeFileSync(stale,JSON.stringify({baseRef:'ggbot/full9c-final',files:{}}));
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const x=MA.run({root:r,allowlist:stale});
+      assert.equal(x.base,null);
+      assert.match(x.fail.join('\n'),/NO_BASE: cannot resolve merge-base with origin\/gbt\/r5-b20-integrate-landing-visual-bg2 or gbt\/r5-b20-integrate-landing-visual-bg2, and 95dc672d is missing/);
+    });
+  });
+  const INTEGRATION='gbt/r5-b20-integrate-landing-visual-bg2';
+  const LEGIT='creator-build-project/assets/bundles/region_meadow/legit_on_integration.png.meta';
+  t('unset base on a branch off the integration branch uses origin merge-base; an unknown meta still fails',()=>{
+    const r=repo();
+    w(r,LEGIT,{importer:'image',uuid:'11111111-2222-3333-4444-555566667777'});
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','integration adds meta');
+    const integration=g(r,'rev-parse','HEAD').trim();
+    const rootCommit=g(r,'rev-parse','HEAD~1').trim();
+    g(r,'branch',INTEGRATION,integration);
+    g(r,'update-ref','refs/remotes/origin/'+INTEGRATION,integration);
+    g(r,'checkout','-q','-b','feature/off-integration');
+    fs.writeFileSync(path.join(r,'note.txt'),'feature\n');
+    g(r,'add','note.txt');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','feature work');
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const x=MA.run({root:r,allowlist:AL});
+      assert.ok(pass(x),JSON.stringify(x));
+      assert.equal(x.base,integration);
+      assert.equal(x.baseSource,'merge-base HEAD origin/'+INTEGRATION);
+      assert.match(x.info.join('\n'),new RegExp('base chosen: merge-base HEAD origin/'+INTEGRATION.replace(/[.]/g,'\\.')+' -> '+integration));
+      const sneaky='creator-build-project/assets/bundles/region_meadow/sneaky.png.meta';
+      w(r,sneaky,{uuid:'sneaky'});
+      const y=MA.run({root:r,allowlist:AL});
+      assert.equal(y.base,integration);
+      assert.match(y.fail.join('\n'),/META_ADDED .*sneaky\.png\.meta/);
+      fs.unlinkSync(path.join(r,sneaky));
+      const env=Object.assign({},process.env);delete env.META_ALLOWLIST_BASE;
+      const out=cp.execFileSync(process.execPath,[path.join(__dirname,'meta-allowlist.cjs'),'--root',r],{cwd:r,encoding:'utf8',env});
+      assert.match(out,/INFO base chosen: merge-base HEAD origin\/gbt\/r5-b20-integrate-landing-visual-bg2 -> /);
+      assert.match(out,/PASS meta-allowlist base=/);
+    });
+  });
+  t('explicit META_ALLOWLIST_BASE and --base override the integration default',()=>{
+    const r=repo();
+    w(r,LEGIT,{importer:'image',uuid:'11111111-2222-3333-4444-555566667777'});
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','integration adds meta');
+    const integration=g(r,'rev-parse','HEAD').trim();
+    const rootCommit=g(r,'rev-parse','HEAD~1').trim();
+    g(r,'update-ref','refs/remotes/origin/'+INTEGRATION,integration);
+    g(r,'checkout','-q','-b','feature/override');
+    withEnv('META_ALLOWLIST_BASE',rootCommit,()=>{
+      const z=MA.run({root:r,allowlist:AL});
+      assert.equal(z.base,rootCommit);
+      assert.equal(z.baseSource,'META_ALLOWLIST_BASE');
+      assert.match(z.info.join('\n'),new RegExp('base chosen: META_ALLOWLIST_BASE -> '+rootCommit));
+      assert.match(z.fail.join('\n'),/META_ADDED .*legit_on_integration/);
+      const over=MA.run({root:r,base:'HEAD',allowlist:AL});
+      assert.equal(over.base,'HEAD');
+      assert.equal(over.baseSource,'--base');
+      assert.ok(pass(over),JSON.stringify(over));
+    });
+  });
+  t('missing remote integration ref falls back to the local branch',()=>{
+    const r=repo();
+    w(r,LEGIT,{importer:'image',uuid:'11111111-2222-3333-4444-555566667777'});
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','integration adds meta');
+    const integration=g(r,'rev-parse','HEAD').trim();
+    const rootCommit=g(r,'rev-parse','HEAD~1').trim();
+    g(r,'branch',INTEGRATION,rootCommit);
+    g(r,'update-ref','refs/remotes/origin/'+INTEGRATION,integration);
+    g(r,'checkout','-q','-b','feature/no-remote');
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const remoteWins=MA.run({root:r,allowlist:AL});
+      assert.equal(remoteWins.base,integration);
+      assert.equal(remoteWins.baseSource,'merge-base HEAD origin/'+INTEGRATION);
+      assert.ok(pass(remoteWins),JSON.stringify(remoteWins));
+      g(r,'update-ref','-d','refs/remotes/origin/'+INTEGRATION);
+      const local=MA.run({root:r,allowlist:AL});
+      assert.equal(local.base,rootCommit);
+      assert.equal(local.baseSource,'merge-base HEAD '+INTEGRATION);
+      assert.match(local.info.join('\n'),/base chosen: merge-base HEAD gbt\/r5-b20-integrate-landing-visual-bg2 -> /);
+      assert.ok(!local.baseSource.includes('origin/'));
+      assert.match(local.fail.join('\n'),/META_ADDED .*legit_on_integration/);
+    });
+  });
+  t('missing remote and local integration refs fall back to 95dc672d',()=>{
+    const real=path.resolve(__dirname,'../..');
+    const full=g(real,'rev-parse','95dc672d^{commit}').trim();
+    const r=path.join(tmp,'fallback-pin');fs.mkdirSync(r);
+    g(r,'init','-q');
+    const objects=cp.execFileSync('git',['rev-parse','--absolute-git-dir'],{cwd:real,encoding:'utf8'}).trim();
+    fs.mkdirSync(path.join(r,'.git','objects','info'),{recursive:true});
+    fs.writeFileSync(path.join(r,'.git','objects','info','alternates'),path.join(objects,'objects')+'\n');
+    fs.writeFileSync(path.join(r,'README'),'seed\n');
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','seed');
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const x=MA.run({root:r,allowlist:AL});
+      assert.equal(x.baseSource,'fallback 95dc672d');
+      assert.equal(x.base,full);
+      assert.match(x.info.join('\n'),new RegExp('base chosen: fallback 95dc672d -> '+full));
+      assert.match(x.fail.join('\n'),/META_DELETED creator-build-project\/assets\/bundles\/region_transit_balloon\/transport_balloon\.glb\.meta/);
+    });
+  });
   t('build output still has @0e588 after removal -> FAIL; clean -> PASS; before removal -> pending INFO',()=>{
     const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;delete m.subMetas['0e588'];
     const bd=path.join(tmp,'build'),b=path.join(bd,'subpackages/region_meadow');fs.mkdirSync(path.join(b,'native/bb'),{recursive:true});

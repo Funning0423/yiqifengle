@@ -19,6 +19,9 @@
 # Env:   CREATOR=/path/to/CocosCreator.app/Contents/MacOS/CocosCreator  (required; or a fake builder for tests)
 #        MIN_BYTES=15000000  MAX_TRIES=3  KEEP_CACHE=0  LOG_DIR=<repo>/tools/build-guard/logs  SKIP_CREATOR_CHECK=0
 #        NODE=node (needed for release gates)
+#        META_ALLOWLIST_BASE=<ref>  optional meta-allowlist diff base, used as given (--base on the node gate wins).
+#        Unset: merge-base HEAD origin/gbt/r5-b20-integrate-landing-visual-bg2, else that local branch, else 95dc672d.
+#        The node gate prints which of those was chosen. Unknown .meta changes vs the chosen base still fail.
 # Probes (full9c): wechat RELEASE is built from a staged copy with /*QF_PROBE_BEGIN*/…/*QF_PROBE_END*/ regions stripped
 #        (strip-probes.cjs), then gated: release-gates.cjs --probe-free and --size (MAX_TOTAL_BYTES=24641536 MAX_MAIN_BYTES=4000000).
 #        STRIP_PROBES=1 is the default for wechat; STRIP_PROBES=0 = TEST build with probes (built in place, size/probe gates skipped).
@@ -139,8 +142,10 @@ stage_release(){
 }
 # metas the importer rewrote/created in the stage (the stage has no git): compare with the repo
 stage_dirty(){ (cd "$BP" && find assets -name '*.meta' -type f) | while read -r f; do cmp -s "$BP/$f" "$P/$f" || echo "$f"; done; }
-# Pre-build gates (GGbot 2026-10-29): per-field .meta allowlist vs the base (META_ALLOWLIST_BASE or merge-base with
-# ggbot/full9c-final) and manifest entries that point at files. Both need node; no node = no build.
+# Pre-build gates (GGbot 2026-10-29): per-field .meta allowlist vs the base, and manifest entries that point at files.
+# Base: META_ALLOWLIST_BASE or --base if set (used as given). Otherwise meta-allowlist.cjs prints the base it chose:
+# merge-base HEAD origin/gbt/r5-b20-integrate-landing-visual-bg2, else the local branch of that name, else 95dc672d.
+# Both gates need node; no node = no build. Unknown .meta changes vs that base still fail. The balloon auto-restore is unchanged.
 NODE=${NODE:-node}; command -v "$NODE" >/dev/null 2>&1 || die "node not found (set NODE=/path/to/node); the meta-allowlist gate needs it"
 gate(){ "$NODE" "$HERE/meta-allowlist.cjs" --root "$REPO" "$@" || die "meta-allowlist gate failed ${1:+($*)}"; "$NODE" "$HERE/manifest-files-exist.cjs" --root "$REPO" "$@" || die "manifest-files-exist gate failed ${1:+($*)}"; }
 gate

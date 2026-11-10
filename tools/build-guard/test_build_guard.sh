@@ -37,6 +37,7 @@ run(){ R=$1; shift; export META_ALLOWLIST_BASE=${META_BASE_OVERRIDE:-HEAD}; PLAN
 # 1) bad, bad, good -> pass on try 3, total printed, metas intact, caches gone
 R=$(mkrepo 1); c=$(run "$R" wechat 1 "bad bad good"); cat "$T/out1"
 [ "$c" = 0 ] || fail "case1 exit $c"; grep -q "try 3/3" "$T/out1" || fail "case1 no retry"; grep -q "TOTAL_BYTES=16000000" "$T/out1" || fail "case1 total"
+grep -q "INFO base chosen: META_ALLOWLIST_BASE -> HEAD" "$T/out1" || fail "case1 base"
 grep -q "BUILD GUARD PASSED: wechat-release 16000000" "$T/out1" || fail "case1 summary"; [ -z "$(cd "$R" && git status --porcelain)" ] || fail "case1 dirty"
 [ ! -d "$R/creator-build-project/library" ] && [ ! -d "$R/creator-build-project/temp" ] || fail "case1 caches left"
 grep -q '"importer":"typescript"' "$R/creator-build-project/assets/scripts/a1.ts.meta" || fail "case1 meta not restored"
