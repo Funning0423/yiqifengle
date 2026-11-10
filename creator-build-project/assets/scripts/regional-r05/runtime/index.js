@@ -65,15 +65,15 @@ var coastPlayable=freeze([
     balanceNote:'m3 layout-unique translate fix; random N=200 target ~0.78'
   }),
   freeze({
-    id:'r06-coast-06',region:'coast',ordinal:6,name:'一起看晚霞',contentRevision:'m3-2026-11-09',intendedBand:'sunset-cross',
-    designIntent:'解开根结，让灯火陪我们看晚霞。',
-    config:{moves:24,goals:{beacons:3,roots:3,moss:3,type5:8},moss:[16,17,18,23,24,25,30,31,32],roots:[{index:22,layers:1},{index:24,layers:1},{index:26,layers:1}],beacons:[22,24,26],starters:[{index:14,special:'row'}]},
-    rules:{},tool:null,seedBank:[12],chapterName:'海岸漫游',
+    id:'r06-coast-06',region:'coast',ordinal:6,name:'一起看晚霞',contentRevision:'m3b-2026-11-09',intendedBand:'roots-lines-cross',
+    designIntent:'解开岸心根结，用直线奇果切开通道。',
+    config:{moves:18,goals:{roots:5,lines:1,type5:6},moss:[],roots:[{index:10,layers:1},{index:22,layers:1},{index:24,layers:1},{index:26,layers:1},{index:38,layers:1}],beacons:[],starters:[{index:14,special:'row'},{index:34,special:'column'}]},
+    rules:{},tool:null,seedBank:[11],chapterName:'海岸漫游',
     note:'晚霞落下来的时候，岸边会安静一点。',
-    failHint:'根须与灯同格时，清根也推进点灯；中心苔斑可顺手清。',
-    designPropsSource:'COAST06 adapted: plus -> center [22,24,26] L1 + moss 3x3; goals reduced; moves 46->24; one seed',
-    sequenceNote:'beacons+roots+moss after return-lamps',
-    balanceNote:'random N=200 target ~0.66 dip'
+    failHint:'根须旁消除有效；横/竖奇果计入直线目标。',
+    designPropsSource:'COAST06 redesign (m3b): drop beacons+moss; plus-cross roots [10,22,24,26,38] L1 + lines1 + type5; dual row/column starters; moves18; one seed',
+    sequenceNote:'roots+lines between return-lamps and fog-echo (no beacons/moss)',
+    balanceNote:'random N=200 target ~0.67 dip between 0.815 and 0.74; moves18'
   }),
   freeze({
     id:'r06-coast-07',region:'coast',ordinal:7,name:'雾中的回声',contentRevision:'m3-2026-11-09',intendedBand:'fog-echo',
