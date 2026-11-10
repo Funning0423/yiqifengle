@@ -47,6 +47,11 @@ export function requiresHarborScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r12-harbor-\d+$/.test(id);
 }
 
+/** 石灯苔庭 (r13-mossgarden-*) renders the live region_mossgarden scene. The board is painted into the raked court. */
+export function requiresMossgardenScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r13-mossgarden-\d+$/.test(id);
+}
+
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }

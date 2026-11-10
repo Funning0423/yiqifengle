@@ -141,9 +141,9 @@ export function createJourneyUi(h: JourneyUiHost) {
   /** Journey book (SPEC §13.1): fixed panel min(330, W−40) × 514 pt (458 when H < 700): progress, focus card, 3×3 seal grid. */
   function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void, _r5Gates?: any, island?: { stages?: any; lastPlayed?: any } | null): PopupPanel {
     const v = stack.view(), sc = popupScale(v.width, v.height), K = 1 / sc, short = v.height < 700;
-    const phPt = short ? 458 : 514, gridRows = Math.ceil(REGION_DEFS.length / 3), packed = gridRows > 3;
-    const cardH = short ? (packed ? 78 : 92) : (packed ? 96 : 112), cellH = short ? (packed ? 54 : 64) : (packed ? 60 : 76), cellGap = packed ? 4 : 8, sealD = short ? (packed ? 22 : 28) : (packed ? 26 : 32);
-    const nameDy = short ? (packed ? 32 : 38) : (packed ? 36 : 46), statusDy = short ? (packed ? 44 : 53) : (packed ? 50 : 63), afterCard = packed ? 8 : 12;
+    const phPt = short ? 458 : 514, gridRows = Math.ceil(REGION_DEFS.length / 3), packed = gridRows > 3, dense = gridRows > 4;
+    const cardH = short ? (dense ? 68 : packed ? 78 : 92) : (dense ? 86 : packed ? 96 : 112), cellH = short ? (dense ? 44 : packed ? 54 : 64) : (dense ? 48 : packed ? 60 : 76), cellGap = dense ? 3 : packed ? 4 : 8, sealD = short ? (dense ? 16 : packed ? 22 : 28) : (dense ? 18 : packed ? 26 : 32);
+    const nameDy = short ? (dense ? 26 : packed ? 32 : 38) : (dense ? 30 : packed ? 36 : 46), statusDy = short ? (dense ? 37 : packed ? 44 : 53) : (dense ? 41 : packed ? 50 : 63), afterCard = dense ? 6 : packed ? 8 : 12;
     const f = fitPt(v, phPt), pwPt = Math.min(330, Math.max(240, v.width - 40)) / f;
     const inp = journeyInput(journey, challenges, { stages: island?.stages ?? h.defaultStages(), lastPlayed: island?.lastPlayed ?? lastRegion() });
     const P = (x: number) => x * K * f, PW = P(pwPt), PH = P(phPt);

@@ -49,16 +49,16 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
 }
 { // ending seals (§13.5)
   const g={d:36,sp:44,gap:40};
-  const s=J.endingSeals(g,[]);assert.equal(s.length,J.REGION_DEFS.length);assert.deepEqual(s.slice(0,6).map(x=>x.x),[-110,-66,-22,22,66,110]);assert.deepEqual(s.slice(6).map(x=>x.x),[-110,-66,-22,22,66,110]);
-  assert.equal(s[0].dy,6.25);assert.equal(s[2].dy,0.25);assert.equal(s[6].dy,40+6.25);assert.deepEqual(s.map(x=>x.earned),[true,true,true,true,false,false,false,false,false,false,false,false]);
+  const s=J.endingSeals(g,[]);assert.equal(s.length,J.REGION_DEFS.length);assert.deepEqual(s.slice(0,7).map(x=>x.x),[-132,-88,-44,0,44,88,132]);assert.deepEqual(s.slice(7).map(x=>x.x),[-110,-66,-22,22,66,110]);
+  assert.equal(s[0].dy,9);assert.equal(s[2].dy,1);assert.equal(s[7].dy,40+6.25);assert.deepEqual(s.map(x=>x.earned),[true,true,true,true,false,false,false,false,false,false,false,false,false]);
   assert(J.endingSeals(g,['coast'])[4].earned);
   for(const [w,h] of [[320,568],[360,640],[375,667],[390,844],[414,896],[430,932],[768,1024]]){const k=E.endingLayoutChecks(w,h,0),L=E.endingLayout(w,h);assert(k.sealsFit&&L.girl.y1-L.girl.y0>=48-1e-6,w+'x'+h);assert(k.headBelowSeals&&k.girlClear,w+'x'+h+' '+JSON.stringify(k));}
   const src=fs.readFileSync(BUNDLE_FILE,'utf8');assert(/Shadow/.test(src)&&/44, 28, 14/.test(src),'soft per-seal shadow');assert(!/SealPlate|SealsBand|blur/i.test(src.replace(/~2\.2 pt blur/,'')),'no backing plate');
-  ok('ending: 12 seals, two rows 6+6 at Ø36/44/40 base geometry, soft shadow per seal, no plate');
+  ok('ending: 13 seals, two rows 7+6 at Ø36/44/40 base geometry, soft shadow per seal, no plate');
   // UI设计部 r3 cascade (c+b): ① margin 8 ② gap 6 ③ 2 rows Ø32/30/28 ④ 1 row (gap .25d, d=min(28,floor((W−40)/11))) ⑤ H<700 clearance 10 ⑥ shrink (≥48)
   const ORDER=['none','margin','gap','d32','d30','d28','row1','clear10','shrink'],S=E.ENDING_SEALS;
   assert.equal(S.headGap,6,'head gap 6 pt is the r3 spec value');assert.equal(S.minGirl,48,'48 pt minimum unchanged');
-  assert.equal(E.endingSingleRowD(320),18);assert.equal(E.endingSingleRowD(360),21);assert.equal(E.endingSingleRowD(430),26);
+  assert.equal(E.endingSingleRowD(320),17);assert.equal(E.endingSingleRowD(360),20);assert.equal(E.endingSingleRowD(430),24);
   const SIZES=[[320,568],[360,780],[375,667],[390,844],[393,852],[414,896],[430,932]],table=[];
   for(const [w,h] of SIZES){const L=E.endingLayout(w,h),k=E.endingLayoutChecks(w,h,0),G=L.seals,gh=L.girl.y1-L.girl.y0,st=L.cascade;
     assert(ORDER.includes(st),st);if(st==='clear10')assert(h<700,'clearance 10 only when H<700');assert.equal(G.clear,h<700&&ORDER.indexOf(st)>=7?10:15,w+'x'+h+' clearance');

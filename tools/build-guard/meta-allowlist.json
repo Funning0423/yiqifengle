@@ -445,6 +445,54 @@
         "importer": "javascript"
       },
       "why": "region/harbor-wireup: first verified wins used only by qfPre=unlock-harbor"
+    },
+    "creator-build-project/assets/bundles/region_mossgarden.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/mossgarden-wireup: moss garden subpackage (wx_subpackage, same shape as region_harbor)"
+    },
+    "creator-build-project/assets/bundles/region_mossgarden/models.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/mossgarden-wireup: env_mossgarden.glb folder"
+    },
+    "creator-build-project/assets/bundles/region_mossgarden/models/env_mossgarden.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "region/mossgarden-wireup: procedural moss garden; Creator fills sub-assets on import"
+    },
+    "creator-build-project/assets/scripts/regional-r05/runtime/mossgarden-levels-data.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/mossgarden-wireup: moss garden stage data (r13-mossgarden-01..08) joined beside harbor-levels-data.js"
+    },
+    "creator-build-project/assets/scripts/region/MossgardenSceneData.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/mossgarden-wireup: court board seat (pure numbers, no engine)"
+    },
+    "creator-build-project/assets/scripts/region/MossgardenBoardBackground.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/mossgarden-wireup: region_mossgarden board lease, court camera only"
+    },
+    "creator-build-project/assets/scripts/world-r2/mossgarden-unlock-seed.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/mossgarden-wireup: qfPre=unlock-mossgarden replays prior clears onto an isolated test profile"
+    },
+    "creator-build-project/assets/scripts/world-r2/mossgarden-unlock-witnesses.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/mossgarden-wireup: first verified wins used only by qfPre=unlock-mossgarden"
     }
   },
   "watchRefs": [

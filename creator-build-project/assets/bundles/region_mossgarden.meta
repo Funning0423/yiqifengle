@@ -1,0 +1,16 @@
+{
+  "ver": "1.2.0",
+  "importer": "directory",
+  "imported": true,
+  "uuid": "415e5860-e7ee-4995-a5e0-7812186b8178",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "isBundle": true,
+    "bundleConfigID": "wx_subpackage",
+    "bundleName": "region_mossgarden",
+    "priority": 1,
+    "compressionType": { "wechatgame": "subpackage" },
+    "isRemoteBundle": { "wechatgame": false }
+  }
+}
