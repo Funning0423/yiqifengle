@@ -85,7 +85,30 @@ var coastPlayable=freeze([
     designPropsSource:'COAST07 adapted: keep fog moss band [21-27]; beacons 3->2 ([21,24]); goals trimmed; moves 28->24; column+row; one seed',
     sequenceNote:'beacons+moss fog band after sunset-cross',
     balanceNote:'random N=200 target ~0.79 rise'
+  }),
+  freeze({
+    id:'r06-coast-08',region:'coast',ordinal:8,name:'浪花接力',contentRevision:'m4b-2026-11-09',intendedBand:'wave-relay-specials',
+    designIntent:'交换相邻奇果，用十字风与铃果切开潮路。',
+    config:{moves:24,goals:{lines:1,specials:2,type5:6},moss:[],roots:[],beacons:[],starters:[{index:0,special:'color'},{index:48,special:'row'},{index:20,special:'column'}]},
+    rules:{},tool:null,seedBank:[11],chapterName:'灯塔夜航',
+    note:'两口铃一响，潮水就让开一点。',
+    failHint:'先动横/竖奇果计入直线；再消耗两枚奇果。',
+    designPropsSource:'COAST08 redesign (m4b): drop beacons/moss/roots; lines+specials+type5; starters color@0 + column@20 + row@48 (open board, !=07/09 masks); moves 32->24; one seed',
+    sequenceNote:'lines+specials after fog-echo, before lighthouse finale (no beacons)',
+    balanceNote:'random N=200 = 0.790 rise after 0.74, setup before 0.67 finale'
+  }),
+  freeze({
+    id:'r06-coast-09',region:'coast',ordinal:9,name:'灯塔等你',contentRevision:'m4-2026-11-09',intendedBand:'lighthouse-finale',
+    designIntent:'绕过岸角，再回到中灯，留下一枚夜航印记。',
+    config:{moves:22,goals:{beacons:3,roots:3,moss:3},moss:[8,9,10,12,24,36,38,39,40],roots:[{index:8,layers:1},{index:12,layers:1},{index:40,layers:1}],beacons:[8,24,12],starters:[{index:37,special:'bomb'},{index:38,special:'color'}]},
+    rules:{},tool:null,seedBank:[23],chapterName:'灯塔夜航',
+    note:'灯塔一直在，等你走完这一岸。',
+    failHint:'角灯与根同格时清根也点灯；苔藓清三格即可。',
+    designPropsSource:'COAST09 adapted: corner moss + roots-on-lamps L1; route [8,24,12]; goals trimmed; moves 30->22; bomb+color; one seed',
+    sequenceNote:'beacons+roots+moss finale after twin-bell',
+    balanceNote:'random N=200 = 0.670 finale (harder than 0.685, >=0.6); seed 23 moves 22'
   })
+
 ]);
 
 function coastStages(){return coastPlayable;}
