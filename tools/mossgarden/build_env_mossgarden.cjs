@@ -1,5 +1,5 @@
 'use strict';
-// 石灯苔庭 v2. Vertex colours only. The 7×7 stays on the court at y = 0.
+// 石灯苔庭 v3. Vertex colours only. The 7×7 stays on the court at y = 0.
 // Around it: moss mounds and white sand with concentric rakes. Rakes never
 // cross a board cell. Maples, lanterns and the corridors sit off the board.
 const fs = require('node:fs'), path = require('node:path');
@@ -31,7 +31,7 @@ function part(name, unlit, build) { const m = mesh(); build(m); parts.push({ nam
 const moss = rgba(46, 112, 58), mossLit = rgba(98, 158, 64), mossDeep = rgba(24, 72, 42), mossY = rgba(132, 156, 62);
 const sand = rgba(244, 240, 228), sandWarm = rgba(232, 220, 196);
 const boardA = rgba(250, 247, 238), boardB = rgba(244, 239, 226), boardLine = rgba(214, 198, 170);
-const rakeCol = rgba(108, 84, 58);
+const rakeCol = rgba(176, 172, 162);
 const stone = rgba(168, 160, 148), stoneLit = rgba(214, 204, 186), stoneShade = rgba(108, 102, 94);
 const maple = rgba(196, 42, 32), maple2 = rgba(214, 84, 28), maple3 = rgba(214, 140, 42), mapleD = rgba(132, 28, 28);
 const wood = rgba(138, 86, 48), woodLit = rgba(186, 128, 74), woodD = rgba(78, 46, 28);
@@ -40,8 +40,7 @@ const tile = rgba(48, 62, 88), tileLit = rgba(78, 98, 128), tileShade = rgba(28,
 const water = rgba(36, 108, 132), waterDeep = rgba(16, 58, 86), waterLit = rgba(92, 158, 156);
 const glow = rgba(255, 176, 78), glowSoft = rgba(255, 196, 120, 110);
 const hazeC = rgba(168, 180, 184);
-const skyLow = rgba(214, 164, 142), skyMid = rgba(176, 142, 146), skyHigh = rgba(142, 128, 142);
-const skyMist = rgba(186, 190, 188);
+const skyGold = rgba(255, 198, 128), skyPeach = rgba(255, 214, 186), skyMist = rgba(168, 190, 196);
 
 function faceBox(m, x0, y0, z0, x1, y1, z1, top, sun, shade, front) {
   addQuad(m, [x0, y1, z1], [x1, y1, z1], [x1, y1, z0], [x0, y1, z0], top);
@@ -58,10 +57,10 @@ function hitsBoard(pts) {
 }
 
 part('MG_ground', false, m => {
-  addQuad(m, [X0, Y, Z1], [X1, Y, Z1], [X1, Y, Z0], [X0, Y, Z0], mossDeep, moss, moss, mossDeep);
+  addQuad(m, [X0, Y, Z1], [X1, Y, Z1], [X1, Y, Z0], [X0, Y, Z0], sand, sand, sandWarm, sand);
   const sands = [
-    [-6.35, -2.32, -2.2, 3.2], [2.32, 6.35, -2.6, 2.4],
-    [-1.85, 1.85, 2.32, 6.55], [-6.2, -2.4, -6.4, -2.4], [2.4, 6.2, -6.5, -2.45],
+    [-6.4, -2.24, -1.6, 3.5], [2.24, 6.4, -1.8, 3.2],
+    [-2.05, 2.05, 2.24, 6.6],
   ];
   const sandY = 0.00004;
   for (const [x0, x1, z0, z1] of sands) addQuad(m, [x0, sandY, z1], [x1, sandY, z1], [x1, sandY, z0], [x0, sandY, z0], sand, sand, sandWarm, sand);
@@ -85,10 +84,10 @@ part('MG_ground', false, m => {
     const z = edges[row], a = edges[col] + hL, b = edges[col + 1] - hL;
     addQuad(m, [a, Y, z - hL], [b, Y, z - hL], [b, Y, z + hL], [a, Y, z + hL], boardLine);
   }
-  const stones = [[-4.15, 0.7], [4.15, -0.45], [-3.85, -3.55], [0.15, 4.7], [3.85, -3.85]];
+  const stones = [[0.08, 4.62]];
   for (const [cx, cz] of stones) {
-    for (const rad of [0.38, 0.62, 0.9, 1.22, 1.58]) {
-      const n = 18, w = 0.032;
+    for (const rad of [0.34, 0.5, 0.68, 0.88, 1.1]) {
+      const n = 20, w = 0.011;
       for (let i = 0; i < n; i++) {
         const a0 = (i / n) * Math.PI * 2, a1 = ((i + 1) / n) * Math.PI * 2;
         const p = (a, r) => [cx + Math.cos(a) * r, YR * 4, cz + Math.sin(a) * r];
@@ -99,10 +98,10 @@ part('MG_ground', false, m => {
       }
     }
   }
-  faceBox(m, -CURB - 0.16, Y, -CURB - 0.16, -CURB, 0.07, CURB + 0.16, mossLit, stoneLit, stoneShade, stone);
-  faceBox(m, CURB, Y, -CURB - 0.16, CURB + 0.16, 0.07, CURB + 0.16, mossLit, stoneLit, stoneShade, stone);
-  faceBox(m, -CURB, Y, -CURB - 0.16, CURB, 0.07, -CURB, moss, stone, stoneShade, stone);
-  faceBox(m, -CURB, Y, CURB, CURB, 0.045, CURB + 0.12, woodLit, wood, woodD, wood);
+  faceBox(m, -CURB - 0.07, Y, -CURB - 0.07, -CURB, 0.035, CURB + 0.07, stoneLit, stone, stoneShade, stone);
+  faceBox(m, CURB, Y, -CURB - 0.07, CURB + 0.07, 0.035, CURB + 0.07, stoneLit, stone, stoneShade, stone);
+  faceBox(m, -CURB, Y, -CURB - 0.07, CURB, 0.035, -CURB, stone, stoneShade, stoneShade, stone);
+  faceBox(m, -CURB, Y, CURB, CURB, 0.04, CURB + 0.09, woodLit, wood, woodD, wood);
 });
 
 function mound(m, x, z, r, h, col) {
@@ -125,19 +124,21 @@ function rock(m, x, z, s) {
   addQuad(m, [x + 0.04 * s, 0.16 * s, z + 0.04 * s], [x + 0.28 * s, 0.16 * s, z + 0.02 * s], [x + 0.22 * s, 0.16 * s + 0.001, z + 0.22 * s], [x + 0.06 * s, 0.16 * s + 0.001, z + 0.2 * s], mossLit);
 }
 part('MG_moss', false, m => {
-  mound(m, -4.15, 0.7, 0.62, 0.34, moss);
-  mound(m, 4.15, -0.45, 0.55, 0.28, mossLit);
-  mound(m, -3.85, -3.55, 0.48, 0.26, mossDeep);
-  mound(m, 3.9, -3.8, 0.42, 0.22, moss);
-  mound(m, -1.35, 3.7, 0.36, 0.18, mossY);
-  mound(m, 1.4, 3.85, 0.32, 0.16, moss);
-  mound(m, -5.1, 2.4, 0.4, 0.22, mossDeep);
-  mound(m, 5.0, 1.6, 0.38, 0.2, mossLit);
-  rock(m, -4.32, 0.52, 1.15);
-  rock(m, 4.0, -0.62, 1.05);
-  rock(m, -4.0, -3.7, 0.9);
-  rock(m, 0.0, 4.5, 0.85);
-  rock(m, 3.7, -3.95, 0.8);
+  mound(m, -2.62, 1.55, 0.34, 0.2, moss);
+  mound(m, 2.68, 1.25, 0.32, 0.18, mossY);
+  mound(m, -2.7, -0.85, 0.36, 0.22, mossLit);
+  mound(m, 2.74, -1.05, 0.3, 0.16, moss);
+  mound(m, -1.15, 3.55, 0.42, 0.24, moss);
+  mound(m, 1.25, 3.85, 0.36, 0.2, mossY);
+  mound(m, -0.55, 5.15, 0.34, 0.16, mossLit);
+  mound(m, 0.7, 5.35, 0.3, 0.18, moss);
+  mound(m, -3.6, 2.15, 0.48, 0.26, mossY);
+  mound(m, 3.7, 1.85, 0.44, 0.22, moss);
+  mound(m, -4.4, 0.2, 0.55, 0.3, mossDeep);
+  mound(m, 4.5, -0.35, 0.5, 0.26, mossLit);
+  mound(m, -3.3, -2.6, 0.4, 0.2, moss);
+  mound(m, 3.4, -2.85, 0.38, 0.18, mossY);
+  rock(m, -0.05, 4.48, 1.25);
 });
 
 function lantern(m, x, z, s, glowM) {
@@ -199,43 +200,34 @@ function limb(m, a, b, w, col) {
   const l = Math.hypot(px, pz) || 1; px = px / l * w; pz = pz / l * w;
   addQuad(m, [a[0] - px, a[1], a[2] - pz], [a[0] + px, a[1], a[2] + pz], [b[0] + px * 0.4, b[1], b[2] + pz * 0.4], [b[0] - px * 0.4, b[1], b[2] - pz * 0.4], col, col, woodD, woodD);
 }
-function frond(m, x, y, z, dx, dy, dz, w, col) {
-  const sx = dx < 0 ? -1 : 1;
-  addQuad(m,
-    [x, y, z],
-    [x + dx, y + dy, z + dz],
-    [x + dx * 0.72 + sx * w, y + dy * 0.45 + w * 0.25, z + dz * 0.55],
-    [x + sx * w * 0.35, y + w * 0.08, z + w * 0.05],
-    col, mix(col, maple3, 0.35), col, mix(col, mapleD, 0.3));
-  addTri(m, [x + dx * 0.15, y + dy * 0.1, z], [x + dx + sx * w * 0.15, y + dy * 0.2, z + dz], [x + dx * 0.55 + sx * w * 0.55, y + dy * 0.85, z + dz * 0.4], mix(col, maple2, 0.4));
+function puff(m, x, y, z, r, lit, shade) {
+  const n = 6;
+  const ring = (rad, yy) => Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + 0.4;
+    return [x + Math.cos(a) * rad, yy, z + Math.sin(a) * rad * 0.78];
+  });
+  const A = ring(r, y), B = ring(r * 0.62, y + r * 0.42);
+  const top = [x, y + r * 0.72, z];
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    const c = i < n / 2 ? lit : shade;
+    addQuad(m, A[i], A[j], B[j], B[i], c);
+    addTri(m, B[i], B[j], top, mix(c, lit, 0.45));
+  }
 }
 function mapleTree(m, x, z, h, s, lean, side, tint) {
-  trunk(m, x, z, h, 0.1 * s, lean);
-  const top = [x + lean, h, z];
-  const arms = [
-    [side * 0.72 * s, h + 0.42 * s, 0.12 * s],
-    [side * 0.28 * s, h + 0.7 * s, -0.08 * s],
-    [side * 0.15 * s, h + 0.22 * s, 0.48 * s],
-    [side * 0.55 * s, h * 0.62, -0.28 * s],
-  ];
-  for (const a of arms) limb(m, [x + lean * 0.35, h * 0.78, z], [x + a[0], a[1], z + a[2]], 0.045 * s, wood);
-  limb(m, top, [x + side * 0.85 * s, h + 0.15 * s, z + 0.05 * s], 0.04 * s, woodD);
-  const fans = [
-    [0.18, 0.92, 0.04, 0.85, maple],
-    [0.08, 0.62, -0.1, 0.95, maple2],
-    [0.28, 0.48, 0.16, 0.72, maple3],
-    [0.05, 0.28, 0.22, 0.8, maple],
-    [0.36, 0.15, -0.12, 0.66, mapleD],
-    [0.12, 0.74, 0.18, 0.55, maple2],
-    [0.22, 0.4, -0.2, 0.6, mix(maple, maple3, 0.4)],
-  ];
-  for (const f of fans) frond(m, x + lean * 0.4, h * 0.82, z, side * f[0] * s, f[1] * s + 0.2, f[2] * s, f[3] * s * 0.42, mix(f[4], tint, 0.15));
+  trunk(m, x, z, h, 0.08 * s, lean * 1.4);
+  const cx = x + lean * 1.1, cz = z + side * 0.05;
+  limb(m, [x, h * 0.45, z], [cx + side * 0.12 * s, h + 0.05 * s, cz], 0.04 * s, woodD);
+  puff(m, cx, h - 0.05 * s, cz, 0.42 * s, mix(maple, tint, 0.2), mapleD);
+  puff(m, cx + side * 0.16 * s, h + 0.22 * s, cz + 0.04, 0.32 * s, mix(maple2, tint, 0.25), maple);
+  puff(m, cx + side * 0.05 * s, h + 0.42 * s, cz - 0.02, 0.22 * s, maple3, maple2);
 }
 part('MG_maple', true, m => {
-  mapleTree(m, -2.38, -0.35, 1.7, 0.95, -0.08, -1, rgba(210, 48, 28));
-  mapleTree(m, -2.42, -1.7, 1.2, 0.7, -0.06, -1, rgba(196, 78, 26));
-  mapleTree(m, 2.4, -0.55, 1.62, 0.9, 0.08, 1, rgba(214, 88, 24));
-  mapleTree(m, 2.46, -1.9, 1.1, 0.66, 0.05, 1, rgba(180, 58, 26));
+  mapleTree(m, -2.72, -0.25, 1.65, 0.92, -0.16, -1, rgba(210, 48, 28));
+  mapleTree(m, -2.85, -1.65, 1.15, 0.68, -0.1, -1, rgba(196, 78, 26));
+  mapleTree(m, 2.75, -0.45, 1.55, 0.88, 0.14, 1, rgba(214, 88, 24));
+  mapleTree(m, 2.88, -1.85, 1.05, 0.64, 0.08, 1, rgba(180, 58, 26));
   const fallen = [[-2.55, 1.35, 0.16, 0.4], [-3.4, 0.1, 0.13, 1.2], [-2.7, -0.4, 0.12, 2.1], [-3.6, -2.2, 0.14, 0.8], [2.6, 0.9, 0.15, 1.5], [3.3, -0.3, 0.12, 0.6], [2.75, -1.1, 0.13, 2.4], [3.55, -2.3, 0.11, 1.1]];
   for (const [x, z, s, yaw] of fallen) {
     const c = Math.cos(yaw), sn = Math.sin(yaw);
@@ -319,26 +311,39 @@ part('MG_pond', true, m => {
   }
 });
 
-function hump(m, x, z, w, d, h, lit, shade, fade) {
-  const yb = 0.04, top = yb + h;
-  addQuad(m, [x - w, yb, z + d * 0.25], [x + w, yb, z + d * 0.05], [x + w * 0.72, top, z - d * 0.55], [x - w * 0.68, top * 0.92, z - d * 0.4], lit, shade, mix(lit, shade, 0.45), lit);
-  addQuad(m, [x - w * 0.68, top * 0.92, z - d * 0.4], [x + w * 0.72, top, z - d * 0.55], [x + w * 0.4, yb + h * 0.35, z - d * 1.5], [x - w * 0.35, yb + h * 0.28, z - d * 1.35], mix(shade, fade, 0.35), fade, fade, shade);
-  addQuad(m, [x + w * 0.2, yb, z + d * 0.15], [x + w * 1.15, yb, z - d * 0.2], [x + w * 0.7, yb + h * 0.48, z - d * 0.9], [x + w * 0.05, yb + h * 0.62, z - d * 0.5], shade, shade, mix(lit, fade, 0.4), shade);
+function dome(m, x, z, rx, rz, h, yb, lit, shade) {
+  const n = 7;
+  const heights = [0, 0.4, 0.75, 1], scales = [1, 0.72, 0.4, 0.06];
+  const ring = k => Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + 0.35;
+    const wob = 0.9 + 0.12 * Math.sin(i * 1.6 + k);
+    return [x + Math.cos(a) * rx * scales[k] * wob, yb + h * heights[k], z + Math.sin(a) * rz * scales[k] * wob];
+  });
+  const rings = heights.map((_, k) => ring(k));
+  for (let k = 0; k < 3; k++) for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    const c = i < 3 ? lit : shade;
+    const up = k === 2 ? mix(c, lit, 0.35) : c;
+    addQuad(m, rings[k][i], rings[k][j], rings[k + 1][j], rings[k + 1][i], up);
+  }
+}
+function grove(m, x, y, z, r) {
+  dome(m, x, z, r, r * 0.75, r * 0.85, y, maple2, maple);
+  dome(m, x + r * 0.35, z + r * 0.15, r * 0.55, r * 0.4, r * 0.5, y + r * 0.15, maple3, maple2);
 }
 part('MG_mountains', true, m => {
-  const nearL = rgba(64, 112, 66), nearS = rgba(30, 72, 50);
-  const midL = rgba(96, 132, 128), midS = rgba(64, 102, 110);
-  const farL = rgba(158, 174, 172), far = rgba(176, 186, 186);
-  const fall = rgba(186, 82, 36);
-  hump(m, -3.4, -8.1, 2.1, 1.5, 1.55, nearL, nearS, midL);
-  hump(m, 1.8, -7.7, 2.4, 1.7, 2.05, nearL, nearS, midS);
-  hump(m, 5.6, -8.8, 1.5, 1.2, 0.85, mix(nearL, mossY, 0.25), nearS, midL);
-  hump(m, -0.4, -11.2, 3.2, 1.8, 1.15, midL, midS, farL);
-  hump(m, -5.2, -12.4, 2.2, 1.4, 0.62, midL, midS, farL);
-  hump(m, 1.2, -16.2, 4.2, 2.0, 0.48, farL, far, skyMist);
-  addQuad(m, [-2.6, 0.95, -8.0], [-1.2, 1.25, -8.35], [-1.0, 1.5, -8.6], [-2.3, 1.1, -8.2], fall, maple3, maple2, fall);
-  addQuad(m, [1.4, 1.35, -7.7], [2.8, 1.7, -8.05], [2.5, 1.95, -8.3], [1.2, 1.5, -7.9], maple2, fall, maple3, maple);
-  addQuad(m, [4.8, 0.55, -8.7], [6.1, 0.75, -8.95], [5.8, 1.0, -9.15], [4.6, 0.7, -8.85], mix(fall, maple3, 0.3), maple3, fall, maple2);
+  const nearL = rgba(78, 128, 74), nearS = rgba(42, 86, 58);
+  const midL = rgba(118, 150, 156), midS = rgba(78, 118, 132);
+  const farL = rgba(176, 190, 196), farS = rgba(150, 170, 182);
+  dome(m, -5.2, -8.6, 2.6, 1.5, 1.35, 0.02, nearL, nearS);
+  dome(m, -0.6, -8.1, 2.3, 1.45, 1.7, 0.05, nearL, nearS);
+  dome(m, 4.4, -8.8, 2.8, 1.55, 1.15, 0.0, mix(nearL, mossY, 0.2), nearS);
+  dome(m, -3.2, -12.2, 3.4, 1.7, 0.85, 0.2, midL, midS);
+  dome(m, 3.6, -12.8, 3.6, 1.6, 0.62, 0.25, midL, midS);
+  dome(m, 0.2, -16.8, 6.5, 2.2, 0.42, 0.45, farL, farS);
+  grove(m, -1.15, 0.72, -7.85, 0.38);
+  grove(m, 1.55, 0.95, -7.7, 0.42);
+  grove(m, 4.7, 0.48, -8.35, 0.32);
 });
 
 part('MG_mist', true, m => {
@@ -348,8 +353,8 @@ part('MG_mist', true, m => {
 });
 
 part('MG_sky', true, m => {
-  addQuad(m, [-26, -1.5, -21.4], [26, -1.5, -21.4], [18, 6.5, -22.2], [-18, 6.5, -22.2], skyMist, skyMist, skyLow, skyLow);
-  addQuad(m, [-18, 6.5, -22.2], [18, 6.5, -22.2], [12, 16, -23], [-12, 16, -23], skyLow, skyLow, skyMid, skyHigh);
+  addQuad(m, [-28, -2.2, -21.6], [28, -2.2, -21.6], [22, 3.2, -22], [-22, 3.2, -22], skyMist, skyMist, skyPeach, skyPeach);
+  addQuad(m, [-22, 3.2, -22], [22, 3.2, -22], [12, 17, -23.2], [-12, 17, -23.2], skyPeach, skyPeach, skyGold, skyGold);
 });
 part('MG_sun', true, m => {
   const x = 1.7, y = 6.15, z = -19.4;
@@ -359,9 +364,9 @@ part('MG_sun', true, m => {
       addTri(m, [x, y, z], [x + Math.cos(a0) * r, y + Math.sin(a0) * r, z], [x + Math.cos(a1) * r, y + Math.sin(a1) * r, z], col, col, col);
     }
   };
-  disc(1.55, rgba(232, 186, 150, 42), 14);
-  disc(0.82, rgba(244, 214, 180, 100), 12);
-  disc(0.36, rgba(255, 244, 228), 10);
+  disc(1.45, rgba(255, 196, 140, 70), 14);
+  disc(0.78, rgba(255, 220, 170, 130), 12);
+  disc(0.34, rgba(255, 246, 226), 10);
 });
 
 function pack() {
