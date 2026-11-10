@@ -25,8 +25,9 @@ run('single source: day = LAKESIDE_DIR_LIGHT_PARAMS.landFill*, night its own, bo
  for(const f of all){const src=fs.readFileSync(path.join(A,'scripts',String(f)),'utf8');
   if(String(f).replace(/\\/g,'/')!=='region/LakesideBoardBackground.ts')assert(!/setProperty\('emissive(Scale|Map)?'/.test(src),f+': no second land-fill writer');
   if(String(f).replace(/\\/g,'/')!=='region/LakesideSceneData.ts')assert(!/(landFill(Near|Far)|foliageFill|wallFill|rockFill|cloudFill|plantFill|propFill)Linear\s*:\s*\[/.test(src),f+': no second copy of the fill values');}
- const bg=fs.readFileSync(S+'LakesideBoardBackground.ts','utf8');assert.equal((bg.match(/setProperty\('emissiveScale'/g)||[]).length,1);assert.equal((bg.match(/setProperty\('emissive'/g)||[]).length,1);
+ const bg=fs.readFileSync(S+'LakesideBoardBackground.ts','utf8');assert.equal((bg.match(/setProperty\('emissiveScale'/g)||[]).length,2,'land fill + kit-on grid/pad');assert.equal((bg.match(/setProperty\('emissive'/g)||[]).length,2);
  assert.equal((bg.match(/setProperty\('emissiveMap'/g)||[]).length,1);
+ assert.match(bg,/function writeKitEmissive[\s\S]*setProperty\('emissiveScale'/);assert.match(bg,/if\(!lakesideKitAssetsEnabled\(\)\)return \[\];/,'kit board look is a no-op while the kit is off');
  assert.match(bg,/const c=lakesideFillLinear\(mode,cls\),k=lakesideFillWeight\(weight\);m\.setProperty\('emissiveScale',new Vec3\(c\[0\]\*k,c\[1\]\*k,c\[2\]\*k\)\);/);});
 run('land = the landform GLBs only (principled list), every other GLB in the bundle is not land',()=>{
  assert.deepEqual([...P.landFillNearGlbs],['LK_terrain.glb']);assert.deepEqual([...P.landFillFarGlbs],['LK_far_hills.glb','LK_far_shore.glb']);
@@ -73,7 +74,7 @@ run('day/night writer: night values on land only; water material and bridge unto
  for(const [i,k] of [[6,'foliageFillLinear'],[7,'wallFillLinear'],[8,'rockFillLinear'],[9,'cloudFillLinear']])assert.deepEqual(rs[i].sharedMaterials[0].props.emissiveScale,Array.from(N[k]),k+' night');
  const MN=F.lakesideFillMaskTexture('night');assert.notEqual(MN,MD);for(const i of [0,1,6,7,8,9])assert.equal(rs[i].sharedMaterials[0].props.emissiveMap,MN,'night mask swapped in');
  assert.equal(JSON.stringify(water.props),before);assert.deepEqual(bridge.props,{});assert.deepEqual(rs[4].sharedMaterials[0].props,{},'bridge steps untouched');
- assert.match(bg,/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);\n  if\(scenery&&isValid\(scenery,true\)\)applyLakesideLandFill\(scenery,mode\);/,'board applyDir');
+ assert.match(bg,/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);\n  if\(scenery&&isValid\(scenery,true\)\)\{applyLakesideLandFill\(scenery,mode\);if\(lakesideKitAssetsEnabled\(\)\)writeLakesideKitBoardColors\(scenery,mode\);\}/,'board applyDir');
  const ad=fs.readFileSync(S+'RegionJourneyAdapter.ts','utf8');assert.match(ad,/batching=applyLakesideJourneyBatching\(model,\{instancing:enableLakesideInstancing,/,'journey land copies from the same instancing');
  assert.match(ad,/  applyLakesideLandFill\(model,lakesideDayNightMode\(\),fillW\);\n  offLand=onDayNightChange\(\(\)=>\{if\(!dead\)applyLakesideLandFill\(model,lakesideDayNightMode\(\),fillW\);\}\);/,'journey: starts at weight 0, listener keeps the weight');
  assert.match(ad,/fillW=0;/);assert.match(ad,/if\(lakesideFillStep\(fillW,w\)\)\{fillW=w;applyLakesideLandFill\(model,lakesideDayNightMode\(\),w\);\}/,'journey: fill follows lakesideAtmosphereWeight');assert.match(ad,/dead=true;offWater\(\);offLand\(\);/);});

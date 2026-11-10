@@ -365,6 +365,48 @@ let lakesideKitAssetsOn = false;
 /** Must be set BEFORE mountLakesideScenery / lakesideSceneInstances (board preload runs earlier than ManagedMobileBoardUI.initializeManaged). */
 export function setLakesideKitAssets(on: boolean): void { lakesideKitAssetsOn = !!on; }
 export function lakesideKitAssetsEnabled(): boolean { return lakesideKitAssetsOn; }
+/** Kit-ON board read (default OFF leaves every instance and material on the authored path).
+ *  Lines: the 8ff6ff swatch is a 1.4 cm strip at y=0.012, so it disappears into the water. Kit ON widens it
+ *  (mesh z is 0.035 m; scale z 1.6 → 5.6 cm, the ff0d9c55 width) and lifts horizontal lines to 0.024 / vertical to 0.025,
+ *  above the rings, with a near-white emissive so the grid reads over day water.
+ *  Rings: one annulus per cell. Kit ON shrinks that pad and adds a pale fill so it is a light cell base, not a dark disc.
+ *  Contact shadows stay, smaller and fainter, so they do not re-darken the pad. Wind-chime cells are not special-cased:
+ *  the reference puts the same light base on every cell. */
+export const LAKESIDE_KIT_BOARD_LOOK = Object.freeze({
+  lineScaleZ: 1.6,
+  lineYHorizontal: 0.024,
+  lineYVertical: 0.025,
+  lineEmissiveDay: [0.82, 0.9, 0.94] as const,
+  lineEmissiveNight: [0.3, 0.42, 0.5] as const,
+  ringScaleMul: 0.8,
+  ringEmissiveDay: [0.48, 0.66, 0.68] as const,
+  ringEmissiveNight: [0.14, 0.26, 0.32] as const,
+  shadowScaleMul: 0.5,
+  /** M_prev_shadow base alpha is 0.16. Kit ON writes a lighter mainColor alpha (0..255). */
+  shadowAlpha: 48,
+});
+export function lakesideKitBoardEmissive(kind: 'line' | 'ring', mode: LakesideDayNight): readonly [number, number, number] {
+  const L = LAKESIDE_KIT_BOARD_LOOK;
+  return kind === 'line' ? (mode === 'night' ? L.lineEmissiveNight : L.lineEmissiveDay) : (mode === 'night' ? L.ringEmissiveNight : L.ringEmissiveDay);
+}
+/** Authored placement, or the kit-ON grid/pad/shadow pose. Null when the kit is off (caller keeps the JSON numbers). */
+export function lakesideKitBoardPose(i: Pick<LakesideInstance, 'name' | 'glb' | 'pos' | 'scale'>): { pos: [number, number, number]; scale: [number, number, number] } | null {
+  if (!lakesideKitAssetsOn) return null;
+  const L = LAKESIDE_KIT_BOARD_LOOK;
+  if (i.glb === 'LK_wb_line.glb') {
+    const vertical = /_v\d+$/.test(i.name);
+    return { pos: [i.pos[0], vertical ? L.lineYVertical : L.lineYHorizontal, i.pos[2]], scale: [i.scale[0], i.scale[1], L.lineScaleZ] };
+  }
+  if (i.glb === 'LK_ripple_ring.glb') {
+    const m = L.ringScaleMul;
+    return { pos: [i.pos[0], i.pos[1], i.pos[2]], scale: [i.scale[0] * m, i.scale[1] * m, i.scale[2] * m] };
+  }
+  if (i.glb === 'LK_contact_shadow.glb') {
+    const m = L.shadowScaleMul;
+    return { pos: [i.pos[0], i.pos[1], i.pos[2]], scale: [i.scale[0] * m, i.scale[1], i.scale[2] * m] };
+  }
+  return null;
+}
 export function lakesideSkippedGlb(): readonly string[] { return lakesideKitAssetsOn ? LAKESIDE_KIT_SKIPPED_GLB : LAKESIDE_SKIPPED_GLB; }
 export function lakesideSceneInstances(instances: readonly LakesideInstance[]): LakesideInstance[] {
   if (!Array.isArray(instances) || !instances.length) throw Error('lakeside transforms empty');
