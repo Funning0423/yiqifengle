@@ -1,0 +1,2 @@
+{"afterLoad":1,"dupWrites":0,"changed":1,"flip":1}
+board-bg-single-write: PASS

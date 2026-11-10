@@ -1,0 +1,37 @@
+{
+ "caught": {
+  "world.setCamera": "CAUGHT",
+  "RegionJourneyCore:onFrame": "CAUGHT",
+  "LiveHandoff": "CAUGHT",
+  "BalloonTransit:prewalk": "CAUGHT",
+  "BalloonTransit:B1": "CAUGHT",
+  "BalloonTransit:flight": "CAUGHT",
+  "BalloonTransit:B5": "CAUGHT",
+  "regionBoardHandoff": "CAUGHT",
+  "region.node-lens": "CAUGHT",
+  "SkyWalkShot": "CAUGHT",
+  "world.animateCamera": "CAUGHT",
+  "world.enterLevel": "CAUGHT",
+  "TransitionCamera": "CAUGHT",
+  "BalloonTransit:B1-hold": "CAUGHT",
+  "regionLandingToBoard": "CAUGHT"
+ },
+ "writers": [
+  "world.setCamera",
+  "RegionJourneyCore:onFrame",
+  "LiveHandoff",
+  "BalloonTransit:prewalk",
+  "BalloonTransit:B1",
+  "BalloonTransit:flight",
+  "BalloonTransit:B5",
+  "regionBoardHandoff",
+  "region.node-lens",
+  "SkyWalkShot",
+  "world.animateCamera",
+  "world.enterLevel",
+  "TransitionCamera",
+  "BalloonTransit:B1-hold",
+  "regionLandingToBoard"
+ ]
+}
+{"status":"PASS"}

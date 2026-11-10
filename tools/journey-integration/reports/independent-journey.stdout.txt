@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-26T10:30:10.547Z",
-  "sourceRoot": "/tmp/wt-full8",
+  "timeUTC": "2026-10-30T03:12:19.017Z",
+  "sourceRoot": "/workspace/scratch-ow-fc2",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
     {

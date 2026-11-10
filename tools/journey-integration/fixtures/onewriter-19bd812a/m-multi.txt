@@ -1,0 +1,14 @@
+2026-10-30T01:17:07.392Z log [QF_CAM_TRACE] f=1 t=3.887 pos=-1.32,1.386,-2.114 yaw=30.209 pitch=-3.517 fov=75 w=world.setCamera fr=152
+2026-10-30T01:17:07.414Z log [QF_CAM_TRACE] f=2 t=3.909 pos=-1.32,1.386,-2.114 yaw=30.209 pitch=-3.517 fov=75 w=world.setCamera MULTI=2 fr=152
+2026-10-30T01:17:12.726Z log [QF_CAM_TRACE] f=3 t=9.221 pos=-1.32,1.386,-2.114 yaw=30.209 pitch=-3.517 fov=75 w=world.animateCamera CHANGE<-world.setCamera fr=262
+2026-10-30T01:17:12.741Z log [QF_CAM_TRACE] f=4 t=9.236 pos=-1.315,1.39,-2.121 yaw=30.176 pitch=-3.646 fov=74.982 w=world.animateCamera MULTI=2 fr=262
+2026-10-30T01:17:15.712Z log [QF_CAM_TRACE] f=80 t=12.207 pos=-1.934,1.82,-3.55 yaw=65.772 pitch=-25.873 fov=67.2 w=world.animateCamera fr=339
+2026-10-30T01:17:15.760Z log [QF_CAM_TRACE] f=81 t=12.255 pos=-1.934,1.82,-3.55 yaw=65.857 pitch=-25.855 fov=67.215 w=world.animateCamera MULTI=2 fr=339
+2026-10-30T01:17:23.838Z log [QF_CAM_TRACE] f=177 t=20.332 pos=-1.214,1.694,-2.307 yaw=153.098 pitch=-16.833 fov=68 w=world.animateCamera fr=500
+2026-10-30T01:17:23.876Z log [QF_CAM_TRACE] f=178 t=20.371 pos=-1.212,1.693,-2.304 yaw=153.127 pitch=-16.831 fov=68.002 w=world.animateCamera MULTI=2 fr=500
+2026-10-30T01:18:12.097Z log [QF_CAM_TRACE] f=419 t=68.592 pos=-3.692,3.09,-0.028 yaw=165.987 pitch=-11.453 fov=50 w=world.setCamera JUMP=50.296m/150.526deg fr=876
+2026-10-30T01:18:12.465Z log [QF_CAM_TRACE] f=420 t=68.96 pos=-3.692,3.09,-0.028 yaw=165.987 pitch=-11.453 fov=50 w=RegionJourneyCore:onFrame CHANGE<-world.setCamera MULTI=2 fr=876
+2026-10-30T01:21:04.784Z log [QF_CAM_TRACE] f=1046 t=241.279 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=world.setCamera CHANGE<-RegionJourneyCore:onFrame fr=1502
+2026-10-30T01:21:04.794Z log [QF_CAM_TRACE] f=1047 t=241.289 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=world.setCamera MULTI=2 fr=1502
+2026-10-30T01:21:06.509Z log [QF_CAM_TRACE] f=1048 t=243.004 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=LiveHandoff CHANGE<-world.setCamera fr=1527
+2026-10-30T01:21:06.653Z log [QF_CAM_TRACE] f=1049 t=243.148 pos=-9.647,10.737,52.232 yaw=171.469 pitch=-12.994 fov=49.426 w=LiveHandoff MULTI=2 fr=1527
