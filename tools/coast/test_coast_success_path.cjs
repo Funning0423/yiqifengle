@@ -174,7 +174,7 @@ function labeledMock() {
     assert.deepEqual(opened.cameras.at(-1).position, CAM[origin].position);
     const journal = new Journal(opened.persistence.platform, journey(12));
     assert.equal(journal.data.records['r06-coast-01'].clears, 1);
-    assert.equal(journal.data.records['r06-coast-01'].bestMoves, 15);
+    assert.equal(journal.data.records['r06-coast-01'].bestMoves, 14);
     assert.equal(journal.claim('coast').reason, 'region-incomplete');
     assert.equal(new Journal(untouched.platform, journey(12)).data.records['r06-coast-01'], undefined);
     assert.equal(H.cc._scene.find('ManagedNativeBoardHost'), null);

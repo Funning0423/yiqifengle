@@ -32,9 +32,14 @@ const catalog = require(path.join(R, 'catalog-data.js'));
 
 assert.equal(API.catalog.filter((s) => s.region === 'coast').length, 0, 'shipped catalog has no coast rows');
 assert.equal(API.catalog.filter((s) => s.region === 'lake').length, 6, 'lake catalog unchanged');
-assert.deepEqual(API.coastPlayable.map((s) => s.id), ['r06-coast-01']);
+assert.deepEqual(API.coastPlayable.map((s) => s.id).slice(0, 1), ['r06-coast-01']);
+assert.ok(API.coastPlayable.length >= 3, 'M1 registers COAST02/03');
+assert.equal(API.coastPlayable[0].config.moves, 19);
+assert.deepEqual(API.coastPlayable[0].seedBank, [22, 9, 13]);
 assert.equal(API.getStage('r06-coast-01').name, '寄给海风');
-for (let n = 2; n <= 9; n++) assert.equal(API.getStage('r06-coast-0' + n), null, 'coast-0' + n + ' not live');
+assert.ok(API.getStage('r06-coast-02'));
+assert.ok(API.getStage('r06-coast-03'));
+for (let n = 4; n <= 9; n++) assert.equal(API.getStage('r06-coast-0' + n), null, 'coast-0' + n + ' not live');
 assert.equal(API.getStage('restaurant'), null);
 
 const tide = catalog.find((s) => s.id === 'r05-tide-01');
@@ -42,7 +47,7 @@ assert.ok(tide.rules.shells.every((p) => Number.isInteger(p.index) && Number.isI
 const c1 = API.getStage('r06-coast-01');
 assert.deepEqual(c1.rules, {}, 'COAST01 does not use shells');
 assert.deepEqual(c1.config.goals, { type5: 18 });
-assert.equal(c1.config.moves, 20);
+assert.equal(c1.config.moves, 19);
 assert.equal(c1.legacyMoves, 26);
 assert.equal(c1.calibration.status, 'draft-moves-untested');
 assert.equal(c1.tool, null);
@@ -59,7 +64,7 @@ const shot = s0.snapshot();
 assert.equal(shot.region, 'coast');
 assert.equal(shot.goals.type5, 18);
 assert.equal(shot.goals.pearls, undefined, 'empty tide shells must not add a pearl goal');
-assert.equal(shot.moves, 20);
+assert.equal(shot.moves, 19);
 assert.equal(shot.tool.kind, null);
 assert.equal(shot.guide.goalName, '贝壳');
 assert.equal(shot.guide.rule.includes('灯标'), false, 'COAST01 guide is not the beacon rule');
@@ -67,7 +72,7 @@ assert.equal(s0.engine.status, 'playing');
 const first = s0.legalActions({ tools: false })[0];
 assert.ok(first, 'COAST01 has a legal action');
 assert.equal(s0.act(first), true);
-assert.ok(s0.engine.moves < 20, 'a committed action spends a move');
+assert.ok(s0.engine.moves < 19, 'a committed action spends a move');
 assert.notEqual(s0.engine.status, undefined);
 const cp = s0.checkpoint();
 const back = API.restore(cp);
@@ -100,7 +105,7 @@ function greedy(seed) {
 const solved = greedy(22);
 assert.equal(solved.status, 'won', 'one legal greedy solve of the untouched stage');
 assert.deepEqual(solved.actions, SOLVE);
-assert.equal(solved.moves, 15);
+assert.equal(solved.moves, 14);
 assert.equal(solved.type5, 0);
 assert.equal(solved.actions.length, 5);
 const replay = API.createSession('r06-coast-01', 22);
@@ -127,7 +132,7 @@ assert.equal(saved.result.completionRecorded, true);
 assert.equal(saved.result.firstClear, true);
 const journal = new Journal(storage, journey(12));
 assert.equal(journal.data.records['r06-coast-01'].clears, 1);
-assert.equal(journal.data.records['r06-coast-01'].bestMoves, 15);
+assert.equal(journal.data.records['r06-coast-01'].bestMoves, 14);
 assert.equal(started.requestExit().ok, true);
 assert.equal(new Journal(storage, journey(12)).data.records['r06-coast-01'].clears, 1);
 const dropped = started.discardActive();
@@ -136,20 +141,21 @@ assert.equal(started.session, null, 'leaving the saved board drops the live atte
 const re = started.startStage('r06-coast-01', { seed: 22 });
 assert.equal(re.ok, true, re.reason || '');
 assert.equal(started.session.engine.status, 'playing');
-assert.equal(started.session.engine.moves, 20, 'the registered budget is still 20');
+assert.equal(started.session.engine.moves, 19, 'the registered budget is 19 after m1b retune');
 assert.equal(new Journal(storage, journey(12)).data.records['r06-coast-01'].clears, 1, 'the saved clear survives the fresh entry');
 const j = new Journal(Host.createStorage(mem()), journey(12));
 assert.equal(j.claim('coast').reason, 'region-incomplete');
 assert.equal(j.claim('lake').reason, 'region-incomplete');
 
 assert.equal(API.getStage('r06-coast-01').calibration.status, 'draft-moves-untested');
-assert.equal(c1.config.moves, 20);
+assert.equal(c1.config.moves, 19);
 assert.equal(c1.legacyMoves, 26);
 
 // Beacon semantics on the shipped engine, not on a shipped coast-09 stage.
 const draft = [8, 24, 12, 24, 40];
 const uniqueAlt = [8, 24, 12, 25, 40];
-assert.equal(API.coastPlayable.some((st) => st.config.beacons), false, 'COAST09 route is not registered');
+assert.equal(API.getStage('r06-coast-09'), null, 'COAST09 is not registered yet');
+assert.ok(API.coastPlayable.some((st) => Array.isArray(st.config.beacons) && st.config.beacons.length), 'COAST02 beacon lesson is registered');
 function beaconEngine(route) {
   return new Engine(0, () => 0.17, { moves: 30, goals: { beacons: route.length }, moss: [], roots: [], beacons: route.slice() });
 }
@@ -267,7 +273,8 @@ function freshBoard(on, region) {
     assert.equal(body.includes('coast-kit-projected'), false);
     const wnc = fs.readFileSync(path.join(SCRIPTS, 'world-r2/WorldNativeComposition.ts'), 'utf8');
     assert.ok(wnc.indexOf('requiresCoastScene(context.selection)?createCoastBoardBackground') < wnc.indexOf('requiresMeadowScene(context.selection)?meadowBoardWithGuest'), 'coast background is chosen before the island/meadow fallback');
-    assert.ok(wnc.includes("getStage('r06-coast-01')"), 'enterRegion(coast) resolves COAST01 without adding it to catalog');
+    const coastSel = wnc.slice(wnc.indexOf("if(region==='coast')"), wnc.indexOf("const first=(RegionalAPI as any).catalog.find"));
+    assert.ok(coastSel.includes('coastPlayable') && coastSel.includes('ordinal') && !coastSel.includes("'r06-coast-0"), 'enterRegion(coast) resolves the next coast row by ordinal from coastPlayable (no hard-coded id), outside catalog');
     const sel = wnc.slice(wnc.indexOf('private selectionRegion'), wnc.indexOf('private async ensureRegion'));
     assert.ok(!sel.includes("'coast'"), 'selectionRegion has no coast arm; r06-coast-01 stays island');
     const keys = H.load('world-r2/PreTransitionKeys');
@@ -282,7 +289,7 @@ function freshBoard(on, region) {
     assert.equal(keys.preSpec('coast-dev').stage, 'r06-coast-01');
     const reg = API.getStage('r06-coast-01');
     assert.equal(keys.preSpec('coast-dev').stage, reg.id);
-    assert.equal(reg.config.moves, 20);
+    assert.equal(reg.config.moves, 19);
     assert.equal(reg.config.goals.type5, 18);
     assert.ok(reg.seedBank.includes(22));
     assert.ok(runAt > runSrc.lastIndexOf('/*QF_TRIAL_BEGIN*/', runAt) && runAt < runSrc.indexOf('/*QF_TRIAL_END*/', runAt));
@@ -296,6 +303,8 @@ function freshBoard(on, region) {
     const strippedKeys = fs.readFileSync(path.join(destScripts, 'PreTransitionKeys.ts'), 'utf8');
     const strippedRun = fs.readFileSync(path.join(destScripts, 'PreTransitionRun.ts'), 'utf8');
     assert.equal(strippedKeys.includes('coast-dev'), false);
+    assert.equal(strippedKeys.includes('coast-next'), false);
+    assert.equal(strippedRun.includes('coast-next'), false);
     assert.equal(strippedRun.includes('coast-dev'), false);
     assert.equal(strippedRun.includes("enterRegion('coast')"), false);
     assert.equal(strippedRun.includes('dev-enter-coast01'), false);
@@ -313,7 +322,7 @@ function freshBoard(on, region) {
     }
     fs.rmSync(stageDir, { recursive: true, force: true });
     const level = fs.readFileSync(path.join(SCRIPTS, 'world-r2/LevelRegion.ts'), 'utf8');
-    assert.match(level, /return String\(selection\?\.stageId\|\|''\)==='r06-coast-01'/);
+    assert.match(level, /r06-coast-0\[1-9\]/);
   }
   {
     errors.length = 0;
@@ -346,7 +355,7 @@ function freshBoard(on, region) {
   console.error = orig;
   const matrix = {
     legacyFile: 'missing src/commonr2/x/fixed/shared/coastal-content.js',
-    liveStage: 'r06-coast-01 only; catalog coast count 0; r06-coast-02..09 not getStage',
+    liveStage: 'r06-coast-01..03 on coastPlayable; catalog coast count 0; r06-coast-04..09 not getStage',
     type5: 'objective and both kit states render board/piece_shell. Historical pieceKeys[5] remains board/piece_badge and is not the goal. Slots 0..4 were not reordered',
     beacon: 'one current cell per wave (engine.js beaconHit); repeat index 24 advances only when the cursor reaches that entry',
     coast09: 'draft [8,24,12,24,40] is supported by the engine and is not shipped; unique alternative [8,24,12,25,40] is not shipped',
@@ -355,7 +364,7 @@ function freshBoard(on, region) {
     kitVsLevel: 'coastBoardKitFromFlag default ON is not coastPlayable; explicit ?qfcoastkit=0 keeps the 2D tray',
     surface: 'measured board centre world [-0.6,-0.845,21.5]; tile centre Y -0.725 (topY 0.12); -0.6 is world X; S0 is not the slab',
     resources: '14 asset bytes from f9c5656a export are on disk; 14+5+2 metas generated by Creator 3.8.8; engine load checked on device builds, not here',
-    moves: '20 is the port draft (legacy 26); win rate not measured',
+    moves: '19 after m1b random-play retune (legacyMoves 26 kept); goals/seed unchanged',
   };
   console.log('coast01-candidate: PASS');
   console.log(JSON.stringify(matrix, null, 2));

@@ -16,7 +16,7 @@ export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }
 
-/** COAST01 only. r06-coast-02..09 are not a scene on this candidate. */
+/** Any registered coast stage id r06-coast-01..09 shares the region_coast scene. */
 export function requiresCoastScene(selection:RegionSelection):boolean {
- return String(selection?.stageId||'')==='r06-coast-01';
+ return /^r06-coast-0[1-9]$/.test(String(selection?.stageId||''));
 }

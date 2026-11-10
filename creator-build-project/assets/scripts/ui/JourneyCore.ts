@@ -57,7 +57,10 @@ export function regionRow(id: RegionKey, inp: JourneyInput): RegionRow {
   else if (!regionUnlocked(id, inp)) state = 'locked';          // P3 (UI设计部 r4): data but locked → faint seal + condition label, never 远方
   else state = done >= d.stages ? 'done' : done > 0 ? 'progress' : 'open';
   const isNew = state === 'open' && !(inp.seen || []).includes(id);
-  return { id, done, total: d.stages, state, hasData: data, isNew, tappable: state !== 'far' };
+  // Display denominator = actually registered rows when the provider listed any; 通关仍按 d.stages（海岸=9）。
+  const registered = (inp.stages || []).filter(s => s && s.region === id).length;
+  const total = registered > 0 ? registered : d.stages;
+  return { id, done, total, state, hasData: data, isNew, tappable: state !== 'far' };
 }
 export function journeyRows(inp: JourneyInput): RegionRow[] { return REGION_DEFS.map(d => regionRow(d.id, inp)); }
 export interface Segment { id: RegionKey; stages: number; done: number; color: number[]; x0: number; x1: number }

@@ -22,12 +22,12 @@ const SOLVE = [['swap', 15, 22], ['swap', 2, 9], ['swap', 3, 4], ['swap', 25, 26
 function drain(p) { let g = 0; while (p.snapshot().state === 'run.resolving' && g++ < 40) { const v = p.snapshot().visual; assert.equal(p.finishVisualStep(v.token).ok, true); } }
 
 const stage = API.getStage('r06-coast-01');
-assert.equal(stage.config.moves, 20);
+assert.equal(stage.config.moves, 19);
 assert.equal(stage.config.goals.type5, 18);
 assert.equal(stage.legacyMoves, 26);
 assert.deepEqual(stage.seedBank, [22, 9, 13]);
 assert.equal(API.catalog.some((s) => s.id === 'r06-coast-01' || s.region === 'coast'), false);
-assert.equal(API.coastPlayable.length, 1);
+assert.equal(API.coastPlayable.length, 3);
 
 const locked = API.coastPlayerEntry({ mainlineRecords: journey(11).records, journalRecord: null });
 assert.equal(locked.ok, true);
@@ -41,9 +41,9 @@ assert.equal(locked.inCatalog, false);
 assert.equal(locked.devEntry, false);
 assert.equal(locked.devKey, null);
 assert.equal(locked.seed, 22);
-assert.equal(locked.moves, 20);
+assert.equal(locked.moves, 19);
 assert.equal(locked.goalType5, 18);
-assert.equal(locked.registeredStages, 1);
+assert.equal(locked.registeredStages, 3);
 assert.equal(locked.specChapterStages, 9);
 assert.equal(locked.includeInJourneyBar, false);
 assert.equal(locked.route, null);
@@ -82,9 +82,14 @@ const far = Core.regionRow('coast', { records: journey(12).records, stages: cata
 assert.equal(far.state, 'far');
 assert.equal(far.tappable, false);
 const inflated = Core.regionRow('coast', { records: journey(12).records, stages: catalogStages.concat([{ id: 'r06-coast-01', region: 'coast' }]), regionDone: {} });
-assert.equal(inflated.total, 9);
+assert.equal(inflated.total, 1, 'display denominator follows actually listed coast rows');
 assert.equal(inflated.hasData, true);
 assert.notEqual(inflated.total, locked.registeredStages);
+const three = Core.regionRow('coast', { records: journey(12).records, stages: catalogStages.concat(API.coastPlayable.map((s) => ({ id: s.id, region: s.region }))), regionDone: { coast: 3 } });
+assert.equal(three.total, 3);
+assert.equal(three.state, 'progress', '通关 still needs REGION_DEFS.stages=9 even when all registered rows are cleared');
+const doneish = Core.regionRow('coast', { records: journey(12).records, stages: catalogStages.concat(API.coastPlayable.map((s) => ({ id: s.id, region: s.region }))), regionDone: { coast: 9 } });
+assert.equal(doneish.state, 'done');
 
 const a = mem(), b = mem();
 const storeA = Host.createStorage(a), storeB = Host.createStorage(b);
@@ -113,10 +118,10 @@ assert.equal(saved.state, 'result.saved');
 assert.equal(saved.result.outcome, 'won');
 assert.equal(saved.result.firstClear, true);
 assert.equal(started.session.engine.goals.type5, 0);
-assert.equal(started.session.engine.moves, 15);
+assert.equal(started.session.engine.moves, 14);
 const ja = new Journal(storeA, journey(12));
 assert.equal(ja.data.records['r06-coast-01'].clears, 1);
-assert.equal(ja.data.records['r06-coast-01'].bestMoves, 15);
+assert.equal(ja.data.records['r06-coast-01'].bestMoves, 14);
 assert.equal(ja.claim('coast').reason, 'region-incomplete');
 assert.equal(new Journal(storeB, journey(12)).data.records['r06-coast-01'], undefined, 'the other storage is unchanged');
 assert.equal(started.requestExit().ok, true);
@@ -124,7 +129,7 @@ assert.equal(started.discardActive().ok, true);
 const re = started.startStage('r06-coast-01', { seed: 22 });
 assert.equal(re.ok, true);
 assert.equal(started.session.engine.status, 'playing');
-assert.equal(started.session.engine.moves, 20);
+assert.equal(started.session.engine.moves, 19);
 assert.equal(started.session.engine.goals.type5, 18);
 assert.equal(new Journal(storeA, journey(12)).data.records['r06-coast-01'].clears, 1);
 const after = API.coastPlayerEntry({ mainlineRecords: journey(12).records, journalRecord: ja.data.records['r06-coast-01'] });
