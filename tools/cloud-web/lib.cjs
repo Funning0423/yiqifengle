@@ -8,7 +8,7 @@ const ENGINE = '3.8.8';
 const SCENE_UUID = '260c2ebc-0660-4be6-8c4b-7885436222ea';
 const SCENE_URL = 'db://assets/scenes/WorldR5Integration.scene';
 const CONFIG_REL = 'tools/cloud-web/world-r5-build-options.json';
-const GENERATED_PROJECT_DIRS = new Set(['library','temp','local','profiles','build','node_modules','.git']);
+const GENERATED_PROJECT_DIRS = new Set(['library','temp','build','node_modules','.git']);
 const REQUIRED_BUNDLES = ['internal','resources','main','audio_bgm_island','board_art','region_island','region_meadow','region_skycity'];
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -19,12 +19,27 @@ function inside(root, relative) {
   assert(!relative.includes('\0'), 'NUL path rejected');
   const file = path.resolve(root, relative);
   assert(file.startsWith(path.resolve(root) + path.sep), 'Path escapes artifact/source root: ' + relative);
+  safePath(root,relative);
+  return file;
+}
+function safePath(root,relative='.') {
+  const base=path.resolve(root),file=path.resolve(base,relative);
+  assert(file===base||file.startsWith(base+path.sep),'Path escapes checked root');
+  assert(!fs.lstatSync(base).isSymbolicLink(),'Symlink root rejected: '+base);
+  const realBase=fs.realpathSync(base);
+  let cursor=base;
+  for(const part of path.relative(base,file).split(path.sep).filter(Boolean)){
+    cursor=path.join(cursor,part);
+    let st;try{st=fs.lstatSync(cursor);}catch(e){if(e.code==='ENOENT')break;throw e;}
+    assert(!st.isSymbolicLink(),'Symlink ancestor/input rejected: '+cursor);
+    const actual=fs.realpathSync(cursor);assert(actual.startsWith(realBase+path.sep),'Resolved path escapes checked root');
+  }
   return file;
 }
 function inventory(root, roots = ['.']) {
   const entries = [];
   function visit(rel) {
-    const file = path.resolve(root, rel), st = fs.lstatSync(file);
+    const file = safePath(root, rel), st = fs.lstatSync(file);
     assert(!st.isSymbolicLink(), 'Symlink not admitted to reproducible input/output: ' + rel);
     if (st.isDirectory()) {
       for (const name of fs.readdirSync(file).sort()) visit(path.join(rel, name));
@@ -40,7 +55,7 @@ function sourceIdentity(root) {
   const pkg = json(inside(root, 'creator-build-project/package.json'));
   assert.equal(pkg.creator?.version, ENGINE, 'Source must stay pinned to Creator 3.8.8');
   const sceneFile = inside(root, SCENE_URL.replace('db://', 'creator-build-project/'));
-  assert.equal(json(sceneFile + '.meta').uuid, SCENE_UUID, 'Current scene meta UUID changed');
+  assert.equal(json(inside(root, SCENE_URL.replace('db://', 'creator-build-project/') + '.meta')).uuid, SCENE_UUID, 'Current scene meta UUID changed');
   const scene = json(sceneFile);
   assert(scene.some(x => x.__type__ === 'cc.Scene' && x._id === SCENE_UUID), 'Current serialized scene ID missing');
   assert(scene.some(x => x.__type__ === 'cc.SceneAsset' && x._name === 'WorldR5Integration'), 'Wrong scene asset');
@@ -52,7 +67,8 @@ function sourceIdentity(root) {
   assert.equal(config.mainBundleIsRemote, false);
   assert.equal(config.debug, true, 'Current-scene diagnostics require a debug acceptance build');
   // Include templates, extensions, package locks, and future source directories,
-  // not merely assets/settings. Exclude only known generated/local state.
+  // not merely assets/settings. local/profiles are frozen opaque inputs too.
+  // Only the existing generated-cache/build/dependency boundary is excluded.
   const project=inside(root,'creator-build-project');
   const roots=fs.readdirSync(project).filter(name=>!GENERATED_PROJECT_DIRS.has(name)).map(name=>'creator-build-project/'+name);
   assert(roots.includes('creator-build-project/settings'),'Missing project settings');
@@ -165,4 +181,4 @@ function verifyArtifact(root, {expectedBundles=REQUIRED_BUNDLES}={}) {
     limits:['Static bundle/entry checks do not prove all runtime fetches succeed.', 'No engine execution, visual quality, interaction, or device acceptance is implied.']};
 }
 
-module.exports = {ENGINE, SCENE_UUID, SCENE_URL, CONFIG_REL, REQUIRED_BUNDLES, sha, json, write, inside, inventory, sourceIdentity, assertCreatorExit, verifyArtifact};
+module.exports = {ENGINE, SCENE_UUID, SCENE_URL, CONFIG_REL, REQUIRED_BUNDLES, sha, json, write, inside, safePath, inventory, sourceIdentity, assertCreatorExit, verifyArtifact};

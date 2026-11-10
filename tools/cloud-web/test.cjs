@@ -40,7 +40,7 @@ function updateSettings(change){const s=lib.json(path.join(root,'src/settings.js
  test('path traversal rejected',()=>{put('index.html','<script src="../outside.js"></script>');assert.throws(()=>lib.verifyArtifact(root),/escapes/);fixture();});
  test('changed output bytes change identity',()=>{const before=lib.verifyArtifact(root).sha256;put('cocos-js/cc.js','/* changed synthetic fixture */');assert.notEqual(lib.verifyArtifact(root).sha256,before);fixture();});
  test('inventory deterministic',()=>assert.deepEqual(lib.inventory(root),lib.inventory(root)));
- test('symlinked bootstrap rejected before use',()=>{const f=path.join(root,'index.js'),target=path.join(temp,'outside.js');fs.renameSync(f,f+'.backup');fs.writeFileSync(target,'synthetic outside file');fs.symlinkSync(target,f);assert.throws(()=>lib.verifyArtifact(root),/outside artifact\/source root/);fs.unlinkSync(f);fs.renameSync(f+'.backup',f);});
+ test('symlinked bootstrap rejected before use',()=>{const f=path.join(root,'index.js'),target=path.join(temp,'outside.js');fs.renameSync(f,f+'.backup');fs.writeFileSync(target,'synthetic outside file');fs.symlinkSync(target,f);assert.throws(()=>lib.verifyArtifact(root),/outside artifact\/source root|Symlink ancestor\/input rejected/);fs.unlinkSync(f);fs.renameSync(f+'.backup',f);});
  const sourceFixture=path.join(temp,'source-fixture');
  function sourcePut(rel,data){lib.write(path.join(sourceFixture,rel),data);}
  sourcePut('creator-build-project/package.json',{creator:{version:lib.ENGINE}});
