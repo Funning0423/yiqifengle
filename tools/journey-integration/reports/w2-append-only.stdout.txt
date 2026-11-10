@@ -1,0 +1,1 @@
+PASS w2-append-only appendFails=27 retries=3 concat=0 (old harness lost lines: caught)

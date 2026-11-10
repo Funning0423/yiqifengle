@@ -1,0 +1,5 @@
+[coast-arrival-track-size] method=ts.transpile+terser limit=30720B
+  CoastArrivalTrack.ts source=19690B minified=19257B -> PASS
+  CoastArrivalLens.ts  source=24156B minified=14975B (info only)
+  selftest oversized source=47338B minified=46758B -> correctly FAILS
+PASS
