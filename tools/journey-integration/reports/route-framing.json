@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-25T13:26:55.899Z",
+ "timeUTC": "2026-10-25T13:46:42.058Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -230,19 +230,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 76.5,
-    "atS": 11.33
+    "maxRightEdgePctOfWidth": 73.3,
+    "atS": 11.43
    },
    "ui": {
-    "minGapPt": 48.2,
-    "atS": 11.4,
+    "minGapPt": 25.3,
+    "atS": 11.3,
     "phase": "B-d",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.169,
-   "minHeightFrac": 0.0322
+   "maxWidthFrac": 0.153,
+   "minHeightFrac": 0.0302
   },
   {
    "leg": "balloon meadow→skycity",
@@ -259,19 +259,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 76.5,
-    "atS": 11.33
+    "maxRightEdgePctOfWidth": 73.3,
+    "atS": 11.43
    },
    "ui": {
-    "minGapPt": 53.3,
-    "atS": 11.4,
+    "minGapPt": 28.9,
+    "atS": 11.3,
     "phase": "B-d",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.169,
-   "minHeightFrac": 0.0322
+   "maxWidthFrac": 0.153,
+   "minHeightFrac": 0.0302
   },
   {
    "leg": "balloon meadow→skycity",
@@ -288,19 +288,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 76.5,
-    "atS": 11.33
+    "maxRightEdgePctOfWidth": 73.4,
+    "atS": 11.43
    },
    "ui": {
-    "minGapPt": 42,
-    "atS": 11.4,
+    "minGapPt": 20.8,
+    "atS": 11.3,
     "phase": "B-d",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.169,
-   "minHeightFrac": 0.0322
+   "maxWidthFrac": 0.153,
+   "minHeightFrac": 0.0302
   },
   {
    "leg": "balloon meadow→skycity",
@@ -317,19 +317,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 71.8,
-    "atS": 11.33
+    "maxRightEdgePctOfWidth": 69.2,
+    "atS": 11.43
    },
    "ui": {
-    "minGapPt": 31,
-    "atS": 11.4,
+    "minGapPt": 12.9,
+    "atS": 11.3,
     "phase": "B-d",
     "overlapFrames": 0,
     "spans": [],
-    "framesUnder13pt": 0
+    "framesUnder13pt": 9
    },
-   "maxWidthFrac": 0.139,
-   "minHeightFrac": 0.0322
+   "maxWidthFrac": 0.126,
+   "minHeightFrac": 0.0302
   },
   {
    "leg": "balloon meadow→skycity",
@@ -346,19 +346,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 71.7,
-    "atS": 11.33
+    "maxRightEdgePctOfWidth": 69.1,
+    "atS": 11.43
    },
    "ui": {
-    "minGapPt": 21.3,
-    "atS": 11.4,
+    "minGapPt": 5.9,
+    "atS": 11.3,
     "phase": "B-d",
     "overlapFrames": 0,
     "spans": [],
-    "framesUnder13pt": 0
+    "framesUnder13pt": 114
    },
-   "maxWidthFrac": 0.138,
-   "minHeightFrac": 0.0322
+   "maxWidthFrac": 0.125,
+   "minHeightFrac": 0.0302
   },
   {
    "leg": "balloon meadow→skycity",
@@ -375,19 +375,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 66.3,
-    "atS": 11.33
+    "maxRightEdgePctOfWidth": 64.4,
+    "atS": 11.43
    },
    "ui": {
-    "minGapPt": 16.6,
-    "atS": 11.4,
+    "minGapPt": 2.5,
+    "atS": 11.3,
     "phase": "B-d",
     "overlapFrames": 0,
     "spans": [],
-    "framesUnder13pt": 0
+    "framesUnder13pt": 160
    },
-   "maxWidthFrac": 0.104,
-   "minHeightFrac": 0.0322
+   "maxWidthFrac": 0.094,
+   "minHeightFrac": 0.0302
   },
   {
    "leg": "balloon meadow→skycity",
@@ -404,19 +404,19 @@
    "rightOf80pct": {
     "frames": 0,
     "spans": [],
-    "maxRightEdgePctOfWidth": 66.3,
-    "atS": 11.33
+    "maxRightEdgePctOfWidth": 64.4,
+    "atS": 11.43
    },
    "ui": {
-    "minGapPt": 65.7,
-    "atS": 11.4,
+    "minGapPt": 37.9,
+    "atS": 11.3,
     "phase": "B-d",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.104,
-   "minHeightFrac": 0.0322
+   "maxWidthFrac": 0.094,
+   "minHeightFrac": 0.0302
   },
   {
    "leg": "balloon skycity→lakeside",

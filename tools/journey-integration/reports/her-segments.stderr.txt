@@ -1,0 +1,2 @@
+flight take-off [ -5.3, 5.25, 102.5 ] landing [ 18.09, 18.828, 100.818 ]
+B3 seated ride 0.00 s hidden max, clearance 14.01

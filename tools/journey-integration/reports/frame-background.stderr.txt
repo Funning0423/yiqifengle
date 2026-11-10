@@ -1,0 +1,21 @@
+node:internal/assert/utils:281
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: back {"t":2.4,"w":390,"h":844,"night":false,"near":false,"clear":18.037,"back":0.011363636363636364,"voids":0,"under":0,"domes":1,"gap":0,"sunk":0,"backs":["wind_bell_02:0.76","wind_bell_01:0.32","wind_bell_00:0.75"]}
+    at balloonFrames (/workspace/wt-trans/tools/transitions/test_frame_background.cjs:353:12)
+    at Object.<anonymous> (/workspace/wt-trans/tools/transitions/test_frame_background.cjs:382:1)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+    at node:internal/main/run_main_module:28:49 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+
+Node.js v20.19.2

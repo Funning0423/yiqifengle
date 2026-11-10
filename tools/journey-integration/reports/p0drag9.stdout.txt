@@ -72,8 +72,8 @@
    "lensInsideBoxFrames": 0
   },
   "perf": {
-   "avgMs": 0.348,
-   "p99Ms": 4.02
+   "avgMs": 0.323,
+   "p99Ms": 3.41
   },
   "ok": true
  },

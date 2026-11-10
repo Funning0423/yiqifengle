@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-25T13:13:50.117Z",
+  "timeUTC": "2026-10-25T13:43:22.026Z",
   "scope": "Frozen shipped bytes plus explicit reversible controller patch; no rendered quality inferred",
   "checks": [
     {

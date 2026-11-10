@@ -54,6 +54,7 @@ const walk=(a,keyFrom,keyTo,s)=>{const pts=a.path.map(P);const i0=keyFrom?pts.fi
    const run=TC.beginTransitionSpec(spec,S.from(leg));const from=S.from(leg);const poses=[from(0)],herAt=[null],tag=['level'];
    let handed=false,tH=0,n=0;while(run.phase!=='done'&&n<120*60){if(!handed&&run.t>=tl.total){tH=run.t;run.handTo(S.next(leg));handed=true;}const p=run.step(DT);poses.push(p);herAt.push(tl.at(Math.min(tl.total,run.t)));tag.push(run.t<run.blendIn?'in':handed?'out':'follow');n++;}
    const nx=S.next(leg);for(let k=1;k<=30;k++){poses.push(nx(run.t-tH+k*DT));herAt.push(null);tag.push('level');}
+   if(process.env.DUMP&&scr[0]===390&&scr[1]===844){const ff=S.from(leg),nn=S.next(leg),L=run.t;S.dump={her:herAt.filter(Boolean).filter((_,i)=>i%6===0).map(h=>h.feet),after:poses.filter((_,i)=>i%6===0).map(p=>p.position),before:Array.from({length:60},(_,i)=>{const u=i/59,w=u*u*u*(u*(u*6-15)+10),a=ff(u*L).position,b=nn(0).position;return [0,1,2].map(j=>a[j]+(b[j]-a[j])*w);}),boxes:S.boxes};}
    const yr=[],ya=[],dp=[],df=[];let occ=0,occMax=0,inBox=0,clrMin=99,frameMin=9,walkFr=[];
    for(let i=1;i<poses.length;i++){const a=poses[i-1],b=poses[i];const y=wrap(yawOf(b)-yawOf(a))/DT;yr.push(y);dp.push(Math.hypot(...[0,1,2].map(j=>b.position[j]-a.position[j])));df.push(Math.abs((b.fovVerticalDeg??48)-(a.fovVerticalDeg??48)));walkFr.push(herAt[i]&&herAt[i].pose==='walk');
     const h=herAt[i];if(!h)continue;const s=h.pose==='seated',face=[h.feet[0],h.feet[1]+(s?1.0:1.5),h.feet[2]],chest=[h.feet[0],h.feet[1]+(s?.75:1.2),h.feet[2]];
@@ -68,5 +69,5 @@ const walk=(a,keyFrom,keyTo,s)=>{const pts=a.path.map(P);const i0=keyFrom?pts.fi
     assert.ok(row.stepMaxM<=0.6&&row.fovStepMax<=0.25,'continuity '+JSON.stringify(row));assert.equal(row.lensInBoxFrames,0,'no lens in a box '+JSON.stringify(row));
     assert.ok(row.minClearM>=1.1,'≥1.1 m clearance '+JSON.stringify(row));assert.ok(row.occMaxS<=0.5,'face/chest ≤0.5 s '+JSON.stringify(row));assert.ok(row.herMarginMin>=0,'she in the safe frame '+JSON.stringify(row));}
   }}
- console.log(JSON.stringify({status:process.env.REPORT?'REPORT':'PASS',rows}));
+ if(process.env.DUMP)fs.writeFileSync(process.env.DUMP,JSON.stringify(SEGS.map(S=>({id:S.id,...S.dump}))));console.log(JSON.stringify({status:process.env.REPORT?'REPORT':'PASS',rows}));
 })().catch(e=>{console.error(e);process.exit(1);});
