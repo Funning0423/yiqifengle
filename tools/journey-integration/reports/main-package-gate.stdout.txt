@@ -1,0 +1,1 @@
+PASS main-package gate: real ROOT 1871139 B, headroom 2128861 B, evidence verified=true, 1271 source files, 0 privacy APIs
