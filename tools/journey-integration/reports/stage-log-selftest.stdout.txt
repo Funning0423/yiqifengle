@@ -1,0 +1,1 @@
+stage-log-selftest: PASS (dedf8853: split 31-32 s/1200, transport_sail 783-1048/400, warm-rig 1572-1764/700 -> FAIL)
