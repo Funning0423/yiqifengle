@@ -1,1 +1,1 @@
-{"status":"PASS","checks":26,"night":{"keyLitCity":0.27,"selfLitClouds":0.27,"warmAccents":1.35,"meadowRef":0.197}}
+{"status":"PASS","checks":38,"night":{"ambientLitGround":0.197,"cloudsea":0.259,"keyLitCity":0.27,"selfLitClouds":0.27,"warmAccents":1.35,"meadowRef":0.197}}
