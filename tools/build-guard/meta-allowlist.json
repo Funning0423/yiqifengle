@@ -211,6 +211,54 @@
       },
       "why": "region/fjord-wireup: region_fjord board lease, pier camera only"
     },
+    "creator-build-project/assets/bundles/region_oasis.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/oasis-wireup: oasis courtyard subpackage (wx_subpackage, same shape as region_fjord)"
+    },
+    "creator-build-project/assets/bundles/region_oasis/models.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/oasis-wireup: env_oasis.glb folder"
+    },
+    "creator-build-project/assets/bundles/region_oasis/models/env_oasis.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "region/oasis-wireup: procedural oasis courtyard; Creator fills sub-assets on import"
+    },
+    "creator-build-project/assets/scripts/regional-r05/runtime/oasis-levels-data.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/oasis-wireup: oasis stage data (r11-oasis-01..08) joined beside fjord-levels-data.js"
+    },
+    "creator-build-project/assets/scripts/region/OasisSceneData.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/oasis-wireup: courtyard board seat (pure numbers, no engine)"
+    },
+    "creator-build-project/assets/scripts/region/OasisBoardBackground.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/oasis-wireup: region_oasis board lease, courtyard camera only"
+    },
+    "creator-build-project/assets/scripts/world-r2/oasis-unlock-seed.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/oasis-wireup: qfPre=unlock-oasis replays prior clears onto an isolated test profile"
+    },
+    "creator-build-project/assets/scripts/world-r2/oasis-unlock-witnesses.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/oasis-wireup: first verified wins used only by qfPre=unlock-oasis"
+    },
     "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {
       "allowAdd": {
         "importer": "typescript"
