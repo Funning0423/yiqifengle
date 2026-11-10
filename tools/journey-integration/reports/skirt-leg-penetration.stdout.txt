@@ -1,0 +1,447 @@
+{
+ "gate": "skirt-leg-penetration",
+ "status": "PASS",
+ "glb": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "results": [
+  {
+   "name": "strict clips 60",
+   "ok": true,
+   "frames": 1082,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict clips 30",
+   "ok": true,
+   "frames": 549,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict clips uneven",
+   "ok": true,
+   "frames": 1055,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict runtime 60",
+   "ok": true,
+   "frames": 2802,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict runtime 30",
+   "ok": true,
+   "frames": 1409,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict runtime uneven",
+   "ok": true,
+   "frames": 2811,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "seated ratchet vs 773c061e 60 (pre-existing seated issues from 773c061e, not introduced by this change)",
+   "ok": true,
+   "items": {
+    "clip:sit_hold/60": {
+     "frames": 121,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:stand_up/60": {
+     "frames": 78,
+     "hits": 282,
+     "panels": {
+      "dress:skirt.back": {
+       "n": 149,
+       "maxCm": 3.483
+      },
+      "dress:skirt.front.mid": {
+       "n": 18,
+       "maxCm": 0.497
+      },
+      "dress:skirt.right": {
+       "n": 110,
+       "maxCm": 0.557
+      },
+      "apron:skirt.front.mid": {
+       "n": 2,
+       "maxCm": 0.04
+      },
+      "dress:skirt.left": {
+       "n": 3,
+       "maxCm": 0.159
+      }
+     }
+    },
+    "clip:sit_down/60": {
+     "frames": 74,
+     "hits": 350,
+     "panels": {
+      "dress:skirt.front.low": {
+       "n": 23,
+       "maxCm": 0.893
+      },
+      "axis:dress": {
+       "n": 47,
+       "maxCm": 3.954
+      },
+      "dress:skirt.front.mid": {
+       "n": 34,
+       "maxCm": 0.246
+      },
+      "dress:skirt.right": {
+       "n": 50,
+       "maxCm": 0.288
+      },
+      "dress:skirt.back": {
+       "n": 192,
+       "maxCm": 1.943
+      },
+      "dress:hips": {
+       "n": 4,
+       "maxCm": 0.095
+      }
+     }
+    },
+    "runtime:ride-seated/60": {
+     "frames": 506,
+     "hits": 538,
+     "panels": {
+      "dress:skirt.front.mid": {
+       "n": 47,
+       "maxCm": 0.497
+      },
+      "axis:dress": {
+       "n": 9,
+       "maxCm": 3.954
+      },
+      "dress:skirt.right": {
+       "n": 162,
+       "maxCm": 0.557
+      },
+      "dress:skirt.back": {
+       "n": 311,
+       "maxCm": 2.673
+      },
+      "dress:hips": {
+       "n": 4,
+       "maxCm": 0.095
+      },
+      "apron:skirt.front.mid": {
+       "n": 2,
+       "maxCm": 0.04
+      },
+      "dress:skirt.left": {
+       "n": 3,
+       "maxCm": 0.159
+      }
+     }
+    }
+   },
+   "regressions": [],
+   "failCount": 0
+  },
+  {
+   "name": "seated ratchet vs 773c061e 30 (pre-existing seated issues from 773c061e, not introduced by this change)",
+   "ok": true,
+   "items": {
+    "clip:sit_hold/30": {
+     "frames": 61,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:stand_up/30": {
+     "frames": 40,
+     "hits": 142,
+     "panels": {
+      "dress:skirt.back": {
+       "n": 75,
+       "maxCm": 3.483
+      },
+      "dress:skirt.front.mid": {
+       "n": 10,
+       "maxCm": 0.44
+      },
+      "dress:skirt.left": {
+       "n": 2,
+       "maxCm": 0.159
+      },
+      "dress:skirt.right": {
+       "n": 54,
+       "maxCm": 0.526
+      },
+      "apron:skirt.front.mid": {
+       "n": 1,
+       "maxCm": 0.035
+      }
+     }
+    },
+    "clip:sit_down/30": {
+     "frames": 38,
+     "hits": 186,
+     "panels": {
+      "dress:skirt.front.low": {
+       "n": 14,
+       "maxCm": 0.893
+      },
+      "axis:dress": {
+       "n": 29,
+       "maxCm": 3.954
+      },
+      "dress:skirt.front.mid": {
+       "n": 18,
+       "maxCm": 0.246
+      },
+      "dress:skirt.back": {
+       "n": 100,
+       "maxCm": 1.91
+      },
+      "dress:skirt.right": {
+       "n": 23,
+       "maxCm": 0.287
+      },
+      "dress:hips": {
+       "n": 2,
+       "maxCm": 0.095
+      }
+     }
+    },
+    "runtime:ride-seated/30": {
+     "frames": 255,
+     "hits": 279,
+     "panels": {
+      "dress:skirt.front.mid": {
+       "n": 26,
+       "maxCm": 0.44
+      },
+      "axis:dress": {
+       "n": 9,
+       "maxCm": 3.954
+      },
+      "dress:skirt.back": {
+       "n": 161,
+       "maxCm": 2.673
+      },
+      "dress:skirt.right": {
+       "n": 78,
+       "maxCm": 0.526
+      },
+      "dress:hips": {
+       "n": 2,
+       "maxCm": 0.095
+      },
+      "dress:skirt.left": {
+       "n": 2,
+       "maxCm": 0.159
+      },
+      "apron:skirt.front.mid": {
+       "n": 1,
+       "maxCm": 0.035
+      }
+     }
+    }
+   },
+   "regressions": [],
+   "failCount": 0
+  },
+  {
+   "name": "seated ratchet vs 773c061e uneven (pre-existing seated issues from 773c061e, not introduced by this change)",
+   "ok": true,
+   "items": {
+    "clip:sit_hold/uneven": {
+     "frames": 124,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:stand_up/uneven": {
+     "frames": 80,
+     "hits": 278,
+     "panels": {
+      "dress:skirt.back": {
+       "n": 151,
+       "maxCm": 3.233
+      },
+      "dress:skirt.front.mid": {
+       "n": 16,
+       "maxCm": 0.514
+      },
+      "apron:skirt.front.mid": {
+       "n": 2,
+       "maxCm": 0.046
+      },
+      "dress:skirt.left": {
+       "n": 4,
+       "maxCm": 0.156
+      },
+      "dress:skirt.right": {
+       "n": 105,
+       "maxCm": 0.547
+      }
+     }
+    },
+    "clip:sit_down/uneven": {
+     "frames": 76,
+     "hits": 327,
+     "panels": {
+      "dress:skirt.front.low": {
+       "n": 24,
+       "maxCm": 0.662
+      },
+      "axis:dress": {
+       "n": 34,
+       "maxCm": 3.156
+      },
+      "dress:skirt.front.mid": {
+       "n": 29,
+       "maxCm": 0.23
+      },
+      "dress:skirt.right": {
+       "n": 53,
+       "maxCm": 0.289
+      },
+      "dress:skirt.back": {
+       "n": 183,
+       "maxCm": 1.946
+      },
+      "dress:hips": {
+       "n": 4,
+       "maxCm": 0.074
+      }
+     }
+    },
+    "runtime:ride-seated/uneven": {
+     "frames": 506,
+     "hits": 519,
+     "panels": {
+      "dress:skirt.front.mid": {
+       "n": 44,
+       "maxCm": 0.519
+      },
+      "axis:dress": {
+       "n": 9,
+       "maxCm": 3.817
+      },
+      "dress:skirt.right": {
+       "n": 169,
+       "maxCm": 0.557
+      },
+      "dress:skirt.back": {
+       "n": 289,
+       "maxCm": 2.773
+      },
+      "dress:hips": {
+       "n": 4,
+       "maxCm": 0.07
+      },
+      "dress:skirt.left": {
+       "n": 3,
+       "maxCm": 0.157
+      },
+      "apron:skirt.front.mid": {
+       "n": 1,
+       "maxCm": 0.039
+      }
+     }
+    }
+   },
+   "regressions": [],
+   "failCount": 0
+  },
+  {
+   "name": "negative: walk_loop with the front skirt pinned to rest must FAIL",
+   "ok": true,
+   "frames": 44,
+   "hits": 14236,
+   "maxDepthCm": 14.94,
+   "worst": {
+    "at": "walk_loop@1.3667/30",
+    "vertex": 3470,
+    "bone": "shin.R",
+    "mesh": "dress",
+    "test": "axis"
+   },
+   "byClip": {
+    "walk_loop": 14236
+   }
+  },
+  {
+   "name": "negative: 773c061e stand_up skirt curves (thigh.R through skirt.back while seated) must FAIL",
+   "ok": true,
+   "frames": 40,
+   "hits": 142,
+   "maxDepthCm": 3.48,
+   "worst": {
+    "at": "stand_up@0.1667/30",
+    "vertex": 14015,
+    "bone": "thigh.R",
+    "mesh": "dress",
+    "tri": 8334,
+    "cloth": "skirt.back"
+   },
+   "byClip": {
+    "stand_up": 142
+   }
+  },
+  {
+   "name": "negative: walk_loop front panel swung back through the forward shin (pass-through) must FAIL",
+   "ok": true,
+   "axisHits": 27290,
+   "frames": 44,
+   "hits": 30870,
+   "maxDepthCm": 26.96,
+   "worst": {
+    "at": "walk_loop@1.3667",
+    "vertex": 3511,
+    "bone": "shin.R",
+    "mesh": "dress",
+    "test": "axis"
+   },
+   "byClip": {
+    "walk_loop": 30870
+   }
+  },
+  {
+   "name": "negative: stand_up with skirt.back pitched 4 deg further onto the thighs must FAIL the seated ratchet",
+   "ok": true,
+   "regressions": [
+    {
+     "item": "clip:stand_up/30",
+     "k": "hits",
+     "cur": 258,
+     "base": 142
+    },
+    {
+     "item": "clip:stand_up/30",
+     "k": "hits dress:skirt.back",
+     "cur": 174,
+     "base": 75
+    },
+    {
+     "item": "clip:stand_up/30",
+     "k": "hits dress:skirt.right",
+     "cur": 71,
+     "base": 54
+    }
+   ]
+  }
+ ]
+}

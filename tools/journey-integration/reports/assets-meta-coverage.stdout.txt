@@ -1,0 +1,3 @@
+assets-meta-coverage: PASS
+selftest drop file meta creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta -> ["creator-build-project/assets/bundles/board_art/journey_ui/JourneyPanels.ts.meta"]; drop folder meta creator-build-project/assets/bundles.meta -> ["creator-build-project/assets/bundles.meta"]
+assets-meta-coverage selftest: PASS
