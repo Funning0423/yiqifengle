@@ -1,0 +1,16 @@
+390x844 per-occluder face s {"env_prop_palm_lean_01":0.374} lighthouse 0.000
+390x844 {"face":0.367,"margin":0.092,"menu":0,"hud":0,"ground":7.18,"solid":2.47,"v":5.61,"step":0.187,"yaw":54,"pitch":19,"acc":169,"fov":0}
+414x896 per-occluder face s {"env_prop_palm_lean_01":0.374} lighthouse 0.000
+414x896 {"face":0.367,"margin":0.092,"menu":0,"hud":0,"ground":7.18,"solid":2.47,"v":5.61,"step":0.187,"yaw":54,"pitch":19,"acc":169,"fov":0}
+360x780 per-occluder face s {"env_prop_palm_lean_01":0.374} lighthouse 0.000
+360x780 {"face":0.367,"margin":0.092,"menu":0,"hud":0,"ground":7.18,"solid":2.47,"v":5.61,"step":0.187,"yaw":54,"pitch":19,"acc":169,"fov":0}
+375x667 per-occluder face s {"env_prop_palm_lean_01":0.321} lighthouse 0.000
+375x667 {"face":0.32,"margin":0.105,"menu":0,"hud":0,"ground":6.96,"solid":2.51,"v":5.65,"step":0.188,"yaw":45.3,"pitch":18.5,"acc":142,"fov":0}
+320x568 per-occluder face s {"env_prop_palm_lean_01":0.374} lighthouse 0.000
+320x568 {"face":0.367,"margin":0.092,"menu":0,"hud":0,"ground":7.18,"solid":2.47,"v":5.61,"step":0.187,"yaw":54,"pitch":19,"acc":169,"fov":0}
+390x520 per-occluder face s {"env_prop_palm_lean_01":0.321} lighthouse 0.000
+390x520 {"face":0.32,"margin":0.105,"menu":0,"hud":0,"ground":6.96,"solid":2.51,"v":5.65,"step":0.188,"yaw":45.3,"pitch":18.5,"acc":142,"fov":0}
+768x1024 per-occluder face s {"env_prop_palm_lean_01":0.374} lighthouse 0.000
+768x1024 {"face":0.367,"margin":0.092,"menu":0,"hud":0,"ground":7.18,"solid":2.47,"v":5.61,"step":0.187,"yaw":54,"pitch":19,"acc":169,"fov":0}
+walk I3>I4 8.713 m 7.261 s walkTiers {"lowRock":{"m":1.65,"who":"rock_01#2041"},"fence":{"m":3,"who":null},"solid07":{"m":1.757,"who":"bench_01#2089"},"solid1m":{"m":1.147,"who":"env_prop_palm_lean_01:trunk"},"veg":{"m":0.204,"who":"grass_tuft_01#1983"},"frond":{"m":0.618,"who":"env_prop_palm_young_01:frond"}}
+island-i3i4-follow: PASS
