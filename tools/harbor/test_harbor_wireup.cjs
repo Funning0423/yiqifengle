@@ -48,7 +48,7 @@ t('eight harbor stages are playable data, off the shipped catalog, ids r12-harbo
   assert.equal(API.allStages.filter(s => s.region === 'harbor').length, 8);
   assert.equal(API.allStages.filter(s => s.region === 'oasis').length, 8);
   const J = H.load('ui/JourneyCore');
-  assert.equal(J.REGION_DEFS.reduce((a, d) => a + d.stages, 0), 79);
+  assert.equal(J.REGION_DEFS.reduce((a, d) => a + d.stages, 0), 87);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'harbor').stages, 8);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'harbor').short.length <= 4, true);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'harbor').unlock.label.length <= 5, true);
@@ -148,7 +148,7 @@ t('journey: harbor opens after the oasis is fully saved, and stays 远方 until 
   const bar = J.journeyProgress({ records: rec(12), regionDone: { lake: 6, snow: 6, rail: 6, cloud: 8, spring: 8, fjord: 8, oasis: 8 }, stages: withHarbor });
   assert.equal(bar.segments.some(s => s.id === 'harbor'), true);
   assert.equal(bar.segments.some(s => s.id === 'oasis'), true);
-  assert.equal(bar.total, 12 + 6 + 6 + 6 + 8 + 8 + 8 + 8 + 8);
+  assert.equal(bar.total, 12 + 6 + 6 + 6 + 8 + 8 + 8 + 8 + 8 + 8);
 });
 t('board plane is the terrace: no gap, no sink, footprint inside the flat floor', () => {
   const D = H.load('region/HarborSceneData'), C = H.load('world-r1/CameraPose');

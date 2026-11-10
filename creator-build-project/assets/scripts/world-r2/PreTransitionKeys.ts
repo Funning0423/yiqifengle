@@ -5,7 +5,7 @@
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
 import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled, registerQaPreKey } from './QaSkip';
-export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'|'unlock-oasis'|'unlock-harbor'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'|'journal-sky-focus'/*QF_PROBE_END*/;
+export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'|'unlock-oasis'|'unlock-harbor'|'unlock-mossgarden'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'|'journal-sky-focus'/*QF_PROBE_END*/;
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
 export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;skyPage?:boolean;justWon?:boolean;focusSky?:boolean;/*QF_PROBE_END*/
  trigger:string;taps:PreTap[];expect:string};
@@ -35,6 +35,7 @@ export const PRE_SPECS:readonly PreSpec[]=[
  {key:'ending',label:'结局：最后一关湖畔结算 → 结局（TR9）',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-06',lakeMode:'win',trigger:'结算面板「继续」（ResultPanel/Next，endingAvailable 时文字为 继续）',taps:[N('ResultPanel','Next')],expect:'WindWipe（3D 风铃）盖屏→结局画面淡入（__qfEnding.shown=true）→点结局「回小岛」再走 WindWipe 回小岛'},
  {key:'unlock-oasis',label:'解锁沙漠绿洲庭院（隔离测试存档）',checkpoint:12,finish:true,place:'island',trigger:'已打开的「沙漠绿洲庭院」章节：主按钮「前往绿洲庭院」',taps:[N('ChapterPanel','Continue-oasis')],expect:'停在小岛。隔离测试存档里主线 12 关和峡湾之前的地区关都由真实回放打通，绿洲第一关可进；真实存档不写。'},
  {key:'unlock-harbor',label:'解锁白阶海港台地（隔离测试存档）',checkpoint:12,finish:true,place:'island',trigger:'已打开的「白阶海港台地」章节：主按钮「前往海港台地」',taps:[N('ChapterPanel','Continue-harbor')],expect:'停在小岛。隔离测试存档里主线 12 关和绿洲之前的地区关都由真实回放打通，海港第一关可进；真实存档不写。'},
+ {key:'unlock-mossgarden',label:'解锁石灯苔庭（隔离测试存档）',checkpoint:12,finish:true,place:'island',trigger:'已打开的「石灯苔庭」章节：主按钮「前往石灯苔庭」',taps:[N('ChapterPanel','Continue-mossgarden')],expect:'停在小岛。隔离测试存档里主线 12 关和海港之前的地区关都由真实回放打通，苔庭第一关可进；真实存档不写。'},
 /*QF_PROBE_BEGIN*//* r5 journal hooks: stripped from release builds (strip-probes.cjs; release-probe-symbols.json lists journal-sky) */
  /* r5 (界面验收部 new-regions r4 §2 item 3; Option A): the 天空之城 page button follows the REAL challenge gate. Mainline 1–12
   * registered (gate open) + 0 / 1 / 4 天空之城 challenges won through the real provider; island, region page open. Test profile only. */
