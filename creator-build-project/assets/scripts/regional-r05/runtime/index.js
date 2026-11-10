@@ -87,15 +87,15 @@ var coastPlayable=freeze([
     balanceNote:'random N=200 target ~0.79 rise'
   }),
   freeze({
-    id:'r06-coast-08',region:'coast',ordinal:8,name:'双铃过潮',contentRevision:'m4-2026-11-09',intendedBand:'twin-bell-roots',
-    designIntent:'交换相邻奇果，让十字风解开潮间的根结。',
-    config:{moves:22,goals:{beacons:2,roots:4,type4:8},moss:[],roots:[{index:16,layers:1},{index:18,layers:1},{index:30,layers:1},{index:32,layers:1}],beacons:[8,12,36,40],starters:[{index:23,special:'row'},{index:24,special:'bomb'}]},
-    rules:{},tool:null,seedBank:[2],chapterName:'灯塔夜航',
+    id:'r06-coast-08',region:'coast',ordinal:8,name:'双铃过潮',contentRevision:'m4b-2026-11-09',intendedBand:'twin-bell-lines',
+    designIntent:'交换相邻奇果，用十字风与铃果切开潮路。',
+    config:{moves:24,goals:{lines:1,specials:2,type5:6},moss:[],roots:[],beacons:[],starters:[{index:0,special:'color'},{index:48,special:'row'},{index:20,special:'column'}]},
+    rules:{},tool:null,seedBank:[11],chapterName:'灯塔夜航',
     note:'两口铃一响，潮水就让开一点。',
-    failHint:'先解开中心根结；角上的灯按顺序点。',
-    designPropsSource:'COAST08 adapted: corner lamps [8,12,36,40] + center roots square L1; beacons goal 4->2; type4 16->8; moves 32->22; one seed',
-    sequenceNote:'beacons+roots after fog-echo (no moss)',
-    balanceNote:'random N=200 = 0.685 dip after 0.74'
+    failHint:'先动横/竖奇果计入直线；再消耗两枚奇果。',
+    designPropsSource:'COAST08 redesign (m4b): drop beacons/moss/roots; lines+specials+type5; starters color@0 + column@20 + row@48 (open board, !=07/09 masks); moves 32->24; one seed',
+    sequenceNote:'lines+specials after fog-echo, before lighthouse finale (no beacons)',
+    balanceNote:'random N=200 = 0.790 rise after 0.74, setup before 0.67 finale'
   }),
   freeze({
     id:'r06-coast-09',region:'coast',ordinal:9,name:'灯塔等你',contentRevision:'m4-2026-11-09',intendedBand:'lighthouse-finale',

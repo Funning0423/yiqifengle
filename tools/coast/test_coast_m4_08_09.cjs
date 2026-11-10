@@ -25,12 +25,14 @@ for (const id of ['r06-coast-08','r06-coast-09']) {
   assert.equal(s.engine.goals.pearls, undefined);
 }
 
-assert.equal(API.getStage('r06-coast-08').config.goals.roots, 4);
-assert.equal(API.getStage('r06-coast-08').config.goals.beacons, 2);
+assert.equal(API.getStage('r06-coast-08').config.goals.lines, 1);
+assert.equal(API.getStage('r06-coast-08').config.goals.specials, 2);
 assert.deepEqual(API.getStage('r06-coast-08').config.moss, []);
+assert.deepEqual(API.getStage('r06-coast-08').config.roots, []);
+assert.deepEqual(API.getStage('r06-coast-08').config.beacons, []);
 assert.equal(API.getStage('r06-coast-09').config.goals.moss, 3);
 assert.equal(API.getStage('r06-coast-09').config.goals.roots, 3);
-assert.deepEqual(API.getStage('r06-coast-08').seedBank, [2]);
+assert.deepEqual(API.getStage('r06-coast-08').seedBank, [11]);
 assert.deepEqual(API.getStage('r06-coast-09').seedBank, [23]);
 
 function mem() { return { _d: {}, getItem(k) { return this._d[k] || null; }, setItem(k, v) { this._d[k] = String(v); } }; }
