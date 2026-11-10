@@ -5,7 +5,7 @@
  *  - the HUD no-go limits of the active HUD variant (data in the kit, never hard-coded here);
  *  - the edge rule (every playable tile ≥ 8 pt from all four screen edges; the stone rim may bleed off left/right only,
  *    symmetrically, on its straight sides, clear of the HUD) and the tap areas (real effective size per tile). */
-import { COAST_KIT, LAKESIDE_KIT, kitBoardPose, kitProject, registerBoardKit, setProjectedHitHook, setProjectGridHook, unregisterBoardKit, type KitGrid, type RegionBoardKit, type V3 } from './BoardKit';
+import { COAST_KIT, LAKESIDE_KIT, kitBoardPose, kitCellFaceY, kitProject, registerBoardKit, setProjectedHitHook, setProjectGridHook, unregisterBoardKit, type KitGrid, type RegionBoardKit, type V3 } from './BoardKit';
 import { lakesideAlignedBoardPose, lakesideScreenFrame } from '../region/LakesideCameraLayout';
 import { setLakesideKitAssets } from '../region/LakesideSceneData';
 import { boardSafeInsets } from './BoardLayout';
@@ -34,8 +34,8 @@ export function projectBoard(kit: RegionBoardKit, w: number, h: number, opts?: {
   if (!kit.board || !kit.camera) return null;
   const pose = kit.id === 'lakeside' ? lakesideBoardKitPose(w, h) : kitBoardPose(kit.camera, w, h, opts); const P = (l: V3) => kitProject(pose, w, h, kitLocalWorld(kit, l[0], l[1], l[2]));
   const top = kit.board.topY, cell = kit.board.cellM || 1, centers: Pt[] = [], quads: Pt[][] = [];
-  for (let i = 0; i < 49; i++) { const x = (i % 7 - 3) * cell, z = (Math.floor(i / 7) - 3) * cell, c = P([x, top, z]); if (!c) return null; centers.push(c);
-    const h = cell / 2, q = [P([x - h, top, z - h]), P([x + h, top, z - h]), P([x + h, top, z + h]), P([x - h, top, z + h])]; if (q.some(p => !p)) return null; quads.push(q as Pt[]); }
+  for (let i = 0; i < 49; i++) { const x = (i % 7 - 3) * cell, z = (Math.floor(i / 7) - 3) * cell, face = kitCellFaceY(kit, i), c = P([x, face, z]); if (!c) return null; centers.push(c);
+    const h = cell / 2, q = [P([x - h, face, z - h]), P([x + h, face, z - h]), P([x + h, face, z + h]), P([x - h, face, z + h])]; if (q.some(p => !p)) return null; quads.push(q as Pt[]); }
   const rim: Array<Pt & { straight: boolean }> = [], H = RIM.outerHalf * cell, r = RIM.outerCorner * cell, n = 24, rimY = kit.id === 'lakeside' ? top : RIM.topY;
   const push = (lx: number, lz: number, straight: boolean) => { const p = P([lx, rimY, lz]); if (p) rim.push({ ...p, straight }); };
   for (let k = 0; k <= 80; k++) { const t = -H + r + (2 * (H - r)) * k / 80; push(-H, t, true); push(H, t, true); push(t, -H, true); push(t, H, true); }
@@ -83,7 +83,7 @@ export function edgeReport(b: ProjectedBoard, hud: HudLimits) {
  *  projected width of `fill` m at that tile (perspective: the far row is smaller); contact shadow = projected 0.62 m disc on the
  *  slab top (foreshortened by the camera pitch); tint = the slabs' lighting (kit.lighting). */
 export function kitPiecePlacement(kit: RegionBoardKit, w: number, h: number, i: number, opts?: { distanceM?: number; lookAtOffsetM?: number }) {
-  const pose = kit.id === 'lakeside' ? lakesideBoardKitPose(w, h) : kitBoardPose(kit.camera!, w, h, opts), top = kit.board!.topY, cell = kit.board!.cellM || 1, x = (i % 7 - 3) * cell, z = (Math.floor(i / 7) - 3) * cell, L = kit.lighting || DEFAULT_LIGHT;
+  const pose = kit.id === 'lakeside' ? lakesideBoardKitPose(w, h) : kitBoardPose(kit.camera!, w, h, opts), top = kitCellFaceY(kit, i), cell = kit.board!.cellM || 1, x = (i % 7 - 3) * cell, z = (Math.floor(i / 7) - 3) * cell, L = kit.lighting || DEFAULT_LIGHT;
   const P = (lx: number, lz: number) => kitProject(pose, w, h, kitLocalWorld(kit, lx, top, lz))!;
   const c = P(x, z), f = L.pieceFill * cell, s = L.shadowM * cell / 2, l = P(x - f / 2, z), r = P(x + f / 2, z), sf = P(x, z - s), sn = P(x, z + s), sl = P(x - s, z), sr = P(x + s, z);
   return { x: c.x, y: c.y, width: Math.hypot(r.x - l.x, r.y - l.y), anchorY: L.anchorY, shadow: { w: Math.hypot(sr.x - sl.x, sr.y - sl.y), h: Math.hypot(sn.x - sf.x, sn.y - sf.y), opacity: L.shadowOpacity, color: L.shadowColor }, tint: L.tint };
@@ -121,9 +121,10 @@ export function lakesideBoardKitPose(w: number, h: number): { position: [number,
   return { position: [pose.position[0], pose.position[1], pose.position[2]], rotationXYZW: [pose.rotation[0], pose.rotation[1], pose.rotation[2], pose.rotation[3]], fovVerticalDeg: pose.fovVerticalDeg, distanceM: d };
 }
 /** Lakeside fusion-kit switch (Funning sample: wb_line + buoy_lantern + chime_raft + LK_piece_*).
- *  TRIAL tip: default ON (WeChat trial cannot pass ?qflakesidekit=1). Formal tip 05ca7c50 stays OFF.
- *  On = LAKESIDE_KIT registered for region 'lake' (and 'lakeside' alias) + setLakesideKitAssets(true) (keep pieces, unskip RING/SHD).
- *  Opt-out: globalThis.__qfLakesideBoardKit === false or '?qflakesidekit=0'. Force on: true / '?qflakesidekit=1'.
+ *  Default OFF. The trial default was ON, which hid the live 2D pieces and left 52 static LK_piece_* on the water,
+ *  so a lakeside level could not be played. Force on: globalThis.__qfLakesideBoardKit === true or '?qflakesidekit=1'.
+ *  Opt-out (also the no-flag path): false or '?qflakesidekit=0'.
+ *  On = LAKESIDE_KIT registered for region 'lake' (and 'lakeside' alias) + setLakesideKitAssets(true) (unskip RING/SHD; static LK_piece_* stay out).
  *  Also invoked at start of buildLakesideBoard so preload/filter sees the flag (initializeManaged alone is too late). */
 export function setLakesideBoardKit(on: boolean): void {
   if (on) { registerBoardKit('lake', LAKESIDE_KIT); registerBoardKit('lakeside', LAKESIDE_KIT); }
@@ -131,7 +132,7 @@ export function setLakesideBoardKit(on: boolean): void {
   try { setLakesideKitAssets(on); } catch { /* scene data optional in pure board tests */ }
 }
 export function lakesideBoardKitFromFlag(): boolean {
-  const g = globalThis as any; let on = true;
+  const g = globalThis as any; let on = false;
   if (g.__qfLakesideBoardKit === false) on = false;
   else if (g.__qfLakesideBoardKit === true) on = true;
   try {

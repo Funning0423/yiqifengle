@@ -11,7 +11,7 @@ import {Cancellation} from '../world-r1/WorldFlowCore';
 import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,lakesideFillMaskBytes,lakesideFillWeight,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,lakesideFillMaskBytes,lakesideFillWeight,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance,lakesideKitAssetsEnabled,lakesideKitBoardPose,lakesideKitBoardEmissive,LAKESIDE_KIT_BOARD_LOOK} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
 import {getGlobalWind} from '../render/GlobalWind';
 import {LAKESIDE_LIFE} from '../render/LakesideLifeCore';
@@ -80,6 +80,22 @@ function writeLakesideLandFill(m:Material,cls:LakesideLandFillClass,mode:Lakesid
 export function applyLakesideLandFill(root:Node,mode:LakesideDayNight,weight:number=1):number{const seen=new Set<Material>();let n=0;
  for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials){if(!m||seen.has(m))continue;seen.add(m);const cls=lakesideLandFillOf.get(m);if(cls){writeLakesideLandFill(m,cls,mode,weight);n++;}}
  return n;}
+/** Kit-ON only. Lines and cell pads get their own instanced copy (the plain palette copy is shared with the whole scene,
+ *  so a fill written on it would light every house). Shadows keep their blend material and only lose alpha. No-op when the kit is off. */
+const lakesideKitBoardKind=new WeakMap<Material,'line'|'ring'|'shadow'>();
+function writeKitEmissive(m:Material,rgb:readonly number[]){m.setProperty('emissive',new Color(255,255,255,255));m.setProperty('emissiveScale',new Vec3(rgb[0],rgb[1],rgb[2]));}
+function writeLakesideKitBoardColors(root:Node,mode:LakesideDayNight){const seen=new Set<Material>();
+ for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials){if(!m||seen.has(m))continue;seen.add(m);const kind=lakesideKitBoardKind.get(m);if(!kind)continue;
+  if(kind==='shadow'){try{m.setProperty('mainColor',new Color(8,28,36,LAKESIDE_KIT_BOARD_LOOK.shadowAlpha));}catch{/* shadow mat has no mainColor */}continue;}
+  const pass:any=m.passes?.[0];if(!pass||!pass.getHandle('emissiveScale')||!pass.getHandle('emissive'))continue;
+  writeKitEmissive(m,lakesideKitBoardEmissive(kind,mode));}}
+export function applyLakesideKitBoardLook(root:Node):Material[]{
+ if(!lakesideKitAssetsEnabled())return [];
+ const made:Material[]=[],cache=new Map<string,Material>(),mode=lakesideDayNightMode();
+ for(const r of root.getComponentsInChildren(MeshRenderer)){const glb=lakesideTopGlb(root,r.node);const kind=glb==='LK_wb_line.glb'?'line':glb==='LK_ripple_ring.glb'?'ring':glb==='LK_contact_shadow.glb'?'shadow':'';if(!kind)continue;
+  const mats=r.sharedMaterials;for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=cache.get(kind);
+   if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});cache.set(kind,m);lakesideKitBoardKind.set(m,kind);made.push(m);}r.setSharedMaterial(m,k);}}
+ writeLakesideKitBoardColors(root,mode);return made;}
 /** v3.3 static merge (see LakesideStaticMerge.ts): after instancing, every static renderer whose materials match by CONTENT and whose
  *  vertex layout matches is baked into one world-space mesh per <=65,535 vertices; originals are disabled (kept for names/diagnostics).
  *  Mac v3.2: background 36 draw calls (one instanced batch per GLB kind). Expected after: palette chunk(s) + 2 rope materials + water.
@@ -234,7 +250,7 @@ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:
  if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');
  const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
  const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
- let n=0;const shore:Node[]=[];for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;lakesideGlbOf.set(node,i.glb);if(i.glb===LAKESIDE_SHORE_GLB)shore.push(node);node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;
+ let n=0;const shore:Node[]=[];for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;lakesideGlbOf.set(node,i.glb);if(i.glb===LAKESIDE_SHORE_GLB)shore.push(node);const pose=lakesideKitBoardPose(i);const pos=pose?pose.pos:i.pos,scl=pose?pose.scale:i.scale;node.setPosition(pos[0],pos[1],pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(scl[0],scl[1],scl[2]);scenery.addChild(node);n++;
   /* r4-prep A: the board preload instantiates a batch per frame (the journey copy keeps one pass under the set-off black) */if(yieldFrame&&n%LAKESIDE_PRELOAD_BATCH===0){await yieldFrame();token.check();if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');}}
  for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
  for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
@@ -291,7 +307,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
   if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
   if(waterMat)applyLakesideWaterMode(waterMat,mode);
-  if(scenery&&isValid(scenery,true))applyLakesideLandFill(scenery,mode);
+  if(scenery&&isValid(scenery,true)){applyLakesideLandFill(scenery,mode);if(lakesideKitAssetsEnabled())writeLakesideKitBoardColors(scenery,mode);}
   lakesideDiagOnce(camera,l,amb);
   applyFog();};
  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
@@ -334,6 +350,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   const waterAsset=wp&&wp.state!=='failed'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
   const list=lakesideSceneInstances((((bundle.get(LAKESIDE_TRANSFORMS,JsonAsset) as JsonAsset|null)?.json as any)?.instances||[]) as LakesideInstance[]);
   instanced=enableLakesideInstancing(scenery);
+  for(const m of applyLakesideKitBoardLook(scenery))instanced.push(m);
   if(LAKESIDE_LIGHT_MODE==='dir'){/* v3: the lake gets the lease's own copy of lakeside-water.mtl (Fresnel sky + sun streak + fog); if it failed to
    * load, v2 fallback: tint the lease's instanced palette copy. Assets untouched; copies destroyed with the lease. */
    const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=lakesideCocosLightColor(P.waterTintLinear)/* r2 VB: legacy standard albedo (mainColor) uniform is used as linear, Color -> bytes/255 */,waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));

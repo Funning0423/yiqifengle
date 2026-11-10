@@ -1,8 +1,9 @@
 'use strict';
-/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. TRIAL default ON; opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false
+/* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. Default OFF; force on ?qflakesidekit=1 / __qfLakesideBoardKit=true; opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false
  * (2D tray, grid cellAt). ON: cells on the projected water-grid centres (tap hit), tray + tile bases + 2D piece art hidden
- * (scene LK_piece_* / wb_line / buoy / raft are the visual), cellAt = nearest projected centre, fallback = 0, no camera writes.
- * Kit scene keep = default 813 + 49 RING + 49 SHD + 52 LK_piece_* (=963); board_frame still skipped. Formal tip 05ca7c50 stays OFF. */
+ * (wb_line / buoy / raft are the board; live board_art sprites sit on the projected cells), cellAt = nearest projected centre,
+ * fallback = 0, no camera writes. Kit scene keep = default 813 + 49 RING + 49 SHD (=911); static LK_piece_* stay out;
+ * board_frame still skipped. Formal tip 05ca7c50 stays OFF. */
 const assert = require('node:assert/strict');
 const { createHarness } = require('./harness.cjs');
 const { createBoard, snapshot } = require('./board-fixture.cjs');
@@ -27,7 +28,7 @@ async function mk(on, w, h, region) {
     assert.equal(b.u.kitGridCache, null, 'on flag but meadow: no kit');
     assert.equal(b.u.boardFrame.getChildByName('Tray').active, true, 'meadow tray'); }
   for (const [w, h] of [[390, 844], [320, 568], [390, 520], [768, 1024]]) {
-    const { H, b } = await mk(true, w, h, 'lake'), u = b.u, K = H.load('ui/BoardKit'), B = H.load('ui/BoardProjection');
+    const { H, b } = await mk(true, w, h, 'lake'), u = b.u, K = H.load('ui/BoardKit'), B = H.load('ui/BoardProjection'), Art = H.load('ui/BoardArt');
     assert.ok(u.kitGridCache && u.kitGridCache.projected, w + 'x' + h + ' projected');
     assert.equal(u.boardFrame.getChildByName('Tray').active, false, 'tray hidden');
     const pb = B.projectBoard(K.LAKESIDE_KIT, w, h), g = u.geo; let bad = 0;
@@ -35,7 +36,9 @@ async function mk(on, w, h, region) {
       const n = u.cells[i], c = pb.centers[i];
       assert.ok(Math.abs(n.position.x - (c.x - g.grid.x)) < 0.5 && Math.abs(n.position.y - (g.grid.y - c.y)) < 0.5, 'cell on water ' + i);
       assert.equal(u.bases[i].node.active, false, 'tile base hidden');
-      assert.equal(n.getChildByName('ProjectPieceArt').active, false, '2D piece art hidden (scene LK_piece_*)');
+      const art = n.getChildByName('ProjectPieceArt'), tile = b.s.active.board[i];
+      assert.equal(art.active, !!tile, 'live piece follows the cell');
+      if (tile) assert.equal(art.getComponent('Sprite').spriteFrame.texture.image.path, Art.PIECE_KEYS[tile.type % 6], 'official sprite ' + i);
       assert.equal(u.cellAt(c.x, c.y, true), i, 'exact centre yDown');
       assert.equal(u.cellAt(c.x, h - c.y, false), i, 'exact centre yUp');
       for (let k = 0; k < 20; k++) {
@@ -61,10 +64,10 @@ async function mk(on, w, h, region) {
   assert.equal(SD.lakesideSceneInstances(tr.instances).filter(i => /^LK_piece_/.test(i.glb)).length, 0, 'default filters pieces');
   SD.setLakesideKitAssets(true);
   const on = SD.lakesideSceneInstances(tr.instances);
-  assert.equal(on.length, 963, 'kit keep 813+98 RING/SHD +52 pieces');
+  assert.equal(on.length, 911, 'kit keep 813+98 RING/SHD, static pieces hidden');
   assert.equal(on.filter(i => i.glb === 'LK_contact_shadow.glb').length, 49);
   assert.equal(on.filter(i => i.glb === 'LK_ripple_ring.glb').length, 49);
-  assert.equal(on.filter(i => /^LK_piece_/.test(i.glb)).length, 52, 'kit keeps LK_piece_*');
+  assert.equal(on.filter(i => /^LK_piece_/.test(i.glb)).length, 0, 'kit hides static LK_piece_*');
   assert.equal(on.filter(i => i.glb === 'LK_wb_line.glb').length, 16);
   assert.equal(on.filter(i => i.glb === 'LK_buoy_lantern.glb').length, 4);
   assert.equal(on.filter(i => i.glb === 'LK_chime_raft.glb').length, 2);

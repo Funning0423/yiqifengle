@@ -26,7 +26,7 @@ run('free once: unadopted preload cancelled + disposed with the journey; adopted
  assert.match(bg,/export function releaseLakesideBoardPreload\(\)\{const st=boardPreload;boardPreload=null;if\(!st\|\|st\.adopted\)return;st\.token\.cancel\(\);/);
  assert.match(bg,/if\(pre&&isValid\(parent,true\)\)parent\.destroy\(\)\/\* preload holder \*\//);assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;/);});
 
-run('kit: buildLakesideBoard applies lakesideBoardKitFromFlag BEFORE mountLakesideScenery (fixes empty board on trial default ON)',()=>{
+run('kit: buildLakesideBoard applies lakesideBoardKitFromFlag BEFORE mountLakesideScenery (default OFF; flag still wins before the filter)',()=>{
  assert.match(bg,/import \{lakesideBoardKitFromFlag\} from '\.\.\/ui\/BoardProjection';/);
  const b=bg.indexOf('const buildLakesideBoard=async'), m=bg.indexOf("step='scenery'",b), f=bg.indexOf('lakesideBoardKitFromFlag()',b);
  assert(b>0&&m>b&&f>b&&f<m,'flag call must precede scenery mount (was: UI initializeManaged after preload filtered LK_piece_*)');
