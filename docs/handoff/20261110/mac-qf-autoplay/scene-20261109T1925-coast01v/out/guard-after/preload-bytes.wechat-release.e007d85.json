@@ -1,0 +1,45 @@
+{
+ "source": "Mac guarded wechat-release build of dedf8853 (全流程测试部 2026-10-30 03:04 EDT, raw/bN/preload-bytes.wechat-release.dedf885.json)",
+ "rows": [
+  {
+   "bundle": "region_meadow",
+   "committed": 2053631,
+   "built": 2053631,
+   "delta": 0,
+   "rel": 0,
+   "where": "subpackages/region_meadow"
+  },
+  {
+   "bundle": "transport_sail",
+   "committed": 796606,
+   "built": 796608,
+   "delta": -2,
+   "rel": 0,
+   "where": "subpackages/transport_sail"
+  },
+  {
+   "bundle": "region_skycity",
+   "committed": 3982162,
+   "built": 3982162,
+   "delta": 0,
+   "rel": 0,
+   "where": "subpackages/region_skycity"
+  },
+  {
+   "bundle": "region_transit_balloon",
+   "committed": 528172,
+   "built": 529042,
+   "delta": -870,
+   "rel": 0.0016,
+   "where": "subpackages/region_transit_balloon"
+  },
+  {
+   "bundle": "region_lakeside",
+   "committed": 1140341,
+   "built": 1140341,
+   "delta": 0,
+   "rel": 0,
+   "where": "subpackages/region_lakeside"
+  }
+ ]
+}

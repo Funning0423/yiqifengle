@@ -1,0 +1,71 @@
+{
+ "stateEveryMs": 2000,
+ "launchQuery": "?qfcoastkit=0",
+ "steps": [
+  {
+   "op": "waitState",
+   "name": "home",
+   "timeoutMs": 180000
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "screenshot",
+   "name": "home"
+  },
+  {
+   "op": "perfStart",
+   "name": "load-c01"
+  },
+  {
+   "op": "preTransition",
+   "key": "coast-dev",
+   "timeoutMs": 300000
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "perfStop",
+   "name": "load-c01"
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "coastSwaps",
+   "pairs": []
+  },
+  {
+   "op": "wait",
+   "ms": 1500
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "screenshot",
+   "name": "c01-board"
+  },
+  {
+   "op": "perfStart",
+   "name": "idle-c01"
+  },
+  {
+   "op": "wait",
+   "ms": 8000
+  },
+  {
+   "op": "perfStop",
+   "name": "idle-c01"
+  },
+  {
+   "op": "wait",
+   "ms": 800
+  }
+ ]
+}
