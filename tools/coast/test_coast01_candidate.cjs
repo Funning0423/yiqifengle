@@ -275,7 +275,8 @@ function freshBoard(on, region) {
     assert.equal(body.includes('coast-kit-projected'), false);
     const wnc = fs.readFileSync(path.join(SCRIPTS, 'world-r2/WorldNativeComposition.ts'), 'utf8');
     assert.ok(wnc.indexOf('requiresCoastScene(context.selection)?createCoastBoardBackground') < wnc.indexOf('requiresMeadowScene(context.selection)?meadowBoardWithGuest'), 'coast background is chosen before the island/meadow fallback');
-    assert.ok(wnc.includes("getStage('r06-coast-01')"), 'enterRegion(coast) resolves COAST01 without adding it to catalog');
+    const coastSel = wnc.slice(wnc.indexOf("if(region==='coast')"), wnc.indexOf("const first=(RegionalAPI as any).catalog.find"));
+    assert.ok(coastSel.includes('coastPlayable') && coastSel.includes('ordinal') && !coastSel.includes("'r06-coast-0"), 'enterRegion(coast) resolves the next coast row by ordinal from coastPlayable (no hard-coded id), outside catalog');
     const sel = wnc.slice(wnc.indexOf('private selectionRegion'), wnc.indexOf('private async ensureRegion'));
     assert.ok(!sel.includes("'coast'"), 'selectionRegion has no coast arm; r06-coast-01 stays island');
     const keys = H.load('world-r2/PreTransitionKeys');
@@ -304,6 +305,8 @@ function freshBoard(on, region) {
     const strippedKeys = fs.readFileSync(path.join(destScripts, 'PreTransitionKeys.ts'), 'utf8');
     const strippedRun = fs.readFileSync(path.join(destScripts, 'PreTransitionRun.ts'), 'utf8');
     assert.equal(strippedKeys.includes('coast-dev'), false);
+    assert.equal(strippedKeys.includes('coast-next'), false);
+    assert.equal(strippedRun.includes('coast-next'), false);
     assert.equal(strippedRun.includes('coast-dev'), false);
     assert.equal(strippedRun.includes("enterRegion('coast')"), false);
     assert.equal(strippedRun.includes('dev-enter-coast01'), false);
