@@ -1,0 +1,2 @@
+{"sailMustFail":{"violations":37,"enclosed":18},"m2Aligned":{"violations":0,"enclosed":0,"gapM":0.016}}
+PASS collision-gate-sail (sail must-fail caught; m2 aligned recorded)
