@@ -70,6 +70,10 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  // b18 lakeside level-to-level keys: sequential-unlock profile seeded by the real R5 provider, restored one move short
  const LK=K.PRE_SPECS.filter(s=>s.place==='lake-result');
  assert.deepEqual(LK.map(s=>s.key),['lake-13-14','lake-14-15','lake-15-16','lake-16-17','lake-17-18','lake-18-home','lake-fail','ending'],'lake keys');
+ const UK=K.PRE_SPECS.filter(s=>s.unlockThrough);
+ assert.deepEqual(UK.map(s=>[s.key,s.unlockThrough]),[['unlock-snow','snow'],['unlock-rail','rail'],['unlock-cloudsea','cloud'],['unlock-hotspring','spring']],'unlock keys');
+ assert.equal(K.preTransitionEnabled('?qfHooks=1&qfPre=unlock-snow',wx('release')),false,'release cannot run unlock-snow');
+ assert.equal(K.preTransitionKey('?qfHooks=1&qfPre=unlock-hotspring',{}), 'unlock-hotspring');
  assert.ok(!K.PRE_UNSUPPORTED.some(u=>u.key==='lake-next'),'lake-next now supported');assert.ok(K.preSpec('ending')&&!K.PRE_UNSUPPORTED.some(u=>u.key==='ending'),'ending key supported');
  assert.equal(cp.spawnSync(process.execPath,[path.join(ROOT,'tools/pre-transition/gen_lake_witnesses.cjs'),'--check']).status,0,'LakeWinWitnesses.ts matches win-replays.json');
  const API=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/index.js')),Prov=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js')),CH=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js'));
@@ -87,6 +91,29 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
    if(s.taps[0].path[1]==='Next'&&s.key!=='ending')assert.equal(z.nextStageId,next.id,s.key+' Next -> '+next.id);else assert.equal(z.nextStageId,null,s.key+' last lake stage');}
   else{assert.equal(z.result.outcome,'lost');const pr=CH.resultPresentation(z);assert.ok(st.failHint&&pr.uiResultCaption===st.failHint,'failHint on lose panel');}
  }
+ // unlock-*: real provider clears every earlier region on the isolated profile; the named region's first stage then opens, the next one stays locked
+ const Journal=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js'));
+ const JC=H.load('ui/JourneyCore');
+ const firstOf={snow:'r06-snow-01',rail:'r07-rail-01',cloud:'r08-cloud-01',spring:'r09-spring-01'};
+ const secondOf={snow:'r06-snow-02',rail:'r07-rail-02',cloud:'r08-cloud-02',spring:'r09-spring-02'};
+ const stages=API.allStages.map(s=>({id:s.id,region:s.region}));
+ for(const s of UK){
+  const prof=RF.createRegionFlowCheckpoint(12,{allowQa:true,finish:true,anyCheckpoint:true});
+  const seeded=RF.seedRegionUnlock(prof,s.unlockThrough,{allowQa:true});
+  assert.ok(seeded.cleared.includes('r04-lake-06'),s.key+' cleared the lake');
+  assert.ok(!seeded.cleared.includes(firstOf[s.unlockThrough]),s.key+' does not clear the destination');
+  const journal=new Journal(prof.r5.platform,prof.r5.journey);
+  assert.equal(journal.isUnlocked(firstOf[s.unlockThrough]),true,s.key+' first stage');
+  assert.equal(journal.isUnlocked(secondOf[s.unlockThrough]),false,s.key+' second stage still locked');
+  const gate=CH.inspectSelection(prof.r5,{stageId:firstOf[s.unlockThrough],seed:API.getStage(firstOf[s.unlockThrough]).seedBank[0]});
+  assert.equal(gate.ok,true,s.key+' '+JSON.stringify(gate));
+  const counts={};for(const id of Object.keys(journal.data.records)){const m=/^r0\d-(\w+)-/.exec(id);if(m)counts[m[1]]=(counts[m[1]]||0)+1;}
+  const row=JC.regionRow(s.unlockThrough,{records:Array.from({length:12},()=>({bestStars:1})),regionDone:counts,stages});
+  assert.equal(row.state,'open',s.key+' journey '+row.state);
+ }
+ const runSrc=S('world-r2/PreTransitionRun.ts');
+ assert.ok(/dismissBlockers\(b\)/.test(runSrc),'script closes the rule panel before the winning swap');
+ assert.ok(/seedRegionUnlock\(/.test(runSrc),'unlock keys seed inside the runner');
  // composition refuses without the gate (no location / release)
  const C=H.load('world-r2/WorldNativeComposition').WorldNativeComposition,c=new C();
  c.world={commands:()=>({snapshot:()=>({state:'island'})})};

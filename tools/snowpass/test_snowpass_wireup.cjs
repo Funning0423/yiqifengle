@@ -93,4 +93,31 @@ t('wiring: RegionLoader, scene route, journey enter, return without the balloon 
   const balloon=fs.readFileSync(path.join(A,'scripts/region/LakesideBalloon.ts'),'utf8');
   assert(!/snowpass|r06-snow/.test(balloon));
 });
+function prng(s){return ()=>{s=(Math.imul(s,1103515245)+12345)>>>0;return s/4294967296;};}
+function randomWin(stage,seed,ps){
+ const s=API.createSession(stage.id,seed);const rnd=prng(ps);let used=0;
+ while(s.engine.status==='playing'&&used<stage.config.moves+2){
+  const acts=s.legalActions({tools:false});if(!acts.length)break;
+  assert(s.act(acts[Math.floor(rnd()*acts.length)]));used++;
+ }
+ return s.engine.status==='won';
+}
+t('random-play win rate oscillates between about 0.90 and 0.60, and moves stay between 14 and 24',()=>{
+ const N=36,rates=[];
+ for(const s of Snow){
+  let w=0,n=0;
+  for(const seed of s.seedBank)for(let i=1;i<=N;i++){n++;if(randomWin(s,seed,i*7919))w++;}
+  const avg=w/n;rates.push(avg);
+  assert(avg>=0.58&&avg<=0.94,s.id+' '+avg.toFixed(3));
+  assert(s.config.moves>=14&&s.config.moves<=24,s.id+' moves '+s.config.moves);
+ }
+ assert.equal(Snow[3].id,'r06-snow-04');assert.equal(Snow[3].config.moves,16,'snow-04 is 16, not the old 40-move copy');
+ assert(rates[1]<rates[0]-0.08,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[2]>rates[1]+0.03,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[3]<rates[2]-0.1,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[4]>rates[3]+0.08,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[5]<rates[4]-0.08,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[0]>=0.86&&rates[3]<=0.72&&rates[3]>=0.58&&rates[5]>=0.58);
+ console.log(' rates',rates.map(x=>+x.toFixed(3)).join(' → '));
+});
 console.log(JSON.stringify({status:'PASS',cases:n,scope:'Pure logic + Cocos doubles. Not a device render.'}));

@@ -15,6 +15,7 @@ import { director, Director, game, UITransform, Canvas, Vec3 } from 'cc';
 function qaSyncScope<T>(reason:string,f:()=>T):T{const g:any=globalThis,prev=g.__qfSyncAllow;g.__qfSyncAllow=reason;try{return f();}finally{g.__qfSyncAllow=prev;}}
 /*QF_PROBE_END*/
 /*QF_PROBE_BEGIN*/import { seedSkyChallengeWins, finishPausedMainlineWin } from './RegionFlowTest';/*QF_PROBE_END*/
+import { seedRegionUnlock } from './RegionFlowTest';
 import { warmJourneyUi } from '../ui/JourneyUi';
 import { setLastRegion } from '../ui/UiPrefs';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
@@ -82,13 +83,18 @@ export class PreTransitionRunner{
   const r=await this.step(()=>this.d.composition.enterMainlineStage(spec.stage,seed),'level','enter '+spec.stage,240000);if(!r.ok)return r;
   return this.swapToResult(spec,last);
  }
+ /** A regional board opens its rule panel on the first ready frame. swap() returns immediately while any popup other than the
+   *  result is up, so the recorded last move never happens and the wait below reports result-panel-timeout while the state is
+   *  still run.ready. Close those panels (the player's 明白了 / a tool intro) before the swap. */
+ private dismissBlockers(b:any){try{const names:string[]=b?.popups?.names?.()||[];for(const n of names)if(n!=='ResultPanel')b.popups.close(n);}catch{}}
  /** Board already entered: resume if restored paused, then the player's own swap of the recorded last move; wait for the panel. */
  private async swapToResult(spec:PreSpec,last:any):Promise<R>{
   if(!await waitFor(()=>{const s=this.boardSnap();return s&&(s.state==='run.ready'||s.state==='run.paused')&&(this.d.board() as any)?.presented;},30000))return {ok:false,reason:'board-not-ready'};
   const b:any=this.d.board();
   if(this.boardSnap().state==='run.paused'){try{b.popups?.close?.('PausePanel');}catch{}b.host.command('resume');await waitFor(()=>this.boardSnap()?.state==='run.ready',5000);}
   if(!Array.isArray(last)||last[0]!=='swap')return {ok:false,reason:'no-witness-move'};
-  await waitFor(()=>!b.modalOpen?.(),5000);
+  for(let i=0;i<6;i++){this.dismissBlockers(b);if(await waitFor(()=>!b.modalOpen?.()&&this.boardSnap()?.state==='run.ready',400))break;}
+  if(b.modalOpen?.())return {ok:false,reason:'board-modal-open ('+(b.popups?.names?.()||[]).join(',')+')'};
   b.swap(last[1],last[2]);/* the player's own swap path (ManagedMobileBoardUI.swap -> previewAction/commitAction) */
   const name=spec.taps[0].kind==='node'?(spec.taps[0] as any).path:null;
   if(!await waitFor(()=>this.boardSnap()?.state==='result.saved'&&(!name||findPath(name)),30000))return {ok:false,reason:'result-panel-timeout ('+this.boardSnap()?.state+')'};
@@ -114,10 +120,13 @@ export class PreTransitionRunner{
     try{prof=this.d.composition.preTransitionProfile(spec.checkpoint,spec.finish,spec.place==='lake-result'?{stageId:spec.stage,mode:spec.lakeMode||'win'}:undefined);}finally{g.__qfSyncAllow=prev;/*QF_PROBE_BEGIN*/deferNextCheckpointWrites(false);/*QF_PROBE_END*/}
     /*QF_PROBE_BEGIN*/const fl=takeCheckpointFlush();/*QF_PROBE_END*/
     if(!prof.ok)return prof;
+    if(spec.unlockThrough){const allow=g.__qfSyncAllow;g.__qfSyncAllow='pre-transition-profile';
+     try{seedRegionUnlock((this.d.composition as any).testProfile,spec.unlockThrough,{allowQa:true});}catch(e){return {ok:false,reason:'unlock-seed: '+String((e as Error).message||e)};}finally{g.__qfSyncAllow=allow;}}
     /*QF_PROBE_BEGIN*/if(fl){const fr=await flushOverFrames(fl,this.d.nextFrame);if(!fr.ok)return fr;}/*QF_PROBE_END*/}
    if(spec.place==='island'){
     /*QF_PROBE_BEGIN*/if(spec.justWon){try{qaSyncScope('pre-transition-just-won',()=>finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true}));}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
     if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)qaSyncScope('pre-transition-sky-seed',()=>seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true}));}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
+    if(spec.unlockThrough)return await this.openPanel('journal',['JourneyPanel','Focus-'+spec.unlockThrough]);
     if(spec.key==='skycity-visit')return await this.openPanel('sky',['ChapterPanel','VisitSkycity']);
     return {ok:true};
    }
