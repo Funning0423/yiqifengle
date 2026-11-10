@@ -5,6 +5,16 @@
 # drops library/temp and retries (MAX_TRIES), then fails loudly. Caches are removed afterwards (the Mac disk is tight).
 # Works with macOS /bin/bash 3.2 (run it as `bash tools/build-guard/build-wechat-guarded.sh` from zsh too) and Linux.
 #
+# Known Creator 3.8.8 rewrite at baseline 95dc672d: transport_balloon.glb.meta only. The committed importer
+# ver is 2.3.14 (gltf), the same as sibling balloon/sail glbs Creator leaves alone; sub-importer versions match
+# too (gltf-mesh 1.1.1, gltf-material 1.0.14, texture 1.0.22, gltf-embeded-image 1.0.3, gltf-scene 1.0.14).
+# The version is not stale. Commit 6f7109b1 hand-added subMeta id a4c17 for balloon_load_frame.mesh (triangle
+# counts already match the glb: basket 324, frame 221). A Mac reimport replaces a4c17 with c9dd7, so /subMetas,
+# that sub-asset uuid and /userData/assetFinder/meshes change. This wrapper records balloon-file hashes before
+# the build; if that meta is the only balloon or git/stage change, it git-checkouts the committed bytes, checks
+# the hash against the pre-build baseline, logs one WARN and continues. A glb, texture, material or any other
+# balloon file change is still a reject. No other gate is relaxed.
+#
 # Usage: bash tools/build-guard/build-wechat-guarded.sh [wechat|web|both]      (default: wechat)
 # Env:   CREATOR=/path/to/CocosCreator.app/Contents/MacOS/CocosCreator  (required; or a fake builder for tests)
 #        MIN_BYTES=15000000  MAX_TRIES=3  KEEP_CACHE=0  LOG_DIR=<repo>/tools/build-guard/logs  SKIP_CREATOR_CHECK=0
@@ -49,6 +59,69 @@ restore_meta(){
   git ls-files --others --exclude-standard -z -- '*.meta' | xargs -0 rm -f 2>/dev/null
   true
 }
+# Balloon assets frozen at the pre-build tree. bash 3.2: no associative arrays; the record is a TSV of blob hashes.
+BALLOON_DIR=creator-build-project/assets/bundles/region_transit_balloon
+KNOWN_META=$BALLOON_DIR/transport_balloon.glb.meta
+KNOWN_STAGE_META=assets/bundles/region_transit_balloon/transport_balloon.glb.meta
+record_balloon_hashes(){
+  BALLOON_BASE=$LOG_DIR/balloon-base.$GUARD_SHORT.tsv
+  : > "$BALLOON_BASE"
+  git ls-files -z -- "$BALLOON_DIR" | while IFS= read -r -d '' f; do
+    printf '%s\t%s\n' "$(git hash-object -- "$f")" "$f"
+  done > "$BALLOON_BASE"
+  if [ -f "$KNOWN_META" ]; then BALLOON_META_HASH=$(git hash-object -- "$KNOWN_META"); else BALLOON_META_HASH=""; fi
+}
+# Repo-relative paths whose blob no longer matches the pre-build record.
+balloon_repo_drift(){
+  [ -f "${BALLOON_BASE:-}" ] || return 0
+  while IFS=$'\t' read -r h f; do
+    [ -n "${f:-}" ] || continue
+    if [ ! -f "$f" ]; then echo "$f"; continue; fi
+    nh=$(git hash-object -- "$f"); [ "$nh" = "$h" ] || echo "$f"
+  done < "$BALLOON_BASE"
+}
+# Stage paths (assets/...) whose blob no longer matches. $1 = staged creator-build-project.
+balloon_stage_drift(){
+  [ -f "${BALLOON_BASE:-}" ] || return 0
+  root=$1
+  while IFS=$'\t' read -r h f; do
+    [ -n "${f:-}" ] || continue
+    rel=${f#creator-build-project/}; sf=$root/$rel
+    if [ ! -f "$sf" ]; then echo "$rel"; continue; fi
+    nh=$(git hash-object -- "$sf"); [ "$nh" = "$h" ] || echo "$rel"
+  done < "$BALLOON_BASE"
+}
+dirty_paths(){
+  dirty | while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    rest=${line#???}
+    case "$rest" in
+      *" -> "*) printf '%s\n' "${rest##* -> }";;
+      *) printf '%s\n' "$rest";;
+    esac
+  done
+}
+restore_balloon_drift(){
+  balloon_repo_drift | while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    git checkout -- "$f" 2>/dev/null || echo "WARNING: could not restore $f"
+  done
+  true
+}
+# $1 = try number. Caller has already decided the known meta is the only drift.
+accept_known_balloon_meta(){
+  dif=$LOG_DIR/balloon-meta.$GUARD_SHORT.try$1.diff
+  : > "$dif"
+  git diff -- "$KNOWN_META" >> "$dif" 2>/dev/null || true
+  if [ "${2:-}" = 1 ] && [ -n "${BP:-}" ] && [ -f "$BP/$KNOWN_STAGE_META" ]; then
+    diff -u "$KNOWN_META" "$BP/$KNOWN_STAGE_META" >> "$dif" 2>/dev/null || true
+  fi
+  git checkout -- "$KNOWN_META" || die "git checkout $KNOWN_META failed"
+  nh=$(git hash-object -- "$KNOWN_META")
+  [ -n "${BALLOON_META_HASH:-}" ] || die "no pre-build hash for $KNOWN_META"
+  [ "$nh" = "$BALLOON_META_HASH" ] || die "restored $KNOWN_META hash $nh != pre-build baseline $BALLOON_META_HASH"
+  echo "WARN: Creator rewrote only $KNOWN_META (known Creator 3.8.8 reimport: hand-authored subMeta a4c17 -> c9dd7, so /subMetas, that sub-asset uuid and /userData/assetFinder/meshes change; importer ver stays 2.3.14, the same as sibling glTFs, so the committed meta version is not stale). git checkout restored it; hash $nh matches the pre-build baseline. diff=$dif"
+}
 if [ "$PRELOAD_GATE" = 1 ]; then "$NODE" -e 1 2>/dev/null || die "NODE ($NODE) not runnable; the preload-bytes gate needs node (PRELOAD_GATE=0 only for a throwaway build)"; fi
 if [ "${SKIP_CREATOR_CHECK:-0}" != 1 ] && pgrep -f "MacOS/CocosCreator " >/dev/null 2>&1; then die "another Cocos Creator is running; close it first"; fi
 if [ -n "$(dirty)" ]; then dirty | head -20; die "git tree is not clean before building (commit/stash first)"; fi
@@ -76,6 +149,7 @@ build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
   cfg=$1; strip=${2:-0}; out=$(outname "$cfg"); [ -n "$out" ] || die "no outputName in $cfg"
   BP=$P; if [ "$strip" = 1 ]; then stage_release; BP="$SP_ROOT/creator-build-project"; if [ "$FORMAL_RELEASE" = 1 ]; then echo "== [$out] FORMAL RELEASE (probes + trial entry stripped)"; else echo "== [$out] RELEASE (probes stripped) = trial upload, qfPre trial entry kept"; fi; else echo "== [$out] TEST build: PROBES KEPT (not a release)"; fi
   dest="$BP/build/$out"; try=1
+  record_balloon_hashes
   while [ $try -le "$MAX_TRIES" ]; do
     # Log name carries the short SHA; the old name <out>.tryN.log stays as a symlink to it for existing readers.
     log="$LOG_DIR/$out.$GUARD_SHORT.try$try.log"; ln -sf "$(basename "$log")" "$LOG_DIR/$out.try$try.log"
@@ -85,18 +159,44 @@ build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
     size=$(bytes "$dest"); reason=""
     [ "$size" -gt "$MIN_BYTES" ] || reason="$reason size=$size<=$MIN_BYTES"
     if grep -q "$ERR_TEXT" "$log"; then reason="$reason log:'$ERR_TEXT'"; fi
-    nd=$(dirty | wc -l | tr -d ' '); [ "$nd" = 0 ] || reason="$reason git-status:$nd-changed"
+    repo_drift=$(balloon_repo_drift)
+    repo_other=$(printf '%s\n' "$repo_drift" | grep -vx "$KNOWN_META" | grep -v '^$' || true)
+    repo_meta=$(printf '%s\n' "$repo_drift" | grep -x "$KNOWN_META" || true)
+    paths=$(dirty_paths)
+    dirty_other=$(printf '%s\n' "$paths" | grep -vx "$KNOWN_META" | grep -v '^$' || true)
+    dirty_meta=$(printf '%s\n' "$paths" | grep -x "$KNOWN_META" || true)
+    stage_other=""; stage_meta=""; stage_meta_other=""; sml=""; sd=0
     if [ "$strip" = 1 ]; then
+      stage_drift=$(balloon_stage_drift "$BP")
+      stage_other=$(printf '%s\n' "$stage_drift" | grep -vx "$KNOWN_STAGE_META" | grep -v '^$' || true)
+      stage_meta=$(printf '%s\n' "$stage_drift" | grep -x "$KNOWN_STAGE_META" || true)
       # Keep the names AND copies of the stage metas Creator rewrote/created before any stage cleanup (e318bdd2 lost them).
       sml="$LOG_DIR/stage-meta.$GUARD_SHORT.try$try.txt"; stage_dirty > "$sml"; sd=$(wc -l < "$sml" | tr -d ' ')
-      if [ "$sd" != 0 ]; then
+      stage_meta_other=$(grep -vx "$KNOWN_STAGE_META" "$sml" || true)
+    fi
+    known_only=0
+    if [ -z "$repo_other" ] && [ -z "$dirty_other" ] && [ -z "$stage_other" ] && [ -z "$stage_meta_other" ]; then
+      if [ -n "$repo_meta$dirty_meta$stage_meta" ]; then known_only=1; fi
+    fi
+    if [ "$known_only" != 1 ]; then
+      nd=$(printf '%s\n' "$paths" | grep -v '^$' | wc -l | tr -d ' ')
+      [ "$nd" = 0 ] || reason="$reason git-status:$nd-changed"
+      if [ -n "$repo_other$stage_other" ]; then
+        bf=$(printf '%s\n%s\n' "$repo_other" "$stage_other" | grep -v '^$' | tr '\n' ',' || true)
+        reason="$reason balloon-file:$bf"
+        echo "   balloon files changed (not the known meta): $bf"
+      fi
+      if [ "$strip" = 1 ] && [ "$sd" != 0 ]; then
         smd="$LOG_DIR/stage-meta.$GUARD_SHORT.try$try"; rm -rf "$smd"
         while read -r f; do mkdir -p "$smd/$(dirname "$f")"; cp -p "$BP/$f" "$smd/$f"; done < "$sml"
         reason="$reason stage-meta:$sd-changed"; echo "   stage-meta changed ($sd), list=$sml copies=$smd:"; sed 's/^/     /' "$sml"
       fi
+    else
+      nd=0
     fi
     echo "   exit=$code size=$size dirty=$nd log=$log"
     if [ -z "$reason" ]; then
+      if [ "$known_only" = 1 ]; then accept_known_balloon_meta "$try" "$strip"; fi
       echo "OK [$out] TOTAL_BYTES=$size"
       gate --build-dir "$dest"
       if [ -d "$dest/subpackages" ]; then
@@ -117,10 +217,10 @@ build_one(){ # $1 = config json, $2 = 1 strip probes (release) / 0 test build
       LAST_TOTAL=$size; return 0
     fi
     echo "   REJECTED:$reason -> restoring .meta, clearing library/temp, retrying"
-    restore_meta; clean_cache; rm -rf "$dest"; [ "$strip" = 1 ] && stage_release >/dev/null
+    restore_meta; restore_balloon_drift; clean_cache; rm -rf "$dest"; [ "$strip" = 1 ] && stage_release >/dev/null
     try=$((try+1))
   done
-  restore_meta; clean_cache
+  restore_meta; restore_balloon_drift; clean_cache
   [ -z "$(dirty)" ] || { dirty | head; echo "WARNING: tree still not clean after restore"; }
   die "[$out] no good build after $MAX_TRIES tries (logs in $LOG_DIR)"
 }

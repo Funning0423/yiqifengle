@@ -58,6 +58,53 @@ try{
     fs.writeFileSync(path.join(b,'config.json'),JSON.stringify({uuids:['bbl4q72Qddur5aFMxk9eWW@85da7']}));fs.writeFileSync(path.join(b,'native/bb',U+'@0e588.jpg'),'x');
     x=check(r,AL,{buildDir:bd});assert.match(x.fail.join('\n'),/file name has/);
     fs.unlinkSync(path.join(b,'native/bb',U+'@0e588.jpg'));x=check(r,AL,{buildDir:bd});assert.ok(pass(x),JSON.stringify(x));});
+  // Balloon metas already in the pin are not changes against an older base. An edit, or a non-balloon meta, still fails.
+  t('balloon metas identical to the pin are not changes; an edit or another meta still fails',()=>{
+    const r=repo();
+    const TB='creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta';
+    const clouds='creator-build-project/assets/bundles/region_transit_balloon/transit_clouds_merged.glb.meta';
+    const night='creator-build-project/assets/bundles/region_transit_balloon/transit_night_dome.glb.meta';
+    const sea='creator-build-project/assets/bundles/region_transit_balloon/transit_sea_fallback.glb.meta';
+    const BD='creator-build-project/assets/scripts/region/BalloonDrape.ts.meta';
+    const oldTB={ver:'2.3.14',importer:'gltf',uuid:'5c12e899-95e9-4fd1-90d1-3c7bf293a963',subMetas:{'79340':{importer:'gltf-mesh',ver:'1.1.1',userData:{gltfIndex:0,triangleCount:545}}},userData:{assetFinder:{meshes:['5c12e899-95e9-4fd1-90d1-3c7bf293a963@79340']}}};
+    const pinTB=JSON.parse(JSON.stringify(oldTB));
+    pinTB.subMetas['79340'].userData.triangleCount=324;
+    pinTB.subMetas.a4c17={importer:'gltf-mesh',ver:'1.1.1',id:'a4c17',name:'balloon_load_frame.mesh',userData:{gltfIndex:4,triangleCount:221}};
+    pinTB.userData.assetFinder.meshes.push('5c12e899-95e9-4fd1-90d1-3c7bf293a963@a4c17');
+    w(r,TB,oldTB);g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','old-balloon');
+    w(r,TB,pinTB);
+    for(const f of [clouds,night,sea])w(r,f,{ver:'2.3.14',importer:'gltf',uuid:f});
+    w(r,BD,{ver:'4.0.24',importer:'typescript',uuid:'b7e4c1a2-6d08-4f3e-9a55-2c8f0e91d4ab'});
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','pin');
+    const pin=g(r,'rev-parse','HEAD').trim();
+    const prev=process.env.META_BALLOON_BASELINE;process.env.META_BALLOON_BASELINE=pin;
+    try{
+      const x=MA.run({root:r,base:'HEAD~1',allowlist:AL});
+      assert.ok(pass(x),JSON.stringify(x));
+      const info=x.info.join('\n');
+      for(const f of [TB,clouds,night,sea,BD])assert.match(info,new RegExp('BASELINE_95dc672d '+f.replace(/[.]/g,'\\.')+' matches'));
+      assert.equal(x.fail.length,0);
+      const edited=JSON.parse(JSON.stringify(pinTB));edited.ver='9.9.9';w(r,TB,edited);
+      const y=MA.run({root:r,base:'HEAD~1',allowlist:AL});
+      assert.ok(!pass(y));assert.match(y.fail.join('\n'),/transport_balloon\.glb\.meta/);
+      w(r,TB,pinTB);
+      const meadow=JSON.parse(fs.readFileSync(path.join(r,MEADOW),'utf8'));meadow.userData.tangents=0;w(r,MEADOW,meadow);
+      const z=MA.run({root:r,base:'HEAD~1',allowlist:AL});
+      assert.ok(!pass(z));assert.match(z.fail.join('\n'),/NOT_ALLOWED .*\/userData\/tangents/);
+      assert.ok(!z.fail.join('\n').includes('transit_clouds_merged'));
+    }finally{if(prev===undefined)delete process.env.META_BALLOON_BASELINE;else process.env.META_BALLOON_BASELINE=prev;}
+  });
+  t('real tree: balloon metas already in 95dc672d are not changes vs the full9c-era base',()=>{
+    const root=path.resolve(__dirname,'../..');
+    cp.execFileSync('git',['cat-file','-e','19bd812a^{commit}'],{cwd:root});
+    cp.execFileSync('git',['cat-file','-e','95dc672d^{commit}'],{cwd:root});
+    const x=MA.run({root,base:'19bd812a'});
+    assert.ok(pass(x),x.fail.concat(x.review).join('\n'));
+    const info=x.info.join('\n');
+    assert.match(info,/BASELINE_95dc672d creator-build-project\/assets\/bundles\/region_transit_balloon\/transport_balloon\.glb\.meta matches 95dc672d/);
+    assert.match(info,/BASELINE_95dc672d creator-build-project\/assets\/scripts\/region\/BalloonDrape\.ts\.meta matches 95dc672d/);
+    assert.equal(x.fail.length,0);
+  });
   // manifest-files-exist
   t('manifest: all listed files exist -> PASS',()=>{const r=repo();fs.writeFileSync(path.join(r,'m.json'),JSON.stringify([{path:MEADOW}]));g(r,'add','m.json');assert.equal(MF.run({root:r,manifests:['m.json']}).fail.length,0);});
   t('manifest: synthetic missing entry -> FAIL',()=>{const r=repo();fs.writeFileSync(path.join(r,'m.json'),JSON.stringify([{path:MEADOW},{path:'creator-build-project/assets/bundles/static_seat_preview/actor/user_static_seated_2k.glb'}]));const x=MF.run({root:r,manifests:['m.json']});assert.match(x.fail.join('\n'),/MISSING_FILE .*user_static_seated_2k/);});
