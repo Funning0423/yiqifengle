@@ -1,2 +1,2 @@
-################################################################
-SELFTEST PASS (4 cases + provenance)
+BUILD GUARD PASSED: wechat-release 25767920 bytes  (output under creator-build-project/build/)  HEAD=376c4a4 tree=c1a036ebc7b482b7d96611efb5b8ce3ad440e19d
+SELFTEST PASS (6 cases + provenance)
