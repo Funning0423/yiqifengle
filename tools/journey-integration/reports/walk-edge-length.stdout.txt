@@ -1,0 +1,135 @@
+{
+ "test": "walk-edge-length",
+ "plans": 228,
+ "edgesOff": [
+  {
+   "r": "island",
+   "edge": "I1-I2",
+   "declared": 5.76,
+   "measured": 5.5,
+   "diff": -0.26
+  },
+  {
+   "r": "island",
+   "edge": "I2-I3",
+   "declared": 6.546,
+   "measured": 6.531,
+   "diff": -0.015
+  },
+  {
+   "r": "island",
+   "edge": "I3-I4",
+   "declared": 13.154,
+   "measured": 12.948,
+   "diff": -0.206
+  },
+  {
+   "r": "island",
+   "edge": "I4-I5",
+   "declared": 19.534,
+   "measured": 18.792,
+   "diff": -0.742
+  },
+  {
+   "r": "island",
+   "edge": "I5-I6",
+   "declared": 11.443,
+   "measured": 11.171,
+   "diff": -0.272
+  },
+  {
+   "r": "island",
+   "edge": "I4-I6",
+   "declared": 18.031,
+   "measured": 17.607,
+   "diff": -0.424
+  },
+  {
+   "r": "meadow",
+   "edge": "M0-M1",
+   "declared": 9.394,
+   "measured": 9.446,
+   "diff": 0.052
+  },
+  {
+   "r": "meadow",
+   "edge": "M1-M2",
+   "declared": 12.057,
+   "measured": 12.105,
+   "diff": 0.048
+  },
+  {
+   "r": "meadow",
+   "edge": "M2-M3",
+   "declared": 10.263,
+   "measured": 10.303,
+   "diff": 0.04
+  },
+  {
+   "r": "meadow",
+   "edge": "M3-M4",
+   "declared": 10.485,
+   "measured": 10.65,
+   "diff": 0.165
+  },
+  {
+   "r": "meadow",
+   "edge": "M4-M5",
+   "declared": 6.291,
+   "measured": 6.324,
+   "diff": 0.033
+  },
+  {
+   "r": "meadow",
+   "edge": "M5-M6",
+   "declared": 9.491,
+   "measured": 9.504,
+   "diff": 0.013
+  },
+  {
+   "r": "meadow",
+   "edge": "M4-M6",
+   "declared": 9.56,
+   "measured": 9.594,
+   "diff": 0.034
+  },
+  {
+   "r": "skycity",
+   "edge": "S0-S1",
+   "declared": 12.885,
+   "measured": 12.911,
+   "diff": 0.026
+  },
+  {
+   "r": "skycity",
+   "edge": "S1-S2",
+   "declared": 14.182,
+   "measured": 14.209,
+   "diff": 0.027
+  },
+  {
+   "r": "skycity",
+   "edge": "S3-S4",
+   "declared": 16.982,
+   "measured": 17.852,
+   "diff": 0.87
+  },
+  {
+   "r": "skycity",
+   "edge": "S4-S5",
+   "declared": 20.32,
+   "measured": 21.191,
+   "diff": 0.871
+  },
+  {
+   "r": "skycity",
+   "edge": "S4-S6",
+   "declared": 31.12,
+   "measured": 32.168,
+   "diff": 1.048
+  }
+ ],
+ "bad": [],
+ "badN": 0,
+ "status": "PASS"
+}

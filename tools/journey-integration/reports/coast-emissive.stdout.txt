@@ -1,0 +1,5 @@
+info emissive map: island env_palette_emissive_256 (shared) 256x256; non-zero texels per 16-px band: [0,0,0,0,0,0,0,0,0,0,0,0,0,4096,0,0]
+info glow meshes (emit): beacon_lamp,beacon_line
+info 56 primitives, 12590 faces checked; per mesh non-zero-emissive faces (*=glow): anemone:0 beacon_line*:0 board_rim:0 reef_base:0 seaglass:0 slab_0:0 slab_1:0 slab_2:0 slab_3:0 slab_4:0 slab_5:0 tide_sheet:0 weed:0 bottle:0 buoy:0 crab:0 crabtrap:0 crabtrap_mesh:0 dinghy:0 driftwood:0 ebb_bell:0 fisher_hut:0 grasscap:0 grasspatch:0 gull:0 hermit:0 net:0 net_poles:0 rope_coil:0 shells_scatter:0 starfish_deco:0 env_prop_grass_tuft_01:0 env_prop_grass_tuft_02:0 env_prop_flowers_01:0 env_prop_rock_01:0 env_prop_rock_02:0 env_prop_rock_03:0 env_prop_hydrangea_bush_01:0 boulder_0:0 boulder_1:0 boulder_2:0 rock_0:0 rock_1:0 rock_2:0 rock_3:0 rock_4:0 rock_5:0 arrival_steps:0 beacon_lamp*:0 beacon_post:0 drift:0 foam:0 foam_inner:0 headland:0 sidepool:0 terrain:0
+ok   selftest: face shifted into band 13 caught (88 faces)
+PASS coast-emissive
