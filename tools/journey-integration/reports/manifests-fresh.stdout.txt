@@ -1,0 +1,1 @@
+PASS manifests-fresh (self-tests: unlisted + stale caught)

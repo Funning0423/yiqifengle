@@ -1,0 +1,1 @@
+PASS cam-trace-default-off self-tests=3
