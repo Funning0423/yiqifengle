@@ -1,0 +1,187 @@
+{
+ "320x568": {
+  "ii_translate": {
+   "dz": 0.3,
+   "lo": 200,
+   "distance_m": 21.745,
+   "pos": [
+    -0.6,
+    18.5554,
+    12.028
+   ],
+   "look": [
+    -0.6,
+    -0.845,
+    21.85
+   ],
+   "quat_xyzw": [
+    0,
+    0.851965,
+    0.523599,
+    0
+   ],
+   "far_short_pt": 26.6,
+   "wrong_taps": 0,
+   "taps": 98000,
+   "board_margin": 0.1264,
+   "her_margin": 0.2271,
+   "board_y_pt": [
+    200.0,
+    401.8
+   ],
+   "band_pt": [
+    200,
+    402
+   ],
+   "ok": true,
+   "pass": false
+  },
+  "i_plate": {
+   "dz": 0.0,
+   "lo": 188,
+   "distance_m": 20.389,
+   "pos": [
+    -0.6,
+    17.3456,
+    12.3405
+   ],
+   "look": [
+    -0.6,
+    -0.845,
+    21.55
+   ],
+   "quat_xyzw": [
+    0,
+    0.851965,
+    0.523599,
+    0
+   ],
+   "far_short_pt": 28.1,
+   "wrong_taps": 0,
+   "taps": 98000,
+   "board_margin": 0.1022,
+   "her_margin": 0.2245,
+   "board_y_pt": [
+    188.0,
+    400.8
+   ],
+   "band_pt": [
+    188,
+    402
+   ],
+   "ok": true,
+   "pass": true
+  },
+  "i_plus_ii": {
+   "dz": 0.0,
+   "lo": 188,
+   "distance_m": 20.389,
+   "pos": [
+    -0.6,
+    17.3456,
+    12.3405
+   ],
+   "look": [
+    -0.6,
+    -0.845,
+    21.55
+   ],
+   "quat_xyzw": [
+    0,
+    0.851965,
+    0.523599,
+    0
+   ],
+   "far_short_pt": 28.1,
+   "wrong_taps": 0,
+   "taps": 98000,
+   "board_margin": 0.1022,
+   "her_margin": 0.2245,
+   "board_y_pt": [
+    188.0,
+    400.8
+   ],
+   "band_pt": [
+    188,
+    402
+   ],
+   "ok": true,
+   "pass": true
+  }
+ },
+ "390x520": {
+  "ii_translate": {
+   "dz": 0.6,
+   "lo": 200,
+   "distance_m": 26.386,
+   "pos": [
+    -0.6,
+    22.6959,
+    10.2317
+   ],
+   "look": [
+    -0.6,
+    -0.845,
+    22.15
+   ],
+   "quat_xyzw": [
+    0,
+    0.851965,
+    0.523599,
+    0
+   ],
+   "far_short_pt": 20.3,
+   "wrong_taps": 0,
+   "taps": 98000,
+   "board_margin": 0.2708,
+   "her_margin": 0.2668,
+   "board_y_pt": [
+    200.9,
+    354.0
+   ],
+   "band_pt": [
+    200,
+    354
+   ],
+   "ok": true,
+   "pass": false
+  },
+  "i_plate": null,
+  "i_plus_ii": {
+   "dz": -0.9,
+   "lo": 142,
+   "distance_m": 18.128,
+   "pos": [
+    -0.6,
+    15.3284,
+    12.4618
+   ],
+   "look": [
+    -0.6,
+    -0.845,
+    20.65
+   ],
+   "quat_xyzw": [
+    0,
+    0.851965,
+    0.523599,
+    0
+   ],
+   "far_short_pt": 28.2,
+   "wrong_taps": 0,
+   "taps": 98000,
+   "board_margin": 0.1687,
+   "her_margin": 0.2462,
+   "board_y_pt": [
+    142.0,
+    352.0
+   ],
+   "band_pt": [
+    142,
+    354
+   ],
+   "ok": true,
+   "pass": true
+  }
+ }
+}
