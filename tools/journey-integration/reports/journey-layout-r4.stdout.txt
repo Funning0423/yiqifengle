@@ -1,0 +1,14 @@
+JOURNEY_GAPS [["day_early_320x568",8,8,8,8,8,8],["day_early_360x780",8,8,8,8,8,8],["day_early_375x667",8,8,8,8,8,8],["day_early_390x844",8,8,8,8,8,8],["day_early_393x852",8,8,8,8,8,8],["day_early_414x896",8,8,8,8,8,8],["day_early_430x932",8,8,8,8,8,8],["day_late_320x568",8,8,8,8,8,8],["day_late_360x780",8,8,8,8,8,8],["day_late_375x667",8,8,8,8,8,8],["day_late_390x844",8,8,8,8,8,8],["day_late_393x852",8,8,8,8,8,8],["day_late_414x896",8,8,8,8,8,8],["day_late_430x932",8,8,8,8,8,8],["night_early_320x568",8,8,8,8,8,8],["night_early_360x780",8,8,8,8,8,8],["night_early_375x667",8,8,8,8,8,8],["night_early_390x844",8,8,8,8,8,8],["night_early_393x852",8,8,8,8,8,8],["night_early_414x896",8,8,8,8,8,8],["night_early_430x932",8,8,8,8,8,8],["night_late_320x568",8,8,8,8,8,8],["night_late_360x780",8,8,8,8,8,8],["night_late_375x667",8,8,8,8,8,8],["night_late_390x844",8,8,8,8,8,8],["night_late_393x852",8,8,8,8,8,8],["night_late_414x896",8,8,8,8,8,8],["night_late_430x932",8,8,8,8,8,8]]
+PASS no player-visible 3D/场景 dev wording: 1274 labels on the journal + 126 region pages over 28 combos, plus unlocked 天空之城 page (visit line = 前往天空城)
+PASS locked pages have no text between the content and the grey button; region page of every locked-with-data region: disabled button = cell §13.2 label + 开启, tap enters nothing (84 pages)
+PASS progress bar + grid + focus card ≥8 pt to the inner frame (inset 24) aligned, centred on 28 combos (7 screens × day/night × early/late)
+PASS 远方 only without data, never a seal (126 cells); locked-with-data: faint seal + one-line 11 pt §13.2 label, no wrap, ellipsis (84 cells)
+{
+  "status": "PASS",
+  "checks": [
+    "no player-visible 3D/场景 dev wording: 1274 labels on the journal + 126 region pages over 28 combos, plus unlocked 天空之城 page (visit line = 前往天空城)",
+    "locked pages have no text between the content and the grey button; region page of every locked-with-data region: disabled button = cell §13.2 label + 开启, tap enters nothing (84 pages)",
+    "progress bar + grid + focus card ≥8 pt to the inner frame (inset 24) aligned, centred on 28 combos (7 screens × day/night × early/late)",
+    "远方 only without data, never a seal (126 cells); locked-with-data: faint seal + one-line 11 pt §13.2 label, no wrap, ellipsis (84 cells)"
+  ]
+}
