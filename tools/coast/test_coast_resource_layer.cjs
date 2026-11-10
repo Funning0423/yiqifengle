@@ -15,13 +15,13 @@ const FILES = [
   ['board/piece_scallop.png', 9765, 'c2838c6e7a66788ac05c85ff738fbc99a0e0f397b4db90378e4092492bb0205f'],
   ['board/piece_star.png', 10350, '88797b7d415f7060d8ed695fdbc2fea7c2dbfea1e824eebd91fc751e48614eb7'],
   ['data/coast_layout.json', 20441, 'cf0c75babfadedea8c19dd43da008eadb9e682ea02c5fb2e4474faa498fca1df'],
-  ['models/coast_board.glb', 485732, '8a672bc5be1333c9159425ab16af3e57511da1811e2d786aa72f452d72b226d4'],
-  ['models/coast_props.glb', 202416, '800fdae8615af771273e771b80c7b3897f4837b6280c78f2003d3f57ecfb302c'],
-  ['models/coast_reuse.glb', 66652, '7efd0b238df78671e912581b1fc19df45a1b3f208286d5687cacd1c3d959c803'],
-  ['models/coast_rocks.glb', 128172, '6f8d580bfa9d2bd9bca1df9abec282d864bc1cdcbacc2b1e8aa34d9c72d00634'],
+  ['models/coast_board.glb', 491044, 'c5cc6ccf15a7f80c0110c9642bb3164955ebc21315701deb46602ea949f1092b'],
+  ['models/coast_props.glb', 202416, '110a340165a87083d24f420f6759a662406546d5196f69534e0bd8386f3d1fc7'],
+  ['models/coast_reuse.glb', 66652, '71b48c1557ff62b052882220c04323f46d220fdb1bbb1d1056e4cb515f49de36'],
+  ['models/coast_rocks.glb', 128172, '0d13a2a58ea81d57d100b786c3874b12d75891afafe1ea87a2f85ec19a9a5624'],
   ['models/coast_terrain.glb', 507684, '193c98784b2c7e8f1eda526b9d82c985e9a74a96eebb2572fb61fef6124f684c'],
-  ['textures/coast_palette_256.png', 3186, '04a5554c23e6543d0ee0893116dbb41036af9c4666ded1d27adae92ae0efeda5'],
-  ['textures/coast_palette_sand_256.png', 3274, '662b0de8cda15510fdbc5e2111a2e6019011b40d838de9893154035dfc950b6e'],
+  ['textures/coast_palette_256.png', 3096, '36572a4f40e05813e2349344011a4a2d61b2b1ada106aacd206bda315d4214bf'],
+  ['textures/coast_palette_sand_256.png', 3156, '10b98602ff2d711e5994e3fe7938a679a0f50c95858285005b139710dd596295'],
 ];
 const META_DIRS = [REL, REL + '/board', REL + '/data', REL + '/models', REL + '/textures'];
 assert.equal(FILES.length, 14);

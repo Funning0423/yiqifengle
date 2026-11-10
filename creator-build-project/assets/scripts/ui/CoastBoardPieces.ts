@@ -126,7 +126,7 @@ export async function orchestrateCoastEntry(input: {
  *  yaw 180) on the island's own layers, so the island sea/sky/light reach them; the lease camera copies the world camera's
  *  visibility/clear and never writes the world camera. Kit off (?qfcoastkit=0 / __qfCoastBoardKit=false) = the 2D tray on the
  *  island board picture (DEFAULT_KIT), which is what COAST01 looked like before this kit was wired. */
-/** Beacon (风铃格) marker: the layout's single beacon_line instance (a lamp-gold frame on the slab shoulder + a small scallop lamp
+/** Beacon (风铃格) marker: the layout's single beacon_line instance (a coral + peach-glow frame on the slab shoulder + a scallop lamp with glow disc and tiny chime
  *  at the near-right corner, 80 triangles) is moved onto the stage's beacon cells (config.beacons) and cloned per extra cell; stages
  *  without beacons hide it (it used to sit on cell 18 for every stage). Static marker: order / lit state are not visible here. */
 export function placeCoastBeacons(root: Node | null, stageId: string): { cells: number[]; marks: number } {

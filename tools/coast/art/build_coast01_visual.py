@@ -1,5 +1,5 @@
 """COAST01 visual pass asset builder (box side). before/ -> after/ ; deterministic (seeded).
-Only edits: palette band 13 (unused) + terrain-only sand bands + drift swatch; mesh UV remaps; new board_rim / grasspatch / grasscap
+Only edits: terrain-only sand bands + drift swatch in the coast palette (band 13 kept as the source gradient; named swatches point at source-palette texels, see PALMAP); mesh UV remaps; new board_rim / grasspatch / grasscap
 geometry; layout TRS for rocks/plants near the rim. Slabs, reef plate positions, pieces, grid anchor untouched."""
 import sys, json, shutil, os, math, colorsys
 import numpy as np, trimesh
@@ -16,7 +16,26 @@ SW = {}  # name -> (cell, rgb)
 def sw(name, rgb):
     if name in SW: return SW[name][0]
     c = len(SW); assert c < 64, 'band 13 full'; SW[name] = (c, tuple(int(v) for v in rgb)); return c
-def uv_of(name): c = SW[name][0]; return ((4 * c + 2) / 256.0, (208 + 8) / 256.0)
+# uv_mode 'orig' (default since 2026-11-09 re-pass): every named swatch points at a texel centre of a band that is identical in the
+# source coast palette, the island env palette and the rebuilt coast palette (bands 2,4-10,13-15, plus the terrain's own sand band 1
+# for the berm). Run1 (e007d852) showed band-13 swatch cells rendering as the original band-13 orange gradient in game, so nothing
+# may depend on band-13 cells any more; band 13 is left as the source gradient.
+PALMAP = {  # name -> (band, x)
+    'berm': (1, 214), 'berm_crest': (1, 250), 'berm_low': (1, 150), 'wet': (5, 60), 'wet_dark': (5, 30),
+    'dw_light': (5, 226), 'dw_silver': (2, 236), 'dw_mid': (5, 20), 'dw_dark': (14, 252), 'dw_end': (4, 120), 'dw_ring': (5, 40),
+    'sh_cream': (15, 160), 'sh_pink': (13, 236), 'sh_coral': (6, 236), 'sh_peach': (13, 196), 'sh_lilac': (7, 250), 'foamline': (15, 160),
+    'reef0': (14, 252), 'reef1': (2, 100), 'reef2': (2, 170), 'reef3': (4, 8), 'reef4': (4, 60), 'reef5': (4, 130),
+    'pool_deep': (9, 196), 'pool_mid': (9, 236), 'pool_edge': (4, 200), 'peb_a': (4, 30), 'peb_b': (15, 248),
+    'dune_dark': (2, 80), 'dune_mid': (2, 130), 'dune_light': (2, 200), 'straw': (5, 200), 'thrift': (7, 230),
+    'slab_top': (4, 150), 'slab_side': (5, 180),
+    'bc_glow': (15, 160), 'bc_halo': (13, 150), 'bc_edge': (6, 230), 'bc_shell': (6, 250), 'bc_rib': (13, 230), 'bc_pearl': (15, 160), 'bc_chime': (7, 250),
+}
+PALMAP.update({k: tuple(v) for k, v in CFG.get('palmap', {}).items()})
+UV_ORIG = CFG.get('uv_mode', 'orig') == 'orig'
+def uv_of(name):
+    if UV_ORIG:
+        b, x = PALMAP[name]; return ((x + 0.5) / 256.0, (16 * b + 8) / 256.0)
+    c = SW[name][0]; return ((4 * c + 2) / 256.0, (208 + 8) / 256.0)
 def warm_sand(rgb, k=CFG.get('sand_k', 1.0)):
     r, g, b = [v / 255 for v in rgb]; h, l, s = colorsys.rgb_to_hls(r, g, b)
     h2 = CFG.get('sand_hue', 38) / 360; s2 = min(1, s * CFG.get('sand_sat', 1.9) + 0.06); l2 = l * CFG.get('sand_l', 1.0)
@@ -46,7 +65,8 @@ if SLAB:
     for k, v in SLAB.items(): sw('slab_' + k, v)
 # beacon marker swatches (appended after every existing swatch so earlier UVs keep their cells)
 sw('bc_gold', (255, 204, 104)); sw('bc_gold_hi', (255, 228, 150)); sw('bc_shell', (253, 230, 196)); sw('bc_rib', (244, 192, 146)); sw('bc_skirt', (214, 158, 108)); sw('bc_pearl', (255, 249, 228))
-for P in (pal, sandp):
+sw('dw_silver', (200, 200, 198)); sw('bc_glow', (251, 248, 236)); sw('bc_halo', (255, 213, 133)); sw('bc_edge', (231, 147, 64)); sw('bc_chime', (147, 180, 211))
+for P in ((pal, sandp) if not UV_ORIG else ()):
     q = P.load()
     for name, (c, rgb) in SW.items():
         for y in range(208, 224):
@@ -143,7 +163,7 @@ def make_log(mb, p0, p1, r, y, bow, seed):
         for a in range(NA):
             b = (a + 1) % NA; i0, i1, i2, i3 = rings[s][0][a], rings[s][0][b], rings[s + 1][0][b], rings[s + 1][0][a]
             ang = 2 * math.pi * (a + 0.5) / NA; up = math.cos(ang)
-            col = 'dw_light' if up > 0.45 else ('dw_mid' if up > -0.35 else 'dw_dark')
+            col = ('dw_silver' if (a + 2 * s + seed) % 6 == 0 else 'dw_light') if up > 0.45 else ('dw_mid' if up > -0.35 else 'dw_dark')
             if s in (0, NS - 1) and up > -0.35: col = 'dw_ring'
             mb.quad(i0, i3, i2, i1, col)
     for end, flip in ((0, False), (NS, True)):
@@ -270,9 +290,11 @@ if SLAB:
     for n in [m for m in bg.names() if m.startswith('slab_')]:
         uv = bg.meshes[n]['TEXCOORD_0']; c = orig_rgb(uv); lum = c @ np.array([0.3, 0.59, 0.11])
         uv[lum >= 185] = uv_of('slab_top'); uv[lum < 185] = uv_of('slab_side')
-# beacon marker (beacon_line mesh, same name + same 80 triangles so the Creator meta is unchanged): a warm lamp-gold frame on
-# the slab shoulder around the piece (seen from the steep board camera in the gaps the piece sprite leaves) + a small scallop
-# shell lamp at the cell's near-right corner (screen bottom-right, clear of every piece sprite). Placed per stage by code.
+# beacon marker (beacon_line mesh, same name + same 80 triangles so the Creator meta is unchanged). 2026-11-09 re-pass: read at a glance
+# on a phone = luminance contrast against the sand, not gold-on-gold. Frame: inner soft coral band + outer peach-gold glow on the
+# slab shoulder (48 tris) - coral reads darker than the white piece badge, the peach glow brighter than the sand. Lamp at the 4-cell junction (+0.5,+0.5; screen bottom-right of the cell, where the piece sprites leave the
+# largest gap): peach glow disc (8) under a larger coral/peach scallop (12) with a pearl (8) and a tiny two-tube wind chime (4) = 32.
+# Unlit, static, behind every piece / moss / root sprite (sprites draw over the 3D background), so it never covers them.
 def slab_h(r): return float(np.interp(r, [0.0, 0.33, 0.38, 0.42, 0.46, 0.475], [0.168, 0.171, 0.162, 0.145, 0.112, 0.100]))
 def rsq(half, cr, n=3):
     pts = []
@@ -281,32 +303,37 @@ def rsq(half, cr, n=3):
         for k in range(n): a = math.radians(a0 + 90 * k / (n - 1)); pts.append((cx + cr * math.cos(a), cz + cr * math.sin(a)))
     return pts
 bm = MB(); LIFT = 0.009
-loops = [rsq(0.365, 0.09), rsq(0.42, 0.13), rsq(0.47, 0.17)]
-cols = ['bc_gold_hi', 'bc_gold']
+loops = [rsq(0.365, 0.09), rsq(0.44, 0.13), rsq(0.49, 0.17)]
+cols = ['bc_edge', 'bc_halo']
 ids = []
 for L_ in loops:
     ids.append([bm.v((x, max(slab_h(max(abs(x), abs(z))), slab_h(0.0) if max(abs(x), abs(z)) < 0.33 else 0) + LIFT, z)) for x, z in L_])
 for j in range(2):
     a, b = ids[j], ids[j + 1]; n = len(a)
     for k in range(n): k2 = (k + 1) % n; bm.quad(a[k], b[k], b[k2], a[k2], cols[j])
-# scallop shell lamp at the near-right corner
-LX, LZ, LY, R = 0.5, 0.5, 0.17, 0.12
-hub = bm.v((LX - 0.07, LY + 0.01, LZ - 0.07))
-rim = []; ridge = []
+BC = CFG.get('beacon', {}); LX, LZ = 0.5, 0.5; LY = BC.get('y', 0.19); R = BC.get('r', 0.21); HALO = BC.get('halo', 0.27)
+hc = bm.v((LX, LY - 0.035, LZ)); hr = [bm.v((LX + HALO * math.cos(2 * math.pi * k / 8), LY - 0.04, LZ + HALO * math.sin(2 * math.pi * k / 8))) for k in range(8)]
+for k in range(8): bm.tri(hc, hr[(k + 1) % 8], hr[k], 'bc_halo')
+# scallop: hinge toward the cell centre (-x,-z), fan opening outward over the junction
+HX, HZ = LX - 0.55 * R, LZ - 0.55 * R
+hub = bm.v((HX, LY + 0.02, HZ)); rim = []; ridge = []
 for k in range(7):
-    a = math.radians(-20 + 130 * k / 6) + math.pi / 4 - math.radians(45)
-    rim.append(bm.v((LX - 0.07 + (R + 0.07) * math.cos(a), LY - 0.02, LZ - 0.07 + (R + 0.07) * math.sin(a))))
+    a = math.radians(45 - 75 + 150 * k / 6)
+    rim.append(bm.v((HX + 1.45 * R * math.cos(a), LY - 0.005, HZ + 1.45 * R * math.sin(a))))
 for k in range(6):
-    a = math.radians(-20 + 130 * (k + 0.5) / 6)
-    ridge.append(bm.v((LX - 0.07 + (R + 0.05) * math.cos(a), LY + 0.035, LZ - 0.07 + (R + 0.05) * math.sin(a))))
+    a = math.radians(45 - 75 + 150 * (k + 0.5) / 6)
+    ridge.append(bm.v((HX + 1.3 * R * math.cos(a), LY + 0.045, HZ + 1.3 * R * math.sin(a))))
 for k in range(6):
     bm.tri(hub, rim[k], ridge[k], 'bc_shell'); bm.tri(hub, ridge[k], rim[k + 1], 'bc_rib')
-base = [bm.v((LX - 0.07 + (R + 0.04) * math.cos(math.radians(-20 + 130 * k / 6)), LY - 0.07, LZ - 0.07 + (R + 0.04) * math.sin(math.radians(-20 + 130 * k / 6)))) for k in range(7)]
-for k in range(6): bm.quad(rim[k], base[k], base[k + 1], rim[k + 1], 'bc_skirt')
-pc = (LX - 0.065, LY + 0.06, LZ - 0.065); pr_ = 0.04
+pc = (HX + 0.45 * R, LY + 0.075, HZ + 0.45 * R); pr_ = 0.045
 top = bm.v((pc[0], pc[1] + pr_, pc[2])); bot = bm.v((pc[0], pc[1] - pr_, pc[2]))
 eq = [bm.v((pc[0] + pr_ * math.cos(k * math.pi / 2), pc[1], pc[2] + pr_ * math.sin(k * math.pi / 2))) for k in range(4)]
 for k in range(4): bm.tri(top, eq[(k + 1) % 4], eq[k], 'bc_pearl'); bm.tri(bot, eq[k], eq[(k + 1) % 4], 'bc_pearl')
+# tiny wind chime: two thin tubes hanging off the shell's outer lip (camera-facing quads)
+for dx, hh in ((0.03, 0.11), (-0.03, 0.08)):
+    cx_, cz_ = LX + 0.6 * R + dx, LZ + 0.6 * R - dx; w = 0.014
+    q0 = bm.v((cx_ - w, LY + 0.02, cz_)); q1 = bm.v((cx_ + w, LY + 0.02, cz_)); q2 = bm.v((cx_ + w, LY + 0.02 + hh, cz_ - 0.02)); q3 = bm.v((cx_ - w, LY + 0.02 + hh, cz_ - 0.02))
+    bm.quad(q0, q1, q2, q3, 'bc_chime')
 bl = bm.build(False); assert len(bl['indices']) // 3 == 80, ('beacon_line must stay 80 triangles', len(bl['indices']) // 3)
 bg.meshes['beacon_line'] = bl
 bg.save(DST + '/models/coast_board.glb')
