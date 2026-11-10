@@ -1,0 +1,109 @@
+{
+ "test": "finale-stand",
+ "stand": {
+  "local": [
+   0.2,
+   0.034,
+   -27.8
+  ],
+  "distToS6M": 0.001,
+  "prewalk": "none"
+ },
+ "playFinaleEndToday": {
+  "local": [
+   0.2,
+   0.034,
+   -27.8
+  ],
+  "distToS6M": 0.001,
+  "prewalk": "none",
+  "note": "GGbot moves this end to S6 (ggbot/full9c-skyframe)"
+ },
+ "held": {
+  "pose": {
+   "position": [
+    1.231,
+    1.532,
+    -19.409
+   ],
+   "target": [
+    -0.364,
+    1.829,
+    -27.753
+   ],
+   "fovVerticalDeg": 45
+  },
+  "screens": [
+   {
+    "screen": "390x844",
+    "herMargin": 0.389,
+    "facePx": [
+     127,
+     387
+    ],
+    "underCapsule": false
+   },
+   {
+    "screen": "414x896",
+    "herMargin": 0.389,
+    "facePx": [
+     135,
+     410
+    ],
+    "underCapsule": false
+   },
+   {
+    "screen": "360x780",
+    "herMargin": 0.388,
+    "facePx": [
+     117,
+     357
+    ],
+    "underCapsule": false
+   },
+   {
+    "screen": "375x667",
+    "herMargin": 0.43,
+    "facePx": [
+     134,
+     306
+    ],
+    "underCapsule": false
+   },
+   {
+    "screen": "320x568",
+    "herMargin": 0.43,
+    "facePx": [
+     114,
+     260
+    ],
+    "underCapsule": false
+   },
+   {
+    "screen": "390x520",
+    "herMargin": 0.43,
+    "facePx": [
+     153,
+     238
+    ],
+    "underCapsule": false
+   },
+   {
+    "screen": "768x1024",
+    "herMargin": 0.43,
+    "facePx": [
+     301,
+     469
+    ],
+    "underCapsule": false
+   }
+  ],
+  "headBlockedBy": "",
+  "chestBlockedBy": "",
+  "clr11Rays": 0,
+  "within035Rays": 0
+ },
+ "todayOk": true,
+ "strict": true,
+ "status": "PASS"
+}
