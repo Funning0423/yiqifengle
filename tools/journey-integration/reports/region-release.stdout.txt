@@ -1,0 +1,8 @@
+PASS gate on the real RegionReleaseCore
+PASS self-test catches: no transition check
+PASS self-test catches: no node check
+PASS self-test catches: no frame wait
+PASS self-test catches: no re-check after frame
+PASS self-test catches: skycity releasable
+PASS self-test catches: forced release (ignores refcount)
+region release gate OK

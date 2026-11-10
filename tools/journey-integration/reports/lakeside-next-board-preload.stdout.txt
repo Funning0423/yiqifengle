@@ -1,0 +1,7 @@
+PASS timeout untouched: the board entry deadline stays 12 s
+PASS trigger: a drawing lake board kicks the next-board preload (idempotent, none after the last lake stage)
+PASS dormant: instances a batch per frame, rig stays inactive, no layer-conflict with the showing board, camera off
+PASS claim: the next entry wakes it (batched activation) BEFORE adopting, through the existing adopt path
+PASS release: the dormant preload sits in the one boardPreload slot, so the journey release cancels + destroys it
+PASS sequence: every lake board after the first is adopted from a preload; none built cold; last stage kicks nothing
+lakeside next-board preload OK

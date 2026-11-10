@@ -1,0 +1,1 @@
+PASS cam-trace-per-camera (self-test caught merged stream)
