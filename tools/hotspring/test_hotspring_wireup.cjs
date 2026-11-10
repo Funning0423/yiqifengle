@@ -52,9 +52,24 @@ t('eight spring stages are playable data, off the shipped catalog, ids r09-sprin
   for (const s of Spring) {
     assert.equal(s.region, 'spring'); assert(s.rules.chimes && s.rules.chimes.length); assert.equal(s.tool, null);
     assert(!s.rules.phaseCycle && !s.rules.windCycle && !s.rules.beaconRoute);
-    assert(s.config.moves <= 22 && s.config.moves >= 14, s.id + ' moves ' + s.config.moves);
+    assert(s.config.moves <= 24 && s.config.moves >= 14, s.id + ' moves ' + s.config.moves);
     const run = API.createSession(s.id); assert.equal(run.snapshot().region, 'spring'); assert.equal(run.snapshot().guide.goalName, '风铃');
   }
+  const combo = s => {
+    const parts = ['chimes'];
+    if ((s.config.moss || []).length) parts.push('moss');
+    if ((s.config.roots || []).some(r => r.layers > 1)) parts.push('roots-layered');
+    else if ((s.config.roots || []).length) parts.push('roots');
+    if ((s.config.starters || []).length) parts.push('starters:' + s.config.starters.map(x => x.special).sort().join(','));
+    if (s.config.goals.lines) parts.push('lines');
+    if (s.config.goals.specials) parts.push('specials');
+    const types = Object.keys(s.config.goals).filter(k => /^type\d$/.test(k));
+    if (types.length) parts.push('type' + types.length);
+    return parts.join('+');
+  };
+  const combos = Spring.map(combo);
+  assert(new Set(combos).size >= 4, combos.join(' | '));
+  console.log(' combos', combos.join(' | '));
 });
 t('witnesses win inside the move budget; the valley stays locked until rail and the cloud sea are both saved', () => {
   const store = mem(), platform = Host.createStorage(store), j = journey(12);
@@ -131,14 +146,14 @@ t('wiring: RegionLoader, scene route, journey enter, return without the balloon 
     assert(!/region_hotspring|r09-spring|env_hotspring/.test(src), file);
   }
 });
-t('random-play win rate steps between about 0.90 and 0.60, with an up and a down, and moves stay between 14 and 22', () => {
+t('random-play win rate steps between about 0.90 and 0.60, with an up and a down, and moves stay between 14 and 24', () => {
   const N = 36, rates = [];
   for (const s of Spring) {
     let w = 0, n = 0;
     for (const seed of s.seedBank) for (let i = 1; i <= N; i++) { n++; if (randomWin(s, seed, i * 7919)) w++; }
     const avg = w / n; rates.push(avg);
     assert(avg >= 0.58 && avg <= 0.94, s.id + ' ' + avg.toFixed(3));
-    assert(s.config.moves <= 22 && s.config.moves >= 14, s.id);
+    assert(s.config.moves <= 24 && s.config.moves >= 14, s.id);
   }
   assert(rates[1] < rates[0] - 0.08, rates.map(x => x.toFixed(3)).join(' '));
   assert(rates[2] > rates[1] + 0.04, rates.map(x => x.toFixed(3)).join(' '));

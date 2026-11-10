@@ -4076,8 +4076,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/cloud-levels-data.js",
-    "bytes": 5416,
-    "sha256": "1e9afc4b060f77bfe857ddae196a22b83eb24b45f55f4fbb704006e943852d64"
+    "bytes": 5426,
+    "sha256": "f06a54d828004f5b82e1cdc2ac36f89b68dc02d453f23a7e7c68e523d5197b55"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/cloud-levels-data.js.meta",
@@ -4136,8 +4136,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rail-levels-data.js",
-    "bytes": 4155,
-    "sha256": "637d753aeeb5956bd4dcda43296ab38568e378528d2853325db106bcb5a2aa59"
+    "bytes": 4192,
+    "sha256": "b2cd603a495da81e993011b624e1a77fad37a0d03a1dc28d5bb7bd391a066265"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rail-levels-data.js.meta",
@@ -4176,8 +4176,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/spring-levels-data.js",
-    "bytes": 5435,
-    "sha256": "b853b00426901dbffcb20607263054b713ea299ef417009da06a8f259e48427b"
+    "bytes": 5881,
+    "sha256": "9bc457e41ee99fe0bf8cd2df2eb8ec0af605908fcb8144594ad05396414474a4"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/spring-levels-data.js.meta",
