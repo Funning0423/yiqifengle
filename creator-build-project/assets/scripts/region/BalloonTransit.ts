@@ -17,7 +17,7 @@ import {onDayNightChange} from '../world-r1/DayNightContract';
 import {gradeSkycityCloudsea,gradeSkycityNight} from './SkycityNightApply';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {BALLOON_DOOR,INFLATE,basketDoorRestYaw,basketDoorYawDeg,chainMark,continuousTransitions,doorAngleAt,doorInAngleAt,guardBeforeWalk,inflateAt} from './TransitionChain';
-import {applyEnvelopeDrape,poseLoadFrameFromEnvelope} from './BalloonDrape';
+import {applyEnvelopeDrape,noteBalloonStage,poseLoadFrameFromEnvelope} from './BalloonDrape';
 import {TRANSITION_DURATIONS,TRANSITION_STAGING} from './TransitionStaging';
 import {basketToWorld,pathLength} from './TransitionStagingMath';
 import {seatFromBench} from './TransportLeg';
@@ -635,7 +635,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    // clock no longer waits at 0 after she sits unless the walk was shorter than INFLATE.durationS; burner brightness synced.
    const envHome=envelope&&isValid(envelope,true)?{p:envelope.position.clone(),s:envelope.scale.clone()}:null;
    let inflateT=contChain&&envHome?0:INFLATE.durationS;let inflateMarked=false;
-   const applyInflate=()=>{if(!envHome||!envelope||!isValid(envelope,true))return;applyEnvelopeDrape(envelope,inflateT,envHome);poseLoadFrameFromEnvelope(envelope,inflateT);
+   const applyInflate=()=>{if(!envHome||!envelope||!isValid(envelope,true))return;applyEnvelopeDrape(envelope,inflateT,envHome);poseLoadFrameFromEnvelope(envelope,inflateT);noteBalloonStage('meadow',inflateT);
     if(flame){flame.active=inflateT>0;const k=inflateAt(inflateT).flame*(1+0.12*Math.sin(inflateT*18));flame.setScale(k,k,k);}};
    // full9c B1 first frame (m 600–602 / mday 536–538 clear colour; m2 camTrace f3515→3516 = 278 ms frame): the balloon was
    // first moved into view on the B1 cut (vehicle under rig at its prefab origin until then), so its first draw (double-sided

@@ -1,0 +1,34 @@
+{
+  "specimen": "proposed-geometry-only",
+  "runtimeImplementation": false,
+  "productionPR72": "A observability and B scale-shape both unapproved; this board does not change them",
+  "cruiseMesh": "unchanged transport_balloon.glb",
+  "basket": "authored balloon_basket, unscaled",
+  "sameEyeAsR1Review": {
+    "eye": [
+      0.15,
+      2.35,
+      2.55
+    ],
+    "target": [
+      0.0,
+      0.72,
+      0.0
+    ],
+    "fov": 32.0,
+    "light": "render_balloon_inflate.render fixed light"
+  },
+  "structure": "unequal low lobes; blue band is the lower-mid skin and should cross the lobes as curved strips; upper red/yellow is the crest; one overlap",
+  "proposed": {
+    "yMin": 0.455,
+    "yMax": 0.89,
+    "rMax": 0.504
+  },
+  "label": "\u79bb\u7ebf\u65b9\u5411\u5c0f\u6837\uff0c\u975e\u6e38\u620f\u955c\u5934\uff0c\u672a\u63a5\u8fd0\u884c\u65f6",
+  "sources": [
+    "R1 Neuroxic CC BY 4.0 https://commons.wikimedia.org/wiki/File:Deflating_a_hot_air_balloon_1.JPG",
+    "R3 Mike Pennington CC BY-SA 2.0 https://commons.wikimedia.org/wiki/File:Deflating_the_envelope_of_a_hot_air_balloon_at_Westown_-_geograph.org.uk_-_3607030.jpg",
+    "R2 Neuroxic CC BY 4.0 ground layout, not basket evidence",
+    "F1 Elinkorn CC BY-SA 4.0 upholstery overlap only, not balloon nylon"
+  ]
+}

@@ -89,7 +89,7 @@ const res={};
  const o={p:{x:0,y:-3.05,z:0},s:{x:1,y:1,z:1}},e={get position(){return {...o.p,clone(){return {...o.p};}};},get scale(){return {...o.s,clone(){return {...o.s};}};},setScale(x,y,z){o.s={x,y,z};},setPosition(x,y,z){o.p={x,y,z};},getComponents(){return [{mesh:{struct:{minPosition:{y:3.05}}}}];}};
  BT.yardEnvelope(e,0);const pose=Drape.balloonDrapePose(0),wantY=Drape.envelopeLocalY(pose,{p:{x:0,y:-3.05,z:0},s:{x:1,y:1,z:1}}),eps=1e-9;
  assert.ok(Math.abs(o.s.x-pose.sxz)<eps&&Math.abs(o.s.y-pose.sy)<eps&&Math.abs(o.s.z-pose.sxz)<eps&&Math.abs(o.p.y-wantY)<eps,'C3: stand-in envelope != drape(0)');
- assert.ok(pose.mouthY<1.02&&pose.crownY<1.6&&!pose.frameVisible,'C3: deflated cloth must sit in the basket with the load frame hidden');
+ assert.ok(pose.mouthY<0.8&&pose.crownY>1.18&&pose.crownY<1.55&&!pose.frameVisible,'C3: deflated cloth is a low pile over the rim, load frame stays hidden');
  assert.ok(src.indexOf('director.on(Director.EVENT_AFTER_DRAW,b1AfterDraw)')<src.indexOf("await actor.perform({kind:'walk',path:pre.path"),'C3: first-draw listener after the pre-walk');
  res.c3={base:BASE,codeCompared:!!base,v0:v0.pos.map(x=>+x.toFixed(4)),yawDeg:+(v0.yaw*180/Math.PI).toFixed(4),cam0:c0.position,envelope:{sxz:pose.sxz,sy:pose.sy,mouthY:pose.mouthY,crownY:pose.crownY,y:+wantY.toFixed(6)}};}
 console.log(JSON.stringify(res));console.log('b1-yard-balloon: PASS');

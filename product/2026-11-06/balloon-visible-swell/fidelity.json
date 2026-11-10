@@ -1,0 +1,43 @@
+{
+  "notGameCamera": true,
+  "notCocos": true,
+  "liveWorldPose": "unavailable offline",
+  "bug": {
+    "homeYUsed": 0,
+    "meshCrownM": 4.005,
+    "note": "previous compare; not a runtime pose"
+  },
+  "beforeT0": {
+    "meshCrownM": 0.955,
+    "poseCrownM": 0.955,
+    "localY": -3.135
+  },
+  "closeEye": {
+    "position": [
+      4.858393277797973,
+      1.55,
+      5.895614309156518
+    ],
+    "target": [
+      -0.072,
+      0.95,
+      1.25
+    ],
+    "fov": 46,
+    "source": "BasketCloseShot.basketCloseSpot at the meadow door, one fixed eye"
+  },
+  "wideEye": {
+    "position": [
+      7.2,
+      5.4,
+      16.5
+    ],
+    "target": [
+      0.0,
+      4.8,
+      0.0
+    ],
+    "fov": 42,
+    "source": "framing check only, not liveWorldPose"
+  }
+}

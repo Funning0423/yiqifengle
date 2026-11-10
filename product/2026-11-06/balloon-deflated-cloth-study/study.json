@@ -1,0 +1,43 @@
+{
+  "specimen": "proposed-geometry-only",
+  "runtimeImplementation": false,
+  "productionTransition": "not approved; this study does not change it",
+  "cruiseMesh": "unchanged transport_balloon.glb",
+  "basket": "authored balloon_basket, unscaled",
+  "colors": "envelope baseColorTexture, unchanged",
+  "sameView": {
+    "eye": [
+      0.15,
+      2.35,
+      2.55
+    ],
+    "target": [
+      0.0,
+      0.72,
+      0.0
+    ],
+    "fov": 32.0,
+    "light": "render_balloon_inflate.render fixed light"
+  },
+  "approxDistance": {
+    "eye": [
+      0.4462873668311747,
+      2.6,
+      7.5868852361299695
+    ],
+    "target": [
+      0.0,
+      0.72,
+      0.0
+    ],
+    "fov": 46,
+    "distanceM": 7.83,
+    "note": "about the boarding-close distance, aim is the basket, not the game lens"
+  },
+  "r2Pile": {
+    "yMin": 0.48,
+    "yMax": 1.14,
+    "rMax": 0.51
+  },
+  "label": "\u79bb\u7ebf\u5f62\u6001\u5c0f\u6837\uff0c\u975e\u6e38\u620f\u955c\u5934\u9a8c\u6536"
+}
