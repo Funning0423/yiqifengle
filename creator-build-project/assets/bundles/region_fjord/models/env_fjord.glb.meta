@@ -1,9 +1,436 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef",
-  "files": [],
-  "subMetas": {},
-  "userData": {}
+  "files": [
+    "__original-animation-0.bin"
+  ],
+  "subMetas": {
+    "41691": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@41691",
+      "displayName": "",
+      "id": "41691",
+      "name": "FJ_rails.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 144
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "68146": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@68146",
+      "displayName": "",
+      "id": "68146",
+      "name": "FJ_fog.mesh",
+      "userData": {
+        "gltfIndex": 12,
+        "triangleCount": 2
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "91846": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@91846",
+      "displayName": "",
+      "id": "91846",
+      "name": "FJ_sky.mesh",
+      "userData": {
+        "gltfIndex": 13,
+        "triangleCount": 2
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "535cd": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@535cd",
+      "displayName": "",
+      "id": "535cd",
+      "name": "FJ_platform.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 574
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c9169": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@c9169",
+      "displayName": "",
+      "id": "c9169",
+      "name": "FJ_steps.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 104
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "06900": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@06900",
+      "displayName": "",
+      "id": "06900",
+      "name": "FJ_glow.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 112
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "7a67d": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@7a67d",
+      "displayName": "",
+      "id": "7a67d",
+      "name": "FJ_cliffs.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 144
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d912f": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@d912f",
+      "displayName": "",
+      "id": "d912f",
+      "name": "FJ_falls.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 74
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "93cdb": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@93cdb",
+      "displayName": "",
+      "id": "93cdb",
+      "name": "FJ_trees.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 192
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "19d18": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@19d18",
+      "displayName": "",
+      "id": "19d18",
+      "name": "FJ_shore.mesh",
+      "userData": {
+        "gltfIndex": 7,
+        "triangleCount": 24
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f22a3": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@f22a3",
+      "displayName": "",
+      "id": "f22a3",
+      "name": "FJ_cabins.mesh",
+      "userData": {
+        "gltfIndex": 8,
+        "triangleCount": 32
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "14cbb": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@14cbb",
+      "displayName": "",
+      "id": "14cbb",
+      "name": "FJ_boats.mesh",
+      "userData": {
+        "gltfIndex": 9,
+        "triangleCount": 28
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5302f": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@5302f",
+      "displayName": "",
+      "id": "5302f",
+      "name": "FJ_water.mesh",
+      "userData": {
+        "gltfIndex": 10,
+        "triangleCount": 320
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "591f9": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@591f9",
+      "displayName": "",
+      "id": "591f9",
+      "name": "FJ_mountains.mesh",
+      "userData": {
+        "gltfIndex": 11,
+        "triangleCount": 88
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c30ca": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@c30ca",
+      "displayName": "",
+      "id": "c30ca",
+      "name": "FJ_stars.mesh",
+      "userData": {
+        "gltfIndex": 14,
+        "triangleCount": 30
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "af148": {
+      "importer": "gltf-mesh",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@af148",
+      "displayName": "",
+      "id": "af148",
+      "name": "FJ_aurora.mesh",
+      "userData": {
+        "gltfIndex": 15,
+        "triangleCount": 80
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dbbe6": {
+      "importer": "gltf-animation",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@dbbe6",
+      "displayName": "",
+      "id": "dbbe6",
+      "name": "aurora_sway.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 7
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "0e8e8": {
+      "importer": "gltf-material",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@0e8e8",
+      "displayName": "",
+      "id": "0e8e8",
+      "name": "M_FJ_vertex.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d3c16": {
+      "importer": "gltf-material",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@d3c16",
+      "displayName": "",
+      "id": "d3c16",
+      "name": "M_FJ_unlit.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "75d07": {
+      "importer": "gltf-scene",
+      "uuid": "9ab8aa22-bb28-471e-803b-ab928dfd01ef@75d07",
+      "displayName": "",
+      "id": "75d07",
+      "name": "env_fjord.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "animationImportSettings": [
+      {
+        "name": "aurora_sway",
+        "duration": 7,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "aurora_sway",
+            "from": 0,
+            "to": 7,
+            "wrapMode": 2,
+            "previousId": "dbbe6"
+          }
+        ]
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@535cd",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@c9169",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@41691",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@06900",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@7a67d",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@d912f",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@93cdb",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@19d18",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@f22a3",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@14cbb",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@5302f",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@591f9",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@68146",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@91846",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@c30ca",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@af148"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@0e8e8",
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@d3c16"
+      ],
+      "scenes": [
+        "9ab8aa22-bb28-471e-803b-ab928dfd01ef@75d07"
+      ]
+    }
+  }
 }
