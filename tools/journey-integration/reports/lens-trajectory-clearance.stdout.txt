@@ -1,0 +1,82 @@
+┌─────────┬──────────────────────┬────────────┬─────────────────────────────────┬───────────┬──────┬───────────┬───────────┬───────────┬───────────┬───────────┬───────────┬───────────┬───────────┐
+│ (index) │ case                 │ screen     │ seg                             │ n         │ viol │ enc       │ solid     │ balloon   │ her       │ ground    │ soft      │ step      │ T         │
+├─────────┼──────────────────────┼────────────┼─────────────────────────────────┼───────────┼──────┼───────────┼───────────┼───────────┼───────────┼───────────┼───────────┼───────────┼───────────┤
+│ 0       │ 'sky→lake ride'      │ '390x844'  │ 'C1-walk'                       │ 299       │ 0    │ 0         │ 1.41      │ 9         │ 3.72      │ 1.37      │ 0.42      │ undefined │ undefined │
+│ 1       │ 'sky→lake ride'      │ '390x844'  │ 'C1-board'                      │ 131       │ 0    │ 0         │ 1.39      │ 9         │ 3.76      │ 1.51      │ 0.65      │ undefined │ undefined │
+│ 2       │ 'sky→lake ride'      │ '390x844'  │ 'liftoff'                       │ 100       │ 0    │ 0         │ 9         │ 9         │ 7.21      │ 6.05      │ 9         │ undefined │ undefined │
+│ 3       │ 'sky→lake ride'      │ '390x844'  │ 'flight'                        │ 160       │ 0    │ 0         │ 9         │ 9         │ 9         │ 10.18     │ 9         │ undefined │ undefined │
+│ 4       │ 'sky→lake ride'      │ '390x844'  │ 'step'                          │ undefined │ 0    │ undefined │ undefined │ undefined │ undefined │ undefined │ undefined │ 0.408     │ undefined │
+│ 5       │ 'sky→lake ride'      │ '414x896'  │ 'C1-walk'                       │ 299       │ 0    │ 0         │ 1.41      │ 9         │ 3.72      │ 1.37      │ 0.42      │ undefined │ undefined │
+│ 6       │ 'sky→lake ride'      │ '414x896'  │ 'C1-board'                      │ 131       │ 0    │ 0         │ 1.39      │ 9         │ 3.76      │ 1.51      │ 0.65      │ undefined │ undefined │
+│ 7       │ 'sky→lake ride'      │ '414x896'  │ 'liftoff'                       │ 100       │ 0    │ 0         │ 9         │ 9         │ 7.21      │ 6.05      │ 9         │ undefined │ undefined │
+│ 8       │ 'sky→lake ride'      │ '414x896'  │ 'flight'                        │ 160       │ 0    │ 0         │ 9         │ 9         │ 9         │ 10.18     │ 9         │ undefined │ undefined │
+│ 9       │ 'sky→lake ride'      │ '414x896'  │ 'step'                          │ undefined │ 0    │ undefined │ undefined │ undefined │ undefined │ undefined │ undefined │ 0.408     │ undefined │
+│ 10      │ 'sky→lake ride'      │ '360x780'  │ 'C1-walk'                       │ 299       │ 0    │ 0         │ 1.41      │ 9         │ 3.72      │ 1.37      │ 0.42      │ undefined │ undefined │
+│ 11      │ 'sky→lake ride'      │ '360x780'  │ 'C1-board'                      │ 131       │ 0    │ 0         │ 1.39      │ 9         │ 3.76      │ 1.51      │ 0.65      │ undefined │ undefined │
+│ 12      │ 'sky→lake ride'      │ '360x780'  │ 'liftoff'                       │ 100       │ 0    │ 0         │ 9         │ 9         │ 7.21      │ 6.05      │ 9         │ undefined │ undefined │
+│ 13      │ 'sky→lake ride'      │ '360x780'  │ 'flight'                        │ 160       │ 0    │ 0         │ 9         │ 9         │ 9         │ 10.18     │ 9         │ undefined │ undefined │
+│ 14      │ 'sky→lake ride'      │ '360x780'  │ 'step'                          │ undefined │ 0    │ undefined │ undefined │ undefined │ undefined │ undefined │ undefined │ 0.408     │ undefined │
+│ 15      │ 'sky→lake ride'      │ '375x667'  │ 'C1-walk'                       │ 299       │ 0    │ 0         │ 1.41      │ 9         │ 3.72      │ 1.37      │ 0.42      │ undefined │ undefined │
+│ 16      │ 'sky→lake ride'      │ '375x667'  │ 'C1-board'                      │ 131       │ 0    │ 0         │ 1.39      │ 9         │ 3.76      │ 1.51      │ 0.65      │ undefined │ undefined │
+│ 17      │ 'sky→lake ride'      │ '375x667'  │ 'liftoff'                       │ 100       │ 0    │ 0         │ 9         │ 9         │ 7.21      │ 6.05      │ 9         │ undefined │ undefined │
+│ 18      │ 'sky→lake ride'      │ '375x667'  │ 'flight'                        │ 160       │ 0    │ 0         │ 9         │ 9         │ 9         │ 7.26      │ 9         │ undefined │ undefined │
+│ 19      │ 'sky→lake ride'      │ '375x667'  │ 'step'                          │ undefined │ 0    │ undefined │ undefined │ undefined │ undefined │ undefined │ undefined │ 0.396     │ undefined │
+│ 20      │ 'sky→lake ride'      │ '320x568'  │ 'C1-walk'                       │ 299       │ 0    │ 0         │ 1.41      │ 9         │ 3.72      │ 1.37      │ 0.42      │ undefined │ undefined │
+│ 21      │ 'sky→lake ride'      │ '320x568'  │ 'C1-board'                      │ 131       │ 0    │ 0         │ 1.39      │ 9         │ 3.76      │ 1.51      │ 0.65      │ undefined │ undefined │
+│ 22      │ 'sky→lake ride'      │ '320x568'  │ 'liftoff'                       │ 100       │ 0    │ 0         │ 9         │ 9         │ 7.21      │ 6.05      │ 9         │ undefined │ undefined │
+│ 23      │ 'sky→lake ride'      │ '320x568'  │ 'flight'                        │ 160       │ 0    │ 0         │ 9         │ 9         │ 9         │ 7.26      │ 9         │ undefined │ undefined │
+│ 24      │ 'sky→lake ride'      │ '320x568'  │ 'step'                          │ undefined │ 0    │ undefined │ undefined │ undefined │ undefined │ undefined │ undefined │ 0.396     │ undefined │
+│ 25      │ 'sky→lake ride'      │ '390x520'  │ 'C1-walk'                       │ 299       │ 0    │ 0         │ 1.41      │ 9         │ 3.72      │ 1.37      │ 0.42      │ undefined │ undefined │
+│ 26      │ 'sky→lake ride'      │ '390x520'  │ 'C1-board'                      │ 131       │ 0    │ 0         │ 1.39      │ 9         │ 3.76      │ 1.51      │ 0.65      │ undefined │ undefined │
+│ 27      │ 'sky→lake ride'      │ '390x520'  │ 'liftoff'                       │ 100       │ 0    │ 0         │ 9         │ 9         │ 7.21      │ 6.05      │ 9         │ undefined │ undefined │
+│ 28      │ 'sky→lake ride'      │ '390x520'  │ 'flight'                        │ 160       │ 0    │ 0         │ 9         │ 9         │ 9         │ 6.75      │ 9         │ undefined │ undefined │
+│ 29      │ 'sky→lake ride'      │ '390x520'  │ 'step'                          │ undefined │ 0    │ undefined │ undefined │ undefined │ undefined │ undefined │ undefined │ 0.388     │ undefined │
+│ 30      │ 'sky→lake ride'      │ '768x1024' │ 'C1-walk'                       │ 299       │ 0    │ 0         │ 1.41      │ 9         │ 3.72      │ 1.37      │ 0.42      │ undefined │ undefined │
+│ 31      │ 'sky→lake ride'      │ '768x1024' │ 'C1-board'                      │ 131       │ 0    │ 0         │ 1.39      │ 9         │ 3.76      │ 1.51      │ 0.65      │ undefined │ undefined │
+│ 32      │ 'sky→lake ride'      │ '768x1024' │ 'liftoff'                       │ 100       │ 0    │ 0         │ 9         │ 9         │ 7.21      │ 6.05      │ 9         │ undefined │ undefined │
+│ 33      │ 'sky→lake ride'      │ '768x1024' │ 'flight'                        │ 160       │ 0    │ 0         │ 9         │ 9         │ 9         │ 6.75      │ 9         │ undefined │ undefined │
+│ 34      │ 'sky→lake ride'      │ '768x1024' │ 'step'                          │ undefined │ 0    │ undefined │ undefined │ undefined │ undefined │ undefined │ undefined │ 0.388     │ undefined │
+│ 35      │ 'skycity walk S1>S2' │ '390x844'  │ 'board entry → rail → exit'     │ 448       │ 0    │ 0         │ 1.53      │ undefined │ 3.48      │ 1.65      │ undefined │ 0.125     │ undefined │
+│ 36      │ 'skycity walk S1>S2' │ '414x896'  │ 'board entry → rail → exit'     │ 448       │ 0    │ 0         │ 1.53      │ undefined │ 3.48      │ 1.65      │ undefined │ 0.125     │ undefined │
+│ 37      │ 'skycity walk S1>S2' │ '360x780'  │ 'board entry → rail → exit'     │ 448       │ 0    │ 0         │ 1.52      │ undefined │ 3.48      │ 1.66      │ undefined │ 0.125     │ undefined │
+│ 38      │ 'skycity walk S1>S2' │ '375x667'  │ 'board entry → rail → exit'     │ 400       │ 0    │ 0         │ 1.54      │ undefined │ 3.48      │ 1.64      │ undefined │ 0.125     │ undefined │
+│ 39      │ 'skycity walk S1>S2' │ '320x568'  │ 'board entry → rail → exit'     │ 399       │ 0    │ 0         │ 1.52      │ undefined │ 3.48      │ 1.62      │ undefined │ 0.125     │ undefined │
+│ 40      │ 'skycity walk S1>S2' │ '390x520'  │ 'board entry → rail → exit'     │ 345       │ 0    │ 0         │ 1.53      │ undefined │ 3.48      │ 1.61      │ undefined │ 0.125     │ undefined │
+│ 41      │ 'skycity walk S1>S2' │ '768x1024' │ 'board entry → rail → exit'     │ 345       │ 0    │ 0         │ 1.53      │ undefined │ 3.48      │ 1.61      │ undefined │ 0.125     │ undefined │
+│ 42      │ 'skycity walk S2>S3' │ '390x844'  │ 'board entry → rail → exit'     │ 598       │ 0    │ 0         │ 1.04      │ undefined │ 2.2       │ 1.59      │ undefined │ 0.125     │ undefined │
+│ 43      │ 'skycity walk S2>S3' │ '414x896'  │ 'board entry → rail → exit'     │ 598       │ 0    │ 0         │ 1.04      │ undefined │ 2.2       │ 1.59      │ undefined │ 0.125     │ undefined │
+│ 44      │ 'skycity walk S2>S3' │ '360x780'  │ 'board entry → rail → exit'     │ 599       │ 0    │ 0         │ 1.08      │ undefined │ 2.2       │ 1.58      │ undefined │ 0.125     │ undefined │
+│ 45      │ 'skycity walk S2>S3' │ '375x667'  │ 'board entry → rail → exit'     │ 550       │ 0    │ 0         │ 1.03      │ undefined │ 2.22      │ 1.58      │ undefined │ 0.125     │ undefined │
+│ 46      │ 'skycity walk S2>S3' │ '320x568'  │ 'board entry → rail → exit'     │ 550       │ 0    │ 0         │ 1.04      │ undefined │ 2.21      │ 1.58      │ undefined │ 0.125     │ undefined │
+│ 47      │ 'skycity walk S2>S3' │ '390x520'  │ 'board entry → rail → exit'     │ 496       │ 0    │ 0         │ 1.04      │ undefined │ 2.22      │ 1.59      │ undefined │ 0.125     │ undefined │
+│ 48      │ 'skycity walk S2>S3' │ '768x1024' │ 'board entry → rail → exit'     │ 496       │ 0    │ 0         │ 1.04      │ undefined │ 2.22      │ 1.59      │ undefined │ 0.125     │ undefined │
+│ 49      │ 'skycity walk S3>S4' │ '390x844'  │ 'board entry → rail → exit'     │ 650       │ 0    │ 0         │ 1.09      │ undefined │ 2.74      │ 2.15      │ undefined │ 0.125     │ undefined │
+│ 50      │ 'skycity walk S3>S4' │ '414x896'  │ 'board entry → rail → exit'     │ 650       │ 0    │ 0         │ 1.09      │ undefined │ 2.74      │ 2.15      │ undefined │ 0.125     │ undefined │
+│ 51      │ 'skycity walk S3>S4' │ '360x780'  │ 'board entry → rail → exit'     │ 650       │ 0    │ 0         │ 1.08      │ undefined │ 2.74      │ 2.15      │ undefined │ 0.125     │ undefined │
+│ 52      │ 'skycity walk S3>S4' │ '375x667'  │ 'board entry → rail → exit'     │ 602       │ 0    │ 0         │ 1.07      │ undefined │ 2.74      │ 2.15      │ undefined │ 0.125     │ undefined │
+│ 53      │ 'skycity walk S3>S4' │ '320x568'  │ 'board entry → rail → exit'     │ 602       │ 0    │ 0         │ 1.09      │ undefined │ 2.74      │ 2.15      │ undefined │ 0.125     │ undefined │
+│ 54      │ 'skycity walk S3>S4' │ '390x520'  │ 'board entry → rail → exit'     │ 548       │ 0    │ 0         │ 1.08      │ undefined │ 2.74      │ 2.15      │ undefined │ 0.125     │ undefined │
+│ 55      │ 'skycity walk S3>S4' │ '768x1024' │ 'board entry → rail → exit'     │ 548       │ 0    │ 0         │ 1.08      │ undefined │ 2.74      │ 2.15      │ undefined │ 0.125     │ undefined │
+│ 56      │ 'skycity walk S4>S5' │ '390x844'  │ 'board entry → rail → exit'     │ 844       │ 0    │ 0         │ 0.77      │ undefined │ 2.08      │ 1.79      │ undefined │ 0.125     │ undefined │
+│ 57      │ 'skycity walk S4>S5' │ '414x896'  │ 'board entry → rail → exit'     │ 844       │ 0    │ 0         │ 0.77      │ undefined │ 2.08      │ 1.79      │ undefined │ 0.125     │ undefined │
+│ 58      │ 'skycity walk S4>S5' │ '360x780'  │ 'board entry → rail → exit'     │ 845       │ 0    │ 0         │ 0.8       │ undefined │ 2.08      │ 1.81      │ undefined │ 0.125     │ undefined │
+│ 59      │ 'skycity walk S4>S5' │ '375x667'  │ 'board entry → rail → exit'     │ 796       │ 0    │ 0         │ 0.77      │ undefined │ 2.1       │ 1.79      │ undefined │ 0.125     │ undefined │
+│ 60      │ 'skycity walk S4>S5' │ '320x568'  │ 'board entry → rail → exit'     │ 796       │ 0    │ 0         │ 0.78      │ undefined │ 2.11      │ 1.83      │ undefined │ 0.125     │ undefined │
+│ 61      │ 'skycity walk S4>S5' │ '390x520'  │ 'board entry → rail → exit'     │ 742       │ 0    │ 0         │ 0.77      │ undefined │ 2.09      │ 1.79      │ undefined │ 0.125     │ undefined │
+│ 62      │ 'skycity walk S4>S5' │ '768x1024' │ 'board entry → rail → exit'     │ 742       │ 0    │ 0         │ 0.77      │ undefined │ 2.09      │ 1.79      │ undefined │ 0.125     │ undefined │
+│ 63      │ 'skycity walk S4>S6' │ '390x844'  │ 'board entry → rail → exit'     │ 513       │ 0    │ 0         │ 0.89      │ undefined │ 2.08      │ 1.37      │ undefined │ 0.125     │ undefined │
+│ 64      │ 'skycity walk S4>S6' │ '390x844'  │ 'from S6 (planSkip last 1.2 m)' │ 41        │ 0    │ 0         │ 1.41      │ undefined │ 7.1       │ 1.37      │ undefined │ 0.01      │ undefined │
+│ 65      │ 'skycity walk S4>S6' │ '414x896'  │ 'board entry → rail → exit'     │ 513       │ 0    │ 0         │ 0.89      │ undefined │ 2.08      │ 1.37      │ undefined │ 0.125     │ undefined │
+│ 66      │ 'skycity walk S4>S6' │ '414x896'  │ 'from S6 (planSkip last 1.2 m)' │ 41        │ 0    │ 0         │ 1.41      │ undefined │ 7.1       │ 1.37      │ undefined │ 0.01      │ undefined │
+│ 67      │ 'skycity walk S4>S6' │ '360x780'  │ 'board entry → rail → exit'     │ 513       │ 0    │ 0         │ 0.88      │ undefined │ 2.08      │ 1.37      │ undefined │ 0.125     │ undefined │
+│ 68      │ 'skycity walk S4>S6' │ '360x780'  │ 'from S6 (planSkip last 1.2 m)' │ 41        │ 0    │ 0         │ 1.41      │ undefined │ 7.1       │ 1.37      │ undefined │ 0.01      │ undefined │
+│ 69      │ 'skycity walk S4>S6' │ '375x667'  │ 'board entry → rail → exit'     │ 489       │ 0    │ 0         │ 0.89      │ undefined │ 2.1       │ 1.37      │ undefined │ 0.125     │ undefined │
+│ 70      │ 'skycity walk S4>S6' │ '375x667'  │ 'from S6 (planSkip last 1.2 m)' │ 41        │ 0    │ 0         │ 1.41      │ undefined │ 7.1       │ 1.37      │ undefined │ 0.01      │ undefined │
+│ 71      │ 'skycity walk S4>S6' │ '320x568'  │ 'board entry → rail → exit'     │ 489       │ 0    │ 0         │ 0.88      │ undefined │ 2.11      │ 1.37      │ undefined │ 0.125     │ undefined │
+│ 72      │ 'skycity walk S4>S6' │ '320x568'  │ 'from S6 (planSkip last 1.2 m)' │ 41        │ 0    │ 0         │ 1.41      │ undefined │ 7.1       │ 1.37      │ undefined │ 0.01      │ undefined │
+│ 73      │ 'skycity walk S4>S6' │ '390x520'  │ 'board entry → rail → exit'     │ 462       │ 0    │ 0         │ 0.88      │ undefined │ 2.09      │ 1.37      │ undefined │ 0.125     │ undefined │
+│ 74      │ 'skycity walk S4>S6' │ '390x520'  │ 'from S6 (planSkip last 1.2 m)' │ 41        │ 0    │ 0         │ 1.41      │ undefined │ 7.1       │ 1.37      │ undefined │ 0.01      │ undefined │
+│ 75      │ 'skycity walk S4>S6' │ '768x1024' │ 'board entry → rail → exit'     │ 462       │ 0    │ 0         │ 0.88      │ undefined │ 2.09      │ 1.37      │ undefined │ 0.125     │ undefined │
+│ 76      │ 'skycity walk S4>S6' │ '768x1024' │ 'from S6 (planSkip last 1.2 m)' │ 41        │ 0    │ 0         │ 1.41      │ undefined │ 7.1       │ 1.37      │ undefined │ 0.01      │ undefined │
+└─────────┴──────────────────────┴────────────┴─────────────────────────────────┴───────────┴──────┴───────────┴───────────┴───────────┴───────────┴───────────┴───────────┴───────────┴───────────┘
+{"status":"PASS","violations":0}
