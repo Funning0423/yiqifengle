@@ -31,4 +31,4 @@
 │ 27      │ 'windmill-balloon'         │ '768x1024' │ 159   │ 0       │ 0        │ 138    │ 'aabb:meadow_trees_merged' │
 └─────────┴────────────────────────────┴────────────┴───────┴─────────┴──────────┴────────┴────────────────────────────┘
 repro {"ctr":[-3.3634998917579715,11.448515892028809,82.03140003681183],"rIn":{"clr":"meadow:windmill_static_merged","enc":true,"inBox":["meadow_trees_merged","windmill_static_merged"]},"wall":[-9.21349967718125,8.448515892028809,82.03140003681183],"rWall":{"clr":"meadow:windmill_static_merged","enc":false,"inBox":["meadow_trees_merged"]}}
-{"test":"camera-collision","mode":"report-only","clrM":1.1,"rows":28,"windmillBalloonRows":7,"violatingRows":0,"repro":{"insideCaught":true,"nearWallCaught":true},"status":"PASS"}
+{"test":"camera-collision","mode":"gate","clrM":1.1,"rows":28,"windmillBalloonRows":7,"violatingRows":0,"repro":{"insideCaught":true,"nearWallCaught":true},"status":"PASS"}

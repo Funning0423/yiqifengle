@@ -8,7 +8,7 @@
    -0.06,
    7.4
   ],
-  "boxes": 2717,
+  "boxes": 2713,
   "before_mac": {
    "maxPitchStepDeg": 23.53,
    "maxHeightStepM": 1.796,
@@ -73,7 +73,7 @@
   },
   "perf": {
    "avgMs": 0.265,
-   "p99Ms": 2.76
+   "p99Ms": 2.9
   },
   "ok": true
  },
