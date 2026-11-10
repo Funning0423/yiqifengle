@@ -1,5 +1,5 @@
 {
- "status": "PASS",
+ "status": "FAIL",
  "checks": [
   {
    "id": "K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged",
@@ -7,7 +7,8 @@
   },
   {
    "id": "K2 face/head/chest visible + lens ≥ 1.1 m every 0.05 m (island + lakeside)",
-   "status": "PASS"
+   "status": "FAIL",
+   "error": "AssertionError [ERR_ASSERTION]: lens 0.568 m from island:env_prop_palm_tall_01 at d=1.5"
   },
   {
    "id": "K3 lens on her right for the whole leg",
