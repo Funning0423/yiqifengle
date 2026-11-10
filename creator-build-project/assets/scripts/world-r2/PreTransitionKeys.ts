@@ -5,9 +5,9 @@
  *  plays through the normal code path. Same host gate as __qfTeleport (qaHooksEnabled): web/QA build, WeChat develop/trial;
  *  never WeChat release. In WeChat the URL query comes from the launch options (DevTools 编译模式 启动参数). */
 import { qaSkipAllowed, qaSkipTarget, qaQuery, qaHarnessEnabled, registerQaPreKey } from './QaSkip';
-export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'|'journal-sky-focus'/*QF_PROBE_END*/;
+export type PreKey='home-island'|'island-home'|'island-board'|'node-walk'|'board-exit-island'|'island-meadow'|'meadow-skycity'|'skycity-finale'|'skycity-lakeside'|'lakeside-exit'|'lakeside-home'|'skycity-visit'|'skycity-visit-exit'|'lake-13-14'|'lake-14-15'|'lake-15-16'|'lake-16-17'|'lake-17-18'|'lake-18-home'|'lake-fail'|'ending'|'unlock-snow'|'unlock-rail'|'unlock-cloudsea'|'unlock-hotspring'/*QF_PROBE_BEGIN*/|'journal-sky-open'|'journal-sky-progress'|'journal-sky-cleared'|'journal-sky-gated'|'journal-sky-just-unlocked'|'journal-sky-focus'/*QF_PROBE_END*/;
 export type PreTap={kind:'node';path:string[]}|{kind:'control';id:string}|{kind:'glass-sign'}|{kind:'lighthouse'};
-export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';/*QF_PROBE_BEGIN*/skyChallenges?:number;skyPage?:boolean;justWon?:boolean;focusSky?:boolean;/*QF_PROBE_END*/
+export type PreSpec={key:PreKey;label:string;checkpoint:number|null;finish:boolean;place:'home'|'island'|'result'|'skycity'|'lake-board'|'lakeside'|'skycity-visit'|'lake-result';stage?:string;lakeMode?:'win'|'lose';unlockThrough?:'snow'|'rail'|'cloud'|'spring';/*QF_PROBE_BEGIN*/skyChallenges?:number;skyPage?:boolean;justWon?:boolean;focusSky?:boolean;/*QF_PROBE_END*/
  trigger:string;taps:PreTap[];expect:string};
 const N=(...path:string[]):PreTap=>({kind:'node',path});
 export const PRE_SPECS:readonly PreSpec[]=[
@@ -33,6 +33,11 @@ export const PRE_SPECS:readonly PreSpec[]=[
  {key:'lake-18-home',label:'湖畔收尾：L18 结算 → 离开棋盘',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-06',lakeMode:'win',trigger:'结算面板「回小岛」（先自动领取地区印记）',taps:[N('ResultPanel','Home')],expect:'领取湖畔地区印记→棋盘退出→湖畔自由探索（state level→lakeside）'},
  {key:'lake-fail',label:'湖畔失败面板：L13 输 → 再试一次',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-01',lakeMode:'lose',trigger:'失败面板「再试一次」（摆位后先看副标题 failHint）',taps:[N('ResultPanel','Replay')],expect:'失败面板副标题显示本关提示（≤14 字单行）；点「再试一次」→L13 重新开局'},
  {key:'ending',label:'结局：最后一关湖畔结算 → 结局（TR9）',checkpoint:12,finish:true,place:'lake-result',stage:'r04-lake-06',lakeMode:'win',trigger:'结算面板「继续」（ResultPanel/Next，endingAvailable 时文字为 继续）',taps:[N('ResultPanel','Next')],expect:'WindWipe（3D 风铃）盖屏→结局画面淡入（__qfEnding.shown=true）→点结局「回小岛」再走 WindWipe 回小岛'},
+ /* Device entry: every region before the named one is cleared by the real provider on the isolated profile. Formal release strips this table. */
+ {key:'unlock-snow',label:'前面的地区都已通关，可以进入雪山',checkpoint:12,finish:true,place:'island',unlockThrough:'snow',trigger:'已打开的旅程册：焦点卡「雪山山口」',taps:[N('JourneyPanel','Focus-snow')],expect:'停在小岛。主线 12 关和湖畔 6 关已由真实引擎通关（这次启动用单独的进度，不改原来的存档）。旅程册焦点卡是雪山山口，点进去进第一关。'},
+ {key:'unlock-rail',label:'前面的地区都已通关，可以进入铁路',checkpoint:12,finish:true,place:'island',unlockThrough:'rail',trigger:'已打开的旅程册：焦点卡「秋日铁路」',taps:[N('JourneyPanel','Focus-rail')],expect:'停在小岛。湖畔和雪山都已通关（单独的进度，不改原来的存档）。旅程册焦点卡是秋日铁路，点进去进第一关。'},
+ {key:'unlock-cloudsea',label:'前面的地区都已通关，可以进入云海',checkpoint:12,finish:true,place:'island',unlockThrough:'cloud',trigger:'已打开的旅程册：焦点卡「黎明云海」',taps:[N('JourneyPanel','Focus-cloud')],expect:'停在小岛。湖畔、雪山、铁路都已通关（单独的进度，不改原来的存档）。旅程册焦点卡是黎明云海，点进去进第一关。'},
+ {key:'unlock-hotspring',label:'前面的地区都已通关，可以进入温泉谷',checkpoint:12,finish:true,place:'island',unlockThrough:'spring',trigger:'已打开的旅程册：焦点卡「温泉谷」',taps:[N('JourneyPanel','Focus-spring')],expect:'停在小岛。湖畔、雪山、铁路、云海都已通关（单独的进度，不改原来的存档）。旅程册焦点卡是温泉谷，点进去进第一关。'},
 /*QF_PROBE_BEGIN*//* r5 journal hooks: stripped from release builds (strip-probes.cjs; release-probe-symbols.json lists journal-sky) */
  /* r5 (界面验收部 new-regions r4 §2 item 3; Option A): the 天空之城 page button follows the REAL challenge gate. Mainline 1–12
   * registered (gate open) + 0 / 1 / 4 天空之城 challenges won through the real provider; island, region page open. Test profile only. */
