@@ -1,0 +1,3 @@
+fixed {"creates":0,"perN":600,"liveBefore":2,"liveAfter":2,"mbBefore":8,"mbAfter":8,"pass":true}
+old   {"creates":1200,"perN":600,"liveBefore":2,"liveAfter":2,"mbBefore":8,"mbAfter":8,"pass":false}
+PASS shadow-churn-gate N=600 fixed creates=0 live 2->2 MB 8->8 | old creates=1200 (FAIL as expected)
