@@ -10,6 +10,7 @@ import { createCloudseaBoardBackground } from '../region/CloudseaBoardBackground
 import { createHotspringBoardBackground } from '../region/HotspringBoardBackground';
 import { createFjordBoardBackground } from '../region/FjordBoardBackground';
 import { createOasisBoardBackground } from '../region/OasisBoardBackground';
+import { createHarborBoardBackground } from '../region/HarborBoardBackground';
 import {REGION_NODES} from '../region/RegionNodes';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -108,7 +109,7 @@ export class WorldNativeComposition extends Component {
     const fixture:any=this.smokeFixture.json;
     this.selection={provider:'r4',stageId:fixture.stageId,seed:fixture.seed};
     const composition=this;
-    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:context=>requiresMeadowScene(context.selection)?meadowBoardWithGuest(context):requiresLakesideScene(context.selection)?createLakesideBoardBackground(context):/^r06-snow-\d+$/.test(String(context.selection?.stageId||''))?createSnowpassBoardBackground(context):/^r07-rail-\d+$/.test(String(context.selection?.stageId||''))?createRailBoardBackground(context):/^r08-cloud-\d+$/.test(String(context.selection?.stageId||''))?createCloudseaBoardBackground(context):/^r09-spring-\d+$/.test(String(context.selection?.stageId||''))?createHotspringBoardBackground(context):/^r10-fjord-\d+$/.test(String(context.selection?.stageId||''))?createFjordBoardBackground(context):/^r11-oasis-\d+$/.test(String(context.selection?.stageId||''))?createOasisBoardBackground(context):requiresSkycityScene(context.selection)?skycityBoardWithGuest(context):createIslandBoardBackground(context),get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
+    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:context=>requiresMeadowScene(context.selection)?meadowBoardWithGuest(context):requiresLakesideScene(context.selection)?createLakesideBoardBackground(context):/^r06-snow-\d+$/.test(String(context.selection?.stageId||''))?createSnowpassBoardBackground(context):/^r07-rail-\d+$/.test(String(context.selection?.stageId||''))?createRailBoardBackground(context):/^r08-cloud-\d+$/.test(String(context.selection?.stageId||''))?createCloudseaBoardBackground(context):/^r09-spring-\d+$/.test(String(context.selection?.stageId||''))?createHotspringBoardBackground(context):/^r10-fjord-\d+$/.test(String(context.selection?.stageId||''))?createFjordBoardBackground(context):/^r11-oasis-\d+$/.test(String(context.selection?.stageId||''))?createOasisBoardBackground(context):/^r12-harbor-\d+$/.test(String(context.selection?.stageId||''))?createHarborBoardBackground(context):requiresSkycityScene(context.selection)?skycityBoardWithGuest(context):createIslandBoardBackground(context),get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
       select:id=>{if(!this.selection||id!==this.selection.stageId)throw Error('Select provider/stage explicitly first');return {...this.selection};},
       navigation:{exit:()=>world.commands().exitLevel(),resume:()=>world.commands().snapshot().needsResume?world.commands().resume():undefined},
     });
@@ -146,9 +147,9 @@ export class WorldNativeComposition extends Component {
     const region=this.selectionRegion(selection);
     if(region==='meadow')(this as any).warmSkyIfMeadow?.('meadow-level')/* full9c-b: warm during the meadow level */;
     this.pendingJourneySelection=selection;
-    // Snow, the autumn railway, the dawn cloud sea, the hot spring, the fjord and the oasis are self-contained boards. Skip the island→lakeside walk (its last leg is the balloon).
+    // Snow, the autumn railway, the dawn cloud sea, the hot spring, the fjord, the oasis and the harbor are self-contained boards. Skip the island→lakeside walk (its last leg is the balloon).
     // enterLevel's origin is wherever she already stands, and exitLevel returns her there.
-    const onShelf=/^r06-snow-\d+$/.test(String(selection.stageId||''))||/^r07-rail-\d+$/.test(String(selection.stageId||''))||/^r08-cloud-\d+$/.test(String(selection.stageId||''))||/^r09-spring-\d+$/.test(String(selection.stageId||''))||/^r10-fjord-\d+$/.test(String(selection.stageId||''))||/^r11-oasis-\d+$/.test(String(selection.stageId||''));
+    const onShelf=/^r06-snow-\d+$/.test(String(selection.stageId||''))||/^r07-rail-\d+$/.test(String(selection.stageId||''))||/^r08-cloud-\d+$/.test(String(selection.stageId||''))||/^r09-spring-\d+$/.test(String(selection.stageId||''))||/^r10-fjord-\d+$/.test(String(selection.stageId||''))||/^r11-oasis-\d+$/.test(String(selection.stageId||''))||/^r12-harbor-\d+$/.test(String(selection.stageId||''));
     if(!onShelf){const arrived=await this.ensureRegion(region);if(!arrived.ok){/* r4.2 item 3: a soft stop (player cancel/background pause/double tap) logs nothing; a real failure logs ONE error, lakesideFallback's (it carries the reason) */if(region==='lakeside'&&!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);return arrived;}}
     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
     // 运镜bot: lakeside assets still not ready after the hook's 3 s wait → the existing lakeside fallback (toast + island), never an empty board.
@@ -254,8 +255,8 @@ export class WorldNativeComposition extends Component {
     const stageList=(RegionalAPI as any).allStages||(RegionalAPI as any).catalog||[];
     const r5=stageList.filter((x:any)=>x.ordinal===1).map((x:any)=>{const target=this.regionSelection(x.region);return target.ok?{id:target.selection.stageId,region:x.region,seed:target.selection.seed,...(CampaignHost as any).inspectSelection(this.persistence,target.selection)}:{id:x.id,region:x.region,ok:false,reason:target.reason};});
     // Journal display only (x/4 per region): the provider still owns every gate and write.
-    const challenges:Record<string,number>={tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0,rail:0,cloud:0,spring:0,fjord:0,oasis:0};
-    try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;for(const id of Object.keys(d?.records||{})){const m=/^r05-(tide|meadow|sky)-/.exec(id)||/^r0[45]-(lake)-/.exec(id)||/^r06-(coast|snow)-/.exec(id)||/^r07-(rail)-/.exec(id)||/^r08-(cloud)-/.exec(id)||/^r09-(spring)-/.exec(id)||/^r10-(fjord)-/.exec(id)||/^r11-(oasis)-/.exec(id);if(m)challenges[m[1]]++;}noteClaimedRegions(d?.claimedRegions);}catch{}
+    const challenges:Record<string,number>={tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0,rail:0,cloud:0,spring:0,fjord:0,oasis:0,harbor:0};
+    try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;for(const id of Object.keys(d?.records||{})){const m=/^r05-(tide|meadow|sky)-/.exec(id)||/^r0[45]-(lake)-/.exec(id)||/^r06-(coast|snow)-/.exec(id)||/^r07-(rail)-/.exec(id)||/^r08-(cloud)-/.exec(id)||/^r09-(spring)-/.exec(id)||/^r10-(fjord)-/.exec(id)||/^r11-(oasis)-/.exec(id)||/^r12-(harbor)-/.exec(id);if(m)challenges[m[1]]++;}noteClaimedRegions(d?.claimedRegions);}catch{}
     // new-regions: stage refs for hasData (journey bar denominator); allStages once coast/snow data registers, else the shipped catalog.
     const list=stageList,stages=list.map((x:any)=>({id:x.id,region:x.region}));
     return {r4,r5,challenges,stages};

@@ -47,7 +47,7 @@ t('eight oasis stages are playable data, off the shipped catalog, ids r11-oasis-
   assert.equal(API.allStages.filter(s => s.region === 'oasis').length, 8);
   assert.equal(API.allStages.filter(s => s.region === 'fjord').length, 8);
   const J = H.load('ui/JourneyCore');
-  assert.equal(J.REGION_DEFS.reduce((a, d) => a + d.stages, 0), 71);
+  assert.equal(J.REGION_DEFS.reduce((a, d) => a + d.stages, 0), 79);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'oasis').stages, 8);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'oasis').short.length <= 4, true);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'oasis').unlock.label.length <= 5, true);
@@ -146,7 +146,7 @@ t('journey: oasis opens after the fjord is fully saved, and stays 远方 until t
   const bar = J.journeyProgress({ records: rec(12), regionDone: { lake: 6, snow: 6, rail: 6, cloud: 8, spring: 8, fjord: 8 }, stages: withOasis });
   assert.equal(bar.segments.some(s => s.id === 'oasis'), true);
   assert.equal(bar.segments.some(s => s.id === 'fjord'), true);
-  assert.equal(bar.total, 12 + 6 + 6 + 6 + 8 + 8 + 8 + 8);
+  assert.equal(bar.total, 12 + 6 + 6 + 6 + 8 + 8 + 8 + 8 + 8);
 });
 t('board plane is the courtyard: no gap, no sink, footprint inside the flat floor', () => {
   const D = H.load('region/OasisSceneData'), C = H.load('world-r1/CameraPose');

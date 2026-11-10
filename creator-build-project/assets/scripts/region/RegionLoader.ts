@@ -40,6 +40,8 @@ export const REGIONS:Record<string,RegionDef>={
   fjord:{bundle:'region_fjord',prefabName:'env_fjord'},
   // Desert oasis courtyard. Prefab name is the glTF file; Creator fills prefabUuid on import.
   oasis:{bundle:'region_oasis',prefabName:'env_oasis'},
+  // Santorini-style harbor terrace. Prefab name is the glTF file; Creator fills prefabUuid on import.
+  harbor:{bundle:'region_harbor',prefabName:'env_harbor'},
 };
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 const cloudseaPrefabs=new WeakMap<Prefab,Prefab>();

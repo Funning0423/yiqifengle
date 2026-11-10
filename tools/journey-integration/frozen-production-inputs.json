@@ -1263,11 +1263,11 @@
     },
     {
       "path": "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js",
-      "sha256": "96af55b891218981710f3ef31987c3ce254593e41cfad363cc3eab1c4fb3ee98"
+      "sha256": "4b0fb136b2943a353af8ea40fea255f815657b16cee891685f4d153830a51bd2"
     },
     {
       "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
-      "sha256": "f7a8b4e459712a165b8d26865ab0e25c65e75e24ea36c7b1aed5d85b0de4fd01"
+      "sha256": "f3fa582aa4354bde01e42992f13581ac781854bea137b457db36bb0d81a96f63"
     },
     {
       "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js",

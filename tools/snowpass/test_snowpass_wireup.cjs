@@ -21,7 +21,7 @@ t('six snow stages are playable data, off the shipped catalog, ids r06-snow-01..
   assert.deepEqual(Snow.map(s=>s.ordinal),[1,2,3,4,5,6]);
   assert.equal(API.catalog.some(s=>s.region==='snow'),false);
   assert.equal(API.allStages.filter(s=>s.region==='snow').length,6);
-  assert.equal(API.catalog.length,API.allStages.filter(s=>s.region!=='snow'&&s.region!=='rail'&&s.region!=='cloud'&&s.region!=='spring'&&s.region!=='fjord'&&s.region!=='oasis').length);
+  assert.equal(API.catalog.length,API.allStages.filter(s=>s.region!=='snow'&&s.region!=='rail'&&s.region!=='cloud'&&s.region!=='spring'&&s.region!=='fjord'&&s.region!=='oasis'&&s.region!=='harbor').length);
   for(const s of Snow){
     assert.equal(s.region,'snow');assert(s.rules.chimes&&s.rules.chimes.length);assert.equal(s.tool,null);
     assert(!s.rules.phaseCycle&&!s.rules.windCycle&&!s.rules.beaconRoute);

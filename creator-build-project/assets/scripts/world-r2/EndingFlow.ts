@@ -34,7 +34,7 @@ export function endingSwayDeg(t:number){return ENDING_ART.swayDeg*Math.sin(2*Mat
 // ① girl top margin 14 → 8, ② head-to-seal gap 8 → 6 (design value), ③ two rows Ø32 → 30 → 28 (pitch 44·d/36, row gap 40·d/36),
 // ④ one row of 9: gap 0.25·d, d = min(28, floor((W−40)/11)), centred (20 pt side margins), ⑤ only when H < 700: plank clearance 15 → 10,
 // ⑥ only then shrink the girl (never below 48 pt). Head-to-seal gap ≥ 6 pt everywhere.
-export const ENDING_SEALS={count:11,d:36,sp:44,gap:40,aspect:128/115,girlTop:14,girlTopMin:8,headGap:6,plankClear:15,plankClearShort:10,minGirl:48,rowSpacing:.25} as const;
+export const ENDING_SEALS={count:12,d:36,sp:44,gap:40,aspect:128/115,girlTop:14,girlTopMin:8,headGap:6,plankClear:15,plankClearShort:10,minGirl:48,rowSpacing:.25} as const;
 export type EndingCascadeStep='none'|'margin'|'gap'|'d32'|'d30'|'d28'|'row1'|'clear10'|'shrink';
 export function endingSingleRowD(w:number){const pitches=ENDING_SEALS.count-1,denom=1+pitches*(1+ENDING_SEALS.rowSpacing);return Math.min(28,Math.floor((w-40)/denom));}
 export function endingLayout(w:number,h:number,safeBottom:number=0,safeTop?:number){
