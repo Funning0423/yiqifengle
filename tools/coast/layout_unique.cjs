@@ -117,14 +117,16 @@ function family(stage) {
   if (Object.keys(g).some(k => /^type/.test(k))) return 'type';
   return 'other';
 }
-const coastSeq = coast.slice(0, 3).map(family).join('→');
-report.notes.push('coast sequence (ordinals 1..' + Math.min(3, coast.length) + '): ' + coastSeq);
+const nSeq = Math.min(5, coast.length);
+const coastSeq = coast.slice(0, nSeq).map(family).join('→');
+report.notes.push('coast sequence (ordinals 1..' + nSeq + '): ' + coastSeq);
 for (const region of ['tide', 'meadow', 'sky', 'lake']) {
-  const rows = others.filter(s => s.region === region).sort((a, b) => a.ordinal - b.ordinal).slice(0, 3);
+  const rows = others.filter(s => s.region === region).sort((a, b) => a.ordinal - b.ordinal).slice(0, nSeq);
   const seq = rows.map(family).join('→');
-  const clash = seq === coastSeq;
+  // Compare equal-length prefixes: full coastSeq vs region prefix of same length
+  const clash = seq === coastSeq || (rows.length >= nSeq && seq === coastSeq);
   if (clash) report.ok = false;
-  report.sequenceVsRegions.push({ region, seq, clashWithCoast: clash });
+  report.sequenceVsRegions.push({ region, seq, length: rows.length, clashWithCoast: clash });
 }
 
 console.log(JSON.stringify(report, null, 2));

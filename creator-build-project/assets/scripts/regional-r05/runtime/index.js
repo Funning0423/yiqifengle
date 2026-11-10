@@ -41,8 +41,31 @@ var coastPlayable=freeze([
     designRowSource:'COAST01-09-rows.json COAST02',
     sequenceNote:'Was design ordinal 2; placed at 3 after beacon lesson',
     balanceNote:'Design moves 29/moss10 type0:12 retuned to moves 24 / moss 6 (twin short bands 7-9 & 37-39) / type0 6 for random-play ~0.61'
+  }),
+  freeze({
+    id:'r06-coast-04',region:'coast',ordinal:4,name:'小蟹回家',contentRevision:'m2-2026-11-09',intendedBand:'roots-corridor',
+    designIntent:'解开岸边根须，为小蟹留出通道。',
+    config:{moves:23,goals:{roots:8,type5:12},moss:[],roots:[{index:7,layers:2},{index:13,layers:2},{index:14,layers:2},{index:20,layers:2},{index:28,layers:2},{index:34,layers:2},{index:35,layers:2},{index:41,layers:2}],starters:[{index:22,special:'row'}]},
+    rules:{},tool:null,seedBank:[2,18,10],chapterName:'海岸漫游',
+    note:'回家的路，有人慢慢陪你走。',
+    failHint:'在根须旁边消除也有效；双层根须要分两波解开。',
+    designRowSource:'COAST01-09-rows.json COAST04 (full 8-root belt; type5 14->12, moves 33->22)',
+    sequenceNote:'roots after moss; coast 1-4 = type->beacon->moss->roots',
+    balanceNote:'random N=200 = 0.605 dip after 0.665; moves 23'
+  }),
+  freeze({
+    id:'r06-coast-05',region:'coast',ordinal:5,name:'潮池星灯',contentRevision:'m2-2026-11-09',intendedBand:'return-lamps',
+    designIntent:'循着折返灯路，点亮潮池四角。',
+    config:{moves:24,goals:{beacons:3,moss:3,specials:1,type3:6},moss:[16,17,18],roots:[],beacons:[16,17,18],starters:[{index:9,special:'column'}]},
+    rules:{},tool:null,seedBank:[1,3,2],chapterName:'海岸漫游',
+    note:'你留下的微光，比想象中亮。',
+    failHint:'亮框内消除才点灯；苔藓叠在灯格上，清灯也清苔。',
+    designRowSource:'COAST01-09-rows.json COAST05 adapted: 4 corner lamps -> 3 lamps on row2 [16,17,18] (!=COAST02 [23,24,25]); moss colocated with lamps; keep specials+type3; starter column',
+    sequenceNote:'beacons+moss+specials after roots; moss-on-beacons distinct from COAST02/03',
+    balanceNote:'random N=200 = 0.830 rise after 0.605'
   })
 ]);
+
 function coastStages(){return coastPlayable;}
 function coastByOrdinal(n){return coastPlayable.find(function(s){return s.ordinal===n;})||null;}
 function getStage(id){return stages.find(function(s){return s.id===id;})||coastPlayable.find(function(s){return s.id===id;})||null;}
