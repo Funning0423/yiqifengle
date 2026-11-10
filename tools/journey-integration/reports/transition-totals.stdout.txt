@@ -1,0 +1,2 @@
+{"test":"transition-totals","rows":[{"leg":"islandToMeadow","totalS":44.57,"capS":45,"ok":true},{"leg":"meadowToSkycity","totalS":47.47,"capS":50,"ok":true},{"leg":"skycityToLakeside","totalS":47.7,"capS":50,"ok":true}]}
+transition-totals: PASS
