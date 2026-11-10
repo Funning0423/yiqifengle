@@ -1,0 +1,5 @@
+PASS journey merge builds and publishes the geometry (water skipped)
+PASS board reuses the journey geometry (same draws, no rebuild)
+PASS refcounted handles: freed exactly once after the last holder
+PASS mismatch → fresh merge; failure → revert without touching shared meshes
+PASS wiring: board dispose and journey release drop their handles

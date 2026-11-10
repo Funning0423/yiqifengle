@@ -1,0 +1,95 @@
+PASS no deps: resolves {ok:true} at once (plain cut)
+PASS 390x844: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose
+PASS 414x896: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose
+PASS 360x780: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose
+PASS 375x667: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose
+PASS 390x520: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose
+PASS viewport changed mid-journey (route for 390x844, board at 390x520): hook still exact ends, monotonic, ≤ 1.1 s with jittery dt (12–40 ms + a 250 ms frame)
+PASS preload rejects → {ok:false, lakeside-assets-not-ready}, NO camera write (call site: existing fallback, toast + island)
+PASS preload hangs (3 s cap) → {ok:false, lakeside-assets-not-ready}, NO camera write (call site: existing fallback, toast + island)
+PASS never rejects: camera rejected / readCamera throws / setCamera throws / viewport throws / no camera
+PASS not at the landing (view 20° off / FOV 20° off / position 1 m off the journey landing) → no camera write, plain cut
+PASS root recovered from the landing pose = the journey root
+PASS 390x844: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4
+PASS 414x896: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4
+PASS 360x780: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4
+PASS 375x667: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4
+PASS 390x520: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4
+PASS enter-level cover holds the landed board pose (no 2.6 m push-in then cut back); one-shot, lakeside only
+{
+ "status": "PASS",
+ "checks": [
+  {
+   "id": "no deps: resolves {ok:true} at once (plain cut)",
+   "status": "PASS"
+  },
+  {
+   "id": "390x844: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose",
+   "status": "PASS"
+  },
+  {
+   "id": "414x896: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose",
+   "status": "PASS"
+  },
+  {
+   "id": "360x780: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose",
+   "status": "PASS"
+  },
+  {
+   "id": "375x667: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose",
+   "status": "PASS"
+  },
+  {
+   "id": "390x520: journey ends ON this screen's board camera (absorbed on the arrival S-curve, ≥ 3 s, lens position untouched, zoom monotonic), hook residual ≤ 2° view / ≤ 3° FOV, exact swap pose",
+   "status": "PASS"
+  },
+  {
+   "id": "viewport changed mid-journey (route for 390x844, board at 390x520): hook still exact ends, monotonic, ≤ 1.1 s with jittery dt (12–40 ms + a 250 ms frame)",
+   "status": "PASS"
+  },
+  {
+   "id": "preload rejects → {ok:false, lakeside-assets-not-ready}, NO camera write (call site: existing fallback, toast + island)",
+   "status": "PASS"
+  },
+  {
+   "id": "preload hangs (3 s cap) → {ok:false, lakeside-assets-not-ready}, NO camera write (call site: existing fallback, toast + island)",
+   "status": "PASS"
+  },
+  {
+   "id": "never rejects: camera rejected / readCamera throws / setCamera throws / viewport throws / no camera",
+   "status": "PASS"
+  },
+  {
+   "id": "not at the landing (view 20° off / FOV 20° off / position 1 m off the journey landing) → no camera write, plain cut",
+   "status": "PASS"
+  },
+  {
+   "id": "root recovered from the landing pose = the journey root",
+   "status": "PASS"
+  },
+  {
+   "id": "390x844: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4",
+   "status": "PASS"
+  },
+  {
+   "id": "414x896: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4",
+   "status": "PASS"
+  },
+  {
+   "id": "360x780: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4",
+   "status": "PASS"
+  },
+  {
+   "id": "375x667: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4",
+   "status": "PASS"
+  },
+  {
+   "id": "390x520: swap frame (world camera after hook+hold → LakesideBackgroundCamera) ≤ 0.1° / ≤ 0.1° FOV / ≤ 1 cm, goals 2..4",
+   "status": "PASS"
+  },
+  {
+   "id": "enter-level cover holds the landed board pose (no 2.6 m push-in then cut back); one-shot, lakeside only",
+   "status": "PASS"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+PASS night look differs from day and day is the unchanged r5h3 dusk
+PASS day clear = board init clear byte for byte (dir mode), journey day end clear too; points mode keeps LAKESIDE_CLEAR_COLOR
+PASS before the blend (w=0) a toggle stays the island look
+PASS blend done: lakeside day
+PASS toggle in lakeside day -> night: lakeside night
+PASS toggle in lakeside night -> day: lakeside day
+PASS mid-blend toggle: blends toward the night target from the island night base
+PASS leave in night (主页): island NIGHT look (world re-applies, no lock)
+PASS leave-then-toggle back on the island: island day, lakeside no longer writes
+PASS arrive at night: lakeside night; leave at night: captured island restored, no reapply needed
+PASS board holding: journey does not write on toggle; on board hide reapplyLakesideJourney gives the current mode
+PASS board applyDir = journey target in both modes; board re-applies on toggle and restores via journey/world
+lakeside day/night OK

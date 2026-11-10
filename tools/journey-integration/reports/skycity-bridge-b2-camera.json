@@ -1,0 +1,986 @@
+{
+ "scope": "plan B r2 sky-city 08→09 lens on the full GLB (geometry, not a render)",
+ "fixture": {
+  "source": {
+   "file": "skycity.glb",
+   "sha256": "98a54b68c1e3b0a615cac03c8f6040b9751f0df818c18ac901c6b16a82e4a15d"
+  },
+  "binSha256": "af9d49f96face61070f66317e2a213d345478c56b9dc248da36f4f20d1c54f03",
+  "triangles": 18240
+ },
+ "layoutSources": {
+  "centerline_world.json": "da5a132228f6d2b3197505409679e06c7237dff9bc207a339d50723c4568ddc7",
+  "_eval_12_15_30_45.json": "c8d7c2442064817e140d6476b442571e28659fac37c841053117152e3bf74c5d",
+  "_eval_12_15_28_45.json": "8e9e9db9bf5859941d5aa3ccb3049ef06737af3a3d027e02981359e2864ab9f4"
+ },
+ "camera": {
+  "lens": [
+   {
+    "at": -12
+   },
+   {
+    "at": -8,
+    "sideM": -3
+   }
+  ],
+  "anchorSmoothM": 2,
+  "boardBlendM": 20,
+  "crane": {
+   "settleM": 5,
+   "aimK": 2,
+   "orbit": 1
+  }
+ },
+ "plans": {
+  "A": {
+   "heldSectionBridgeM": [
+    4.8,
+    17.41
+   ],
+   "screens": {
+    "390x844": {
+     "T": 41.124,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.01,
+     "routeError": null,
+     "craneStartBridgeM": 9.23,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 17,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 333.5,
+       "t": 639.7,
+       "r": 371.6,
+       "b": 732.7
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.49,
+     "F7bAtM": 7.4,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.303,
+     "maxAccelAtM": 2.02,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 41.5,
+     "herXAtStopPct": 91.2,
+     "O5": {
+      "totalM": 41.12,
+      "vsBuild05S": -1.45,
+      "r4M": 44.29,
+      "vsR4S": -2.64
+     }
+    },
+    "414x896": {
+     "T": 42.624,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.09,
+     "routeError": null,
+     "craneStartBridgeM": 10.73,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 16.7,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 338,
+       "t": 632.6,
+       "r": 375,
+       "b": 723.7
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.49,
+     "F7bAtM": 7.4,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.303,
+     "maxAccelAtM": 2.02,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 41.5,
+     "herXAtStopPct": 86.8,
+     "O5": {
+      "totalM": 42.62,
+      "vsBuild05S": -0.2,
+      "r4M": 44.29,
+      "vsR4S": -1.39
+     }
+    },
+    "360x780": {
+     "T": 40.824,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.12,
+     "routeError": null,
+     "craneStartBridgeM": 8.93,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 13.3,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 310.9,
+       "t": 599.7,
+       "r": 346.6,
+       "b": 687
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.49,
+     "F7bAtM": 7.4,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.303,
+     "maxAccelAtM": 2.02,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 41.5,
+     "herXAtStopPct": 92.1,
+     "O5": {
+      "totalM": 40.82,
+      "vsBuild05S": -1.7,
+      "r4M": 44.29,
+      "vsR4S": -2.89
+     }
+    },
+    "375x667": {
+     "T": 42.724,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.05,
+     "routeError": null,
+     "craneStartBridgeM": 10.83,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 16.3,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 319.9,
+       "t": 519,
+       "r": 358.7,
+       "b": 611.4
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.13,
+     "F7bAtM": 32.72,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.328,
+     "maxAccelAtM": 40.82,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 43,
+     "herXAtStopPct": 91.4,
+     "O5": {
+      "totalM": 42.72,
+      "vsBuild05S": -0.12,
+      "r4M": 44.29,
+      "vsR4S": -1.31
+     }
+    },
+    "390x520": {
+     "T": 48.374,
+     "approachM": 14.045,
+     "stopVsDesignerCm": 0.02,
+     "routeError": null,
+     "craneStartBridgeM": 14.33,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 16.3,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 308.9,
+       "t": 371.9,
+       "r": 346.7,
+       "b": 458.9
+      }
+     },
+     "minClearanceM": 3.198,
+     "minClearanceAtM": 1.6,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -1.66,
+     "F7bAtM": 38.36,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.349,
+     "maxAccelAtM": 46.46,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 44.8,
+     "herXAtStopPct": 84.9,
+     "O5": {
+      "totalM": 48.37,
+      "vsBuild05S": 4.59,
+      "r4M": 46.44,
+      "vsR4S": 1.61
+     }
+    },
+    "320x568": {
+     "T": 44.283,
+     "approachM": 13.354,
+     "stopVsDesignerCm": 0.01,
+     "routeError": null,
+     "craneStartBridgeM": 10.93,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 14.4,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 272,
+       "t": 439.8,
+       "r": 304.9,
+       "b": 518.2
+      }
+     },
+     "minClearanceM": 3.226,
+     "minClearanceAtM": 0.9,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.08,
+     "F7bAtM": 34.28,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.326,
+     "maxAccelAtM": 42.38,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 43,
+     "herXAtStopPct": 91.1,
+     "O5": {
+      "totalM": 44.28,
+      "vsBuild05S": 1.18,
+      "r4M": 45.75,
+      "vsR4S": -1.22
+     }
+    },
+    "768x1024": {
+     "T": 46.124,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.06,
+     "routeError": null,
+     "craneStartBridgeM": 14.23,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 20.8,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 610.8,
+       "t": 737.8,
+       "r": 686.1,
+       "b": 910.6
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -1.62,
+     "F7bAtM": 36.12,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.35,
+     "maxAccelAtM": 44.22,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 44.8,
+     "herXAtStopPct": 85.3,
+     "O5": {
+      "totalM": 46.12,
+      "vsBuild05S": 2.72,
+      "r4M": 44.29,
+      "vsR4S": 1.53
+     }
+    }
+   }
+  },
+  "B": {
+   "heldSectionBridgeM": [
+    4.2,
+    18.92
+   ],
+   "screens": {
+    "390x844": {
+     "T": 42.014,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.01,
+     "routeError": null,
+     "craneStartBridgeM": 10.12,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 17,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 333.5,
+       "t": 639.7,
+       "r": 371.6,
+       "b": 732.7
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.49,
+     "F7bAtM": 7.4,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.303,
+     "maxAccelAtM": 2.02,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 41.5,
+     "herXAtStopPct": 91.2,
+     "O5": {
+      "totalM": 42.01,
+      "vsBuild05S": -0.71,
+      "r4M": 44.29,
+      "vsR4S": -1.9
+     }
+    },
+    "414x896": {
+     "T": 43.514,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.08,
+     "routeError": null,
+     "craneStartBridgeM": 11.62,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 16.7,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 338,
+       "t": 632.6,
+       "r": 375,
+       "b": 723.7
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.49,
+     "F7bAtM": 7.4,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.303,
+     "maxAccelAtM": 2.02,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 41.5,
+     "herXAtStopPct": 86.8,
+     "O5": {
+      "totalM": 43.51,
+      "vsBuild05S": 0.54,
+      "r4M": 44.29,
+      "vsR4S": -0.65
+     }
+    },
+    "360x780": {
+     "T": 41.714,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.07,
+     "routeError": null,
+     "craneStartBridgeM": 9.82,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 13.3,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 310.9,
+       "t": 599.7,
+       "r": 346.6,
+       "b": 687
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.49,
+     "F7bAtM": 7.4,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.303,
+     "maxAccelAtM": 2.02,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 41.5,
+     "herXAtStopPct": 92.1,
+     "O5": {
+      "totalM": 41.71,
+      "vsBuild05S": -0.96,
+      "r4M": 44.29,
+      "vsR4S": -2.15
+     }
+    },
+    "375x667": {
+     "T": 43.614,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.08,
+     "routeError": null,
+     "craneStartBridgeM": 11.72,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 16.3,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 319.9,
+       "t": 519,
+       "r": 358.7,
+       "b": 611.4
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.24,
+     "F7bAtM": 33.6,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.328,
+     "maxAccelAtM": 41.7,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 43,
+     "herXAtStopPct": 91.4,
+     "O5": {
+      "totalM": 43.61,
+      "vsBuild05S": 0.62,
+      "r4M": 44.29,
+      "vsR4S": -0.56
+     }
+    },
+    "390x520": {
+     "T": 49.264,
+     "approachM": 14.045,
+     "stopVsDesignerCm": 0.09,
+     "routeError": null,
+     "craneStartBridgeM": 15.22,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 16.3,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 308.9,
+       "t": 371.9,
+       "r": 346.7,
+       "b": 458.9
+      }
+     },
+     "minClearanceM": 3.198,
+     "minClearanceAtM": 1.6,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -1.65,
+     "F7bAtM": 39.26,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.349,
+     "maxAccelAtM": 47.36,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 44.8,
+     "herXAtStopPct": 84.9,
+     "O5": {
+      "totalM": 49.26,
+      "vsBuild05S": 5.33,
+      "r4M": 46.44,
+      "vsR4S": 2.35
+     }
+    },
+    "320x568": {
+     "T": 45.173,
+     "approachM": 13.354,
+     "stopVsDesignerCm": 0.01,
+     "routeError": null,
+     "craneStartBridgeM": 11.82,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 14.4,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 272,
+       "t": 439.8,
+       "r": 304.9,
+       "b": 518.2
+      }
+     },
+     "minClearanceM": 3.226,
+     "minClearanceAtM": 0.9,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -4.33,
+     "F7bAtM": 35.16,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.326,
+     "maxAccelAtM": 43.26,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 43,
+     "herXAtStopPct": 91.1,
+     "O5": {
+      "totalM": 45.17,
+      "vsBuild05S": 1.92,
+      "r4M": 45.75,
+      "vsR4S": -0.48
+     }
+    },
+    "768x1024": {
+     "T": 47.014,
+     "approachM": 11.895,
+     "stopVsDesignerCm": 0.07,
+     "routeError": null,
+     "craneStartBridgeM": 15.12,
+     "craneM": 20,
+     "uiGap": {
+      "gapPt": 20.8,
+      "overlapPt2": 0,
+      "boxPt": {
+       "l": 610.8,
+       "t": 737.8,
+       "r": 686.1,
+       "b": 910.6
+      }
+     },
+     "minClearanceM": 3.232,
+     "minClearanceAtM": 0,
+     "minClearanceWho": "meadow:meadow_grass_instances.1",
+     "occludedSamples": 0,
+     "occluded": [],
+     "outOfFrameSamples": 0,
+     "outOfFrame": [],
+     "F7bWorstLeftOfBehindDeg": -1.55,
+     "F7bAtM": 37,
+     "maxTurnDegS": 5.45,
+     "maxAccelMps2": 1.35,
+     "maxAccelAtM": 45.1,
+     "maxFovRateDegS": 0.787,
+     "lastFrameSpeedMps": 0,
+     "swap": {
+      "deg": 0,
+      "cm": 0,
+      "fovDeg": 0
+     },
+     "herMaxXFollowPct": 44.8,
+     "herXAtStopPct": 85.3,
+     "O5": {
+      "totalM": 47.01,
+      "vsBuild05S": 3.46,
+      "r4M": 44.29,
+      "vsR4S": 2.27
+     }
+    }
+   }
+  }
+ },
+ "status": "PASS",
+ "timeUTC": "2026-10-17T14:55:07.584Z",
+ "checks": [
+  {
+   "id": "A: C1 route valid (no focus, landing anchorSmoothM only, crane board end)",
+   "status": "PASS",
+   "evidence": {
+    "screens": 7
+   }
+  },
+  {
+   "id": "A: C2 lens clearance ≥ 1.1 m (full GLB + meadow + deck/ramp proxies)",
+   "status": "PASS",
+   "evidence": {
+    "minM": 3.198,
+    "who": "meadow:meadow_grass_instances.1"
+   }
+  },
+  {
+   "id": "A: C3 head/face/chest never occluded",
+   "status": "PASS",
+   "evidence": {
+    "samples": 0
+   }
+  },
+  {
+   "id": "A: C4 feet/chest/head in frame on the whole leg",
+   "status": "PASS",
+   "evidence": {
+    "outOfFrame": 0
+   }
+  },
+  {
+   "id": "A: C5 F7b lens right of behind until the last 10 m",
+   "status": "PASS",
+   "evidence": {
+    "worstDeg": -1.62
+   }
+  },
+  {
+   "id": "A: C6 turn ≤ 20°/s, accel ≤ 2 m/s², FOV ≤ 2°/s",
+   "status": "PASS",
+   "evidence": {
+    "turnDegS": 5.45,
+    "accelMps2": 1.35,
+    "fovDegS": 0.787
+   }
+  },
+  {
+   "id": "A: C7 swap = board camera (≤0.1°, ≤1 cm, FOV ≤0.1°), at rest",
+   "status": "PASS",
+   "evidence": {
+    "maxDeg": 0,
+    "maxCm": 0
+   }
+  },
+  {
+   "id": "A: C8 crane starts inside the held section and before the last 10 m",
+   "status": "PASS",
+   "evidence": {
+    "section": [
+     4.8,
+     17.41
+    ],
+    "starts": {
+     "390x844": 9.23,
+     "414x896": 10.73,
+     "360x780": 8.93,
+     "375x667": 10.83,
+     "390x520": 14.33,
+     "320x568": 10.93,
+     "768x1024": 14.23
+    }
+   }
+  },
+  {
+   "id": "A: C9 her x ≤ 80% of the width before the crane",
+   "status": "PASS",
+   "evidence": {
+    "maxPct": 44.8,
+    "atStopPct": {
+     "390x844": 91.2,
+     "414x896": 86.8,
+     "360x780": 92.1,
+     "375x667": 91.4,
+     "390x520": 84.9,
+     "320x568": 91.1,
+     "768x1024": 85.3
+    },
+    "note": "at the stop she is where the board UI leaves room (right of the tool row), not a lens choice"
+   }
+  },
+  {
+   "id": "A: C11 UI gap at the stop (260ea02 board UI) ≥ minGapPt, no overlap",
+   "status": "PASS",
+   "evidence": {
+    "390x844": 17,
+    "414x896": 16.7,
+    "360x780": 13.3,
+    "375x667": 16.3,
+    "390x520": 16.3,
+    "320x568": 14.4,
+    "768x1024": 20.8
+   }
+  },
+  {
+   "id": "A: C10 O5 08→09 ≤ Build05 + 6 s",
+   "status": "PASS",
+   "evidence": {
+    "390x844": {
+     "totalM": 41.12,
+     "vsBuild05S": -1.45,
+     "r4M": 44.29,
+     "vsR4S": -2.64
+    },
+    "414x896": {
+     "totalM": 42.62,
+     "vsBuild05S": -0.2,
+     "r4M": 44.29,
+     "vsR4S": -1.39
+    },
+    "360x780": {
+     "totalM": 40.82,
+     "vsBuild05S": -1.7,
+     "r4M": 44.29,
+     "vsR4S": -2.89
+    },
+    "375x667": {
+     "totalM": 42.72,
+     "vsBuild05S": -0.12,
+     "r4M": 44.29,
+     "vsR4S": -1.31
+    },
+    "390x520": {
+     "totalM": 48.37,
+     "vsBuild05S": 4.59,
+     "r4M": 46.44,
+     "vsR4S": 1.61
+    },
+    "320x568": {
+     "totalM": 44.28,
+     "vsBuild05S": 1.18,
+     "r4M": 45.75,
+     "vsR4S": -1.22
+    },
+    "768x1024": {
+     "totalM": 46.12,
+     "vsBuild05S": 2.72,
+     "r4M": 44.29,
+     "vsR4S": 1.53
+    }
+   }
+  },
+  {
+   "id": "B: C1 route valid (no focus, landing anchorSmoothM only, crane board end)",
+   "status": "PASS",
+   "evidence": {
+    "screens": 7
+   }
+  },
+  {
+   "id": "B: C2 lens clearance ≥ 1.1 m (full GLB + meadow + deck/ramp proxies)",
+   "status": "PASS",
+   "evidence": {
+    "minM": 3.198,
+    "who": "meadow:meadow_grass_instances.1"
+   }
+  },
+  {
+   "id": "B: C3 head/face/chest never occluded",
+   "status": "PASS",
+   "evidence": {
+    "samples": 0
+   }
+  },
+  {
+   "id": "B: C4 feet/chest/head in frame on the whole leg",
+   "status": "PASS",
+   "evidence": {
+    "outOfFrame": 0
+   }
+  },
+  {
+   "id": "B: C5 F7b lens right of behind until the last 10 m",
+   "status": "PASS",
+   "evidence": {
+    "worstDeg": -1.55
+   }
+  },
+  {
+   "id": "B: C6 turn ≤ 20°/s, accel ≤ 2 m/s², FOV ≤ 2°/s",
+   "status": "PASS",
+   "evidence": {
+    "turnDegS": 5.45,
+    "accelMps2": 1.35,
+    "fovDegS": 0.787
+   }
+  },
+  {
+   "id": "B: C7 swap = board camera (≤0.1°, ≤1 cm, FOV ≤0.1°), at rest",
+   "status": "PASS",
+   "evidence": {
+    "maxDeg": 0,
+    "maxCm": 0
+   }
+  },
+  {
+   "id": "B: C8 crane starts inside the held section and before the last 10 m",
+   "status": "PASS",
+   "evidence": {
+    "section": [
+     4.2,
+     18.92
+    ],
+    "starts": {
+     "390x844": 10.12,
+     "414x896": 11.62,
+     "360x780": 9.82,
+     "375x667": 11.72,
+     "390x520": 15.22,
+     "320x568": 11.82,
+     "768x1024": 15.12
+    }
+   }
+  },
+  {
+   "id": "B: C9 her x ≤ 80% of the width before the crane",
+   "status": "PASS",
+   "evidence": {
+    "maxPct": 44.8,
+    "atStopPct": {
+     "390x844": 91.2,
+     "414x896": 86.8,
+     "360x780": 92.1,
+     "375x667": 91.4,
+     "390x520": 84.9,
+     "320x568": 91.1,
+     "768x1024": 85.3
+    },
+    "note": "at the stop she is where the board UI leaves room (right of the tool row), not a lens choice"
+   }
+  },
+  {
+   "id": "B: C11 UI gap at the stop (260ea02 board UI) ≥ minGapPt, no overlap",
+   "status": "PASS",
+   "evidence": {
+    "390x844": 17,
+    "414x896": 16.7,
+    "360x780": 13.3,
+    "375x667": 16.3,
+    "390x520": 16.3,
+    "320x568": 14.4,
+    "768x1024": 20.8
+   }
+  },
+  {
+   "id": "B: C10 O5 08→09 ≤ Build05 + 6 s",
+   "status": "PASS",
+   "evidence": {
+    "390x844": {
+     "totalM": 42.01,
+     "vsBuild05S": -0.71,
+     "r4M": 44.29,
+     "vsR4S": -1.9
+    },
+    "414x896": {
+     "totalM": 43.51,
+     "vsBuild05S": 0.54,
+     "r4M": 44.29,
+     "vsR4S": -0.65
+    },
+    "360x780": {
+     "totalM": 41.71,
+     "vsBuild05S": -0.96,
+     "r4M": 44.29,
+     "vsR4S": -2.15
+    },
+    "375x667": {
+     "totalM": 43.61,
+     "vsBuild05S": 0.62,
+     "r4M": 44.29,
+     "vsR4S": -0.56
+    },
+    "390x520": {
+     "totalM": 49.26,
+     "vsBuild05S": 5.33,
+     "r4M": 46.44,
+     "vsR4S": 2.35
+    },
+    "320x568": {
+     "totalM": 45.17,
+     "vsBuild05S": 1.92,
+     "r4M": 45.75,
+     "vsR4S": -0.48
+    },
+    "768x1024": {
+     "totalM": 47.01,
+     "vsBuild05S": 3.46,
+     "r4M": 44.29,
+     "vsR4S": 2.27
+    }
+   }
+  }
+ ]
+}

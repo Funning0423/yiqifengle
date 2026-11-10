@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "cases": 5,
+  "taps": 80,
+  "mark": {
+    "text": "开发预览画面，不代表最终效果",
+    "font": 10,
+    "line": 14,
+    "width": 140,
+    "inset": 12,
+    "alpha": 150
+  },
+  "rects": {
+    "320x568": {
+      "x": 168,
+      "y": 508,
+      "width": 140,
+      "height": 14,
+      "rightGap": 12,
+      "bottomGap": 46
+    },
+    "390x844": {
+      "x": 238,
+      "y": 784,
+      "width": 140,
+      "height": 14,
+      "rightGap": 12,
+      "bottomGap": 46
+    },
+    "402x874": {
+      "x": 250,
+      "y": 814,
+      "width": 140,
+      "height": 14,
+      "rightGap": 12,
+      "bottomGap": 46
+    },
+    "568x320": {
+      "x": 372,
+      "y": 273,
+      "width": 140,
+      "height": 14,
+      "rightGap": 56,
+      "bottomGap": 33
+    },
+    "844x390": {
+      "x": 648,
+      "y": 343,
+      "width": 140,
+      "height": 14,
+      "rightGap": 56,
+      "bottomGap": 33
+    }
+  },
+  "checks": [
+    "no 暂停旅程 button / caption strip in loading/approach/bridge/arrival across five viewports",
+    "dev line is the only text, bottom-right, inset from safe area, clear of capsule, tiny + semi-transparent",
+    "dev line non-interactive (UITransform+Label only, zero touch listeners); taps never pause/cancel",
+    "background return auto-resumes the cutscene once (hidden frame painted or not), waits while busy, no 继续 flash",
+    "island / error paths unchanged",
+    "release builds hide the line (DEBUG / envVersion / web rules)",
+    "skycity-loading keeps 取消前往"
+  ],
+  "scope": "actual type-stripped Boot + DevPreviewMark with Cocos memory doubles; no native render/touch"
+}

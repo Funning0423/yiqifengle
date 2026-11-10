@@ -1,4 +1,0 @@
-PASS background during walking-out -> exit restarted, reached island
-PASS background during crossing-out -> exit restarted, reached island
-PASS seated background unchanged
-PASS island background unchanged

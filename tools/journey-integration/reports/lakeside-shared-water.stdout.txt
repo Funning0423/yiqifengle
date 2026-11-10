@@ -1,0 +1,3 @@
+PASS one source: two copies (journey, board) carry identical params straight from LAKESIDE_DIR_LIGHT_PARAMS, asset untouched
+PASS day/night: applyLakesideWaterMode writes lakesideModeLighting(mode) on either copy, identically
+PASS wiring: board and journey both use the helpers; journey follows the toggle, frees its copy and listener once
