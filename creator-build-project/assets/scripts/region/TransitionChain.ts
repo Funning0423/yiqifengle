@@ -27,9 +27,16 @@ export const CHAIN_SEGMENTS:Readonly<Record<ChainLeg,readonly string[]>>=Object.
 type ChainEvent={leg:ChainLeg;seg:string;at:number};
 const G=():any=>{try{return globalThis as any;}catch{return {};}};
 const now=()=>{try{return typeof performance!=='undefined'&&performance.now?performance.now()/1000:Date.now()/1000;}catch{return 0;}};
+/** Create the fallback counter the first time a chain actually runs. Dump reads a missing
+ *  object as the string 'undef', which is not count 0. A later mark must not wipe a trigger
+ *  that recordFallback already stored. resetChainTrace is the only zero. */
+function ensureFallbackTrace(g:any):void{
+ if(!g.__QF_TRANSITION_FALLBACK)g.__QF_TRANSITION_FALLBACK={count:0,events:[]};
+}
 /** Trace a segment start (QA: __QF_CHAIN.events; order checked, an out-of-order mark warns). */
 export function chainMark(leg:ChainLeg,seg:string,at:number=now()):boolean{
  const g=G();const c=g.__QF_CHAIN||(g.__QF_CHAIN={events:[] as ChainEvent[],bad:0});
+ ensureFallbackTrace(g);
  const order=CHAIN_SEGMENTS[leg],i=order.indexOf(seg);
  const prev=[...c.events].reverse().find((e:ChainEvent)=>e.leg===leg);
  const pi=prev?order.indexOf(prev.seg):-1;
