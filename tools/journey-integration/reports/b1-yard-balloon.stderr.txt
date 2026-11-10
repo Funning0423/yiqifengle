@@ -1,0 +1,376 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: C3: region/TransportLeg.ts changed vs 19bd812a
++ actual - expected
+... Skipped lines
+
+  "import type {Pose, Vec} from '../world-r1/WorldFlowCore';\n" +
+    "import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';\n" +
+    "import {meadowLocalToWorld, SAIL_LANDING_BERTH_LOCAL, sailArrivalWalkM} from './SailLanding';\n" +
+    "import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, STRATA_OFF_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';\n" +
+    "/** Island south dock and the meadow bank, in each region's own coordinates (maps/nodes.json).\n" +
+...
+    'export const SAIL_M0_LOCAL:Vec=[0.2,1.4,17];\n' +
++   'export const SAIL_M1_LOCAL:Vec=[2.6,2.764,6.8];/* b20 meadow-walk-fixes: = baked RegionNodes M1 (was [2.6,2.2,11.6]) */\n' +
+-   'export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];\n' +
+    '/** Drops the sail copy of the meadow so the sea covers its southern lowland. Bridge mode still uses meadowOffset. */\n' +
+    'export const SAIL_MEADOW_SINK=1.35;\n' +
+    '/** Boat waterline (= transit sea_plane). Kept at −0.91 to match art berth / sea_plane. */\n' +
+    'export const SAIL_WATER_Y=-0.91;\n' +
+    'export const SAIL_SEA_Y=-0.91;\n' +
+...
+    ' * Ahead of the bow, a little to starboard, looking back at the wake.\n' +
++   ' * Portrait'... 33473 more characters
+-   ' * Portrait 390×844 is only ~25° wide, so a large side offset crops the hull\n' +
+-   ' * (the'... 33400 more characters
+
+    at Object.<anonymous> (/workspace/wt-meadow-lens/tools/journey-integration/test-b1-yard-balloon.cjs:78:164)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: "import type {Pose, Vec} from '../world-r1/WorldFlowCore';\n" +
+    "import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';\n" +
+    "import {meadowLocalToWorld, SAIL_LANDING_BERTH_LOCAL, sailArrivalWalkM} from './SailLanding';\n" +
+    "import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, STRATA_OFF_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';\n" +
+    "/** Island south dock and the meadow bank, in each region's own coordinates (maps/nodes.json).\n" +
+    ' * M0 is 3 m upstream of the published river node so the shore walk stays inside the 30.5 s budget. */\n' +
+    'export const SAIL_I6:Vec=[-1.9,-0.6,10.1];\n' +
+    'export const SAIL_M0_LOCAL:Vec=[0.2,1.4,17];\n' +
+    'export const SAIL_M1_LOCAL:Vec=[2.6,2.764,6.8];/* b20 meadow-walk-fixes: = baked RegionNodes M1 (was [2.6,2.2,11.6]) */\n' +
+    '/** Drops the sail copy of the meadow so the sea covers its southern lowland. Bridge mode still uses meadowOffset. */\n' +
+    'export const SAIL_MEADOW_SINK=1.35;\n' +
+    '/** Boat waterline (= transit sea_plane). Kept at −0.91 to match art berth / sea_plane. */\n' +
+    'export const SAIL_WATER_Y=-0.91;\n' +
+    'export const SAIL_SEA_Y=-0.91;\n' +
+    '/** Boat parks on the port side of the I6 pier so the hull does not sit inside the deck. */\n' +
+    'export const SAIL_BERTH_X=1.85;\n' +
+    'export const SAIL_LIMITS={totalS:30.5,accel:2.7,decel:2.5,yawDegS:20,cruiseMinS:6,clearM:0.6,chordM:52,riverM:12,dockClearM:2,walkMps:1.2,boardBlendS:0.8,saS:7.6,sfS:1.0,sbS:2.0} as const;\n' +
+    'const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;\n' +
+    'const dist=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);\n' +
+    'const smoother=(u:number)=>{const t=Math.min(1,Math.max(0,u));return t*t*t*(t*(t*6-15)+10);};\n' +
+    '/** Meadow root after yaw 180 so the estuary sits `sailMeadowOffset` (default +Z 52 m) from I6. */\n' +
+    'export function sailMeadowRoot(i6:Vec=SAIL_I6,m0:Vec=SAIL_M0_LOCAL,offset:Vec=REGION_JOURNEY_LAYOUT.sailMeadowOffset):Vec{\n' +
+    ' const mouth:Vec=[i6[0]+offset[0],SAIL_WATER_Y+offset[1]+(m0[1]-SAIL_WATER_Y),i6[2]+offset[2]];\n' +
+    ' return [mouth[0]+m0[0],mouth[1]-m0[1]-SAIL_MEADOW_SINK,mouth[2]+m0[2]];\n' +
+    '}\n' +
+    'export function rotY180(p:Vec,root:Vec):Vec{return [root[0]-p[0],root[1]+p[1],root[2]-p[2]];}\n' +
+    'export function sailM0World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M0_LOCAL,sailMeadowRoot(i6));}\n' +
+    'export function sailM1World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M1_LOCAL,sailMeadowRoot(i6));}\n' +
+    '/** `landing_berth` in world space (boat waterline root). */\n' +
+    'export function sailBerthWorld(i6:Vec=SAIL_I6):Vec{\n' +
+    ' const p=meadowLocalToWorld(SAIL_LANDING_BERTH_LOCAL,sailMeadowRoot(i6));\n' +
+    ' return [p[0],SAIL_WATER_Y,p[2]];\n' +
+    '}\n' +
+    '/** Legacy M0→M1 chord (board nodes). Arrival walk on the jetty is `sailArrivalWalkM`. */\n' +
+    'export function shoreWalkM():number{return dist(SAIL_M0_LOCAL,SAIL_M1_LOCAL);}\n' +
+    '/**\n' +
+    ' * Gentle S (radius ≥ 25 m) then ~10 m straight into `landing_berth` on the waterline.\n' +
+    ' * No climb onto M0 grass — that was the hull-in-meadow bug.\n' +
+    ' */\n' +
+    'export function sailRoute(i6:Vec=SAIL_I6,_m0:Vec=sailM0World(i6)):{samples:Vec[];length:number;minRadius:number}{\n' +
+    ' const end=sailBerthWorld(i6);\n' +
+    ' const z0=i6[2]+SAIL_LIMITS.dockClearM,z1=end[2],x0=i6[0]+SAIL_BERTH_X,span=Math.max(1e-3,z1-z0);\n' +
+    ' // Last 10 m: straight into the berth. Lateral offset (~4.3 m) is taken over `align` m beforehand\n' +
+    ' // so the turn radius stays ≥ 25 m (sagitta rule: L ≳ √(8·R·d)).\n' +
+    ' const straight=10,align=30;\n' +
+    ' const raw:Vec[]=[];\n' +
+    ' const steps=Math.max(16,Math.ceil(Math.abs(span)/0.5));\n' +
+    ' for(let i=0;i<=steps;i++){\n' +
+    '  const u=i/steps,z=lerp(z0,z1,u),remain=z1-z;\n' +
+    '  const swayEnv=remain<=straight+4?0:remain<straight+4+12?smoother((remain-(straight+4))/12):1;\n' +
+    '  // Mild sway only: lateral berth offset already spends the curvature budget.\n' +
+    '  const sway=Math.sin(u*Math.PI)*0.3*swayEnv;\n' +
+    '  let center=x0;\n' +
+    '  if(remain<=straight)center=end[0];\n' +
+    '  else if(remain<straight+align)center=lerp(x0,end[0],smoother(1-(remain-straight)/align));\n' +
+    '  raw.push([center+sway,SAIL_WATER_Y,z]);\n' +
+    ' }\n' +
+    ' raw[raw.length-1]=[end[0],SAIL_WATER_Y,end[2]];\n' +
+    ' const samples:Vec[]=[raw[0]];\n' +
+    ' for(let i=1;i<raw.length;i++)if(dist(samples[samples.length-1],raw[i])>=0.49)samples.push(raw[i]);\n' +
+    ' if(dist(samples[samples.length-1],raw[raw.length-1])>1e-3)samples.push(raw[raw.length-1]);\n' +
+    ' let length=0;for(let i=1;i<samples.length;i++)length+=dist(samples[i-1],samples[i]);\n' +
+    ' let minRadius=1e9;\n' +
+    ' for(let i=1;i<samples.length-1;i++){\n' +
+    '  const a=samples[i-1],b=samples[i],c=samples[i+1];\n' +
+    '  const ab=dist(a,b),bc=dist(b,c),ac=dist(a,c);\n' +
+    '  const area=Math.abs((b[0]-a[0])*(c[2]-a[2])-(b[2]-a[2])*(c[0]-a[0]))*0.5;\n' +
+    '  const r=area>1e-6?(ab*bc*ac)/(4*area):1e9;\n' +
+    '  if(r<minRadius)minRadius=r;\n' +
+    ' }\n' +
+    ' return {samples,length,minRadius};\n' +
+    '}\n' +
+    'export type SailSpeed={v:number;accelS:number;cruiseS:number;decelS:number;aAcc:number;aDec:number;motionS:number;length:number};\n' +
+    '/** Cover `length` at up to 3.6 m/s with a 2 s ease-in and a 2.2 s ease-out. */\n' +
+    'export function sailSpeed(length:number,cruiseS:number=SAIL_LIMITS.cruiseMinS):SailSpeed{\n' +
+    ' const accelS=2,decelS=2.2,cap=3.6;\n' +
+    ' let cruise=cruiseS;\n' +
+    ' let v=length/(cruise+accelS*0.5+decelS*0.5);\n' +
+    ' if(v>cap){cruise=Math.max(6,length/cap-accelS*0.5-decelS*0.5);v=length/(cruise+accelS*0.5+decelS*0.5);}\n' +
+    ' return {v,accelS,cruiseS:cruise,decelS,aAcc:v/accelS,aDec:v/decelS,motionS:accelS+cruise+decelS,length};\n' +
+    '}\n' +
+    'export function sailDistanceAt(sp:SailSpeed,t:number):number{\n' +
+    ' const {v,accelS,cruiseS,decelS,length}=sp;\n' +
+    ' if(t<=0)return 0;\n' +
+    ' if(t>=sp.motionS)return length;\n' +
+    ' if(t<accelS){const u=t/accelS;return v*accelS*u*u*0.5;}\n' +
+    ' if(t<accelS+cruiseS)return v*accelS*0.5+v*(t-accelS);\n' +
+    ' const u=(sp.motionS-t)/decelS;return length-v*decelS*u*u*0.5;\n' +
+    '}\n' +
+    'export function sailSpeedAt(sp:SailSpeed,t:number):number{\n' +
+    ' if(t<=0||t>=sp.motionS)return 0;\n' +
+    ' if(t<sp.accelS)return sp.v*(t/sp.accelS);\n' +
+    ' if(t<sp.accelS+sp.cruiseS)return sp.v;\n' +
+    ' return sp.v*((sp.motionS-t)/sp.decelS);\n' +
+    '}\n' +
+    'export type SailBeat={id:string;t0:number;t1:number;cue?:string};\n' +
+    'export type SailTimeline={beats:SailBeat[];totalS:number;build05S:number;speed:SailSpeed;routeM:number;shoreM:number;shoreS:number;arrivalM:number;arrivalS:number};\n' +
+    '/**\n' +
+    ' * Sail clock ends when she steps onto the jetty deck (GBT §6).\n' +
+    ' * Jetty→meadow path walk is `arrivalS` (≤ 12 s) and is not part of build05S.\n' +
+    ' */\n' +
+    'export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline{\n' +
+    ' const speed=sailSpeed(routeM);\n' +
+    ' const arrivalM=sailArrivalWalkM(),arrivalS=arrivalM/SAIL_LIMITS.walkMps;\n' +
+    ' const sb=SAIL_LIMITS.sbS,sc=speed.accelS,sd=speed.cruiseS,se=speed.decelS,sf=SAIL_LIMITS.sfS;\n' +
+    ' // S-g: stand → port rail → landing_step (counted in the sail budget).\n' +
+    ' const sg=SAIL_LIMITS.boardBlendS;\n' +
+    ' const rest=sb+speed.motionS+sf+sg;\n' +
+    ' const sa=Math.min(SAIL_LIMITS.saS,Math.max(5.9,30.5-rest));\n' +
+    ' let t=0;const beats:SailBeat[]=[];\n' +
+    ' const push=(id:string,dur:number,cue?:string)=>{beats.push({id,t0:t,t1:t+dur,cue});t+=dur;};\n' +
+    " push('S-a',sa,'node-walk-start');\n" +
+    " push('S-b',sb,'sail-board');\n" +
+    " push('S-c',sc,'sail-unfurl');\n" +
+    " push('S-d',sd,'sail-cruise-loop-start');\n" +
+    " push('S-e',se,'sail-dock');\n" +
+    " push('S-f',sf);\n" +
+    " push('S-g',sg,'node-arrive');\n" +
+    ' return {beats,totalS:speed.motionS+sb+sf,build05S:t,speed,routeM,shoreM,shoreS:shoreM/SAIL_LIMITS.walkMps,arrivalM,arrivalS};\n' +
+    '}\n' +
+    'export function beatAt(tl:SailTimeline,t:number):SailBeat{return tl.beats.find(b=>t>=b.t0&&t<b.t1)||tl.beats[tl.beats.length-1];}\n' +
+    '/** Real seconds → sail timeline. Wait for sitting, then preserve the designed hull speed even if boarding used up the budget. */\n' +
+    'export function sailPresentationT(real:number,departAt:number|null,motionStart:number,_motionEnd:number,buildEnd:number,_motionBudget:number):number{\n' +
+    ' if(departAt==null)return Math.min(Math.max(0,real),Math.max(0,motionStart-1e-4));\n' +
+    ' const since=Math.max(0,real-departAt);\n' +
+    ' return Math.min(buildEnd,motionStart+since);\n' +
+    '}\n' +
+    'function samplePoly(samples:readonly Vec[],distance:number):Vec{\n' +
+    ' let left=Math.max(0,distance);\n' +
+    ' for(let i=1;i<samples.length;i++){const d=dist(samples[i-1],samples[i]);if(d>0&&left<=d){const a=samples[i-1],b=samples[i],u=left/d;return [lerp(a[0],b[0],u),lerp(a[1],b[1],u),lerp(a[2],b[2],u)];}left-=d;}\n' +
+    ' return samples[samples.length-1];\n' +
+    '}\n' +
+    'function heading(samples:readonly Vec[],distance:number):number{\n' +
+    ' const a=samplePoly(samples,Math.max(0,distance-0.4)),b=samplePoly(samples,distance+0.4);\n' +
+    ' const x=b[0]-a[0],z=b[2]-a[2];return Math.hypot(x,z)>1e-4?Math.atan2(x,z):0;\n' +
+    '}\n' +
+    'export type SailPose={pos:Vec;yaw:number;roll:number;sail:number;speed:number;distance:number};\n' +
+    '/** Boat pose. `t` is Build05 time (0 = leaving the mainline-04 stand). The hull is still through S-b. */\n' +
+    'export function sailVehicle(tl:SailTimeline,route:readonly Vec[],t:number):SailPose{\n' +
+    " const sc=tl.beats.find(b=>b.id==='S-c')!,se=tl.beats.find(b=>b.id==='S-e')!,sd=tl.beats.find(b=>b.id==='S-d')!;\n" +
+    ' let distM=0,speed=0,sailOpen=0;\n' +
+    ' if(t>=sc.t0&&t<se.t1){\n' +
+    '  const local=t-sc.t0;distM=sailDistanceAt(tl.speed,local);speed=sailSpeedAt(tl.speed,local);\n' +
+    '  const u=t<sc.t1?(t-sc.t0)/(sc.t1-sc.t0):t<se.t0?1:1-(t-se.t0)/(se.t1-se.t0);\n' +
+    '  sailOpen=smoother(Math.min(1,Math.max(0,u)));\n' +
+    ' }else if(t>=se.t1)distM=tl.speed.length;\n' +
+    ' const pos=samplePoly(route,Math.min(tl.speed.length,distM));\n' +
+    ' const yaw=heading(route,Math.min(tl.speed.length,distM));\n' +
+    ' const roll=t>=sd.t0&&t<se.t0?Math.sin((t-sd.t0)/3.2*Math.PI*2)*4*Math.PI/180:0;\n' +
+    ' const bob=0;\n' +
+    ' return {pos:[pos[0],pos[1]+bob,pos[2]],yaw,roll,sail:sailOpen,speed,distance:distM};\n' +
+    '}\n' +
+    'export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{\n' +
+    ' let max=0,prev=sailVehicle(tl,route,tl.beats[2].t0).yaw;\n' +
+    ' for(let t=tl.beats[2].t0;t<=tl.beats[4].t1;t+=0.05){\n' +
+    '  const y=sailVehicle(tl,route,t).yaw;let d=y-prev;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;\n' +
+    '  max=Math.max(max,Math.abs(d)/0.05*180/Math.PI);prev=y;\n' +
+    ' }\n' +
+    ' return max;\n' +
+    '}\n' +
+    'export type SailScreen={w:number;h:number};\n' +
+    'type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};\n' +
+    'const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};\n' +
+    '/**\n' +
+    ' * Ahead of the bow, a little to starboard, looking back at the wake.\n' +
+    ' * Portrait'... 33473 more characters,
+  expected: "import type {Pose, Vec} from '../world-r1/WorldFlowCore';\n" +
+    "import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';\n" +
+    "import {meadowLocalToWorld, SAIL_LANDING_BERTH_LOCAL, sailArrivalWalkM} from './SailLanding';\n" +
+    "import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, STRATA_OFF_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';\n" +
+    "/** Island south dock and the meadow bank, in each region's own coordinates (maps/nodes.json).\n" +
+    ' * M0 is 3 m upstream of the published river node so the shore walk stays inside the 30.5 s budget. */\n' +
+    'export const SAIL_I6:Vec=[-1.9,-0.6,10.1];\n' +
+    'export const SAIL_M0_LOCAL:Vec=[0.2,1.4,17];\n' +
+    'export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];\n' +
+    '/** Drops the sail copy of the meadow so the sea covers its southern lowland. Bridge mode still uses meadowOffset. */\n' +
+    'export const SAIL_MEADOW_SINK=1.35;\n' +
+    '/** Boat waterline (= transit sea_plane). Kept at −0.91 to match art berth / sea_plane. */\n' +
+    'export const SAIL_WATER_Y=-0.91;\n' +
+    'export const SAIL_SEA_Y=-0.91;\n' +
+    '/** Boat parks on the port side of the I6 pier so the hull does not sit inside the deck. */\n' +
+    'export const SAIL_BERTH_X=1.85;\n' +
+    'export const SAIL_LIMITS={totalS:30.5,accel:2.7,decel:2.5,yawDegS:20,cruiseMinS:6,clearM:0.6,chordM:52,riverM:12,dockClearM:2,walkMps:1.2,boardBlendS:0.8,saS:7.6,sfS:1.0,sbS:2.0} as const;\n' +
+    'const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;\n' +
+    'const dist=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);\n' +
+    'const smoother=(u:number)=>{const t=Math.min(1,Math.max(0,u));return t*t*t*(t*(t*6-15)+10);};\n' +
+    '/** Meadow root after yaw 180 so the estuary sits `sailMeadowOffset` (default +Z 52 m) from I6. */\n' +
+    'export function sailMeadowRoot(i6:Vec=SAIL_I6,m0:Vec=SAIL_M0_LOCAL,offset:Vec=REGION_JOURNEY_LAYOUT.sailMeadowOffset):Vec{\n' +
+    ' const mouth:Vec=[i6[0]+offset[0],SAIL_WATER_Y+offset[1]+(m0[1]-SAIL_WATER_Y),i6[2]+offset[2]];\n' +
+    ' return [mouth[0]+m0[0],mouth[1]-m0[1]-SAIL_MEADOW_SINK,mouth[2]+m0[2]];\n' +
+    '}\n' +
+    'export function rotY180(p:Vec,root:Vec):Vec{return [root[0]-p[0],root[1]+p[1],root[2]-p[2]];}\n' +
+    'export function sailM0World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M0_LOCAL,sailMeadowRoot(i6));}\n' +
+    'export function sailM1World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M1_LOCAL,sailMeadowRoot(i6));}\n' +
+    '/** `landing_berth` in world space (boat waterline root). */\n' +
+    'export function sailBerthWorld(i6:Vec=SAIL_I6):Vec{\n' +
+    ' const p=meadowLocalToWorld(SAIL_LANDING_BERTH_LOCAL,sailMeadowRoot(i6));\n' +
+    ' return [p[0],SAIL_WATER_Y,p[2]];\n' +
+    '}\n' +
+    '/** Legacy M0→M1 chord (board nodes). Arrival walk on the jetty is `sailArrivalWalkM`. */\n' +
+    'export function shoreWalkM():number{return dist(SAIL_M0_LOCAL,SAIL_M1_LOCAL);}\n' +
+    '/**\n' +
+    ' * Gentle S (radius ≥ 25 m) then ~10 m straight into `landing_berth` on the waterline.\n' +
+    ' * No climb onto M0 grass — that was the hull-in-meadow bug.\n' +
+    ' */\n' +
+    'export function sailRoute(i6:Vec=SAIL_I6,_m0:Vec=sailM0World(i6)):{samples:Vec[];length:number;minRadius:number}{\n' +
+    ' const end=sailBerthWorld(i6);\n' +
+    ' const z0=i6[2]+SAIL_LIMITS.dockClearM,z1=end[2],x0=i6[0]+SAIL_BERTH_X,span=Math.max(1e-3,z1-z0);\n' +
+    ' // Last 10 m: straight into the berth. Lateral offset (~4.3 m) is taken over `align` m beforehand\n' +
+    ' // so the turn radius stays ≥ 25 m (sagitta rule: L ≳ √(8·R·d)).\n' +
+    ' const straight=10,align=30;\n' +
+    ' const raw:Vec[]=[];\n' +
+    ' const steps=Math.max(16,Math.ceil(Math.abs(span)/0.5));\n' +
+    ' for(let i=0;i<=steps;i++){\n' +
+    '  const u=i/steps,z=lerp(z0,z1,u),remain=z1-z;\n' +
+    '  const swayEnv=remain<=straight+4?0:remain<straight+4+12?smoother((remain-(straight+4))/12):1;\n' +
+    '  // Mild sway only: lateral berth offset already spends the curvature budget.\n' +
+    '  const sway=Math.sin(u*Math.PI)*0.3*swayEnv;\n' +
+    '  let center=x0;\n' +
+    '  if(remain<=straight)center=end[0];\n' +
+    '  else if(remain<straight+align)center=lerp(x0,end[0],smoother(1-(remain-straight)/align));\n' +
+    '  raw.push([center+sway,SAIL_WATER_Y,z]);\n' +
+    ' }\n' +
+    ' raw[raw.length-1]=[end[0],SAIL_WATER_Y,end[2]];\n' +
+    ' const samples:Vec[]=[raw[0]];\n' +
+    ' for(let i=1;i<raw.length;i++)if(dist(samples[samples.length-1],raw[i])>=0.49)samples.push(raw[i]);\n' +
+    ' if(dist(samples[samples.length-1],raw[raw.length-1])>1e-3)samples.push(raw[raw.length-1]);\n' +
+    ' let length=0;for(let i=1;i<samples.length;i++)length+=dist(samples[i-1],samples[i]);\n' +
+    ' let minRadius=1e9;\n' +
+    ' for(let i=1;i<samples.length-1;i++){\n' +
+    '  const a=samples[i-1],b=samples[i],c=samples[i+1];\n' +
+    '  const ab=dist(a,b),bc=dist(b,c),ac=dist(a,c);\n' +
+    '  const area=Math.abs((b[0]-a[0])*(c[2]-a[2])-(b[2]-a[2])*(c[0]-a[0]))*0.5;\n' +
+    '  const r=area>1e-6?(ab*bc*ac)/(4*area):1e9;\n' +
+    '  if(r<minRadius)minRadius=r;\n' +
+    ' }\n' +
+    ' return {samples,length,minRadius};\n' +
+    '}\n' +
+    'export type SailSpeed={v:number;accelS:number;cruiseS:number;decelS:number;aAcc:number;aDec:number;motionS:number;length:number};\n' +
+    '/** Cover `length` at up to 3.6 m/s with a 2 s ease-in and a 2.2 s ease-out. */\n' +
+    'export function sailSpeed(length:number,cruiseS:number=SAIL_LIMITS.cruiseMinS):SailSpeed{\n' +
+    ' const accelS=2,decelS=2.2,cap=3.6;\n' +
+    ' let cruise=cruiseS;\n' +
+    ' let v=length/(cruise+accelS*0.5+decelS*0.5);\n' +
+    ' if(v>cap){cruise=Math.max(6,length/cap-accelS*0.5-decelS*0.5);v=length/(cruise+accelS*0.5+decelS*0.5);}\n' +
+    ' return {v,accelS,cruiseS:cruise,decelS,aAcc:v/accelS,aDec:v/decelS,motionS:accelS+cruise+decelS,length};\n' +
+    '}\n' +
+    'export function sailDistanceAt(sp:SailSpeed,t:number):number{\n' +
+    ' const {v,accelS,cruiseS,decelS,length}=sp;\n' +
+    ' if(t<=0)return 0;\n' +
+    ' if(t>=sp.motionS)return length;\n' +
+    ' if(t<accelS){const u=t/accelS;return v*accelS*u*u*0.5;}\n' +
+    ' if(t<accelS+cruiseS)return v*accelS*0.5+v*(t-accelS);\n' +
+    ' const u=(sp.motionS-t)/decelS;return length-v*decelS*u*u*0.5;\n' +
+    '}\n' +
+    'export function sailSpeedAt(sp:SailSpeed,t:number):number{\n' +
+    ' if(t<=0||t>=sp.motionS)return 0;\n' +
+    ' if(t<sp.accelS)return sp.v*(t/sp.accelS);\n' +
+    ' if(t<sp.accelS+sp.cruiseS)return sp.v;\n' +
+    ' return sp.v*((sp.motionS-t)/sp.decelS);\n' +
+    '}\n' +
+    'export type SailBeat={id:string;t0:number;t1:number;cue?:string};\n' +
+    'export type SailTimeline={beats:SailBeat[];totalS:number;build05S:number;speed:SailSpeed;routeM:number;shoreM:number;shoreS:number;arrivalM:number;arrivalS:number};\n' +
+    '/**\n' +
+    ' * Sail clock ends when she steps onto the jetty deck (GBT §6).\n' +
+    ' * Jetty→meadow path walk is `arrivalS` (≤ 12 s) and is not part of build05S.\n' +
+    ' */\n' +
+    'export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline{\n' +
+    ' const speed=sailSpeed(routeM);\n' +
+    ' const arrivalM=sailArrivalWalkM(),arrivalS=arrivalM/SAIL_LIMITS.walkMps;\n' +
+    ' const sb=SAIL_LIMITS.sbS,sc=speed.accelS,sd=speed.cruiseS,se=speed.decelS,sf=SAIL_LIMITS.sfS;\n' +
+    ' // S-g: stand → port rail → landing_step (counted in the sail budget).\n' +
+    ' const sg=SAIL_LIMITS.boardBlendS;\n' +
+    ' const rest=sb+speed.motionS+sf+sg;\n' +
+    ' const sa=Math.min(SAIL_LIMITS.saS,Math.max(5.9,30.5-rest));\n' +
+    ' let t=0;const beats:SailBeat[]=[];\n' +
+    ' const push=(id:string,dur:number,cue?:string)=>{beats.push({id,t0:t,t1:t+dur,cue});t+=dur;};\n' +
+    " push('S-a',sa,'node-walk-start');\n" +
+    " push('S-b',sb,'sail-board');\n" +
+    " push('S-c',sc,'sail-unfurl');\n" +
+    " push('S-d',sd,'sail-cruise-loop-start');\n" +
+    " push('S-e',se,'sail-dock');\n" +
+    " push('S-f',sf);\n" +
+    " push('S-g',sg,'node-arrive');\n" +
+    ' return {beats,totalS:speed.motionS+sb+sf,build05S:t,speed,routeM,shoreM,shoreS:shoreM/SAIL_LIMITS.walkMps,arrivalM,arrivalS};\n' +
+    '}\n' +
+    'export function beatAt(tl:SailTimeline,t:number):SailBeat{return tl.beats.find(b=>t>=b.t0&&t<b.t1)||tl.beats[tl.beats.length-1];}\n' +
+    '/** Real seconds → sail timeline. Wait for sitting, then preserve the designed hull speed even if boarding used up the budget. */\n' +
+    'export function sailPresentationT(real:number,departAt:number|null,motionStart:number,_motionEnd:number,buildEnd:number,_motionBudget:number):number{\n' +
+    ' if(departAt==null)return Math.min(Math.max(0,real),Math.max(0,motionStart-1e-4));\n' +
+    ' const since=Math.max(0,real-departAt);\n' +
+    ' return Math.min(buildEnd,motionStart+since);\n' +
+    '}\n' +
+    'function samplePoly(samples:readonly Vec[],distance:number):Vec{\n' +
+    ' let left=Math.max(0,distance);\n' +
+    ' for(let i=1;i<samples.length;i++){const d=dist(samples[i-1],samples[i]);if(d>0&&left<=d){const a=samples[i-1],b=samples[i],u=left/d;return [lerp(a[0],b[0],u),lerp(a[1],b[1],u),lerp(a[2],b[2],u)];}left-=d;}\n' +
+    ' return samples[samples.length-1];\n' +
+    '}\n' +
+    'function heading(samples:readonly Vec[],distance:number):number{\n' +
+    ' const a=samplePoly(samples,Math.max(0,distance-0.4)),b=samplePoly(samples,distance+0.4);\n' +
+    ' const x=b[0]-a[0],z=b[2]-a[2];return Math.hypot(x,z)>1e-4?Math.atan2(x,z):0;\n' +
+    '}\n' +
+    'export type SailPose={pos:Vec;yaw:number;roll:number;sail:number;speed:number;distance:number};\n' +
+    '/** Boat pose. `t` is Build05 time (0 = leaving the mainline-04 stand). The hull is still through S-b. */\n' +
+    'export function sailVehicle(tl:SailTimeline,route:readonly Vec[],t:number):SailPose{\n' +
+    " const sc=tl.beats.find(b=>b.id==='S-c')!,se=tl.beats.find(b=>b.id==='S-e')!,sd=tl.beats.find(b=>b.id==='S-d')!;\n" +
+    ' let distM=0,speed=0,sailOpen=0;\n' +
+    ' if(t>=sc.t0&&t<se.t1){\n' +
+    '  const local=t-sc.t0;distM=sailDistanceAt(tl.speed,local);speed=sailSpeedAt(tl.speed,local);\n' +
+    '  const u=t<sc.t1?(t-sc.t0)/(sc.t1-sc.t0):t<se.t0?1:1-(t-se.t0)/(se.t1-se.t0);\n' +
+    '  sailOpen=smoother(Math.min(1,Math.max(0,u)));\n' +
+    ' }else if(t>=se.t1)distM=tl.speed.length;\n' +
+    ' const pos=samplePoly(route,Math.min(tl.speed.length,distM));\n' +
+    ' const yaw=heading(route,Math.min(tl.speed.length,distM));\n' +
+    ' const roll=t>=sd.t0&&t<se.t0?Math.sin((t-sd.t0)/3.2*Math.PI*2)*4*Math.PI/180:0;\n' +
+    ' const bob=0;\n' +
+    ' return {pos:[pos[0],pos[1]+bob,pos[2]],yaw,roll,sail:sailOpen,speed,distance:distM};\n' +
+    '}\n' +
+    'export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{\n' +
+    ' let max=0,prev=sailVehicle(tl,route,tl.beats[2].t0).yaw;\n' +
+    ' for(let t=tl.beats[2].t0;t<=tl.beats[4].t1;t+=0.05){\n' +
+    '  const y=sailVehicle(tl,route,t).yaw;let d=y-prev;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;\n' +
+    '  max=Math.max(max,Math.abs(d)/0.05*180/Math.PI);prev=y;\n' +
+    ' }\n' +
+    ' return max;\n' +
+    '}\n' +
+    'export type SailScreen={w:number;h:number};\n' +
+    'type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};\n' +
+    'const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};\n' +
+    '/**\n' +
+    ' * Ahead of the bow, a little to starboard, looking back at the wake.\n' +
+    ' * Portrait 390×844 is only ~25° wide, so a large side offset crops the hull\n' +
+    ' * (the'... 33400 more characters,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

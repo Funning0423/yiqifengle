@@ -1,0 +1,2 @@
+FAIL META_ADDED creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta
+FAIL meta-allowlist base=19bd812acf1554a2bbd3be50ecf76b6eab1904fb metasChanged=7 allowedChanges=8 fails=1 needsReview=0
