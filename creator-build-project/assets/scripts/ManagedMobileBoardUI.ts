@@ -6,8 +6,8 @@ import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
 import { MINIGAME } from 'cc/env';
 import { assetManager, SpriteFrame } from 'cc';
-import { DEFAULT_KIT, boardKitFor, kitGrid, kitCellAt, type KitGrid, type RegionBoardKit } from './ui/BoardKit';
-import { lakesideBoardKitFromFlag } from './ui/BoardProjection';
+import { COAST_TYPE5_SHELL, DEFAULT_KIT, boardKitFor, kitGrid, kitCellAt, type KitGrid, type RegionBoardKit } from './ui/BoardKit';
+import { coastBoardKitFromFlag, lakesideBoardKitFromFlag } from './ui/BoardProjection';
 import { ruleGuideDy, RULE_GUIDE_MAX_LINES, wrapKinsoku, boardLayout, boardSafeInsets, cellCenter, pickToolBar, qaForcedToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
 import { PopupStack, popupScale, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
@@ -34,7 +34,7 @@ const TOAST_OUT_S = 0.15;
 export class ManagedMobileBoardUI extends Component {
   private managed: any = null; private disposing = false; private frameKinds = new Set<string>(); private presentationError: string | null = null;
   initializeManaged(fixture: any, binding: any, backgroundFrame?: (portrait: boolean, layout?: LevelBackgroundFrame) => void, backgroundStatus?: () => LevelBackgroundStatus) {
-    if (this.managed || this.root) throw Error('Already initialized'); lakesideBoardKitFromFlag(); if (this.deferPresentation) this.presented = false; this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
+    if (this.managed || this.root) throw Error('Already initialized'); lakesideBoardKitFromFlag(); coastBoardKitFromFlag(); if (this.deferPresentation) this.presented = false; this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
   }
   managedViewVersion() { return 'mobile-managed-v2-board-ui'; }
   diagnostics() {
@@ -410,10 +410,17 @@ export class ManagedMobileBoardUI extends Component {
     // Lakeside pipeline A: scene LK_piece_* is the visual — do not load board_art / coast sprites onto the water.
     if (this.kit.hide2D.pieces || this.kit.id === 'lakeside') { this.kitArtLoading = this.kit.id; return; }
     if (this.kitArtLoading !== this.kit.id) { this.kitArtLoading = this.kit.id; const kit = this.kit;
-      assetManager.loadBundle(kit.pieceBundle, (e, b) => { if (e || !b) { console.warn('[QF_BOARD_KIT] piece bundle ' + kit.pieceBundle + ' ' + (e && e.message)); return; }
+      assetManager.loadBundle(kit.pieceBundle, (e, b) => { if (e || !b) { if (kit.id === 'coast') { try { console.error('[QF_COAST] ' + JSON.stringify({ event: 'piece-bundle-missing', bundle: kit.pieceBundle, error: String((e && (e as Error).message) || e || 'missing') })); } catch { /* console gone */ } } else console.warn('[QF_BOARD_KIT] piece bundle ' + kit.pieceBundle + ' ' + (e && e.message)); return; }
         for (const key of kit.pieceKeys) b.load(key + '/spriteFrame', SpriteFrame, (er, f: SpriteFrame) => { if (!er && f) { this.kitArt.set(key, f); if (!this.disposing && this.snapshot) this.paint(); } }); }); }
   }
-  private kitPieceFrame(t: number): SpriteFrame | null { return this.kitArt.get(this.kit.pieceKeys[t]) || BoardArt.shared().frame(PIECE_KEYS[t]); }
+  private objectiveArt(key: string): string { return this.kit.id === 'coast' && key === 'type5' ? COAST_TYPE5_SHELL : goalArt(key); }
+  private kitPieceFrame(t: number): SpriteFrame | null {
+    const type = ((t % 6) + 6) % 6;
+    if (this.kit.id === 'coast' && type === 5) return BoardArt.shared().frame(COAST_TYPE5_SHELL);
+    const hit = this.kitArt.get(this.kit.pieceKeys[type]); if (hit) return hit;
+    if (this.kit.id === 'coast') return null;
+    return BoardArt.shared().frame(PIECE_KEYS[type]);
+  }
   private cellAt(x: number, y: number, yDown?: boolean) {
     const d = this.layoutInfo; if (!d) return -1; if (this.kitGridCache) return kitCellAt(this.kitGridCache, x, yDown ? y : d.height - y); const g = this.grid.worldPosition;
     const wy = yDown ? d.height / 2 - y : y - d.height / 2, lx = x - d.width / 2 - g.x, ly = wy - g.y;
@@ -713,7 +720,7 @@ export class ManagedMobileBoardUI extends Component {
     this.goalNodes.forEach((n, i) => {
       const p = lay.placed[i]; n.active = !!p; if (!p) return;
       const label = this.goalLabels[i], art = n.getChildByName('GoalPieceArt')!.getComponent(Sprite)!;
-      this.setFrame(art, goalArt(p.key)); this.place(art.node, p.big / 2, 0, p.big, p.big);
+      this.setFrame(art, this.objectiveArt(p.key)); this.place(art.node, p.big / 2, 0, p.big, p.big);
       label.fontSize = lay.font; label.lineHeight = Math.round(lay.font * 1.4);
       label.node.setPosition(p.big + lay.labelGap, 2 * k, 0); n.setPosition(p.x, -21, 0);
     });
@@ -799,7 +806,7 @@ export class ManagedMobileBoardUI extends Component {
   private playing() { const s = this.snapshot; return !!s?.active && !this.isResult(s) && !['book.ready', 'stage.detail'].includes(s.state); }
   private render(s: any) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
-    this.snapshot = s; { const kit = s?.provider === 'regional-r05' && s.active?.region === 'lake' ? boardKitFor('lake') : DEFAULT_KIT; if (kit !== this.kit) { this.kit = kit; if (this.geo) { this.layout(); return; } } }
+    this.snapshot = s; { const region = s?.provider === 'regional-r05' ? s.active?.region : null; const kit = region === 'lake' ? boardKitFor('lake') : region === 'coast' ? boardKitFor('coast') : DEFAULT_KIT; if (kit !== this.kit) { this.kit = kit; if (this.geo) { this.layout(); return; } } }
     if (s.visual?.kind) this.frameKinds.add(s.visual.kind); if (!this.managed) (globalThis as any).__forestLiveSnapshot = s;
     const back = this.boardWasHidden && !s.hidden;
     this.boardWasHidden = !!s.hidden;
@@ -1021,7 +1028,7 @@ export class ManagedMobileBoardUI extends Component {
     const a = s.active || {}, mainline = s.provider === 'mainline-v33', won = a.status === 'won', h = this.hostActions;
     const kind = (s.state === 'error.readonly' || s.state === 'storage.readOnly') ? 'readonly' : (s.state === 'result.unsaved' || s.state === 'run.unsaved' || s.state === 'storage.unsaved') ? 'unsaved' : won ? 'win' : 'lose';
     const stars = typeof s.result?.stars === 'number' ? s.result.stars : typeof s.result?.earnedStars === 'number' ? s.result.earnedStars : won ? 1 : 0;
-    const goalsLeft = Object.keys(a.goals || {}).filter(k => (a.goals[k] || 0) > 0).map(k => ({ art: goalArt(k), count: a.goals[k] }));
+    const goalsLeft = Object.keys(a.goals || {}).filter(k => (a.goals[k] || 0) > 0).map(k => ({ art: this.objectiveArt(k), count: a.goals[k] }));
     const chest = mainline ? s.journey?.chests?.find((x: any) => x.level === a.level) : null, rewards: ResultReward[] = [];
     if (kind === 'win' && mainline && chest?.earned) rewards.push({ id: 'chest', label: chest.opened ? '宝箱已打开' : '打开宝箱', icon: 'popup/chest_closed', iconKind: 'chest', state: chest.opened ? 'claimed' : h.chest?.visible ? 'ready' : 'locked', claim: h.chest?.run });
     if (kind === 'win' && mainline) { const region = s.journey?.regionRewards?.find((x: any) => x.region === Math.floor((a.level ?? 0) / 4)); if (region?.unlocked) { const tool = ['tideNet', 'sunSeed', 'starShears'][region.region] || 'tideNet'; rewards.push({ id: 'regionReward', label: TOOL_NAMES[tool] || (region.claimed ? '地区道具已领取' : '地区道具'), icon: '', iconKind: 'tool', tool, state: region.claimed ? 'claimed' : h.regionReward?.visible ? 'ready' : 'locked', claim: h.regionReward?.run }); } }

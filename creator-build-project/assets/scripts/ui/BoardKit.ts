@@ -87,16 +87,16 @@ export const COAST_KIT: RegionBoardKit = Object.freeze({
   hide2D: Object.freeze({ tray: true, tiles: true }),
   board: Object.freeze({ anchor: [-0.6, -0.845, 21.5] as const, yawDeg: 180, cellM: 1, topY: 0.12 /* slab top at the centre (tiles.json slab_top_y_centre_note); the projected centres use it */ }),
   camera: Object.freeze({ lookAtWorld: [-0.6, -0.845, 21.55] as const, quatWorldXYZW: [0, 0.851965, 0.523599, 0] as const, fovVerticalDeg: 50,
-    distanceByAspect: Object.freeze({ '390x844': 23.306, '414x896': 23.307, '360x780': 23.332, '375x667': 19.424, '320x568': 16.991, '390x520': 17.721, '768x1024': 18.1335 }),
-    placeholder: true, finalAspects: Object.freeze([]) as readonly string[], lookAtOffsetM: 0, source: 'tiles.json camera_per_aspect 2026-10-30 unsigned (运镜bot, recalculating for top info-board avoidance)' }),
+    distanceByAspect: Object.freeze({ '390x844': 23.306, '414x896': 23.307, '430x932': 23.342, '360x780': 23.332, '375x667': 19.424, '320x568': 16.991, '390x520': 17.721, '768x1024': 18.1335 }),
+    placeholder: true, finalAspects: Object.freeze([]) as readonly string[], lookAtOffsetM: 0, source: 'tiles.json camera_per_aspect 2026-10-30 unsigned (运镜bot, recalculating for top info-board avoidance); 430x932 added 2026-11-09 (场景设计部): 23.306 x (390/844)/(430/932) = same horizontal framing as 390x844/360x780; HUD [202.9, 786] from boardLayout + boardSafeInsets box defaults' }),
   hud: Object.freeze({ select: 'compact' /* Grok Bot 10/30 short-screen option (i); only where the compact trigger holds, else normal */, variants: Object.freeze({
     normal: Object.freeze({ source: 'BoardLayout.boardLayout + boardSafeInsets (box defaults): top = plate + hint banner bottom, bottom = tools.y − tools.hit/2', screens: Object.freeze({
-      '390x844': [200, 698] as const, '414x896': [201.7, 750] as const, '360x780': [199.1, 634] as const, '375x667': [194, 521] as const, '320x568': [194, 422] as const, '390x520': [171.7, 374] as const, '768x1024': [208.4, 878] as const }) }),
+      '390x844': [200, 698] as const, '414x896': [201.7, 750] as const, '430x932': [202.9, 786] as const, '360x780': [199.1, 634] as const, '375x667': [194, 521] as const, '320x568': [194, 422] as const, '390x520': [171.7, 374] as const, '768x1024': [208.4, 878] as const }) }),
     compact: Object.freeze({ pending: false, source: 'CompactHud.compactHudLayout limits (ui/coast-compact-hud 46649fd4 SPEC §3/§5; chosen by Grok Bot 10/30; SPEC final)', trigger: Object.freeze({ portrait: true, maxHeight: 600 }), screens: Object.freeze({
       '320x568': [131, 474] as const, '390x520': [131, 426] as const }), ruleGuidePlateBottom: 131 }),
   }) }),
   lighting: Object.freeze({ pieceFill: 0.75, anchorY: 0.18, shadowM: 0.62, shadowOpacity: 0.3, shadowColor: '#3d4a3a', tint: '#ffffff', source: 'r5d bb238126: sprites exported with the board_art method under the coast scene light (same as the slabs); fill 0.75 = REPORT coast 3D' }),
-  topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
+  topNoGo: Object.freeze({ '390x844': [0, 200] as const, '414x896': [0, 201.7] as const, '430x932': [0, 202.9] as const, '360x780': [0, 199.1] as const, '375x667': [0, 194] as const, '320x568': [0, 194] as const, '390x520': [0, 171.7] as const, '768x1024': [0, 208.4] as const }),
 });
 /** Lakeside kit — Funning fusion sample (内景棋盘: LK_wb_line + 角灯笼桩 + 木筏 + LK_piece_*). TRIAL default ON
  *  (opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false; formal tip 05ca7c50 stays OFF). NOT a coast kit / board_art answer.
@@ -130,8 +130,18 @@ export function unregisterBoardKit(region: string): void { KITS.delete(region); 
 /** Kit for a board chapter / region id ('' = mainline island). Unknown or unconverted regions get DEFAULT_KIT. */
 export function boardKitFor(region: string | null | undefined): RegionBoardKit { return (region && KITS.get(region)) || DEFAULT_KIT; }
 export function kitPieceKey(kit: RegionBoardKit, type: number): string { return kit.pieceKeys[type]; }
-/** Same contract as ManagedMobileBoardUI.goalArt: type0..5 → piece art, otherwise the goal table (kit override first). */
+/** COAST01 collects engine type 5. Shipped default art for that type is the shell (`board/piece_shell`).
+ *  The coast kit's historical slot 5 is `board/piece_badge`; that slot is not the objective. Slots 0..4 stay as authored. */
+export const COAST_TYPE5_SHELL = 'board/piece_shell';
+export function coastObjectiveKey(type: number): string {
+  const t = ((Number(type) % 6) + 6) % 6;
+  if (t === 5) return COAST_TYPE5_SHELL;
+  return COAST_KIT.pieceKeys[t];
+}
+/** Same contract as ManagedMobileBoardUI.goalArt: type0..5 → piece art, otherwise the goal table (kit override first).
+ *  Coast type 5 uses the shell objective, not pieceKeys[5]. */
 export function kitGoalArt(kit: RegionBoardKit, key: string, base: Readonly<Record<string, string>>): string {
+  if (kit.id === 'coast' && key === 'type5') return COAST_TYPE5_SHELL;
   return /^type[0-5]$/.test(key) ? kit.pieceKeys[Number(key.slice(4))] : (kit.goalArt && kit.goalArt[key]) || base[key] || 'board/piece_flower';
 }
 /** Screen grid the board is drawn and hit-tested on (top-left pt, y down). */
@@ -145,7 +155,9 @@ export function setProjectGridHook(f: typeof projectGridHook): void { projectGri
 export function kitGrid(kit: RegionBoardKit, layout: BoardLayout): KitGrid {
   if (kit.board) {
     const b = kit.camera ? projectGridHook && projectGridHook(kit, layout.width, layout.height) : null;
-    if (b) return b; kitFallback((kit.camera ? 'projection-invalid:' : 'no-camera:') + kit.id);
+    if (b) return b;
+    if (kit.id === 'coast') { try { console.error('[QF_COAST] ' + JSON.stringify({ event: 'projection-invalid', id: kit.id })); } catch { /* console gone */ } }
+    kitFallback((kit.camera ? 'projection-invalid:' : 'no-camera:') + kit.id);
   }
   const centers: { x: number; y: number }[] = []; for (let i = 0; i < 49; i++) centers.push(cellCenter(layout, i));
   return { centers, pitch: layout.pitch, projected: false };

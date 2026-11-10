@@ -4,12 +4,13 @@ import {registerSkyLakeContinuous} from '../region/SkyLakeRegister';
 import {LAKESIDE_L12_HOLD_MS,armSkycityWarmOnSailRide,warmMeadowLegStaged,warmSkycityLegStaged} from '../region/TransitionPreload';
 import {SKY_WARM_GAP_FAST_MS,continuousTransitions,preloadTargetForStage,recordFallback,withLegacyTransition} from '../region/TransitionChain';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
+import { createCoastBoardBackground } from '../ui/CoastBoardPieces';
 import {REGION_NODES} from '../region/RegionNodes';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view, Director, Vec3, MeshRenderer, geometry } from 'cc';
 import { DEBUG, MINIGAME } from 'cc/env';
-import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
+import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene, requiresCoastScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint, seedLakeCheckpoint } from './RegionFlowTest';
 import { QA_SKIP_CHECKPOINT, qaSkipTarget, qaQuery, type QaSkipTarget } from './QaSkip';
@@ -102,7 +103,7 @@ export class WorldNativeComposition extends Component {
     const fixture:any=this.smokeFixture.json;
     this.selection={provider:'r4',stageId:fixture.stageId,seed:fixture.seed};
     const composition=this;
-    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:context=>requiresMeadowScene(context.selection)?meadowBoardWithGuest(context):requiresLakesideScene(context.selection)?createLakesideBoardBackground(context):requiresSkycityScene(context.selection)?skycityBoardWithGuest(context):createIslandBoardBackground(context),get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
+    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:context=>requiresCoastScene(context.selection)?createCoastBoardBackground(context):requiresMeadowScene(context.selection)?meadowBoardWithGuest(context):requiresLakesideScene(context.selection)?createLakesideBoardBackground(context):requiresSkycityScene(context.selection)?skycityBoardWithGuest(context):createIslandBoardBackground(context),get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
       select:id=>{if(!this.selection||id!==this.selection.stageId)throw Error('Select provider/stage explicitly first');return {...this.selection};},
       navigation:{exit:()=>world.commands().exitLevel(),resume:()=>world.commands().snapshot().needsResume?world.commands().resume():undefined},
     });
@@ -225,6 +226,8 @@ export class WorldNativeComposition extends Component {
   }
   /** One read-only target resolver shared by the journal gate and actual entry. */
   private regionSelection(region:string):any{
+    // COAST01 is outside `catalog` so the island journey denominator stays 18. enterRegion('coast') still resolves that one stage.
+    if(region==='coast'){const stage=(RegionalAPI as any).getStage('r06-coast-01');if(!stage||stage.region!=='coast')return {ok:false,reason:'unknown-region'};return {ok:true,selection:{provider:'r5',stageId:stage.id,seed:stage.seedBank[0]}};}
     const first=(RegionalAPI as any).catalog.find((s:any)=>s.region===region&&s.ordinal===1);if(!first)return {ok:false,reason:'unknown-region'};
     let stage=first,seed=first.seedBank[0];
     try{const raw=this.persistence.platform.load('forest-regional-r05-active'),r=raw?JSON.parse(raw as string):null;if(r&&!r.discarded){const run=(RegionalAPI as any).restore(r.checkpoint);if(run.stage.region===region){stage=run.stage;seed=run.seed;if(run.engine.status==='won'){const next=(RegionalAPI as any).catalog.find((x:any)=>x.region===region&&x.ordinal===run.stage.ordinal+1);if(next&&(CampaignHost as any).inspectSelection(this.persistence,{stageId:next.id,seed:next.seedBank[0]}).ok){stage=next;seed=next.seedBank[0];}}}}}catch{return {ok:false,reason:'preserved-active-error'};}

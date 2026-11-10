@@ -187,6 +187,34 @@
         "importer": "typescript"
       },
       "why": "b20 lakeside LAKESIDE_KIT base tip ships CoastBoardPieces.ts.meta alongside BoardKit (feature 51b6e4ed → integrate; coast kit stays unregistered). Grok Bot assigned lakeside fusion trial tip."
+    },
+    "creator-build-project/assets/bundles/region_coast/models/coast_board.glb.meta": {
+      "uuid": "d5862b08-94c4-465d-b2d3-414c81fcb119",
+      "allow": [
+        {
+          "op": "replace",
+          "path": "/subMetas/88c25/userData/triangleCount",
+          "from": 672,
+          "to": 8236
+        }
+      ]
+    },
+    "creator-build-project/assets/bundles/region_coast/models/coast_props.glb.meta": {
+      "uuid": "d522a302-f334-4943-b008-a31bacc65fc9",
+      "allow": [
+        {
+          "op": "replace",
+          "path": "/subMetas/fee56/userData/triangleCount",
+          "from": 114,
+          "to": 242
+        },
+        {
+          "op": "replace",
+          "path": "/subMetas/4119b/userData/triangleCount",
+          "from": 54,
+          "to": 274
+        }
+      ]
     }
   },
   "watchRefs": [

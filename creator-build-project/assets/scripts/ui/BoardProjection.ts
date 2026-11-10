@@ -102,14 +102,26 @@ export function projectedGrid(kit: RegionBoardKit, w: number, h: number): KitGri
   return { centers: b.centers, quads: b.quads, pitch: ws[24], projected: true };
 }
 setProjectGridHook(projectedGrid); setProjectedHitHook((g, x, y) => projectedCellAt(g, x, y));
-/** Coast config switch. OFF by default (Grok Bot 10/30: until P1 is accepted). On = COAST_KIT registered for region 'coast'
- *  (boardKitFor('coast') → projected grid + in-scene pieces); off = unregistered (DEFAULT_KIT everywhere). Test mode: call
- *  coastBoardKitFromFlag() with globalThis.__qfCoastBoardKit === true or a '?qfcoastkit=1' page URL (web-test capture only). */
+/** Coast visual kit. Default ON. This does not register coast levels (see regional-r05 index.js coastPlayable).
+ *  Explicit off: globalThis.__qfCoastBoardKit === false or '?qfcoastkit=0'. Force on: true or '?qfcoastkit=1' (query wins). */
 export function setCoastBoardKit(on: boolean): void { if (on) registerBoardKit('coast', COAST_KIT); else unregisterBoardKit('coast'); }
 export function coastBoardKitFromFlag(): boolean {
-  const g = globalThis as any; let on = g.__qfCoastBoardKit === true;
-  try { if (!on && g.location && typeof g.location.search === 'string') on = /[?&]qfcoastkit=1(&|$)/.test(g.location.search); } catch { /* no location */ }
+  const g = globalThis as any; let on = true;
+  if (g.__qfCoastBoardKit === false) on = false;
+  else if (g.__qfCoastBoardKit === true) on = true;
+  try {
+    if (g.location && typeof g.location.search === 'string') {
+      const s = g.location.search;
+      if (/[?&]qfcoastkit=0(&|$)/.test(s)) on = false;
+      else if (/[?&]qfcoastkit=1(&|$)/.test(s)) on = true;
+    }
+  } catch { /* no location */ }
   setCoastBoardKit(on); return on;
+}
+/** World Y of the playing surface: layout placement anchor Y plus slab topY. Not a measured mesh on this branch. */
+export function coastBoardSurfaceY(kit: RegionBoardKit = COAST_KIT): number {
+  const b = kit.board; if (!b) throw Error('coast board: no world surface');
+  return b.anchor[1] + b.topY;
 }
 
 /** Lakeside board-kit pose (read-only): lakesideAlignedBoardPose for the BoardLayout frame of this screen. Never writes the camera. */
