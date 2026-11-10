@@ -1,0 +1,1 @@
+{"status":"PASS","checks":79,"night":{"groundAlbedo":0.14,"underside":0.6,"engineLitGround":0.045,"cloudsea":0.4,"keyLitCity":0.27,"selfLitClouds":0.27,"warmAccents":1.35,"meadowRef":0.197}}

@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-22T01:10:24.758Z",
-  "sourceRoot": "/workspace/yiqifengle/work/cine-r5-b15-handover",
+  "timeUTC": "2026-10-23T13:57:09.525Z",
+  "sourceRoot": "/workspace/wt-b17r13-lko2",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
     {

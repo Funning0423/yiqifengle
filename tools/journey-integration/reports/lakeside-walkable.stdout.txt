@@ -1,0 +1,1 @@
+region-walkable ok cells {"island":3642,"meadow":23987,"skycity":24093,"lakeside":11183}
