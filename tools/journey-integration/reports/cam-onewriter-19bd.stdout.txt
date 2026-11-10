@@ -1,0 +1,1 @@
+{"test":"cam-onewriter-19bd","status":"PASS","results":[{"id":"finstart","frames":12,"multiBefore":12,"multiAfter":0,"status":"PASS"},{"id":"m","frames":7,"multiBefore":7,"multiAfter":0,"status":"PASS"},{"id":"real-conflict-not-masked","status":"PASS"},{"id":"next-frame-writes","status":"PASS"}]}

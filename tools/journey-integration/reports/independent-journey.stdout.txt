@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-30T01:34:42.733Z",
+  "timeUTC": "2026-10-30T01:35:14.071Z",
   "sourceRoot": "/workspace/wt-onewriter",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
