@@ -124,6 +124,11 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   rockFillLinear: [0.079, 0.079, 0.079] as const, cloudFillLinear: [0.33, 0.24, 0.218] as const,
   /** r5 day (stand-in fit vs engine-cam r5h3, per palette swatch with LAKESIDE_FILL_PART_WEIGHT.day): plant = green-leaning, prop = warm neutral. */
   plantFillLinear: [0.03, 0.09, 0.04] as const, propFillLinear: [0.06, 0.045, 0.035] as const,
+  /** scene/lakeside-board-fusion (L2, Funning accept PNG 20261105: crisp cool-white glowing grid on the water): the 16 LK_wb_line
+   *  quads get their own fill class - a cool-white emissive lift on the palette swatch 8ff6ff (weight 1) so the grid reads over the
+   *  bright day water and glows softly at night. Proxy values (box), the Mac day/night same-camera shots decide. */
+  lineFillGlbs: ['LK_wb_line.glb'] as const,
+  lineFillLinear: [0.42, 0.5, 0.52] as const,
   waterMaterialPath: 'water/lakeside-water',
   waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
@@ -181,6 +186,8 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   rockFillLinear: [0.0049, 0.0116, 0.0356] as const, cloudFillLinear: [0.0078, 0.0091, 0.0145] as const,
   /** r5 night: ~80% of the Mac r3 night luma per class (stand-in: plant 0.82, prop 0.81), cool (red lowest). */
   plantFillLinear: [0.016, 0.048, 0.052] as const, propFillLinear: [0.0015, 0.016, 0.026] as const,
+  /** L2 night: the grid keeps a soft cool glow (~0.6 of day, bluer) so the board stays readable in the dark. */
+  lineFillLinear: [0.2, 0.3, 0.36] as const,
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
@@ -194,6 +201,8 @@ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[];
   foliageFillLinear: readonly number[]; wallFillLinear: readonly number[]; rockFillLinear: readonly number[]; cloudFillLinear: readonly number[];
   /** r5 per-part fill: plants and small props (see LAKESIDE_DIR_LIGHT_PARAMS.plantFillGlbs / propFillGlbs). */
   plantFillLinear: readonly number[]; propFillLinear: readonly number[];
+  /** L2 board grid lines (LK_wb_line) fill. */
+  lineFillLinear: readonly number[];
   /** r4 (VB): the colour of the visible SKY DOME / backdrop for this mode, sRGB hex = the board camera clear colour (day lakesideDayClearColor(),
    *  night LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor; day 28/143/184, night #1c2740 = 28/39/64). Read by
    *  lakesideSkyDomeColor(mode) (journey sky sphere target). NOT waterSkyZenith/Low/HorizonLinear: those are the
@@ -208,11 +217,11 @@ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighti
     waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
     landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear,
     foliageFillLinear: P.foliageFillLinear, wallFillLinear: P.wallFillLinear, rockFillLinear: P.rockFillLinear, cloudFillLinear: P.cloudFillLinear,
-    plantFillLinear: P.plantFillLinear, propFillLinear: P.propFillLinear, skyDomeColor: lakesideDayClearColor() };
+    plantFillLinear: P.plantFillLinear, propFillLinear: P.propFillLinear, lineFillLinear: P.lineFillLinear, skyDomeColor: lakesideDayClearColor() };
 }
 /** night mode lighting = the night params + the derived sky dome colour (same value as the night clear colour, no second literal). */
 const LAKESIDE_NIGHT_MODE_LIGHTING: LakesideModeLighting = Object.freeze(Object.assign({}, LAKESIDE_NIGHT_LIGHT_PARAMS, { skyDomeColor: LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor }));
-export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud' | 'plant' | 'prop';
+export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud' | 'plant' | 'prop' | 'line';
 /** r4 land fill: which landform class a GLB is (null = not land: never filled). */
 export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
@@ -224,6 +233,7 @@ export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null
   if ((P.cloudFillGlbs as readonly string[]).includes(glb)) return 'cloud';
   if ((P.plantFillGlbs as readonly string[]).includes(glb)) return 'plant';
   if ((P.propFillGlbs as readonly string[]).includes(glb)) return 'prop';
+  if ((P.lineFillGlbs as readonly string[]).includes(glb)) return 'line';
   return null;
 }
 /** The fill (emissiveScale, linear) of a class in a mode - the only class -> value map (board and journey writers read it). */
@@ -231,7 +241,7 @@ export function lakesideFillLinear(mode: LakesideDayNight, cls: LakesideLandFill
   const M = lakesideModeLighting(mode);
   return cls === 'near' ? M.landFillNearLinear : cls === 'far' ? M.landFillFarLinear : cls === 'foliage' ? M.foliageFillLinear
     : cls === 'wall' ? M.wallFillLinear : cls === 'rock' ? M.rockFillLinear : cls === 'plant' ? M.plantFillLinear : cls === 'prop' ? M.propFillLinear
-    : M.cloudFillLinear;
+    : cls === 'line' ? M.lineFillLinear : M.cloudFillLinear;
 }
 /** r5 per-part fill (VB). Every lakeside GLB is ONE palette material (T_LK_palette_256: 16x16 cells of 16 px, nearest, UV into a cell), so
  *  the "parts" of a model (roof, wall, door trim, trunk, crown, cliff...) are its palette swatches. The fill copy samples a 16x16 mask
