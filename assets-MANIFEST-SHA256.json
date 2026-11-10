@@ -1056,8 +1056,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_mossgarden/models/env_mossgarden.glb",
-    "bytes": 174832,
-    "sha256": "4b76f2b72c44b6ce0bb21ad5364e65996d17d5ac07309d896a669be7efd9e38d"
+    "bytes": 227760,
+    "sha256": "a6f21ddb90b40d0a372add74a0b030a6abaab54308705d42523643719d7352d0"
   },
   {
     "path": "creator-build-project/assets/bundles/region_oasis/models/env_oasis.glb",
