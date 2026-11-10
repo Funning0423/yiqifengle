@@ -103,6 +103,42 @@
       },
       "why": "region/rail-wireup: region_rail board lease, platform camera only"
     },
+    "creator-build-project/assets/bundles/region_cloudsea.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/cloudsea-wireup: dawn cloud sea subpackage (wx_subpackage, same shape as region_rail)"
+    },
+    "creator-build-project/assets/bundles/region_cloudsea/models.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/cloudsea-wireup: env_cloudsea.glb folder"
+    },
+    "creator-build-project/assets/bundles/region_cloudsea/models/env_cloudsea.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "region/cloudsea-wireup: procedural dawn cloud-sea blockout; Creator fills sub-assets on import"
+    },
+    "creator-build-project/assets/scripts/regional-r05/runtime/cloud-levels-data.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/cloudsea-wireup: cloud stage data (r08-cloud-01..06) joined beside rail-levels-data.js"
+    },
+    "creator-build-project/assets/scripts/region/CloudseaSceneData.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/cloudsea-wireup: terrace board seat (pure numbers, no engine)"
+    },
+    "creator-build-project/assets/scripts/region/CloudseaBoardBackground.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/cloudsea-wireup: region_cloudsea board lease, terrace camera only"
+    },
     "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {
       "allowAdd": {
         "importer": "typescript"

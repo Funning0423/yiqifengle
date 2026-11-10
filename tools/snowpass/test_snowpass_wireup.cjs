@@ -21,7 +21,7 @@ t('six snow stages are playable data, off the shipped catalog, ids r06-snow-01..
   assert.deepEqual(Snow.map(s=>s.ordinal),[1,2,3,4,5,6]);
   assert.equal(API.catalog.some(s=>s.region==='snow'),false);
   assert.equal(API.allStages.filter(s=>s.region==='snow').length,6);
-  assert.equal(API.catalog.length,API.allStages.filter(s=>s.region!=='snow'&&s.region!=='rail').length);
+  assert.equal(API.catalog.length,API.allStages.filter(s=>s.region!=='snow'&&s.region!=='rail'&&s.region!=='cloud').length);
   for(const s of Snow){
     assert.equal(s.region,'snow');assert(s.rules.chimes&&s.rules.chimes.length);assert.equal(s.tool,null);
     assert(!s.rules.phaseCycle&&!s.rules.windCycle&&!s.rules.beaconRoute);
@@ -85,7 +85,7 @@ t('wiring: RegionLoader, scene route, journey enter, return without the balloon 
   const boot=fs.readFileSync(path.join(A,'scripts/WorldIntegrationBoot.ts'),'utf8');
   assert(/r06-snow-\\d\+/.test(comp)&&/createSnowpassBoardBackground\(context\)/.test(comp));
   assert(/requiresLakesideScene\(context\.selection\)\?createLakesideBoardBackground\(context\)/.test(comp));
-  assert(/const onShelf=\/\^r06-snow-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r07-rail-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)/.test(comp));
+  assert(/const onShelf=\/\^r06-snow-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r07-rail-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r08-cloud-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)/.test(comp));
   assert(/if\(!onShelf\)\{const arrived=await this\.ensureRegion\(region\)/.test(comp));
   assert(/allStages\|\|\(RegionalAPI as any\)\.catalog/.test(comp));
   assert(/this\.button\('snow','雪山山口',\(\)=>this\.composition\.enterRegion\('snow'\)\)/.test(boot));

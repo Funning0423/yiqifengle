@@ -515,6 +515,11 @@
     "sha256": "308a3218749e655609def03591fe9f3251ce3198f9f8f58400fcc720a74ad949"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_cloudsea/models/env_cloudsea.glb",
+    "bytes": 41988,
+    "sha256": "45bba513fb053cea4f7084380c75f32951389ba4b5fc7b999e7ddfc0863468e8"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3",
     "bytes": 140660,
     "sha256": "ca6c9fa509a0a5b019838fdaca2a2049d11310b7c9d506ef1b4f05deccea4269"

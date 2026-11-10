@@ -22,6 +22,11 @@ export function requiresRailScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r07-rail-\d+$/.test(id);
 }
 
+/** 黎明云海 (r08-cloud-*) renders the live region_cloudsea scene. The board sits on the cloud terrace. */
+export function requiresCloudseaScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r08-cloud-\d+$/.test(id);
+}
+
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }
