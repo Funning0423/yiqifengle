@@ -5,5 +5,15 @@ PASS P1 hit area min 88 logical px (>= 44pt); per-viewport inset checks live in 
 PASS P2 sky-city key light: day unchanged, night = world lightScale 0.35 and moon colour 180/198/232, monotonic blend
 PASS P2 L13 rule guide: body left-aligned in a 480 box (100 each side inside the 680 frame), lines estimated per paragraph at 472
 PASS L13 rule guide clears the HUD plate (+12 pt, title plank included) and the bottom safe area on 320×568 / 375×667 / 390×844, 1–9 lines
+PASS runtime ① mainline debounce: one accepted tap locks 1.2 s; off the island (level loading / board / transit) the lock keeps renewing; busy blocks
+PASS runtime ② sky-city night: ambient x0.3 and main light x0.6 with the key light, one shared 0.6 s fade (no one-frame jump), restored on hide/dispose
+PASS runtime ③ island fallback 继续旅程 uses the 主页 WarmButton look (no journey primary leaf skin); region rows keep the journey skin
+PASS runtime ④ signpost: >= 12 pt (+10 pt measured art slack) from the right edge, hit rect on screen (12 pt right inset) and >= 44 pt on 7 portrait sizes
+PASS runtime ⑤ L13 rule guide: title plank >= 12 pt below the plate art (+7 pt overhang) on 320×568 / 375×667; kinsoku: no line starts with a closing mark
 PASS r6 lakeside previews pass measure_visible.py gates (day L13/L16, night L13/L16; exit 0)
-8 checks passed
+PASS 复核2 ④ sign mode: hit root right edge >= 22 pt, >= 44 pt, children laid out from the root size and never outside it (7 sizes)
+PASS 复核2 ② sky-city night board entry: clear colour + key/ambient/main lights share one 0.6 s fade from the show frame; no 100 ms window takes > 30% of the drop
+PASS 复核3 ② on-board day/night toggle: smoothstep over 0.6 s by real dt, any 100 ms <= 30% of the drop, ends exactly on the night target; ticked every frame by the director
+PASS 复核3 ④ sign tap root: WarmButtonFace follows configure() (was fixed at 240) and no child is wider than the root; root on screen, >= 44 pt, right >= 22 pt on 7 sizes
+PASS 复核4 ② world steps blended on the board: Cloudsea skips the board camera; main light/colour/ambient interpolate prev→world by the board smoothstep
+18 checks passed

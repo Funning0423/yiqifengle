@@ -1,0 +1,34 @@
+{
+ "status": "PASS",
+ "budgetS": 11.8,
+ "preWalk": {
+  "M6 (M4→M6 reward walk, live-start)": null,
+  "A6 end = sail M1 (chained island→skycity, no meadow level)": {
+   "from": "M1",
+   "m": 43.45,
+   "s": 36.21
+  }
+ },
+ "b1": {
+  "M6 (M4→M6 reward walk, live-start)": {
+   "start": [
+    0.2,
+    6.505,
+    -25.6
+   ],
+   "walkM": 5.24,
+   "walkS": 5.82,
+   "b1S": 11.42
+  },
+  "A6 end = sail M1 (chained island→skycity, no meadow level)": {
+   "start": [
+    0.2,
+    6.505,
+    -25.6
+   ],
+   "walkM": 5.24,
+   "walkS": 5.82,
+   "b1S": 11.42
+  }
+ }
+}

@@ -6,8 +6,8 @@
    "snapped": true,
    "her": [
     5.4,
-    -0.11,
-    43.8
+    -0.07,
+    40.6
    ],
    "earlyWriters": [
     "orbit+entry"
@@ -24,7 +24,7 @@
    "ok": true
   },
   "K3": {
-   "proxies": 3077,
+   "proxies": 2717,
    "o0": {
     "rawLocal": [
      17.83,
@@ -33,9 +33,9 @@
     ],
     "rawInsideProxies": 0,
     "lens": [
-     12.74,
+     13.51,
      4.57,
-     16.16
+     16.17
     ],
     "insideProxies": 0,
     "segmentCrosses": 0,
@@ -50,14 +50,14 @@
     ],
     "rawInsideProxies": 0,
     "lens": [
-     12.78,
-     6.36,
-     2.17
+     13.53,
+     5.61,
+     1.79
     ],
     "insideProxies": 0,
     "segmentCrosses": 0,
     "armM": 8.04,
-    "elevDeg": 29.4
+    "elevDeg": 23.4
    },
    "o5": {
     "rawLocal": [
@@ -65,11 +65,11 @@
      4.66,
      8.58
     ],
-    "rawInsideProxies": 1,
+    "rawInsideProxies": 0,
     "lens": [
-     12.64,
+     13.44,
      4.66,
-     2.01
+     1.99
     ],
     "insideProxies": 0,
     "segmentCrosses": 0,
