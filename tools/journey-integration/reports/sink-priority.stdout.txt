@@ -1,0 +1,2 @@
+[QF_CAM] enabled=0 src=none query=-
+PASS sink-priority dropped=416 gpu=30/30 sync=10/10

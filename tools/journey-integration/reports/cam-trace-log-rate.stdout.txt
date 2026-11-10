@@ -1,0 +1,4 @@
+[QF_CAM] enabled=1 src=global query=-
+[QF_CAM] enabled=1 src=global query=-
+[QF_CAM] enabled=1 src=global query=-
+PASS cam-trace-log-rate 20s@60fps: consoleCalls=81 bytes=247011 flushes=21 dropped=925 (pre-r2 ≈ 3600 calls) self-tests=6

@@ -1,0 +1,3 @@
+checkpoint12 reads=245 writes=238 distinct=7 budget=245
+pre-fix reads=6998
+PASS region-flow-checkpoint-reads
