@@ -54,15 +54,37 @@ var coastPlayable=freeze([
     balanceNote:'random N=200 = 0.605 dip after 0.665; moves 23'
   }),
   freeze({
-    id:'r06-coast-05',region:'coast',ordinal:5,name:'潮池星灯',contentRevision:'m2-2026-11-09',intendedBand:'return-lamps',
-    designIntent:'循着折返灯路，点亮潮池四角。',
-    config:{moves:24,goals:{beacons:3,moss:3,specials:1,type3:6},moss:[16,17,18],roots:[],beacons:[16,17,18],starters:[{index:9,special:'column'}]},
-    rules:{},tool:null,seedBank:[1,3,2],chapterName:'海岸漫游',
+    id:'r06-coast-05',region:'coast',ordinal:5,name:'潮池星灯',contentRevision:'m3-2026-11-09',intendedBand:'return-lamps',
+    designIntent:'循着折返灯路，点亮潮池灯角。',
+    config:{moves:24,goals:{beacons:3,moss:3,specials:1,type3:6},moss:[16,17,23],roots:[],beacons:[16,17,23],starters:[{index:9,special:'column'}]},
+    rules:{},tool:null,seedBank:[3],chapterName:'海岸漫游',
     note:'你留下的微光，比想象中亮。',
     failHint:'亮框内消除才点灯；苔藓叠在灯格上，清灯也清苔。',
-    designRowSource:'COAST01-09-rows.json COAST05 adapted: 4 corner lamps -> 3 lamps on row2 [16,17,18] (!=COAST02 [23,24,25]); moss colocated with lamps; keep specials+type3; starter column',
-    sequenceNote:'beacons+moss+specials after roots; moss-on-beacons distinct from COAST02/03',
-    balanceNote:'random N=200 = 0.830 rise after 0.605'
+    designPropsSource:'COAST05 adapted: L-tromino lamps [16,17,23] (D4+translate != COAST02 row); moss colocated; specials+type3; column@9; one seed',
+    sequenceNote:'beacons+moss+specials after roots',
+    balanceNote:'m3 layout-unique translate fix; random N=200 target ~0.78'
+  }),
+  freeze({
+    id:'r06-coast-06',region:'coast',ordinal:6,name:'一起看晚霞',contentRevision:'m3b-2026-11-09',intendedBand:'roots-lines-cross',
+    designIntent:'解开岸心根结，用直线奇果切开通道。',
+    config:{moves:18,goals:{roots:5,lines:1,type5:6},moss:[],roots:[{index:10,layers:1},{index:22,layers:1},{index:24,layers:1},{index:26,layers:1},{index:38,layers:1}],beacons:[],starters:[{index:14,special:'row'},{index:34,special:'column'}]},
+    rules:{},tool:null,seedBank:[11],chapterName:'海岸漫游',
+    note:'晚霞落下来的时候，岸边会安静一点。',
+    failHint:'根须旁消除有效；横/竖奇果计入直线目标。',
+    designPropsSource:'COAST06 redesign (m3b): drop beacons+moss; plus-cross roots [10,22,24,26,38] L1 + lines1 + type5; dual row/column starters; moves18; one seed',
+    sequenceNote:'roots+lines between return-lamps and fog-echo (no beacons/moss)',
+    balanceNote:'random N=200 target ~0.67 dip between 0.815 and 0.74; moves18'
+  }),
+  freeze({
+    id:'r06-coast-07',region:'coast',ordinal:7,name:'雾中的回声',contentRevision:'m3-2026-11-09',intendedBand:'fog-echo',
+    designIntent:'让开局的直线奇果，带你接亮雾里的灯。',
+    config:{moves:24,goals:{beacons:2,moss:2,type5:6},moss:[21,22,23,24,25,26,27],roots:[],beacons:[21,24],starters:[{index:9,special:'column'},{index:3,special:'row'}]},
+    rules:{},tool:null,seedBank:[7],chapterName:'灯塔夜航',
+    note:'雾里应一声，岸上就有人听见。',
+    failHint:'先点亮当前灯；雾带苔藓清两格即可。',
+    designPropsSource:'COAST07 adapted: keep fog moss band [21-27]; beacons 3->2 ([21,24]); goals trimmed; moves 28->24; column+row; one seed',
+    sequenceNote:'beacons+moss fog band after sunset-cross',
+    balanceNote:'random N=200 target ~0.79 rise'
   })
 ]);
 

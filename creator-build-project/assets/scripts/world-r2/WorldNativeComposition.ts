@@ -226,8 +226,14 @@ export class WorldNativeComposition extends Component {
   }
   /** One read-only target resolver shared by the journal gate and actual entry. */
   private regionSelection(region:string):any{
-    // COAST01 is outside `catalog` so the island journey denominator stays 18. enterRegion('coast') still resolves that one stage.
-    if(region==='coast'){const stage=(RegionalAPI as any).getStage('r06-coast-01');if(!stage||stage.region!=='coast')return {ok:false,reason:'unknown-region'};return {ok:true,selection:{provider:'r5',stageId:stage.id,seed:stage.seedBank[0]}};}
+    // Coast rows live in coastPlayable (outside `catalog`, so the island journey denominator stays 18). enterRegion('coast') resolves
+    // generically by ordinal: an unfinished coast attempt resumes; otherwise the first registered coast row without a verified record
+    // (the journal gate admits ordinal n after n-1); all cleared → the last row (replay). No stage id is hard-coded here.
+    if(region==='coast'){const rows=((RegionalAPI as any).coastPlayable||[]).filter((s:any)=>s&&s.region==='coast').slice().sort((a:any,b:any)=>a.ordinal-b.ordinal);if(!rows.length)return {ok:false,reason:'unknown-region'};
+      let records:any={};try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;records=d?.records||{};}catch{records={};}
+      let stage=rows.find((s:any)=>!records[s.id])||rows[rows.length-1],seed=stage.seedBank[0];
+      try{const raw=this.persistence.platform.load('forest-regional-r05-active'),r=raw?JSON.parse(raw as string):null;if(r&&!r.discarded){const run=(RegionalAPI as any).restore(r.checkpoint);if(run.stage.region==='coast'&&run.engine.status==='playing'){stage=run.stage;seed=run.seed;}}}catch{return {ok:false,reason:'preserved-active-error'};}
+      return {ok:true,selection:{provider:'r5',stageId:stage.id,seed}};}
     const first=(RegionalAPI as any).catalog.find((s:any)=>s.region===region&&s.ordinal===1);if(!first)return {ok:false,reason:'unknown-region'};
     let stage=first,seed=first.seedBank[0];
     try{const raw=this.persistence.platform.load('forest-regional-r05-active'),r=raw?JSON.parse(raw as string):null;if(r&&!r.discarded){const run=(RegionalAPI as any).restore(r.checkpoint);if(run.stage.region===region){stage=run.stage;seed=run.seed;if(run.engine.status==='won'){const next=(RegionalAPI as any).catalog.find((x:any)=>x.region===region&&x.ordinal===run.stage.ordinal+1);if(next&&(CampaignHost as any).inspectSelection(this.persistence,{stageId:next.id,seed:next.seedBank[0]}).ok){stage=next;seed=next.seedBank[0];}}}}}catch{return {ok:false,reason:'preserved-active-error'};}

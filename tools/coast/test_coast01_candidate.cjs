@@ -33,7 +33,7 @@ const catalog = require(path.join(R, 'catalog-data.js'));
 assert.equal(API.catalog.filter((s) => s.region === 'coast').length, 0, 'shipped catalog has no coast rows');
 assert.equal(API.catalog.filter((s) => s.region === 'lake').length, 6, 'lake catalog unchanged');
 assert.deepEqual(API.coastPlayable.map((s) => s.id).slice(0, 1), ['r06-coast-01']);
-assert.ok(API.coastPlayable.length >= 5, 'M2 registers COAST04/05');
+assert.ok(API.coastPlayable.length >= 7, 'M3 registers COAST06/07');
 assert.equal(API.coastPlayable[0].config.moves, 19);
 assert.deepEqual(API.coastPlayable[0].seedBank, [22, 9, 13]);
 assert.equal(API.getStage('r06-coast-01').name, '寄给海风');
@@ -41,7 +41,9 @@ assert.ok(API.getStage('r06-coast-02'));
 assert.ok(API.getStage('r06-coast-03'));
 assert.ok(API.getStage('r06-coast-04'));
 assert.ok(API.getStage('r06-coast-05'));
-for (let n = 6; n <= 9; n++) assert.equal(API.getStage('r06-coast-0' + n), null, 'coast-0' + n + ' not live');
+assert.ok(API.getStage('r06-coast-06'));
+assert.ok(API.getStage('r06-coast-07'));
+for (let n = 8; n <= 9; n++) assert.equal(API.getStage('r06-coast-0' + n), null, 'coast-0' + n + ' not live');
 assert.equal(API.getStage('restaurant'), null);
 
 const tide = catalog.find((s) => s.id === 'r05-tide-01');
@@ -275,7 +277,8 @@ function freshBoard(on, region) {
     assert.equal(body.includes('coast-kit-projected'), false);
     const wnc = fs.readFileSync(path.join(SCRIPTS, 'world-r2/WorldNativeComposition.ts'), 'utf8');
     assert.ok(wnc.indexOf('requiresCoastScene(context.selection)?createCoastBoardBackground') < wnc.indexOf('requiresMeadowScene(context.selection)?meadowBoardWithGuest'), 'coast background is chosen before the island/meadow fallback');
-    assert.ok(wnc.includes("getStage('r06-coast-01')"), 'enterRegion(coast) resolves COAST01 without adding it to catalog');
+    const coastSel = wnc.slice(wnc.indexOf("if(region==='coast')"), wnc.indexOf("const first=(RegionalAPI as any).catalog.find"));
+    assert.ok(coastSel.includes('coastPlayable') && coastSel.includes('ordinal') && !coastSel.includes("'r06-coast-0"), 'enterRegion(coast) resolves the next coast row by ordinal from coastPlayable (no hard-coded id), outside catalog');
     const sel = wnc.slice(wnc.indexOf('private selectionRegion'), wnc.indexOf('private async ensureRegion'));
     assert.ok(!sel.includes("'coast'"), 'selectionRegion has no coast arm; r06-coast-01 stays island');
     const keys = H.load('world-r2/PreTransitionKeys');
@@ -304,6 +307,8 @@ function freshBoard(on, region) {
     const strippedKeys = fs.readFileSync(path.join(destScripts, 'PreTransitionKeys.ts'), 'utf8');
     const strippedRun = fs.readFileSync(path.join(destScripts, 'PreTransitionRun.ts'), 'utf8');
     assert.equal(strippedKeys.includes('coast-dev'), false);
+    assert.equal(strippedKeys.includes('coast-next'), false);
+    assert.equal(strippedRun.includes('coast-next'), false);
     assert.equal(strippedRun.includes('coast-dev'), false);
     assert.equal(strippedRun.includes("enterRegion('coast')"), false);
     assert.equal(strippedRun.includes('dev-enter-coast01'), false);
@@ -354,7 +359,7 @@ function freshBoard(on, region) {
   console.error = orig;
   const matrix = {
     legacyFile: 'missing src/commonr2/x/fixed/shared/coastal-content.js',
-    liveStage: 'r06-coast-01..05 on coastPlayable; catalog coast count 0; r06-coast-06..09 not getStage',
+    liveStage: 'r06-coast-01..07 on coastPlayable; catalog coast count 0; r06-coast-08..09 not getStage',
     type5: 'objective and both kit states render board/piece_shell. Historical pieceKeys[5] remains board/piece_badge and is not the goal. Slots 0..4 were not reordered',
     beacon: 'one current cell per wave (engine.js beaconHit); repeat index 24 advances only when the cursor reaches that entry',
     coast09: 'draft [8,24,12,24,40] is supported by the engine and is not shipped; unique alternative [8,24,12,25,40] is not shipped',

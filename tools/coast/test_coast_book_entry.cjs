@@ -27,7 +27,7 @@ assert.equal(stage.config.goals.type5, 18);
 assert.equal(stage.legacyMoves, 26);
 assert.deepEqual(stage.seedBank, [22, 9, 13]);
 assert.equal(API.catalog.some((s) => s.id === 'r06-coast-01' || s.region === 'coast'), false);
-assert.equal(API.coastPlayable.length, 5);
+assert.equal(API.coastPlayable.length, 7);
 
 const locked = API.coastPlayerEntry({ mainlineRecords: journey(11).records, journalRecord: null });
 assert.equal(locked.ok, true);
@@ -43,7 +43,7 @@ assert.equal(locked.devKey, null);
 assert.equal(locked.seed, 22);
 assert.equal(locked.moves, 19);
 assert.equal(locked.goalType5, 18);
-assert.equal(locked.registeredStages, 5);
+assert.equal(locked.registeredStages, 7);
 assert.equal(locked.specChapterStages, 9);
 assert.equal(locked.includeInJourneyBar, false);
 assert.equal(locked.route, null);
@@ -85,8 +85,8 @@ const inflated = Core.regionRow('coast', { records: journey(12).records, stages:
 assert.equal(inflated.total, 1, 'display denominator follows actually listed coast rows');
 assert.equal(inflated.hasData, true);
 assert.notEqual(inflated.total, locked.registeredStages);
-const three = Core.regionRow('coast', { records: journey(12).records, stages: catalogStages.concat(API.coastPlayable.map((s) => ({ id: s.id, region: s.region }))), regionDone: { coast: 5 } });
-assert.equal(three.total, 5);
+const three = Core.regionRow('coast', { records: journey(12).records, stages: catalogStages.concat(API.coastPlayable.map((s) => ({ id: s.id, region: s.region }))), regionDone: { coast: 7 } });
+assert.equal(three.total, 7);
 assert.equal(three.state, 'progress', '通关 still needs REGION_DEFS.stages=9 even when all registered rows are cleared');
 const doneish = Core.regionRow('coast', { records: journey(12).records, stages: catalogStages.concat(API.coastPlayable.map((s) => ({ id: s.id, region: s.region }))), regionDone: { coast: 9 } });
 assert.equal(doneish.state, 'done');
