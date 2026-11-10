@@ -4,11 +4,11 @@
   {
    "id": "A1/A2 first drag",
    "region": "island",
-   "minArmM": 12.06,
-   "settledArmM": 12.06,
-   "maxLensMS": 9.6,
+   "minArmM": 11.04,
+   "settledArmM": 12,
+   "maxLensMS": 10.3,
    "orbitDist": 12,
-   "firstDragGlideS": 6.12,
+   "firstDragGlideS": 6.7,
    "ok": true
   },
   {
@@ -42,7 +42,7 @@
    "region": "skycity",
    "minArmM": 12,
    "settledArmM": 12,
-   "maxLensMS": 18,
+   "maxLensMS": 16.6,
    "orbitDist": 12,
    "firstDragGlideS": 4.88,
    "ok": true

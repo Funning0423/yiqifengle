@@ -1,0 +1,7 @@
+SKIP palms: no DRACO3D
+{
+ "status": "PASS",
+ "checks": [
+  "lib-glb load(): skinned node uses joint world · inverseBind (synthetic rig offset 10 m ignored as Creator does)"
+ ]
+}

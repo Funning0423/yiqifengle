@@ -1,0 +1,32 @@
+ok   committed TransportLeg.ts passes C3
+ok   base passes C3
+ok   SAIL_M1_LOCAL+K0 pinned passes C3
+ok   [head] other line (SAIL_K0_BLEND_S) edit FAILs C3
+ok   [head] other line trailing space FAILs C3
+ok   [head] added line above K0 FAILs C3
+ok   [head] deleted other line FAILs C3
+ok   [head] K0 back 10.5->10.6 FAILs C3
+ok   [head] K0 side -4.2->-4.3 FAILs C3
+ok   [head] K0 up 4->4.1 FAILs C3
+ok   [head] K0 fov 60->61 FAILs C3
+ok   [head] K0 look 0.5->0.6 FAILs C3
+ok   [head] K0 orb 0->1 FAILs C3
+ok   [head] SAIL_M1_LOCAL [2.2,->[2.3, FAILs C3
+ok   [head] SAIL_M1_LOCAL ,2.803,->,2.804, FAILs C3
+ok   [head] SAIL_M1_LOCAL ,6.8];->,6.9]; FAILs C3
+ok   [head] SAIL_M1_LOCAL without its pinned comment FAILs C3
+ok   [merged] other line (SAIL_K0_BLEND_S) edit FAILs C3
+ok   [merged] other line trailing space FAILs C3
+ok   [merged] added line above K0 FAILs C3
+ok   [merged] deleted other line FAILs C3
+ok   [merged] K0 back 10.5->10.6 FAILs C3
+ok   [merged] K0 side -4.2->-4.3 FAILs C3
+ok   [merged] K0 up 4->4.1 FAILs C3
+ok   [merged] K0 fov 60->61 FAILs C3
+ok   [merged] K0 look 0.5->0.6 FAILs C3
+ok   [merged] K0 orb 0->1 FAILs C3
+ok   [merged] SAIL_M1_LOCAL [2.2,->[2.3, FAILs C3
+ok   [merged] SAIL_M1_LOCAL ,2.803,->,2.804, FAILs C3
+ok   [merged] SAIL_M1_LOCAL ,6.8];->,6.9]; FAILs C3
+ok   [merged] SAIL_M1_LOCAL without its pinned comment FAILs C3
+c3-transport-leg-selftest: PASS

@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-26T10:32:49.711Z",
+ "timeUTC": "2026-10-30T12:38:22.003Z",
  "fps": 30,
  "F4_boardEnd": {
   "status": "PASS",
@@ -31,14 +31,14 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 50,
-    "atS": 24.77,
-    "phase": "shore-walk",
+    "minGapPt": 44.6,
+    "atS": 0,
+    "phase": "S-a",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.304,
+   "maxWidthFrac": 0.345,
    "minHeightFrac": 0.0612
   },
   {
@@ -60,14 +60,14 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 53.1,
-    "atS": 24.77,
-    "phase": "shore-walk",
+    "minGapPt": 47.3,
+    "atS": 0,
+    "phase": "S-a",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.304,
+   "maxWidthFrac": 0.345,
    "minHeightFrac": 0.0612
   },
   {
@@ -89,14 +89,14 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 46,
-    "atS": 24.77,
-    "phase": "shore-walk",
+    "minGapPt": 41,
+    "atS": 0,
+    "phase": "S-a",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.305,
+   "maxWidthFrac": 0.346,
    "minHeightFrac": 0.0612
   },
   {
@@ -118,14 +118,14 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 43.6,
-    "atS": 36.63,
-    "phase": "shore-walk",
+    "minGapPt": 31.6,
+    "atS": 0,
+    "phase": "S-a",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.25,
+   "maxWidthFrac": 0.284,
    "minHeightFrac": 0.0612
   },
   {
@@ -147,14 +147,14 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 32.1,
-    "atS": 36.63,
-    "phase": "shore-walk",
+    "minGapPt": 21.9,
+    "atS": 0,
+    "phase": "S-a",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.25,
+   "maxWidthFrac": 0.283,
    "minHeightFrac": 0.0612
   },
   {
@@ -176,14 +176,14 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 26.5,
-    "atS": 36.63,
-    "phase": "shore-walk",
+    "minGapPt": 17.1,
+    "atS": 0,
+    "phase": "S-a",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.188,
+   "maxWidthFrac": 0.213,
    "minHeightFrac": 0.0612
   },
   {
@@ -205,14 +205,14 @@
     "atS": 14.87
    },
    "ui": {
-    "minGapPt": 85.1,
-    "atS": 36.63,
-    "phase": "shore-walk",
+    "minGapPt": 66.7,
+    "atS": 0,
+    "phase": "S-a",
     "overlapFrames": 0,
     "spans": [],
     "framesUnder13pt": 0
    },
-   "maxWidthFrac": 0.188,
+   "maxWidthFrac": 0.213,
    "minHeightFrac": 0.0612
   },
   {
