@@ -30,5 +30,9 @@ try{
  t('stale registry entry -> FAIL',()=>{const x=G.run(repo([V,{...V,file:'tools/gone.json'}]));assert.match(x.fail.join('\n'),/STALE_REGISTRY/);});
  t('record without reason -> FAIL',()=>{const x=G.run(repo([{...V,kind:'record'}]));assert.match(x.fail.join('\n'),/RECORD_NO_REASON/);});
  t('real repo registry -> no fails',()=>{const x=G.run({});assert.equal(x.fail.length,0,x.fail.join('\n'));});
+ t('git repo with no scanned files -> NO_TARGETS',()=>{const r=path.join(tmp,'empty'+(++n));fs.mkdirSync(r);cp.execFileSync('git',['init','-q'],{cwd:r});
+   cp.execFileSync('git',['-c','user.email=t@t','-c','user.name=t','commit','-qm','empty','--allow-empty'],{cwd:r});
+   const rf=path.join(r,'reg.json');fs.writeFileSync(rf,JSON.stringify({pins:[]}));
+   const x=G.run({root:r,registry:rf});assert.match(x.fail.join('\n'),/NO_TARGETS: sha-pin-coverage scanned 0 files/);assert.equal(x.scanned,0);});
  console.log(out.map(x=>'ok - '+x).join('\n'));console.log(`PASS sha-pin-coverage selftest ${out.length} cases`);
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}

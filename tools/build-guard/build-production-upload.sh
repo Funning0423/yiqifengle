@@ -6,8 +6,11 @@
 # Trial uploads (体验版, qfPre=3 entry kept) keep using build-wechat-guarded.sh with the default FORMAL_RELEASE=0.
 # Gate: tools/build-guard/test_production_upload.cjs (suite key production-upload-formal).
 set -u
-HERE=$(cd "$(dirname "$0")" && pwd); REPO=${REPO_ROOT:-$(cd "$HERE/../.." && pwd)}; NODE=${NODE:-node}
+HERE=$(cd "$(dirname "$0")" && pwd); NODE=${NODE:-node}
 refuse(){ echo "PRODUCTION UPLOAD REFUSED: $*"; exit 2; }
+if [ -n "${REPO_ROOT:-}" ]; then REPO=$(cd "$REPO_ROOT" && pwd) || refuse "REPO_ROOT is not a directory: $REPO_ROOT"
+else REPO=$(git rev-parse --show-toplevel 2>/dev/null) || refuse "cannot resolve repo root (set REPO_ROOT or run inside the worktree)"
+fi
 [ "${FORMAL_RELEASE:-}" = 1 ] || refuse "FORMAL_RELEASE=1 is required for a production upload (got '${FORMAL_RELEASE:-unset}'); trial uploads use build-wechat-guarded.sh"
 [ "${STRIP_PROBES:-1}" = 1 ] || refuse "STRIP_PROBES must be 1 for a production upload (got '$STRIP_PROBES')"
 [ "${1:-wechat}" = wechat ] || refuse "production upload target is wechat only (got '$1')"

@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 'use strict';
 /** meta-allowlist gate (GGbot, 2026-10-29). Per-field deep diff of every changed .meta against a base commit.
- *  - Base: --base <ref> | env META_ALLOWLIST_BASE | git merge-base HEAD <allowlist.baseRef> (default ggbot/full9c-final).
+ *  - Base: --base <ref> | env META_ALLOWLIST_BASE (both used as given; --base wins). When neither is set:
+ *    git merge-base HEAD origin/gbt/r5-b20-integrate-landing-visual-bg2, else that local branch, else 95dc672d.
+ *    The chosen source is printed (INFO base chosen). allowlist.baseRef (ggbot/full9c-final) is not consulted; that ref is gone.
  *  - Compares the base tree with the working tree (committed + uncommitted), so it also catches importer rewrites.
  *  - Balloon metas whose working-tree blob is identical to META_BALLOON_BASELINE (default 95dc672d) are not changes.
  *    Against that older base the gate otherwise reports four FAIL lines for content already in 95dc672d:
  *    transport_balloon.glb.meta replace /subMetas/79340/userData/triangleCount 545→324,
  *    add /subMetas/a4c17 (hand-authored gltf-mesh, ver 1.1.1, gltfIndex 4, triangleCount 221),
  *    replace /userData/assetFinder/meshes (appends @a4c17), and META_ADDED BalloonDrape.ts.meta.
- *    A balloon meta that differs from 95dc672d is still judged against the old base. Nothing else is ignored.
+ *    A balloon meta that differs from 95dc672d is still judged against the chosen base. Nothing else is ignored.
  *  - Added or deleted .meta: FAIL unless the file is listed with allowAdd ({importer}) / allowDelete.
  *  - Allow rule op "removeArrayItem" {path,item}: the array at path lost exactly that one element and nothing else changed in it.
  *  - Modified .meta: every JSON-pointer change must match an allow rule exactly (op, path, from/to). A "remove" rule
@@ -17,9 +19,11 @@
  *    NEEDS_REVIEW, which fails until Grok Bot reviews it and the allowlist lists it.
  *  - --build-dir <dir>: once the owning .meta has dropped the sub-asset, forbidBuildRefs must not appear (full or compressed uuid form) in any build json or file name.
  *  Usage: node tools/build-guard/meta-allowlist.cjs [--base REF] [--allowlist FILE] [--build-dir DIR] [--root DIR]
+ *  Root: --root | REPO_ROOT | git rev-parse --show-toplevel (cwd). Not the script directory.
+ *  Zero .meta files in the worktree, index, and diff is NO_TARGETS (fail).
  *  Exit 0 = PASS, 1 = FAIL. */
 const fs=require('fs'),path=require('path');
-const {compressUuid,git,walk}=require('./lib-gates.cjs');
+const {compressUuid,git,walk,repoRoot}=require('./lib-gates.cjs');
 function arg(n,d){const i=process.argv.indexOf(n);return i>0?process.argv[i+1]:d;}
 const esc=k=>String(k).replace(/~/g,'~0').replace(/\//g,'~1');
 /** Deep diff -> [{op,path,from,to}]. Objects recurse; arrays and scalars compare as whole values. */
@@ -49,17 +53,38 @@ function matchesBalloonPin(root,f,pin){
     return !!a&&a===b;
   }catch(e){return false;}
 }
+/** Integration branch used when META_ALLOWLIST_BASE and --base are both unset. */
+const INTEGRATION='gbt/r5-b20-integrate-landing-visual-bg2',PIN_BASE='95dc672d';
+function resolves(root,ref){try{git(root,['rev-parse','--verify','--quiet',ref+'^{commit}']);return true;}catch(e){return false;}}
+/** Diff base. Override refs are returned unchanged. Otherwise merge-base with the remote integration branch, then the
+ *  local branch of that name, then commit 95dc672d. A ref that does not resolve, or whose merge-base fails, is skipped. */
+function chooseBase(root,opts){
+  opts=opts||{};
+  if(opts.base)return {base:opts.base,source:'--base'};
+  if(process.env.META_ALLOWLIST_BASE)return {base:process.env.META_ALLOWLIST_BASE,source:'META_ALLOWLIST_BASE'};
+  const remote='origin/'+INTEGRATION,local=INTEGRATION;
+  for(const ref of [remote,local]){
+    if(!resolves(root,ref))continue;
+    try{const base=git(root,['merge-base','HEAD',ref]).trim();if(base)return {base,source:'merge-base HEAD '+ref};}catch(e){}
+  }
+  if(resolves(root,PIN_BASE))return {base:git(root,['rev-parse',PIN_BASE+'^{commit}']).trim(),source:'fallback '+PIN_BASE};
+  return {base:null,source:null,fail:`NO_BASE: cannot resolve merge-base with ${remote} or ${local}, and ${PIN_BASE} is missing; pass --base or set META_ALLOWLIST_BASE`};
+}
 function run(opts){
-  const root=path.resolve(opts.root||path.resolve(__dirname,'../..'));
+  const root=repoRoot(opts.root);
   const al=JSON.parse(fs.readFileSync(opts.allowlist||path.join(__dirname,'meta-allowlist.json'),'utf8'));
-  const files=al.files||{},watch=(al.watchRefs||[]).map(w=>w.ref),res={base:null,checked:0,fail:[],review:[],ok:[],info:[]};
-  let base=opts.base||process.env.META_ALLOWLIST_BASE;
-  if(!base){const ref=al.baseRef||'ggbot/full9c-final';try{base=git(root,['merge-base','HEAD',ref]).trim();}catch(e){res.fail.push(`NO_BASE: cannot resolve merge-base with ${ref}; pass --base`);return res;}}
-  res.base=base;
+  const files=al.files||{},watch=(al.watchRefs||[]).map(w=>w.ref),res={base:null,baseSource:null,checked:0,fail:[],review:[],ok:[],info:[]};
+  const chosen=chooseBase(root,{base:opts.base});
+  if(!chosen.base){res.fail.push(chosen.fail);return res;}
+  const base=chosen.base;res.base=base;res.baseSource=chosen.source;
+  res.info.push(`base chosen: ${chosen.source} -> ${base}`);
   const pin=opts.balloonPin||process.env.META_BALLOON_BASELINE||'95dc672d';
   const ns=git(root,['diff','--name-status','--no-renames','-z',base,'--','*.meta']).split('\0').filter(Boolean);
   const untracked=git(root,['ls-files','--others','--exclude-standard','-z','--','*.meta']).split('\0').filter(Boolean);
   const changes=[];for(let i=0;i<ns.length;i+=2)changes.push([ns[i],ns[i+1]]);for(const u of untracked)changes.push(['A',u]);
+  const trackedMetas=git(root,['ls-files','-z','--','*.meta']).split('\0').filter(Boolean);
+  const targetSet=new Set(trackedMetas);for(const u of untracked)targetSet.add(u);for(const [,f] of changes)if(f)targetSet.add(f);
+  res.targets=targetSet.size;if(!res.targets)res.fail.push('NO_TARGETS: meta-allowlist scanned 0 .meta files');
   for(const [st,f] of changes){
     if(isBalloonMeta(f)&&matchesBalloonPin(root,f,pin)){res.info.push(`BASELINE_95dc672d ${f} matches ${pin}; not a change`);continue;}
     res.checked++;const rule=files[f];
@@ -92,11 +117,12 @@ function run(opts){
     res.buildDir=d;}}
   return res;
 }
-module.exports={run,diff};
+module.exports={run,diff,chooseBase};
 if(require.main===module){
-  const r=run({base:arg('--base'),allowlist:arg('--allowlist'),buildDir:arg('--build-dir'),root:arg('--root')});
+  let r;try{r=run({base:arg('--base'),allowlist:arg('--allowlist'),buildDir:arg('--build-dir'),root:arg('--root')});}
+  catch(e){if(e.code==='NO_ROOT'){console.error(e.message);process.exit(1);}throw e;}
   for(const l of r.info)console.log('INFO '+l);for(const l of r.fail)console.log('FAIL '+l);for(const l of r.review)console.log('FAIL '+l);
   const pass=!r.fail.length&&!r.review.length;
-  console.log(`${pass?'PASS':'FAIL'} meta-allowlist base=${r.base} metasChanged=${r.checked} allowedChanges=${r.ok.length} fails=${r.fail.length} needsReview=${r.review.length}${r.buildDir?' buildDir='+r.buildDir:''}`);
+  console.log(`${pass?'PASS':'FAIL'} meta-allowlist base=${r.base}${r.baseSource?' via '+r.baseSource:''} metasChanged=${r.checked}${r.targets==null?'':' targets='+r.targets} allowedChanges=${r.ok.length} fails=${r.fail.length} needsReview=${r.review.length}${r.buildDir?' buildDir='+r.buildDir:''}`);
   process.exit(pass?0:1);
 }

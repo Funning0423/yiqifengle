@@ -24,6 +24,7 @@ function repo(){const r=path.join(tmp,'r'+(++n));fs.mkdirSync(r);g(r,'init','-q'
 const check=(r,al=AL,extra={})=>MA.run({root:r,base:'HEAD',allowlist:al,...extra});
 const pass=x=>!x.fail.length&&!x.review.length;
 const results=[];const t=(name,fn)=>{fn();results.push(name);};
+function withEnv(key,value,fn){const prev=process.env[key];if(value===undefined)delete process.env[key];else process.env[key]=value;try{return fn();}finally{if(prev===undefined)delete process.env[key];else process.env[key]=prev;}}
 try{
   const emptyAl=path.join(tmp,'empty.json');fs.writeFileSync(emptyAl,JSON.stringify({files:{},watchRefs:[],forbidBuildRefs:[]}));
   t('allowed: encode true + remove 0e588 -> PASS',()=>{const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;delete m.subMetas['0e588'];w(r,MEADOW,m);const x=check(r);assert.ok(pass(x),JSON.stringify(x));assert.equal(x.ok.length,2);});
@@ -47,8 +48,108 @@ try{
   t('deleted .meta -> FAIL',()=>{const r=repo();fs.unlinkSync(path.join(r,'creator-build-project/assets/bundles/region_meadow/other.png.meta'));const x=check(r);assert.match(x.fail.join('\n'),/META_DELETED/);});
   t('uuid change -> FAIL',()=>{const r=repo(),m=baseMeta();m.uuid='bb978abb-0000-0000-0000-000000000000';w(r,MEADOW,m);const x=check(r);assert.match(x.fail.join('\n'),/UUID_CHANGED/);});
   t('sub-asset uuid change -> FAIL',()=>{const r=repo(),m=baseMeta();m.subMetas['85da7'].uuid=U+'@99999';w(r,MEADOW,m);assert.ok(!pass(check(r)));});
-  fs.writeFileSync(path.join(tmp,'nobase.json'),JSON.stringify({baseRef:'no/such-branch',files:{}}));
-  t('missing base ref -> FAIL',()=>{const r=repo();const x=MA.run({root:r,allowlist:path.join(tmp,'nobase.json')});assert.match(x.fail.join('\n'),/NO_BASE/);});
+  t('no integration ref and no 95dc672d -> NO_BASE (stale allowlist baseRef is ignored)',()=>{
+    const r=repo();
+    const stale=path.join(tmp,'stale-baseref.json');
+    fs.writeFileSync(stale,JSON.stringify({baseRef:'ggbot/full9c-final',files:{}}));
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const x=MA.run({root:r,allowlist:stale});
+      assert.equal(x.base,null);
+      assert.match(x.fail.join('\n'),/NO_BASE: cannot resolve merge-base with origin\/gbt\/r5-b20-integrate-landing-visual-bg2 or gbt\/r5-b20-integrate-landing-visual-bg2, and 95dc672d is missing/);
+    });
+  });
+  const INTEGRATION='gbt/r5-b20-integrate-landing-visual-bg2';
+  const LEGIT='creator-build-project/assets/bundles/region_meadow/legit_on_integration.png.meta';
+  t('unset base on a branch off the integration branch uses origin merge-base; an unknown meta still fails',()=>{
+    const r=repo();
+    w(r,LEGIT,{importer:'image',uuid:'11111111-2222-3333-4444-555566667777'});
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','integration adds meta');
+    const integration=g(r,'rev-parse','HEAD').trim();
+    const rootCommit=g(r,'rev-parse','HEAD~1').trim();
+    g(r,'branch',INTEGRATION,integration);
+    g(r,'update-ref','refs/remotes/origin/'+INTEGRATION,integration);
+    g(r,'checkout','-q','-b','feature/off-integration');
+    fs.writeFileSync(path.join(r,'note.txt'),'feature\n');
+    g(r,'add','note.txt');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','feature work');
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const x=MA.run({root:r,allowlist:AL});
+      assert.ok(pass(x),JSON.stringify(x));
+      assert.equal(x.base,integration);
+      assert.equal(x.baseSource,'merge-base HEAD origin/'+INTEGRATION);
+      assert.match(x.info.join('\n'),new RegExp('base chosen: merge-base HEAD origin/'+INTEGRATION.replace(/[.]/g,'\\.')+' -> '+integration));
+      const sneaky='creator-build-project/assets/bundles/region_meadow/sneaky.png.meta';
+      w(r,sneaky,{uuid:'sneaky'});
+      const y=MA.run({root:r,allowlist:AL});
+      assert.equal(y.base,integration);
+      assert.match(y.fail.join('\n'),/META_ADDED .*sneaky\.png\.meta/);
+      fs.unlinkSync(path.join(r,sneaky));
+      const env=Object.assign({},process.env);delete env.META_ALLOWLIST_BASE;
+      const out=cp.execFileSync(process.execPath,[path.join(__dirname,'meta-allowlist.cjs'),'--root',r],{cwd:r,encoding:'utf8',env});
+      assert.match(out,/INFO base chosen: merge-base HEAD origin\/gbt\/r5-b20-integrate-landing-visual-bg2 -> /);
+      assert.match(out,/PASS meta-allowlist base=/);
+    });
+  });
+  t('explicit META_ALLOWLIST_BASE and --base override the integration default',()=>{
+    const r=repo();
+    w(r,LEGIT,{importer:'image',uuid:'11111111-2222-3333-4444-555566667777'});
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','integration adds meta');
+    const integration=g(r,'rev-parse','HEAD').trim();
+    const rootCommit=g(r,'rev-parse','HEAD~1').trim();
+    g(r,'update-ref','refs/remotes/origin/'+INTEGRATION,integration);
+    g(r,'checkout','-q','-b','feature/override');
+    withEnv('META_ALLOWLIST_BASE',rootCommit,()=>{
+      const z=MA.run({root:r,allowlist:AL});
+      assert.equal(z.base,rootCommit);
+      assert.equal(z.baseSource,'META_ALLOWLIST_BASE');
+      assert.match(z.info.join('\n'),new RegExp('base chosen: META_ALLOWLIST_BASE -> '+rootCommit));
+      assert.match(z.fail.join('\n'),/META_ADDED .*legit_on_integration/);
+      const over=MA.run({root:r,base:'HEAD',allowlist:AL});
+      assert.equal(over.base,'HEAD');
+      assert.equal(over.baseSource,'--base');
+      assert.ok(pass(over),JSON.stringify(over));
+    });
+  });
+  t('missing remote integration ref falls back to the local branch',()=>{
+    const r=repo();
+    w(r,LEGIT,{importer:'image',uuid:'11111111-2222-3333-4444-555566667777'});
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','integration adds meta');
+    const integration=g(r,'rev-parse','HEAD').trim();
+    const rootCommit=g(r,'rev-parse','HEAD~1').trim();
+    g(r,'branch',INTEGRATION,rootCommit);
+    g(r,'update-ref','refs/remotes/origin/'+INTEGRATION,integration);
+    g(r,'checkout','-q','-b','feature/no-remote');
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const remoteWins=MA.run({root:r,allowlist:AL});
+      assert.equal(remoteWins.base,integration);
+      assert.equal(remoteWins.baseSource,'merge-base HEAD origin/'+INTEGRATION);
+      assert.ok(pass(remoteWins),JSON.stringify(remoteWins));
+      g(r,'update-ref','-d','refs/remotes/origin/'+INTEGRATION);
+      const local=MA.run({root:r,allowlist:AL});
+      assert.equal(local.base,rootCommit);
+      assert.equal(local.baseSource,'merge-base HEAD '+INTEGRATION);
+      assert.match(local.info.join('\n'),/base chosen: merge-base HEAD gbt\/r5-b20-integrate-landing-visual-bg2 -> /);
+      assert.ok(!local.baseSource.includes('origin/'));
+      assert.match(local.fail.join('\n'),/META_ADDED .*legit_on_integration/);
+    });
+  });
+  t('missing remote and local integration refs fall back to 95dc672d',()=>{
+    const real=path.resolve(__dirname,'../..');
+    const full=g(real,'rev-parse','95dc672d^{commit}').trim();
+    const r=path.join(tmp,'fallback-pin');fs.mkdirSync(r);
+    g(r,'init','-q');
+    const objects=cp.execFileSync('git',['rev-parse','--absolute-git-dir'],{cwd:real,encoding:'utf8'}).trim();
+    fs.mkdirSync(path.join(r,'.git','objects','info'),{recursive:true});
+    fs.writeFileSync(path.join(r,'.git','objects','info','alternates'),path.join(objects,'objects')+'\n');
+    fs.writeFileSync(path.join(r,'README'),'seed\n');
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','seed');
+    withEnv('META_ALLOWLIST_BASE',undefined,()=>{
+      const x=MA.run({root:r,allowlist:AL});
+      assert.equal(x.baseSource,'fallback 95dc672d');
+      assert.equal(x.base,full);
+      assert.match(x.info.join('\n'),new RegExp('base chosen: fallback 95dc672d -> '+full));
+      assert.match(x.fail.join('\n'),/META_DELETED creator-build-project\/assets\/bundles\/region_transit_balloon\/transport_balloon\.glb\.meta/);
+    });
+  });
   t('build output still has @0e588 after removal -> FAIL; clean -> PASS; before removal -> pending INFO',()=>{
     const r=repo(),m=baseMeta();m.userData.meshCompress.encode=true;delete m.subMetas['0e588'];
     const bd=path.join(tmp,'build'),b=path.join(bd,'subpackages/region_meadow');fs.mkdirSync(path.join(b,'native/bb'),{recursive:true});
@@ -114,5 +215,32 @@ try{
     fs.writeFileSync(path.join(b,'config.json'),JSON.stringify({uuids:['zz']}));assert.match(MF.run({root:r,manifests:['m.json'],buildDir:bd}).fail.join('\n'),/NOT_IN_BUILD/);
     fs.writeFileSync(path.join(b,'config.json'),JSON.stringify({uuids:['bbl4q72Qddur5aFMxk9eWW@85da7']}));assert.equal(MF.run({root:r,manifests:['m.json'],buildDir:bd}).fail.length,0);
     assert.match(MF.run({root:r,manifests:['m.json'],buildDir:path.join(tmp,'nobuild')}).fail.join('\n'),/BUNDLE_NOT_IN_BUILD/);});
+  t('no .meta files -> NO_TARGETS',()=>{
+    const r=path.join(tmp,'nometas');fs.mkdirSync(r);g(r,'init','-q');fs.writeFileSync(path.join(r,'README'),'x\n');
+    g(r,'add','-A');g(r,'-c','user.name=t','-c','user.email=t@t','commit','-qm','empty');
+    const x=MA.run({root:r,base:'HEAD',allowlist:AL});
+    assert.equal(x.targets,0);assert.match(x.fail.join('\n'),/NO_TARGETS: meta-allowlist scanned 0/);
+  });
+  t('empty manifests -> NO_TARGETS',()=>{
+    const r=repo();
+    fs.writeFileSync(path.join(r,'assets-MANIFEST-SHA256.json'),'[]\n');
+    fs.writeFileSync(path.join(r,'text-MANIFEST-SHA256.json'),'[]\n');
+    const x=MF.run({root:r});
+    assert.equal(x.entries,0);assert.match(x.fail.join('\n'),/NO_TARGETS: manifest-files-exist scanned 0 entries/);
+  });
+  t('meta gate copied outside the repo follows cwd toplevel and REPO_ROOT',()=>{
+    const r=repo();w(r,'creator-build-project/assets/sneaky-outside.meta',{uuid:'abcd'});
+    const outside=path.join(tmp,'outside-meta');fs.mkdirSync(outside);
+    for(const f of ['meta-allowlist.cjs','lib-gates.cjs','meta-allowlist.json'])fs.copyFileSync(path.join(__dirname,f),path.join(outside,f));
+    const env=Object.assign({},process.env);env.META_ALLOWLIST_BASE='HEAD';delete env.REPO_ROOT;
+    const runAt=(cwd,extraEnv)=>{let out='';try{out=cp.execFileSync(process.execPath,[path.join(outside,'meta-allowlist.cjs')],{cwd,encoding:'utf8',env:Object.assign({},env,extraEnv)});}catch(e){out=(e.stdout||'')+(e.stderr||'');}return out;};
+    const fromCwd=runAt(r,{});
+    assert.match(fromCwd,/META_ADDED .*sneaky-outside\.meta/);
+    const elsewhere=path.join(tmp,'not-a-worktree');fs.mkdirSync(elsewhere);
+    const fromEnv=runAt(elsewhere,{REPO_ROOT:r});
+    assert.match(fromEnv,/META_ADDED .*sneaky-outside\.meta/);
+    const missing=runAt(elsewhere,{});
+    assert.match(missing,/NO_ROOT/);
+  });
   console.log(results.map(x=>'ok - '+x).join('\n'));console.log(`PASS meta-gates selftest ${results.length} cases`);
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}
