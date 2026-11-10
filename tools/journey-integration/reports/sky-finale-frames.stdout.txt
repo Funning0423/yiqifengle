@@ -1,0 +1,13 @@
+[QF_LAKESIDE_ARRIVAL] arrived
+[QF_LAKESIDE_ARRIVAL] enter-level
+[QF_LAKESIDE_ARRIVAL] level-interactive
+PASS hand-off reached (auto-continue at 3.4 s → travel lakeside)
+PASS camera == held T-02 pose on every frame before the hand-off
+PASS no intermediate camera write at all (not even one overwritten in the same frame)
+PASS world layers unchanged (never blank / island) on every frame
+PASS she is never reset or hidden
+PASS board leaves gradually (≤ 32/255 per frame) and is gone before the hand-off
+PASS state skycity right after the claim (继续旅程 can show)
+PASS fallback count 0
+PASS native lease fades with boardFadeOpacity per drawn frame; facade exposes exitLevelInPlace
+{"status":"PASS","frames":215,"preHandoff":214,"handoffAt":3.567,"boardGoneAt":0.467,"stateAfterClaim":"skycity","intermediateCameraWrites":0,"fallback":0,"bad":[],"badCount":0}
