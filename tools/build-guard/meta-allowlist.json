@@ -175,6 +175,42 @@
       },
       "why": "region/hotspring-wireup: region_hotspring board lease, deck camera only"
     },
+    "creator-build-project/assets/bundles/region_fjord.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/fjord-wireup: fjord aurora boardwalk subpackage (wx_subpackage, same shape as region_hotspring)"
+    },
+    "creator-build-project/assets/bundles/region_fjord/models.meta": {
+      "allowAdd": {
+        "importer": "directory"
+      },
+      "why": "region/fjord-wireup: env_fjord.glb folder"
+    },
+    "creator-build-project/assets/bundles/region_fjord/models/env_fjord.glb.meta": {
+      "allowAdd": {
+        "importer": "gltf"
+      },
+      "why": "region/fjord-wireup: procedural fjord blockout; Creator fills sub-assets on import"
+    },
+    "creator-build-project/assets/scripts/regional-r05/runtime/fjord-levels-data.js.meta": {
+      "allowAdd": {
+        "importer": "javascript"
+      },
+      "why": "region/fjord-wireup: fjord stage data (r10-fjord-01..08) joined beside spring-levels-data.js"
+    },
+    "creator-build-project/assets/scripts/region/FjordSceneData.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/fjord-wireup: pier board seat (pure numbers, no engine)"
+    },
+    "creator-build-project/assets/scripts/region/FjordBoardBackground.ts.meta": {
+      "allowAdd": {
+        "importer": "typescript"
+      },
+      "why": "region/fjord-wireup: region_fjord board lease, pier camera only"
+    },
     "creator-build-project/assets/scripts/region/MeadowStageLens.ts.meta": {
       "allowAdd": {
         "importer": "typescript"

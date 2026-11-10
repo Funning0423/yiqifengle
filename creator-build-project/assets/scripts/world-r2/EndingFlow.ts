@@ -34,9 +34,9 @@ export function endingSwayDeg(t:number){return ENDING_ART.swayDeg*Math.sin(2*Mat
 // ① girl top margin 14 → 8, ② head-to-seal gap 8 → 6 (design value), ③ two rows Ø32 → 30 → 28 (pitch 44·d/36, row gap 40·d/36),
 // ④ one row of 9: gap 0.25·d, d = min(28, floor((W−40)/11)), centred (20 pt side margins), ⑤ only when H < 700: plank clearance 15 → 10,
 // ⑥ only then shrink the girl (never below 48 pt). Head-to-seal gap ≥ 6 pt everywhere.
-export const ENDING_SEALS={count:9,d:36,sp:44,gap:40,aspect:128/115,girlTop:14,girlTopMin:8,headGap:6,plankClear:15,plankClearShort:10,minGirl:48,rowSpacing:.25} as const;
+export const ENDING_SEALS={count:10,d:36,sp:44,gap:40,aspect:128/115,girlTop:14,girlTopMin:8,headGap:6,plankClear:15,plankClearShort:10,minGirl:48,rowSpacing:.25} as const;
 export type EndingCascadeStep='none'|'margin'|'gap'|'d32'|'d30'|'d28'|'row1'|'clear10'|'shrink';
-export function endingSingleRowD(w:number){return Math.min(28,Math.floor((w-40)/11));}
+export function endingSingleRowD(w:number){const pitches=ENDING_SEALS.count-1,denom=1+pitches*(1+ENDING_SEALS.rowSpacing);return Math.min(28,Math.floor((w-40)/denom));}
 export function endingLayout(w:number,h:number,safeBottom:number=0,safeTop?:number){
   const notch=h/w>1.9,top=safeTop??(notch?47:20),bot=safeBottom>0?safeBottom:(notch?34:0);
   const buttonW=Math.min(240,w-48),buttonH=62,buttonTop=h-bot-24-buttonH,usable=buttonTop-top;
@@ -46,7 +46,8 @@ export function endingLayout(w:number,h:number,safeBottom:number=0,safeTop?:numb
   const chime={x0:bgX+A.chime.x0*k,y0:bgY+A.chime.y0*k,x1:bgX+A.chime.x1*k,y1:bgY+A.chime.y1*k};
   const gNative=(A.girl.y1-A.girl.y0)*k,gBottom=buttonTop-(h<=600?8:16),S=ENDING_SEALS;
   const sealsAt=(d:number,rows:1|2,clear:number)=>{const sp=rows===1?d*(1+S.rowSpacing):S.sp*d/S.d,gap=rows===1?0:S.gap*d/S.d,half=d*S.aspect/2,y=plankCy+29+clear+half;
-    return {d,sp,gap,rows,clear,y,bottom:y+(rows===1?0:gap+2.25)+half};};
+    const row2=Math.floor(S.count/2),droop=rows===1?0:((row2-1)/2)*((row2-1)/2);
+    return {d,sp,gap,rows,clear,y,bottom:y+(rows===1?0:gap+droop)+half};};
   const d1=endingSingleRowD(w),C=S.plankClear;
   const tries:[EndingCascadeStep,number,1|2,number,number][]=[['none',36,2,S.girlTop,C],['margin',36,2,S.girlTopMin,C],['gap',36,2,S.headGap,C],['d32',32,2,S.headGap,C],['d30',30,2,S.headGap,C],['d28',28,2,S.headGap,C],['row1',d1,1,S.headGap,C]];
   if(h<700)tries.push(['clear10',d1,1,S.headGap,S.plankClearShort]);
@@ -69,7 +70,7 @@ export function endingLayoutChecks(w:number,h:number,safeBottom:number=0){
     girlClear:!hit(g,btn)&&!hit(g,plank),headBelowSeals:g.y0-sealBottom>=ENDING_SEALS.headGap-1e-6 /* UI设计部 r3: 6 pt spec value */,
     chimeClear:L.chime.y0>=L.top-1e-6&&L.chime.y1<=plank.y0+1e-6&&L.chime.x0>=0&&L.chime.x1<=w,
     // SPEC §13.5: the 5-seal top row (4 pitches + Ø) leaves ≥ 20 pt each side.
-    sealsFit:(L.seals.rows===1?8:4)*L.seals.sp+L.seals.d<=w-40+1e-6};
+    sealsFit:(L.seals.rows===1?ENDING_SEALS.count-1:4)*L.seals.sp+L.seals.d<=w-40+1e-6};
 }
 export interface EndingHost{
   wipe(o:{kind:string;content:{vehicle:'chime'|null;sign:string|null}|null;work:()=>Promise<{ok:boolean;reason?:string}>;ready:()=>boolean}):Promise<{ok:boolean;reason?:string}>;

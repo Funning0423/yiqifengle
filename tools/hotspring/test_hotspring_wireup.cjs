@@ -46,7 +46,7 @@ t('eight spring stages are playable data, off the shipped catalog, ids r09-sprin
   assert.equal(API.allStages.filter(s => s.region === 'rail').length, 6);
   assert.equal(API.allStages.filter(s => s.region === 'snow').length, 6);
   const J = H.load('ui/JourneyCore');
-  assert.equal(J.REGION_DEFS.reduce((a, d) => a + d.stages, 0), 55);
+  assert.equal(J.REGION_DEFS.reduce((a, d) => a + d.stages, 0), 63);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'spring').stages, 8);
   assert.deepEqual(J.REGION_DEFS.find(d => d.id === 'spring').unlock.requires, ['rail', 'cloud']);
   for (const s of Spring) {
@@ -110,7 +110,7 @@ t('journey: spring opens after rail and the cloud sea are fully saved, and stays
   assert.equal(done.state, 'done');
   const bar = J.journeyProgress({ records: rec(12), regionDone: { lake: 6, snow: 6, rail: 6, cloud: 8 }, stages: withSpring });
   assert.equal(bar.segments.some(s => s.id === 'spring'), true);
-  assert.equal(bar.total, 12 + 6 + 6 + 6 + 8 + 8);
+  assert.equal(bar.total, 12 + 6 + 6 + 6 + 8 + 8 + 8);
 });
 t('board plane is the deck: no gap, no sink, footprint inside the flat top', () => {
   const D = H.load('region/HotspringSceneData'), C = H.load('world-r1/CameraPose');

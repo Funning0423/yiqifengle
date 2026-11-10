@@ -38,7 +38,7 @@ for(const mode of ['day','night'])for(const [key,[t0,t1]] of Object.entries(TARG
   await H.flush();o.sync(W,Hh,true);o.open('journal');const p=o.popups.find('JourneyPanel');assert(p,tag);for(let i=0;i<60;i++)o.update?.(1/30);
   const F=box(p.root.find('PanelFrame'),W,Hh),fu=(F.x1-F.x0)/p.width,ptPer=(F.x1-F.x0)/Math.min(330,Math.max(240,W-40));
   const IN={x0:F.x0+PS.left/PS.artPx*fu,x1:F.x1-PS.right/PS.artPx*fu};
-  const nodes=p.root.getComponentsInChildren(cc.UITransform).map(t=>t.node),cells=nodes.filter(n=>n.name.startsWith('Chapter-')).map(n=>box(n,W,Hh));assert.equal(cells.length,9);
+  const nodes=p.root.getComponentsInChildren(cc.UITransform).map(t=>t.node),cells=nodes.filter(n=>n.name.startsWith('Chapter-')).map(n=>box(n,W,Hh));assert.equal(cells.length,10);
   const G={x0:Math.min(...cells.map(b=>b.x0)),x1:Math.max(...cells.map(b=>b.x1))},els={grid:G,card:box(nodes.find(n=>n.name.startsWith('Focus-')),W,Hh),bar:box(p.root.find('JourneyBar'),W,Hh)};
   const g=gaps(els,IN,ptPer);assert(ok(g),tag+' content < 8 pt inside the paper '+JSON.stringify(g));
   // the harness pose may still carry the popup's open scale (ptPer ≠ 1 around the screen centre): map to the settled screen pt
