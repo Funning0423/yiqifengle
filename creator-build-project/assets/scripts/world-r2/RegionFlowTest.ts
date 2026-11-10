@@ -95,6 +95,35 @@ export function seedLakeCheckpoint(profile:any,stageId:string,mode:'win'|'lose',
  const s=P.snapshot();if(s.active?.status!=='playing'||s.active.stageId!==stageId)throw Error('lake-not-one-move-short');
  return {stageId,seed,lastAction:last,cleared:LAKE_WIN_WITNESSES.filter(w=>API.getStage(w.stageId).ordinal<target.ordinal).map(w=>w.stageId)};
 }
+/*QF_TRIAL_BEGIN*/
+/** Test-only (__qfPreTransition unlock-* keys). Replay every stage of the regions before `through` through the real R5 provider
+ *  on an isolated checkpoint-12 profile, then discard the last saved board. The journal the island reads is the normal one, so
+ *  the first stage of `through` unlocks and the player's real save is never written. Stripped from the formal release. */
+const SNOW_UNLOCK_WITNESSES:readonly {stageId:string;seed:number;actions:readonly any[]}[]=[{"stageId":"r06-snow-01","seed":1,"actions":[["swap",23,24],["swap",3,10],["swap",39,40],["swap",17,24]]},{"stageId":"r06-snow-02","seed":1,"actions":[["swap",23,24],["swap",37,44],["swap",5,12],["swap",2,3],["swap",3,10],["swap",1,2],["swap",18,19],["swap",12,19]]},{"stageId":"r06-snow-03","seed":4,"actions":[["swap",10,11],["swap",0,1],["swap",22,29]]},{"stageId":"r06-snow-04","seed":1,"actions":[["swap",23,24],["swap",39,40],["swap",24,25],["swap",9,10]]},{"stageId":"r06-snow-05","seed":5,"actions":[["swap",18,25],["swap",29,36],["swap",18,25]]},{"stageId":"r06-snow-06","seed":8,"actions":[["swap",32,39],["swap",37,38]]}];
+const RAIL_UNLOCK_WITNESSES:readonly {stageId:string;seed:number;actions:readonly any[]}[]=[{"stageId":"r07-rail-01","seed":1,"actions":[["swap",23,24]]},{"stageId":"r07-rail-02","seed":1,"actions":[["swap",23,24],["swap",39,40],["swap",1,2]]},{"stageId":"r07-rail-03","seed":5,"actions":[["swap",18,25],["swap",3,4],["swap",25,26]]},{"stageId":"r07-rail-04","seed":4,"actions":[["swap",10,11],["swap",23,24],["swap",33,34],["swap",19,20]]},{"stageId":"r07-rail-05","seed":5,"actions":[["swap",18,25],["swap",20,27],["swap",19,26],["swap",8,9],["swap",33,40],["swap",31,32],["swap",1,2],["swap",4,11],["swap",3,4],["swap",4,11],["swap",4,5],["swap",16,17],["swap",33,40]]},{"stageId":"r07-rail-06","seed":1,"actions":[["swap",23,24],["swap",42,43],["swap",21,28]]}];
+const CLOUD_UNLOCK_WITNESSES:readonly {stageId:string;seed:number;actions:readonly any[]}[]=[{"stageId":"r08-cloud-01","seed":6,"actions":[["swap",3,10],["swap",2,9],["swap",21,28],["swap",29,36],["swap",17,24]]},{"stageId":"r08-cloud-02","seed":1,"actions":[["swap",23,24],["swap",7,14],["swap",46,47],["swap",10,17]]},{"stageId":"r08-cloud-03","seed":2,"actions":[["swap",40,41],["swap",9,10]]},{"stageId":"r08-cloud-04","seed":1,"actions":[["swap",23,24],["swap",3,10],["swap",18,25],["swap",25,26],["swap",18,19]]},{"stageId":"r08-cloud-05","seed":1,"actions":[["swap",24,31],["swap",3,4],["swap",18,25]]},{"stageId":"r08-cloud-06","seed":1,"actions":[["swap",23,24],["swap",39,40],["swap",2,3],["swap",23,30],["swap",46,47],["swap",3,4],["swap",9,16],["swap",6,13],["swap",12,19],["swap",4,11],["swap",10,17],["swap",31,32],["swap",23,24],["swap",29,36]]},{"stageId":"r08-cloud-07","seed":1,"actions":[["swap",23,24],["swap",24,31]]},{"stageId":"r08-cloud-08","seed":3,"actions":[["swap",16,17],["swap",24,31],["swap",38,39],["swap",32,33],["swap",36,37]]}];
+const UNLOCK_BEFORE:Readonly<Record<'snow'|'rail'|'cloud'|'spring', readonly (readonly {stageId:string;seed:number;actions:readonly any[]}[])[]>>={
+ snow:[LAKE_WIN_WITNESSES],
+ rail:[LAKE_WIN_WITNESSES,SNOW_UNLOCK_WITNESSES],
+ cloud:[LAKE_WIN_WITNESSES,SNOW_UNLOCK_WITNESSES,RAIL_UNLOCK_WITNESSES],
+ spring:[LAKE_WIN_WITNESSES,SNOW_UNLOCK_WITNESSES,RAIL_UNLOCK_WITNESSES,CLOUD_UNLOCK_WITNESSES],
+};
+export function seedRegionUnlock(profile:any,through:'snow'|'rail'|'cloud'|'spring',opts?:{allowQa?:boolean}){
+ if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
+ const packs=UNLOCK_BEFORE[through];if(!packs)throw Error('bad-unlock');
+ const P:any=new (R5Provider as any)({platform:profile.r5.platform,journey:profile.r5.journey});
+ const ok=(r:any,what:string)=>{if(!r?.ok)throw Error('unlock-seed-failed: '+what+' '+(r?.reason||''));};
+ const cleared:string[]=[];
+ for(const pack of packs)for(const w of pack){
+  ok(P.startStage(w.stageId,{seed:w.seed}),'start '+w.stageId);P.resume();
+  for(const a of w.actions){const p=P.previewAction(a);ok(p,'preview');ok(P.commitAction(p.token),'commit');let v=P.snapshot().visual;while(v){ok(P.finishVisualStep(v.token),'visual');v=P.snapshot().visual;}}
+  const s=P.snapshot();if(s.state!=='result.saved'||!s.result?.completionRecorded)throw Error('unlock-unregistered '+w.stageId);
+  cleared.push(w.stageId);
+ }
+ if(P.snapshot().active)ok(P.discardActive(),'discard');
+ return {through,cleared};
+}
+/*QF_TRIAL_END*/
 /*QF_PROBE_BEGIN*/
 /** r5 journal hooks (journal-sky-progress / journal-sky-cleared): 天空之城 challenge wins, first verified replay of each stage
  *  (tools/persistence-fixtures/verified-replays.json, re-checked by tools/new-regions/test_journal_sky_live_r5.cjs). */
