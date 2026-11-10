@@ -20,8 +20,8 @@ const FILES = [
   ['models/coast_reuse.glb', 66652, '7efd0b238df78671e912581b1fc19df45a1b3f208286d5687cacd1c3d959c803'],
   ['models/coast_rocks.glb', 128172, '6f8d580bfa9d2bd9bca1df9abec282d864bc1cdcbacc2b1e8aa34d9c72d00634'],
   ['models/coast_terrain.glb', 507684, '193c98784b2c7e8f1eda526b9d82c985e9a74a96eebb2572fb61fef6124f684c'],
-  ['textures/coast_palette_256.png', 3467, 'b0530327c52f210a5ad353aa691336bdbd1a8fdf24a24e84bff9264c1fd94fc0'],
-  ['textures/coast_palette_sand_256.png', 3548, '7eeb14dee5e8122a5f443a1b1afe0d8990650886d9a3970cfa67e967ef6a6b17'],
+  ['textures/coast_palette_256.png', 3163, '8d2965387aacb15729d0cec51f81c3e40af50a31fe1360b69fe9de468f18170d'],
+  ['textures/coast_palette_sand_256.png', 3258, '8ce5d5a9d86171b6c9b32f46286fdecc615632564cd34ee777c03851cd570f5f'],
 ];
 const META_DIRS = [REL, REL + '/board', REL + '/data', REL + '/models', REL + '/textures'];
 assert.equal(FILES.length, 14);

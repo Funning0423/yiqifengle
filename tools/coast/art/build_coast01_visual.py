@@ -49,7 +49,7 @@ for P in (pal, sandp):
     for name, (c, rgb) in SW.items():
         for y in range(208, 224):
             for x in range(4 * c, 4 * c + 4): q[x, y] = rgb + (255,)
-pal.save(DST + '/textures/coast_palette_256.png', optimize=True); sandp.save(DST + '/textures/coast_palette_sand_256.png', optimize=True)
+pal.convert('RGB').save(DST + '/textures/coast_palette_256.png', optimize=True); sandp.convert('RGB').save(DST + '/textures/coast_palette_sand_256.png', optimize=True)  # opaque like the source
 palarr = np.asarray(Image.open(SRC + '/textures/coast_palette_256.png').convert('RGB')).astype(float)
 def orig_rgb(uv):
     x = np.clip((uv[:, 0] * 256).astype(int), 0, 255); y = np.clip((uv[:, 1] * 256).astype(int), 0, 255); return palarr[y, x]

@@ -193,7 +193,7 @@
       "name": "grasscap.mesh",
       "userData": {
         "gltfIndex": 9,
-        "triangleCount": 114
+        "triangleCount": 242
       },
       "ver": "1.1.1",
       "imported": true,
@@ -211,7 +211,7 @@
       "name": "grasspatch.mesh",
       "userData": {
         "gltfIndex": 10,
-        "triangleCount": 54
+        "triangleCount": 274
       },
       "ver": "1.1.1",
       "imported": true,
