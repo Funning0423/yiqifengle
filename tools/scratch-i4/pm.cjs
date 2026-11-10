@@ -1,0 +1,2 @@
+const L=require('./lib.cjs');const pm=L.J.island.filter(o=>/props_merged|shells|rock|stone/.test(o.name));
+let s='';for(let z=+process.argv[2];z>=+process.argv[3];z-=0.1){let r=z.toFixed(1)+' ';for(let x=+process.argv[4];x<=+process.argv[5];x+=0.1){let h=null;for(const o of pm){const t=L.J.rayHit([x,8,z],[0,-1,0],20,o.tris);if(t!==null&&8-t>0.12)h=Math.max(h||0,8-t);}r+=h===null?'.':h>0.4?'#':'+';}s+=r+'\n';}console.log('x3.6..5.8\n'+s);
