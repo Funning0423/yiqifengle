@@ -87,7 +87,7 @@ var coastPlayable=freeze([
     balanceNote:'random N=200 target ~0.79 rise'
   }),
   freeze({
-    id:'r06-coast-08',region:'coast',ordinal:8,name:'双铃过潮',contentRevision:'m4b-2026-11-09',intendedBand:'twin-bell-lines',
+    id:'r06-coast-08',region:'coast',ordinal:8,name:'浪花接力',contentRevision:'m4b-2026-11-09',intendedBand:'wave-relay-specials',
     designIntent:'交换相邻奇果，用十字风与铃果切开潮路。',
     config:{moves:24,goals:{lines:1,specials:2,type5:6},moss:[],roots:[],beacons:[],starters:[{index:0,special:'color'},{index:48,special:'row'},{index:20,special:'column'}]},
     rules:{},tool:null,seedBank:[11],chapterName:'灯塔夜航',
