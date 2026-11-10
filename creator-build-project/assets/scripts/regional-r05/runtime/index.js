@@ -14,11 +14,11 @@ var coastPlayable=freeze([
   freeze({
     id:'r06-coast-01',region:'coast',ordinal:1,name:'寄给海风',contentRevision:'port-2026-10-29',intendedBand:'introduce',
     designIntent:'收集贝壳，给今天留一声问候。',
-    config:{moves:20,goals:{type5:18},moss:[],roots:[],starters:[{index:10,special:'column'}]},
+    config:{moves:19,goals:{type5:18},moss:[],roots:[],starters:[{index:10,special:'column'}]},
     rules:{},tool:null,seedBank:[22,9,13],legacyMoves:26,chapterName:'海岸漫游',
     note:'今天不用走很远，听见海风就很好。',
     failHint:'先找贝壳多的地方，消除它们下方也能带来新贝壳。',
-    calibration:{status:'draft-moves-untested',legacyMoves:26,meaning:'moves copied from port-2026-10-29; win rate not measured on this candidate'}
+    calibration:{status:'draft-moves-untested',legacyMoves:26,meaning:'moves 20→19 (m1b) on seedBank[0]=22 for random N=200 ~0.865 in 0.85–0.88; goals/seed/layout unchanged; legacyMoves 26 kept'}
   }),
   freeze({
     id:'r06-coast-02',region:'coast',ordinal:2,name:'椰影风铃',contentRevision:'m1-2026-11-09',intendedBand:'beacon-lesson',
