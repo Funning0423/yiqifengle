@@ -1,0 +1,11 @@
+AssertionError [ERR_ASSERTION]: Required current-scene bundle not declared: shared_effects
+    at Object.verifyArtifact (/workspace/wechat-game/work/wt-base88/tools/cloud-web/lib.cjs:119:72)
+    at runStartupSmoke (/workspace/wechat-game/work/wt-base88/tools/cloud-web/smoke.cjs:63:24)
+    at async /workspace/wechat-game/work/wt-base88/tools/cloud-web/test.cjs:67:16 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
