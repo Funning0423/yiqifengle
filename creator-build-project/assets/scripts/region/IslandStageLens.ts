@@ -8,7 +8,9 @@ import type {Pose,Vec} from '../world-r1/WorldFlowCore';
 export const ISLAND_STAGE_LENS=Object.freeze({preS:0.4,rampS:1.0,endS:0.2,arcM:8,arcY:4.5,k1:0.8,k2:1.0,smooth:4,walkMps:1.2,panInS:0.6,herLookM:1.1,
  /* exit pose (b20 7eecdca8, skinned palms): 'hero' = on the island v2.2 hero axis, sea side of I6, she walks toward the lens with the
     lighthouse behind her; >= 3 m from all (skinned) geometry. The old follow@I6 sat 1.62 m (1.38 m after the palm move) from palm_young_01. */
- end:'hero' as 'hero'|'follow',heroAzDeg:-15,heroDistM:6,heroUpM:3.2,heroAimM:1.2,heroBowM:8});
+ end:'hero' as 'hero'|'follow',heroAzDeg:-15,heroDistM:6,heroUpM:3.2,heroAimM:1.2,heroBowM:8,
+ /* entry dodge: a there-and-back lens offset (world m) peaking while she passes palm_lean_01, back on the board pose by the walk end */
+ entOff:[0,0,0] as readonly number[],entRiseS:1.5,entFallS:1.5});
 type V=[number,number,number];
 const sub=(a:readonly number[],b:readonly number[]):V=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
 const unit=(v:readonly number[]):V=>{const n=Math.hypot(v[0],v[1],v[2])||1;return [v[0]/n,v[1]/n,v[2]/n];};
@@ -50,7 +52,7 @@ export function islandDepartLens(from:Pose,walk:readonly Vec[],follow0:Pose):Sta
  *  planned walk; the reward's own followToBoard blend brings it back (a few degrees). */
 export function islandEntryPan(board:Pose,walk:readonly Vec[]):StageLens{
  const K=ISLAND_STAGE_LENS,c=cum(walk),walkS=c[c.length-1]/K.walkMps,d0=unit(sub(board.target,board.position)),P=board.position;
- const at=(t:number):Pose=>{const d=slerp(d0,unit(sub(herAt(walk,c,t),P)),mj(t/K.panInS));return {position:[P[0],P[1],P[2]],target:[P[0]+d[0]*10,P[1]+d[1]*10,P[2]+d[2]*10],fovVerticalDeg:board.fovVerticalDeg};};
+ const at=(t:number):Pose=>{const b=mj(t/K.entRiseS)*mj((walkS-t)/K.entFallS),O=K.entOff,Q:V=[P[0]+O[0]*b,P[1]+O[1]*b,P[2]+O[2]*b];const d=slerp(d0,unit(sub(herAt(walk,c,t),Q)),mj(t/K.panInS));return {position:Q,target:[Q[0]+d[0]*10,Q[1]+d[1]*10,Q[2]+d[2]*10],fovVerticalDeg:board.fovVerticalDeg};};
  return {seconds:walkS,preS:0,at,end:at(walkS)};
 }
 /** Wiring helper for RegionNodeStage: a per-frame writer (dt clamp 0.1 s, the stage's own clock). */

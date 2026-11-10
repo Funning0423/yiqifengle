@@ -1261,3 +1261,5 @@ export class RegionNodeStage extends Component{
  }
 }
 
+
+// SCRATCH-ONLY gate wiring marker (not for commit): islandDepartLens(board,isl, islandEntryPan(board,isl) (this.region==='skycity'||this.region==='island')&&this.skyRail
