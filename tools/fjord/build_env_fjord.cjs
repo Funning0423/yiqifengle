@@ -313,65 +313,56 @@ part('FJ_water', true, m => {
   }
 });
 
-part('FJ_mountains', false, m => {
-  // Connected ranges along both walls, closing on a far ridge. Feet share the waterline.
-  const y0 = 0.28;
-  const link = (a, b, rock, dark, snow) => {
-    const sign = Math.sign(a.x || b.x) || 1;
-    const foot = (p, dir) => [p.x + sign * dir * 1.35, y0, p.z + 0.2];
-    const ridge = (p) => [p.x + sign * 0.15, y0 + p.h, p.z];
+part('FJ_mountains', true, m => {
+  // Two shore ranges. Nothing crosses the channel. A low ridge sits on the far horizon.
+  const y0 = 0.28, cap = rgba(250, 252, 255), shade = rgba(214, 222, 230);
+  const link = (a, b, rock, dark, spread) => {
+    const sign = Math.sign(a.x) || 1;
+    const foot = (p, dir) => [p.x + sign * dir * spread, y0, p.z + 0.18];
+    const ridge = (p) => [p.x, y0 + p.h, p.z];
     const belt = (p, dir) => {
-      const f = foot(p, dir), r = ridge(p);
-      const t = p.snow ? 0.5 : 0.82;
+      const f = foot(p, dir), r = ridge(p), t = p.snow ? 0.52 : 0.9;
       return [f[0] + (r[0] - f[0]) * t, y0 + p.h * t, f[2] + (r[2] - f[2]) * t];
     };
-    const slope = (dir, low, high) => {
+    const slope = (dir, low) => {
       const fA = foot(a, dir), fB = foot(b, dir), bA = belt(a, dir), bB = belt(b, dir), rA = ridge(a), rB = ridge(b);
-      addQuad(m, fA, fB, bB, bA, low, mix(low, high, 0.2), high, mix(low, high, 0.35));
-      addQuad(m, bA, bB, rB, rA, high, mix(high, snow, 0.25), a.snow || b.snow ? snow : high, a.snow || b.snow ? snow : mix(high, snow, 0.2));
+      addQuad(m, fA, fB, bB, bA, dark, dark, rock, rock);
+      const top = (p) => p.snow ? cap : rock;
+      addQuad(m, bA, bB, rB, rA, top(a), top(b), top(b), top(a));
     };
-    slope(-1, dark, rock);
-    slope(1, rock, mix(rock, rgba(230, 236, 240), 0.12));
+    slope(-1, dark);
+    slope(1, rock);
   };
-  const chain = (pts, rock, dark, snow) => { for (let i = 0; i < pts.length - 1; i++) link(pts[i], pts[i + 1], rock, dark, snow); };
-  const trees = (pts) => {
-    const g = rgba(30, 66, 42), g2 = rgba(22, 54, 36);
-    for (const p of pts) {
-      const s = Math.sign(p.x) || 1;
-      addTri(m, [p.x - s * 0.15, y0, p.z + 0.3], [p.x + s * 0.35, y0, p.z + 0.45], [p.x + s * 0.05, y0 + 0.55, p.z + 0.25], g);
-      addTri(m, [p.x + s * 0.4, y0, p.z + 0.15], [p.x + s * 0.85, y0, p.z + 0.3], [p.x + s * 0.6, y0 + 0.42, p.z + 0.1], g2);
-    }
-  };
-  const near = rgba(70, 78, 90), nearD = rgba(40, 46, 56), white = rgba(242, 246, 250);
-  const mid = rgba(104, 122, 144), midD = rgba(70, 88, 110), pale = rgba(224, 230, 236);
-  const far = rgba(146, 164, 184), farD = rgba(112, 132, 154), farSnow = rgba(230, 236, 242);
+  const chain = (pts, rock, dark) => { for (let i = 0; i < pts.length - 1; i++) link(pts[i], pts[i + 1], rock, dark, 1.25); };
   const left = [
-    { x: -4.4, z: -8.6, h: 2.4, snow: true },
-    { x: -4.8, z: -11.4, h: 1.05, snow: false },
-    { x: -5.2, z: -14.2, h: 3.8, snow: true },
-    { x: -4.3, z: -16.8, h: 1.25, snow: false },
-    { x: -3.4, z: -19.2, h: 3.1, snow: true },
-    { x: -2.2, z: -21.6, h: 1.45, snow: false },
+    { x: -3.9, z: -8.6, h: 2.8, snow: true },
+    { x: -4.2, z: -11.6, h: 1.2, snow: false },
+    { x: -4.5, z: -14.6, h: 4.1, snow: true },
+    { x: -4.1, z: -17.2, h: 1.4, snow: false },
+    { x: -3.8, z: -20.0, h: 3.2, snow: true },
   ];
   const right = [
-    { x: 4.2, z: -9.4, h: 3.3, snow: true },
-    { x: 4.9, z: -12.6, h: 1.15, snow: false },
-    { x: 5.4, z: -15.4, h: 2.35, snow: true },
-    { x: 4.2, z: -18.0, h: 1.55, snow: false },
-    { x: 3.0, z: -20.4, h: 3.6, snow: true },
-    { x: 1.8, z: -22.2, h: 1.3, snow: false },
+    { x: 3.85, z: -9.4, h: 3.5, snow: true },
+    { x: 4.3, z: -12.8, h: 1.15, snow: false },
+    { x: 4.6, z: -15.8, h: 2.5, snow: true },
+    { x: 4.05, z: -18.4, h: 1.55, snow: false },
+    { x: 3.8, z: -21.0, h: 3.4, snow: true },
   ];
-  const head = [
-    { x: -2.2, z: -21.6, h: 1.45, snow: false },
-    { x: -1.1, z: -23.2, h: 4.4, snow: true },
-    { x: 0.4, z: -23.8, h: 2.05, snow: true },
-    { x: 1.6, z: -23.0, h: 4.9, snow: true },
-    { x: 1.8, z: -22.2, h: 1.3, snow: false },
+  chain(left, rgba(62, 70, 82), rgba(28, 34, 42));
+  chain(right, rgba(78, 90, 106), rgba(36, 44, 54));
+  // Low, narrow, blue-grey ridge on the horizon. Feet stay on the water, and it does not reach either shore.
+  const far = [
+    { x: -1.05, z: -28.0, h: 1.15, snow: true },
+    { x: 0.05, z: -28.5, h: 0.72, snow: true },
+    { x: 1.15, z: -28.1, h: 1.3, snow: true },
   ];
-  chain(left, near, nearD, white);
-  chain(right, mid, midD, pale);
-  chain(head, far, farD, farSnow);
-  trees([left[0], left[2], right[0], right[2]]);
+  for (let i = 0; i < far.length - 1; i++) link(far[i], far[i + 1], rgba(150, 168, 188), rgba(118, 136, 158), 0.55);
+  const g = rgba(28, 64, 40), g2 = rgba(20, 52, 34);
+  for (const p of [left[0], left[2], right[0], right[2]]) {
+    const s = Math.sign(p.x);
+    addTri(m, [p.x - s * 0.1, y0, p.z + 0.35], [p.x + s * 0.4, y0, p.z + 0.5], [p.x + s * 0.08, y0 + 0.62, p.z + 0.28], g);
+    addTri(m, [p.x + s * 0.45, y0, p.z + 0.12], [p.x + s * 0.9, y0, p.z + 0.28], [p.x + s * 0.62, y0 + 0.48, p.z + 0.08], g2);
+  }
 });
 
 part('FJ_fog', true, m => {
@@ -414,11 +405,8 @@ part('FJ_aurora', true, m => {
     const e0 = edge(t0), e1 = edge(t1);
     const paint = (c, a) => rgba(c[0], c[1], c[2], a);
     addQuad(m,
-      [xa, y0, z], [xb, y1, z], [xb, y1 + height * 0.4, z], [xa, y0 + height * 0.4, z],
-      paint(c0, 225 * e0), paint(c1, 225 * e1), paint(c1, 150 * e1), paint(c0, 150 * e0));
-    addQuad(m,
-      [xa, y0 + height * 0.4, z], [xb, y1 + height * 0.4, z], [xb, y1 + height, z], [xa, y0 + height, z],
-      paint(c0, 150 * e0), paint(c1, 150 * e1), paint(c1, 0), paint(c0, 0));
+      [xa, y0, z], [xb, y1, z], [xb, y1 + height, z], [xa, y0 + height, z],
+      paint(c0, 235 * e0), paint(c1, 235 * e1), paint(c1, 0), paint(c0, 0));
   }
 });
 

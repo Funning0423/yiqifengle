@@ -521,8 +521,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_fjord/models/env_fjord.glb",
-    "bytes": 197748,
-    "sha256": "ce8e6cefe1bde9305d172a91ed9d6b90ff1450a7e8f070680817e5ee9b516c8b"
+    "bytes": 187664,
+    "sha256": "06884d5a1f090cba2c2fe46c447bad6043d3d0c3e5e7b289e44398e7ef6df80d"
   },
   {
     "path": "creator-build-project/assets/bundles/region_hotspring/models/env_hotspring.glb",
