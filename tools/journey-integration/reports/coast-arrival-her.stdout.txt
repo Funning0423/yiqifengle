@@ -1,0 +1,4 @@
+ok   60fps: 2532 frames, 2 walks via adapter.perform (7.52-18.75/29pt, 35.57-39.82/2pt), 0 SkeletalAnimation writes
+ok   30fps: 1267 frames, 2 walks via adapter.perform (7.52-18.75/29pt, 35.57-39.82/2pt), 0 SkeletalAnimation writes
+ok   uneven: 2540 frames, 2 walks via adapter.perform (7.52-18.75/29pt, 35.57-39.82/2pt), 0 SkeletalAnimation writes
+PASS coast-arrival-her
