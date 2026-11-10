@@ -14,14 +14,14 @@ const FILES = [
   ['board/piece_float.png', 10050, '70b087177a7f60780f5699aafafcaaf0f25043fe56f38b113b3414885bb1ac2e'],
   ['board/piece_scallop.png', 9765, 'c2838c6e7a66788ac05c85ff738fbc99a0e0f397b4db90378e4092492bb0205f'],
   ['board/piece_star.png', 10350, '88797b7d415f7060d8ed695fdbc2fea7c2dbfea1e824eebd91fc751e48614eb7'],
-  ['data/coast_layout.json', 20146, '012c075f71c787a67a6df7d38db27df17c4506c21b8a31bc5fae72a758fe47b8'],
-  ['models/coast_board.glb', 244752, 'd8ca6823c8c4c1529c3eb8200c1ba007ae7adb097e2c366bc7af529c4a7970a6'],
-  ['models/coast_props.glb', 164064, 'c447fd184c99c30f005ffb22ed3f0b9ce84f47c82d44b96e6272d7104bb341a9'],
-  ['models/coast_reuse.glb', 66592, '3912d735e35a994dec31a282e8483531cea6e0460588e7ef16db6fcd586ab837'],
-  ['models/coast_rocks.glb', 128172, '10bc46fe55f063aabe7e3ad6549664f9810a41c458a7f7e696b39d1f4b679938'],
+  ['data/coast_layout.json', 20441, 'cf0c75babfadedea8c19dd43da008eadb9e682ea02c5fb2e4474faa498fca1df'],
+  ['models/coast_board.glb', 482660, 'da9cd5ca5769994b8a2f92807989cdfae10ba7665681972de1de9c06e9ce9819'],
+  ['models/coast_props.glb', 202416, '800fdae8615af771273e771b80c7b3897f4837b6280c78f2003d3f57ecfb302c'],
+  ['models/coast_reuse.glb', 66652, '7efd0b238df78671e912581b1fc19df45a1b3f208286d5687cacd1c3d959c803'],
+  ['models/coast_rocks.glb', 128172, '6f8d580bfa9d2bd9bca1df9abec282d864bc1cdcbacc2b1e8aa34d9c72d00634'],
   ['models/coast_terrain.glb', 507684, '193c98784b2c7e8f1eda526b9d82c985e9a74a96eebb2572fb61fef6124f684c'],
-  ['textures/coast_palette_256.png', 2969, '5f53154ec4294e0ad40e9ff0a7c7dd1a9f131b1fc62ed1be1518f5c78ebabce1'],
-  ['textures/coast_palette_sand_256.png', 3156, '10b98602ff2d711e5994e3fe7938a679a0f50c95858285005b139710dd596295'],
+  ['textures/coast_palette_256.png', 3467, 'b0530327c52f210a5ad353aa691336bdbd1a8fdf24a24e84bff9264c1fd94fc0'],
+  ['textures/coast_palette_sand_256.png', 3548, '7eeb14dee5e8122a5f443a1b1afe0d8990650886d9a3970cfa67e967ef6a6b17'],
 ];
 const META_DIRS = [REL, REL + '/board', REL + '/data', REL + '/models', REL + '/textures'];
 assert.equal(FILES.length, 14);
