@@ -1,0 +1,5 @@
+PASS region pages: 210 pages (5 regions × cleared 3/10/12 × 7 sizes × day/night), 280 buttons ≥ 8 pt inside the paper inner edge; title plaque clears safe area + capsule (+8), panel bottom clears home bar (+8)
+PASS shrink used (f<1): {"320x568 tide":0.767,"320x568 meadow":0.849,"320x568 sky":0.767,"320x568 lake":0.849,"320x568 coast":0.849,"375x667 tide":0.944,"375x667 sky":0.944}
+PASS orphan check: 4130 visible journal labels (region pages + journey book, 7 sizes × day/night): last line ≥ 3 chars, no split word, no leading closing punctuation, explicit lines fit
+PASS one plaque / one ×: 140 journey book → region page stacks (7 sizes × day/night × 5 regions × cleared 3/12); book shown again on close
+PASS negative self-tests: fc3123fa centred geometry hits the capsule band at 320×568; 240 pt button wider than the 320 paper band; greedy 「风/铃。」 caught; e06c8240 stack shows 2 plaques / 2 ×
