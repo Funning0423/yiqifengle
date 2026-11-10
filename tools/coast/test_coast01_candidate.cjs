@@ -33,7 +33,7 @@ const catalog = require(path.join(R, 'catalog-data.js'));
 assert.equal(API.catalog.filter((s) => s.region === 'coast').length, 0, 'shipped catalog has no coast rows');
 assert.equal(API.catalog.filter((s) => s.region === 'lake').length, 6, 'lake catalog unchanged');
 assert.deepEqual(API.coastPlayable.map((s) => s.id).slice(0, 1), ['r06-coast-01']);
-assert.ok(API.coastPlayable.length >= 7, 'M3 registers COAST06/07');
+assert.ok(API.coastPlayable.length === 9, 'M4 registers COAST08/09; chapter is complete at 9');
 assert.equal(API.coastPlayable[0].config.moves, 19);
 assert.deepEqual(API.coastPlayable[0].seedBank, [22, 9, 13]);
 assert.equal(API.getStage('r06-coast-01').name, '寄给海风');
@@ -43,7 +43,8 @@ assert.ok(API.getStage('r06-coast-04'));
 assert.ok(API.getStage('r06-coast-05'));
 assert.ok(API.getStage('r06-coast-06'));
 assert.ok(API.getStage('r06-coast-07'));
-for (let n = 8; n <= 9; n++) assert.equal(API.getStage('r06-coast-0' + n), null, 'coast-0' + n + ' not live');
+assert.ok(API.getStage('r06-coast-08'));
+assert.ok(API.getStage('r06-coast-09'));
 assert.equal(API.getStage('restaurant'), null);
 
 const tide = catalog.find((s) => s.id === 'r05-tide-01');
@@ -158,7 +159,8 @@ assert.equal(c1.legacyMoves, 26);
 // Beacon semantics on the shipped engine, not on a shipped coast-09 stage.
 const draft = [8, 24, 12, 24, 40];
 const uniqueAlt = [8, 24, 12, 25, 40];
-assert.equal(API.getStage('r06-coast-09'), null, 'COAST09 is not registered yet');
+assert.ok(API.getStage('r06-coast-09'));
+assert.notDeepEqual(API.getStage('r06-coast-09').config.beacons, draft, 'shipped COAST09 is not the draft repeat-24 route');
 assert.ok(API.coastPlayable.some((st) => Array.isArray(st.config.beacons) && st.config.beacons.length), 'COAST02 beacon lesson is registered');
 function beaconEngine(route) {
   return new Engine(0, () => 0.17, { moves: 30, goals: { beacons: route.length }, moss: [], roots: [], beacons: route.slice() });
@@ -185,7 +187,7 @@ assert.equal(eng.beaconTarget().index, 40);
 const alt = beaconEngine(uniqueAlt);
 assert.equal(alt.beaconRoute.length, 5);
 assert.equal(new Set(alt.beaconRoute).size, 5);
-assert.equal(API.getStage('r06-coast-09'), null, 'unique-index alternative is not a shipped level');
+assert.notDeepEqual(API.getStage('r06-coast-09').config.beacons, uniqueAlt, 'unique-index alternative is not the shipped COAST09 route');
 
 const toolsSrc = fs.readFileSync(path.join(SCRIPTS, 'world-r2/ManagedTools.ts'), 'utf8');
 assert.equal(toolsSrc.includes('退潮铃'), false);
@@ -359,7 +361,7 @@ function freshBoard(on, region) {
   console.error = orig;
   const matrix = {
     legacyFile: 'missing src/commonr2/x/fixed/shared/coastal-content.js',
-    liveStage: 'r06-coast-01..07 on coastPlayable; catalog coast count 0; r06-coast-08..09 not getStage',
+    liveStage: 'r06-coast-01..09 on coastPlayable; catalog coast count 0; 通关 at 9/9',
     type5: 'objective and both kit states render board/piece_shell. Historical pieceKeys[5] remains board/piece_badge and is not the goal. Slots 0..4 were not reordered',
     beacon: 'one current cell per wave (engine.js beaconHit); repeat index 24 advances only when the cursor reaches that entry',
     coast09: 'draft [8,24,12,24,40] is supported by the engine and is not shipped; unique alternative [8,24,12,25,40] is not shipped',
