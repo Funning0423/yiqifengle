@@ -1,6 +1,8 @@
+[QF_PRELOAD_STAGE] {"target":"meadow","stage":"bundle:region_meadow","ms":1,"budgetMs":1800,"frameMaxMs":0,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"bundle:region_skycity","ms":0,"budgetMs":1800,"ok":true}
 {
   "status": "PASS",
-  "timeUTC": "2026-10-26T10:30:22.182Z",
+  "timeUTC": "2026-10-30T10:18:32.104Z",
   "scope": "Actual production WorldNativeComposition and mainline controller, legal progression, explicit world-command doubles. Tests command ordering/ownership only, not rendered movement.",
   "checks": [
     {
@@ -66,3 +68,15 @@
     }
   ]
 }
+[QF_PRELOAD_STAGE] {"target":"meadow","stage":"bundle:transport_sail","ms":1,"budgetMs":400,"frameMaxMs":0,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:env_skycity+siblings","ms":0,"budgetMs":450,"ok":false}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:transport_balloon","ms":1,"budgetMs":230,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:transit_clouds_merged","ms":0,"budgetMs":150,"ok":true}
+[QF_MEADOW_SPLIT] {"n":0,"frames":0,"maxFrameWorkMs":0,"maxItem":"","maxItemMs":0,"over":[],"inSail":[]}
+[QF_PRELOAD_STAGE] {"target":"meadow","stage":"split:env_meadow","ms":1,"budgetMs":1200,"frameMaxMs":0,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:transit_night_dome","ms":0,"budgetMs":80,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"prefab:far_meadow_card","ms":0,"budgetMs":60,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"meadow","stage":"prefab:env_meadow","ms":0,"budgetMs":450,"frameMaxMs":0,"ok":false}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"json:balloon_flightpath","ms":1,"budgetMs":40,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"skycity","stage":"effect:balloon-grade","ms":0,"budgetMs":40,"ok":true}
+[QF_PRELOAD_STAGE] {"target":"meadow","stage":"mount:meadow-warm-rig","ms":0,"budgetMs":700,"frameMaxMs":0,"ok":false}

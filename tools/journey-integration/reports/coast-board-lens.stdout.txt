@@ -1,0 +1,24 @@
+ok   1 pose table: 7 screens, distance-only, margins >=0.08, menu clear
+ok   2 390x844 whole 31.92 s: v 7.40 m/s, step 0.123, yaw/pitch 56.8, acc p99 97.7, fov 0.062
+ok   2 390x844 S7 7.00 s: v 6.96 m/s, step 0.116 m, yaw/pitch 56.8 deg/s, acc p99 40.2, fov 0.000; ends on board pose
+ok   2 414x896 whole 31.92 s: v 7.40 m/s, step 0.123, yaw/pitch 56.8, acc p99 97.7, fov 0.062
+ok   2 414x896 S7 7.00 s: v 6.96 m/s, step 0.116 m, yaw/pitch 56.8 deg/s, acc p99 40.2, fov 0.000; ends on board pose
+ok   2 360x780 whole 31.92 s: v 7.40 m/s, step 0.123, yaw/pitch 56.8, acc p99 97.7, fov 0.062
+ok   2 360x780 S7 7.00 s: v 6.96 m/s, step 0.116 m, yaw/pitch 56.8 deg/s, acc p99 40.1, fov 0.000; ends on board pose
+ok   2 375x667 whole 31.92 s: v 7.40 m/s, step 0.123, yaw/pitch 60.3, acc p99 97.7, fov 0.062
+ok   2 375x667 S7 7.00 s: v 5.85 m/s, step 0.097 m, yaw/pitch 60.3 deg/s, acc p99 48.2, fov 0.000; ends on board pose
+ok   2 320x568 whole 31.92 s: v 7.40 m/s, step 0.123, yaw/pitch 60.3, acc p99 97.7, fov 0.062
+ok   2 320x568 S7 7.00 s: v 5.84 m/s, step 0.097 m, yaw/pitch 60.3 deg/s, acc p99 48.3, fov 0.000; ends on board pose
+ok   2 390x520 whole 31.92 s: v 7.40 m/s, step 0.123, yaw/pitch 62.0, acc p99 97.7, fov 0.062
+ok   2 390x520 S7 7.00 s: v 5.50 m/s, step 0.092 m, yaw/pitch 62.0 deg/s, acc p99 52.4, fov 0.000; ends on board pose
+ok   2 768x1024 whole 31.92 s: v 7.40 m/s, step 0.123, yaw/pitch 62.0, acc p99 97.7, fov 0.062
+ok   2 768x1024 S7 7.00 s: v 5.50 m/s, step 0.092 m, yaw/pitch 62.0 deg/s, acc p99 52.4, fov 0.000; ends on board pose
+[enter-level] hold (live lens is the board pose)
+[enter-level] hold (live lens is the board pose)
+[enter-level] hold (live lens is the board pose)
+[enter-level] hold (live lens is the board pose)
+[enter-level] hold (live lens is the board pose)
+[enter-level] hold (live lens is the board pose)
+[enter-level] hold (live lens is the board pose)
+ok   3 enter-level: hold = 0 writes; push = enter-level only, <=1/frame, ends on the board pose, 0 writes after the reveal (60/30 fps)
+PASS coast-board-lens
