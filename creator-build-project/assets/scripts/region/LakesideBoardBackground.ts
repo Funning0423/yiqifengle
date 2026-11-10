@@ -11,7 +11,7 @@ import {Cancellation} from '../world-r1/WorldFlowCore';
 import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,lakesideFillMaskBytes,lakesideFillWeight,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,LAKESIDE_SUNSET_SKY,lakesideSunsetSkyGeometry,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,lakesideFillMaskBytes,lakesideFillWeight,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
 import {getGlobalWind} from '../render/GlobalWind';
 import {LAKESIDE_LIFE} from '../render/LakesideLifeCore';
@@ -156,6 +156,23 @@ export function mergeLakesideStatic(scenery:Node,skip:(n:Node)=>boolean):MergeOu
  }
  out.stats.ms=Date.now()-t0;return out;
 }
+/** PR79 sunset backdrop (LakesideSceneData LAKESIDE_SUNSET_SKY): one unlit vertex-colour sphere under the board scenery, drawn by the
+ *  board camera only (lakeside layer), depth test on / write off, no shadows, one draw call. Built in code (no asset, no meta).
+ *  Decoration only: any failure logs once and the board keeps its clear colour. */
+export type LakesideSunsetSky={node:Node;mesh:Mesh;mat:Material};
+export function mountLakesideSunsetSky(scenery:Node):LakesideSunsetSky|null{
+ let mesh:Mesh|null=null,mat:Material|null=null,node:Node|null=null;
+ try{const g=lakesideSunsetSkyGeometry(),A=gfx.AttributeName;
+  mesh=utils.createMesh({positions:g.positions,colors:g.colors,indices:g.indices,attributes:[new gfx.Attribute(A.ATTR_POSITION,gfx.Format.RGB32F),new gfx.Attribute(A.ATTR_COLOR,gfx.Format.RGBA8,true)]} as any,undefined,{calculateBounds:true});
+  mat=new Material();mat.initialize({effectName:'builtin-unlit',technique:0,defines:{USE_VERTEX_COLOR:true},states:{rasterizerState:{cullMode:gfx.CullMode.NONE},depthStencilState:{depthTest:true,depthWrite:false}}});
+  node=new Node('LakesideSunsetSky');node.layer=LAKESIDE_LAYER;scenery.addChild(node);
+  const mr=node.addComponent(MeshRenderer);mr.shadowCastingMode=0 as any/* OFF */;mr.receiveShadow=0 as any/* OFF */;mr.mesh=mesh;mr.setSharedMaterial(mat,0);
+  return {node,mesh,mat};
+ }catch(error){const drop=(a:any)=>{try{a?.destroy?.();}catch{}};if(node&&isValid(node,true))drop(node);drop(mesh);drop(mat);
+  try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'sunset-sky-skipped',error:String((error as any)?.message??error)}));}catch{}return null;}
+}
+/** Day only (LAKESIDE_SUNSET_SKY.dayOnly): by night the sphere is off and the night clear colour shows. */
+export function lakesideSunsetSkyActive(mode:LakesideDayNight):boolean{return !LAKESIDE_SUNSET_SKY.dayOnly||mode==='day';}
 function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
@@ -275,7 +292,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
  /* TRIAL kit: apply flag BEFORE mountLakesideScenery filters instances (preload runs earlier than initializeManaged). Opt-out ?qflakesidekit=0 still honored. Camera unchanged — lakesideAlignedBoardPose stays 运镜/frame path. */
  try{lakesideBoardKitFromFlag();}catch{/* board-projection optional in pure scene tests */}
  let token=buildToken,host:Node=parent,scenery:Node|null=null;
- let merged:MergeOut|null=null,guest:LakesideGuest|null=null;
+ let merged:MergeOut|null=null,guest:LakesideGuest|null=null,sunsetSky:LakesideSunsetSky|null=null;
  let step='start',rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
  const held:Array<{decRef():unknown}>=[];
  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
@@ -290,6 +307,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
   if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
+  if(sunsetSky&&isValid(sunsetSky.node,true))sunsetSky.node.active=lakesideSunsetSkyActive(mode);/* PR79 sunset backdrop: day only */
   if(waterMat)applyLakesideWaterMode(waterMat,mode);
   if(scenery&&isValid(scenery,true))applyLakesideLandFill(scenery,mode);
   lakesideDiagOnce(camera,l,amb);
@@ -319,7 +337,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   *  draws), which used to rotate the shared sun to the board yaw on the first level-loading frame - the x/z flip the Mac caught. */
  const drawing=()=>visible&&!dead&&!!camera&&isValid(camera,true)&&camera.enabled&&!!camera.node&&camera.node.activeInHierarchy;
  const syncDir=()=>{if(drawing())applyDir();else if(saved||savedFog)restoreDir();};
- const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(pre&&isValid(parent,true))parent.destroy()/* preload holder */;if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
+ const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(pre&&isValid(parent,true))parent.destroy()/* preload holder */;if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}if(sunsetSky){sunsetSky.mesh.destroy();sunsetSky.mat.destroy();sunsetSky=null;}for(const a of held.splice(0))a.decRef();};
  off=token.onCancel(dispose);
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
  try{
@@ -347,6 +365,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   setLayer(scenery);
   /* r4-prep B: she stays in frame after landing (frozen copy at her landed spot). A preloaded lease takes her copy on adopt (after the landing hook). */
   if(!pre){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}
+  step='sunset-sky';sunsetSky=mountLakesideSunsetSky(scenery);/* after the static merge (never merged); own layer = LAKESIDE_LAYER */
   step='lights-camera';
   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);

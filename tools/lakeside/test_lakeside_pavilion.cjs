@@ -8,7 +8,7 @@ const {createHarness}=require('../board-ui/harness.cjs');
 const ROOT=path.resolve(__dirname,'../..'),S=ROOT+'/creator-build-project/assets/scripts/',B=ROOT+'/creator-build-project/assets/bundles/region_lakeside/';
 const H=createHarness(),D=H.load(S+'region/LakesideSceneData.ts'),CP=H.load(S+'world-r1/CameraPose.ts'),LK=H.load(S+'region/LakesideCameraLayout.ts'),BL=H.load(S+'ui/BoardLayout.ts');
 const all=JSON.parse(fs.readFileSync(B+'scene_r5h_slim_transforms.json','utf8')).instances,live=D.lakesideSceneInstances(all);
-assert.equal(live.length,813,'runtime lakeside instances (431 r5h3 + 11 b16 boardwalk + 29 far-ring clusters + 275 near scatter + 67 seal bushes)');
+assert.equal(live.length,842,'runtime lakeside instances (431 r5h3 + 11 b16 boardwalk + 29 far-ring clusters + 275 near scatter + 67 seal bushes + 29 board-fusion perimeter pads/lotus)');
 const pav=live.filter(i=>i.glb==='LK_pavilion.glb');
 assert.equal(pav.length,1,'exactly one pavilion (r5h3 COCOS_HANDOFF: LK_pavilion unique)');
 assert.equal(pav[0].name,'LK_pavilion_i');assert.deepEqual([...pav[0].pos],[13.6,0.55,-4.6],'the real r5h3 placement (right shore)');

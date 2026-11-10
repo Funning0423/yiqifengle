@@ -2,7 +2,7 @@
 /* lakeside-kit-wiring: ManagedMobileBoardUI lakeside fusion-kit branch. TRIAL default ON; opt-out ?qflakesidekit=0 / __qfLakesideBoardKit=false
  * (2D tray, grid cellAt). ON: cells on the projected water-grid centres (tap hit), tray + tile bases + 2D piece art hidden
  * (scene LK_piece_* / wb_line / buoy / raft are the visual), cellAt = nearest projected centre, fallback = 0, no camera writes.
- * Kit scene keep = default 813 + 49 RING + 49 SHD + 52 LK_piece_* (=963); board_frame still skipped. Formal tip 05ca7c50 stays OFF. */
+ * Kit scene keep = default 842 (813 + 29 board-fusion perimeter pads/lotus) + 49 RING + 49 SHD + 52 LK_piece_* (=992); board_frame still skipped. Formal tip 05ca7c50 stays OFF. */
 const assert = require('node:assert/strict');
 const { createHarness } = require('./harness.cjs');
 const { createBoard, snapshot } = require('./board-fixture.cjs');
@@ -56,12 +56,13 @@ async function mk(on, w, h, region) {
   const SD = createHarness().load('region/LakesideSceneData');
   const tr = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '../../creator-build-project/assets/bundles/region_lakeside/scene_r5h_slim_transforms.json'), 'utf8'));
   SD.setLakesideKitAssets(false);
-  assert.equal(SD.lakesideSceneInstances(tr.instances).length, 813, 'default keep 813');
+  assert.equal(SD.lakesideSceneInstances(tr.instances).length, 842, 'default keep 842');
   assert.equal(SD.lakesideSkippedGlb().length, 3, 'default skip 3');
   assert.equal(SD.lakesideSceneInstances(tr.instances).filter(i => /^LK_piece_/.test(i.glb)).length, 0, 'default filters pieces');
   SD.setLakesideKitAssets(true);
   const on = SD.lakesideSceneInstances(tr.instances);
-  assert.equal(on.length, 963, 'kit keep 813+98 RING/SHD +52 pieces');
+  assert.equal(on.length, 992, 'kit keep 842+98 RING/SHD +52 pieces');
+  assert.equal(on.filter(i => /^LK_(lilypad|lotus)_fz\d\d$/.test(i.name)).length, 29, 'board-fusion perimeter pads/lotus');
   assert.equal(on.filter(i => i.glb === 'LK_contact_shadow.glb').length, 49);
   assert.equal(on.filter(i => i.glb === 'LK_ripple_ring.glb').length, 49);
   assert.equal(on.filter(i => /^LK_piece_/.test(i.glb)).length, 52, 'kit keeps LK_piece_*');

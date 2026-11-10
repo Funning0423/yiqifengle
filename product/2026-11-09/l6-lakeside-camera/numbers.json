@@ -1,0 +1,96 @@
+{
+  "pose": {
+    "position": [
+      0,
+      15.7,
+      28.35
+    ],
+    "target": [
+      0,
+      1.616,
+      1.862
+    ],
+    "fovVerticalDeg": 55,
+    "pitchDeg": -28
+  },
+  "treeLinePoint": "[0, 11.1, -57] far conifer crowns. Fraction is the part of the frame above that line (sky or far hills). Offline render has no sky dome.",
+  "darkBand": "Bottom rays hit the lake at z 17.5, short of the near foam sheet at z>~19 that painted the dark band on c1cebdb5.",
+  "binding": "Raising the far tree line to 10-15% of the frame needs about another 4 degrees of upward tilt. That drops the board through the bottom safe area. With the 20-40 px bottom gap, 85% width and K9 >=44 held, the most sky above those crowns is 5.4% at pitch -28.",
+  "at390x844": {
+    "8c5ad5f0": {
+      "boardWidthPercent": 86.6,
+      "boardHW": 0.662,
+      "boardCentreY": 0.792,
+      "bottomGapPx": 29.7,
+      "bridgeToBoardGapPx": 176.8,
+      "bridgeToBoardGapRatio": 0.209,
+      "skyAboveTreeLine": -0.04,
+      "bottomLakeZ": 17.36
+    },
+    "v4": {
+      "boardWidthPercent": 87.0,
+      "boardHW": 0.622,
+      "boardCentreY": 0.791,
+      "bottomGapPx": 36.6,
+      "bridgeToBoardGapPx": 162.3,
+      "bridgeToBoardGapRatio": 0.192,
+      "skyAboveTreeLine": 0.054,
+      "boardTopYRatio": 0.666,
+      "bottomLakeZ": 17.54,
+      "k9MinNearEdgeCellPx": 44.72
+    }
+  },
+  "v4screens": {
+    "390x844": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapPx": 36.6,
+      "centreY": 0.791,
+      "bridgeGapPx": 162.3,
+      "bridgeGapRatio": 0.192,
+      "skyAboveTreeLine": 0.054,
+      "cellPx": 48.44,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.54
+    },
+    "402x874": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapPx": 40.7,
+      "centreY": 0.79,
+      "bridgeGapPx": 167.3,
+      "bridgeGapRatio": 0.191,
+      "skyAboveTreeLine": 0.056,
+      "cellPx": 49.93,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.58
+    },
+    "430x932": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapPx": 44.5,
+      "centreY": 0.791,
+      "bridgeGapPx": 179.0,
+      "bridgeGapRatio": 0.192,
+      "skyAboveTreeLine": 0.055,
+      "cellPx": 53.41,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.55
+    },
+    "1206x2622": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapToUnscaledSafePx": 190.2,
+      "centreY": 0.79,
+      "bridgeGapRatio": 0.191,
+      "skyAboveTreeLine": 0.056,
+      "cellPx": 149.8,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.6
+    },
+    "360x780": {
+      "cellPx": 44.72,
+      "cellsOutsideSafe": 0
+    }
+  }
+}

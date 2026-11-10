@@ -102,7 +102,10 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   landFillNearGlbs: ['LK_terrain.glb'] as const,
   landFillFarGlbs: ['LK_far_hills.glb', 'LK_far_shore.glb'] as const,
   landFillNearLinear: [0.104, 0.196, 0.025] as const, // day: grass back to the reference (fit, 390x844)
-  landFillFarLinear: [0.043, 0.087, 0.107] as const, // day: far hills + snow back to the reference, cool haze
+  /** PR79 sunset (Funning accept PNG 20261105 = r5 still: far hills inside the warm r5 fog read salmon ~200/135/115): day far fill
+   *  warm haze, was the r5h3 cool haze [0.043, 0.087, 0.107]. Box Blender stand-in: hills 92/127/151 -> ~200/136/123 sRGB with the
+   *  sunset backdrop (LAKESIDE_SUNSET_SKY). Proxy - the Mac same-camera day shot decides. Night value unchanged. */
+  landFillFarLinear: [0.5, 0.13, 0.02] as const,
   /** r4 prop fill (VB, Grok Bot): the SAME flat emissive fill on four more classes, each with its own per-mode value in
    *  lakesideModeLighting (foliageFillLinear / wallFillLinear / rockFillLinear / cloudFillLinear). Still never filled: water
    *  (waterGlbs), bridge (LK_bridge, LK_bridge_steps), small props (posts, lanterns, boats, barrels, ...), reeds/flowers/grass cards.
@@ -124,6 +127,11 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   rockFillLinear: [0.079, 0.079, 0.079] as const, cloudFillLinear: [0.33, 0.24, 0.218] as const,
   /** r5 day (stand-in fit vs engine-cam r5h3, per palette swatch with LAKESIDE_FILL_PART_WEIGHT.day): plant = green-leaning, prop = warm neutral. */
   plantFillLinear: [0.03, 0.09, 0.04] as const, propFillLinear: [0.06, 0.045, 0.035] as const,
+  /** scene/lakeside-board-fusion (L2, Funning accept PNG 20261105: crisp cool-white glowing grid on the water): the 16 LK_wb_line
+   *  quads get their own fill class - a cool-white emissive lift on the palette swatch 8ff6ff (weight 1) so the grid reads over the
+   *  bright day water and glows softly at night. Proxy values (box), the Mac day/night same-camera shots decide. */
+  lineFillGlbs: ['LK_wb_line.glb'] as const,
+  lineFillLinear: [0.42, 0.5, 0.52] as const,
   waterMaterialPath: 'water/lakeside-water',
   waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
@@ -181,6 +189,8 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   rockFillLinear: [0.0049, 0.0116, 0.0356] as const, cloudFillLinear: [0.0078, 0.0091, 0.0145] as const,
   /** r5 night: ~80% of the Mac r3 night luma per class (stand-in: plant 0.82, prop 0.81), cool (red lowest). */
   plantFillLinear: [0.016, 0.048, 0.052] as const, propFillLinear: [0.0015, 0.016, 0.026] as const,
+  /** L2 night: the grid keeps a soft cool glow (~0.6 of day, bluer) so the board stays readable in the dark. */
+  lineFillLinear: [0.2, 0.3, 0.36] as const,
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
@@ -194,6 +204,8 @@ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[];
   foliageFillLinear: readonly number[]; wallFillLinear: readonly number[]; rockFillLinear: readonly number[]; cloudFillLinear: readonly number[];
   /** r5 per-part fill: plants and small props (see LAKESIDE_DIR_LIGHT_PARAMS.plantFillGlbs / propFillGlbs). */
   plantFillLinear: readonly number[]; propFillLinear: readonly number[];
+  /** L2 board grid lines (LK_wb_line) fill. */
+  lineFillLinear: readonly number[];
   /** r4 (VB): the colour of the visible SKY DOME / backdrop for this mode, sRGB hex = the board camera clear colour (day lakesideDayClearColor(),
    *  night LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor; day 28/143/184, night #1c2740 = 28/39/64). Read by
    *  lakesideSkyDomeColor(mode) (journey sky sphere target). NOT waterSkyZenith/Low/HorizonLinear: those are the
@@ -208,11 +220,11 @@ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighti
     waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
     landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear,
     foliageFillLinear: P.foliageFillLinear, wallFillLinear: P.wallFillLinear, rockFillLinear: P.rockFillLinear, cloudFillLinear: P.cloudFillLinear,
-    plantFillLinear: P.plantFillLinear, propFillLinear: P.propFillLinear, skyDomeColor: lakesideDayClearColor() };
+    plantFillLinear: P.plantFillLinear, propFillLinear: P.propFillLinear, lineFillLinear: P.lineFillLinear, skyDomeColor: lakesideDayClearColor() };
 }
 /** night mode lighting = the night params + the derived sky dome colour (same value as the night clear colour, no second literal). */
 const LAKESIDE_NIGHT_MODE_LIGHTING: LakesideModeLighting = Object.freeze(Object.assign({}, LAKESIDE_NIGHT_LIGHT_PARAMS, { skyDomeColor: LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor }));
-export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud' | 'plant' | 'prop';
+export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud' | 'plant' | 'prop' | 'line';
 /** r4 land fill: which landform class a GLB is (null = not land: never filled). */
 export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
@@ -224,6 +236,7 @@ export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null
   if ((P.cloudFillGlbs as readonly string[]).includes(glb)) return 'cloud';
   if ((P.plantFillGlbs as readonly string[]).includes(glb)) return 'plant';
   if ((P.propFillGlbs as readonly string[]).includes(glb)) return 'prop';
+  if ((P.lineFillGlbs as readonly string[]).includes(glb)) return 'line';
   return null;
 }
 /** The fill (emissiveScale, linear) of a class in a mode - the only class -> value map (board and journey writers read it). */
@@ -231,7 +244,7 @@ export function lakesideFillLinear(mode: LakesideDayNight, cls: LakesideLandFill
   const M = lakesideModeLighting(mode);
   return cls === 'near' ? M.landFillNearLinear : cls === 'far' ? M.landFillFarLinear : cls === 'foliage' ? M.foliageFillLinear
     : cls === 'wall' ? M.wallFillLinear : cls === 'rock' ? M.rockFillLinear : cls === 'plant' ? M.plantFillLinear : cls === 'prop' ? M.propFillLinear
-    : M.cloudFillLinear;
+    : cls === 'line' ? M.lineFillLinear : M.cloudFillLinear;
 }
 /** r5 per-part fill (VB). Every lakeside GLB is ONE palette material (T_LK_palette_256: 16x16 cells of 16 px, nearest, UV into a cell), so
  *  the "parts" of a model (roof, wall, door trim, trunk, crown, cliff...) are its palette swatches. The fill copy samples a 16x16 mask
@@ -325,6 +338,64 @@ export function lakesideFogEnd(p: { fogStart: number; fogMaxAt: number; fogMaxAm
 export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
 const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
 export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
+/** PR79 sunset sky (scene design, merge of scene/lakeside-board-fusion into cursor/l6-lakeside-camera). The Funning accept PNG
+ *  20261105 is renders/lakeside_r5_still_graded.png (r5 blend, CAM_board [0,13.2,26.5] pitch -22.5, vFOV 61.93): its warm
+ *  "sunset" is the r5 volumetric fog (scatter 1/0.62/0.38, 180x170x28 m) over the far hills + the dusk world ramp, which the
+ *  r5h3 Cocos port dropped (no volumetrics; day clear colour = the r5h3 zenith blue #1c8fb8, so LK_far_hills sat on blue sky).
+ *  This is that look as an unlit vertex-colour backdrop sphere drawn by the board camera only, by day only (night keeps its
+ *  clear colour): sRGB bytes sampled from the accept PNG per elevation (deg, from the sphere centre) x azimuth (deg, + = right
+ *  of the board view -Z), clamped outside the sampled window. builtin-unlit shows SRGBToLinear(vertex colour) then gamma out,
+ *  i.e. the bytes as authored. Proxy look from the box (Blender preview); the Mac same-camera shot decides. */
+export const LAKESIDE_SUNSET_SKY = Object.freeze({
+  dayOnly: true as const,
+  radius: 400, center: [0, 12, 20] as const, segments: 48,
+  ringsDeg: [-90, -30, -10, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 14, 20, 35, 60, 90] as const,
+  elevDeg: [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8] as const,
+  azDeg: [-16, -8, 0, 8, 16] as const,
+  srgb: [
+    [[151,115,85], [159,118,90], [175,124,84], [240,136,94], [254,142,99]],
+    [[153,114,96], [162,117,98], [179,125,89], [248,138,97], [255,144,106]],
+    [[159,119,102], [170,124,108], [184,128,100], [251,141,101], [255,148,113]],
+    [[167,128,114], [176,131,113], [197,134,111], [252,143,107], [254,180,158]],
+    [[169,129,116], [178,133,115], [216,141,127], [254,181,160], [254,184,159]],
+    [[172,131,117], [183,134,117], [236,144,127], [254,152,129], [253,189,161]],
+    [[175,132,118], [188,136,118], [250,148,118], [255,158,137], [252,169,141]],
+    [[179,135,120], [196,138,119], [254,159,132], [254,162,142], [251,170,144]],
+    [[188,139,123], [206,141,122], [255,170,149], [254,173,147], [250,172,143]],
+    [[197,142,125], [223,146,126], [255,174,155], [254,179,149], [249,175,137]],
+    [[202,144,127], [232,148,130], [255,178,158], [254,178,148], [248,177,136]],
+  ] as const,
+});
+const lerpIdx = (xs: readonly number[], v: number): [number, number, number] => {
+  if (v <= xs[0]) return [0, 0, 0]; const n = xs.length - 1; if (v >= xs[n]) return [n, n, 0];
+  let i = 0; while (i < n - 1 && v > xs[i + 1]) i++; return [i, i + 1, (v - xs[i]) / (xs[i + 1] - xs[i])];
+};
+/** Bilinear sRGB byte colour of the sunset backdrop at a direction (elevation / azimuth in degrees), clamped to the table. */
+export function lakesideSunsetSkyColor(elevDeg: number, azDeg: number): [number, number, number] {
+  const S = LAKESIDE_SUNSET_SKY, [e0, e1, te] = lerpIdx(S.elevDeg, elevDeg), [a0, a1, ta] = lerpIdx(S.azDeg, azDeg), out: [number, number, number] = [0, 0, 0];
+  for (let k = 0; k < 3; k++) {
+    const top = S.srgb[e0][a0][k] + (S.srgb[e0][a1][k] - S.srgb[e0][a0][k]) * ta, bot = S.srgb[e1][a0][k] + (S.srgb[e1][a1][k] - S.srgb[e1][a0][k]) * ta;
+    out[k] = Math.round(top + (bot - top) * te);
+  }
+  return out;
+}
+/** UV-sphere geometry of the backdrop (scenery-local, faces seen from inside; caller sets cull none): positions xyz, colours RGBA
+ *  bytes, triangle indices. Rings = ringsDeg (poles collapse), azimuth 0 = -Z, + = +X. Pure, no cc import. */
+export function lakesideSunsetSkyGeometry(): { positions: number[]; colors: number[]; indices: number[] } {
+  const S = LAKESIDE_SUNSET_SKY, seg = S.segments, R = S.radius, c = S.center, positions: number[] = [], colors: number[] = [], indices: number[] = [];
+  for (const e of S.ringsDeg) {
+    const el = e * Math.PI / 180, y = Math.sin(el) * R, h = Math.cos(el) * R;
+    for (let j = 0; j <= seg; j++) {
+      const azd = -180 + 360 * j / seg, az = azd * Math.PI / 180;
+      positions.push(+(c[0] + Math.sin(az) * h).toFixed(3), +(c[1] + y).toFixed(3), +(c[2] - Math.cos(az) * h).toFixed(3));
+      const col = lakesideSunsetSkyColor(e, azd); colors.push(col[0], col[1], col[2], 255);
+    }
+  }
+  for (let i = 0; i < S.ringsDeg.length - 1; i++) for (let j = 0; j < seg; j++) {
+    const a = i * (seg + 1) + j, b = a + seg + 1; indices.push(a, b, a + 1, a + 1, b, b + 1);
+  }
+  return { positions, colors, indices };
+}
 /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
 export const LAKESIDE_CLEAR_COLOR = '#f2b98a';
 /** Day clear colour, sRGB bytes as '#rrggbb' (clear colour is never light-encoded). dir mode: the r5h3 sky clear
