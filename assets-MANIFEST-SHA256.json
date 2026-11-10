@@ -526,8 +526,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_harbor/models/env_harbor.glb",
-    "bytes": 208324,
-    "sha256": "c62f74cb26879f2876d5a1f8855f152cccee0c4ee791afe9f7a560b2a4ad90f0"
+    "bytes": 178360,
+    "sha256": "2ab2707c36c09539fc97fb47a9472a8ba0312ad6d60f768ba6cbedf60d00d6f3"
   },
   {
     "path": "creator-build-project/assets/bundles/region_hotspring/models/env_hotspring.glb",

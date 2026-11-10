@@ -29,13 +29,17 @@ function addQuad(m, a, b, c, d, ca, cb, cc, cd) { addTri(m, a, b, c, ca, cb, cc)
 const parts = [];
 function part(name, unlit, build) { const m = mesh(); build(m); parts.push({ name, unlit: !!unlit, m }); }
 
-const slabA = rgba(238, 228, 210), slabB = rgba(228, 216, 196), joint = rgba(214, 202, 184);
-const boardA = rgba(252, 247, 236), boardB = rgba(246, 239, 224), boardLine = rgba(226, 214, 196);
-const glazeW = rgba(246, 248, 252), glazeB = rgba(36, 96, 186), glazeT = rgba(52, 164, 186);
-const white = rgba(250, 246, 238), sunW = rgba(255, 238, 214), shadeW = rgba(206, 214, 226);
-const dome = rgba(32, 88, 176), domeLit = rgba(86, 146, 214), domeShade = rgba(24, 58, 128);
-const flower = rgba(214, 52, 108), flower2 = rgba(232, 104, 148), leaf = rgba(64, 142, 88), leafD = rgba(42, 108, 68);
-const wood = rgba(168, 122, 78), woodD = rgba(132, 92, 58);
+const slabA = rgba(246, 238, 224), slabB = rgba(238, 228, 210), joint = rgba(226, 214, 196);
+const boardA = rgba(255, 251, 242), boardB = rgba(250, 244, 230), boardLine = rgba(232, 220, 202);
+const glazeW = rgba(250, 252, 255), glazeB = rgba(18, 98, 214), glazeT = rgba(24, 168, 198);
+const white = rgba(255, 252, 246), sunW = rgba(255, 232, 198), shadeW = rgba(246, 240, 230);
+const coolW = rgba(236, 242, 248);
+const dome = rgba(12, 102, 214), domeLit = rgba(56, 164, 242), domeShade = rgba(6, 68, 176);
+const flower = rgba(220, 48, 112), flower2 = rgba(236, 96, 146), leaf = rgba(58, 150, 86), leafD = rgba(36, 112, 64);
+const wood = rgba(176, 128, 78), woodD = rgba(140, 96, 58);
+const hazeBlue = rgba(186, 208, 228);
+const MILL = { x: 3.05, z: -4.7, y: -0.4 };
+const TOWER = { x: -3.35, z: -4.55, y: -0.4 };
 
 function faceBox(m, x0, y0, z0, x1, y1, z1, top, sun, shade, front) {
   addQuad(m, [x0, y1, z1], [x1, y1, z1], [x1, y1, z0], [x0, y1, z0], top);
@@ -76,10 +80,12 @@ function glaze(m, x0, x1, z0, z1, row) {
 }
 
 part('HB_ground', false, m => {
-  slab(m, X0, -G1, Z0, Z1, slabA, slabB, joint);
-  slab(m, G1, X1, Z0, Z1, slabA, slabB, joint);
-  slab(m, -G1, G1, Z0, -G1, slabB, slabA, joint);
+  const zDrop = -2.55;
+  slab(m, X0, -G1, zDrop, Z1, slabA, slabB, joint);
+  slab(m, G1, X1, zDrop, Z1, slabA, slabB, joint);
   slab(m, -G1, G1, G1, Z1, slabA, slabB, joint);
+  addQuad(m, [X0, Y, Z0], [X0 + 0.04, Y, Z0], [X0 + 0.04, Y, Z0 + 0.04], [X0, Y, Z0 + 0.04], slabA);
+  addQuad(m, [X1 - 0.04, Y, Z0], [X1, Y, Z0], [X1, Y, Z0 + 0.04], [X1 - 0.04, Y, Z0 + 0.04], slabA);
   glaze(m, -HALF, HALF, HALF, G1, 0);
   glaze(m, -HALF, HALF, -G1, -HALF, 1);
   glaze(m, -G1, -HALF, -HALF, HALF, 2);
@@ -115,9 +121,6 @@ function dome6(m, x, z, y, r, h, col, lit, shade) {
     const c = i < n / 2 ? lit : i === n - 1 ? shade : col;
     addQuad(m, R[k][i], R[k][j], R[k + 1][j], R[k + 1][i], c);
   }
-  faceBox(m, x - 0.045, y + h, z - 0.045, x + 0.045, y + h + 0.16, z + 0.045, white, sunW, shadeW, white);
-  faceBox(m, x - 0.015, y + h + 0.16, z - 0.09, x + 0.015, y + h + 0.34, z + 0.09, white, sunW, shadeW, white);
-  faceBox(m, x - 0.07, y + h + 0.24, z - 0.015, x + 0.07, y + h + 0.27, z + 0.015, white, sunW, shadeW, white);
 }
 
 function windowQ(m, x0, y0, z, x1, y1, col) {
@@ -125,81 +128,95 @@ function windowQ(m, x0, y0, z, x1, y1, col) {
 }
 function villa(m, x, z, w, d, h, opts) {
   const o = opts || {};
-  const haze = o.haze || 0;
-  const top = mix(white, rgba(214, 210, 220), haze);
-  const sun = mix(sunW, rgba(210, 206, 214), haze);
-  const shade = mix(shadeW, rgba(176, 184, 204), haze * 0.65);
-  const front = mix(rgba(255, 244, 228), rgba(214, 210, 220), haze);
-  faceBox(m, x, Y, z, x + w, h, z + d, top, sun, shade, front);
-  const cap = mix(glazeB, rgba(150, 160, 186), haze);
-  faceBox(m, x - 0.04, h, z - 0.04, x + w + 0.04, h + 0.06, z + d + 0.04, cap, mix(cap, sunW, 0.35), mix(cap, shade, 0.2), cap);
+  const haze = o.haze || 0, y0 = o.y0 || 0;
+  const top = mix(white, hazeBlue, haze * 0.85);
+  const sun = mix(sunW, hazeBlue, haze * 0.45);
+  const shade = mix(coolW, hazeBlue, haze * 0.7);
+  const front = mix(rgba(255, 250, 242), hazeBlue, haze * 0.55);
+  faceBox(m, x, y0, z, x + w, y0 + h, z + d, top, sun, shade, front);
+  const cap = mix(glazeB, rgba(70, 150, 230), haze * 0.35);
+  faceBox(m, x - 0.035, y0 + h, z - 0.035, x + w + 0.035, y0 + h + 0.055, z + d + 0.035, cap, mix(cap, domeLit, 0.35), mix(cap, domeShade, 0.25), cap);
   if (o.dome) {
-    const dc = mix(dome, rgba(140, 156, 186), haze);
-    dome6(m, x + w * 0.5, z + d * 0.5, h + 0.06, Math.min(w, d) * 0.34, o.domeH || 0.72, dc, mix(domeLit, rgba(180, 190, 210), haze), mix(domeShade, rgba(120, 130, 160), haze));
+    const dc = mix(dome, rgba(80, 150, 220), haze * 0.28);
+    dome6(m, x + w * 0.5, z + d * 0.5, y0 + h + 0.055, Math.min(w, d) * 0.36, o.domeH || 0.7, dc, mix(domeLit, rgba(140, 200, 245), haze * 0.2), mix(domeShade, rgba(40, 90, 170), haze * 0.15));
   }
   const wz = z + d + 0.02;
-  const win = mix(rgba(255, 214, 150), rgba(180, 190, 210), haze);
-  const shut = mix(glazeB, rgba(140, 156, 186), haze);
-  if (h > 0.9) {
-    windowQ(m, x + w * 0.22, h * 0.45, wz, x + w * 0.42, h * 0.72, win);
-    windowQ(m, x + w * 0.58, h * 0.45, wz, x + w * 0.78, h * 0.72, win);
-    windowQ(m, x + w * 0.18, h * 0.42, wz + 0.001, x + w * 0.22, h * 0.75, shut);
-    windowQ(m, x + w * 0.78, h * 0.42, wz + 0.001, x + w * 0.82, h * 0.75, shut);
+  const win = mix(rgba(255, 220, 160), hazeBlue, haze * 0.4);
+  const shut = mix(glazeB, rgba(70, 150, 230), haze * 0.25);
+  if (h > 0.85) {
+    windowQ(m, x + w * 0.22, y0 + h * 0.48, wz, x + w * 0.42, y0 + h * 0.74, win);
+    windowQ(m, x + w * 0.58, y0 + h * 0.48, wz, x + w * 0.78, y0 + h * 0.74, win);
+    windowQ(m, x + w * 0.18, y0 + h * 0.45, wz + 0.001, x + w * 0.22, y0 + h * 0.77, shut);
+    windowQ(m, x + w * 0.78, y0 + h * 0.45, wz + 0.001, x + w * 0.82, y0 + h * 0.77, shut);
   }
-  if (o.door) windowQ(m, x + w * 0.4, 0.02, wz, x + w * 0.6, h * 0.38, mix(wood, rgba(160, 160, 176), haze));
+  if (o.door) windowQ(m, x + w * 0.4, y0 + 0.02, wz, x + w * 0.6, y0 + h * 0.38, mix(wood, hazeBlue, haze * 0.3));
 }
 
 part('HB_houses', false, m => {
-  villa(m, -3.15, -3.55, 1.28, 1.15, 1.65, { dome: true, door: true, domeH: 0.58 });
-  villa(m, -2.95, -5.05, 1.42, 1.05, 2.25, { dome: true, door: true, domeH: 0.7 });
-  villa(m, -0.85, -4.85, 1.7, 1.05, 1.05, { dome: true, haze: 0.12, domeH: 0.78 });
-  villa(m, 1.55, -3.45, 1.35, 1.15, 1.55, { dome: true, door: true, domeH: 0.55 });
-  villa(m, 1.75, -4.95, 1.4, 1.05, 2.05, { dome: true, door: true, domeH: 0.66 });
-  villa(m, -1.55, -6.15, 1.15, 0.7, 0.72, { haze: 0.42 });
-  villa(m, 0.55, -6.25, 1.2, 0.62, 0.62, { haze: 0.5, dome: true, domeH: 0.38 });
-  faceBox(m, -3.28, 1.65, -3.05, -2.95, 2.15, -2.72, white, sunW, shadeW, white);
-  faceBox(m, 2.55, 2.05, -4.55, 2.88, 2.48, -4.22, white, sunW, shadeW, white);
+  villa(m, -3.55, -2.72, 1.15, 0.95, 1.45, { dome: true, door: true, domeH: 0.5 });
+  villa(m, -3.2, -4.05, 1.0, 0.82, 1.1, { dome: true, door: true, y0: -0.4, haze: 0.1, domeH: 0.4 });
+  villa(m, -2.95, -5.45, 0.85, 0.68, 0.82, { y0: -0.9, haze: 0.34, dome: true, domeH: 0.3 });
+  villa(m, 2.4, -2.7, 1.12, 0.92, 1.38, { dome: true, door: true, domeH: 0.48 });
+  villa(m, 2.65, -4.1, 0.95, 0.78, 1.02, { dome: true, y0: -0.4, haze: 0.12, domeH: 0.38 });
+  villa(m, 2.5, -5.5, 0.8, 0.65, 0.78, { y0: -0.9, haze: 0.36 });
 });
 
 part('HB_stairs', false, m => {
-  const flight = (x, z, dx, dz, n, w) => {
+  const flight = (x, z, yBase, drop, n, w) => {
+    const run = 0.58;
     for (let i = 0; i < n; i++) {
-      const y0 = i * 0.14, y1 = y0 + 0.14;
-      const ax = x + dx * i, az = z + dz * i;
-      const zLo = Math.min(az, az + dz), zHi = Math.max(az, az + dz) + 0.22;
-      faceBox(m, ax, y0, zLo, ax + w, y1, zHi, i % 2 ? white : sunW, sunW, shadeW, white);
+      const y1 = yBase - drop * i, y0 = y1 - drop;
+      const az = z - run * i;
+      faceBox(m, x, y0, az - run, x + w, y1, az, white, sunW, rgba(186, 208, 224), rgba(255, 252, 246));
     }
   };
-  flight(-2.68, -2.55, 0, -0.3, 6, 0.46);
-  flight(2.22, -2.55, 0, -0.3, 6, 0.46);
-  faceBox(m, -2.58, Y, -2.35, -2.28, 0.32, 2.35, white, sunW, shadeW, sunW);
-  faceBox(m, 2.28, Y, -2.35, 2.58, 0.32, 2.35, white, sunW, shadeW, sunW);
-  faceBox(m, -1.7, Y, 2.72, 1.7, 0.36, 2.98, white, sunW, shadeW, sunW);
-  for (const x of [-1.85, -0.55, 0.55, 1.55]) faceBox(m, x, 0.36, 2.68, x + 0.26, 0.56, 3.02, white, sunW, shadeW, sunW);
+  flight(-2.92, 1.05, 0.08, 0.22, 6, 0.5);
+  flight(2.42, 1.0, 0.08, 0.22, 6, 0.5);
+  for (let i = 0; i < 4; i++) {
+    const z = -2.62 - i * 0.46, y1 = -0.02 - i * 0.16, y0 = y1 - 0.16;
+    faceBox(m, -2.2, y0, z - 0.46, -1.05, y1, z, white, sunW, rgba(168, 198, 220), rgba(255, 252, 246));
+    faceBox(m, 1.05, y0, z - 0.46, 2.2, y1, z, white, sunW, rgba(168, 198, 220), rgba(255, 252, 246));
+  }
+  const cap = (x, z0, z1) => {
+    const t = 0.07, h = 0.11, yb = 0.07;
+    faceBox(m, x - t, Y, z0, x + t, yb, z1, white, sunW, shadeW, white);
+    const n = 3;
+    for (let i = 0; i < n; i++) {
+      const a0 = Math.PI * i / n, a1 = Math.PI * (i + 1) / n;
+      const x0 = x + Math.cos(a0) * t, x1 = x + Math.cos(a1) * t;
+      const y0 = yb + Math.sin(a0) * h, y1 = yb + Math.sin(a1) * h;
+      addQuad(m, [x0, y0, z1], [x1, y1, z1], [x1, y1, z0], [x0, y0, z0], i === n - 1 ? sunW : white);
+    }
+  };
+  cap(-2.42, -1.7, -0.35);
+  cap(-2.42, 0.25, 1.55);
+  cap(2.42, -1.65, -0.3);
+  cap(2.42, 0.3, 1.6);
 });
 
 part('HB_tower', false, m => {
-  faceBox(m, -2.72, Y, -6.35, -1.55, 3.05, -5.15, white, sunW, shadeW, rgba(255, 244, 226));
-  faceBox(m, -2.82, 3.05, -6.45, -1.45, 3.18, -5.05, mix(glazeB, white, 0.35), sunW, shadeW, glazeB);
-  dome6(m, -2.14, -5.75, 3.18, 0.52, 0.72, dome, domeLit, domeShade);
-  const fx = -2.14, fz = -5.13, fy = 2.05;
+  const tx = TOWER.x, tz = TOWER.z, ty = TOWER.y;
+  faceBox(m, tx, ty, tz, tx + 0.95, ty + 2.15, tz + 0.85, white, sunW, coolW, rgba(255, 250, 242));
+  faceBox(m, tx - 0.04, ty + 2.15, tz - 0.04, tx + 0.99, ty + 2.24, tz + 0.89, glazeB, domeLit, domeShade, glazeB);
+  dome6(m, tx + 0.48, tz + 0.42, ty + 2.24, 0.4, 0.55, dome, domeLit, domeShade);
+  const fx = tx + 0.48, fz = tz + 0.87, fy = ty + 1.35;
   const disc = (r, col, n) => {
     for (let i = 0; i < n; i++) {
       const a0 = (i / n) * Math.PI * 2, a1 = ((i + 1) / n) * Math.PI * 2;
       addTri(m, [fx, fy, fz], [fx + Math.cos(a0) * r, fy + Math.sin(a0) * r, fz], [fx + Math.cos(a1) * r, fy + Math.sin(a1) * r, fz], col);
     }
   };
-  disc(0.34, rgba(36, 78, 150), 8);
-  disc(0.26, rgba(252, 246, 234), 8);
+  disc(0.22, rgba(18, 86, 190), 8);
+  disc(0.16, rgba(255, 250, 240), 8);
   addQuad(m, [fx - 0.02, fy - 0.02, fz + 0.01], [fx + 0.02, fy - 0.02, fz + 0.01], [fx + 0.05, fy + 0.16, fz + 0.01], [fx - 0.01, fy + 0.16, fz + 0.01], rgba(42, 56, 78));
   addQuad(m, [fx - 0.02, fy, fz + 0.012], [fx + 0.14, fy - 0.02, fz + 0.012], [fx + 0.16, fy + 0.02, fz + 0.012], [fx, fy + 0.04, fz + 0.012], rgba(42, 56, 78));
-  const mx = 2.35, mz = -5.85;
-  const sides = 6, th = 2.35;
+  const mx = MILL.x, mz = MILL.z, my = MILL.y;
+  const sides = 6, th = 1.75;
   for (let s = 0; s < 2; s++) {
-    const y0 = th * s / 2, y1 = th * (s + 1) / 2, r0 = 0.42 - s * 0.04, r1 = 0.38 - s * 0.04;
+    const y0 = my + th * s / 2, y1 = my + th * (s + 1) / 2, r0 = 0.38 - s * 0.03, r1 = 0.34 - s * 0.03;
     for (let i = 0; i < sides; i++) {
       const a0 = (i / sides) * Math.PI * 2, a1 = ((i + 1) / sides) * Math.PI * 2;
-      const c = i < 3 ? sunW : shadeW;
+        const c = i < 3 ? sunW : coolW;
       addQuad(m,
         [mx + Math.cos(a0) * r0, y0, mz + Math.sin(a0) * r0],
         [mx + Math.cos(a1) * r0, y0, mz + Math.sin(a1) * r0],
@@ -207,11 +224,11 @@ part('HB_tower', false, m => {
         [mx + Math.cos(a0) * r1, y1, mz + Math.sin(a0) * r1], c);
     }
   }
-  dome6(m, mx, mz, th, 0.48, 0.55, wood, mix(wood, sunW, 0.35), woodD);
+  dome6(m, mx, mz, my + th, 0.42, 0.48, wood, mix(wood, sunW, 0.4), woodD);
 });
 
 part('HB_sails', false, m => {
-  const mx = 2.35, mz = -5.85, y = 2.15;
+  const mx = MILL.x, mz = MILL.z, y = MILL.y + 1.15;
   for (let i = 0; i < 4; i++) {
     const a = (i / 4) * Math.PI * 2 + 0.4;
     const dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
@@ -223,34 +240,37 @@ part('HB_sails', false, m => {
 });
 
 part('HB_bough', true, m => {
-  const z = 3.55, y = 1.28;
-  const bloom = (x, yy, zz, s, col) => {
-    addQuad(m, [x - s, yy, zz], [x + s, yy, zz], [x + s * 0.7, yy + s * 1.35, zz + 0.04], [x - s * 0.7, yy + s * 1.35, zz + 0.04], col);
-    addQuad(m, [x, yy, zz - s * 0.55], [x, yy, zz + s * 0.55], [x + 0.04, yy + s * 1.2, zz + s * 0.2], [x + 0.04, yy + s * 1.2, zz - s * 0.35], mix(col, rgba(255, 186, 198), 0.35));
-    addTri(m, [x - s * 0.2, yy + s * 0.45, zz + 0.05], [x + s * 0.85, yy + s * 0.2, zz + 0.08], [x + s * 0.15, yy + s * 1.15, zz + 0.1], mix(col, flower2, 0.4));
+  const pot = (x, z) => {
+    const n = 6, h = 0.22, r = 0.16;
+    for (let i = 0; i < n; i++) {
+      const a0 = (i / n) * Math.PI * 2, a1 = ((i + 1) / n) * Math.PI * 2;
+      addQuad(m,
+        [x + Math.cos(a0) * r * 0.7, 0.02, z + Math.sin(a0) * r * 0.7],
+        [x + Math.cos(a1) * r * 0.7, 0.02, z + Math.sin(a1) * r * 0.7],
+        [x + Math.cos(a1) * r, h, z + Math.sin(a1) * r],
+        [x + Math.cos(a0) * r, h, z + Math.sin(a0) * r],
+        rgba(255, 250, 242));
+    }
+    const bloom = (dx, dy, dz, s, col) => {
+      addQuad(m, [x + dx - s, dy, z + dz], [x + dx + s, dy, z + dz], [x + dx + s * 0.4, dy + s * 1.1, z + dz + 0.02], [x + dx - s * 0.4, dy + s * 1.1, z + dz + 0.02], col);
+      addTri(m, [x + dx, dy + s * 0.2, z + dz + 0.03], [x + dx + s, dy + s * 0.15, z + dz], [x + dx + s * 0.1, dy + s * 0.9, z + dz + 0.04], mix(col, flower2, 0.35));
+    };
+    bloom(0, h, 0.02, 0.11, flower);
+    bloom(0.08, h + 0.02, -0.02, 0.09, flower2);
+    bloom(-0.07, h, 0.04, 0.08, flower);
+    addTri(m, [x, h, z], [x + 0.14, h + 0.08, z + 0.06], [x - 0.02, h + 0.1, z + 0.02], leaf);
+    addTri(m, [x, h + 0.02, z], [x - 0.12, h + 0.06, z + 0.05], [x - 0.02, h + 0.12, z], leafD);
   };
-  for (const x of [-1.55, 1.55]) faceBox(m, x - 0.06, Y, z - 0.06, x + 0.06, y, z + 0.06, white, white, shadeW, white);
-  faceBox(m, -1.6, y - 0.05, z - 0.05, 1.6, y + 0.05, z + 0.05, white, white, shadeW, white);
-  for (let i = 0; i < 8; i++) {
-    const x = -1.35 + i * 0.38;
-    bloom(x, y - 0.02, z + 0.08, 0.16, i % 2 ? flower : flower2);
-    if (i % 2 === 0) addTri(m, [x, y + 0.02, z], [x + 0.22, y + 0.16, z + 0.1], [x - 0.08, y + 0.14, z + 0.06], leaf);
-  }
-  for (const x of [-1.55, 1.55]) {
-    bloom(x, 0.72, z + 0.1, 0.18, flower);
-    bloom(x + (x < 0 ? 0.18 : -0.18), 0.95, z + 0.16, 0.14, flower2);
-    addTri(m, [x, 0.55, z + 0.12], [x + 0.28, 0.85, z + 0.22], [x - 0.05, 0.8, z + 0.18], leaf);
-    addTri(m, [x, 0.7, z + 0.16], [x + 0.16, 0.48, z + 0.28], [x - 0.12, 0.5, z + 0.24], leafD);
-  }
-  bloom(-0.15, 0.42, 3.15, 0.2, flower);
-  bloom(0.35, 0.38, 3.22, 0.16, flower2);
+  pot(-1.55, 3.5);
+  pot(1.55, 3.55);
 });
 
 part('HB_sea', true, m => {
+  addQuad(m, [-1.2, -0.28, -2.7], [1.2, -0.28, -2.7], [1.35, -1.5, -6.35], [-1.35, -1.5, -6.35], rgba(86, 214, 224), rgba(86, 214, 224), rgba(18, 132, 204), rgba(18, 132, 204));
   const layers = [
-    { z0: -7.55, z1: -10.6, y0: -0.2, y1: -0.28, lit: rgba(64, 186, 204), shade: rgba(36, 140, 176), n: 12 },
-    { z0: -10.6, z1: -14.4, y0: -0.28, y1: -0.36, lit: rgba(40, 132, 188), shade: rgba(28, 96, 160), n: 10 },
-    { z0: -14.4, z1: -19.5, y0: -0.36, y1: -0.42, lit: rgba(78, 124, 176), shade: rgba(110, 142, 184), n: 8 },
+    { z0: -6.35, z1: -10.2, y0: -1.55, y1: -1.5, lit: rgba(28, 188, 216), shade: rgba(10, 138, 200), n: 14 },
+    { z0: -10.2, z1: -14.2, y0: -1.5, y1: -1.44, lit: rgba(20, 120, 204), shade: rgba(14, 88, 174), n: 10 },
+    { z0: -14.2, z1: -19.6, y0: -1.44, y1: -1.38, lit: rgba(118, 164, 208), shade: rgba(156, 186, 214), n: 8 },
   ];
   for (const L of layers) for (let i = 0; i < L.n; i++) {
     const t0 = i / L.n, t1 = (i + 1) / L.n;
@@ -258,48 +278,65 @@ part('HB_sea', true, m => {
     const w0 = Math.sin(t0 * Math.PI * 3.2) * 0.06, w1 = Math.sin(t1 * Math.PI * 3.2) * 0.06;
     addQuad(m, [x0, L.y0 + w0, L.z0], [x1, L.y0 + w1, L.z0], [x1, L.y1, L.z1], [x0, L.y1, L.z1], L.lit, L.lit, L.shade, L.shade);
   }
-  for (const [x, z, s] of [[-1.2, -8.6, 1], [2.4, -9.4, 0.7], [-3.1, -12.4, 0.55], [1.1, -15.2, 0.4]]) {
-    addQuad(m, [x, -0.22, z], [x + 0.35 * s, -0.22, z + 0.08], [x + 0.5 * s, -0.2, z + 0.22], [x + 0.05 * s, -0.2, z + 0.16], rgba(230, 246, 248, 180));
+  for (const [x, z, s, y] of [[-0.15, -7.1, 0.85, -1.5], [0.85, -8.6, 0.6, -1.48], [-0.7, -10.4, 0.55, -1.46], [0.4, -12.6, 0.45, -1.44], [1.15, -15.2, 0.35, -1.4]]) {
+    addQuad(m, [x, y, z], [x + 0.42 * s, y, z + 0.06], [x + 0.55 * s, y + 0.02, z + 0.2], [x + 0.06 * s, y + 0.02, z + 0.14], rgba(236, 250, 252, 210));
   }
 });
 
 part('HB_islands', true, m => {
-  const isle = (x, z, w, h, col, haze) => {
-    const c = mix(col, rgba(176, 176, 196), haze);
-    addQuad(m, [x - w, -0.12, z], [x + w * 0.2, -0.1, z + 0.2], [x + w * 0.15, h, z - 0.8], [x - w * 0.35, h * 0.92, z - 0.7], c);
-    addQuad(m, [x + w * 0.2, -0.1, z + 0.2], [x + w, -0.08, z - 0.15], [x + w * 0.4, h * 0.7, z - 0.9], [x + w * 0.15, h, z - 0.8], mix(c, rgba(210, 200, 196), 0.25));
+  const volcano = (x, z, r, h, yb, lit, shade) => {
+    const n = 7;
+    const ring = (rad, y) => Array.from({ length: n }, (_, i) => {
+      const a = (i / n) * Math.PI * 2 + 0.3;
+      return [x + Math.cos(a) * rad, y, z + Math.sin(a) * rad];
+    });
+    const A = ring(r, yb), B = ring(r * 0.7, yb + h * 0.38), C = ring(r * 0.32, yb + h * 0.72);
+    const P = [x - r * 0.08, yb + h, z - r * 0.15];
+    addQuad(m, [x - r, yb, z + r * 0.15], [x + r * 0.35, yb, z + r * 0.45], [x + r * 0.1, yb + h * 0.62, z - r * 0.05], [x - r * 0.55, yb + h * 0.7, z - r * 0.2], shade, shade, lit, lit);
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const col = i < n * 0.45 ? lit : shade;
+      addQuad(m, A[i], A[j], B[j], B[i], col);
+      addQuad(m, B[i], B[j], C[j], C[i], mix(col, lit, 0.3));
+      addTri(m, C[i], C[j], P, lit);
+    }
   };
-  isle(-6.2, -11.4, 2.4, 1.35, rgba(176, 164, 170), 0.15);
-  isle(4.8, -12.6, 1.8, 0.95, rgba(168, 170, 186), 0.35);
-  isle(-1.4, -16.4, 3.2, 1.55, rgba(186, 180, 196), 0.55);
-  isle(6.4, -17.2, 1.6, 0.7, rgba(196, 190, 204), 0.7);
+  volcano(-2.6, -9.2, 1.35, 1.05, -1.5, rgba(232, 220, 208), rgba(140, 168, 204));
+  volcano(-6.2, -11.2, 2.4, 1.85, -1.5, rgba(228, 216, 204), rgba(142, 168, 204));
+  volcano(6.4, -12.6, 1.9, 1.45, -1.48, rgba(206, 214, 224), rgba(140, 170, 208));
+  volcano(-2.4, -16.2, 2.4, 0.72, -1.42, rgba(168, 196, 224), rgba(132, 164, 204));
+  volcano(2.1, -17.4, 2.8, 0.58, -1.4, rgba(186, 208, 228), rgba(148, 176, 210));
 });
 
 function boat(m, x, z, s, haze) {
   const hull = mix(rgba(246, 242, 232), rgba(180, 184, 196), haze);
   const sail = mix(rgba(255, 252, 246), rgba(200, 204, 214), haze);
   const woodC = mix(wood, rgba(160, 164, 176), haze);
-  const y0 = -0.18;
+  const y0 = -1.42;
   faceBox(m, x - 0.45 * s, y0, z - 0.12 * s, x + 0.45 * s, y0 + 0.14 * s, z + 0.12 * s, hull, hull, mix(hull, shadeW, 0.3), hull);
   addQuad(m, [x - 0.08 * s, y0 + 0.14 * s, z], [x + 0.02 * s, y0 + 0.14 * s, z], [x + 0.02 * s, y0 + 0.92 * s, z], [x - 0.08 * s, y0 + 0.92 * s, z], woodC);
   addQuad(m, [x, y0 + 0.86 * s, z], [x + 0.55 * s, y0 + 0.22 * s, z], [x + 0.5 * s, y0 + 0.16 * s, z + 0.02], [x, y0 + 0.24 * s, z], sail);
   addQuad(m, [x, y0 + 0.82 * s, z], [x - 0.28 * s, y0 + 0.34 * s, z], [x - 0.24 * s, y0 + 0.3 * s, z], [x, y0 + 0.38 * s, z], mix(sail, rgba(220, 230, 240), 0.2));
 }
 part('HB_boats', true, m => {
-  boat(m, -2.4, -8.8, 1.15, 0);
-  boat(m, 3.6, -12.8, 0.85, 0.35);
-  boat(m, -5.5, -15.6, 0.55, 0.6);
+  boat(m, 0.05, -7.4, 0.7, 0);
+  boat(m, -0.7, -10.6, 0.5, 0.3);
+  boat(m, 1.15, -14.2, 0.38, 0.55);
 });
 
 part('HB_cliffs', false, m => {
-  const lip = (x0, x1, z0, z1, y1, lit, shade) => {
-    addQuad(m, [x0, Y, z0], [x1, Y, z0], [x1, y1, z1], [x0, y1, z1], lit, lit, shade, shade);
+  const shelf = (x0, x1, z0, z1, y0, y1, lit, shade) => {
+    addQuad(m, [x0, y0, z0], [x1, y0, z0], [x1, y1, z1], [x0, y1, z1], lit, lit, shade, shade);
   };
-  lip(X0, X1, Z0, -7.55, -0.2, rgba(236, 226, 210), rgba(196, 206, 216));
-  lip(-11.5, X0, -1.2, -12, -1.05, rgba(244, 236, 222), rgba(176, 188, 206));
-  lip(X1, 11.2, -1.2, -12.4, -1.1, rgba(255, 236, 214), rgba(168, 180, 204));
-  lip(-9.2, -6.4, 1.2, -8.2, -0.35, rgba(236, 228, 214), rgba(180, 190, 208));
-  lip(6.5, 9.4, 0.8, -8.6, -0.4, rgba(255, 240, 220), rgba(176, 186, 206));
+  const lime = rgba(255, 252, 246), warm = rgba(255, 236, 214), far = rgba(232, 238, 244);
+  shelf(-6.2, -2.35, -2.55, -3.85, 0, -0.55, lime, warm);
+  shelf(-5.6, -2.4, -3.85, -5.15, -0.55, -1.15, mix(lime, far, 0.18), mix(warm, far, 0.25));
+  shelf(-5.1, -2.5, -5.15, -7.3, -1.15, -1.45, mix(lime, far, 0.4), far);
+  shelf(2.35, 6.2, -2.55, -3.9, 0, -0.55, lime, warm);
+  shelf(2.45, 5.8, -3.9, -5.2, -0.55, -1.15, mix(lime, far, 0.18), mix(warm, far, 0.25));
+  shelf(2.55, 5.4, -5.2, -7.35, -1.15, -1.45, mix(lime, far, 0.4), far);
+  shelf(-11.2, -6.2, -2.2, -11.5, 0, -1.2, lime, far);
+  shelf(6.2, 11.2, -2.2, -11.8, 0, -1.25, warm, far);
 });
 
 part('HB_sky', true, m => {

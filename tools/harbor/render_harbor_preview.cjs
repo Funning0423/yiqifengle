@@ -23,7 +23,7 @@ function render(tris, w, h, look) {
   const eye = look.position, target = look.target;
   const f = norm(sub(target, eye)), r = norm(cross(f, [0, 1, 0])), u = cross(r, f);
   const fy = Math.tan(look.fovVerticalDeg * Math.PI / 360), fx = fy * (w / h);
-  const light = norm([0.42, 0.78, -0.28]);
+  const light = norm([0.22, 0.9, 0.38]);
   const color = Buffer.alloc(w * h * 4), zbuf = new Float32Array(w * h);
   for (let y = 0; y < h; y++) {
     const t = y / h;
@@ -38,7 +38,7 @@ function render(tris, w, h, look) {
   for (const tri of tris) {
     const s = tri.p.map(project); if (s.some(v => !v)) continue;
     const n = norm(cross(sub(tri.p[1], tri.p[0]), sub(tri.p[2], tri.p[0])));
-    const nd = tri.unlit ? 1 : 0.55 + 0.45 * Math.max(0, dot(n, light));
+    const nd = tri.unlit ? 1 : 0.88 + 0.12 * Math.max(0, dot(n, light));
     const item = { s, c: tri.c.map(c => [Math.min(255, c[0] * nd), Math.min(255, c[1] * nd), Math.min(255, c[2] * nd), c[3]]), z: (s[0].z + s[1].z + s[2].z) / 3 };
     (tri.c.some(c => c[3] < 250) ? blend : opaque).push(item);
   }
