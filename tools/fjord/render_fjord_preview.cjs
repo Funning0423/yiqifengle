@@ -5,7 +5,7 @@ const { createHarness } = require('../board-ui/harness.cjs');
 const { loadGlb } = require('./glb_read.cjs');
 const D = createHarness().load('region/FjordSceneData');
 const GLB = path.resolve(__dirname, '../../creator-build-project/assets/bundles/region_fjord/models/env_fjord.glb');
-const PREV = process.env.PREV || '/opt/cursor/artifacts/fjord-v3-720x1280.png';
+const PREV = process.env.PREV || '/opt/cursor/artifacts/fjord-v4-720x1280.png';
 const OUT = process.env.OUT || '/opt/cursor/artifacts';
 function crc32(buf) {
   let c, n = -1;
