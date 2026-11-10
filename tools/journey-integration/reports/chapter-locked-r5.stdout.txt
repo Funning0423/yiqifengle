@@ -1,0 +1,3 @@
+PASS locked pages: 56 pages (meadow/sky/lake/coast × 7 sizes × day/night), exactly one condition text (the grey button), 168 boxes ≥ 8 pt inside the paper inner edge, no …
+PASS @320 day: {"meadow":{"desc":[8.5,8.5],"lines":2,"button":[11.46,11.46]},"sky":{"desc":[27.06,27.06],"lines":1,"button":[21.3,21.3]},"lake":{"desc":[8.5,8.5],"lines":2,"button":[11.46,11.46]},"coast":{"desc":[11.46,11.46],"lines":1,"button":[11.46,11.46]}}
+PASS negative self-tests: fc3123fa description + 240 pt button leave the paper at 320 (lake); restored count line = 2 condition texts

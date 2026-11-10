@@ -1,0 +1,3 @@
+ok   hook 03: {"ok":true,"beforeChange":0,"atChange":1,"afterChange":1,"nodesGone":true,"released":true,"watchers":0,"current":null}
+ok   negative: lens without hook 03 -> no dispose on region change -> verdict FAILS as required
+PASS coast-dispose-region-change

@@ -1,0 +1,3 @@
+PASS test_release_gates (24 checks)
+PASS extensibility
+PASS formal-release strip self-tests

@@ -1,0 +1,3 @@
+ok   320x568: goal bar 95–131, pill 「05 · 灯塔下的潮汐…」 13 pt at x 70, hint 拖动相邻两颗，/三颗一样就消除 104×36 at 49–85, 1 tools 52/64 at y 500, night moves [0,22,26]
+ok   390x520: goal bar 95–131, pill 「05 · 灯塔下的潮汐小路」 13 pt at x 70, hint 拖动相邻两颗，三颗一样就消除 188×36 at 49–85, 1 tools 52/64 at y 452, night moves [0,22,26]
+compact-hud-render: PASS

@@ -1,0 +1,6 @@
+ok   60fps: 390x844 55.91px/0.0662 | 414x896 59.38px/0.0663 | 360x780 51.56px/0.0661 | 375x667 45.31px/0.0679 | 320x568 44.88px/0.079 | 390x520 39.26px/0.0755 | 768x1024 87.08px/0.085 | clips idle_breathing_loop>walk_start>walk_loop>walk_stop_bodyL
+ok   30fps: 390x844 55.98px/0.0663 | 414x896 59.46px/0.0664 | 360x780 51.63px/0.0662 | 375x667 45.36px/0.068 | 320x568 44.88px/0.079 | 390x520 39.26px/0.0755 | 768x1024 87.15px/0.0851 | clips idle_breathing_loop>walk_start>walk_loop>walk_stop_bodyL
+ok   uneven: 390x844 55.92px/0.0663 | 414x896 59.4px/0.0663 | 360x780 51.58px/0.0661 | 375x667 45.32px/0.0679 | 320x568 44.91px/0.0791 | 390x520 39.28px/0.0755 | 768x1024 87.08px/0.085 | clips idle_breathing_loop>walk_start>walk_loop>walk_stop_bodyL
+ok   planWalk: start + walk_stop_bodyL, cruise 0.5984/0.5984/0.5991 m/s (0.855 x native 0.7), no fallback notes
+ok   negative: authored 35.575-39.825 window FAILS (390x520 35.37 px)
+PASS coast-s7-her-size-real-walk
