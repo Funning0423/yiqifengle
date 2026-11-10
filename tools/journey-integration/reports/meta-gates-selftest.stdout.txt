@@ -1,0 +1,19 @@
+ok - allowed: encode true + remove 0e588 -> PASS
+ok - no change -> PASS
+ok - empty allowlist + encode change -> FAIL
+ok - extra field change (tangents) -> FAIL
+ok - quantize on -> FAIL
+ok - edit inside 0e588 instead of removing it -> FAIL (NEEDS_REVIEW)
+ok - material .meta that used the texture changes -> FAIL (NEEDS_REVIEW)
+ok - added .meta -> FAIL
+ok - added .meta (committed) -> FAIL
+ok - deleted .meta -> FAIL
+ok - uuid change -> FAIL
+ok - sub-asset uuid change -> FAIL
+ok - missing base ref -> FAIL
+ok - build output still has @0e588 after removal -> FAIL; clean -> PASS; before removal -> pending INFO
+ok - manifest: all listed files exist -> PASS
+ok - manifest: synthetic missing entry -> FAIL
+ok - manifest: untracked file -> FAIL
+ok - manifest: asset missing from build bundle -> FAIL; present -> PASS
+PASS meta-gates selftest 18 cases
