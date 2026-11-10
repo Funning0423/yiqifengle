@@ -3316,8 +3316,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/OasisSceneData.ts",
-    "bytes": 3379,
-    "sha256": "8ec1ed264c04c577c2c049475314f4ed2acced5f4c083d8b57ee1b71e1f75233"
+    "bytes": 3385,
+    "sha256": "2bb39ca18ebedcbf291b18aa268748f3de541a761f30023a9d6cb0024d5ee54d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/OasisSceneData.ts.meta",
@@ -4206,8 +4206,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/oasis-levels-data.js",
-    "bytes": 5876,
-    "sha256": "de1dfb5d93689ceb74fd46fe659dc03720ffc8ee861ade43b938262dff82925e"
+    "bytes": 5347,
+    "sha256": "0bf10ab0ab6604a4e3f8c4d0c871b7fe2f31b1535eb8c83d3d9ae9f033d52d4e"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/oasis-levels-data.js.meta",
@@ -4246,8 +4246,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js",
-    "bytes": 6480,
-    "sha256": "878e57c0f17fc499dbc37de5a86e065f661e0016013d16c99055d14e433ec8a2"
+    "bytes": 7091,
+    "sha256": "8b3adf3acac607aac63b812b874af0d1da2fa00288742644b16e196eca63004e"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/rule-guide.js.meta",

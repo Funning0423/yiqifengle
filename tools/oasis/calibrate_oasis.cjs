@@ -61,24 +61,26 @@ const roots = pairs => pairs.map(([index, layers]) => ({ index, layers }));
 const starters = pairs => pairs.map(([index, special]) => ({ index, special }));
 function stageOf(L, moves) {
   const goals = Object.assign({}, L.goals);
-  goals.chimes = L.chimes.length;
-  if (L.beacons) goals.beacons = L.beacons.length;
+  const chimes = L.chimes || [];
+  if (chimes.length) goals.chimes = chimes.length;
+  else delete goals.chimes;
+  if (L.beacons && L.beacons.length) goals.beacons = L.beacons.length;
   return {
-    id: L.id, region: 'oasis', ordinal: L.ordinal, name: L.name, contentRevision: 'oasis-2026-11-10',
+    id: L.id, region: 'oasis', ordinal: L.ordinal, name: L.name, contentRevision: 'oasis-2026-11-10b',
     intendedBand: L.band, pieceKinds: L.pieceKinds, tool: null, seedBank: [1],
     config: { moves: moves || L.movesTry[L.movesTry.length - 1], goals, moss: L.moss || [], roots: L.roots || [], starters: L.starters || [], beacons: L.beacons || [] },
-    rules: { chimes: L.chimes }, failHint: L.hint,
+    rules: { chimes }, failHint: L.hint,
   };
 }
 const oasis = [
   { id: 'r11-oasis-01', ordinal: 1, name: '拱门椰影', band: 'introduce', target: 0.88, pieceKinds: 5, goals: { chimes: 2 }, starters: starters([[31, 'column']]), chimes: ch([[9, 3], [11, 5]]), hint: '点着两棵椰枣中间的纵线，把铃敲满', movesTry: [14] },
-  { id: 'r11-oasis-02', ordinal: 2, name: '陶罐苔痕', band: 'combine', target: 0.70, pieceKinds: 6, goals: { chimes: 4, moss: 4, type0: 20 }, moss: [21, 25, 29, 31], starters: starters([[26, 'row']]), chimes: ch([[22, 3], [23, 3], [24, 3], [30, 4]]), hint: '顺着陶罐那一行，清苔、敲铃，也收集棋子', movesTry: [16, 18, 20] },
-  { id: 'r11-oasis-03', ordinal: 3, name: '喷泉灯序', band: 'relief', target: 0.80, pieceKinds: 5, goals: { chimes: 2, beacons: 2 }, beacons: [16, 18], chimes: ch([[30, 2], [32, 2]]), hint: '按顺序点亮两盏喷泉灯，再敲响池边的铃', movesTry: [14, 16, 18] },
-  { id: 'r11-oasis-04', ordinal: 4, name: '沙砖根须', band: 'peak', target: 0.64, pieceKinds: 6, goals: { chimes: 2, roots: 4, lines: 1 }, roots: roots([[2, 2], [3, 1], [10, 2], [17, 1]]), chimes: ch([[40, 3], [47, 3]]), hint: '挖开沙砖下的厚根，做出一条线，再敲响风铃', movesTry: [22, 24] },
-  { id: 'r11-oasis-05', ordinal: 5, name: '布篷同色', band: 'relief', target: 0.74, pieceKinds: 5, goals: { chimes: 4, specials: 2 }, starters: starters([[0, 'color'], [45, 'row']]), chimes: ch([[12, 2], [13, 2], [20, 3], [33, 3]]), hint: '用同色和横线带出特殊棋，敲响布篷下的铃', movesTry: [16, 18, 20] },
-  { id: 'r11-oasis-06', ordinal: 6, name: '水池倒影', band: 'story', target: 0.66, pieceKinds: 6, goals: { chimes: 5, moss: 3, type1: 10, type3: 10 }, moss: [4, 6, 46], chimes: ch([[2, 2], [9, 2], [16, 2], [23, 2], [30, 2]]), hint: '清掉池边的苔，收集两种棋子，敲满一列铃', movesTry: [18, 20, 22] },
-  { id: 'r11-oasis-07', ordinal: 7, name: '黄昏灯标', band: 'relief', target: 0.82, pieceKinds: 5, goals: { chimes: 2, beacons: 2 }, beacons: [24, 17], starters: starters([[24, 'bomb'], [17, 'column']]), chimes: ch([[30, 2], [32, 3]]), hint: '先用炸弹再点纵线，点亮两处灯标，敲响铃', movesTry: [14, 16] },
-  { id: 'r11-oasis-08', ordinal: 8, name: '绿洲夜风', band: 'story', target: 0.62, pieceKinds: 6, goals: { chimes: 3, roots: 3, moss: 2, specials: 1, type2: 12 }, roots: roots([[8, 2], [22, 1], [36, 1]]), moss: [5, 41], chimes: ch([[14, 3], [27, 3], [34, 4]]), hint: '清掉夜风里的厚根和苔，做出特殊棋，敲满铃', movesTry: [20, 22, 24] },
+  { id: 'r11-oasis-02', ordinal: 2, name: '陶罐青苔', band: 'combine', target: 0.70, pieceKinds: 6, goals: { moss: 4, type0: 16 }, moss: [22, 23, 24, 25], starters: starters([[21, 'row']]), chimes: [], hint: '顺着陶罐那一行清掉苔，也收集棋子', movesTry: [14, 16, 18] },
+  { id: 'r11-oasis-03', ordinal: 3, name: '喷泉灯序', band: 'relief', target: 0.80, pieceKinds: 5, goals: { beacons: 2 }, beacons: [17, 31], chimes: [], hint: '按顺序点亮两盏喷泉灯', movesTry: [14, 16, 18] },
+  { id: 'r11-oasis-04', ordinal: 4, name: '沙砖根须', band: 'peak', target: 0.62, pieceKinds: 6, goals: { roots: 4, lines: 2 }, roots: roots([[2, 2], [9, 2], [16, 2], [23, 1]]), chimes: [], hint: '挖开一列厚根，再做出两条线', movesTry: [22, 24] },
+  { id: 'r11-oasis-05', ordinal: 5, name: '布篷流苏', band: 'relief', target: 0.74, pieceKinds: 5, goals: { specials: 2 }, starters: starters([[18, 'color'], [24, 'row']]), chimes: [], hint: '用同色和横线，做出两枚特殊块', movesTry: [14, 16, 18] },
+  { id: 'r11-oasis-06', ordinal: 6, name: '水池倒影', band: 'story', target: 0.66, pieceKinds: 6, goals: { moss: 2, type1: 12, type3: 12 }, moss: [25, 26], chimes: [], hint: '清掉池边两块苔，收集两种棋子', movesTry: [16, 18, 20] },
+  { id: 'r11-oasis-07', ordinal: 7, name: '黄昏灯标', band: 'relief', target: 0.82, pieceKinds: 5, goals: { chimes: 2, beacons: 2 }, beacons: [24, 17], starters: starters([[24, 'bomb'], [17, 'column']]), chimes: ch([[30, 2], [32, 3]]), hint: '先点灯，再敲响黄昏的两只铃', movesTry: [14, 16] },
+  { id: 'r11-oasis-08', ordinal: 8, name: '绿洲夜风', band: 'story', target: 0.62, pieceKinds: 6, goals: { chimes: 3, roots: 3, moss: 2, specials: 1, type2: 12 }, roots: roots([[8, 2], [22, 1], [36, 1]]), moss: [5, 41], chimes: ch([[14, 3], [27, 3], [34, 4]]), hint: '清掉厚根和苔，做出特殊块，再敲满铃', movesTry: [20, 22, 24] },
 ];
 const root = path.resolve(__dirname, '../../creator-build-project/assets/scripts/regional-r05/runtime');
 const prior = []

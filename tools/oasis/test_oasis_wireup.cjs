@@ -54,14 +54,17 @@ t('eight oasis stages are playable data, off the shipped catalog, ids r11-oasis-
   assert.deepEqual(J.REGION_DEFS.find(d => d.id === 'oasis').unlock.requires, ['fjord']);
   assert.equal(J.REGION_DEFS.find(d => d.id === 'fjord').stages, 8);
   for (const s of Oasis) {
-    assert.equal(s.region, 'oasis'); assert(s.rules.chimes && s.rules.chimes.length); assert.equal(s.tool, null);
+    assert.equal(s.region, 'oasis'); assert(Array.isArray(s.rules.chimes)); assert.equal(s.tool, null);
     assert(!s.rules.phaseCycle && !s.rules.windCycle);
     assert((s.config.starters || []).length <= 4, s.id);
     assert(s.config.moves <= 24 && s.config.moves >= 14, s.id + ' moves ' + s.config.moves);
-    const run = API.createSession(s.id); assert.equal(run.snapshot().region, 'oasis'); assert.equal(run.snapshot().guide.goalName, '风铃');
+    const run = API.createSession(s.id); assert.equal(run.snapshot().region, 'oasis'); assert(run.snapshot().guide.goalName);
   }
+  assert(Oasis.filter(s => s.rules.chimes.length > 0).length <= 3);
+  assert(Oasis.filter(s => s.rules.chimes.length > 0).length >= 1);
   const combo = s => {
-    const parts = ['chimes'];
+    const parts = [];
+    if ((s.rules.chimes || []).length) parts.push('chimes');
     if ((s.config.moss || []).length) parts.push('moss');
     if ((s.config.roots || []).some(r => r.layers > 1)) parts.push('roots-layered');
     else if ((s.config.roots || []).length) parts.push('roots');
@@ -79,20 +82,20 @@ t('eight oasis stages are playable data, off the shipped catalog, ids r11-oasis-
   console.log(' combos', combos.join(' | '));
 });
 t('the region snapshot passes the current beacon to the board, and regional bombs stay at 0', () => {
-  const lit = API.createSession('r11-oasis-03', Oasis.find(s => s.id === 'r11-oasis-03').seedBank[0]);
-  const shot = lit.snapshot();
-  assert.equal(shot.beaconTarget.index, 16);
-  assert.equal(shot.beaconTarget.cursor, 0);
-  assert.equal(shot.beaconTarget.total, 2);
-  assert.deepEqual(shot.beaconRoute, [16, 18]);
-  const second = API.createSession('r11-oasis-07', Oasis.find(s => s.id === 'r11-oasis-07').seedBank[0]);
-  assert.equal(second.snapshot().beaconTarget.index, 24);
-  assert.deepEqual(second.snapshot().beaconRoute, [24, 17]);
-  const fjord = API.createSession('r10-fjord-01');
-  assert.equal(fjord.snapshot().beaconTarget, null);
-  assert.deepEqual(fjord.snapshot().beaconRoute, []);
-  assert.equal(fjord.engine.bombs, 0);
-  assert.equal(lit.engine.bombs, 0);
+  const beaconLevels = Oasis.filter(s => (s.config.beacons || []).length > 0);
+  assert(beaconLevels.length >= 1);
+  for (const s of beaconLevels) {
+    const shot = API.createSession(s.id, s.seedBank[0]).snapshot();
+    assert.equal(shot.beaconTarget.index, s.config.beacons[0]);
+    assert.equal(shot.beaconTarget.cursor, 0);
+    assert.equal(shot.beaconTarget.total, s.config.beacons.length);
+    assert.deepEqual(shot.beaconRoute, s.config.beacons);
+    assert.equal(shot.goals && API.createSession(s.id, s.seedBank[0]).engine.bombs, 0);
+  }
+  const quiet = Oasis.find(s => !(s.config.beacons || []).length);
+  assert.equal(API.createSession(quiet.id).snapshot().beaconTarget, null);
+  assert.deepEqual(API.createSession(quiet.id).snapshot().beaconRoute, []);
+  assert.equal(API.createSession('r10-fjord-01').engine.bombs, 0);
 });
 t('witnesses win inside the move budget; the oasis stays locked until the fjord is saved', () => {
   const store = mem(), platform = Host.createStorage(store), j = journey(12);
@@ -118,9 +121,12 @@ t('witnesses win inside the move budget; the oasis stays locked until the fjord 
   assert.equal(new Journal(platform, j).isUnlocked('r11-oasis-02'), true);
   const w1 = WIT[1].witness[0];
   assert(cold.startStage('r11-oasis-02', { seed: w1.seed }).ok); play(cold, w1.actions);
-  const opened = cold.startStage('r11-oasis-03', { seed: Oasis.find(s => s.id === 'r11-oasis-03').seedBank[0] }); assert(opened.ok, JSON.stringify(opened));
-  assert.equal(cold.snapshot().active.beaconTarget.index, 16);
-  assert.deepEqual(cold.snapshot().active.beaconRoute, [16, 18]);
+  const third = Oasis[2];
+  const opened = cold.startStage(third.id, { seed: third.seedBank[0] }); assert(opened.ok, JSON.stringify(opened));
+  if ((third.config.beacons || []).length) {
+    assert.equal(cold.snapshot().active.beaconTarget.index, third.config.beacons[0]);
+    assert.deepEqual(cold.snapshot().active.beaconRoute, third.config.beacons);
+  }
   assert.equal(cold.snapshot().active.bombs, 0);
   for (const pack of WIT) for (const x of pack.witness) { const s = API.createSession(pack.id, x.seed); for (const a of x.actions) assert(s.act(a), pack.id + ' ' + x.seed); assert.equal(s.engine.status, 'won', pack.id + ' ' + x.seed); }
 });

@@ -87,4 +87,38 @@ fs.mkdirSync(OUT, { recursive: true });
 const w = 720, h = 1280, look = D.oasisBoardLook(w / h);
 const file = path.join(OUT, 'oasis-board-720x1280.png');
 fs.writeFileSync(file, render(tris, w, h, look));
+const eye = look.position, target = look.target;
+const f = norm(sub(target, eye)), r = norm(cross(f, [0, 1, 0])), u = cross(r, f);
+const fy = Math.tan(look.fovVerticalDeg * Math.PI / 360), fx = fy * (w / h);
+const b = D.oasisBoardBounds();
+const corners = [[b.min[0], b.min[1], b.min[2]], [b.max[0], b.min[1], b.min[2]], [b.min[0], b.min[1], b.max[2]], [b.max[0], b.min[1], b.max[2]]];
+const projected = corners.map(p => {
+  const d = sub(p, eye), z = dot(d, f);
+  return { x: w * 0.5 + (dot(d, r) / z) / fx * (w * 0.5), y: h * 0.5 - (dot(d, u) / z) / fy * (h * 0.5), z };
+});
 console.log(file, look, 'tris', tris.length);
+console.log('board screen', projected.map(p => [Math.round(p.x), Math.round(p.y)]));
+const v1 = process.env.V1 || path.join(OUT, 'oasis-v1-720x1280.png');
+if (fs.existsSync(v1)) {
+  function readPng(buf) {
+    let o = 8, W = 0, H = 0, data = null;
+    while (o < buf.length) {
+      const len = buf.readUInt32BE(o), type = buf.subarray(o + 4, o + 8).toString();
+      const chunk = buf.subarray(o + 8, o + 8 + len);
+      if (type === 'IHDR') { W = chunk.readUInt32BE(0); H = chunk.readUInt32BE(4); }
+      if (type === 'IDAT') data = data ? Buffer.concat([data, chunk]) : chunk;
+      o += 12 + len;
+    }
+    const raw = zlib.inflateSync(data), pix = Buffer.alloc(W * H * 4);
+    for (let y = 0; y < H; y++) pix.set(raw.subarray(y * (W * 4 + 1) + 1, y * (W * 4 + 1) + 1 + W * 4), y * W * 4);
+    return { W, H, pix };
+  }
+  const gap = 16, left = readPng(fs.readFileSync(v1)), right = readPng(fs.readFileSync(file));
+  const cw = left.W + gap + right.W, ch = Math.max(left.H, right.H);
+  const canvas = Buffer.alloc(cw * ch * 4); canvas.fill(18);
+  const blit = (img, dx) => { for (let y = 0; y < img.H; y++) for (let x = 0; x < img.W; x++) canvas.set(img.pix.subarray((y * img.W + x) * 4, (y * img.W + x) * 4 + 4), ((y) * cw + dx + x) * 4); };
+  blit(left, 0); blit(right, left.W + gap);
+  const compare = path.join(OUT, 'oasis-v1-v2-compare.png');
+  fs.writeFileSync(compare, png(cw, ch, canvas));
+  console.log(compare);
+}

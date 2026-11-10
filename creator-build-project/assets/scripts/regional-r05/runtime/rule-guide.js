@@ -14,11 +14,22 @@ var RULES={
   cloud:{title:'敲响云台上的风铃',goal:'风铃',rule:'在风铃格本格或上下左右相邻格发生消除，风铃响一次；同一波（含特殊爆炸）最多响一次，响满所需次数完成。横向特殊扫过整行时，该行风铃各响一次。苔藓与树根仍按原规则清除。',tool:'本地区暂无道具。'},
   spring:{title:'敲响泉边的风铃',goal:'风铃',rule:'在风铃格本格或上下左右相邻格发生消除，风铃响一次；同一波（含特殊爆炸）最多响一次，响满所需次数完成。横向特殊扫过整行时，该行风铃各响一次。苔藓与树根仍按原规则清除。',tool:'本地区暂无道具。'},
   fjord:{title:'敲响栈道上的风铃',goal:'风铃',rule:'在风铃格本格或上下左右相邻格发生消除，风铃响一次；同一波（含特殊爆炸）最多响一次，响满所需次数完成。横向特殊扫过整行时，该行风铃各响一次。苔藓与树根仍按原规则清除。灯标要按路线逐个点亮。',tool:'本地区暂无道具。'},
-  oasis:{title:'敲响庭院里的风铃',goal:'风铃',rule:'在风铃格本格或上下左右相邻格发生消除，风铃响一次；同一波（含特殊爆炸）最多响一次，响满所需次数完成。横向特殊扫过整行时，该行风铃各响一次。苔藓与树根仍按原规则清除。灯标要按路线逐个点亮。',tool:'本地区暂无道具。'},
+  oasis:{title:'在沙砖庭院里完成目标',goal:'庭院',rule:'有风铃的关：本格或相邻格消除，风铃响一次，同一波最多一次。没有风铃的关，改去清苔、挖根、按顺序点灯、收集棋子或做出特殊块。苔藓与树根仍按原规则。',tool:'本地区暂无道具。'},
   sky:{title:'依次点亮明暗星门',goal:'星门',rule:'只处理当前星门。极性符合要求时，在星门本格消除指定图案才充能；未指定图案时任意图案均可。每波只充能一次，完成所需次数后才轮到下一门，并从伙伴格向十字邻格发出回声。',tool:'棱镜迁移消耗1步，交换当前星门与伙伴格的位置；保留充能进度、所需图案及极性，不切换明暗。'}
 };
 function guide(session) {
   var region=session.stage.region,rule=RULES[region],phase=session.phase();
+  var goalName=rule.goal,title=rule.title;
+  if(region==='oasis'){
+    var ch=(session.stage.rules.chimes||[]).length,g=session.stage.config.goals||{};
+    if(g.beacons&&!ch){goalName='灯标';title='点亮庭院的灯';}
+    else if(g.beacons){goalName='灯标';title='点灯，再敲响风铃';}
+    else if(g.roots&&!ch){goalName='根须';title='清开沙砖下的根';}
+    else if(g.specials&&!ch){goalName='特殊块';title='在庭院里做出特殊块';}
+    else if(g.moss&&!ch){goalName='苔藓';title='清掉庭院里的苔';}
+    else if(!ch){goalName='棋子';title='在庭院里收集棋子';}
+    else {goalName='风铃';title='敲响庭院里的风铃';}
+  }
   var targets=session.pieces.map(function(p,i){
     var current=region!=='sky'||i===session.cursor,required=region==='tide'?p.layers:region==='lake'||region==='snow'||region==='rail'||region==='cloud'||region==='spring'||region==='fjord'||region==='oasis'?p.hits:region==='meadow'?p.pollen.length:p.hits;
     var target={cell:cell(p.index),progress:p.progress,required:required,done:p.done,current:current&&!p.done};
@@ -37,7 +48,7 @@ function guide(session) {
     target.phaseMatches=region==='tide'?phase===target.phase:region==='sky'?phase===p.polarity:true;
     return target;
   });
-  return {title:rule.title,goalName:rule.goal,rule:rule.rule,phaseLabel:phaseName(phase),
+  return {title:title,goalName:goalName,rule:rule.rule,phaseLabel:phaseName(phase),
     turnRule:'交换和启动特殊果实各用1步，整次连锁结束后推进环境（潮汐锚固定期间除外）；地区道具也用1步，但不推进环境。',
     heldTurns:session.hold,targets:targets,tool:{kind:session.stage.tool?session.stage.tool.kind:null,charges:session.toolCharges,moveCost:1,description:rule.tool}};
 }

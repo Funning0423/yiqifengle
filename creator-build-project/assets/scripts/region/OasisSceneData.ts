@@ -49,14 +49,14 @@ export function oasisBoardOnCourt(): boolean {
   return b.min[0] > s.minX && b.max[0] < s.maxX && b.min[2] > s.minZ && b.max[2] < s.maxZ
     && b.min[1] === s.y && b.max[1] === s.y && oasisBoardGap() === 0;
 }
-/** Mild overhead down the courtyard: the 7×7 fills the lower frame, the pool and canopy sit in the middle, dunes and dusk close the top. */
+/** Pulled back so the whole 7×7 sits above the bottom safe area. Arches frame the near edge, the pool sits past the board, dunes close the top. */
 export function oasisBoardLook(aspect: number): { position: [number, number, number]; target: [number, number, number]; fovVerticalDeg: number } {
   const c = oasisBoardBounds().center, ref = 720 / 1280, a = Number.isFinite(aspect) && aspect > 0 ? aspect : ref;
-  let fov = 72;
-  if (a < ref) fov = 2 * Math.atan(Math.tan(72 * Math.PI / 360) * ref / a) * 180 / Math.PI;
+  let fov = 56;
+  if (a < ref) fov = 2 * Math.atan(Math.tan(56 * Math.PI / 360) * ref / a) * 180 / Math.PI;
   return {
-    position: [c[0] + 0.28, c[1] + 6.05, c[2] + 6.35],
-    target: [c[0] - 0.12, c[1] + 0.42, c[2] - 6.4],
+    position: [c[0] + 0.02, c[1] + 5.85, c[2] + 8.7],
+    target: [c[0] - 0.02, c[1] + 0.95, c[2] - 2.6],
     fovVerticalDeg: +Math.min(75, fov).toFixed(3),
   };
 }

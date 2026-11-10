@@ -1051,8 +1051,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_oasis/models/env_oasis.glb",
-    "bytes": 216912,
-    "sha256": "fbf16ed634e6292d12bd4ab12c5a4312ce804ee28514886ebde985f75a734be4"
+    "bytes": 255248,
+    "sha256": "b6154ab7742d21379b5f3af6c12ceeceda17b3c6a47c5811034bdd3998dc6d11"
   },
   {
     "path": "creator-build-project/assets/bundles/region_rail/models/env_rail.glb",
