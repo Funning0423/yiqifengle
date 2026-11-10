@@ -80,10 +80,10 @@ export class CoastEntryRejected extends Error {
 }
 /** Origin and release only. A mainline star and a book button are not gates. Formal release never probes. */
 export function decideCoastEntry(input: { origin: string; formalRelease: boolean; stageId: string }): { probe: boolean; allowStart: false; reason: string; detail: string } {
-  if (input.stageId !== 'r06-coast-01') return { probe: false, allowStart: false, reason: 'not-coast01', detail: input.stageId || '' };
+  if (!/^r06-coast-0[1-9]$/.test(input.stageId || '')) return { probe: false, allowStart: false, reason: 'not-coast-stage', detail: input.stageId || '' };
   if (input.formalRelease) return { probe: false, allowStart: false, reason: 'formal-release-unreachable', detail: 'coast entry is not a formal release path' };
   const origin = input.origin || '';
-  if (origin !== 'island' && origin !== 'home') return { probe: false, allowStart: false, reason: 'return-route-not-yet-available', detail: 'selectionRegion classifies r06-coast-01 as island; no coast route from ' + origin };
+  if (origin !== 'island' && origin !== 'home') return { probe: false, allowStart: false, reason: 'return-route-not-yet-available', detail: 'selectionRegion classifies coast stages as island; no coast route from ' + origin };
   return { probe: true, allowStart: false, reason: 'await-resource-gate', detail: 'typed asset classes are not runtime evidence' };
 }
 export type CoastMountReport = { typesAccepted: boolean; engineEvidence: string; runtimeReady: boolean; dispose?: () => void };
@@ -178,7 +178,7 @@ export const createCoastBoardBackground: LevelBackgroundFactory = async (ctx) =>
 };
 /** Stage identity used by the dev teleport. Not a journey region and not an island alias. */
 export function coastRegionIdentity(stageId: string): 'coast' | null {
-  return stageId === 'r06-coast-01' ? 'coast' : null;
+  return /^r06-coast-0[1-9]$/.test(stageId || '') ? 'coast' : null;
 }
 export type CoastDevOrigin = 'island' | 'meadow' | 'skycity' | 'lakeside';
 /*QF_TRIAL_BEGIN*/
