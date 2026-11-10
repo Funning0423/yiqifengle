@@ -314,34 +314,64 @@ part('FJ_water', true, m => {
 });
 
 part('FJ_mountains', false, m => {
-  // Full bodies standing on the waterline. Rock below, snow above, a few trees at the foot.
-  const peak = (x, z, h, w, rock, dark, snow, trees) => {
-    const y0 = 0.28, yS = y0 + h * 0.5, tip = [x + w * 0.06, y0 + h, z];
-    const L = [x - w, y0, z + 0.3], R = [x + w * 0.92, y0, z + 0.4], F = [x + w * 0.04, y0, z + 0.55];
-    const sL = [x - w * 0.4, yS, z + 0.14], sR = [x + w * 0.38, yS, z + 0.18], sF = [x + w * 0.02, yS, z + 0.26];
-    addTri(m, L, sL, F, dark, dark, rock);
-    addTri(m, sL, sF, F, dark, rock, rock);
-    addTri(m, F, sF, R, rock, rock, mix(rock, rgba(230, 236, 240), 0.1));
-    addTri(m, sF, sR, R, rock, mix(rock, rgba(230, 236, 240), 0.14), mix(rock, rgba(230, 236, 240), 0.08));
-    addTri(m, sL, tip, sF, snow, snow, mix(snow, rock, 0.12));
-    addTri(m, sF, tip, sR, mix(snow, rgba(198, 208, 218), 0.22), snow, snow);
-    if (!trees) return;
-    const g = rgba(32, 68, 44), g2 = rgba(24, 56, 38);
-    addTri(m, [x - w * 0.5, y0, z + 0.36], [x - w * 0.18, y0, z + 0.4], [x - w * 0.34, y0 + h * 0.14, z + 0.32], g);
-    addTri(m, [x + w * 0.08, y0, z + 0.46], [x + w * 0.36, y0, z + 0.42], [x + w * 0.2, y0 + h * 0.12, z + 0.38], g2);
+  // Connected ranges along both walls, closing on a far ridge. Feet share the waterline.
+  const y0 = 0.28;
+  const link = (a, b, rock, dark, snow) => {
+    const sign = Math.sign(a.x || b.x) || 1;
+    const foot = (p, dir) => [p.x + sign * dir * 1.35, y0, p.z + 0.2];
+    const ridge = (p) => [p.x + sign * 0.15, y0 + p.h, p.z];
+    const belt = (p, dir) => {
+      const f = foot(p, dir), r = ridge(p);
+      const t = p.snow ? 0.5 : 0.82;
+      return [f[0] + (r[0] - f[0]) * t, y0 + p.h * t, f[2] + (r[2] - f[2]) * t];
+    };
+    const slope = (dir, low, high) => {
+      const fA = foot(a, dir), fB = foot(b, dir), bA = belt(a, dir), bB = belt(b, dir), rA = ridge(a), rB = ridge(b);
+      addQuad(m, fA, fB, bB, bA, low, mix(low, high, 0.2), high, mix(low, high, 0.35));
+      addQuad(m, bA, bB, rB, rA, high, mix(high, snow, 0.25), a.snow || b.snow ? snow : high, a.snow || b.snow ? snow : mix(high, snow, 0.2));
+    };
+    slope(-1, dark, rock);
+    slope(1, rock, mix(rock, rgba(230, 236, 240), 0.12));
   };
-  const nearR = rgba(72, 80, 92), nearD = rgba(42, 48, 58), snow = rgba(242, 246, 250);
-  const midR = rgba(108, 126, 148), midD = rgba(74, 92, 114), pale = rgba(226, 232, 238);
-  const farR = rgba(150, 168, 188), farD = rgba(118, 138, 160), farS = rgba(198, 210, 222);
-  peak(-5.4, -11.8, 3.6, 2.05, nearR, nearD, snow, true);
-  peak(0.4, -12.3, 2.35, 1.4, nearR, nearD, snow, true);
-  peak(5.0, -11.9, 3.35, 1.9, nearR, nearD, snow, true);
-  peak(-6.6, -17.4, 2.9, 2.2, midR, midD, pale, true);
-  peak(-1.2, -18.0, 2.4, 1.7, midR, midD, pale, false);
-  peak(3.6, -17.5, 2.7, 2.05, midR, midD, pale, true);
-  peak(-6.2, -22.2, 4.8, 2.3, farR, farD, rgba(232, 238, 244), false);
-  peak(-0.6, -22.8, 5.3, 2.05, farR, farD, rgba(232, 238, 244), false);
-  peak(5.0, -22.4, 4.5, 2.2, farR, farD, rgba(232, 238, 244), false);
+  const chain = (pts, rock, dark, snow) => { for (let i = 0; i < pts.length - 1; i++) link(pts[i], pts[i + 1], rock, dark, snow); };
+  const trees = (pts) => {
+    const g = rgba(30, 66, 42), g2 = rgba(22, 54, 36);
+    for (const p of pts) {
+      const s = Math.sign(p.x) || 1;
+      addTri(m, [p.x - s * 0.15, y0, p.z + 0.3], [p.x + s * 0.35, y0, p.z + 0.45], [p.x + s * 0.05, y0 + 0.55, p.z + 0.25], g);
+      addTri(m, [p.x + s * 0.4, y0, p.z + 0.15], [p.x + s * 0.85, y0, p.z + 0.3], [p.x + s * 0.6, y0 + 0.42, p.z + 0.1], g2);
+    }
+  };
+  const near = rgba(70, 78, 90), nearD = rgba(40, 46, 56), white = rgba(242, 246, 250);
+  const mid = rgba(104, 122, 144), midD = rgba(70, 88, 110), pale = rgba(224, 230, 236);
+  const far = rgba(146, 164, 184), farD = rgba(112, 132, 154), farSnow = rgba(230, 236, 242);
+  const left = [
+    { x: -4.4, z: -8.6, h: 2.4, snow: true },
+    { x: -4.8, z: -11.4, h: 1.05, snow: false },
+    { x: -5.2, z: -14.2, h: 3.8, snow: true },
+    { x: -4.3, z: -16.8, h: 1.25, snow: false },
+    { x: -3.4, z: -19.2, h: 3.1, snow: true },
+    { x: -2.2, z: -21.6, h: 1.45, snow: false },
+  ];
+  const right = [
+    { x: 4.2, z: -9.4, h: 3.3, snow: true },
+    { x: 4.9, z: -12.6, h: 1.15, snow: false },
+    { x: 5.4, z: -15.4, h: 2.35, snow: true },
+    { x: 4.2, z: -18.0, h: 1.55, snow: false },
+    { x: 3.0, z: -20.4, h: 3.6, snow: true },
+    { x: 1.8, z: -22.2, h: 1.3, snow: false },
+  ];
+  const head = [
+    { x: -2.2, z: -21.6, h: 1.45, snow: false },
+    { x: -1.1, z: -23.2, h: 4.4, snow: true },
+    { x: 0.4, z: -23.8, h: 2.05, snow: true },
+    { x: 1.6, z: -23.0, h: 4.9, snow: true },
+    { x: 1.8, z: -22.2, h: 1.3, snow: false },
+  ];
+  chain(left, near, nearD, white);
+  chain(right, mid, midD, pale);
+  chain(head, far, farD, farSnow);
+  trees([left[0], left[2], right[0], right[2]]);
 });
 
 part('FJ_fog', true, m => {
@@ -371,20 +401,24 @@ part('FJ_stars', true, m => {
 
 part('FJ_aurora', true, m => {
   // One sheet. Alpha lives only on the vertices, so neighbouring strips share a smooth fade.
-  const n = 40, yBase = 8.4, height = 3.6, z = -11, amp = 0.32, x0 = -5.6, x1 = 5.6, alpha = 150;
-  const green = rgba(124, 232, 156), cyan = rgba(70, 216, 208), purple = rgba(170, 142, 236);
+  const n = 40, yBase = 7.15, height = 4.3, z = -11, amp = 0.26, x0 = -5.6, x1 = 5.6;
+  const green = rgba(132, 240, 162), cyan = rgba(78, 226, 214), purple = rgba(180, 150, 242);
   const at = (t) => t < 0.5 ? mix(green, cyan, t * 2) : mix(cyan, purple, (t - 0.5) * 2);
-  const edge = (t) => Math.min(1, Math.min(t, 1 - t) / 0.24);
+  const edge = (t) => Math.min(1, Math.min(t, 1 - t) / 0.22);
   for (let i = 0; i < n; i++) {
     const t0 = i / n, t1 = (i + 1) / n;
-    const wave = (t) => Math.sin(t * Math.PI * 1.6 + 0.4) * amp;
+    const wave = (t) => Math.sin(t * Math.PI * 1.35 + 0.5) * amp;
     const xa = x0 + (x1 - x0) * t0, xb = x0 + (x1 - x0) * t1;
     const y0 = yBase + wave(t0), y1 = yBase + wave(t1);
     const c0 = at(t0), c1 = at(t1);
+    const e0 = edge(t0), e1 = edge(t1);
+    const paint = (c, a) => rgba(c[0], c[1], c[2], a);
     addQuad(m,
-      [xa, y0, z], [xb, y1, z], [xb, y1 + height, z], [xa, y0 + height, z],
-      rgba(c0[0], c0[1], c0[2], alpha * edge(t0)), rgba(c1[0], c1[1], c1[2], alpha * edge(t1)),
-      rgba(c1[0], c1[1], c1[2], 0), rgba(c0[0], c0[1], c0[2], 0));
+      [xa, y0, z], [xb, y1, z], [xb, y1 + height * 0.4, z], [xa, y0 + height * 0.4, z],
+      paint(c0, 225 * e0), paint(c1, 225 * e1), paint(c1, 150 * e1), paint(c0, 150 * e0));
+    addQuad(m,
+      [xa, y0 + height * 0.4, z], [xb, y1 + height * 0.4, z], [xb, y1 + height, z], [xa, y0 + height, z],
+      paint(c0, 150 * e0), paint(c1, 150 * e1), paint(c1, 0), paint(c0, 0));
   }
 });
 
