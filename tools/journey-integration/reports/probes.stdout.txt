@@ -1,0 +1,2 @@
+{"release":{"drawListeners":0,"lines":0,"herRef":"absent"},"hitRate":{"explicit":"173/173","oldGuess":"28/173"},"sample":{"gap":{"cut":1,"from":"A","to":"B","firstDrawMs":0.1,"pn":488.6},"herFrame":"[QF_HER_FRAME] fr=32 bbox=173.947,337.789,216.053,472.526 occ=1 n=15 safe=0,34,390,776 pn=490.897"}}
+probes: PASS
