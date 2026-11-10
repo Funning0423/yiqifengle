@@ -1,68 +1,22 @@
 {
-  "status": "PASS",
-  "timeUTC": "2026-10-26T10:30:22.182Z",
+  "status": "FAIL",
+  "timeUTC": "2026-10-30T03:41:40.700Z",
   "scope": "Actual production WorldNativeComposition and mainline controller, legal progression, explicit world-command doubles. Tests command ordering/ownership only, not rendered movement.",
   "checks": [
     {
       "id": "J02/J03/J04 actual-composition-next-4",
-      "status": "PASS",
-      "source": "mainline-04",
-      "destination": "mainline-05",
-      "trace": [
-        [
-          "prepare",
-          "meadow"
-        ],
-        [
-          "exit",
-          "level"
-        ],
-        [
-          "travel",
-          "island",
-          "meadow"
-        ],
-        [
-          "enter",
-          "mainline-05"
-        ]
-      ],
-      "failedLoadKeptResult": true,
-      "retryPreparedAgain": true,
-      "noStorageWritesFromTravel": true
+      "status": "FAIL",
+      "error": "Error: Cannot resolve ../region/SkyRunLens from /workspace/cd08-suite/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts\n    at resolve (/workspace/cd08-suite/tools/board-ui/harness.cjs:172:11)\n    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:37)\n    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:34:22)\n    at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)\n    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:243)\n    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:53:27)\n    at Object.load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)\n    at /workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:12:30\n    at test (/workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:9:72)\n    at /workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:11:35"
     },
     {
       "id": "J02/J03/J04 actual-composition-next-8",
-      "status": "PASS",
-      "source": "mainline-08",
-      "destination": "mainline-09",
-      "trace": [
-        [
-          "prepare",
-          "skycity"
-        ],
-        [
-          "exit",
-          "level"
-        ],
-        [
-          "travel",
-          "meadow",
-          "skycity"
-        ],
-        [
-          "enter",
-          "mainline-09"
-        ]
-      ],
-      "failedLoadKeptResult": true,
-      "retryPreparedAgain": true,
-      "noStorageWritesFromTravel": true
+      "status": "FAIL",
+      "error": "Error: Cannot resolve ../region/SkyRunLens from /workspace/cd08-suite/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts\n    at resolve (/workspace/cd08-suite/tools/board-ui/harness.cjs:172:11)\n    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:37)\n    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:34:22)\n    at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)\n    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:243)\n    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:53:27)\n    at Object.load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)\n    at /workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:12:30\n    at test (/workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:9:72)\n    at /workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:11:35"
     },
     {
       "id": "J01/J09 composition-refuses-unearned-or-corrupt-destination",
-      "status": "PASS",
-      "unearnedAndCorruptDenied": true
+      "status": "FAIL",
+      "error": "Error: Cannot resolve ../region/SkyRunLens from /workspace/cd08-suite/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts\n    at resolve (/workspace/cd08-suite/tools/board-ui/harness.cjs:172:11)\n    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:37)\n    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:34:22)\n    at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)\n    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:243)\n    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:53:27)\n    at Object.load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)\n    at /workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:21:147\n    at test (/workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:9:72)\n    at /workspace/cd08-suite/tools/journey-integration/test-composition-boundaries.cjs:21:7"
     }
   ]
 }

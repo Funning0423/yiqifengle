@@ -1,0 +1,17 @@
+/workspace/cd08-suite/tools/board-ui/harness.cjs:172
+    throw Error('Cannot resolve ' + spec + ' from ' + from);
+    ^
+
+Error: Cannot resolve ../region/SkyRunLens from /workspace/cd08-suite/creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts
+    at resolve (/workspace/cd08-suite/tools/board-ui/harness.cjs:172:11)
+    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:37)
+    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:34:22)
+    at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)
+    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:243)
+    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:53:27)
+    at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)
+    at req (/workspace/cd08-suite/tools/board-ui/harness.cjs:182:243)
+    at eval (eval at load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:5), <anonymous>:34:34)
+    at Object.load (/workspace/cd08-suite/tools/board-ui/harness.cjs:183:81)
+
+Node.js v24.22.1
