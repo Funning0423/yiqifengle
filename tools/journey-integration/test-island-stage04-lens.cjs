@@ -59,6 +59,17 @@ for(const kind of ['entry','departure'])for(const [w,h] of SCREENS)for(const fps
   if(kind==='departure'){ok(s.total<=LIM.total,`${id} reveal→boarding ${s.total.toFixed(2)} s`);if(s.end){const e=s.at(s.W);ok(Math.hypot(...e.position.map((x,i)=>x-s.end.position[i]))<1e-6,`${id} end != follow@I6`);if(fps===30){const cl=J.clearance(s.end.position,solids,6)[0],g=gh(s.end.position);(report.endPose??={})[id]={clearM:+cl.toFixed(2),pos:s.end.position.map(x=>+x.toFixed(3))};(report.endPose[id]).groundM=g===null?null:+g.toFixed(2);ok(cl>=3,`${id} follow@I6 ${cl.toFixed(2)} m from geometry (<3)`);ok(g===null||g>=1.5,`${id} follow@I6 ground ${g}`);}}}}
  report.summary[id]={yawDegS:+mx.yaw.toFixed(1),pitchDegS:+mx.pitch.toFixed(1),accP99:+p99.toFixed(0),ms:+mx.v.toFixed(2),stepM:+mx.step.toFixed(3),fovPerFrame:+mx.fov.toFixed(3),...(fps===30?{groundM:+minG.toFixed(2),solidM:+minS.toFixed(2),hiddenS:+hid.toFixed(2),margin:+minM.toFixed(3),capsule:cap,totalS:+s.total.toFixed(2)}:{})};
  if(rows.length)report.rows[kind]=rows;}
+// Body-sample occlusion (场景设计部 method: 90 points, 0.05–1.75 m x ±0.2 m across the view; head/face = >= 1.4 m), every 0.1 s, skinned palms.
+// Grok Bot palm_lean_01 target on the I3>I4 walk-in: every episode <= 0.3 s AND <= 25 % head/face. Screen-independent (position only).
+{const H90=[];for(let i=0;i<10;i++)for(let j=0;j<9;j++)H90.push([0.05+i*(1.70/9),-0.2+j*0.05]);
+ for(const kind of ['entry','departure']){const s=shot(kind,390,844),ep=[];let cur=null;const series=[];
+  for(let t=0;t<=s.W+1e-9;t+=0.1){const p=s.at(t),h=s.her(t),d=unit([h[0]-p.position[0],0,h[2]-p.position[2]]),r=[-d[2],0,d[0]];let hf=0,nh=0,lean=0,bd=0;
+   for(const [y,x] of H90){const q=[h[0]+r[0]*x,h[1]+y,h[2]+r[2]*x],b=J.blockers(occ,p.position,q);if(y>=1.4){nh++;if(b.length)hf++;if(b.some(n=>/palm_lean_01/.test(n)))lean++;}if(b.length)bd++;}
+   const hp=100*hf/nh,lp=100*lean/nh;series.push([+t.toFixed(1),+hp.toFixed(0),+lp.toFixed(0),+(100*bd/90).toFixed(0)]);
+   if(lp>0){cur??={from:+t.toFixed(1),to:0,peak:0};cur.to=+t.toFixed(1);cur.peak=Math.max(cur.peak,+lp.toFixed(0));}else if(cur){ep.push(cur);cur=null;}}
+  if(cur)ep.push(cur);report.body90??={};report.body90[kind]={series_t_headPct_leanHeadPct_bodyPct:series,leanEpisodes:ep};
+  if(kind==='entry'&&process.env.LEAN_GATE==='1')for(const e of ep){ok(e.to-e.from+0.1<=0.3+1e-9,`entry lean_01 episode ${e.from}-${e.to} s > 0.3 s`);ok(e.peak<=25,`entry lean_01 episode ${e.from} s ${e.peak}% head/face > 25%`);}
+  console.log(kind,'lean_01 episodes',JSON.stringify(ep));}}
 fs.mkdirSync(path.join(__dirname,'reports'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/island-stage04-lens.json'),JSON.stringify(report));
 console.log(JSON.stringify({wired,fail,sample:report.summary['departure 390x844 30fps'],entry:report.summary['entry 390x844 30fps']}));
 if(fail){console.log('island-stage04-lens: FAIL',fail);process.exit(1);}console.log('island-stage04-lens: PASS');
