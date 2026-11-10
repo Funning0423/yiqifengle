@@ -1,5 +1,5 @@
 'use strict';
-// 石灯苔庭 v3. Vertex colours only. The 7×7 stays on the court at y = 0.
+// 石灯苔庭 v4. Vertex colours only. The 7×7 stays on the court at y = 0.
 // Around it: moss mounds and white sand with concentric rakes. Rakes never
 // cross a board cell. Maples, lanterns and the corridors sit off the board.
 const fs = require('node:fs'), path = require('node:path');
@@ -30,7 +30,8 @@ function part(name, unlit, build) { const m = mesh(); build(m); parts.push({ nam
 
 const moss = rgba(46, 112, 58), mossLit = rgba(98, 158, 64), mossDeep = rgba(24, 72, 42), mossY = rgba(132, 156, 62);
 const sand = rgba(244, 240, 228), sandWarm = rgba(232, 220, 196);
-const boardA = rgba(250, 247, 238), boardB = rgba(244, 239, 226), boardLine = rgba(214, 198, 170);
+const boardA = rgba(236, 216, 184), boardB = rgba(222, 198, 164), boardLine = rgba(186, 162, 132);
+const mossStone = rgba(58, 84, 60), mossStoneLit = rgba(78, 108, 74);
 const rakeCol = rgba(176, 172, 162);
 const stone = rgba(168, 160, 148), stoneLit = rgba(214, 204, 186), stoneShade = rgba(108, 102, 94);
 const maple = rgba(196, 42, 32), maple2 = rgba(214, 84, 28), maple3 = rgba(214, 140, 42), mapleD = rgba(132, 28, 28);
@@ -57,17 +58,21 @@ function hitsBoard(pts) {
 }
 
 part('MG_ground', false, m => {
-  addQuad(m, [X0, Y, Z1], [X1, Y, Z1], [X1, Y, Z0], [X0, Y, Z0], sand, sand, sandWarm, sand);
-  const sands = [
-    [-6.4, -2.24, -1.6, 3.5], [2.24, 6.4, -1.8, 3.2],
-    [-2.05, 2.05, 2.24, 6.6],
-  ];
-  const sandY = 0.00004;
-  for (const [x0, x1, z0, z1] of sands) addQuad(m, [x0, sandY, z1], [x1, sandY, z1], [x1, sandY, z0], [x0, sandY, z0], sand, sand, sandWarm, sand);
-  const islands = [[-4.15, 0.7, 0.55, moss], [4.05, -0.55, 0.48, mossLit], [-3.7, -3.6, 0.42, mossDeep], [3.9, -3.7, 0.4, moss], [0.05, 4.55, 0.5, mossY]];
-  for (const [x, z, r, col] of islands) {
-    addQuad(m, [x - r, YR * 1.4, z + r * 0.7], [x + r, YR * 1.4, z + r * 0.72], [x + r * 0.7, YR * 1.4, z - r * 0.8], [x - r * 0.75, YR * 1.4, z - r * 0.7], col);
-  }
+  const patch = (x0, z0, x1, z1, a, b) => addQuad(m, [x0, Y, z1], [x1, Y, z1], [x1, Y, z0], [x0, Y, z0], a, b || a, b || a, a);
+  const rearX = [X0, -3.2, -0.2, 3.1, X1], rearC = [moss, mossY, mossDeep, mossLit];
+  for (let i = 0; i < rearC.length; i++) patch(rearX[i], Z0, rearX[i + 1], -4.55, rearC[i], mix(rearC[i], mossLit, 0.25));
+  patch(X0, -4.55, -1.9, -HALF, mossLit, moss);
+  patch(-1.9, -4.55, 1.9, -HALF, sand, sandWarm);
+  patch(1.9, -4.55, X1, -HALF, mossY, moss);
+  patch(X0, -HALF, -HALF, 0.2, moss, mossDeep);
+  patch(X0, 0.2, -HALF, HALF, mossY, mossLit);
+  patch(HALF, -HALF, X1, 0.15, mossLit, moss);
+  patch(HALF, 0.15, X1, HALF, moss, mossY);
+  patch(X0, HALF, -1.25, 4.7, mossDeep, moss);
+  patch(-1.25, HALF, 1.25, Z1, sand, sandWarm);
+  patch(1.25, HALF, X1, 4.7, mossLit, mossY);
+  patch(X0, 4.7, -1.25, Z1, moss, mossY);
+  patch(1.25, 4.7, X1, Z1, mossY, mossLit);
   const edges = [];
   for (let i = 0; i <= 7; i++) edges.push(i === 7 ? HALF : -HALF + i * CELL);
   const hL = LINE * 0.5;
@@ -98,10 +103,10 @@ part('MG_ground', false, m => {
       }
     }
   }
-  faceBox(m, -CURB - 0.07, Y, -CURB - 0.07, -CURB, 0.035, CURB + 0.07, stoneLit, stone, stoneShade, stone);
-  faceBox(m, CURB, Y, -CURB - 0.07, CURB + 0.07, 0.035, CURB + 0.07, stoneLit, stone, stoneShade, stone);
-  faceBox(m, -CURB, Y, -CURB - 0.07, CURB, 0.035, -CURB, stone, stoneShade, stoneShade, stone);
-  faceBox(m, -CURB, Y, CURB, CURB, 0.04, CURB + 0.09, woodLit, wood, woodD, wood);
+  faceBox(m, -CURB - 0.14, Y, -CURB - 0.12, -CURB, 0.07, CURB + 0.12, mossStoneLit, stone, mossStone, stoneShade);
+  faceBox(m, CURB, Y, -CURB - 0.12, CURB + 0.14, 0.07, CURB + 0.12, mossStoneLit, stoneLit, mossStone, stone);
+  faceBox(m, -CURB, Y, -CURB - 0.14, CURB, 0.07, -CURB, mossStone, mossStoneLit, stoneShade, mossStone);
+  faceBox(m, -CURB, Y, CURB, CURB, 0.055, CURB + 0.13, woodD, wood, rgba(62, 36, 22), woodD);
 });
 
 function mound(m, x, z, r, h, col) {
@@ -114,7 +119,7 @@ function mound(m, x, z, r, h, col) {
   const A = ring(r, 0.02), B = ring(r * 0.62, h * 0.5), C = ring(r * 0.22, h);
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n;
-    const lit = i < 2 ? mossLit : i > 4 ? mossDeep : (col || moss);
+    const lit = i < 2 ? rgba(168, 198, 72) : i > 4 ? rgba(16, 64, 34) : (col || moss);
     addQuad(m, A[i], A[j], B[j], B[i], lit);
     addQuad(m, B[i], B[j], C[j], C[i], mix(lit, mossLit, 0.3));
   }
@@ -124,21 +129,22 @@ function rock(m, x, z, s) {
   addQuad(m, [x + 0.04 * s, 0.16 * s, z + 0.04 * s], [x + 0.28 * s, 0.16 * s, z + 0.02 * s], [x + 0.22 * s, 0.16 * s + 0.001, z + 0.22 * s], [x + 0.06 * s, 0.16 * s + 0.001, z + 0.2 * s], mossLit);
 }
 part('MG_moss', false, m => {
-  mound(m, -2.62, 1.55, 0.34, 0.2, moss);
-  mound(m, 2.68, 1.25, 0.32, 0.18, mossY);
-  mound(m, -2.7, -0.85, 0.36, 0.22, mossLit);
-  mound(m, 2.74, -1.05, 0.3, 0.16, moss);
-  mound(m, -1.15, 3.55, 0.42, 0.24, moss);
-  mound(m, 1.25, 3.85, 0.36, 0.2, mossY);
-  mound(m, -0.55, 5.15, 0.34, 0.16, mossLit);
-  mound(m, 0.7, 5.35, 0.3, 0.18, moss);
-  mound(m, -3.6, 2.15, 0.48, 0.26, mossY);
-  mound(m, 3.7, 1.85, 0.44, 0.22, moss);
-  mound(m, -4.4, 0.2, 0.55, 0.3, mossDeep);
-  mound(m, 4.5, -0.35, 0.5, 0.26, mossLit);
-  mound(m, -3.3, -2.6, 0.4, 0.2, moss);
-  mound(m, 3.4, -2.85, 0.38, 0.18, mossY);
-  rock(m, -0.05, 4.48, 1.25);
+  const beds = [
+    [-2.58, 1.7, 0.38, 0.22, moss], [2.6, 1.45, 0.36, 0.2, mossY],
+    [-2.7, 0.35, 0.42, 0.26, mossLit], [2.72, 0.1, 0.4, 0.24, moss],
+    [-2.62, -0.95, 0.36, 0.2, mossY], [2.66, -1.15, 0.34, 0.18, mossDeep],
+    [-3.5, 2.3, 0.5, 0.28, moss], [3.55, 2.05, 0.48, 0.26, mossY],
+    [-4.3, 0.6, 0.72, 0.4, mossLit], [4.35, 0.3, 0.68, 0.38, moss],
+    [-4.6, -1.4, 0.62, 0.34, mossY], [4.7, -1.6, 0.6, 0.32, mossDeep],
+    [-3.4, -2.7, 0.4, 0.22, moss], [3.45, -2.9, 0.38, 0.2, mossLit],
+    [-2.35, 3.45, 0.55, 0.32, mossY], [2.4, 3.55, 0.52, 0.3, moss],
+    [-3.7, 4.45, 0.62, 0.36, moss], [3.75, 4.55, 0.58, 0.34, mossLit],
+    [-5.4, -5.7, 0.7, 0.28, moss], [-2.6, -6.05, 0.75, 0.24, mossY],
+    [0.15, -5.85, 0.62, 0.22, mossDeep], [2.9, -6.1, 0.72, 0.26, mossLit],
+    [5.3, -5.65, 0.6, 0.22, moss],
+  ];
+  for (const [x, z, r, h, col] of beds) mound(m, x, z, r, h, col);
+  rock(m, -0.02, 4.5, 1.2);
 });
 
 function lantern(m, x, z, s, glowM) {
@@ -224,10 +230,8 @@ function mapleTree(m, x, z, h, s, lean, side, tint) {
   puff(m, cx + side * 0.05 * s, h + 0.42 * s, cz - 0.02, 0.22 * s, maple3, maple2);
 }
 part('MG_maple', true, m => {
-  mapleTree(m, -2.72, -0.25, 1.65, 0.92, -0.16, -1, rgba(210, 48, 28));
-  mapleTree(m, -2.85, -1.65, 1.15, 0.68, -0.1, -1, rgba(196, 78, 26));
-  mapleTree(m, 2.75, -0.45, 1.55, 0.88, 0.14, 1, rgba(214, 88, 24));
-  mapleTree(m, 2.88, -1.85, 1.05, 0.64, 0.08, 1, rgba(180, 58, 26));
+  mapleTree(m, -2.62, -0.85, 1.72, 1.05, -0.1, -1, rgba(210, 48, 28));
+  mapleTree(m, 2.62, -0.8, 1.68, 1.02, 0.1, 1, rgba(214, 88, 24));
   const fallen = [[-2.55, 1.35, 0.16, 0.4], [-3.4, 0.1, 0.13, 1.2], [-2.7, -0.4, 0.12, 2.1], [-3.6, -2.2, 0.14, 0.8], [2.6, 0.9, 0.15, 1.5], [3.3, -0.3, 0.12, 0.6], [2.75, -1.1, 0.13, 2.4], [3.55, -2.3, 0.11, 1.1]];
   for (const [x, z, s, yaw] of fallen) {
     const c = Math.cos(yaw), sn = Math.sin(yaw);
@@ -327,10 +331,6 @@ function dome(m, x, z, rx, rz, h, yb, lit, shade) {
     addQuad(m, rings[k][i], rings[k][j], rings[k + 1][j], rings[k + 1][i], up);
   }
 }
-function grove(m, x, y, z, r) {
-  dome(m, x, z, r, r * 0.75, r * 0.85, y, maple2, maple);
-  dome(m, x + r * 0.35, z + r * 0.15, r * 0.55, r * 0.4, r * 0.5, y + r * 0.15, maple3, maple2);
-}
 part('MG_mountains', true, m => {
   const nearL = rgba(78, 128, 74), nearS = rgba(42, 86, 58);
   const midL = rgba(118, 150, 156), midS = rgba(78, 118, 132);
@@ -338,17 +338,23 @@ part('MG_mountains', true, m => {
   dome(m, -5.2, -8.6, 2.6, 1.5, 1.35, 0.02, nearL, nearS);
   dome(m, -0.6, -8.1, 2.3, 1.45, 1.7, 0.05, nearL, nearS);
   dome(m, 4.4, -8.8, 2.8, 1.55, 1.15, 0.0, mix(nearL, mossY, 0.2), nearS);
+  dome(m, -2.9, -7.45, 1.45, 0.9, 0.78, 0.0, mossLit, moss);
+  dome(m, 2.15, -7.6, 1.3, 0.85, 0.62, 0.0, mossY, mossDeep);
+  dome(m, -6.3, -7.3, 1.05, 0.7, 0.5, 0.0, moss, mossDeep);
+  dome(m, 6.15, -7.4, 1.1, 0.72, 0.52, 0.0, mossLit, moss);
+  dome(m, -1.5, -9.7, 2.3, 1.15, 0.58, 0.12, nearL, nearS);
+  dome(m, 2.6, -9.9, 2.1, 1.05, 0.5, 0.1, mix(nearL, midL, 0.3), nearS);
+  dome(m, -5.6, -9.5, 1.7, 0.95, 0.42, 0.08, nearL, moss);
+  dome(m, 1.4, -10.3, 4.2, 1.35, 0.9, 0.04, nearL, nearS);
+  dome(m, -3.6, -10.4, 2.4, 1.2, 0.72, 0.06, mix(nearL, midL, 0.22), nearS);
   dome(m, -3.2, -12.2, 3.4, 1.7, 0.85, 0.2, midL, midS);
   dome(m, 3.6, -12.8, 3.6, 1.6, 0.62, 0.25, midL, midS);
   dome(m, 0.2, -16.8, 6.5, 2.2, 0.42, 0.45, farL, farS);
-  grove(m, -1.15, 0.72, -7.85, 0.38);
-  grove(m, 1.55, 0.95, -7.7, 0.42);
-  grove(m, 4.7, 0.48, -8.35, 0.32);
 });
 
 part('MG_mist', true, m => {
-  addQuad(m, [-8, 0.05, -7.4], [8, 0.05, -7.4], [7.2, 0.9, -9.6], [-7.2, 0.9, -9.6], rgba(214, 196, 180, 78), rgba(214, 196, 180, 78), rgba(176, 190, 186, 28), rgba(176, 190, 186, 28));
-  addQuad(m, [-10, 0.25, -11.2], [10, 0.25, -11.2], [8.5, 1.15, -14.2], [-8.5, 1.15, -14.2], rgba(196, 188, 184, 64));
+  addQuad(m, [-9, 0.35, -11.6], [9, 0.35, -11.6], [8, 1.15, -13.8], [-8, 1.15, -13.8], rgba(166, 186, 188, 56), rgba(166, 186, 188, 56), rgba(150, 174, 182, 18), rgba(150, 174, 182, 18));
+  addQuad(m, [-10, 0.4, -13.2], [10, 0.4, -13.2], [8.5, 1.2, -15.6], [-8.5, 1.2, -15.6], rgba(170, 188, 192, 48));
   addQuad(m, [-11, 0.45, -15.4], [11, 0.45, -15.4], [9, 1.25, -18.6], [-9, 1.25, -18.6], rgba(186, 188, 190, 50));
 });
 
