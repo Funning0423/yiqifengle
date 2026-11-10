@@ -1,0 +1,74 @@
+{
+ "tool": "lens-clearance-gate --must-fail-9ec",
+ "rule": {
+  "solidM": 0.5,
+  "balloonM": 0.5,
+  "herM": 0.5,
+  "groundTravelM": 1.5,
+  "groundStandM": 1.1,
+  "stepM": 0.6
+ },
+ "per": {
+  "1 skycity→lakeside opening (prewalk, keys 121–132)": {
+   "samples": 12,
+   "caught": 1,
+   "first": {
+    "case": "1 skycity→lakeside opening (prewalk, keys 121–132)",
+    "tS": 34.793,
+    "pos": [
+     82.881,
+     21.126,
+     139.28
+    ],
+    "v": [
+     "S"
+    ],
+    "solidM": 0.34,
+    "solidTag": "skycity:env_sky_ruins",
+    "groundM": 2.13,
+    "enclosed": false
+   }
+  },
+  "2 balloon lift-off (keys 187–191)": {
+   "samples": 3,
+   "caught": 2,
+   "first": {
+    "case": "2 balloon lift-off (keys 187–191)",
+    "tS": 58.798,
+    "pos": [
+     99.135,
+     21.94,
+     116.872
+    ],
+    "v": [
+     "S"
+    ],
+    "solidM": 0.45,
+    "solidTag": "skycity:env_sky_floatingrocks_2",
+    "groundM": "none ≤40 m",
+    "enclosed": false
+   }
+  },
+  "3 T-02 last shot through the steps (key-try2 #42)": {
+   "samples": 43,
+   "caught": 4,
+   "first": {
+    "case": "3 T-02 last shot through the steps (key-try2 #42)",
+    "tS": 8.51,
+    "pos": [
+     63.3979,
+     21.3159,
+     144.4402
+    ],
+    "v": [
+     "G"
+    ],
+    "solidM": 0.51,
+    "solidTag": "skycity:env_sky_ruins",
+    "groundM": 0.67,
+    "enclosed": false
+   }
+  }
+ }
+}
+{"status":"PASS (all three 9ec5323c penetrations are caught)"}
