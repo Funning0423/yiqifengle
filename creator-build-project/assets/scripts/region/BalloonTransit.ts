@@ -434,7 +434,6 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const farPrefab=await loadTransitPrefab('far_meadow_card');
   if(farPrefab){farPrefab.addRef();owned.push({destroy(){farPrefab.decRef();}});const card=instantiate(farPrefab);farRoot.addChild(card);showBothSides(card);}
   try{armFlightShaderPrime([vehicle,clouds,nightDome,farRoot]);}catch{/* prime optional; TSW stays off */}
-  try{(globalThis as any).__qfJourneyPrime?.(model);}catch{/* city shaders during the ride, not on the flight cut */}
   // Plan B sea fallback (same world frame as clouds).
   let seaFallback:Node|null=null;
   if(SEA_PLAN==='B'){

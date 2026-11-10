@@ -1,55 +1,13 @@
 import {Node} from 'cc';
-import {LIVE_UNLIT_MACROS,SETCAM_SHADOW_MACROS,TRANSITION_SHADER_WARM_ENABLED,withAssignMacros} from './TransitionShaderWarm';
-/** Idle compile of the world.setCamera bag (the island→meadow residual was 94 shaders on that path).
- *  Same one-variant step the balloon takeoff used. Not TransitionShaderWarm's after_draw loop (#66 stays OFF). */
-const CAP=120;
-type Job={pass:any;unlit:boolean};
-let jobs:Job[]=[];
-let cursor=0;
-let done=true;
-let motionLeft=0;
-function walk(node:any,out:Job[]):void{
- if(!node||out.length>=CAP)return;
- const comps=node.components||node._components||[];
- for(let c=0;c<comps.length&&out.length<CAP;c++){
-  const mats=comps[c]&&comps[c].sharedMaterials;
-  if(!mats)continue;
-  for(let s=0;s<mats.length&&out.length<CAP;s++){
-   const mat=mats[s];if(!mat||!mat.passes)continue;
-   const effect=String(mat.effectName||'');
-   const unlit=effect.indexOf('unlit')>=0||effect.indexOf('planar')>=0;
-   for(let p=0;p<mat.passes.length&&out.length<CAP;p++)if(mat.passes[p])out.push({pass:mat.passes[p],unlit});
-  }
- }
- const kids=node.children||[];
- for(let i=0;i<kids.length&&out.length<CAP;i++)walk(kids[i],out);
-}
-export function noteJourneyMotion(frames:number=8):void{
- if(frames<=0){motionLeft=0;return;}
- if(frames>motionLeft)motionLeft=frames|0;
-}
-export function beginJourneyShaderPrime(root:Node|null):void{
- try{(globalThis as any).__qfJourneyMotion=noteJourneyMotion;(globalThis as any).__qfJourneyPrime=beginJourneyShaderPrime;}catch{/* hook optional */}
- if(TRANSITION_SHADER_WARM_ENABLED){done=true;return;}
- jobs=[];cursor=0;done=false;motionLeft=0;
- walk(root,jobs);
- if(!jobs.length)done=true;
-}
-/** One compile on an idle frame. No-ops when the queue is empty or the lens is moving. */
-export function stepJourneyPrime():number{
- if(done||TRANSITION_SHADER_WARM_ENABLED){done=true;return 0;}
- if(motionLeft>0){motionLeft--;return 0;}
- if(cursor>=jobs.length){done=true;jobs=[];return 0;}
- const job=jobs[cursor++];
- const bag=job.unlit?LIVE_UNLIT_MACROS:SETCAM_SHADOW_MACROS;
- withAssignMacros(bag,()=>{
-  try{
-   if(job.pass&&typeof job.pass.tryCompile==='function')job.pass.tryCompile();
-   if(job.pass&&typeof job.pass.getShaderVariant==='function')job.pass.getShaderVariant(null);
-  }catch{/* one miss does not retry forever */}
- });
- if(cursor>=jobs.length){done=true;jobs=[];}
- return 1;
-}
-export function journeyPrimePending():number{return done?0:Math.max(0,jobs.length-cursor);}
-export function resetJourneyShaderPrime():void{jobs=[];cursor=0;done=true;motionLeft=0;}
+/** Journey shader prime is intentionally idle.
+ *  1ecd8 compiled setCamera macros from WorldFlowComponent.update. The setCamera bag omits CC_SHADOW_TYPE,
+ *  and the assign wrapper deletes that key from the live pipeline macros. Every later steady frame then misses
+ *  the program cache (QF_SYNC localStorage.getItem; d5b5 was 0). A meadow material (mainline-06 windmill) can
+ *  block on the broken key, which freezes console, state and QF_GPU together.
+ *  TransitionShaderWarm's after_draw loop stays OFF (#66). Balloon takeoff keeps its own one-shot prime. */
+export function noteJourneyMotion(_frames:number=8):void{/* no per-frame compile to pause */}
+export function beginJourneyShaderPrime(_root:Node|null):void{/* do not walk or queue passes on the world update */}
+/** Steady frames must not compile, read storage, or read back the GPU. Always 0. */
+export function stepJourneyPrime():number{return 0;}
+export function journeyPrimePending():number{return 0;}
+export function resetJourneyShaderPrime():void{/* nothing queued */}

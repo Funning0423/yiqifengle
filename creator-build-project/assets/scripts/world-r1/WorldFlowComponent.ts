@@ -18,7 +18,6 @@ import { REGIONS } from '../region/RegionLoader';
 import { preloadMeadowForSail } from '../region/SailPreload';
 import { warmTransition } from '../region/TransitionPreload';
 import { beginTransitionShaderWarm, watchTransitionRoot } from '../region/TransitionShaderWarm';
-import { beginJourneyShaderPrime, noteJourneyMotion, stepJourneyPrime } from '../region/JourneyShaderPrime';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import { hasScreenCover, screenCover } from './ScreenCover';
@@ -392,8 +391,8 @@ export class WorldFlowComponent extends Component {
     finally {if(this.roomLookToken===token)this.roomLookToken=null;}
   }
   bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');const r=this.flow.bindCharacter(adapter);if(r.ok){this.herAdapter=adapter;this.armTransitionShaderWarm();}/*QF_PROBE_BEGIN*/if(camLog.on&&r.ok)camProbeCharacter(adapter);/*QF_PROBE_END*/return r;}
-  /** Spread character/island/meadow shader variants one per frame. Does not await, and does not hold animateCamera. */
-  private armTransitionShaderWarm():void{beginTransitionShaderWarm();try{beginJourneyShaderPrime(director.getScene());}catch{/* finite prime; TSW loop stays off */}const scene=director.getScene();if(scene)watchTransitionRoot(scene);if(this.ownedModel)watchTransitionRoot(this.ownedModel);const her=(this.herAdapter as any)&&((this.herAdapter as any).node||(this.herAdapter as any).root);if(her)watchTransitionRoot(her);}
+  /** TSW begin/watch only. Journey variants are not compiled from this update (#66 stays off; a per-frame getShaderVariant was the steady-frame sync). */
+  private armTransitionShaderWarm():void{beginTransitionShaderWarm();const scene=director.getScene();if(scene)watchTransitionRoot(scene);if(this.ownedModel)watchTransitionRoot(this.ownedModel);const her=(this.herAdapter as any)&&((this.herAdapter as any).node||(this.herAdapter as any).root);if(her)watchTransitionRoot(her);}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
     token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);this.worldAmbient=ambient;ambient.clipUuids=REGIONS.island.ambientClipUuids!;this.ownedModel=model;this.node.addChild(model);
     try {
@@ -509,7 +508,7 @@ export class WorldFlowComponent extends Component {
         animateCamera:(path,seconds,t,options,progress,onSample)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
           // onSample (wind channel): eased key progress of each written sample.
-          const tick=(v:number)=>{try{noteJourneyMotion(8);}catch{}this.noteCinematic();const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
+          const tick=(v:number)=>{this.noteCinematic();const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
           if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds,options?.followTauSeconds??0.25);return this.run(seconds,t,p=>tick(follow(p,progress())));},
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.room360?.dispose();this.room360=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
@@ -569,7 +568,6 @@ export class WorldFlowComponent extends Component {
     this.settleOrbit(frameDt,finger);
     this.applyDialogYield(frameDt);
     if(PERIOD_HEAVY_REFRESH_ENABLED&&Date.now()-this.lastDiagnosticAt>=5000)this.reportRuntime('tick');/* A/B: skip 5s snapshot tick */
-    try{stepJourneyPrime();}catch{/* idle compile is one variant, then the queue is dropped */}
   }
   /** After a cinematic frame, ease back to the orbit the player left. Region walks own the lens while explore is on. */
   private settleOrbit(dt:number,finger:boolean){

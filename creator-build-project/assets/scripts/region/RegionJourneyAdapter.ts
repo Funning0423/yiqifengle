@@ -107,7 +107,6 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     const warmed=sail?takeSailWarm():null;
     // P0 wipe: the warm rig is used as is; the old path instantiated a second meadow here and destroyed it (a full mount inside the 3 s window).
     if(warmed){model=warmed;rig.addChild(model);}else model=mountRegion(def,prefab,rig);
-    try{(globalThis as any).__qfJourneyPrime?.(model);}catch{/* idle prime; TSW loop stays off */}
     // 运镜bot: the prefab's own root transform = the board copy's transform in its (identity) board rig, before the journey places it.
     boardLocal=new Mat4();Mat4.fromRTS(boardLocal,model.rotation,model.position,model.scale);
     for(const c of model.getComponentsInChildren(Camera))c.enabled=false;

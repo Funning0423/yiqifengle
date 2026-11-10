@@ -119,15 +119,16 @@ assert.equal(steps,9);assert.equal(maxStep,1);assert.equal(prime.flightPrimePend
 assert.equal(prime.stepFlightShaderPrime(),0,'flight cut compiles nothing once the bag is warm');
 assert.equal(fakeTsw.TRANSITION_SHADER_WARM_ENABLED,false);
 
+const jsrc=fs.readFileSync(path.join(S,'region/JourneyShaderPrime.ts'),'utf8');
+assert.doesNotMatch(jsrc,/getShaderVariant|tryCompile|withAssignMacros/);
+assert.doesNotMatch(fs.readFileSync(path.join(S,'world-r1/WorldFlowComponent.ts'),'utf8'),/stepJourneyPrime/);
 const j=load('region/JourneyShaderPrime.ts',s=>s==='cc'?cc:s.endsWith('TransitionShaderWarm')?fakeTsw:{});
+const primed=root.components[0].sharedMaterials[0].passes[0];
+const before=primed.n;
 j.beginJourneyShaderPrime(root);
-j.noteJourneyMotion(3);
-assert.equal(j.stepJourneyPrime(),0);
-assert.equal(j.stepJourneyPrime(),0);
-assert.equal(j.stepJourneyPrime(),0);
-assert.equal(j.stepJourneyPrime(),1);
-let guard=0;while(j.journeyPrimePending()){assert.equal(j.stepJourneyPrime(),1);if(++guard>80)throw Error('prime did not finish');}
-assert.equal(j.stepJourneyPrime(),0);
+for(let i=0;i<64;i++)assert.equal(j.stepJourneyPrime(),0);
+assert.equal(primed.n,before,'journey prime does not compile on a steady frame');
+assert.equal(j.journeyPrimePending(),0);
 
 const gpu=load('region/RegionGpuLease.ts',()=>({assetManager:null}));
 assert.equal(JSON.stringify(gpu.sweepUnreferenced(['region_meadow'])),JSON.stringify({released:0,destroyed:0,skipped:0}));
