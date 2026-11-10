@@ -71,7 +71,7 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  const LK=K.PRE_SPECS.filter(s=>s.place==='lake-result');
  assert.deepEqual(LK.map(s=>s.key),['lake-13-14','lake-14-15','lake-15-16','lake-16-17','lake-17-18','lake-18-home','lake-fail','ending'],'lake keys');
  const UK=K.PRE_SPECS.filter(s=>s.unlockThrough);
- assert.deepEqual(UK.map(s=>[s.key,s.unlockThrough]),[['unlock-snow','snow'],['unlock-rail','rail'],['unlock-cloudsea','cloud'],['unlock-hotspring','spring']],'unlock keys');
+ assert.deepEqual(UK.map(s=>[s.key,s.unlockThrough]),[['unlock-snow','snow'],['unlock-rail','rail'],['unlock-cloudsea','cloud'],['unlock-hotspring','spring'],['unlock-fjord','fjord'],['unlock-fjord-08','fjord8']],'unlock keys');
  assert.equal(K.preTransitionEnabled('?qfHooks=1&qfPre=unlock-snow',wx('release')),false,'release cannot run unlock-snow');
  assert.equal(K.preTransitionKey('?qfHooks=1&qfPre=unlock-hotspring',{}), 'unlock-hotspring');
  assert.ok(!K.PRE_UNSUPPORTED.some(u=>u.key==='lake-next'),'lake-next now supported');assert.ok(K.preSpec('ending')&&!K.PRE_UNSUPPORTED.some(u=>u.key==='ending'),'ending key supported');
@@ -94,10 +94,10 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
  // unlock-*: real provider clears every earlier region on the isolated profile; the named region's first stage then opens, the next one stays locked
  const Journal=require(path.join(ROOT,'creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js'));
  const JC=H.load('ui/JourneyCore');
- const firstOf={snow:'r06-snow-01',rail:'r07-rail-01',cloud:'r08-cloud-01',spring:'r09-spring-01'};
- const secondOf={snow:'r06-snow-02',rail:'r07-rail-02',cloud:'r08-cloud-02',spring:'r09-spring-02'};
+ const firstOf={snow:'r06-snow-01',rail:'r07-rail-01',cloud:'r08-cloud-01',spring:'r09-spring-01',fjord:'r10-fjord-01'};
+ const secondOf={snow:'r06-snow-02',rail:'r07-rail-02',cloud:'r08-cloud-02',spring:'r09-spring-02',fjord:'r10-fjord-02'};
  const stages=API.allStages.map(s=>({id:s.id,region:s.region}));
- for(const s of UK){
+ for(const s of UK.filter(u=>u.unlockThrough!=='fjord8')){
   const prof=RF.createRegionFlowCheckpoint(12,{allowQa:true,finish:true,anyCheckpoint:true});
   const seeded=RF.seedRegionUnlock(prof,s.unlockThrough,{allowQa:true});
   assert.ok(seeded.cleared.includes('r04-lake-06'),s.key+' cleared the lake');
@@ -110,6 +110,18 @@ const ROOT=path.resolve(__dirname,'../..'),S=p=>fs.readFileSync(path.resolve(ROO
   const counts={};for(const id of Object.keys(journal.data.records)){const m=/^r0\d-(\w+)-/.exec(id);if(m)counts[m[1]]=(counts[m[1]]||0)+1;}
   const row=JC.regionRow(s.unlockThrough,{records:Array.from({length:12},()=>({bestStars:1})),regionDone:counts,stages});
   assert.equal(row.state,'open',s.key+' journey '+row.state);
+ }
+ { // unlock-fjord-08: fjord 1–7 cleared too; the won 07 board is kept so the journey opens 08
+  const prof=RF.createRegionFlowCheckpoint(12,{allowQa:true,finish:true,anyCheckpoint:true});
+  const seeded=RF.seedRegionUnlock(prof,'fjord8',{allowQa:true});
+  assert.ok(seeded.cleared.includes('r09-spring-08')&&seeded.cleared.includes('r10-fjord-07'),'unlock-fjord-08 cleared spring + fjord 1-7');
+  assert.ok(!seeded.cleared.includes('r10-fjord-08'),'unlock-fjord-08 does not clear 08');
+  const journal=new Journal(prof.r5.platform,prof.r5.journey);
+  assert.equal(journal.isUnlocked('r10-fjord-08'),true,'unlock-fjord-08 opens 08');
+  const gate=CH.inspectSelection(prof.r5,{stageId:'r10-fjord-08',seed:API.getStage('r10-fjord-08').seedBank[0]});
+  assert.equal(gate.ok,true,'unlock-fjord-08 '+JSON.stringify(gate));
+  const raw=prof.r5.platform.load('forest-regional-r05-active'),r=raw?JSON.parse(raw):null;
+  assert.ok(r&&!r.discarded&&API.restore(r.checkpoint).stage.id==='r10-fjord-07','unlock-fjord-08 keeps the won 07 board');
  }
  const runSrc=S('world-r2/PreTransitionRun.ts');
  assert.ok(/dismissBlockers\(b\)/.test(runSrc),'script closes the rule panel before the winning swap');

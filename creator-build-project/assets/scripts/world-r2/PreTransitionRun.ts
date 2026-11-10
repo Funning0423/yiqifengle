@@ -126,7 +126,7 @@ export class PreTransitionRunner{
    if(spec.place==='island'){
     /*QF_PROBE_BEGIN*/if(spec.justWon){try{qaSyncScope('pre-transition-just-won',()=>finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true}));}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
     if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)qaSyncScope('pre-transition-sky-seed',()=>seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true}));}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
-    if(spec.unlockThrough)return await this.openPanel('journal',['JourneyPanel','Focus-'+spec.unlockThrough]);
+    if(spec.unlockThrough)return await this.openPanel('journal',['JourneyPanel','Focus-'+(spec.unlockThrough==='fjord8'?'fjord':spec.unlockThrough)]);
     if(spec.key==='skycity-visit')return await this.openPanel('sky',['ChapterPanel','VisitSkycity']);
     return {ok:true};
    }
