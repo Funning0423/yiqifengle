@@ -1,451 +1,96 @@
 {
-  "darkBand": {
-    "what": "On c1cebdb5 the bottom ~30 px is a flat dark brown (~29,18,10). Rays from that camera through the bottom row hit the lake top (normal +Y) at world z 19.4–19.9, with LK_shore_foam on the same spot. The lake mesh continues to world z 37, so this is not a hole and not the lake boundary. The foam sheet there has UVs far outside 0–1; the offline raster samples a dark palette edge. 95dc672d and 39c3801f bottom rays hit open water around z 16–17 and stay the lake teal (105,135,97).",
-    "avoid": "Bottom-of-frame rays must meet the lake at z below about 19. This pose meets it at z 17.3–17.4 on all three sizes."
+  "pose": {
+    "position": [
+      0,
+      15.7,
+      28.35
+    ],
+    "target": [
+      0,
+      1.616,
+      1.862
+    ],
+    "fovVerticalDeg": 55,
+    "pitchDeg": -28
   },
-  "deckPoint": "[0, 1.6, 0], midspan of the bridge deck (vertex mass of the arch is y 1.5–2.5; the railing crown is y 3.6).",
-  "k9NearEdgeCellPx": [
-    {
-      "screen": "390x844",
-      "lens": "main",
-      "nearEdgeCellPx": 48.22
+  "treeLinePoint": "[0, 11.1, -57] far conifer crowns. Fraction is the part of the frame above that line (sky or far hills). Offline render has no sky dome.",
+  "darkBand": "Bottom rays hit the lake at z 17.5, short of the near foam sheet at z>~19 that painted the dark band on c1cebdb5.",
+  "binding": "Raising the far tree line to 10-15% of the frame needs about another 4 degrees of upward tilt. That drops the board through the bottom safe area. With the 20-40 px bottom gap, 85% width and K9 >=44 held, the most sky above those crowns is 5.4% at pitch -28.",
+  "at390x844": {
+    "8c5ad5f0": {
+      "boardWidthPercent": 86.6,
+      "boardHW": 0.662,
+      "boardCentreY": 0.792,
+      "bottomGapPx": 29.7,
+      "bridgeToBoardGapPx": 176.8,
+      "bridgeToBoardGapRatio": 0.209,
+      "skyAboveTreeLine": -0.04,
+      "bottomLakeZ": 17.36
     },
-    {
-      "screen": "414x896",
-      "lens": "main",
-      "nearEdgeCellPx": 51.19
-    },
-    {
-      "screen": "360x780",
-      "lens": "main",
-      "nearEdgeCellPx": 44.51
-    },
-    {
-      "screen": "375x667",
-      "lens": "short",
-      "nearEdgeCellPx": 62.55
-    },
-    {
-      "screen": "390x520",
-      "lens": "short",
-      "nearEdgeCellPx": 48.77
+    "v4": {
+      "boardWidthPercent": 87.0,
+      "boardHW": 0.622,
+      "boardCentreY": 0.791,
+      "bottomGapPx": 36.6,
+      "bridgeToBoardGapPx": 162.3,
+      "bridgeToBoardGapRatio": 0.192,
+      "skyAboveTreeLine": 0.054,
+      "boardTopYRatio": 0.666,
+      "bottomLakeZ": 17.54,
+      "k9MinNearEdgeCellPx": 44.72
     }
-  ],
-  "k9MinPx": 44.51,
-  "cameras": {
-    "95dc672d": {
-      "390x844": {
-        "pose": {
-          "position": [
-            0,
-            9.5,
-            23
-          ],
-          "target": [
-            0,
-            0.15,
-            10
-          ],
-          "fovVerticalDeg": 50,
-          "pitchDeg": -35.72
-        },
-        "boardWidthPercent": 157.56,
-        "boardCentreYRatio": 0.637,
-        "bridgeDeckCentreYRatio": 0.177,
-        "bridgeCrownYRatio": 0.1,
-        "boardBottomGapToSafeAreaPx": 106.98,
-        "marginToEdgePx": {
-          "left": -112.25,
-          "right": -112.25,
-          "top": 371.86,
-          "bottom": 140.98
-        },
-        "marginInsideSafeAreaPx": {
-          "left": -112.25,
-          "right": -112.25,
-          "top": 324.86,
-          "bottom": 106.98
-        },
-        "cellsOutsideSafeArea": [
-          0,
-          6,
-          7,
-          13,
-          14,
-          20,
-          21,
-          27,
-          28,
-          34,
-          35,
-          36,
-          40,
-          41,
-          42,
-          43,
-          47,
-          48
-        ],
-        "bottomRayLakeZ": {
-          "left": 17.66,
-          "centre": 17.66,
-          "right": 17.66
-        }
-      },
-      "402x874": {
-        "pose": {
-          "position": [
-            0,
-            9.5,
-            23
-          ],
-          "target": [
-            0,
-            0.15,
-            10
-          ],
-          "fovVerticalDeg": 50.203,
-          "pitchDeg": -35.72
-        },
-        "boardWidthPercent": 157.56,
-        "boardCentreYRatio": 0.636,
-        "bridgeDeckCentreYRatio": 0.178,
-        "bridgeCrownYRatio": 0.102,
-        "boardBottomGapToSafeAreaPx": 113.33,
-        "marginToEdgePx": {
-          "left": -115.7,
-          "right": -115.7,
-          "top": 385.31,
-          "bottom": 147.33
-        },
-        "marginInsideSafeAreaPx": {
-          "left": -115.7,
-          "right": -115.7,
-          "top": 338.31,
-          "bottom": 113.33
-        },
-        "cellsOutsideSafeArea": [
-          0,
-          6,
-          7,
-          13,
-          14,
-          20,
-          21,
-          27,
-          28,
-          34,
-          35,
-          36,
-          40,
-          41,
-          42,
-          43,
-          47,
-          48
-        ],
-        "bottomRayLakeZ": {
-          "left": 17.69,
-          "centre": 17.69,
-          "right": 17.69
-        }
-      },
-      "1206x2622": {
-        "pose": {
-          "position": [
-            0,
-            9.5,
-            23
-          ],
-          "target": [
-            0,
-            0.15,
-            10
-          ],
-          "fovVerticalDeg": 50.203,
-          "pitchDeg": -35.72
-        },
-        "boardWidthPercent": 157.56,
-        "boardCentreYRatio": 0.636,
-        "bridgeDeckCentreYRatio": 0.178,
-        "bridgeCrownYRatio": 0.102,
-        "boardBottomGapToSafeAreaPx": 408,
-        "marginToEdgePx": {
-          "left": -347.11,
-          "right": -347.11,
-          "top": 1155.94,
-          "bottom": 442
-        },
-        "marginInsideSafeAreaPx": {
-          "left": -347.11,
-          "right": -347.11,
-          "top": 1108.94,
-          "bottom": 408
-        },
-        "cellsOutsideSafeArea": [
-          0,
-          6,
-          7,
-          13,
-          14,
-          20,
-          21,
-          27,
-          28,
-          34,
-          35,
-          36,
-          40,
-          41,
-          42,
-          43,
-          47,
-          48
-        ],
-        "bottomRayLakeZ": {
-          "left": 17.69,
-          "centre": 17.69,
-          "right": 17.69
-        }
-      }
+  },
+  "v4screens": {
+    "390x844": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapPx": 36.6,
+      "centreY": 0.791,
+      "bridgeGapPx": 162.3,
+      "bridgeGapRatio": 0.192,
+      "skyAboveTreeLine": 0.054,
+      "cellPx": 48.44,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.54
     },
-    "c1cebdb5": {
-      "390x844": {
-        "pose": {
-          "position": [
-            0,
-            16.25,
-            29.5
-          ],
-          "target": [
-            0,
-            0.32,
-            4
-          ],
-          "fovVerticalDeg": 55,
-          "pitchDeg": -31.99
-        },
-        "boardWidthPercent": 79.33,
-        "boardCentreYRatio": 0.7,
-        "bridgeDeckCentreYRatio": 0.406,
-        "bridgeCrownYRatio": 0.369,
-        "boardBottomGapToSafeAreaPx": 125.51,
-        "marginToEdgePx": {
-          "left": 40.31,
-          "right": 40.31,
-          "top": 496.47,
-          "bottom": 159.51
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 40.31,
-          "right": 40.31,
-          "top": 449.47,
-          "bottom": 125.51
-        },
-        "cellsOutsideSafeArea": [],
-        "bottomRayLakeZ": {
-          "left": 19.9,
-          "centre": 19.9,
-          "right": 19.9
-        }
-      },
-      "402x874": {
-        "pose": {
-          "position": [
-            0,
-            16.25,
-            29.5
-          ],
-          "target": [
-            0,
-            0.32,
-            4
-          ],
-          "fovVerticalDeg": 55.217,
-          "pitchDeg": -31.99
-        },
-        "boardWidthPercent": 79.33,
-        "boardCentreYRatio": 0.699,
-        "bridgeDeckCentreYRatio": 0.407,
-        "bridgeCrownYRatio": 0.37,
-        "boardBottomGapToSafeAreaPx": 132.44,
-        "marginToEdgePx": {
-          "left": 41.55,
-          "right": 41.55,
-          "top": 513.76,
-          "bottom": 166.44
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 41.55,
-          "right": 41.55,
-          "top": 466.76,
-          "bottom": 132.44
-        },
-        "cellsOutsideSafeArea": [],
-        "bottomRayLakeZ": {
-          "left": 19.95,
-          "centre": 19.95,
-          "right": 19.95
-        }
-      },
-      "1206x2622": {
-        "pose": {
-          "position": [
-            0,
-            16.25,
-            29.5
-          ],
-          "target": [
-            0,
-            0.32,
-            4
-          ],
-          "fovVerticalDeg": 55.217,
-          "pitchDeg": -31.99
-        },
-        "boardWidthPercent": 79.33,
-        "boardCentreYRatio": 0.699,
-        "bridgeDeckCentreYRatio": 0.407,
-        "bridgeCrownYRatio": 0.37,
-        "boardBottomGapToSafeAreaPx": 465.31,
-        "marginToEdgePx": {
-          "left": 124.64,
-          "right": 124.64,
-          "top": 1541.27,
-          "bottom": 499.31
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 124.64,
-          "right": 124.64,
-          "top": 1494.27,
-          "bottom": 465.31
-        },
-        "cellsOutsideSafeArea": [],
-        "bottomRayLakeZ": {
-          "left": 19.96,
-          "centre": 19.96,
-          "right": 19.96
-        }
-      }
+    "402x874": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapPx": 40.7,
+      "centreY": 0.79,
+      "bridgeGapPx": 167.3,
+      "bridgeGapRatio": 0.191,
+      "skyAboveTreeLine": 0.056,
+      "cellPx": 49.93,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.58
     },
-    "after": {
-      "390x844": {
-        "pose": {
-          "position": [
-            0,
-            17.4,
-            28.25
-          ],
-          "target": [
-            0,
-            1.502,
-            2.809
-          ],
-          "fovVerticalDeg": 52,
-          "pitchDeg": -32
-        },
-        "boardWidthPercent": 86.6,
-        "boardCentreYRatio": 0.792,
-        "bridgeDeckCentreYRatio": 0.45,
-        "bridgeCrownYRatio": 0.414,
-        "boardBottomGapToSafeAreaPx": 29.75,
-        "marginToEdgePx": {
-          "left": 26.13,
-          "right": 26.13,
-          "top": 556.69,
-          "bottom": 63.75
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 26.13,
-          "right": 26.13,
-          "top": 509.69,
-          "bottom": 29.75
-        },
-        "cellsOutsideSafeArea": [],
-        "bottomRayLakeZ": {
-          "left": 17.36,
-          "centre": 17.36,
-          "right": 17.36
-        }
-      },
-      "402x874": {
-        "pose": {
-          "position": [
-            0,
-            17.4,
-            28.25
-          ],
-          "target": [
-            0,
-            1.502,
-            2.809
-          ],
-          "fovVerticalDeg": 52.209,
-          "pitchDeg": -32
-        },
-        "boardWidthPercent": 86.6,
-        "boardCentreYRatio": 0.791,
-        "bridgeDeckCentreYRatio": 0.45,
-        "bridgeCrownYRatio": 0.414,
-        "boardBottomGapToSafeAreaPx": 33.72,
-        "marginToEdgePx": {
-          "left": 26.93,
-          "right": 26.93,
-          "top": 575.83,
-          "bottom": 67.72
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 26.93,
-          "right": 26.93,
-          "top": 528.83,
-          "bottom": 33.72
-        },
-        "cellsOutsideSafeArea": [],
-        "bottomRayLakeZ": {
-          "left": 17.4,
-          "centre": 17.4,
-          "right": 17.4
-        }
-      },
-      "1206x2622": {
-        "pose": {
-          "position": [
-            0,
-            17.4,
-            28.25
-          ],
-          "target": [
-            0,
-            1.502,
-            2.809
-          ],
-          "fovVerticalDeg": 52.209,
-          "pitchDeg": -32
-        },
-        "boardWidthPercent": 86.6,
-        "boardCentreYRatio": 0.791,
-        "bridgeDeckCentreYRatio": 0.45,
-        "bridgeCrownYRatio": 0.414,
-        "boardBottomGapToSafeAreaPx": 169.17,
-        "marginToEdgePx": {
-          "left": 80.8,
-          "right": 80.8,
-          "top": 1727.5,
-          "bottom": 203.17
-        },
-        "marginInsideSafeAreaPx": {
-          "left": 80.8,
-          "right": 80.8,
-          "top": 1680.5,
-          "bottom": 169.17
-        },
-        "cellsOutsideSafeArea": [],
-        "bottomRayLakeZ": {
-          "left": 17.41,
-          "centre": 17.41,
-          "right": 17.41
-        }
-      }
+    "430x932": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapPx": 44.5,
+      "centreY": 0.791,
+      "bridgeGapPx": 179.0,
+      "bridgeGapRatio": 0.192,
+      "skyAboveTreeLine": 0.055,
+      "cellPx": 53.41,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.55
+    },
+    "1206x2622": {
+      "widthPercent": 86.99,
+      "hw": 0.622,
+      "bottomGapToUnscaledSafePx": 190.2,
+      "centreY": 0.79,
+      "bridgeGapRatio": 0.191,
+      "skyAboveTreeLine": 0.056,
+      "cellPx": 149.8,
+      "cellsOutsideSafe": 0,
+      "bottomLakeZ": 17.6
+    },
+    "360x780": {
+      "cellPx": 44.72,
+      "cellsOutsideSafe": 0
     }
   }
 }
