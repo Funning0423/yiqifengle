@@ -1,0 +1,2 @@
+PASS journal-sky debug keys inert in WeChat release (journal-sky-open, journal-sky-progress, journal-sky-cleared, journal-sky-gated, journal-sky-just-unlocked, journal-sky-focus): no ?qfPre / launch-query key, no global, run() refused; source gates intact
+PASS negative self-test: ungated stub caught (25 findings), 5/5 gate-removal mutations caught

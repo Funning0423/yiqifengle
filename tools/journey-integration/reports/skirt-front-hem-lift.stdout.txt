@@ -1,0 +1,383 @@
+{
+ "gate": "skirt-front-hem-lift",
+ "status": "PASS",
+ "glb": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "limits": {
+  "lift": 0.03,
+  "belowKnee": 0.045,
+  "apron": 0.03,
+  "flare": 0.28,
+  "vert": 0.05
+ },
+ "results": [
+  {
+   "name": "strict clips 60",
+   "ok": true,
+   "frames": 1082,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "walk_turn_180_bodyR@1.2667/60"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "walk_turn_180_bodyR@1.2667/60"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "walk_turn_180_bodyR@1.2667/60"
+    },
+    "flare": {
+     "v": 0.2587,
+     "at": "walk_stop_bodyL@0.0333/60"
+    },
+    "vert": {
+     "v": 0.0478,
+     "at": "walk_start_stepdown@1.6000/60"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict clips 30",
+   "ok": true,
+   "frames": 549,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "walk_turn_180_bodyR@1.2667/30"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "walk_turn_180_bodyR@1.2667/30"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "walk_turn_180_bodyR@1.2667/30"
+    },
+    "flare": {
+     "v": 0.2587,
+     "at": "walk_stop_bodyL@0.0333/30"
+    },
+    "vert": {
+     "v": 0.0478,
+     "at": "walk_start_stepdown@1.6000/30"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict clips uneven",
+   "ok": true,
+   "frames": 1055,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.021,
+     "at": "walk_turn_180_bodyR@1.2681/uneven"
+    },
+    "belowKnee": {
+     "v": 0.0553,
+     "at": "walk_turn_180_bodyR@1.2681/uneven"
+    },
+    "apron": {
+     "v": 0.0276,
+     "at": "walk_turn_180_bodyR@1.2681/uneven"
+    },
+    "flare": {
+     "v": 0.258,
+     "at": "walk_stop_bodyL@0.0279/uneven"
+    },
+    "vert": {
+     "v": 0.0477,
+     "at": "walk_start_stepdown@1.5980/uneven"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict runtime 60",
+   "ok": true,
+   "frames": 3055,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "turns@9.283 walk_turn_180_bodyR/60"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "turns@9.283 walk_turn_180_bodyR/60"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "turns@9.283 walk_turn_180_bodyR/60"
+    },
+    "flare": {
+     "v": 0.2566,
+     "at": "walk_stopL@2.167 walk_start/60"
+    },
+    "vert": {
+     "v": 0.0478,
+     "at": "door_stepdown@4.133 walk_start_stepdown/60"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict runtime 30",
+   "ok": true,
+   "frames": 1537,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0212,
+     "at": "turns@9.333 walk_turn_180_bodyR/30"
+    },
+    "belowKnee": {
+     "v": 0.0552,
+     "at": "turns@9.333 walk_turn_180_bodyR/30"
+    },
+    "apron": {
+     "v": 0.0279,
+     "at": "turns@9.333 walk_turn_180_bodyR/30"
+    },
+    "flare": {
+     "v": 0.2566,
+     "at": "walk_stopL@2.167 walk_start/30"
+    },
+    "vert": {
+     "v": 0.0478,
+     "at": "door_stepdown@4.133 walk_start_stepdown/30"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "strict runtime uneven",
+   "ok": true,
+   "frames": 3064,
+   "failCount": 0,
+   "worst": {
+    "lift": {
+     "v": 0.0204,
+     "at": "turns@9.284 walk_turn_180_bodyR/uneven"
+    },
+    "belowKnee": {
+     "v": 0.056,
+     "at": "turns@9.284 walk_turn_180_bodyR/uneven"
+    },
+    "apron": {
+     "v": 0.0277,
+     "at": "turns@4.713 walk_turn_90_bodyR/uneven"
+    },
+    "flare": {
+     "v": 0.2565,
+     "at": "walk_stopR@1.966 walk_start/uneven"
+    },
+    "vert": {
+     "v": 0.0472,
+     "at": "door_stepdown@4.112 walk_start_stepdown/uneven"
+    }
+   },
+   "fails": []
+  },
+  {
+   "name": "seated ratchet vs 773c061e 60 (pre-existing seated issues from 773c061e, not introduced by this change)",
+   "ok": true,
+   "failCount": 0,
+   "regressions": [],
+   "items": {
+    "clip:sit_hold/60": {
+     "frames": 0
+    },
+    "clip:stand_up/60": {
+     "frames": 24,
+     "lift": 0.04897,
+     "belowKnee": 0.0274,
+     "apron": 0.05087,
+     "flare": 0.37769,
+     "vert": 0.12435
+    },
+    "clip:sit_down/60": {
+     "frames": 13,
+     "lift": 0.01383,
+     "belowKnee": 0.06254,
+     "apron": 0.01953,
+     "flare": 0.26241,
+     "vert": 0.03621
+    },
+    "runtime:ride-seated/60": {
+     "frames": 48,
+     "lift": 0.04897,
+     "belowKnee": 0.0274,
+     "apron": 0.05087,
+     "flare": 0.37769,
+     "vert": 0.12435
+    }
+   }
+  },
+  {
+   "name": "seated ratchet vs 773c061e 30 (pre-existing seated issues from 773c061e, not introduced by this change)",
+   "ok": true,
+   "failCount": 0,
+   "regressions": [],
+   "items": {
+    "clip:sit_hold/30": {
+     "frames": 0
+    },
+    "clip:stand_up/30": {
+     "frames": 13,
+     "lift": 0.04897,
+     "belowKnee": 0.0274,
+     "apron": 0.05087,
+     "flare": 0.37769,
+     "vert": 0.12435
+    },
+    "clip:sit_down/30": {
+     "frames": 7,
+     "lift": 0.01383,
+     "belowKnee": 0.06254,
+     "apron": 0.01953,
+     "flare": 0.26241,
+     "vert": 0.03621
+    },
+    "runtime:ride-seated/30": {
+     "frames": 25,
+     "lift": 0.04897,
+     "belowKnee": 0.0274,
+     "apron": 0.05087,
+     "flare": 0.37769,
+     "vert": 0.12435
+    }
+   }
+  },
+  {
+   "name": "seated ratchet vs 773c061e uneven (pre-existing seated issues from 773c061e, not introduced by this change)",
+   "ok": true,
+   "failCount": 0,
+   "regressions": [],
+   "items": {
+    "clip:sit_hold/uneven": {
+     "frames": 0
+    },
+    "clip:stand_up/uneven": {
+     "frames": 24,
+     "lift": 0.04865,
+     "belowKnee": 0.02773,
+     "apron": 0.05071,
+     "flare": 0.37691,
+     "vert": 0.12315
+    },
+    "clip:sit_down/uneven": {
+     "frames": 14,
+     "lift": 0.01334,
+     "belowKnee": 0.06303,
+     "apron": 0.01884,
+     "flare": 0.26063,
+     "vert": 0.03598
+    },
+    "runtime:ride-seated/uneven": {
+     "frames": 48,
+     "lift": 0.0488,
+     "belowKnee": 0.02757,
+     "apron": 0.05079,
+     "flare": 0.37728,
+     "vert": 0.1241
+    }
+   }
+  },
+  {
+   "name": "negative: 773c061e walk_loop front curves must FAIL",
+   "ok": true,
+   "failCounts": {
+    "30": 220,
+    "60": 435,
+    "uneven": 430,
+    "runtime30": 2005
+   }
+  },
+  {
+   "name": "negative: 773c061e door_reach front curves must FAIL",
+   "ok": true,
+   "failCounts": {
+    "30": 104,
+    "60": 212,
+    "uneven": 210,
+    "runtime30": 239
+   }
+  },
+  {
+   "name": "negative: sit_down front panel pitched 5 deg further up must FAIL the seated ratchet",
+   "ok": true,
+   "regressions": {
+    "30": [
+     {
+      "item": "clip:sit_down/30",
+      "k": "lift",
+      "cur": 0.03067,
+      "base": 0.01383
+     },
+     {
+      "item": "clip:sit_down/30",
+      "k": "apron",
+      "cur": 0.03722,
+      "base": 0.01953
+     },
+     {
+      "item": "clip:sit_down/30",
+      "k": "flare",
+      "cur": 0.32103,
+      "base": 0.26241
+     },
+     {
+      "item": "clip:sit_down/30",
+      "k": "vert",
+      "cur": 0.06498,
+      "base": 0.03621
+     },
+     {
+      "item": "clip:sit_down/30",
+      "k": "belowKnee",
+      "cur": 0.0457,
+      "base": 0.06254
+     }
+    ],
+    "60": [
+     {
+      "item": "clip:sit_down/60",
+      "k": "lift",
+      "cur": 0.03067,
+      "base": 0.01383
+     },
+     {
+      "item": "clip:sit_down/60",
+      "k": "apron",
+      "cur": 0.03722,
+      "base": 0.01953
+     },
+     {
+      "item": "clip:sit_down/60",
+      "k": "flare",
+      "cur": 0.32103,
+      "base": 0.26241
+     },
+     {
+      "item": "clip:sit_down/60",
+      "k": "vert",
+      "cur": 0.06498,
+      "base": 0.03621
+     },
+     {
+      "item": "clip:sit_down/60",
+      "k": "belowKnee",
+      "cur": 0.0457,
+      "base": 0.06254
+     }
+    ]
+   }
+  }
+ ]
+}

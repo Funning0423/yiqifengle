@@ -1,0 +1,1 @@
+PASS city-night-restore {"dimmed":["env_sky_ruins","env_sky_static_rock_strata","env_sky_greattree_canopy_cards","env_sky_windchime_01","state_gate_after"],"restored":5}

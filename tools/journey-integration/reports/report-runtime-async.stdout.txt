@@ -1,0 +1,1 @@
+PASS report-runtime-async self-tests=1

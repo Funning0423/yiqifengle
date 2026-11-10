@@ -1,0 +1,2 @@
+PASS islandToMeadow seg1+seg2 measured 40.16 s ≤ 42.5 s (seg1 13.970 incl. I4→I6 walk 7.473 s / 8.968 m, seg2 26.190); table value 40.160 s (nodeWalkI4toI6 7.473)
+PASS negative self-test: 15.6 s I4→I6 → 48.29 s > 42.5
