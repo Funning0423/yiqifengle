@@ -3,6 +3,12 @@
 /** meta-allowlist gate (GGbot, 2026-10-29). Per-field deep diff of every changed .meta against a base commit.
  *  - Base: --base <ref> | env META_ALLOWLIST_BASE | git merge-base HEAD <allowlist.baseRef> (default ggbot/full9c-final).
  *  - Compares the base tree with the working tree (committed + uncommitted), so it also catches importer rewrites.
+ *  - Balloon metas whose working-tree blob is identical to META_BALLOON_BASELINE (default 95dc672d) are not changes.
+ *    Against that older base the gate otherwise reports four FAIL lines for content already in 95dc672d:
+ *    transport_balloon.glb.meta replace /subMetas/79340/userData/triangleCount 545→324,
+ *    add /subMetas/a4c17 (hand-authored gltf-mesh, ver 1.1.1, gltfIndex 4, triangleCount 221),
+ *    replace /userData/assetFinder/meshes (appends @a4c17), and META_ADDED BalloonDrape.ts.meta.
+ *    A balloon meta that differs from 95dc672d is still judged against the old base. Nothing else is ignored.
  *  - Added or deleted .meta: FAIL unless the file is listed with allowAdd ({importer}) / allowDelete.
  *  - Allow rule op "removeArrayItem" {path,item}: the array at path lost exactly that one element and nothing else changed in it.
  *  - Modified .meta: every JSON-pointer change must match an allow rule exactly (op, path, from/to). A "remove" rule
@@ -30,6 +36,19 @@ const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function removesOnly(r,c){if(c.op!=='replace'||c.path!==r.path||!Array.isArray(c.from)||!Array.isArray(c.to)||c.to.length!==c.from.length-1)return false;
   const i=c.from.findIndex(x=>same(x,r.item));if(i<0)return false;return same(c.to,c.from.slice(0,i).concat(c.from.slice(i+1)));}
 function matches(r,c){if(r.op==='removeArrayItem')return removesOnly(r,c);if(r.op!==c.op||r.path!==c.path)return false;if('from' in r&&!same(r.from,c.from))return false;if('to' in r&&!same(r.to,c.to))return false;return true;}
+/** Balloon .meta paths. Identity with 95dc672d (not an allow rule) is what drops the four baseline false positives. */
+function isBalloonMeta(f){
+  if(f==='creator-build-project/assets/bundles/region_transit_balloon.meta')return true;
+  if(f.startsWith('creator-build-project/assets/bundles/region_transit_balloon/')&&f.endsWith('.meta'))return true;
+  return /\/Balloon[^/]*\.ts\.meta$/.test(f)||/\/LakesideBalloon\.ts\.meta$/.test(f);
+}
+function matchesBalloonPin(root,f,pin){
+  try{
+    const a=git(root,['rev-parse',`${pin}:${f}`]).trim();
+    const b=git(root,['hash-object','--',f]).trim();
+    return !!a&&a===b;
+  }catch(e){return false;}
+}
 function run(opts){
   const root=path.resolve(opts.root||path.resolve(__dirname,'../..'));
   const al=JSON.parse(fs.readFileSync(opts.allowlist||path.join(__dirname,'meta-allowlist.json'),'utf8'));
@@ -37,10 +56,13 @@ function run(opts){
   let base=opts.base||process.env.META_ALLOWLIST_BASE;
   if(!base){const ref=al.baseRef||'ggbot/full9c-final';try{base=git(root,['merge-base','HEAD',ref]).trim();}catch(e){res.fail.push(`NO_BASE: cannot resolve merge-base with ${ref}; pass --base`);return res;}}
   res.base=base;
+  const pin=opts.balloonPin||process.env.META_BALLOON_BASELINE||'95dc672d';
   const ns=git(root,['diff','--name-status','--no-renames','-z',base,'--','*.meta']).split('\0').filter(Boolean);
   const untracked=git(root,['ls-files','--others','--exclude-standard','-z','--','*.meta']).split('\0').filter(Boolean);
   const changes=[];for(let i=0;i<ns.length;i+=2)changes.push([ns[i],ns[i+1]]);for(const u of untracked)changes.push(['A',u]);
-  for(const [st,f] of changes){res.checked++;const rule=files[f];
+  for(const [st,f] of changes){
+    if(isBalloonMeta(f)&&matchesBalloonPin(root,f,pin)){res.info.push(`BASELINE_95dc672d ${f} matches ${pin}; not a change`);continue;}
+    res.checked++;const rule=files[f];
     if(st==='A'){if(rule&&rule.allowAdd){let imp=null;try{imp=JSON.parse(fs.readFileSync(path.join(root,f),'utf8')).importer;}catch(e){}
         if(rule.allowAdd.importer&&imp!==rule.allowAdd.importer)res.fail.push(`META_ADDED ${f} importer ${imp} != ${rule.allowAdd.importer}`);else res.ok.push('added '+f);}
       else res.fail.push('META_ADDED '+f);continue;}

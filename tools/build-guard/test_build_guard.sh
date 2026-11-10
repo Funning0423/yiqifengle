@@ -19,7 +19,15 @@ n=$(cat "$PLAN.n" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "$PLAN.n"; what=
 out=$(sed -n 's/.*"outputName"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$C" | head -1)
 mkdir -p "$P/build/$out/subpackages/main" "$P/library" "$P/temp"; echo cache > "$P/library/x"
 if [ -n "${FAKE_BUNDLES:-}" ]; then "$NODE" -e 'const [b,o,s]=process.argv.slice(1),fs=require("fs");const blk=require(b+"/tools/preload-size/preload-bytes.cjs").readBlock(fs.readFileSync(b+"/creator-build-project/assets/scripts/region/TransitionChain.ts","utf8"));for(const [k,v] of Object.entries(blk.bytes)){fs.mkdirSync(o+"/subpackages/"+k,{recursive:true});fs.writeFileSync(o+"/subpackages/"+k+"/n.bin",Buffer.alloc(Math.round(v*s)));}' "$(dirname "$P")" "$P/build/$out" "$FAKE_BUNDLES"; fi
-if [ "$what" = good ]; then { cat "$P"/assets/scripts/*.ts; head -c 3000000 /dev/zero | tr '\0' ' '; } | head -c 3000000 > "$P/build/$out/game.js"; head -c 13000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; exit 36
+write_good(){ { cat "$P"/assets/scripts/*.ts; head -c 3000000 /dev/zero | tr '\0' ' '; } | head -c 3000000 > "$P/build/$out/game.js"; head -c 13000000 /dev/zero > "$P/build/$out/subpackages/main/m.bin"; echo "build Task Finished"; }
+rewrite_balloon_meta(){ meta="$P/assets/bundles/region_transit_balloon/transport_balloon.glb.meta"; [ -f "$meta" ] || return 0
+  printf '%s\n' '{"ver":"2.3.14","importer":"gltf","subMetas":{"c9dd7":{"id":"c9dd7","name":"balloon_load_frame.mesh"}}}' > "$meta"; }
+case "$what" in
+  balloonmeta) write_good; rewrite_balloon_meta; exit 36;;
+  balloonglb) write_good; rewrite_balloon_meta; printf 'EXTRA\n' >> "$P/assets/bundles/region_transit_balloon/transport_balloon.glb"; exit 36;;
+  balloonbad) head -c 2300000 /dev/zero > "$P/build/$out/game.bin"; echo "Error: 当前初始场景不存在或在 Bundle 中，无法设置为初始场景。"; rewrite_balloon_meta; exit 36;;
+esac
+if [ "$what" = good ]; then write_good; exit 36
 else head -c 2300000 /dev/zero > "$P/build/$out/game.bin"; echo "Error: 当前初始场景不存在或在 Bundle 中，无法设置为初始场景。"
   for f in "$P"/assets/scripts/*.meta; do echo '{"ver":"0.0.1","importer":"*"}' > "$f"; done; echo '{}' > "$P/assets/scripts/new.ts.meta"; exit 36; fi
 F
@@ -98,4 +106,33 @@ node "$HERE/check-no-placeholder.cjs" --root "$P/esc" > "$T/ph2" 2>&1 && fail "c
 node "$HERE/check-no-placeholder.cjs" --root "$P/src" > "$T/ph3" 2>&1 && fail "case15 source comment hit passed"
 node "$HERE/check-no-placeholder.cjs" --root "$P/good" > "$T/ph4" 2>&1 || { cat "$T/ph4"; fail "case15 clean sample failed"; }
 node "$HERE/check-no-placeholder.cjs" --root "$HERE/../.." > "$T/ph5" 2>&1 || { cat "$T/ph5"; fail "case15 repo source has the placeholder word"; }
-echo "SELFTEST PASS (15 cases + provenance)"
+# Balloon meta: simulated git/stage state. Only the known meta may be restored; glb changes and the other gates still fail.
+mkbal(){ R=$(mkrepo "$1"); D="$R/creator-build-project/assets/bundles/region_transit_balloon"; mkdir -p "$D"
+  printf '%s\n' '{"ver":"2.3.14","importer":"gltf","subMetas":{"a4c17":{"id":"a4c17","name":"balloon_load_frame.mesh","ver":"1.1.1"}}}' > "$D/transport_balloon.glb.meta"
+  printf 'glTF-balloon' > "$D/transport_balloon.glb"
+  printf 'PNG' > "$D/balloon_basket_256.png"
+  printf '%s\n' '{"ver":"1.0.14","importer":"gltf-material"}' > "$D/M_balloon_basket.mtl"
+  (cd "$R" && git add -A && git -c user.email=t@t -c user.name=t commit -qm balloon); echo "$R"; }
+# 16) in-place: only transport_balloon.glb.meta rewritten -> git checkout, hash matches baseline, WARN, pass
+R=$(mkbal 16); c=$(STRIP_PROBES=0 run "$R" wechat 16 balloonmeta); [ "$c" = 0 ] || { cat "$T/out16"; fail "case16 exit $c"; }
+grep -q "WARN: Creator rewrote only" "$T/out16" || fail "case16 no WARN"; grep -q "BUILD GUARD PASSED" "$T/out16" || fail "case16 not passed"
+grep -q '"id":"a4c17"' "$R/creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta" || fail "case16 meta not restored"
+grep -qx 'glTF-balloon' "$R/creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb" || fail "case16 glb touched"
+[ -z "$(cd "$R" && git status --porcelain)" ] || fail "case16 dirty"
+# 17) staged release: glb bytes change -> reject, even though the build is otherwise large enough
+R=$(mkbal 17); c=$(run "$R" wechat 17 balloonglb); [ "$c" = 2 ] || { cat "$T/out17"; fail "case17 exit $c"; }
+grep -q "balloon-file:.*transport_balloon.glb" "$T/out17" || { cat "$T/out17"; fail "case17 msg"; }
+grep -q "BUILD GUARD PASSED" "$T/out17" && fail "case17 passed"
+grep -qx 'glTF-balloon' "$R/creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb" || fail "case17 repo glb changed"
+# 18) other gate: only the known meta, but the build is the small/error import -> still rejected
+R=$(mkbal 18); c=$(run "$R" wechat 18 balloonbad); [ "$c" = 2 ] || { cat "$T/out18"; fail "case18 exit $c"; }
+grep -q "size=" "$T/out18" && grep -q "当前初始场景不存在" "$T/out18" || { cat "$T/out18"; fail "case18 other gate"; }
+grep -q "BUILD GUARD PASSED" "$T/out18" && fail "case18 passed"
+grep -q '"id":"a4c17"' "$R/creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta" || fail "case18 meta left rewritten"
+# 19) staged release (the Mac wechat path): only the known meta in the stage -> WARN, pass, repo meta unchanged
+R=$(mkbal 19); c=$(run "$R" wechat 19 balloonmeta); [ "$c" = 0 ] || { cat "$T/out19"; fail "case19 exit $c"; }
+grep -q "WARN: Creator rewrote only" "$T/out19" || { cat "$T/out19"; fail "case19 no WARN"; }
+grep -q "hash .* matches the pre-build baseline" "$T/out19" || fail "case19 hash"
+grep -q '"id":"a4c17"' "$R/creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta" || fail "case19 repo meta"
+[ -z "$(cd "$R" && git status --porcelain)" ] || fail "case19 dirty"
+echo "SELFTEST PASS (19 cases + provenance)"
