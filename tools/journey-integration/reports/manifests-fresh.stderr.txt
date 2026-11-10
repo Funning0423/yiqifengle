@@ -1,0 +1,63 @@
+node:assert:150
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: manifests stale — run `node tools/test_manifests.cjs --write`:
+e9a97",
+    "stale tools/journey-integration/run-suite.cjs manifest 34423/17866fa0e156 actual 34483/5b9332df1769"
+  ]
+}
+node:assert:150
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: 2 manifest problem(s); run node tools/test_manifests.cjs --write and review the diff
++ actual - expected
+
++ [
++   'stale creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts manifest 16167/3c9194926e5d actual 16849/8ec9715e9a97',
++   'stale tools/journey-integration/run-suite.cjs manifest 34423/17866fa0e156 actual 34483/5b9332df1769'
++ ]
+- []
+
+    at Object.<anonymous> (/workspace/wt/b20-sync-b23/tools/test_manifests.cjs:54:8)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'stale creator-build-project/assets/scripts/world-r2/PreTransitionRun.ts manifest 16167/3c9194926e5d actual 16849/8ec9715e9a97',
+    'stale tools/journey-integration/run-suite.cjs manifest 34423/17866fa0e156 actual 34483/5b9332df1769'
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.23.4
+
+
+1 !== 0
+
+    at Object.<anonymous> (/workspace/wt/b20-sync-b23/tools/manifests/test_manifests_fresh.cjs:9:29)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.23.4

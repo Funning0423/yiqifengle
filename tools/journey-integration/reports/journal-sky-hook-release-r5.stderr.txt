@@ -1,0 +1,16 @@
+AssertionError [ERR_ASSERTION]: source gates: journal-sky seeding outside the gated runner setup
++ actual - expected
+
++ [
++   'journal-sky seeding outside the gated runner setup'
++ ]
+- []
+
+    at /workspace/wt/b20-sync-b23/tools/new-regions/test_journal_sky_hook_release_r5.cjs:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

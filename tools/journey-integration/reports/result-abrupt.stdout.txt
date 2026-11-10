@@ -1,0 +1,1 @@
+PASS result.json survives an abrupt end: exit=running, 17 steps, snapshot age 127 ms, max 1 write in flight; done/abandon docs final; r3 harness caught (no result.json)
