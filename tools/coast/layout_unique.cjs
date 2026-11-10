@@ -1,6 +1,6 @@
 'use strict';
 // layout-unique: 7×7 mask canonicalization under D4 (rotations + reflections).
-// Two layouts collide if any dihedral image of A equals B. Compares coast playable
+// Two layouts collide if any dihedral+translate image of A equals B. Compares coast playable
  // masks to each other (adjacent + all pairs) and to tide/meadow/sky/lake masks.
 const path = require('path');
 const R = path.resolve(__dirname, '../../creator-build-project/assets/scripts/regional-r05/runtime');
@@ -31,11 +31,25 @@ function transform(cells, kind) {
   return out.slice().sort((a, b) => a - b);
 }
 function canonical(cells) {
+  // D4 (rotate/reflect) + translations that stay in-board — flip/rotate/translate duplicates collapse.
   if (!cells.length) return '';
   let best = null;
   for (let k = 0; k < 8; k++) {
-    const key = transform(cells, k).join(',');
-    if (best === null || key < best) best = key;
+    const base = transform(cells, k);
+    for (let dr = -6; dr <= 6; dr++) {
+      for (let dc = -6; dc <= 6; dc++) {
+        const moved = [];
+        let ok = true;
+        for (const i of base) {
+          const r = Math.floor(i / N) + dr, c = (i % N) + dc;
+          if (r < 0 || r >= N || c < 0 || c >= N) { ok = false; break; }
+          moved.push(idx(r, c));
+        }
+        if (!ok) continue;
+        const key = moved.slice().sort((a, b) => a - b).join(',');
+        if (best === null || key < best) best = key;
+      }
+    }
   }
   return best;
 }
@@ -117,7 +131,7 @@ function family(stage) {
   if (Object.keys(g).some(k => /^type/.test(k))) return 'type';
   return 'other';
 }
-const nSeq = Math.min(5, coast.length);
+const nSeq = coast.length;
 const coastSeq = coast.slice(0, nSeq).map(family).join('→');
 report.notes.push('coast sequence (ordinals 1..' + nSeq + '): ' + coastSeq);
 for (const region of ['tide', 'meadow', 'sky', 'lake']) {
