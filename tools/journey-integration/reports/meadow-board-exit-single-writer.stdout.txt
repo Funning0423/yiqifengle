@@ -1,0 +1,26 @@
+[enter-level] cover fixed true
+ok   must-fail walk tail (no ride, c88320c1): end write snaps 0.880 m in one frame
+ok   walk tail dt 60: max step 0.020 m/frame (one writer: region.node-lens)
+ok   walk tail dt 30: max step 0.040 m/frame (one writer: region.node-lens)
+ok   walk tail dt lcg: max step 0.027 m/frame (one writer: region.node-lens)
+meadow-board-exit-walk-tail: PASS
+ok   must-fail (no handover, c88320c1 order): exit frame has 2 camera writes (region.node-lens, RegionJourneyCore:restore); exactly one writer; step 10.060 m > 0.5; speed 603.58 m/s > 8; fov 6.00 deg/frame > 1.5
+[enter-level] cover fixed true
+ok   board -5.893,11.302,66.516 dt 60: 1 writer on the exit frame; step 0.104 m, 6.25 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.24/frame
+[enter-level] cover fixed true
+ok   board -5.893,11.302,66.516 dt 30: 1 writer on the exit frame; step 0.208 m, 6.24 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.48/frame
+[enter-level] cover fixed true
+ok   board -5.893,11.302,66.516 dt lcg: 1 writer on the exit frame; step 0.131 m, 6.24 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.30/frame
+[enter-level] cover fixed true
+ok   board -7.715,11.512,67.893 dt 60: 1 writer on the exit frame; step 0.104 m, 6.25 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.24/frame
+[enter-level] cover fixed true
+ok   board -7.715,11.512,67.893 dt 30: 1 writer on the exit frame; step 0.208 m, 6.24 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.48/frame
+[enter-level] cover fixed true
+ok   board -7.715,11.512,67.893 dt lcg: 1 writer on the exit frame; step 0.131 m, 6.24 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.30/frame
+[enter-level] cover fixed true
+ok   board -14.503,12.355,65.97 dt 60: 1 writer on the exit frame; step 0.104 m, 6.25 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.24/frame
+[enter-level] cover fixed true
+ok   board -14.503,12.355,65.97 dt 30: 1 writer on the exit frame; step 0.208 m, 6.24 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.48/frame
+[enter-level] cover fixed true
+ok   board -14.503,12.355,65.97 dt lcg: 1 writer on the exit frame; step 0.131 m, 6.24 m/s, view 0.0 deg/s, accel p99 0.0, fov 0.30/frame
+meadow-board-exit-single-writer: PASS

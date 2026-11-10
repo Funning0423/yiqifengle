@@ -1,0 +1,16 @@
+self-test path across low rock rock_01@5.588,1.609 FAIL as expected 0.002
+self-test path 0.3 m from fence_segment_01@8.2,2.95 FAIL as expected 0.100
+self-test path 0.25 m from rock_03@11.538,6.036 solid-1m FAIL as expected 0.039
+self-test path through palm_young crown frond FAIL as expected 0.002
+self-test synthetic 0.30 m gap FAIL as expected, y-ground 1.000
+self-test sand outside ramp west edge FAIL as expected, y-ground 0.485 edge 0.05
+self-test 3a05ca8a I5-I6 FAIL as expected, y-ground 0.000 [ -1.99, 3.04 ] edge 0.1 [ -1.76, 8.27 ]
+self-test 9d2bdc6f I3-I4 vegetation FAIL as expected 0.114 m at [ 3.7, 5.18 ]
+self-test 9d2bdc6f I4-I6 vegetation FAIL as expected 0.010 m at [ 3.59, 5.21 ]
+I1-I2 veg 0.156 [ -0.55, 6.68 ] | y-floor max 0.000 [ -0.13, 6.96 ] | trunk 1.302 beach_palm_tall | drop-off edge >0.15  | solids low-rock 2.623@1.9,7.5 fence 3.029@-2.1,5.3 planter-bench 3.114@2.5,8.1 rock-0.5 - solid-1m 5.530@-2.1,5.3 | frond 1.326 beach_palm_tall [ 0.9, 7.5 ] h 0.18
+I2-I3 veg 0.890 [ 3.53, 8.48 ] | y-floor max 0.003 [ 3.17, 8.27 ] | trunk 1.269 env_prop_palm_lean_01 | drop-off edge >0.15  | solids low-rock 2.792@4.3,9.1 fence 5.587@6.1,9.1 planter-bench 1.965@5.6,9.1 rock-0.5 16.010@6.1,9.1 solid-1m 5.538@6.1,9.1 | frond 0.878 env_prop_palm_lean_01 [ 4.81, 9.1 ] h 1.69
+I3-I4 veg 0.303 [ 4.27, 5.27 ] | y-floor max 0.018 [ 3.14, 6.27 ] | trunk 1.300 env_prop_palm_lean_01 | drop-off edge 0.15 [ 3.8, 9.3 ] | solids low-rock 1.650@3.25,6.17 fence 3.978@4.3,4.3 planter-bench 1.758@4.19,5.39 rock-0.5 14.853@3.87,9.3 solid-1m 5.424@3.75,9.3 | frond 0.608 env_prop_palm_young_01 [ 4.1, 4.1 ] h 1.64
+I4-I5 veg 0.154 [ -2.59, 2.39 ] | y-floor max 0.001 [ -2.34, 3.43 ] | trunk 1.127 env_prop_palm_young_01 | drop-off edge >0.15  | solids low-rock 0.212@2.21,4.12 fence 0.528@-2.15,1.55 planter-bench 0.977@-2.5,1.3 rock-0.5 - solid-1m 3.976@-2.5,1.3 | frond 0.518 env_prop_palm_young_01 [ 3.26, 4.16 ] h 1.63
+I5-I6 veg 0.196 [ -2.63, 2.38 ] | y-floor max 0.024 [ -1.67, 7.93 ] | trunk 1.479 beach_palm_tall | drop-off edge >0.15  | solids low-rock 4.182@-1.7,6.7 fence 0.461@-2.1,1.5 planter-bench 0.977@-2.5,1.3 rock-0.5 - solid-1m 3.679@-1.5,9.02 | frond 1.384 beach_palm_tall [ -1.5, 8.93 ] h 1.65
+I4-I6 veg 0.175 [ -1.07, 7.75 ] | y-floor max 0.017 [ -1.5, 8.33 ] | trunk 1.201 beach_palm_tall | drop-off edge >0.15  | solids low-rock 1.307@3.21,5.76 fence 4.075@4.3,4.9 planter-bench 2.081@4.14,5.02 rock-0.5 - solid-1m 3.679@-1.5,9.02 | frond 0.608 env_prop_palm_young_01 [ 4.1, 4.1 ] h 1.64
+island-walk-gates PASS

@@ -1,0 +1,10 @@
+FAIL I5>I6 390x844 face blocked 0.73 s
+FAIL I5>I6 414x896 face blocked 0.73 s
+FAIL I5>I6 360x780 face blocked 0.73 s
+FAIL I5>I6 375x667 face blocked 0.67 s
+FAIL I5>I6 320x568 face blocked 0.73 s
+FAIL I5>I6 390x520 face blocked 0.67 s
+FAIL I5>I6 768x1024 face blocked 0.73 s
+I4>I5 9.465 1 {"390x844":[0.13,0.1,0.13,100,{"beach_palm_tall:beach_palm_tall":0.132}],"414x896":[0.13,0.1,0.13,100,{"beach_palm_tall:beach_palm_tall":0.132}],"360x780":[0.13,0.1,0.13,100,{"beach_palm_tall:beach_palm_tall":0.132}],"375x667":[0.17,0.13,0.17,100,{"beach_palm_tall:beach_palm_tall":0.165}],"320x568":[0.13,0.1,0.13,100,{"beach_palm_tall:beach_palm_tall":0.132}],"390x520":[0.17,0.13,0.17,100,{"beach_palm_tall:beach_palm_tall":0.165}],"768x1024":[0.13,0.1,0.13,100,{"beach_palm_tall:beach_palm_tall":0.132}]}
+I5>I6 9.161 1 {"390x844":[0.73,1.03,0.8,100,{"island:env_prop_palm_tall_01":0.066,"island:env_lighthouse_ext":0.627,"island:env_island_props_merged":0.033}],"414x896":[0.73,1.03,0.8,100,{"island:env_prop_palm_tall_01":0.066,"island:env_lighthouse_ext":0.627,"island:env_island_props_merged":0.033}],"360x780":[0.73,1.03,0.8,100,{"island:env_prop_palm_tall_01":0.066,"island:env_lighthouse_ext":0.627,"island:env_island_props_merged":0.033}],"375x667":[0.67,0.93,0.8,100,{"island:env_prop_palm_tall_01":0.066,"island:env_lighthouse_ext":0.594}],"320x568":[0.73,1.03,0.8,100,{"island:env_prop_palm_tall_01":0.066,"island:env_lighthouse_ext":0.627,"island:env_island_props_merged":0.033}],"390x520":[0.67,0.93,0.8,100,{"island:env_prop_palm_tall_01":0.066,"island:env_lighthouse_ext":0.594}],"768x1024":[0.73,1.03,0.8,100,{"island:env_prop_palm_tall_01":0.066,"island:env_lighthouse_ext":0.627,"island:env_island_props_merged":0.033}]}
+island-walk-follow: FAIL 7
