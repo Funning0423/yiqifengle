@@ -1,0 +1,1 @@
+PASS preview-flavor-check: 5 real/legacy shapes PASS (exporter t("QF_DEVICE_PREVIEW",!0) etc.), 9 negatives FAIL (missing, !1, false, mixed, non-literal, lookalike, json-only, empty); old regex misses the exporter shape; failed output kept

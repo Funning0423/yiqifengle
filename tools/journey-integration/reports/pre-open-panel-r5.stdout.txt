@@ -1,0 +1,1 @@
+PASS hook panel open waits on the real signals (bundle → overlay ready → openPage → shownPage), frame-bounded; late enable at frame 40 opens; never-enabled reports journal-overlay-not-ready; old open-before-enable no-op reproduced

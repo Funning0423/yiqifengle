@@ -1,0 +1,1 @@
+[QF_SAFE] capsule rect unavailable - safe-area fallback {"top":51,"bottom":83,"left":227,"right":314} @320x568

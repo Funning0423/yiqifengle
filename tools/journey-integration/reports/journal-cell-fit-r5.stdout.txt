@@ -1,0 +1,9 @@
+PASS journal cell fit: 672 gated cells (7 sizes × day/night × cleared 0..11) = 「N 关后开启」, one line, no …, same colour, one ladder step per grid; steps 320:0 360:0 375:0 390:0 393:0 414:0 430:0
+PASS @320: 「12 关后开启」 measured 59.62 pt / available 60.56 pt (ladder step 0)
+PASS @360: 「12 关后开启」 measured 59.62 pt / available 71.67 pt (ladder step 0)
+PASS @375: 「12 关后开启」 measured 59.62 pt / available 74.17 pt (ladder step 0)
+PASS @390: 「12 关后开启」 measured 59.62 pt / available 73.33 pt (ladder step 0)
+PASS @393: 「12 关后开启」 measured 59.62 pt / available 73.17 pt (ladder step 0)
+PASS @414: 「12 关后开启」 measured 59.62 pt / available 72 pt (ladder step 0)
+PASS @430: 「12 关后开启」 measured 59.62 pt / available 71.11 pt (ladder step 0)
+PASS negative self-tests: measured fit failure moves the ladder; exhausted ladder is reported, never wraps (old 「通关第 12 关后」 = 73.92 pt @11 pt)

@@ -1,0 +1,4 @@
+[QF_SAFE] capsule rect unavailable - safe-area fallback {"top":51,"bottom":83,"left":297,"right":384} @390x844
+[QF_SAFE] capsule rect unavailable - safe-area fallback {"top":51,"bottom":83,"left":297,"right":384} @390x844
+[QF_JOURNEY_UI] journal deferred 20ms
+[QF_SAFE] capsule rect unavailable - safe-area fallback {"top":51,"bottom":83,"left":227,"right":314} @320x568

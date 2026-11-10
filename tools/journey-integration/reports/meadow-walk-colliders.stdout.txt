@@ -1,0 +1,2 @@
+{"bodyR":0.3,"clearance":{"M0":{"d":33.212,"mesh":"meadow_trees_merged"},"M1":{"d":26.109,"mesh":"meadow_trees_merged"},"M2":{"d":22.283,"mesh":"meadow_fence_merged"},"M3":{"d":12.591,"mesh":"meadow_fence_merged"},"M4":{"d":4.538,"mesh":"meadow_fence_merged"},"M5":{"d":1.476,"mesh":"meadow_fence_merged"},"M6":{"d":1.003,"mesh":"windmill_static_merged"},"handoff gate":{"d":0.548,"mesh":"meadow_fence_merged"},"A6 end (sail M1)":{"d":26.109,"mesh":"meadow_trees_merged"}}}
+PASS meadow nodes + handoff points clear of colliders (r 0.3 m)

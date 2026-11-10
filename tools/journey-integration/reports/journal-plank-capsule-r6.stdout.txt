@@ -1,0 +1,20 @@
+[QF_JOURNEY_UI] ready +31ms
+day 320x568: capsule bottom 42 (clear ≥ 55); plank top before 32.60 → after 55.00 (moved down 22.40 pt, no shrink, 55 nodes translated only); panel bottom 513.00 → 535.40 ≤ 560
+day 375x812: capsule bottom 80 (clear ≥ 88); plank top before 122.75 → after 122.75 (unchanged: 55 nodes identical); panel bottom 663.00 → 663.00 ≤ 804
+day 390x844: capsule bottom 83 (clear ≥ 91); plank top before 137.70 → after 137.70 (unchanged: 55 nodes identical); panel bottom 679.00 → 679.00 ≤ 836
+day 414x896: capsule bottom 84 (clear ≥ 92); plank top before 162.02 → after 162.02 (unchanged: 55 nodes identical); panel bottom 705.00 → 705.00 ≤ 888
+day 375x667: capsule bottom 56 (clear ≥ 64); plank top before 78.25 → after 78.25 (unchanged: 55 nodes identical); panel bottom 562.50 → 562.50 ≤ 659
+day 414x736: capsule bottom 56 (clear ≥ 64); plank top before 82.02 → after 82.02 (unchanged: 55 nodes identical); panel bottom 625.00 → 625.00 ≤ 728
+night 320x568: capsule bottom 42 (clear ≥ 55); plank top before 32.60 → after 55.00 (moved down 22.40 pt, no shrink, 55 nodes translated only); panel bottom 513.00 → 535.40 ≤ 560
+night 375x812: capsule bottom 80 (clear ≥ 88); plank top before 122.75 → after 122.75 (unchanged: 55 nodes identical); panel bottom 663.00 → 663.00 ≤ 804
+night 390x844: capsule bottom 83 (clear ≥ 91); plank top before 137.70 → after 137.70 (unchanged: 55 nodes identical); panel bottom 679.00 → 679.00 ≤ 836
+night 414x896: capsule bottom 84 (clear ≥ 92); plank top before 162.02 → after 162.02 (unchanged: 55 nodes identical); panel bottom 705.00 → 705.00 ≤ 888
+night 375x667: capsule bottom 56 (clear ≥ 64); plank top before 78.25 → after 78.25 (unchanged: 55 nodes identical); panel bottom 562.50 → 562.50 ≤ 659
+night 414x736: capsule bottom 56 (clear ≥ 64); plank top before 82.02 → after 82.02 (unchanged: 55 nodes identical); panel bottom 625.00 → 625.00 ≤ 728
+320x568 capsule 42: capsule bottom 42 → need 55; plank top 32.60 → 55.00; panel bottom 513.00 → 535.40 (limit 560)
+320x568 capsule 60: capsule bottom 60 → need 68; plank top 32.60 → 68.00; panel bottom 513.00 → 548.40 (limit 560)
+320x568 fallback (no menu rect): capsule bottom 83 → need 91; plank top 32.60 → 79.60; panel bottom 513.00 → 560.00 (limit 560) — CLAMPED by the bottom margin, plank 11.40 pt short, no shrink
+320x568 fallback (invalid rect): capsule bottom 83 → need 91; plank top 32.60 → 79.60; panel bottom 513.00 → 560.00 (limit 560) — CLAMPED by the bottom margin, plank 11.40 pt short, no shrink
+fallback warning (once): [QF_SAFE] capsule rect unavailable - safe-area fallback {"top":51,"bottom":83,"left":227,"right":314} @320x568
+negative a5cf58fa 320x568: plank top 32.60 < capsule bottom 42 → overlap 9.40 pt (FAILS the clearance)
+PASS journal-plank-capsule-r6

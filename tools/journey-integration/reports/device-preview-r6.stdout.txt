@@ -1,0 +1,10 @@
+[QF_JOURNEY_UI] ready +33ms
+320x568: face inset 16.6 pt (= ×), target 47.8×47.8 pt, button 9.8,88.3–57.5,136.1 (min edge 9.8 pt), tap → night, icon/disc day 5.37 (6c28894f 1.67), night 3.31 (6c28894f 1.53), 58 other nodes identical
+375x812: face inset 18.5 pt (= ×), target 56.0×56.0 pt, button 10.5,133.0–66.5,189.0 (min edge 10.5 pt), tap → night, icon/disc day 5.37 (6c28894f 1.67), night 3.31 (6c28894f 1.53), 58 other nodes identical
+390x844: face inset 25.8 pt (= ×), target 58.2×58.2 pt, button 17.5,148.4–75.8,206.6 (min edge 17.5 pt), tap → night, icon/disc day 5.37 (6c28894f 1.67), night 3.31 (6c28894f 1.53), 58 other nodes identical
+414x896: face inset 37.6 pt (= ×), target 61.8×61.8 pt, button 28.8,173.3–90.6,235.2 (min edge 28.8 pt), tap → night, icon/disc day 5.37 (6c28894f 1.67), night 3.31 (6c28894f 1.53), 58 other nodes identical
+back-to-chapter: real flow (journal → cell → ×) returns to the journal; preview default now opens journal → sky the same way and × returns to the journal
+qfPre default: flag on → journal-sky-gated (develop), explicit key wins, release env → null; flag off → null
+strip: trial + formal remove the flag/default/button; probe-free + formal-free PASS; negative unstripped preview: 55 probe-free hits (QF_DEVICE_PREVIEW, QF_PREVIEW_FLAG, qfPreviewDayNight)
+scripts: QF_PREVIEW refused with STRIP_PROBES=1 / FORMAL_RELEASE=1 / production upload; fake-Creator preview build → build/wechat-release-preview with flag=true, repo clean
+PASS device-preview-r6

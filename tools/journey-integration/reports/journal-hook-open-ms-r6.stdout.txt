@@ -1,0 +1,17 @@
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8lhui-1-4z4aazasbfg:","completed":10,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8liqi-2-w8iwa096rrn:","completed":12,"finish":false,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8ljzk-3-5pvhx48c2zo:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8ll8e-4-rkeg110tzoi:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8lml8-5-zno1zk3cddr:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8lo6v-6-nggehm2r8td:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8lpfg-7-y6x7ltfshhp:","completed":12,"finish":true,"lake":null}
+[QF_PRE] profile {"namespace":"dot-region-flow-test-mvx8lqxq-8-b6ozum1iqf:","completed":12,"finish":true,"lake":null}
+journal-sky-gated: n=0 setup 1152 ms (seed 0 ms, snapshot 0, real writes 0)
+journal-sky-just-unlocked: n=0 setup 1622 ms (seed 0 ms, snapshot 0, real writes 0)
+journal-sky-open: n=0 setup 1614 ms (seed 0 ms, snapshot 0, real writes 0)
+journal-sky-progress: n=1 setup 1758 ms (seed 34 ms, snapshot 1, real writes 2)
+journal-sky-cleared: n=4 setup 2075 ms (seed 393 ms, snapshot 4, real writes 2)
+journal-sky-focus: n=1 setup 1604 ms (seed 20 ms, snapshot 1, real writes 2)
+relative (same process): new 4/4 seed 365 ms / old 5722 ms = 6.4 % (limit 15 %)
+negative a5cf58fa loop 4/4: seed 5722 ms, snapshot 641, real writes 90 → FAILS reads (≤4), writes (≤3), backstop (≤2000 ms), relative (100 %)
+PASS journal-hook-open-ms-r6

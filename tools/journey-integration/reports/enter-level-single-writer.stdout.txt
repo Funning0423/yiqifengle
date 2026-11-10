@@ -1,0 +1,8 @@
+ok   stall before first draw: fr 817 = 1 write (path[0], p=0); clock starts on fr 818; shot completes
+ok   restore still writes when the live camera is elsewhere (pose or fov)
+enter-level-single-writer: PASS
+[enter-level] cover fixed true
+ok   island level reveal: no camera write after the push-in end (WorldFlowCore:291 path)
+[enter-level] cover fixed true
+ok   journey-checkpoint level reveal: no camera write after the push-in end (RegionJourneyCore restore path)
+enter-level-reveal-restore: PASS
