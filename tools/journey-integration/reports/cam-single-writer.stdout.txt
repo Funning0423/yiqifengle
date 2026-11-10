@@ -1,0 +1,42 @@
+{
+ "test": "cam-single-writer",
+ "status": "PASS",
+ "guards": {
+  "lakesideOnFrame": "rideCam?undefined:(lastPose||undefined)",
+  "lakesideApplyCam": true,
+  "lakesideGuard": true,
+  "lakesideTickerArgs": [
+   "clock.t+1e-4>=R.T",
+   "clock.t+1e-4>=R.T"
+  ],
+  "rideCam": true,
+  "balloonApplyCam": true,
+  "balloonGuard": true,
+  "balloonTickArg": "Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)))>=plan.total&&hold==null"
+ },
+ "results": [
+  {
+   "id": "lakeside-ride",
+   "status": "PASS",
+   "frames": 120,
+   "multiWriterFrames": 0,
+   "writerSets": {}
+  },
+  {
+   "id": "meadow-flight",
+   "status": "PASS",
+   "frames": 120,
+   "multiWriterFrames": 0,
+   "writerSets": {}
+  },
+  {
+   "id": "controller-onFrame-writer",
+   "status": "PASS",
+   "writes": 1
+  },
+  {
+   "id": "cam-trace-stacks-opt-in",
+   "status": "PASS"
+  }
+ ]
+}
