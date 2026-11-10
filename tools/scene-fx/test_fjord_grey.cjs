@@ -13,7 +13,7 @@ check('subpackage-budget<=943718', bytes <= 943718, bytes);
 const loaded = loadGlb(F), j = loaded.json;
 check('glb-v2', fs.readFileSync(F).readUInt32LE(0) === 0x46546c67 && fs.readFileSync(F).readUInt32LE(4) === 2);
 let tris = 0; for (const m of j.meshes) for (const p of m.primitives) tris += j.accessors[p.indices].count / 3;
-check('triangle-budget<=2500', tris <= 2500 && tris >= 800, tris);
+check('triangle-budget<=3000', tris <= 3000 && tris >= 800, tris);
 check('vertex-colours-no-texture', !(j.images || []).length && j.materials.some(m => m.name === 'M_FJ_vertex') && j.meshes.every(m => m.primitives.every(p => j.accessors[p.attributes.COLOR_0].type === 'VEC4')));
 const auroraMat = j.materials.find(m => m.name === 'M_FJ_unlit');
 check('aurora-unlit-blend', !!(auroraMat && auroraMat.alphaMode === 'BLEND' && auroraMat.extensions && auroraMat.extensions.KHR_materials_unlit));

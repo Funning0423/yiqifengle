@@ -6,6 +6,7 @@ const { loadGlb } = require('./glb_read.cjs');
 const D = createHarness().load('region/FjordSceneData');
 const GLB = path.resolve(__dirname, '../../creator-build-project/assets/bundles/region_fjord/models/env_fjord.glb');
 const OLD = process.env.OLD || '/home/ubuntu/.cursor/projects/agent-repos-yiqifengle/assets/fjord-v1-77aa19f1.png';
+const MID = process.env.MID || '/home/ubuntu/.cursor/projects/agent-repos-yiqifengle/assets/fjord-v2-ece7c6ba.png';
 const OUT = process.env.OUT || '/opt/cursor/artifacts';
 function crc32(buf) {
   let c, n = -1;
@@ -109,9 +110,9 @@ const file = path.join(OUT, 'fjord-board-720x1280.png');
 const rendered = render(tris, w, h, look);
 fs.writeFileSync(file, rendered);
 console.log(file, look.fovVerticalDeg, 'tris', tris.length);
-if (fs.existsSync(OLD)) {
-  const old = readPng(OLD), gap = 16;
-  const canvas = Buffer.alloc((w * 2 + gap) * h * 4);
+if (fs.existsSync(OLD) && fs.existsSync(MID)) {
+  const gap = 16, frames = [OLD, MID, file];
+  const canvas = Buffer.alloc((w * 3 + gap * 2) * h * 4);
   canvas.fill(12);
   const scale = (src, sw, sh) => {
     const out = Buffer.alloc(w * h * 4);
@@ -121,9 +122,11 @@ if (fs.existsSync(OLD)) {
     }
     return out;
   };
-  blit(canvas, w * 2 + gap, 0, 0, scale(old.pix, old.w, old.h), w, h);
-  blit(canvas, w * 2 + gap, w + gap, 0, readPng(file).pix, w, h);
+  frames.forEach((src, i) => {
+    const img = readPng(src);
+    blit(canvas, w * 3 + gap * 2, i * (w + gap), 0, scale(img.pix, img.w, img.h), w, h);
+  });
   const compare = path.join(OUT, 'fjord-art-compare.png');
-  fs.writeFileSync(compare, png(w * 2 + gap, h, canvas));
+  fs.writeFileSync(compare, png(w * 3 + gap * 2, h, canvas));
   console.log(compare);
 }
