@@ -1,0 +1,8 @@
+PASS sign: touchdown+1.8 for 3 s (event can retime; skip reveal +0.3)
+PASS placement: 390×844 cy 139; avoids balloon/her rects
+PASS badge: bottom-right 16 pt, 88×48 hit, only from 2nd viewing, flight+3 s … touchdown−1 s
+PASS seenT03 flag
+PASS ride skip runs once (no double transition)
+PASS skip runs under WindWipe kind 'ride'
+PASS wiring + .meta
+t03-arrival: 7 passed
