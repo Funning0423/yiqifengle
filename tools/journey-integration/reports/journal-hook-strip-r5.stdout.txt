@@ -1,0 +1,24 @@
+stripped scripts/region/CamTraceLog.ts: 14 region(s), 40616->13428 chars
+stripped scripts/region/MeadowBoardBackground.ts: 1 region(s), 16443->15990 chars
+stripped scripts/region/RegionJourneyAdapter.ts: 4 region(s), 65843->65523 chars
+stripped scripts/region/SailPreload.ts: 3 region(s), 4203->3536 chars
+stripped scripts/region/TransitionPreload.ts: 2 region(s), 6477->6013 chars
+stripped scripts/world-r1/WorldFlowComponent.ts: 3 region(s), 74266->73989 chars
+stripped scripts/world-r2/PreTransitionKeys.ts: 3 region(s), 11844->8265 chars
+stripped scripts/world-r2/PreTransitionRun.ts: 2 region(s), 16075->15202 chars
+stripped scripts/world-r2/RegionFlowTest.ts: 1 region(s), 10607->6929 chars
+PASS release strip: 298 sources staged, 33 probe regions stripped; journal hook symbols left = 0 (journal-sky, skyChallenges, seedSkyChallengeWins, SKY_CHALLENGE_WITNESSES, finishPausedMainlineWin, focusSky); touched files parse
+PASS negative self-test: unstripped copy has 42 journal hook hits → FAIL
+stripped scripts/region/CamTraceLog.ts: 14 region(s), 40616->13428 chars
+stripped scripts/region/MeadowBoardBackground.ts: 1 region(s), 16443->15990 chars
+stripped scripts/region/RegionJourneyAdapter.ts: 4 region(s), 65843->65523 chars
+stripped scripts/region/SailPreload.ts: 3 region(s), 4203->3536 chars
+stripped scripts/region/TransitionPreload.ts: 2 region(s), 6477->6013 chars
+stripped scripts/world-r1/WorldFlowComponent.ts: 3 region(s), 74266->73989 chars
+stripped scripts/world-r2/LakeWinWitnesses.ts: 1 region(s), 1257->1104 chars
+stripped scripts/world-r2/PreTransitionKeys.ts: 7 region(s), 11844->186 chars
+stripped scripts/world-r2/PreTransitionRun.ts: 5 region(s), 16075->885 chars
+stripped scripts/world-r2/QaSkip.ts: 1 region(s), 5498->5232 chars
+stripped scripts/world-r2/RegionFlowTest.ts: 2 region(s), 10607->6278 chars
+PASS formal release strip: 43 regions (probe + trial); formal residue = 0 (qfPre, QF_TRIAL); stubs inert; 5 files parse
+PASS negative self-test (formal): unstripped 201 hits, trial-stripped 34 hits → FAIL; trial upload keeps qfPre in 5 files

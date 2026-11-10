@@ -1,0 +1,3 @@
+fixed {"steady":0,"live":[3,3],"MB":[12,12],"stats":{"installed":true,"pinned":8,"resized":0,"deadReleased":5}}
+old   {"steady":600,"live":[3,3]}
+PASS rt-depth-churn-gate N=600 fixed steady creates=0 live 3->3 | old steady creates=600 (FAIL as expected)

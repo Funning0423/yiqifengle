@@ -1,0 +1,254 @@
+{
+ "keepM": {
+  "lowRock": 0.15,
+  "fence": 0.4,
+  "solid07": 0.5,
+  "solid1m": 1,
+  "veg": 0.15,
+  "frond": 0.5
+ },
+ "segments": {
+  "I1>I2": {
+   "lengthM": 5.611,
+   "tiers": {
+    "lowRock": {
+     "m": 2.624,
+     "who": "rock_01#2041",
+     "atM": 4.75
+    },
+    "fence": {
+     "m": 3,
+     "who": null,
+     "atM": 0
+    },
+    "solid07": {
+     "m": 3,
+     "who": null,
+     "atM": 0
+    },
+    "solid1m": {
+     "m": 1.302,
+     "who": "beach_palm_tall:trunk",
+     "atM": 3.75
+    },
+    "veg": {
+     "m": 0.156,
+     "who": "grass_tuft_01#1546",
+     "atM": 2.05
+    },
+    "frond": {
+     "m": 1.366,
+     "who": "beach_palm_tall:frond",
+     "atM": 3.75
+    }
+   }
+  },
+  "I2>I3": {
+   "lengthM": 3.976,
+   "tiers": {
+    "lowRock": {
+     "m": 2.796,
+     "who": "rock_01#2044",
+     "atM": 2.2
+    },
+    "fence": {
+     "m": 3,
+     "who": null,
+     "atM": 0
+    },
+    "solid07": {
+     "m": 1.965,
+     "who": "bench_01#2096",
+     "atM": 3.45
+    },
+    "solid1m": {
+     "m": 1.114,
+     "who": "env_prop_palm_lean_01:trunk",
+     "atM": 2.65
+    },
+    "veg": {
+     "m": 0.89,
+     "who": "grass_tuft_02#1516",
+     "atM": 1.1
+    },
+    "frond": {
+     "m": 0.631,
+     "who": "env_prop_palm_lean_01:frond",
+     "atM": 2.75
+    }
+   }
+  },
+  "I3>I4": {
+   "lengthM": 8.713,
+   "tiers": {
+    "lowRock": {
+     "m": 1.65,
+     "who": "rock_01#2041",
+     "atM": 5.95
+    },
+    "fence": {
+     "m": 3,
+     "who": null,
+     "atM": 0
+    },
+    "solid07": {
+     "m": 1.757,
+     "who": "bench_01#2089",
+     "atM": 7.2
+    },
+    "solid1m": {
+     "m": 1.147,
+     "who": "env_prop_palm_lean_01:trunk",
+     "atM": 1
+    },
+    "veg": {
+     "m": 0.204,
+     "who": "grass_tuft_01#1983",
+     "atM": 8.05
+    },
+    "frond": {
+     "m": 0.618,
+     "who": "env_prop_palm_young_01:frond",
+     "atM": 8.7
+    }
+   }
+  },
+  "I4>I5": {
+   "lengthM": 9.465,
+   "tiers": {
+    "lowRock": {
+     "m": 0.212,
+     "who": "rock_01#2041",
+     "atM": 1.9
+    },
+    "fence": {
+     "m": 0.478,
+     "who": "fence_segment_01#2097",
+     "atM": 9.05
+    },
+    "solid07": {
+     "m": 0.98,
+     "who": "planter_hydrangea_01#2142",
+     "atM": 9.45
+    },
+    "solid1m": {
+     "m": 1.127,
+     "who": "env_prop_palm_young_01:trunk",
+     "atM": 0.95
+    },
+    "veg": {
+     "m": 0.155,
+     "who": "grass_tuft_02#751",
+     "atM": 8.05
+    },
+    "frond": {
+     "m": 0.519,
+     "who": "env_prop_palm_young_01:frond",
+     "atM": 0.85
+    }
+   }
+  },
+  "I5>I6": {
+   "lengthM": 9.161,
+   "tiers": {
+    "lowRock": {
+     "m": 3,
+     "who": null,
+     "atM": 0
+    },
+    "fence": {
+     "m": 0.416,
+     "who": "fence_segment_01#2097",
+     "atM": 0.45
+    },
+    "solid07": {
+     "m": 0.977,
+     "who": "planter_hydrangea_01#2142",
+     "atM": 0
+    },
+    "solid1m": {
+     "m": 1.489,
+     "who": "beach_palm_tall:trunk",
+     "atM": 8.75
+    },
+    "veg": {
+     "m": 0.197,
+     "who": "grass_tuft_02#751",
+     "atM": 1.45
+    },
+    "frond": {
+     "m": 1.328,
+     "who": "beach_palm_tall:frond",
+     "atM": 8.85
+    }
+   }
+  },
+  "I4>I6": {
+   "lengthM": 8.968,
+   "tiers": {
+    "lowRock": {
+     "m": 1.307,
+     "who": "rock_01#2041",
+     "atM": 2.1
+    },
+    "fence": {
+     "m": 3,
+     "who": null,
+     "atM": 0
+    },
+    "solid07": {
+     "m": 2.098,
+     "who": "bench_01#2089",
+     "atM": 1
+    },
+    "solid1m": {
+     "m": 1.201,
+     "who": "beach_palm_tall:trunk",
+     "atM": 5.4
+    },
+    "veg": {
+     "m": 0.176,
+     "who": "grass_tuft_01#598",
+     "atM": 7.15
+    },
+    "frond": {
+     "m": 0.608,
+     "who": "env_prop_palm_young_01:frond",
+     "atM": 0
+    }
+   }
+  }
+ },
+ "selftest": {
+  "lowRock": {
+   "item": "rock_01#2042",
+   "inside": 0.1,
+   "outside": 0.2
+  },
+  "fence": {
+   "item": "fence_segment_01#2097",
+   "inside": 0.35,
+   "outside": 0.45
+  },
+  "solid07": {
+   "item": "rock_03#2058",
+   "inside": 0.45,
+   "outside": 0.55
+  },
+  "solid1m": {
+   "item": "env_lighthouse_ext",
+   "inside": 0.95,
+   "outside": 1.05
+  },
+  "veg": {
+   "item": "grass_tuft_02#2298",
+   "inside": 0.1,
+   "outside": 0.2
+  },
+  "frond": {
+   "item": "env_prop_palm_tall_01:frond",
+   "inside": 0.45,
+   "outside": 0.55
+  }
+ }
+}

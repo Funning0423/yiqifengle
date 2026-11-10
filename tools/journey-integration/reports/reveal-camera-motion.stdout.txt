@@ -1,0 +1,18 @@
+[enter-level] cover fixed true
+ok   390x844: 524 frames (push-in + reveal + L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), 0 over limit, ang-accel p99 74°/s², exit min height 2.95 m above her path ground (frame 404)
+[enter-level] cover fixed true
+ok   414x896: 524 frames (push-in + reveal + L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), 0 over limit, ang-accel p99 74°/s², exit min height 2.95 m above her path ground (frame 404)
+[enter-level] cover fixed true
+ok   360x780: 524 frames (push-in + reveal + L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), 0 over limit, ang-accel p99 74°/s², exit min height 2.95 m above her path ground (frame 404)
+[enter-level] cover fixed true
+ok   375x667: 524 frames (push-in + reveal + L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), 0 over limit, ang-accel p99 74°/s², exit min height 2.95 m above her path ground (frame 404)
+[enter-level] cover fixed true
+ok   320x568: 524 frames (push-in + reveal + L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), 0 over limit, ang-accel p99 74°/s², exit min height 2.95 m above her path ground (frame 404)
+[enter-level] cover fixed true
+ok   390x520: 524 frames (push-in + reveal + L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), 0 over limit, ang-accel p99 74°/s², exit min height 2.95 m above her path ground (frame 404)
+[enter-level] cover fixed true
+ok   768x1024: 524 frames (push-in + reveal + L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), 0 over limit, ang-accel p99 74°/s², exit min height 2.95 m above her path ground (frame 404)
+ok   self-check: camera 1.0 m above island:env_prop_palm_tall_01 crown and 1.2 m above island:env_lighthouse_ext FAIL the height rule
+[enter-level] cover fixed true
+ok   self-check: legacy 0.6 s L04-exit blend FAILs (14 over limit)
+reveal-camera-motion: PASS every frame within 运镜bot's limits (push-in p=0 → reveal → L04 exit RegionNodeStage.playReward islandDepartLens (方案 E)), no KNOWN_DEFECT

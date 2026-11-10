@@ -1,0 +1,230 @@
+{
+ "gate": "skirt-leg-penetration",
+ "status": "PASS",
+ "glb": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "results": [
+  {
+   "name": "strict clips 60",
+   "ok": true,
+   "frames": 1082,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict clips 30",
+   "ok": true,
+   "frames": 549,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict clips uneven",
+   "ok": true,
+   "frames": 1055,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict runtime 60",
+   "ok": true,
+   "frames": 3308,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict runtime 30",
+   "ok": true,
+   "frames": 1664,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict runtime uneven",
+   "ok": true,
+   "frames": 3317,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict seated 60 (sit_down/sit_hold/stand_up clips + ride-seated runtime)",
+   "ok": true,
+   "items": {
+    "clip:sit_hold/60": {
+     "frames": 121,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:stand_up/60": {
+     "frames": 78,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:sit_down/60": {
+     "frames": 74,
+     "hits": 0,
+     "panels": {}
+    },
+    "runtime:ride-seated/60": {
+     "frames": 506,
+     "hits": 0,
+     "panels": {}
+    }
+   },
+   "frames": 779,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict seated 30 (sit_down/sit_hold/stand_up clips + ride-seated runtime)",
+   "ok": true,
+   "items": {
+    "clip:sit_hold/30": {
+     "frames": 61,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:stand_up/30": {
+     "frames": 40,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:sit_down/30": {
+     "frames": 38,
+     "hits": 0,
+     "panels": {}
+    },
+    "runtime:ride-seated/30": {
+     "frames": 255,
+     "hits": 0,
+     "panels": {}
+    }
+   },
+   "frames": 394,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "strict seated uneven (sit_down/sit_hold/stand_up clips + ride-seated runtime)",
+   "ok": true,
+   "items": {
+    "clip:sit_hold/uneven": {
+     "frames": 124,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:stand_up/uneven": {
+     "frames": 80,
+     "hits": 0,
+     "panels": {}
+    },
+    "clip:sit_down/uneven": {
+     "frames": 76,
+     "hits": 0,
+     "panels": {}
+    },
+    "runtime:ride-seated/uneven": {
+     "frames": 506,
+     "hits": 0,
+     "panels": {}
+    }
+   },
+   "frames": 786,
+   "hits": 0,
+   "maxDepthCm": 0,
+   "worst": null,
+   "byClip": {}
+  },
+  {
+   "name": "negative: registered 773c061e seated penetration (sit_down, stand_up, ride-seated, every dt) must FAIL strict",
+   "ok": true,
+   "passedStrict": []
+  },
+  {
+   "name": "negative: walk_loop with the front skirt pinned to rest must FAIL",
+   "ok": true,
+   "frames": 44,
+   "hits": 14236,
+   "maxDepthCm": 14.94,
+   "worst": {
+    "at": "walk_loop@1.3667/30",
+    "vertex": 3470,
+    "bone": "shin.R",
+    "mesh": "dress",
+    "test": "axis"
+   },
+   "byClip": {
+    "walk_loop": 14236
+   }
+  },
+  {
+   "name": "negative: 773c061e stand_up skirt curves + morph state (thigh.R through skirt.back while seated) must FAIL",
+   "ok": true,
+   "frames": 40,
+   "hits": 142,
+   "maxDepthCm": 3.48,
+   "worst": {
+    "at": "stand_up@0.1667/30",
+    "vertex": 14015,
+    "bone": "thigh.R",
+    "mesh": "dress",
+    "tri": 8334,
+    "cloth": "skirt.back"
+   },
+   "byClip": {
+    "stand_up": 142
+   }
+  },
+  {
+   "name": "negative: walk_loop front panel swung back through the forward shin (pass-through) must FAIL",
+   "ok": true,
+   "axisHits": 27290,
+   "frames": 44,
+   "hits": 30870,
+   "maxDepthCm": 26.96,
+   "worst": {
+    "at": "walk_loop@1.3667",
+    "vertex": 3511,
+    "bone": "shin.R",
+    "mesh": "dress",
+    "test": "axis"
+   },
+   "byClip": {
+    "walk_loop": 30870
+   }
+  },
+  {
+   "name": "negative: stand_up with skirt.back pitched 4 deg further onto the thighs must FAIL strict",
+   "ok": true,
+   "frames": 40,
+   "hits": 96,
+   "maxDepthCm": 0.81,
+   "worst": {
+    "at": "stand_up@0.0000/30",
+    "vertex": 13857,
+    "bone": "thigh.L",
+    "mesh": "dress",
+    "tri": 3798,
+    "cloth": "skirt.back"
+   },
+   "byClip": {
+    "stand_up": 96
+   }
+  }
+ ]
+}

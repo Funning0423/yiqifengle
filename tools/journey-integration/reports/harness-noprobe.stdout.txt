@@ -1,0 +1,1 @@
+PASS harness NOPROBE = INCOMPLETE (no status / not installed / off), OK module+deferred, unwanted untouched; old harness caught (ok=true)

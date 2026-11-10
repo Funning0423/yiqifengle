@@ -1,0 +1,8 @@
+I1>I2 5.611 lowRock=2.624 fence=>3 solid07=>3 solid1m=1.302 veg=0.156 frond=1.366
+I2>I3 3.976 lowRock=2.796 fence=>3 solid07=1.965 solid1m=1.114 veg=0.89 frond=0.631
+I3>I4 8.713 lowRock=1.65 fence=>3 solid07=1.757 solid1m=1.147 veg=0.204 frond=0.618
+I4>I5 9.465 lowRock=0.212 fence=0.478 solid07=0.98 solid1m=1.127 veg=0.155 frond=0.519
+I5>I6 9.161 lowRock=>3 fence=0.416 solid07=0.977 solid1m=1.489 veg=0.197 frond=1.328
+I4>I6 8.968 lowRock=1.307 fence=>3 solid07=2.098 solid1m=1.201 veg=0.176 frond=0.608
+selftest {"lowRock":{"item":"rock_01#2042","inside":0.1,"outside":0.2},"fence":{"item":"fence_segment_01#2097","inside":0.35,"outside":0.45},"solid07":{"item":"rock_03#2058","inside":0.45,"outside":0.55},"solid1m":{"item":"env_lighthouse_ext","inside":0.95,"outside":1.05},"veg":{"item":"grass_tuft_02#2298","inside":0.1,"outside":0.2},"frond":{"item":"env_prop_palm_tall_01:frond","inside":0.45,"outside":0.55}}
+island-clearance-tiers: PASS

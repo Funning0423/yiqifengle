@@ -1,0 +1,5 @@
+PASS BasketObstacles.ts generated block in sync with transition-anchors.json (3 rows, r 1.03,1.03,1.03, baked false,false,false)
+PASS all on/off names are real marks: node:M4, balloon:B3-flight, balloon:released, balloon:B4-settle, lakeside:C1-basket-in, lakeside:C3-flight, lakeside:released
+PASS toggles: M4 on → B3-flight off; B4-settle on → released off; C1-basket-in on → C3-flight / lakeside:released off; cells re-open when off (r+clearM 1.43 m)
+PASS node walks M3→M4, M4→M6, M5→M6, S1→S2, S4→S6 same durations with obstacles on/off; closest path point to a disc centre 1.72 m
+{"result":"PASS","pass":4}
