@@ -21,7 +21,7 @@ t('six snow stages are playable data, off the shipped catalog, ids r06-snow-01..
   assert.deepEqual(Snow.map(s=>s.ordinal),[1,2,3,4,5,6]);
   assert.equal(API.catalog.some(s=>s.region==='snow'),false);
   assert.equal(API.allStages.filter(s=>s.region==='snow').length,6);
-  assert.equal(API.catalog.length,API.allStages.filter(s=>s.region!=='snow'&&s.region!=='rail'&&s.region!=='cloud').length);
+  assert.equal(API.catalog.length,API.allStages.filter(s=>s.region!=='snow'&&s.region!=='rail'&&s.region!=='cloud'&&s.region!=='spring').length);
   for(const s of Snow){
     assert.equal(s.region,'snow');assert(s.rules.chimes&&s.rules.chimes.length);assert.equal(s.tool,null);
     assert(!s.rules.phaseCycle&&!s.rules.windCycle&&!s.rules.beaconRoute);
@@ -85,12 +85,39 @@ t('wiring: RegionLoader, scene route, journey enter, return without the balloon 
   const boot=fs.readFileSync(path.join(A,'scripts/WorldIntegrationBoot.ts'),'utf8');
   assert(/r06-snow-\\d\+/.test(comp)&&/createSnowpassBoardBackground\(context\)/.test(comp));
   assert(/requiresLakesideScene\(context\.selection\)\?createLakesideBoardBackground\(context\)/.test(comp));
-  assert(/const onShelf=\/\^r06-snow-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r07-rail-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r08-cloud-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)/.test(comp));
+  assert(/const onShelf=\/\^r06-snow-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r07-rail-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r08-cloud-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)\|\|\/\^r09-spring-\\d\+\$\/\.test\(String\(selection\.stageId\|\|''\)\)/.test(comp));
   assert(/if\(!onShelf\)\{const arrived=await this\.ensureRegion\(region\)/.test(comp));
   assert(/allStages\|\|\(RegionalAPI as any\)\.catalog/.test(comp));
   assert(/this\.button\('snow','雪山山口',\(\)=>this\.composition\.enterRegion\('snow'\)\)/.test(boot));
   assert(/this\.button\('lake','风铃湖畔',\(\)=>this\.composition\.enterRegion\('lake'\)\)/.test(boot));
   const balloon=fs.readFileSync(path.join(A,'scripts/region/LakesideBalloon.ts'),'utf8');
   assert(!/snowpass|r06-snow/.test(balloon));
+});
+function prng(s){return ()=>{s=(Math.imul(s,1103515245)+12345)>>>0;return s/4294967296;};}
+function randomWin(stage,seed,ps){
+ const s=API.createSession(stage.id,seed);const rnd=prng(ps);let used=0;
+ while(s.engine.status==='playing'&&used<stage.config.moves+2){
+  const acts=s.legalActions({tools:false});if(!acts.length)break;
+  assert(s.act(acts[Math.floor(rnd()*acts.length)]));used++;
+ }
+ return s.engine.status==='won';
+}
+t('random-play win rate oscillates between about 0.90 and 0.60, and moves stay between 14 and 24',()=>{
+ const N=36,rates=[];
+ for(const s of Snow){
+  let w=0,n=0;
+  for(const seed of s.seedBank)for(let i=1;i<=N;i++){n++;if(randomWin(s,seed,i*7919))w++;}
+  const avg=w/n;rates.push(avg);
+  assert(avg>=0.58&&avg<=0.94,s.id+' '+avg.toFixed(3));
+  assert(s.config.moves>=14&&s.config.moves<=24,s.id+' moves '+s.config.moves);
+ }
+ assert.equal(Snow[3].id,'r06-snow-04');assert.equal(Snow[3].config.moves,16,'snow-04 is 16, not the old 40-move copy');
+ assert(rates[1]<rates[0]-0.08,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[2]>rates[1]+0.03,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[3]<rates[2]-0.1,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[4]>rates[3]+0.08,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[5]<rates[4]-0.08,rates.map(x=>x.toFixed(3)).join(' '));
+ assert(rates[0]>=0.86&&rates[3]<=0.72&&rates[3]>=0.58&&rates[5]>=0.58);
+ console.log(' rates',rates.map(x=>+x.toFixed(3)).join(' → '));
 });
 console.log(JSON.stringify({status:'PASS',cases:n,scope:'Pure logic + Cocos doubles. Not a device render.'}));
