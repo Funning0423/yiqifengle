@@ -1,0 +1,182 @@
+RNS diff does not apply: error: patch failed: ./creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts:269
+error: ./creator-build-project/assets/scripts/world-r2/RegionNodeStage.ts: patch does not apply
+
+FAIL entry 390x844 60fps yaw 524.6 deg/s
+FAIL entry 390x844 60fps pitch 164.6 deg/s
+FAIL entry 390x844 60fps accel p99 2775
+FAIL entry 390x844 60fps speed 147.04 m/s
+FAIL entry 390x844 60fps step 2.451 m
+FAIL entry 390x844 30fps yaw 523.0 deg/s
+FAIL entry 390x844 30fps pitch 162.8 deg/s
+FAIL entry 390x844 30fps accel p99 2737
+FAIL entry 390x844 30fps speed 146.13 m/s
+FAIL entry 390x844 30fps step 4.871 m
+FAIL entry 390x844 30fps margin -12.573 (frame 0 0.1)
+FAIL entry 414x896 60fps yaw 524.6 deg/s
+FAIL entry 414x896 60fps pitch 164.6 deg/s
+FAIL entry 414x896 60fps accel p99 2775
+FAIL entry 414x896 60fps speed 147.04 m/s
+FAIL entry 414x896 60fps step 2.451 m
+FAIL entry 414x896 30fps yaw 523.0 deg/s
+FAIL entry 414x896 30fps pitch 162.8 deg/s
+FAIL entry 414x896 30fps accel p99 2737
+FAIL entry 414x896 30fps speed 146.13 m/s
+FAIL entry 414x896 30fps step 4.871 m
+FAIL entry 414x896 30fps margin -12.574 (frame 0 0.1)
+FAIL entry 360x780 60fps yaw 524.6 deg/s
+FAIL entry 360x780 60fps pitch 164.6 deg/s
+FAIL entry 360x780 60fps accel p99 2774
+FAIL entry 360x780 60fps speed 147.04 m/s
+FAIL entry 360x780 60fps step 2.451 m
+FAIL entry 360x780 30fps yaw 522.9 deg/s
+FAIL entry 360x780 30fps pitch 162.8 deg/s
+FAIL entry 360x780 30fps accel p99 2737
+FAIL entry 360x780 30fps speed 146.13 m/s
+FAIL entry 360x780 30fps step 4.871 m
+FAIL entry 360x780 30fps margin -12.590 (frame 0 0.1)
+FAIL entry 375x667 60fps yaw 551.4 deg/s
+FAIL entry 375x667 60fps pitch 172.6 deg/s
+FAIL entry 375x667 60fps accel p99 3069
+FAIL entry 375x667 60fps speed 146.73 m/s
+FAIL entry 375x667 60fps step 2.446 m
+FAIL entry 375x667 30fps yaw 547.5 deg/s
+FAIL entry 375x667 30fps pitch 170.0 deg/s
+FAIL entry 375x667 30fps accel p99 3005
+FAIL entry 375x667 30fps speed 145.83 m/s
+FAIL entry 375x667 30fps step 4.861 m
+FAIL entry 375x667 30fps margin -9.198 (frame 0 0.1)
+FAIL entry 320x568 60fps yaw 535.2 deg/s
+FAIL entry 320x568 60fps pitch 169.2 deg/s
+FAIL entry 320x568 60fps accel p99 2871
+FAIL entry 320x568 60fps speed 147.04 m/s
+FAIL entry 320x568 60fps step 2.451 m
+FAIL entry 320x568 30fps yaw 533.3 deg/s
+FAIL entry 320x568 30fps pitch 167.2 deg/s
+FAIL entry 320x568 30fps accel p99 2810
+FAIL entry 320x568 30fps speed 146.13 m/s
+FAIL entry 320x568 30fps step 4.871 m
+FAIL entry 320x568 30fps margin -9.933 (frame 0 0.1)
+FAIL entry 390x520 60fps yaw 566.1 deg/s
+FAIL entry 390x520 60fps pitch 178.9 deg/s
+FAIL entry 390x520 60fps accel p99 3236
+FAIL entry 390x520 60fps speed 146.73 m/s
+FAIL entry 390x520 60fps step 2.446 m
+FAIL entry 390x520 30fps yaw 561.5 deg/s
+FAIL entry 390x520 30fps pitch 176.1 deg/s
+FAIL entry 390x520 30fps accel p99 3167
+FAIL entry 390x520 30fps speed 145.83 m/s
+FAIL entry 390x520 30fps step 4.861 m
+FAIL entry 390x520 30fps margin -6.508 (frame 0 0.182)
+FAIL entry 768x1024 60fps yaw 548.2 deg/s
+FAIL entry 768x1024 60fps pitch 174.8 deg/s
+FAIL entry 768x1024 60fps accel p99 2989
+FAIL entry 768x1024 60fps speed 147.04 m/s
+FAIL entry 768x1024 60fps step 2.451 m
+FAIL entry 768x1024 30fps yaw 545.8 deg/s
+FAIL entry 768x1024 30fps pitch 172.7 deg/s
+FAIL entry 768x1024 30fps accel p99 2911
+FAIL entry 768x1024 30fps speed 146.13 m/s
+FAIL entry 768x1024 30fps step 4.871 m
+FAIL entry 768x1024 30fps margin -7.049 (frame 0 0.182)
+FAIL departure 390x844 60fps yaw 548.2 deg/s
+FAIL departure 390x844 60fps pitch 174.8 deg/s
+FAIL departure 390x844 60fps accel p99 2989
+FAIL departure 390x844 60fps speed 159.77 m/s
+FAIL departure 390x844 60fps step 2.663 m
+FAIL departure 390x844 30fps yaw 545.8 deg/s
+FAIL departure 390x844 30fps pitch 172.7 deg/s
+FAIL departure 390x844 30fps accel p99 2911
+FAIL departure 390x844 30fps speed 158.78 m/s
+FAIL departure 390x844 30fps step 5.293 m
+FAIL departure 390x844 30fps solid 0.03
+FAIL departure 390x844 30fps face/chest hidden 1.17 s
+FAIL departure 390x844 30fps margin -19.626 (frame 0 0.365)
+FAIL departure 390x844 30fps reveal→boarding 8.10 s
+FAIL departure 414x896 60fps yaw 548.2 deg/s
+FAIL departure 414x896 60fps pitch 174.8 deg/s
+FAIL departure 414x896 60fps accel p99 2989
+FAIL departure 414x896 60fps speed 159.77 m/s
+FAIL departure 414x896 60fps step 2.663 m
+FAIL departure 414x896 30fps yaw 545.8 deg/s
+FAIL departure 414x896 30fps pitch 172.7 deg/s
+FAIL departure 414x896 30fps accel p99 2911
+FAIL departure 414x896 30fps speed 158.78 m/s
+FAIL departure 414x896 30fps step 5.293 m
+FAIL departure 414x896 30fps solid 0.03
+FAIL departure 414x896 30fps face/chest hidden 1.17 s
+FAIL departure 414x896 30fps margin -19.628 (frame 0 0.365)
+FAIL departure 414x896 30fps reveal→boarding 8.10 s
+FAIL departure 360x780 60fps yaw 548.2 deg/s
+FAIL departure 360x780 60fps pitch 174.8 deg/s
+FAIL departure 360x780 60fps accel p99 2989
+FAIL departure 360x780 60fps speed 159.77 m/s
+FAIL departure 360x780 60fps step 2.663 m
+FAIL departure 360x780 30fps yaw 545.8 deg/s
+FAIL departure 360x780 30fps pitch 172.7 deg/s
+FAIL departure 360x780 30fps accel p99 2911
+FAIL departure 360x780 30fps speed 158.78 m/s
+FAIL departure 360x780 30fps step 5.293 m
+FAIL departure 360x780 30fps solid 0.03
+FAIL departure 360x780 30fps face/chest hidden 1.17 s
+FAIL departure 360x780 30fps margin -19.651 (frame 0 0.365)
+FAIL departure 360x780 30fps reveal→boarding 8.10 s
+FAIL departure 375x667 60fps yaw 566.1 deg/s
+FAIL departure 375x667 60fps pitch 178.9 deg/s
+FAIL departure 375x667 60fps accel p99 3236
+FAIL departure 375x667 60fps speed 159.50 m/s
+FAIL departure 375x667 60fps step 2.658 m
+FAIL departure 375x667 30fps yaw 561.5 deg/s
+FAIL departure 375x667 30fps pitch 176.1 deg/s
+FAIL departure 375x667 30fps accel p99 3167
+FAIL departure 375x667 30fps speed 158.52 m/s
+FAIL departure 375x667 30fps step 5.284 m
+FAIL departure 375x667 30fps solid 0.14
+FAIL departure 375x667 30fps face/chest hidden 1.13 s
+FAIL departure 375x667 30fps margin -14.187 (frame 0 0.478)
+FAIL departure 375x667 30fps reveal→boarding 8.10 s
+FAIL departure 320x568 60fps yaw 548.2 deg/s
+FAIL departure 320x568 60fps pitch 174.8 deg/s
+FAIL departure 320x568 60fps accel p99 2989
+FAIL departure 320x568 60fps speed 159.77 m/s
+FAIL departure 320x568 60fps step 2.663 m
+FAIL departure 320x568 30fps yaw 545.8 deg/s
+FAIL departure 320x568 30fps pitch 172.7 deg/s
+FAIL departure 320x568 30fps accel p99 2911
+FAIL departure 320x568 30fps speed 158.78 m/s
+FAIL departure 320x568 30fps step 5.293 m
+FAIL departure 320x568 30fps solid 0.03
+FAIL departure 320x568 30fps face/chest hidden 1.17 s
+FAIL departure 320x568 30fps margin -15.918 (frame 0 0.48)
+FAIL departure 320x568 30fps reveal→boarding 8.10 s
+FAIL departure 390x520 60fps yaw 566.1 deg/s
+FAIL departure 390x520 60fps pitch 178.9 deg/s
+FAIL departure 390x520 60fps accel p99 3236
+FAIL departure 390x520 60fps speed 159.50 m/s
+FAIL departure 390x520 60fps step 2.658 m
+FAIL departure 390x520 30fps yaw 561.5 deg/s
+FAIL departure 390x520 30fps pitch 176.1 deg/s
+FAIL departure 390x520 30fps accel p99 3167
+FAIL departure 390x520 30fps speed 158.52 m/s
+FAIL departure 390x520 30fps step 5.284 m
+FAIL departure 390x520 30fps solid 0.14
+FAIL departure 390x520 30fps face/chest hidden 1.13 s
+FAIL departure 390x520 30fps margin -10.385 (frame 0 0.609)
+FAIL departure 390x520 30fps reveal→boarding 8.10 s
+FAIL departure 768x1024 60fps yaw 548.2 deg/s
+FAIL departure 768x1024 60fps pitch 174.8 deg/s
+FAIL departure 768x1024 60fps accel p99 2989
+FAIL departure 768x1024 60fps speed 159.77 m/s
+FAIL departure 768x1024 60fps step 2.663 m
+FAIL departure 768x1024 30fps yaw 545.8 deg/s
+FAIL departure 768x1024 30fps pitch 172.7 deg/s
+FAIL departure 768x1024 30fps accel p99 2911
+FAIL departure 768x1024 30fps speed 158.78 m/s
+FAIL departure 768x1024 30fps step 5.293 m
+FAIL departure 768x1024 30fps solid 0.03
+FAIL departure 768x1024 30fps face/chest hidden 1.17 s
+FAIL departure 768x1024 30fps margin -11.708 (frame 0 0.609)
+FAIL departure 768x1024 30fps reveal→boarding 8.10 s
+entry lean_01 episodes []
+departure lean_01 episodes []
+{"boardLens":"outbox-diff","wired":false,"fail":175,"sample":{"yawDegS":545.8,"pitchDegS":172.7,"accP99":2911,"ms":158.78,"stepM":5.293,"fovPerFrame":1.24,"groundM":3.55,"solidM":0.03,"hiddenS":1.17,"faceHiddenS":1.13,"margin":-19.626,"capsule":0,"totalS":8.1},"entry":{"yawDegS":523,"pitchDegS":162.8,"accP99":2737,"ms":146.13,"stepM":4.871,"fovPerFrame":1.24,"groundM":2.83,"solidM":0.64,"hiddenS":0.3,"faceHiddenS":0.23,"margin":-12.573,"capsule":0,"totalS":8.11}}
+island-stage04-lens: FAIL 175
