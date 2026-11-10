@@ -1,2 +1,2 @@
-################################################################
-SELFTEST PASS (4 cases + provenance)
+BUILD GUARD PASSED: wechat-release 24500912 (strip=0)  (output under creator-build-project/build/)  HEAD=00d9310 tree=059459cc437ac96ad76860598543f2e196052ce2
+SELFTEST PASS (15 cases + provenance)

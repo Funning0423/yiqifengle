@@ -1,10 +1,10 @@
-sail island→meadow 390x844 PASS 2 clear 1.288 5 island:env_island_props_merged
-sail island→meadow 414x896 PASS 2 clear 1.288 5 island:env_island_props_merged
-sail island→meadow 360x780 PASS 2 clear 1.288 5 island:env_island_props_merged
-sail island→meadow 375x667 PASS 2 clear 1.288 5 island:env_island_props_merged
-sail island→meadow 320x568 PASS 2 clear 1.288 5 island:env_island_props_merged
-sail island→meadow 390x520 PASS 2 clear 1.288 5 island:env_island_props_merged
-sail island→meadow 768x1024 PASS 2 clear 1.288 5 island:env_island_props_merged
+sail island→meadow 390x844 PASS 0 clear 0.281 3.6 island:env_prop_palm_tall_01
+sail island→meadow 414x896 PASS 0 clear 0.281 3.6 island:env_prop_palm_tall_01
+sail island→meadow 360x780 PASS 0 clear 0.281 3.6 island:env_prop_palm_tall_01
+sail island→meadow 375x667 PASS 0 clear 0.281 3.6 island:env_prop_palm_tall_01
+sail island→meadow 320x568 PASS 0 clear 0.281 3.6 island:env_prop_palm_tall_01
+sail island→meadow 390x520 PASS 0 clear 0.281 3.6 island:env_prop_palm_tall_01
+sail island→meadow 768x1024 PASS 0 clear 0.281 3.6 island:env_prop_palm_tall_01
 balloon meadow→skycity 390x844 FAIL 1003 clear 3 0 null
 balloon meadow→skycity 414x896 FAIL 1003 clear 3 0 null
 balloon meadow→skycity 360x780 FAIL 1003 clear 3 0 null
