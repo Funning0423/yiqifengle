@@ -1,0 +1,5 @@
+ M creator-build-project/assets/bundles/region_cloudsea/models/env_cloudsea.glb.meta
+ M creator-build-project/assets/bundles/region_fjord/models/env_fjord.glb.meta
+ M creator-build-project/assets/bundles/region_hotspring/models/env_hotspring.glb.meta
+ M creator-build-project/assets/bundles/region_rail/models/env_rail.glb.meta
+ M creator-build-project/assets/bundles/region_transit_balloon/transport_balloon.glb.meta

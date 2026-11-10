@@ -1,0 +1,230 @@
+{
+ "stateEveryMs": 2000,
+ "steps": [
+  {
+   "op": "waitState",
+   "name": "home",
+   "timeoutMs": 180000
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "screenshot",
+   "name": "home"
+  },
+  {
+   "op": "perfStart",
+   "name": "load-c01"
+  },
+  {
+   "op": "preTransition",
+   "key": "coast-dev",
+   "timeoutMs": 300000
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "perfStop",
+   "name": "load-c01"
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "coastSwaps",
+   "pairs": []
+  },
+  {
+   "op": "wait",
+   "ms": 1500
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "screenshot",
+   "name": "c01-board"
+  },
+  {
+   "op": "perfStart",
+   "name": "idle-c01"
+  },
+  {
+   "op": "wait",
+   "ms": 8000
+  },
+  {
+   "op": "perfStop",
+   "name": "idle-c01"
+  },
+  {
+   "op": "coastSwaps",
+   "pairs": [
+    [
+     15,
+     22
+    ],
+    [
+     2,
+     9
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     25,
+     26
+    ],
+    [
+     18,
+     19
+    ]
+   ],
+   "gapMs": 500,
+   "resultTimeoutMs": 25000
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "screenshot",
+   "name": "c01-result"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "dumpUi"
+  },
+  {
+   "op": "tapName",
+   "name": "Home",
+   "parent": "ResultPanel",
+   "timeoutMs": 8000,
+   "fx": 195,
+   "fy": 700
+  },
+  {
+   "op": "waitState",
+   "name": "island",
+   "timeoutMs": 90000
+  },
+  {
+   "op": "wait",
+   "ms": 4000
+  },
+  {
+   "op": "screenshot",
+   "name": "c01-island"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "preTransition",
+   "key": "coast-next",
+   "timeoutMs": 300000
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "coastSwaps",
+   "pairs": []
+  },
+  {
+   "op": "wait",
+   "ms": 1500
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "screenshot",
+   "name": "c02-board"
+  },
+  {
+   "op": "perfStart",
+   "name": "idle-c02"
+  },
+  {
+   "op": "wait",
+   "ms": 8000
+  },
+  {
+   "op": "perfStop",
+   "name": "idle-c02"
+  },
+  {
+   "op": "coastSwaps",
+   "pairs": [
+    [
+     17,
+     24
+    ],
+    [
+     23,
+     24
+    ],
+    [
+     24,
+     25
+    ],
+    [
+     0,
+     7
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     22,
+     29
+    ]
+   ],
+   "gapMs": 500,
+   "resultTimeoutMs": 25000
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "screenshot",
+   "name": "c02-result"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "tapName",
+   "name": "Home",
+   "parent": "ResultPanel",
+   "timeoutMs": 8000,
+   "fx": 195,
+   "fy": 700
+  },
+  {
+   "op": "waitState",
+   "name": "island",
+   "timeoutMs": 90000
+  },
+  {
+   "op": "wait",
+   "ms": 4000
+  },
+  {
+   "op": "screenshot",
+   "name": "c02-island"
+  }
+ ]
+}

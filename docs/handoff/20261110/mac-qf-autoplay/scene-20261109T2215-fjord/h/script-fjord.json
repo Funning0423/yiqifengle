@@ -1,0 +1,310 @@
+{
+ "stateEveryMs": 2000,
+ "steps": [
+  {
+   "op": "waitState",
+   "name": "home",
+   "timeoutMs": 180000
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "screenshot",
+   "name": "home"
+  },
+  {
+   "op": "dumpTap",
+   "name": "fj01-before-entry"
+  },
+  {
+   "op": "perfStart",
+   "name": "load-fj01"
+  },
+  {
+   "op": "preTransition",
+   "key": "unlock-fjord",
+   "tap": true,
+   "timeoutMs": 420000
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "tapName",
+   "name": "Continue-fjord",
+   "timeoutMs": 10000
+  },
+  {
+   "op": "wait",
+   "ms": 4000
+  },
+  {
+   "op": "wait",
+   "ms": 12000
+  },
+  {
+   "op": "perfStop",
+   "name": "load-fj01"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "tapName",
+   "name": "GotIt",
+   "timeoutMs": 6000
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "screenshot",
+   "name": "fj01-board-full"
+  },
+  {
+   "op": "perfStart",
+   "name": "idle-fj01"
+  },
+  {
+   "op": "wait",
+   "ms": 10000
+  },
+  {
+   "op": "perfStop",
+   "name": "idle-fj01"
+  },
+  {
+   "op": "screenshot",
+   "name": "fj01-board-full-b"
+  },
+  {
+   "op": "dumpTap",
+   "name": "fj01-on-board"
+  },
+  {
+   "op": "perfStart",
+   "name": "play-fj01"
+  },
+  {
+   "op": "coastSwaps",
+   "pairs": [
+    [
+     24,
+     31
+    ],
+    [
+     31,
+     38
+    ],
+    [
+     25,
+     26
+    ]
+   ],
+   "gapMs": 600,
+   "resultTimeoutMs": 25000,
+   "shotEach": true,
+   "tag": "fj01-sw"
+  },
+  {
+   "op": "perfStop",
+   "name": "play-fj01"
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "screenshot",
+   "name": "fj01-result"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "dumpUi"
+  },
+  {
+   "op": "tapName",
+   "name": "Home",
+   "parent": "ResultPanel",
+   "timeoutMs": 8000
+  },
+  {
+   "op": "waitState",
+   "name": "island",
+   "timeoutMs": 90000,
+   "stopOnFail": false
+  },
+  {
+   "op": "wait",
+   "ms": 4000
+  },
+  {
+   "op": "screenshot",
+   "name": "fj01-after-exit"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "dumpTap",
+   "name": "fj01-after-exit"
+  },
+  {
+   "op": "wait",
+   "ms": 3000
+  },
+  {
+   "op": "dumpTap",
+   "name": "fj08-before-entry"
+  },
+  {
+   "op": "perfStart",
+   "name": "load-fj08"
+  },
+  {
+   "op": "preTransition",
+   "key": "unlock-fjord-08",
+   "tap": true,
+   "timeoutMs": 420000
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "tapName",
+   "name": "Continue-fjord",
+   "timeoutMs": 10000
+  },
+  {
+   "op": "wait",
+   "ms": 4000
+  },
+  {
+   "op": "wait",
+   "ms": 12000
+  },
+  {
+   "op": "perfStop",
+   "name": "load-fj08"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "tapName",
+   "name": "GotIt",
+   "timeoutMs": 6000
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "screenshot",
+   "name": "fj08-board-full"
+  },
+  {
+   "op": "perfStart",
+   "name": "idle-fj08"
+  },
+  {
+   "op": "wait",
+   "ms": 10000
+  },
+  {
+   "op": "perfStop",
+   "name": "idle-fj08"
+  },
+  {
+   "op": "screenshot",
+   "name": "fj08-board-full-b"
+  },
+  {
+   "op": "dumpTap",
+   "name": "fj08-on-board"
+  },
+  {
+   "op": "perfStart",
+   "name": "play-fj08"
+  },
+  {
+   "op": "coastSwaps",
+   "pairs": [
+    [
+     23,
+     24
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     18,
+     19
+    ]
+   ],
+   "gapMs": 600,
+   "resultTimeoutMs": 25000,
+   "shotEach": true,
+   "tag": "fj08-sw"
+  },
+  {
+   "op": "perfStop",
+   "name": "play-fj08"
+  },
+  {
+   "op": "wait",
+   "ms": 2500
+  },
+  {
+   "op": "screenshot",
+   "name": "fj08-result"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "dumpUi"
+  },
+  {
+   "op": "tapName",
+   "name": "Home",
+   "parent": "ResultPanel",
+   "timeoutMs": 8000
+  },
+  {
+   "op": "waitState",
+   "name": "island",
+   "timeoutMs": 90000,
+   "stopOnFail": false
+  },
+  {
+   "op": "wait",
+   "ms": 4000
+  },
+  {
+   "op": "screenshot",
+   "name": "fj08-after-exit"
+  },
+  {
+   "op": "boardInfo"
+  },
+  {
+   "op": "dumpTap",
+   "name": "fj08-after-exit"
+  }
+ ]
+}

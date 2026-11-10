@@ -1,0 +1,71 @@
+{
+    "deviceOrientation": "portrait",
+    "networkTimeout": {
+        "request": 5000,
+        "connectSocket": 5000,
+        "uploadFile": 5000,
+        "downloadFile": 500000
+    },
+    "subpackages": [
+        {
+            "name": "internal",
+            "root": "subpackages/internal/"
+        },
+        {
+            "name": "resources",
+            "root": "subpackages/resources/"
+        },
+        {
+            "name": "main",
+            "root": "subpackages/main/"
+        },
+        {
+            "name": "shared_effects",
+            "root": "subpackages/shared_effects/"
+        },
+        {
+            "name": "audio_bgm_island",
+            "root": "subpackages/audio_bgm_island/"
+        },
+        {
+            "name": "board_art",
+            "root": "subpackages/board_art/"
+        },
+        {
+            "name": "region_coast",
+            "root": "subpackages/region_coast/"
+        },
+        {
+            "name": "region_island",
+            "root": "subpackages/region_island/"
+        },
+        {
+            "name": "region_lakeside",
+            "root": "subpackages/region_lakeside/"
+        },
+        {
+            "name": "region_meadow",
+            "root": "subpackages/region_meadow/"
+        },
+        {
+            "name": "region_skycity",
+            "root": "subpackages/region_skycity/"
+        },
+        {
+            "name": "region_snowpass",
+            "root": "subpackages/region_snowpass/"
+        },
+        {
+            "name": "region_transit_balloon",
+            "root": "subpackages/region_transit_balloon/"
+        },
+        {
+            "name": "static_seat_preview",
+            "root": "subpackages/static_seat_preview/"
+        },
+        {
+            "name": "transport_sail",
+            "root": "subpackages/transport_sail/"
+        }
+    ]
+}

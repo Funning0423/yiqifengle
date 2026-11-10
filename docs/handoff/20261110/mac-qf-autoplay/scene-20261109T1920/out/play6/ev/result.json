@@ -1,0 +1,3762 @@
+{
+ "ok": true,
+ "steps": [
+  {
+   "i": 0,
+   "op": "waitState",
+   "matched": true,
+   "ms": 1,
+   "state": "home"
+  },
+  {
+   "i": 1,
+   "op": "wait",
+   "ms": 3001,
+   "state": "home"
+  },
+  {
+   "i": 2,
+   "op": "screenshot",
+   "pn": 1794274408947,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/01-home.jpg",
+   "pnDone": 1794274409025,
+   "ms": 78,
+   "state": "home"
+  },
+  {
+   "i": 3,
+   "op": "preTransition",
+   "ready": true,
+   "pre": {
+    "ok": true,
+    "state": "level",
+    "trigger": "测试包 __qfPreTransition('coast-dev') / ?qfPre=coast-dev",
+    "tap": {
+     "kind": "control",
+     "node": "WorldNavigationCanvas/mainline",
+     "point": null
+    }
+   },
+   "ms": 33140,
+   "state": "level"
+  },
+  {
+   "i": 4,
+   "op": "wait",
+   "ms": 3005,
+   "state": "level"
+  },
+  {
+   "i": 5,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-01",
+    "seed": 22,
+    "moves": 19,
+    "goals": {
+     "type5": 18
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [
+     "RuleGuidePanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "after": {
+    "state": "run.ready",
+    "stageId": "r06-coast-01",
+    "seed": 22,
+    "moves": 19,
+    "goals": {
+     "type5": 18
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "dismissLog": [
+    {
+     "dismiss": [
+      "RuleGuidePanel"
+     ],
+     "hits": [
+      {
+       "name": "GotIt",
+       "x": 195,
+       "y": 486.48,
+       "w": 208,
+       "h": 54.08
+      }
+     ]
+    }
+   ],
+   "ms": 2126,
+   "state": "level"
+  },
+  {
+   "i": 6,
+   "op": "wait",
+   "ms": 1509,
+   "state": "level"
+  },
+  {
+   "i": 7,
+   "op": "boardInfo",
+   "info": {
+    "state": "run.ready",
+    "stageId": "r06-coast-01",
+    "seed": 22,
+    "moves": 19,
+    "goals": {
+     "type5": 18
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 9,
+   "state": "level"
+  },
+  {
+   "i": 8,
+   "op": "screenshot",
+   "pn": 1794274448821,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/02-c01-board.jpg",
+   "pnDone": 1794274448866,
+   "ms": 45,
+   "state": "level"
+  },
+  {
+   "i": 9,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-01",
+    "seed": 22,
+    "moves": 19,
+    "goals": {
+     "type5": 18
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "frames": 33,
+   "swaps": [
+    {
+     "pair": [
+      15,
+      22
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 19,
+      "goals": "{\"type5\":18}",
+      "moss": 0
+     },
+     "from": [
+      118,
+      387
+     ],
+     "to": [
+      117,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 18,
+      "goals": "{\"type5\":15}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      2,
+      9
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 18,
+      "goals": "{\"type5\":15}",
+      "moss": 0
+     },
+     "from": [
+      158,
+      323
+     ],
+     "to": [
+      157,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 17,
+      "goals": "{\"type5\":9}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      3,
+      4
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 17,
+      "goals": "{\"type5\":9}",
+      "moss": 0
+     },
+     "from": [
+      195,
+      323
+     ],
+     "to": [
+      232,
+      323
+     ],
+     "moved": true,
+     "post": {
+      "moves": 16,
+      "goals": "{\"type5\":9}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      25,
+      26
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 16,
+      "goals": "{\"type5\":9}",
+      "moss": 0
+     },
+     "from": [
+      234,
+      422
+     ],
+     "to": [
+      273,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 15,
+      "goals": "{\"type5\":2}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      18,
+      19
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 15,
+      "goals": "{\"type5\":2}",
+      "moss": 0
+     },
+     "from": [
+      233,
+      387
+     ],
+     "to": [
+      272,
+      387
+     ],
+     "moved": true,
+     "post": {
+      "moves": 14,
+      "goals": "{\"type5\":0}",
+      "state": "result.saved"
+     }
+    }
+   ],
+   "resultReached": true,
+   "after": {
+    "state": "result.saved",
+    "stageId": "r06-coast-01",
+    "seed": 22,
+    "moves": 14,
+    "goals": {
+     "type5": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 11929,
+   "state": "level"
+  },
+  {
+   "i": 10,
+   "op": "wait",
+   "ms": 2505,
+   "state": "level"
+  },
+  {
+   "i": 11,
+   "op": "screenshot",
+   "pn": 1794274463303,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/36-c01-result.jpg",
+   "pnDone": 1794274463348,
+   "ms": 45,
+   "state": "level"
+  },
+  {
+   "i": 12,
+   "op": "boardInfo",
+   "info": {
+    "state": "result.saved",
+    "stageId": "r06-coast-01",
+    "seed": 22,
+    "moves": 14,
+    "goals": {
+     "type5": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 6,
+   "state": "level"
+  },
+  {
+   "i": 13,
+   "op": "dumpUi",
+   "ui": [
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupShade",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/PanelFrame",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/TitlePlank",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/TitlePlank/Plank",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/TitlePlank/Title",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/Home",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/Home/ActionShadow",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/Home/Face",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/Home/Face/Plate",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/Home/Face/Label",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/ResultFlow-stars",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/ResultFlow-stars/ResultStars",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/ResultFlow-stars/ResultStars/Star-0",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/ResultFlow-stars/ResultStars/Star-1",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/ResultFlow-stars/ResultStars/Star-2",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/ResultFlow-Score-0",
+    "IsolatedWorldComposition/WorldLevelUI/ManagedNativeBoardHost/NativeBoardCanvas/ResultPanel/PopupPanel/ResultFlow-Score-0/Score"
+   ],
+   "ms": 1,
+   "state": "level"
+  },
+  {
+   "i": 14,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Home",
+     "x": 195,
+     "y": 525.5,
+     "w": 240,
+     "h": 56.00000000000001
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 150,
+   "state": "island"
+  },
+  {
+   "i": 15,
+   "op": "waitState",
+   "matched": true,
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 16,
+   "op": "wait",
+   "ms": 4008,
+   "state": "island"
+  },
+  {
+   "i": 17,
+   "op": "screenshot",
+   "pn": 1794274467516,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/37-c01-island.jpg",
+   "pnDone": 1794274467580,
+   "ms": 64,
+   "state": "island"
+  },
+  {
+   "i": 18,
+   "op": "boardInfo",
+   "info": {
+    "state": null,
+    "stageId": null,
+    "seed": null,
+    "moves": null,
+    "goals": null,
+    "moss": null,
+    "status": null,
+    "popups": null,
+    "gate": null,
+    "result": null,
+    "records": null,
+    "nextStageId": null,
+    "world": {
+     "state": "island",
+     "region": "island"
+    }
+   },
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 19,
+   "op": "preTransition",
+   "ready": true,
+   "pre": {
+    "ok": true,
+    "state": "level",
+    "trigger": "测试包 __qfPreTransition('coast-next')（先跑 coast-dev 建测试存档并通关）",
+    "tap": {
+     "kind": "control",
+     "node": "WorldNavigationCanvas/mainline",
+     "point": null
+    }
+   },
+   "ms": 1115,
+   "state": "level"
+  },
+  {
+   "i": 20,
+   "op": "wait",
+   "ms": 3009,
+   "state": "level"
+  },
+  {
+   "i": 21,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-02",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "lines": 1,
+     "type1": 10
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [
+     "RuleGuidePanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "after": {
+    "state": "run.ready",
+    "stageId": "r06-coast-02",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "lines": 1,
+     "type1": 10
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "dismissLog": [
+    {
+     "dismiss": [
+      "RuleGuidePanel"
+     ],
+     "hits": [
+      {
+       "name": "GotIt",
+       "x": 195,
+       "y": 517.6800000000001,
+       "w": 208,
+       "h": 54.07999999999999
+      }
+     ]
+    }
+   ],
+   "ms": 2123,
+   "state": "level"
+  },
+  {
+   "i": 22,
+   "op": "wait",
+   "ms": 1501,
+   "state": "level"
+  },
+  {
+   "i": 23,
+   "op": "boardInfo",
+   "info": {
+    "state": "run.ready",
+    "stageId": "r06-coast-02",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "lines": 1,
+     "type1": 10
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 10,
+   "state": "level"
+  },
+  {
+   "i": 24,
+   "op": "screenshot",
+   "pn": 1794274475345,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/38-c02-board.jpg",
+   "pnDone": 1794274475381,
+   "ms": 36,
+   "state": "level"
+  },
+  {
+   "i": 25,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-02",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "lines": 1,
+     "type1": 10
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "frames": 0,
+   "swaps": [
+    {
+     "pair": [
+      17,
+      24
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 24,
+      "goals": "{\"beacons\":3,\"lines\":1,\"type1\":10}",
+      "moss": 0
+     },
+     "from": [
+      195,
+      387
+     ],
+     "to": [
+      195,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 23,
+      "goals": "{\"beacons\":2,\"lines\":0,\"type1\":7}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      23,
+      24
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 23,
+      "goals": "{\"beacons\":2,\"lines\":0,\"type1\":7}",
+      "moss": 0
+     },
+     "from": [
+      156,
+      422
+     ],
+     "to": [
+      195,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 22,
+      "goals": "{\"beacons\":1,\"lines\":0,\"type1\":5}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      24,
+      25
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 22,
+      "goals": "{\"beacons\":1,\"lines\":0,\"type1\":5}",
+      "moss": 0
+     },
+     "from": [
+      195,
+      422
+     ],
+     "to": [
+      234,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 21,
+      "goals": "{\"beacons\":0,\"lines\":0,\"type1\":5}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      0,
+      7
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 21,
+      "goals": "{\"beacons\":0,\"lines\":0,\"type1\":5}",
+      "moss": 0
+     },
+     "from": [
+      84,
+      323
+     ],
+     "to": [
+      82,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 20,
+      "goals": "{\"beacons\":0,\"lines\":0,\"type1\":2}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      2,
+      3
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 20,
+      "goals": "{\"beacons\":0,\"lines\":0,\"type1\":2}",
+      "moss": 0
+     },
+     "from": [
+      158,
+      323
+     ],
+     "to": [
+      195,
+      323
+     ],
+     "moved": true,
+     "post": {
+      "moves": 19,
+      "goals": "{\"beacons\":0,\"lines\":0,\"type1\":2}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      22,
+      29
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 19,
+      "goals": "{\"beacons\":0,\"lines\":0,\"type1\":2}",
+      "moss": 0
+     },
+     "from": [
+      117,
+      422
+     ],
+     "to": [
+      115,
+      457
+     ],
+     "moved": true,
+     "post": {
+      "moves": 18,
+      "goals": "{\"beacons\":0,\"lines\":0,\"type1\":0}",
+      "state": "result.saved"
+     }
+    }
+   ],
+   "resultReached": true,
+   "after": {
+    "state": "result.saved",
+    "stageId": "r06-coast-02",
+    "seed": 3,
+    "moves": 18,
+    "goals": {
+     "beacons": 0,
+     "lines": 0,
+     "type1": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 10578,
+   "state": "level"
+  },
+  {
+   "i": 26,
+   "op": "wait",
+   "ms": 2501,
+   "state": "level"
+  },
+  {
+   "i": 27,
+   "op": "screenshot",
+   "pn": 1794274488464,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/39-c02-result.jpg",
+   "pnDone": 1794274488523,
+   "ms": 59,
+   "state": "level"
+  },
+  {
+   "i": 28,
+   "op": "boardInfo",
+   "info": {
+    "state": "result.saved",
+    "stageId": "r06-coast-02",
+    "seed": 3,
+    "moves": 18,
+    "goals": {
+     "beacons": 0,
+     "lines": 0,
+     "type1": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 9,
+   "state": "level"
+  },
+  {
+   "i": 29,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Home",
+     "x": 195,
+     "y": 525.5,
+     "w": 240,
+     "h": 56.00000000000001
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 160,
+   "state": "island"
+  },
+  {
+   "i": 30,
+   "op": "waitState",
+   "matched": true,
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 31,
+   "op": "wait",
+   "ms": 4012,
+   "state": "island"
+  },
+  {
+   "i": 32,
+   "op": "screenshot",
+   "pn": 1794274492707,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/40-c02-island.jpg",
+   "pnDone": 1794274492753,
+   "ms": 46,
+   "state": "island"
+  },
+  {
+   "i": 33,
+   "op": "boardInfo",
+   "info": {
+    "state": null,
+    "stageId": null,
+    "seed": null,
+    "moves": null,
+    "goals": null,
+    "moss": null,
+    "status": null,
+    "popups": null,
+    "gate": null,
+    "result": null,
+    "records": null,
+    "nextStageId": null,
+    "world": {
+     "state": "island",
+     "region": "island"
+    }
+   },
+   "ms": 1,
+   "state": "island"
+  },
+  {
+   "i": 34,
+   "op": "preTransition",
+   "ready": true,
+   "pre": {
+    "ok": true,
+    "state": "level",
+    "trigger": "测试包 __qfPreTransition('coast-next')（先跑 coast-dev 建测试存档并通关）",
+    "tap": {
+     "kind": "control",
+     "node": "WorldNavigationCanvas/mainline",
+     "point": null
+    }
+   },
+   "ms": 1099,
+   "state": "level"
+  },
+  {
+   "i": 35,
+   "op": "wait",
+   "ms": 3007,
+   "state": "level"
+  },
+  {
+   "i": 36,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-03",
+    "seed": 2,
+    "moves": 24,
+    "goals": {
+     "moss": 6,
+     "type0": 6
+    },
+    "moss": [
+     7,
+     8,
+     9,
+     37,
+     38,
+     39
+    ],
+    "status": "playing",
+    "popups": [
+     "RuleGuidePanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "after": {
+    "state": "run.ready",
+    "stageId": "r06-coast-03",
+    "seed": 2,
+    "moves": 24,
+    "goals": {
+     "moss": 6,
+     "type0": 6
+    },
+    "moss": [
+     7,
+     8,
+     9,
+     37,
+     38,
+     39
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "dismissLog": [
+    {
+     "dismiss": [
+      "RuleGuidePanel"
+     ],
+     "hits": [
+      {
+       "name": "GotIt",
+       "x": 195,
+       "y": 496.88,
+       "w": 208,
+       "h": 54.07999999999999
+      }
+     ]
+    }
+   ],
+   "ms": 2124,
+   "state": "level"
+  },
+  {
+   "i": 37,
+   "op": "wait",
+   "ms": 1512,
+   "state": "level"
+  },
+  {
+   "i": 38,
+   "op": "boardInfo",
+   "info": {
+    "state": "run.ready",
+    "stageId": "r06-coast-03",
+    "seed": 2,
+    "moves": 24,
+    "goals": {
+     "moss": 6,
+     "type0": 6
+    },
+    "moss": [
+     7,
+     8,
+     9,
+     37,
+     38,
+     39
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 9,
+   "state": "level"
+  },
+  {
+   "i": 39,
+   "op": "screenshot",
+   "pn": 1794274500512,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/41-c03-board.jpg",
+   "pnDone": 1794274500565,
+   "ms": 53,
+   "state": "level"
+  },
+  {
+   "i": 40,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-03",
+    "seed": 2,
+    "moves": 24,
+    "goals": {
+     "moss": 6,
+     "type0": 6
+    },
+    "moss": [
+     7,
+     8,
+     9,
+     37,
+     38,
+     39
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "frames": 0,
+   "swaps": [
+    {
+     "pair": [
+      24,
+      31
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 24,
+      "goals": "{\"moss\":6,\"type0\":6}",
+      "moss": 6
+     },
+     "from": [
+      195,
+      422
+     ],
+     "to": [
+      195,
+      457
+     ],
+     "moved": true,
+     "post": {
+      "moves": 23,
+      "goals": "{\"moss\":3,\"type0\":5}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      3,
+      10
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 23,
+      "goals": "{\"moss\":3,\"type0\":5}",
+      "moss": 3
+     },
+     "from": [
+      195,
+      323
+     ],
+     "to": [
+      195,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 22,
+      "goals": "{\"moss\":1,\"type0\":5}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      3,
+      4
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 22,
+      "goals": "{\"moss\":1,\"type0\":5}",
+      "moss": 1
+     },
+     "from": [
+      195,
+      323
+     ],
+     "to": [
+      232,
+      323
+     ],
+     "moved": true,
+     "post": {
+      "moves": 21,
+      "goals": "{\"moss\":1,\"type0\":5}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      5,
+      12
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 21,
+      "goals": "{\"moss\":1,\"type0\":5}",
+      "moss": 1
+     },
+     "from": [
+      269,
+      323
+     ],
+     "to": [
+      270,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 20,
+      "goals": "{\"moss\":1,\"type0\":2}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      5,
+      12
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 20,
+      "goals": "{\"moss\":1,\"type0\":2}",
+      "moss": 1
+     },
+     "from": [
+      269,
+      323
+     ],
+     "to": [
+      270,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 19,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      4,
+      11
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 19,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "moss": 1
+     },
+     "from": [
+      232,
+      323
+     ],
+     "to": [
+      233,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 18,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      22,
+      23
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 18,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "moss": 1
+     },
+     "from": [
+      117,
+      422
+     ],
+     "to": [
+      156,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 17,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      3,
+      4
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 17,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "moss": 1
+     },
+     "from": [
+      195,
+      323
+     ],
+     "to": [
+      232,
+      323
+     ],
+     "moved": true,
+     "post": {
+      "moves": 16,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      22,
+      29
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 16,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "moss": 1
+     },
+     "from": [
+      117,
+      422
+     ],
+     "to": [
+      115,
+      457
+     ],
+     "moved": true,
+     "post": {
+      "moves": 15,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      1,
+      8
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 15,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "moss": 1
+     },
+     "from": [
+      121,
+      323
+     ],
+     "to": [
+      120,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 14,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      0,
+      1
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 14,
+      "goals": "{\"moss\":1,\"type0\":0}",
+      "moss": 1
+     },
+     "from": [
+      84,
+      323
+     ],
+     "to": [
+      121,
+      323
+     ],
+     "moved": true,
+     "post": {
+      "moves": 13,
+      "goals": "{\"moss\":0,\"type0\":0}",
+      "state": "result.saved"
+     }
+    }
+   ],
+   "resultReached": true,
+   "after": {
+    "state": "result.saved",
+    "stageId": "r06-coast-03",
+    "seed": 2,
+    "moves": 13,
+    "goals": {
+     "moss": 0,
+     "type0": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 18309,
+   "state": "level"
+  },
+  {
+   "i": 41,
+   "op": "wait",
+   "ms": 2501,
+   "state": "level"
+  },
+  {
+   "i": 42,
+   "op": "screenshot",
+   "pn": 1794274521379,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/42-c03-result.jpg",
+   "pnDone": 1794274521442,
+   "ms": 63,
+   "state": "level"
+  },
+  {
+   "i": 43,
+   "op": "boardInfo",
+   "info": {
+    "state": "result.saved",
+    "stageId": "r06-coast-03",
+    "seed": 2,
+    "moves": 13,
+    "goals": {
+     "moss": 0,
+     "type0": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 6,
+   "state": "level"
+  },
+  {
+   "i": 44,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Home",
+     "x": 195,
+     "y": 525.5,
+     "w": 240,
+     "h": 56.00000000000001
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 155,
+   "state": "island"
+  },
+  {
+   "i": 45,
+   "op": "waitState",
+   "matched": true,
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 46,
+   "op": "wait",
+   "ms": 4011,
+   "state": "island"
+  },
+  {
+   "i": 47,
+   "op": "screenshot",
+   "pn": 1794274525619,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/43-c03-island.jpg",
+   "pnDone": 1794274525684,
+   "ms": 65,
+   "state": "island"
+  },
+  {
+   "i": 48,
+   "op": "boardInfo",
+   "info": {
+    "state": null,
+    "stageId": null,
+    "seed": null,
+    "moves": null,
+    "goals": null,
+    "moss": null,
+    "status": null,
+    "popups": null,
+    "gate": null,
+    "result": null,
+    "records": null,
+    "nextStageId": null,
+    "world": {
+     "state": "island",
+     "region": "island"
+    }
+   },
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 49,
+   "op": "preTransition",
+   "ready": true,
+   "pre": {
+    "ok": true,
+    "state": "level",
+    "trigger": "测试包 __qfPreTransition('coast-next')（先跑 coast-dev 建测试存档并通关）",
+    "tap": {
+     "kind": "control",
+     "node": "WorldNavigationCanvas/mainline",
+     "point": null
+    }
+   },
+   "ms": 1123,
+   "state": "level"
+  },
+  {
+   "i": 50,
+   "op": "wait",
+   "ms": 3002,
+   "state": "level"
+  },
+  {
+   "i": 51,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-04",
+    "seed": 2,
+    "moves": 23,
+    "goals": {
+     "roots": 8,
+     "type5": 12
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [
+     "RuleGuidePanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "after": {
+    "state": "run.ready",
+    "stageId": "r06-coast-04",
+    "seed": 2,
+    "moves": 23,
+    "goals": {
+     "roots": 8,
+     "type5": 12
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "dismissLog": [
+    {
+     "dismiss": [
+      "RuleGuidePanel"
+     ],
+     "hits": [
+      {
+       "name": "GotIt",
+       "x": 195,
+       "y": 496.88,
+       "w": 208,
+       "h": 54.07999999999999
+      }
+     ]
+    }
+   ],
+   "ms": 2116,
+   "state": "level"
+  },
+  {
+   "i": 52,
+   "op": "wait",
+   "ms": 1501,
+   "state": "level"
+  },
+  {
+   "i": 53,
+   "op": "boardInfo",
+   "info": {
+    "state": "run.ready",
+    "stageId": "r06-coast-04",
+    "seed": 2,
+    "moves": 23,
+    "goals": {
+     "roots": 8,
+     "type5": 12
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 9,
+   "state": "level"
+  },
+  {
+   "i": 54,
+   "op": "screenshot",
+   "pn": 1794274533445,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/44-c04-board.jpg",
+   "pnDone": 1794274533482,
+   "ms": 37,
+   "state": "level"
+  },
+  {
+   "i": 55,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-04",
+    "seed": 2,
+    "moves": 23,
+    "goals": {
+     "roots": 8,
+     "type5": 12
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "frames": 0,
+   "swaps": [
+    {
+     "pair": [
+      40,
+      41
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 23,
+      "goals": "{\"roots\":8,\"type5\":12}",
+      "moss": 0
+     },
+     "from": [
+      276,
+      494
+     ],
+     "to": [
+      317,
+      494
+     ],
+     "moved": true,
+     "post": {
+      "moves": 22,
+      "goals": "{\"roots\":6,\"type5\":9}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      32,
+      39
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 22,
+      "goals": "{\"roots\":6,\"type5\":9}",
+      "moss": 0
+     },
+     "from": [
+      235,
+      457
+     ],
+     "to": [
+      236,
+      494
+     ],
+     "moved": true,
+     "post": {
+      "moves": 21,
+      "goals": "{\"roots\":4,\"type5\":9}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      22,
+      29
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 21,
+      "goals": "{\"roots\":4,\"type5\":9}",
+      "moss": 0
+     },
+     "from": [
+      117,
+      422
+     ],
+     "to": [
+      115,
+      457
+     ],
+     "moved": true,
+     "post": {
+      "moves": 20,
+      "goals": "{\"roots\":4,\"type5\":5}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      28,
+      29
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 20,
+      "goals": "{\"roots\":4,\"type5\":5}",
+      "moss": 0
+     },
+     "from": [
+      76,
+      457
+     ],
+     "to": [
+      115,
+      457
+     ],
+     "moved": true,
+     "post": {
+      "moves": 19,
+      "goals": "{\"roots\":2,\"type5\":5}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      35,
+      36
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 19,
+      "goals": "{\"roots\":2,\"type5\":5}",
+      "moss": 0
+     },
+     "from": [
+      73,
+      494
+     ],
+     "to": [
+      114,
+      494
+     ],
+     "moved": true,
+     "post": {
+      "moves": 18,
+      "goals": "{\"roots\":0,\"type5\":3}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      12,
+      13
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 18,
+      "goals": "{\"roots\":0,\"type5\":3}",
+      "moss": 0
+     },
+     "from": [
+      270,
+      355
+     ],
+     "to": [
+      308,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 17,
+      "goals": "{\"roots\":0,\"type5\":0}",
+      "state": "result.saved"
+     }
+    }
+   ],
+   "resultReached": true,
+   "after": {
+    "state": "result.saved",
+    "stageId": "r06-coast-04",
+    "seed": 2,
+    "moves": 17,
+    "goals": {
+     "roots": 0,
+     "type5": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 13781,
+   "state": "level"
+  },
+  {
+   "i": 56,
+   "op": "wait",
+   "ms": 2500,
+   "state": "level"
+  },
+  {
+   "i": 57,
+   "op": "screenshot",
+   "pn": 1794274549768,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/45-c04-result.jpg",
+   "pnDone": 1794274549828,
+   "ms": 60,
+   "state": "level"
+  },
+  {
+   "i": 58,
+   "op": "boardInfo",
+   "info": {
+    "state": "result.saved",
+    "stageId": "r06-coast-04",
+    "seed": 2,
+    "moves": 17,
+    "goals": {
+     "roots": 0,
+     "type5": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 6,
+   "state": "level"
+  },
+  {
+   "i": 59,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Home",
+     "x": 195,
+     "y": 525.5,
+     "w": 240,
+     "h": 56.00000000000001
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 149,
+   "state": "island"
+  },
+  {
+   "i": 60,
+   "op": "waitState",
+   "matched": true,
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 61,
+   "op": "wait",
+   "ms": 4004,
+   "state": "island"
+  },
+  {
+   "i": 62,
+   "op": "screenshot",
+   "pn": 1794274553992,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/46-c04-island.jpg",
+   "pnDone": 1794274554050,
+   "ms": 58,
+   "state": "island"
+  },
+  {
+   "i": 63,
+   "op": "boardInfo",
+   "info": {
+    "state": null,
+    "stageId": null,
+    "seed": null,
+    "moves": null,
+    "goals": null,
+    "moss": null,
+    "status": null,
+    "popups": null,
+    "gate": null,
+    "result": null,
+    "records": null,
+    "nextStageId": null,
+    "world": {
+     "state": "island",
+     "region": "island"
+    }
+   },
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 64,
+   "op": "preTransition",
+   "ready": true,
+   "pre": {
+    "ok": true,
+    "state": "level",
+    "trigger": "测试包 __qfPreTransition('coast-next')（先跑 coast-dev 建测试存档并通关）",
+    "tap": {
+     "kind": "control",
+     "node": "WorldNavigationCanvas/mainline",
+     "point": null
+    }
+   },
+   "ms": 1123,
+   "state": "level"
+  },
+  {
+   "i": 65,
+   "op": "wait",
+   "ms": 3008,
+   "state": "level"
+  },
+  {
+   "i": 66,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-05",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "moss": 3,
+     "specials": 1,
+     "type3": 6
+    },
+    "moss": [
+     16,
+     17,
+     23
+    ],
+    "status": "playing",
+    "popups": [
+     "RuleGuidePanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "after": {
+    "state": "run.ready",
+    "stageId": "r06-coast-05",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "moss": 3,
+     "specials": 1,
+     "type3": 6
+    },
+    "moss": [
+     16,
+     17,
+     23
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "dismissLog": [
+    {
+     "dismiss": [
+      "RuleGuidePanel"
+     ],
+     "hits": [
+      {
+       "name": "GotIt",
+       "x": 195,
+       "y": 528.0799999999999,
+       "w": 208,
+       "h": 54.08000000000001
+      }
+     ]
+    }
+   ],
+   "ms": 2126,
+   "state": "level"
+  },
+  {
+   "i": 67,
+   "op": "wait",
+   "ms": 1501,
+   "state": "level"
+  },
+  {
+   "i": 68,
+   "op": "boardInfo",
+   "info": {
+    "state": "run.ready",
+    "stageId": "r06-coast-05",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "moss": 3,
+     "specials": 1,
+     "type3": 6
+    },
+    "moss": [
+     16,
+     17,
+     23
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 5,
+   "state": "level"
+  },
+  {
+   "i": 69,
+   "op": "screenshot",
+   "pn": 1794274561821,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/47-c05-board.jpg",
+   "pnDone": 1794274561865,
+   "ms": 44,
+   "state": "level"
+  },
+  {
+   "i": 70,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-05",
+    "seed": 3,
+    "moves": 24,
+    "goals": {
+     "beacons": 3,
+     "moss": 3,
+     "specials": 1,
+     "type3": 6
+    },
+    "moss": [
+     16,
+     17,
+     23
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "frames": 0,
+   "swaps": [
+    {
+     "pair": [
+      17,
+      24
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 24,
+      "goals": "{\"beacons\":3,\"moss\":3,\"specials\":1,\"type3\":6}",
+      "moss": 3
+     },
+     "from": [
+      195,
+      387
+     ],
+     "to": [
+      195,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 23,
+      "goals": "{\"beacons\":2,\"moss\":0,\"specials\":0,\"type3\":6}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      17,
+      24
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 23,
+      "goals": "{\"beacons\":2,\"moss\":0,\"specials\":0,\"type3\":6}",
+      "moss": 0
+     },
+     "from": [
+      195,
+      387
+     ],
+     "to": [
+      195,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 22,
+      "goals": "{\"beacons\":0,\"moss\":0,\"specials\":0,\"type3\":3}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      1,
+      2
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 22,
+      "goals": "{\"beacons\":0,\"moss\":0,\"specials\":0,\"type3\":3}",
+      "moss": 0
+     },
+     "from": [
+      121,
+      323
+     ],
+     "to": [
+      158,
+      323
+     ],
+     "moved": true,
+     "post": {
+      "moves": 21,
+      "goals": "{\"beacons\":0,\"moss\":0,\"specials\":0,\"type3\":0}",
+      "state": "result.saved"
+     }
+    }
+   ],
+   "resultReached": true,
+   "after": {
+    "state": "result.saved",
+    "stageId": "r06-coast-05",
+    "seed": 3,
+    "moves": 21,
+    "goals": {
+     "beacons": 0,
+     "moss": 0,
+     "specials": 0,
+     "type3": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 4809,
+   "state": "level"
+  },
+  {
+   "i": 71,
+   "op": "wait",
+   "ms": 2510,
+   "state": "level"
+  },
+  {
+   "i": 72,
+   "op": "screenshot",
+   "pn": 1794274569189,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/48-c05-result.jpg",
+   "pnDone": 1794274569244,
+   "ms": 55,
+   "state": "level"
+  },
+  {
+   "i": 73,
+   "op": "boardInfo",
+   "info": {
+    "state": "result.saved",
+    "stageId": "r06-coast-05",
+    "seed": 3,
+    "moves": 21,
+    "goals": {
+     "beacons": 0,
+     "moss": 0,
+     "specials": 0,
+     "type3": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 6,
+   "state": "level"
+  },
+  {
+   "i": 74,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Home",
+     "x": 195,
+     "y": 525.5,
+     "w": 240,
+     "h": 56.00000000000001
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 149,
+   "state": "island"
+  },
+  {
+   "i": 75,
+   "op": "waitState",
+   "matched": true,
+   "ms": 1,
+   "state": "island"
+  },
+  {
+   "i": 76,
+   "op": "wait",
+   "ms": 4008,
+   "state": "island"
+  },
+  {
+   "i": 77,
+   "op": "screenshot",
+   "pn": 1794274573411,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/49-c05-island.jpg",
+   "pnDone": 1794274573482,
+   "ms": 71,
+   "state": "island"
+  },
+  {
+   "i": 78,
+   "op": "boardInfo",
+   "info": {
+    "state": null,
+    "stageId": null,
+    "seed": null,
+    "moves": null,
+    "goals": null,
+    "moss": null,
+    "status": null,
+    "popups": null,
+    "gate": null,
+    "result": null,
+    "records": null,
+    "nextStageId": null,
+    "world": {
+     "state": "island",
+     "region": "island"
+    }
+   },
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 79,
+   "op": "preTransition",
+   "ready": true,
+   "pre": {
+    "ok": true,
+    "state": "level",
+    "trigger": "测试包 __qfPreTransition('coast-next')（先跑 coast-dev 建测试存档并通关）",
+    "tap": {
+     "kind": "control",
+     "node": "WorldNavigationCanvas/mainline",
+     "point": null
+    }
+   },
+   "ms": 1102,
+   "state": "level"
+  },
+  {
+   "i": 80,
+   "op": "wait",
+   "ms": 3002,
+   "state": "level"
+  },
+  {
+   "i": 81,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-06",
+    "seed": 11,
+    "moves": 18,
+    "goals": {
+     "roots": 5,
+     "lines": 1,
+     "type5": 6
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [
+     "RuleGuidePanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "after": {
+    "state": "run.ready",
+    "stageId": "r06-coast-06",
+    "seed": 11,
+    "moves": 18,
+    "goals": {
+     "roots": 5,
+     "lines": 1,
+     "type5": 6
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "dismissLog": [
+    {
+     "dismiss": [
+      "RuleGuidePanel"
+     ],
+     "hits": [
+      {
+       "name": "GotIt",
+       "x": 195,
+       "y": 507.28,
+       "w": 208,
+       "h": 54.07999999999999
+      }
+     ]
+    }
+   ],
+   "ms": 2122,
+   "state": "level"
+  },
+  {
+   "i": 82,
+   "op": "wait",
+   "ms": 1510,
+   "state": "level"
+  },
+  {
+   "i": 83,
+   "op": "boardInfo",
+   "info": {
+    "state": "run.ready",
+    "stageId": "r06-coast-06",
+    "seed": 11,
+    "moves": 18,
+    "goals": {
+     "roots": 5,
+     "lines": 1,
+     "type5": 6
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 9,
+   "state": "level"
+  },
+  {
+   "i": 84,
+   "op": "screenshot",
+   "pn": 1794274581235,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/50-c06-board.jpg",
+   "pnDone": 1794274581293,
+   "ms": 58,
+   "state": "level"
+  },
+  {
+   "i": 85,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-06",
+    "seed": 11,
+    "moves": 18,
+    "goals": {
+     "roots": 5,
+     "lines": 1,
+     "type5": 6
+    },
+    "moss": [],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "frames": 0,
+   "swaps": [
+    {
+     "pair": [
+      7,
+      14
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 18,
+      "goals": "{\"roots\":5,\"lines\":1,\"type5\":6}",
+      "moss": 0
+     },
+     "from": [
+      82,
+      355
+     ],
+     "to": [
+      80,
+      387
+     ],
+     "moved": true,
+     "post": {
+      "moves": 17,
+      "goals": "{\"roots\":3,\"lines\":0,\"type5\":6}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      27,
+      34
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 17,
+      "goals": "{\"roots\":3,\"lines\":0,\"type5\":6}",
+      "moss": 0
+     },
+     "from": [
+      312,
+      422
+     ],
+     "to": [
+      314,
+      457
+     ],
+     "moved": true,
+     "post": {
+      "moves": 16,
+      "goals": "{\"roots\":0,\"lines\":0,\"type5\":3}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      15,
+      16
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 16,
+      "goals": "{\"roots\":0,\"lines\":0,\"type5\":3}",
+      "moss": 0
+     },
+     "from": [
+      118,
+      387
+     ],
+     "to": [
+      157,
+      387
+     ],
+     "moved": true,
+     "post": {
+      "moves": 15,
+      "goals": "{\"roots\":0,\"lines\":0,\"type5\":3}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      18,
+      19
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 15,
+      "goals": "{\"roots\":0,\"lines\":0,\"type5\":3}",
+      "moss": 0
+     },
+     "from": [
+      233,
+      387
+     ],
+     "to": [
+      272,
+      387
+     ],
+     "moved": true,
+     "post": {
+      "moves": 14,
+      "goals": "{\"roots\":0,\"lines\":0,\"type5\":0}",
+      "state": "result.saved"
+     }
+    }
+   ],
+   "resultReached": true,
+   "after": {
+    "state": "result.saved",
+    "stageId": "r06-coast-06",
+    "seed": 11,
+    "moves": 14,
+    "goals": {
+     "roots": 0,
+     "lines": 0,
+     "type5": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 7212,
+   "state": "level"
+  },
+  {
+   "i": 86,
+   "op": "wait",
+   "ms": 2500,
+   "state": "level"
+  },
+  {
+   "i": 87,
+   "op": "screenshot",
+   "pn": 1794274591010,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/51-c06-result.jpg",
+   "pnDone": 1794274591059,
+   "ms": 49,
+   "state": "level"
+  },
+  {
+   "i": 88,
+   "op": "boardInfo",
+   "info": {
+    "state": "result.saved",
+    "stageId": "r06-coast-06",
+    "seed": 11,
+    "moves": 14,
+    "goals": {
+     "roots": 0,
+     "lines": 0,
+     "type5": 0
+    },
+    "moss": [],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 8,
+   "state": "level"
+  },
+  {
+   "i": 89,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Home",
+     "x": 195,
+     "y": 525.5,
+     "w": 240,
+     "h": 56.00000000000001
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 151,
+   "state": "island"
+  },
+  {
+   "i": 90,
+   "op": "waitState",
+   "matched": true,
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 91,
+   "op": "wait",
+   "ms": 4015,
+   "state": "island"
+  },
+  {
+   "i": 92,
+   "op": "screenshot",
+   "pn": 1794274595237,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/52-c06-island.jpg",
+   "pnDone": 1794274595286,
+   "ms": 49,
+   "state": "island"
+  },
+  {
+   "i": 93,
+   "op": "boardInfo",
+   "info": {
+    "state": null,
+    "stageId": null,
+    "seed": null,
+    "moves": null,
+    "goals": null,
+    "moss": null,
+    "status": null,
+    "popups": null,
+    "gate": null,
+    "result": null,
+    "records": null,
+    "nextStageId": null,
+    "world": {
+     "state": "island",
+     "region": "island"
+    }
+   },
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 94,
+   "op": "preTransition",
+   "ready": true,
+   "pre": {
+    "ok": true,
+    "state": "level",
+    "trigger": "测试包 __qfPreTransition('coast-next')（先跑 coast-dev 建测试存档并通关）",
+    "tap": {
+     "kind": "control",
+     "node": "WorldNavigationCanvas/mainline",
+     "point": null
+    }
+   },
+   "ms": 1112,
+   "state": "level"
+  },
+  {
+   "i": 95,
+   "op": "wait",
+   "ms": 3008,
+   "state": "level"
+  },
+  {
+   "i": 96,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-07",
+    "seed": 7,
+    "moves": 24,
+    "goals": {
+     "beacons": 2,
+     "moss": 2,
+     "type5": 6
+    },
+    "moss": [
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27
+    ],
+    "status": "playing",
+    "popups": [
+     "RuleGuidePanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "after": {
+    "state": "run.ready",
+    "stageId": "r06-coast-07",
+    "seed": 7,
+    "moves": 24,
+    "goals": {
+     "beacons": 2,
+     "moss": 2,
+     "type5": 6
+    },
+    "moss": [
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "dismissLog": [
+    {
+     "dismiss": [
+      "RuleGuidePanel"
+     ],
+     "hits": [
+      {
+       "name": "GotIt",
+       "x": 195,
+       "y": 517.6800000000001,
+       "w": 208,
+       "h": 54.07999999999999
+      }
+     ]
+    }
+   ],
+   "ms": 2119,
+   "state": "level"
+  },
+  {
+   "i": 97,
+   "op": "wait",
+   "ms": 1513,
+   "state": "level"
+  },
+  {
+   "i": 98,
+   "op": "boardInfo",
+   "info": {
+    "state": "run.ready",
+    "stageId": "r06-coast-07",
+    "seed": 7,
+    "moves": 24,
+    "goals": {
+     "beacons": 2,
+     "moss": 2,
+     "type5": 6
+    },
+    "moss": [
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 9,
+   "state": "level"
+  },
+  {
+   "i": 99,
+   "op": "screenshot",
+   "pn": 1794274603057,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/53-c07-board.jpg",
+   "pnDone": 1794274603101,
+   "ms": 44,
+   "state": "level"
+  },
+  {
+   "i": 100,
+   "op": "coastSwaps",
+   "before": {
+    "state": "run.ready",
+    "stageId": "r06-coast-07",
+    "seed": 7,
+    "moves": 24,
+    "goals": {
+     "beacons": 2,
+     "moss": 2,
+     "type5": 6
+    },
+    "moss": [
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27
+    ],
+    "status": "playing",
+    "popups": [],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "run.ready"
+    },
+    "result": null,
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "frames": 15,
+   "swaps": [
+    {
+     "pair": [
+      21,
+      22
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 24,
+      "goals": "{\"beacons\":2,\"moss\":2,\"type5\":6}",
+      "moss": 7
+     },
+     "from": [
+      78,
+      422
+     ],
+     "to": [
+      117,
+      422
+     ],
+     "moved": true,
+     "post": {
+      "moves": 23,
+      "goals": "{\"beacons\":1,\"moss\":1,\"type5\":6}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      9,
+      10
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 23,
+      "goals": "{\"beacons\":1,\"moss\":1,\"type5\":6}",
+      "moss": 6
+     },
+     "from": [
+      157,
+      355
+     ],
+     "to": [
+      195,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 22,
+      "goals": "{\"beacons\":0,\"moss\":0,\"type5\":1}",
+      "state": "run.ready"
+     }
+    },
+    {
+     "pair": [
+      1,
+      8
+     ],
+     "ready": true,
+     "pre": {
+      "moves": 22,
+      "goals": "{\"beacons\":0,\"moss\":0,\"type5\":1}",
+      "moss": 1
+     },
+     "from": [
+      121,
+      323
+     ],
+     "to": [
+      120,
+      355
+     ],
+     "moved": true,
+     "post": {
+      "moves": 21,
+      "goals": "{\"beacons\":0,\"moss\":0,\"type5\":0}",
+      "state": "result.saved"
+     }
+    }
+   ],
+   "resultReached": true,
+   "after": {
+    "state": "result.saved",
+    "stageId": "r06-coast-07",
+    "seed": 7,
+    "moves": 21,
+    "goals": {
+     "beacons": 0,
+     "moss": 0,
+     "type5": 0
+    },
+    "moss": [
+     27
+    ],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06",
+     "r06-coast-07"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 5600,
+   "state": "level"
+  },
+  {
+   "i": 101,
+   "op": "wait",
+   "ms": 2508,
+   "state": "level"
+  },
+  {
+   "i": 102,
+   "op": "screenshot",
+   "pn": 1794274611214,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/69-c07-result.jpg",
+   "pnDone": 1794274611262,
+   "ms": 48,
+   "state": "level"
+  },
+  {
+   "i": 103,
+   "op": "boardInfo",
+   "info": {
+    "state": "result.saved",
+    "stageId": "r06-coast-07",
+    "seed": 7,
+    "moves": 21,
+    "goals": {
+     "beacons": 0,
+     "moss": 0,
+     "type5": 0
+    },
+    "moss": [
+     27
+    ],
+    "status": "won",
+    "popups": [
+     "ResultPanel"
+    ],
+    "gate": {
+     "presented": true,
+     "active": true,
+     "state": "result.saved"
+    },
+    "result": {
+     "outcome": "won",
+     "completionRecorded": true,
+     "stars": 3,
+     "firstClear": true
+    },
+    "records": [
+     "r06-coast-01",
+     "r06-coast-02",
+     "r06-coast-03",
+     "r06-coast-04",
+     "r06-coast-05",
+     "r06-coast-06",
+     "r06-coast-07"
+    ],
+    "nextStageId": null,
+    "world": {
+     "state": "level",
+     "region": "island"
+    }
+   },
+   "ms": 6,
+   "state": "level"
+  },
+  {
+   "i": 104,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Home",
+     "x": 195,
+     "y": 525.5,
+     "w": 240,
+     "h": 56.00000000000001
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 161,
+   "state": "island"
+  },
+  {
+   "i": 105,
+   "op": "waitState",
+   "matched": true,
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 106,
+   "op": "wait",
+   "ms": 4024,
+   "state": "island"
+  },
+  {
+   "i": 107,
+   "op": "screenshot",
+   "pn": 1794274615457,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/70-c07-island.jpg",
+   "pnDone": 1794274615525,
+   "ms": 68,
+   "state": "island"
+  },
+  {
+   "i": 108,
+   "op": "boardInfo",
+   "info": {
+    "state": null,
+    "stageId": null,
+    "seed": null,
+    "moves": null,
+    "goals": null,
+    "moss": null,
+    "status": null,
+    "popups": null,
+    "gate": null,
+    "result": null,
+    "records": null,
+    "nextStageId": null,
+    "world": {
+     "state": "island",
+     "region": "island"
+    }
+   },
+   "ms": 0,
+   "state": "island"
+  },
+  {
+   "i": 109,
+   "op": "tapName",
+   "hits": [
+    {
+     "name": "Island-journal",
+     "x": 195,
+     "y": 762.44,
+     "w": 68,
+     "h": 94
+    }
+   ],
+   "ok": true,
+   "listeners": 4,
+   "ms": 105,
+   "state": "island"
+  },
+  {
+   "i": 110,
+   "op": "wait",
+   "ms": 3502,
+   "state": "island"
+  },
+  {
+   "i": 111,
+   "op": "screenshot",
+   "pn": 1794274619136,
+   "file": "http://usr/qf-autoplay/scene-20261109T1920/shots/71-journal.jpg",
+   "pnDone": 1794274619179,
+   "ms": 43,
+   "state": "island"
+  },
+  {
+   "i": 112,
+   "op": "dumpUi",
+   "ui": [
+    "WorldNavigationCanvas/IslandJourneyOverlay",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupShade",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/PanelFrame",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/TitlePlank",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/TitlePlank/Plank",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/TitlePlank/Title",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Close",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Close/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/JourneyTotal",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/JourneyBar",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake/Face/Window",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake/Face/Seal",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake/Face/Count",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake/Face/Go",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Focus-lake/Face/RedDot",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-tide",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-tide/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-tide/Face/Seal",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-tide/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-tide/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-meadow",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-meadow/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-meadow/Face/Seal",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-meadow/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-meadow/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-sky",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-sky/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-sky/Face/Seal",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-sky/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-sky/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-lake",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-lake/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-lake/Face/Seal",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-lake/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-lake/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-lake/Face/RedDot",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-coast",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-coast/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-coast/Face/Seal",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-coast/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-coast/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-snow",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-snow/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-snow/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-snow/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-rail",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-rail/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-rail/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-rail/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-cloud",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-cloud/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-cloud/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-cloud/Face/Status",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-spring",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-spring/Face",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-spring/Face/Name",
+    "WorldNavigationCanvas/IslandJourneyOverlay/IslandPopups/JourneyPanel/PopupPanel/Chapter-spring/Face/Status"
+   ],
+   "ms": 1,
+   "state": "island"
+  },
+  {
+   "i": 113,
+   "op": "wait",
+   "ms": 1001,
+   "state": "island"
+  }
+ ],
+ "startedAt": "2026-11-10T01:33:25.945Z",
+ "design": [
+  390,
+  844
+ ],
+ "window": {
+  "w": 390,
+  "h": 844,
+  "dpr": 3
+ },
+ "listeners": {
+  "TouchStart": 4,
+  "TouchMove": 2,
+  "TouchEnd": 3,
+  "TouchCancel": 2
+ },
+ "finishedAt": "2026-11-10T01:37:00.185Z",
+ "shots": 71,
+ "shotsRequested": 71,
+ "shotsSkipped": 0,
+ "shotsFailed": 0,
+ "shotTimeouts": 0,
+ "shotMaxMs": 105,
+ "screenshotApi": "toTempFilePath-async",
+ "consoleErrors": 0,
+ "consoleErrorSamples": [],
+ "journeyFailures": [],
+ "snapshotErrors": [],
+ "uncaughtErrors": [],
+ "hudSuppressedErrors": [],
+ "gameFailures": 0,
+ "exit": "done",
+ "camStart": {
+  "line": "[QF_CAM] enabled=0 src=none query=?contextName=game&id=2",
+  "enabled": false,
+  "src": "none",
+  "gpu": "off"
+ },
+ "writeStats": {
+  "appendFail": 0,
+  "retries": 0,
+  "concatFallback": 0,
+  "lostBytes": 0,
+  "writes": 480
+ },
+ "camTraceStats": null,
+ "syncStats": null
+}
