@@ -1,0 +1,10 @@
+AssertionError [ERR_ASSERTION]: Required current-scene bundle not declared: region_lakeside
+    at Object.verifyArtifact (/workspace/wechat-game/yiqifengle/tools/cloud-web/lib.cjs:119:72)
+    at runStartupSmoke (/workspace/wechat-game/yiqifengle/tools/cloud-web/smoke.cjs:63:24)
+    at async /workspace/wechat-game/yiqifengle/tools/cloud-web/test.cjs:67:16 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}

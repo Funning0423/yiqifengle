@@ -1,0 +1,1 @@
+PASS cconb requests only target .bin (transient .bin failure retried as .bin)

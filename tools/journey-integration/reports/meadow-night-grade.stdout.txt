@@ -1,0 +1,3 @@
+meadow night grade OK 0.160,0.198,0.282
+meadow ground night grade OK
+meadow prop night grade OK
