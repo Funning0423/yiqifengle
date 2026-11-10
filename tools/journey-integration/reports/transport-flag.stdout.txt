@@ -1,1 +1,1 @@
-{"status":"PASS","bridge04m":34.193,"bridgePathSha":"a740bd505e4493dcaa4e2abbcbecda506e4ab26cffb5186cb6921dc1e0935c47"}
+{"status":"PASS","placementSha":"665b4edd4bd5a02481d343278b535fcbcc4b8abbd4185d8053ae643eca1e322a"}

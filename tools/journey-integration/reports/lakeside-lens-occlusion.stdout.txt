@@ -1,0 +1,1 @@
+{"status":"PASS","gate":"after","before":{"L1":"FAIL","occ":8253,"frames":219811},"after":{"L1":"PASS","L2":"PASS","occ":499,"clear11":0.9744,"armFloor":13588,"step":1.187}}

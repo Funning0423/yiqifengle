@@ -1,0 +1,1 @@
+{"day":{"maxStepDeg":0.0276,"maxDegPerS":6.626,"reversals":0},"night":{"maxStepDeg":0.1104,"maxDegPerS":6.626,"reversals":0}}
