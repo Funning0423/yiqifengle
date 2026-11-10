@@ -1,0 +1,16 @@
+JOURNEY_GAPS [["day_early_320x568",8.5,8.5,8.5,8.5,8.5,8.5],["day_early_360x780",8.5,8.5,8.5,8.5,8.5,8.5],["day_early_375x667",8.5,8.5,8.5,8.5,8.5,8.5],["day_early_390x844",8.5,8.5,8.5,8.5,8.5,8.5],["day_early_393x852",8.5,8.5,8.5,8.5,8.5,8.5],["day_early_414x896",8.5,8.5,8.5,8.5,8.5,8.5],["day_early_430x932",8.5,8.5,8.5,8.5,8.5,8.5],["day_late_320x568",8.5,8.5,8.5,8.5,8.5,8.5],["day_late_360x780",8.5,8.5,8.5,8.5,8.5,8.5],["day_late_375x667",8.5,8.5,8.5,8.5,8.5,8.5],["day_late_390x844",8.5,8.5,8.5,8.5,8.5,8.5],["day_late_393x852",8.5,8.5,8.5,8.5,8.5,8.5],["day_late_414x896",8.5,8.5,8.5,8.5,8.5,8.5],["day_late_430x932",8.5,8.5,8.5,8.5,8.5,8.5],["night_early_320x568",8.5,8.5,8.5,8.5,8.5,8.5],["night_early_360x780",8.5,8.5,8.5,8.5,8.5,8.5],["night_early_375x667",8.5,8.5,8.5,8.5,8.5,8.5],["night_early_390x844",8.5,8.5,8.5,8.5,8.5,8.5],["night_early_393x852",8.5,8.5,8.5,8.5,8.5,8.5],["night_early_414x896",8.5,8.5,8.5,8.5,8.5,8.5],["night_early_430x932",8.5,8.5,8.5,8.5,8.5,8.5],["night_late_320x568",8.5,8.5,8.5,8.5,8.5,8.5],["night_late_360x780",8.5,8.5,8.5,8.5,8.5,8.5],["night_late_375x667",8.5,8.5,8.5,8.5,8.5,8.5],["night_late_390x844",8.5,8.5,8.5,8.5,8.5,8.5],["night_late_393x852",8.5,8.5,8.5,8.5,8.5,8.5],["night_late_414x896",8.5,8.5,8.5,8.5,8.5,8.5],["night_late_430x932",8.5,8.5,8.5,8.5,8.5,8.5]]
+PASS no player-visible 3D/场景 dev wording: 1148 labels on the journal + 126 region pages over 28 combos, plus unlocked 天空之城 page (visit line = 前往天空城)
+PASS locked pages have no text between the content and the grey button; region page of every locked-with-data region: disabled button = cell §13.2 label + 开启, tap enters nothing (84 pages)
+PASS progress bar + grid + focus card ≥8 pt to the paper inner edge (src 202/173 px) aligned on 28 combos (7 screens × day/night × early/late)
+PASS 远方 only without data, never a seal (126 cells); locked-with-data: faint seal + one-line 11 pt §13.2 label, no wrap, ellipsis (84 cells)
+PASS left and right gaps each match their own paper-edge target 8+0.5 pt ±0.6 (grid, card, bar); negative self-test: 1 pt shift each way with both gaps ≥ 8 fails on 56 cases
+{
+  "status": "PASS",
+  "checks": [
+    "no player-visible 3D/场景 dev wording: 1148 labels on the journal + 126 region pages over 28 combos, plus unlocked 天空之城 page (visit line = 前往天空城)",
+    "locked pages have no text between the content and the grey button; region page of every locked-with-data region: disabled button = cell §13.2 label + 开启, tap enters nothing (84 pages)",
+    "progress bar + grid + focus card ≥8 pt to the paper inner edge (src 202/173 px) aligned on 28 combos (7 screens × day/night × early/late)",
+    "远方 only without data, never a seal (126 cells); locked-with-data: faint seal + one-line 11 pt §13.2 label, no wrap, ellipsis (84 cells)",
+    "left and right gaps each match their own paper-edge target 8+0.5 pt ±0.6 (grid, card, bar); negative self-test: 1 pt shift each way with both gaps ≥ 8 fails on 56 cases"
+  ]
+}

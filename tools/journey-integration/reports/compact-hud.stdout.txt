@@ -1,0 +1,4 @@
+ok   320x568: band [131,474], pill y 49–85, goal bar 95–131, tools hit 474–526 (52, step 64), hint 拖动相邻两颗，/三颗一样就消除 w 104; all elements on screen and out of the band
+ok   390x520: band [131,426], pill y 49–85, goal bar 95–131, tools hit 426–478 (52, step 64), hint 拖动相邻两颗，三颗一样就消除 w 188; all elements on screen and out of the band
+ok   truncation (longname 「灯塔下的潮汐小路」→「05 · 灯塔下的潮汐…」), hint 3.70 s visible / 3.97 s total, first pulse 0.12 s registered, night colours; self-checks detected
+compact-hud: PASS

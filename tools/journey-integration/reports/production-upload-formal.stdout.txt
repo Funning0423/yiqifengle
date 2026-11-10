@@ -1,0 +1,1 @@
+PASS production-upload-formal: refuses without FORMAL_RELEASE=1 (unset/0/yes) or with STRIP_PROBES=0 before Creator; FORMAL_RELEASE=1 -> strip-probes --formal, --probe-free + --formal-free in guard and re-check; weakened scripts caught; no unguarded upload script
