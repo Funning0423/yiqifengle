@@ -1,0 +1,41 @@
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index 47f8939..c019e54 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -38,7 +38,7 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
+  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
+ export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
+ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
+- arrivalBlendM:14,arrivalHoldM:3,arrivalLiftM:8,arrivalRiseM:6,arrivalDropM:4,arrivalBackM:10,arrivalSideM:-1,arrivalUpM:3.5,arrivalAim:.45} as const;
++ arrivalBlendM:14,arrivalHoldM:3,arrivalLiftM:8,arrivalRiseM:6,arrivalDropM:4,arrivalBackM:10,arrivalSideM:3,arrivalUpM:3.5,arrivalAim:.45} as const;
+ export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
+  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
+  return l>1e-6?[x/l,z/l]:[0,1];
+@@ -64,11 +64,13 @@ export function followPose(path:readonly Vec[],distance:number,keys?:readonly Le
+ }
+ /** Arrival hero pose for a focused route: behind her on the far side of the line to the focus, pulled back, raised and
+  * offset sideways (clear of the terminus post), aimed horizontally at the focus (plaza centred) and tilted toward her chest by arrivalAim. */
+-export function arrivalPose(path:readonly Vec[],focus:Vec):{position:Vec;target:Vec}{
+- const C=JOURNEY_CAMERA,p=path[path.length-1],fx=focus[0]-p[0],fz=focus[2]-p[2],fl=Math.hypot(fx,fz)||1,u=[fx/fl,fz/fl],n=[-u[1],u[0]];
+- const position:Vec=[p[0]-u[0]*C.arrivalBackM+n[0]*C.arrivalSideM,p[1]+C.arrivalUpM,p[2]-u[1]*C.arrivalBackM+n[1]*C.arrivalSideM];
+- // Horizontally the view points straight at the focus (plaza centred); vertically it tilts from the focus toward her
+- // chest by arrivalAim so she stays in the lower part of the portrait frame.
++export function arrivalPose(path:readonly Vec[],focus:Vec,distance?:number):{position:Vec;target:Vec}{
++ // v3.2 (Mac 764dcd8): on the far side of her from the focus (the portrait frame is only ±11.7° wide, so plaza and her
++ // fit only near that line), offset to the right of that line, low (arrivalUpM) and pulled back so
++ // she is ~1/6 of the frame; yaw straight at the focus (plaza on the vertical midline), pitch at the focus tilted toward her
++ // chest by arrivalAim (0 = plaza at the vertical centre). Never crosses the line to the focus or swings to her left.
++ const C=JOURNEY_CAMERA,T=routeLength(path),d=distance??T,p=sampleRoute(path,d),fx=focus[0]-p[0],fz=focus[2]-p[2],fl=Math.hypot(fx,fz)||1,hx=fx/fl,hz=fz/fl,rx=-hz,rz=hx;
++ const position:Vec=[p[0]-hx*C.arrivalBackM+rx*C.arrivalSideM,p[1]+C.arrivalUpM,p[2]-hz*C.arrivalBackM+rz*C.arrivalSideM];
+  const fx2=focus[0]-position[0],fz2=focus[2]-position[2],fh=Math.hypot(fx2,fz2)||1,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
+  return {position,target:[position[0]+aim[0]*8,position[1]+aim[1]*8,position[2]+aim[2]*8]};
+ }
+@@ -90,7 +92,7 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
+  const blend=smooth(distance/C.blendM);
+  if(blend<1){const o=orbitOffset(rel(start.position,path[0]),offset,blend,C.startTurn);offset=[o[0],o[1]+C.blendLiftM*Math.sin(Math.PI*blend),o[2]];aim=lerp([p[0],p[1]+lensAt(keys,distance).lookM,p[2]],aim,blend);}
+  if(focus){const w=smoother((C.arrivalBlendM-(T-distance))/(C.arrivalBlendM-C.arrivalHoldM));
+-  if(w>0){const e=arrivalPose(path,focus),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
++  if(w>0){const e=arrivalPose(path,focus,distance),end=p,eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
+    const o=orbitOffset(offset,eo,w,0);const left=T-distance,lift=C.arrivalLiftM*smooth((C.arrivalBlendM-left)/C.arrivalRiseM)*smooth(left/C.arrivalDropM);offset=[o[0],o[1]+lift,o[2]];aim=lerp(aim,at([eo[0]+ed[0]*r,eo[1]+ed[1]*r,eo[2]+ed[2]*r]),w);}}
+  const position=at(offset);let dir=unit(rel(aim,position));
+  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
