@@ -1,0 +1,137 @@
+{
+ "status": "PASS",
+ "report": {
+  "previewCaptionShipped": 0,
+  "pad": {
+   "390x844:Next": {
+    "left": 16,
+    "right": 160,
+    "bottom": 16
+   },
+   "390x844:Home": {
+    "left": 160,
+    "right": 16,
+    "bottom": 16
+   },
+   "375x667:Next": {
+    "left": 16.05,
+    "right": 152.45,
+    "bottom": 16
+   },
+   "375x667:Home": {
+    "left": 152.55,
+    "right": 15.95,
+    "bottom": 16
+   },
+   "320x568:Next": {
+    "left": 16,
+    "right": 133,
+    "bottom": 16
+   },
+   "320x568:Home": {
+    "left": 133,
+    "right": 16,
+    "bottom": 16
+   }
+  },
+  "390x844": {
+   "chest": {
+    "w": 180,
+    "h": 147,
+    "halo": 220,
+    "hit": 220,
+    "centre": {
+     "x": 195,
+     "y": 478
+    }
+   },
+   "next": {
+    "x": 123,
+    "y": 710.5,
+    "w": 128,
+    "h": 56
+   },
+   "home": {
+    "x": 267,
+    "y": 710.5,
+    "w": 128,
+    "h": 56
+   },
+   "sideMargin": 59,
+   "gap": 16,
+   "bottomToSafe": 71.5,
+   "float": {
+    "x": 195,
+    "y": 349.9,
+    "icon": 68
+   }
+  },
+  "390x844:chestVisualCentre": 485,
+  "375x667": {
+   "chest": {
+    "w": 120,
+    "h": 98,
+    "halo": 160,
+    "hit": 160,
+    "centre": {
+     "x": 187.5,
+     "y": 380.5
+    }
+   },
+   "next": {
+    "x": 119.3,
+    "y": 525.5,
+    "w": 120.5,
+    "h": 52
+   },
+   "home": {
+    "x": 255.8,
+    "y": 525.5,
+    "w": 120.5,
+    "h": 52
+   },
+   "sideMargin": 59,
+   "gap": 16,
+   "bottomToSafe": 81.5,
+   "float": {
+    "x": 187.5,
+    "y": 301.9,
+    "icon": 56
+   }
+  },
+  "375x667:chestVisualCentre": 387.5,
+  "320x568": {
+   "chest": {
+    "w": 111,
+    "h": 90.65,
+    "halo": 148,
+    "hit": 148,
+    "centre": {
+     "x": 160,
+     "y": 339
+    }
+   },
+   "next": {
+    "x": 101.5,
+    "y": 451,
+    "w": 101,
+    "h": 52
+   },
+   "home": {
+    "x": 218.5,
+    "y": 451,
+    "w": 101,
+    "h": 52
+   },
+   "sideMargin": 51,
+   "gap": 16,
+   "bottomToSafe": 57,
+   "float": {
+    "x": 160,
+    "y": 293.4,
+    "icon": 56
+   }
+  },
+  "320x568:chestVisualCentre": 345.5
+ }
+}
