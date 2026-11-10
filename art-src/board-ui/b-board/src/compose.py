@@ -7,8 +7,8 @@ W,H=750,1624; S=W/390.0           # px per logical pt (390x844 design)
 FB='/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
 def font(px,idx=2): return ImageFont.truetype(FB,int(px),index=idx)
 BROWN=(99,63,33); CREAM=(248,242,226)
-# 空道具位「+」：禁用态仍用灰青，但压暗到 #607c72，WCAG 对奶白角标 4.06（白天）/ 3.44（夜间乘 #b8bfd6 后），旧 #78968c 只有 2.87 / 2.58
-PLUS_DIM=(96,124,114)
+# 空道具位「+」：禁用态灰青。r6-fix v2 压到 #56706a（夜间乘 #b8bfd6 后给 4.5 留余量），笔画 +1px@750。旧 #78968c 只有 2.87 / 2.58
+PLUS_DIM=(86,112,106)
 def L(n): return Image.open(os.path.join(RAW,n+'.png')).convert('RGBA')
 def scaled(im,f): return im.resize((max(1,round(im.width*f)),max(1,round(im.height*f))),Image.LANCZOS)
 def paste_c(dst,im,cx,cy): dst.alpha_composite(im,(round(cx-im.width/2),round(cy-im.height/2)))
@@ -133,7 +133,10 @@ def badge(img,x,y,n,dim=False):
     d.ellipse((x-r+1,y-r+3,x+r+1,y+r+3),fill=(60,40,20,70))
     d.ellipse((x-r,y-r,x+r,y+r),fill=(248,242,226),outline=(149,103,55),width=3)
     f=font(26); t=str(n) if not dim else '+'
-    w=d.textlength(t,font=f); d.text((x-w/2,y-19),t,font=f,fill=(99,63,33) if not dim else PLUS_DIM)
+    w=d.textlength(t,font=f)
+    if not dim: d.text((x-w/2,y-19),t,font=f,fill=(99,63,33))
+    else:   # 「+」笔画在 750 宽下加粗 1px：横竖各偏 1px 再画一遍
+        for ox,oy in ((0,0),(1,0),(0,1),(1,1)): d.text((x-w/2+ox-0.5,y-19+oy-0.5),t,font=f,fill=PLUS_DIM)
 def tools(img,state):
     names=[('tool_starlight',2),('tool_windbell',1),('tool_tidebottle',0)]
     sc=(60*S)/(192/1.25)

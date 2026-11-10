@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-22T01:10:24.758Z",
-  "sourceRoot": "/workspace/yiqifengle/work/cine-r5-b15-handover",
+  "timeUTC": "2026-10-22T16:34:02.829Z",
+  "sourceRoot": "/workspace/wechat-game/work/r6-lakeside-fix",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
     {

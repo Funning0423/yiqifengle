@@ -1,0 +1,18 @@
+Error: Cannot find module '/tmp/draco3d/node_modules/draco3d/draco3d.js'
+Require stack:
+- /workspace/wechat-game/work/r6-lakeside-fix/tools/region-nodes/test_lens_clearance.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at require (node:internal/modules/helpers:182:18)
+    at /workspace/wechat-game/work/r6-lakeside-fix/tools/region-nodes/test_lens_clearance.cjs:63:14
+    at Object.<anonymous> (/workspace/wechat-game/work/r6-lakeside-fix/tools/region-nodes/test_lens_clearance.cjs:114:3)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/workspace/wechat-game/work/r6-lakeside-fix/tools/region-nodes/test_lens_clearance.cjs'
+  ]
+}
