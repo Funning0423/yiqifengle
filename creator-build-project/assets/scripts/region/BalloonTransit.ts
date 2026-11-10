@@ -634,6 +634,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    let b1Drawn=0,b1Bd=0,b1FirstDraw=-1;const b1BeforeDraw=()=>{b1Bd=Date.now();},b1AfterDraw=()=>{if(!b1Drawn++)b1FirstDraw=Date.now()-b1Bd;};
    if(contChain){const w0=plan.vehicle(0);vehicle.setWorldPosition(w0.pos[0],w0.pos[1],w0.pos[2]);const qq=balloonQuat(w0.yaw*180/Math.PI,w0.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
     if(flame)flame.active=false;applyInflate();{if(meadow)(meadow as any).__qfYardTaken=true;const yd=meadow?.getChildByName(YARD_BALLOON.name);if(yd){(yd as any).__qfYardTaken=true;yd.active=false;}}/* yard stand-in → ride vehicle, same pose, same sync block */director.on(Director.EVENT_BEFORE_DRAW,b1BeforeDraw);director.on(Director.EVENT_AFTER_DRAW,b1AfterDraw);}
+   paint(0)/* clip19: place/hide the transit clouds before the pre-walk (were at the origin); = B1 t=0 state, no pop */;
    if(contChain&&girl&&isValid(girl,true)){
     // B1 (transitions-continuous): she walks from the last meadow stop to the basket door, the door opens (door_reach), she
     // steps in to stand_point and the door closes behind her. Basket at its t=0 pose; lens = the ride's first pose (handoff blend).
@@ -678,14 +679,14 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const cam0=plan.camera(0),oB:Vec=[v0.pos[0],v0.pos[1],v0.pos[2]],doorB1=basketToWorld(oB,vYawDeg(),TRANSITION_STAGING.basket.doorOut);
     let spotB1:{position:Vec}|null=null;try{spotB1=basketCloseSpot(doorB1,oB,[...transitionOccluderBoxes() as any,...(meadow&&isValid(meadow,true)?meadowLensBoxesWorld(l=>worldOf(meadow,l)):[])]/* full8: + meadow windmill / trees from the node */,undefined,[cam0]);}catch{spotB1=null;}gapPh('closeSpot');
     const b1Dist=spotB1?Math.hypot(spotB1.position[0]-cam0.position[0],spotB1.position[1]-cam0.position[1],spotB1.position[2]-cam0.position[2]):0/* full8 ours: ≤ B1_LENS_MPS pacing */;
-    const b1Blend=Math.min(BASKET_CLOSE.blendS,TRANSITION_DURATIONS.seg3.sitDown*.9);let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
-    const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return inAt<1e9?blendPose(close,cam0,minJerk((b1-inAt)/b1Blend)):close;};
+    let b1In=b1InS(TRANSITION_DURATIONS.seg3.toBasket)/* reset to the real walk time below */;
+    const b1Lens=():Pose=>{if(!spotB1||!girl||!isValid(girl,true))return cam0;const g=girl.worldPosition,close=blendPose(b1Hold??cam0,basketClosePose(spotB1.position,[g.x,g.y,g.z]),minJerk(b1/b1In));return close;};
     // full8 P1-a: the B1 lens gets the same 1.1 m clearance (occupancy grid + sails sweep + walk floor) as the pre-walk (m2: terrain t 141.3 / 147.8)
     const b1Inv=new Mat4();if(meadow&&isValid(meadow,true))Mat4.invert(b1Inv,meadow.worldMatrix);const b1Y0=meadow&&isValid(meadow,true)?meadow.worldPosition.y:0,b1Clr:LensClearState={pull:0};
     const b1Solid=meadow&&isValid(meadow,true)?meadowLensSolid(w=>{const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);return [v.x,v.y,v.z];}):undefined,b1Boxes=meadow&&isValid(meadow,true)?sailSweepBoxesWorld(l=>worldOf(meadow,l)) as any:[];gapPh('lensSolid');
     const b1Ground=(w:Vec):number|null=>{if(!b1Solid)return null;const v=new Vec3(w[0],w[1],w[2]);Vec3.transformMat4(v,v,b1Inv);const f=walkFloorY('meadow',v.x,v.z);return f===null?null:f+b1Y0;};
     let b1=0,inAt=1e9,b1On=true,b1Hold:Pose|null=null;const b1Draw=()=>{if(dead||!b1On)return;
-     if(!b1Drawn){gapPh('firstDraw-wait');b1Hold=b1Hold||liveWorldPose();if(b1Hold){camTag('BalloonTransit:B1-hold');world.setCamera(b1Hold);}return;}/* hold the real previous frame, single writer (before-draw) */const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
+     if(!b1Drawn){gapPh('firstDraw-wait');b1Hold=b1Hold||liveWorldPose();if(b1Hold){camTag('BalloonTransit:B1-hold');world.setCamera(b1Hold);}return;}/* hold the real previous frame, single writer (before-draw) */b1Hold=b1Hold||liveWorldPose();const b1dt=Math.min(.1,Math.max(0,director.getDeltaTime()));b1+=b1dt;camTag('BalloonTransit:B1');{const b1p=b1Solid?lensClearStep(b1Lens(),b1Boxes,b1dt,b1Clr,undefined,b1Ground,b1Solid):b1Lens();gapPh('b1LensCalc');world.setCamera(b1p);gapEnd('b1-first-write');}if(camLog.on&&girl&&isValid(girl,true)){const gp=girl.worldPosition;camActorProbe(gp.x,gp.y,gp.z,true,'B1');camActorPose('B1',gp,isValid(vehicle,true)?vehicle.worldPosition:null,v0.pos);}paint(0);if(flame)flame.active=false;
      if(inflateT<INFLATE.durationS&&envHome){if(!inflateMarked){inflateMarked=true;chainMark('balloon','B2-ignite-inflate');}inflateT=Math.min(INFLATE.durationS,inflateT+Math.min(.1,Math.max(0,director.getDeltaTime())));applyInflate();}
      if(door&&isValid(door,true))door.setRotationFromEuler(0,doorInAngleAt(Math.max(0,b1-doorAt),inAt-doorAt),0);};
     let doorAt=1e9;director.on(Director.EVENT_BEFORE_DRAW,b1Draw);gapPh('b1Register');
@@ -715,6 +716,9 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const cues:Array<[number,string]>=Object.entries(json.cues).map(([name,t])=>[t,name]).sort((a,b)=>a[0]-b[0]);
    let dcWorst=0,dcAt=0,frames=0,lastFade=-1;
    let flightFrom:Pose|null|undefined=undefined,flightBlendS=0;
+   let land:any=contChain?undefined:null;
+   const landPose=(f:Pose,tau:number):any=>{if(!land||!girl||!isValid(girl,true))return null;const g=girl.worldPosition,P=f.position,h=[g.x,g.y+BASKET_CLOSE.lookUpM,g.z],d=P.map((v,i)=>f.target[i]-v),r=Math.hypot(h[0]-P[0],h[1]-P[1],h[2]-P[2])/Math.hypot(d[0],d[1],d[2]),e=minJerk(tau/land.T),q=(x,y,u)=>x.map((v,i)=>v+(y[i]-v)*u),v=f.fovVerticalDeg??48;
+    return {position:q(P,land.spot.position,e),target:q(d.map((x,i)=>P[i]+x*r),h,minJerk(tau/1.2)),fovVerticalDeg:v+(BASKET_CLOSE.fovDeg-v)*e};};
    const apply=(writeCam=true)=>{
     const t=Math.max(0,Math.min(plan.total,rideToFlightT(clock.t)));/* transitions: 30 s ride clock → 36 s flight file */
     const sample=plan.vehicle(t);
@@ -723,7 +727,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     const fs=(view as any)?.getFrameSize?.(),plan0=plan.camera(t,fs?{w:fs.width,h:fs.height}:undefined)/* b19: seam framing is aspect-aware */;
     // full8 P1-a: the flight starts from the LIVE lens (B1 close-up / lens-cleared pose), not a step onto plan.camera(0) (m2: 1.72 m in one 77 ms frame)
     if(flightFrom===undefined){flightFrom=liveWorldPose();const g=flightFrom?Math.hypot(flightFrom.position[0]-plan0.position[0],flightFrom.position[1]-plan0.position[1],flightFrom.position[2]-plan0.position[2]):0;flightBlendS=flightBlendSeconds(g);}
-    const pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
+    let pose=flightFrom&&clock.t<flightBlendS?blendPose(flightFrom,plan0,minJerk(clock.t/flightBlendS)):plan0;
+    if(land===undefined&&clock.t>=RIDE_DURATION-2&&girl&&isValid(girl,true)){const e=plan.vehicle(plan.total),o=e.pos as Vec,end=plan.camera(plan.total);let sp=null;
+     try{sp=basketCloseSpot(basketToWorld(o,e.yaw*180/Math.PI,TRANSITION_STAGING.basket.doorOutB),o,transitionOccluderBoxes() as any,undefined,[end]);}catch{}
+     land=sp&&{c0:clock.t,spot:sp,T:Math.max(5,RIDE_DURATION-clock.t+speedSafeS(end.position,sp.position,BASKET_CLOSE.blendOutS))};}
+    if(land){const p=landPose(plan0,clock.t-land.c0);if(p)pose=p;}
+    if(writeCam){camTag('BalloonTransit:flight');world.setCamera(pose);}
     const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
     paint(t);
@@ -768,7 +777,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
     // panning with her down the step to S0; the ride ends on it (RegionJourneyCore keeps a ride's last lens; D hands it to the board).
     const camEnd=plan.camera(plan.total),doorOutW=basketToWorld(o,y,TRANSITION_STAGING.basket.doorOutB);let spotB5:{position:Vec}|null=null;
     try{spotB5=basketCloseSpot(doorOutW,o,transitionOccluderBoxes() as any,undefined,[camEnd]);}catch{spotB5=null;}let b5Cam=0;
-    const b5Lens=():Pose|null=>{if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
+    const b5Lens=():Pose|null=>{if(land)return landPose(camEnd,RIDE_DURATION-land.c0+b5Cam);if(!spotB5||!girl||!isValid(girl,true))return null;const g=girl.worldPosition;return blendPose(camEnd,basketClosePose(spotB5.position,[g.x,g.y,g.z]),minJerk(b5Cam/(spotB5?speedSafeS(camEnd.position,spotB5.position,BASKET_CLOSE.blendOutS):BASKET_CLOSE.blendOutS))/* full8: ≤11 m/s */);};
     let b5=0,b5On=true;const b5Draw=()=>{if(dead||!b5On)return;const dd=Math.min(.1,Math.max(0,director.getDeltaTime()));b5+=dd;b5Cam+=dd;{const p=b5Lens();if(p){camTag('BalloonTransit:B5');world.setCamera(p);}}if(doorB&&isValid(doorB,true))doorB.setRotationFromEuler(0,doorAngleAt(b5),0);};
     director.on(Director.EVENT_BEFORE_DRAW,b5Draw);
     try{
