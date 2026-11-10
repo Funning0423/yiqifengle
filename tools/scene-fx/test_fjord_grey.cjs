@@ -1,4 +1,4 @@
-// 峡湾极光栈道 blockout: subpackage budget, quantized meshes, a flat pier under the 7×7, and cliffs, water and aurora in frame.
+// 峡湾极光栈道: subpackage budget, vertex colours, a flat pier under the 7×7, cliffs, water and aurora in frame.
 'use strict';
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '../..');
@@ -13,15 +13,14 @@ check('subpackage-budget<=943718', bytes <= 943718, bytes);
 const loaded = loadGlb(F), j = loaded.json;
 check('glb-v2', fs.readFileSync(F).readUInt32LE(0) === 0x46546c67 && fs.readFileSync(F).readUInt32LE(4) === 2);
 let tris = 0; for (const m of j.meshes) for (const p of m.primitives) tris += j.accessors[p.indices].count / 3;
-check('triangle-budget-near-hotspring', tris <= 1000 && tris >= 400, tris);
-check('one-palette-material', j.materials.length === 1 && j.materials[0].name === 'M_FJ_palette', j.materials.map(m => m.name));
-check('palette-image-16', (j.images || []).length === 1 && j.images[0].name === 'T_FJ_palette_16');
-check('nearest-sampler', j.samplers && j.samplers[0].magFilter === 9728 && j.samplers[0].minFilter === 9728);
-check('quantized', Array.isArray(j.extensionsRequired) && j.extensionsRequired.indexOf('KHR_mesh_quantization') >= 0);
+check('triangle-budget<=2500', tris <= 2500 && tris >= 800, tris);
+check('vertex-colours-no-texture', !(j.images || []).length && j.materials.some(m => m.name === 'M_FJ_vertex') && j.meshes.every(m => m.primitives.every(p => j.accessors[p.attributes.COLOR_0].type === 'VEC4')));
+const auroraMat = j.materials.find(m => m.name === 'M_FJ_unlit');
+check('aurora-unlit-blend', !!(auroraMat && auroraMat.alphaMode === 'BLEND' && auroraMat.extensions && auroraMat.extensions.KHR_materials_unlit));
 const names = j.nodes.map(n => n.name);
-for (const n of ['env_fjord', 'FJ_platform', 'FJ_water', 'FJ_cliffs', 'FJ_cabins', 'FJ_aurora']) check('node ' + n, names.indexOf(n) >= 0);
-check('platform-stays-float32', j.nodes.filter(n => n.name === 'FJ_platform').every(n => !n.matrix) && j.nodes.filter(n => n.name !== 'env_fjord' && n.name !== 'FJ_platform' && n.mesh !== undefined).every(n => Array.isArray(n.matrix)));
-check('no-animations-no-skins', !j.animations && !j.skins);
+for (const n of ['env_fjord', 'FJ_platform', 'FJ_water', 'FJ_cliffs', 'FJ_cabins', 'FJ_aurora', 'FJ_mountains']) check('node ' + n, names.indexOf(n) >= 0);
+check('platform-stays-float32', j.nodes.filter(n => n.name === 'FJ_platform').every(n => !n.matrix));
+check('aurora-sway', Array.isArray(j.animations) && j.animations.some(a => a.name === 'aurora_sway'));
 const board = fjordBoardBounds(), y = FJORD_PLATFORM.y;
 const eps = 1e-4;
 let top = 0, crossed = 0, above = 0;
@@ -34,6 +33,7 @@ for (const mesh of loaded.meshes) {
     const min = [0, 1, 2].map(k => Math.min(t[0][k], t[1][k], t[2][k]));
     const max = [0, 1, 2].map(k => Math.max(t[0][k], t[1][k], t[2][k]));
     if (mesh.name === 'FJ_platform' && Math.abs(min[1] - y) < eps && Math.abs(max[1] - y) < eps) top++;
+    if (['FJ_sky', 'FJ_stars', 'FJ_aurora', 'FJ_fog', 'FJ_mountains'].includes(mesh.name)) continue;
     const overlap = max[0] > board.min[0] + eps && min[0] < board.max[0] - eps && max[2] > board.min[2] + eps && min[2] < board.max[2] - eps;
     if (!overlap) continue;
     if (max[1] > y + eps) above++;

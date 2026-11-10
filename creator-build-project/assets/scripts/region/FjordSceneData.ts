@@ -49,14 +49,14 @@ export function fjordBoardOnPlatform(): boolean {
   return b.min[0] > s.minX && b.max[0] < s.maxX && b.min[2] > s.minZ && b.max[2] < s.maxZ
     && b.min[1] === s.y && b.max[1] === s.y && fjordBoardGap() === 0;
 }
-/** The board camera looks along the pier toward the cliffs. Water stays in the lower frame and the aurora in the upper frame. */
+/** Mild overhead along the pier: the 7×7 fills the lower frame, water and houses sit in the middle, cliffs and aurora close the top. */
 export function fjordBoardLook(aspect: number): { position: [number, number, number]; target: [number, number, number]; fovVerticalDeg: number } {
   const c = fjordBoardBounds().center, ref = 720 / 1280, a = Number.isFinite(aspect) && aspect > 0 ? aspect : ref;
-  let fov = 52;
-  if (a < ref) fov = 2 * Math.atan(Math.tan(52 * Math.PI / 360) * ref / a) * 180 / Math.PI;
+  let fov = 58;
+  if (a < ref) fov = 2 * Math.atan(Math.tan(58 * Math.PI / 360) * ref / a) * 180 / Math.PI;
   return {
-    position: [c[0] + 0.15, c[1] + 7.6, c[2] + 11.6],
-    target: [c[0], c[1] + 1.55, c[2] - 2.4],
+    position: [c[0] + 0.15, c[1] + 6.6, c[2] + 9.4],
+    target: [c[0] - 0.05, c[1] + 1.35, c[2] - 8.2],
     fovVerticalDeg: +Math.min(75, fov).toFixed(3),
   };
 }

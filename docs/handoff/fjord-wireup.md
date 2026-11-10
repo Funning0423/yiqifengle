@@ -10,9 +10,11 @@
 
 导入时请确认：
 
-- 扩展 `KHR_mesh_quantization` 被接受。栈道平台 `FJ_platform` 仍是 float32，顶面 y 必须仍是 1.25。其余网格是 uint16 位置（节点缩放还原）、int8 法线、uint16 UV。
+- 网格是顶点色，没有贴图。`COLOR_0` 是归一化的 `UNSIGNED_BYTE` `VEC4`。`M_FJ_vertex` 是不受金属度影响的漫反射；极光、夜空、星星、雾、水面、瀑布、灯笼和窗光用 `M_FJ_unlit`（`KHR_materials_unlit`，`alphaMode: BLEND`），光照不会改它们的颜色。
+- 没有 `KHR_mesh_quantization`。平台 `FJ_platform` 顶面 y 必须仍是 1.25，棋盘网格画在同一平面上，间隙 0。
+- 节点 `FJ_aurora` 上有一条很轻的位移动画 `aurora_sway`。
 - 不要让 Creator 重写气球的几何、画面或 `region_transit_balloon` 的 meta。这次没有改气球。
-- 导入后如果要开运行时 mesh 压缩，只动 `env_fjord.glb.meta` 的 `meshCompress`，并先在 Mac 上看过画面。量化会把位置收成半精度，平台顶面要再对一下 y。
+- 导入后如果要开运行时 mesh 压缩，只动 `env_fjord.glb.meta` 的 `meshCompress`，并先在 Mac 上看过画面。压缩会把位置收成半精度，平台顶面要再对一下 y。
 
 ## 灯标
 

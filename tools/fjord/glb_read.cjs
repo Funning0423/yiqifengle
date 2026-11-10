@@ -4,8 +4,8 @@ const fs = require('node:fs');
 function accessor(j, bin, index) {
   const a = j.accessors[index], v = j.bufferViews[a.bufferView];
   const start = (v.byteOffset || 0) + (a.byteOffset || 0);
-  const n = a.type === 'VEC3' ? 3 : a.type === 'VEC2' ? 2 : 1;
-  const stride = a.componentType === 5126 ? 4 : a.componentType === 5120 || a.componentType === 5121 ? 1 : 2;
+  const n = a.type === 'VEC4' ? 4 : a.type === 'VEC3' ? 3 : a.type === 'VEC2' ? 2 : 1;
+  const stride = a.componentType === 5126 ? 4 : a.componentType === 5123 || a.componentType === 5122 ? 2 : 1;
   const out = [];
   for (let i = 0; i < a.count; i++) {
     const p = [];
@@ -44,15 +44,16 @@ function loadGlb(file) {
   for (const node of j.nodes) {
     if (node.mesh === undefined) continue;
     for (const prim of j.meshes[node.mesh].primitives) {
+      const mat = j.materials[prim.material || 0] || {};
       meshes.push({
         name: node.name,
         pos: applyMatrix(node, accessor(j, bin, prim.attributes.POSITION)),
-        uv: accessor(j, bin, prim.attributes.TEXCOORD_0),
+        col: prim.attributes.COLOR_0 !== undefined ? accessor(j, bin, prim.attributes.COLOR_0) : null,
         idx: accessor(j, bin, prim.indices),
+        unlit: !!(mat.extensions && mat.extensions.KHR_materials_unlit),
       });
     }
   }
-  const img = j.images[0], view = j.bufferViews[img.bufferView];
-  return { json: j, bin, meshes, pngBuf: bin.slice(view.byteOffset, view.byteOffset + view.byteLength), bytes: b.length };
+  return { json: j, bin, meshes, bytes: b.length };
 }
 module.exports = { loadGlb, accessor };
