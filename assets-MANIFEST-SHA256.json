@@ -525,6 +525,11 @@
     "sha256": "6053b3be8090c9985c3bd5b2fc0f77d67236283285dfed242c98ee863a528ee3"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_harbor/models/env_harbor.glb",
+    "bytes": 208324,
+    "sha256": "c62f74cb26879f2876d5a1f8855f152cccee0c4ee791afe9f7a560b2a4ad90f0"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_hotspring/models/env_hotspring.glb",
     "bytes": 67112,
     "sha256": "36cae15792756098a143b15bf8dc140e11cb9c55802d8a5a7bd9fbebce73958a"

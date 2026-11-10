@@ -1,0 +1,20 @@
+{
+  "ver": "1.2.0",
+  "importer": "directory",
+  "imported": true,
+  "uuid": "7bcbfdd5-1b1c-4fdc-a8c6-1d4462ab5b64",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "isBundle": true,
+    "bundleConfigID": "wx_subpackage",
+    "bundleName": "region_harbor",
+    "priority": 1,
+    "compressionType": {
+      "wechatgame": "subpackage"
+    },
+    "isRemoteBundle": {
+      "wechatgame": false
+    }
+  }
+}

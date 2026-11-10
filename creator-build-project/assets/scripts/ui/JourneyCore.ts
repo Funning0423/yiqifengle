@@ -1,6 +1,6 @@
 /** Journey book / chapter page / ending seals logic (UI设计部 new-regions SPEC v1.1 e05a034e, approved). Pure: no 'cc'.
  *  Progress counts stages (not regions); the denominator is Σ stages of the regions that have level data, never fixed. */
-export type RegionKey = 'tide' | 'meadow' | 'sky' | 'lake' | 'coast' | 'snow' | 'rail' | 'cloud' | 'spring' | 'fjord' | 'oasis';
+export type RegionKey = 'tide' | 'meadow' | 'sky' | 'lake' | 'coast' | 'snow' | 'rail' | 'cloud' | 'spring' | 'fjord' | 'oasis' | 'harbor';
 export type RowState = 'done' | 'progress' | 'open' | 'locked' | 'far';
 /** SPEC §13.2: `requires` = all must hold; 'main:N' = mainline N has ≥1 star, a region id = that region fully cleared.
  *  `label` = the ≤5-char condition shown on a known-locked cell. */
@@ -19,6 +19,7 @@ export const REGION_DEFS: ReadonlyArray<RegionDef> = [
   { id: 'spring', name: '温泉谷', short: '温泉谷', description: '踩着石阶，去温泉边听风铃。', stages: 8, color: [0x6F, 0xB8, 0xA8], provider: 'r5', unlock: { requires: ['rail', 'cloud'], label: '铁路云海后' } },
   { id: 'fjord', name: '峡湾极光栈道', short: '峡湾栈道', description: '沿着木栈道，去峡湾上看极光。', stages: 8, color: [0x3A, 0xB8, 0xC4], provider: 'r5', unlock: { requires: ['spring'], label: '温泉谷后' } },
   { id: 'oasis', name: '沙漠绿洲庭院', short: '绿洲庭院', description: '走进沙砖庭院，听椰枣下的风铃。', stages: 8, color: [0xD2, 0x86, 0x48], provider: 'r5', unlock: { requires: ['fjord'], label: '峡湾后' } },
+  { id: 'harbor', name: '白阶海港台地', short: '海港台地', description: '沿着白阶，去蓝顶海港听风铃。', stages: 8, color: [0x2E, 0x6F, 0xC4], provider: 'r5', unlock: { requires: ['oasis'], label: '绿洲后' } },
 ];
 /** Same journey record as the provider (progress-journal LAKE_GATE_RECORD / COAST_GATE_RECORD = 11): mainline 12 ≥1 star. */
 export const LAKE_GATE_RECORD = 11, COAST_GATE_RECORD = 11;

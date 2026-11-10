@@ -42,6 +42,11 @@ export function requiresOasisScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r11-oasis-\d+$/.test(id);
 }
 
+/** 白阶海港台地 (r12-harbor-*) renders the live region_harbor scene. The board is painted into the limestone terrace. */
+export function requiresHarborScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r12-harbor-\d+$/.test(id);
+}
+
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }

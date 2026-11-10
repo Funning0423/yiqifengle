@@ -18,6 +18,7 @@ function qaSyncScope<T>(reason:string,f:()=>T):T{const g:any=globalThis,prev=g._
 import { warmJourneyUi } from '../ui/JourneyUi';
 import { setLastRegion } from '../ui/UiPrefs';
 import seedOasisUnlock from './oasis-unlock-seed.js';
+import seedHarborUnlock from './harbor-unlock-seed.js';
 import { PRE_SPECS, PRE_UNSUPPORTED, preSpec, preTransitionEnabled, preTransitionKey, canvasLocalToScreen, type PreSpec, type PreTap } from './PreTransitionKeys';
 type R={ok:boolean;reason?:string;[k:string]:any};
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
@@ -123,6 +124,13 @@ export class PreTransitionRunner{
      catch(e){return {ok:false,reason:'oasis-seed: '+String((e as Error).message||e)};}
      finally{g.__qfSyncAllow=prev;}
      return await this.openPanel('oasis',['ChapterPanel','Continue-oasis']);
+    }
+    if(spec.key==='unlock-harbor'){
+     const g:any=globalThis,prev=g.__qfSyncAllow;g.__qfSyncAllow='pre-transition-harbor-seed';
+     try{seedHarborUnlock((this.d.composition as any).testProfile,{allowQa:true});}
+     catch(e){return {ok:false,reason:'harbor-seed: '+String((e as Error).message||e)};}
+     finally{g.__qfSyncAllow=prev;}
+     return await this.openPanel('harbor',['ChapterPanel','Continue-harbor']);
     }
     /*QF_PROBE_BEGIN*/if(spec.justWon){try{qaSyncScope('pre-transition-just-won',()=>finishPausedMainlineWin((this.d.composition as any).testProfile,prof?.lastAction,{allowQa:true}));}catch(e){return {ok:false,reason:'just-won: '+String((e as Error).message||e)};}}
     if(spec.skyChallenges!=null||spec.skyPage){try{if(spec.skyChallenges!=null)qaSyncScope('pre-transition-sky-seed',()=>seedSkyChallengeWins((this.d.composition as any).testProfile,spec.skyChallenges,{allowQa:true}));}catch(e){return {ok:false,reason:'sky-seed: '+String((e as Error).message||e)};}if(spec.focusSky){setLastRegion('sky');/* what entering 天空之城 from its page writes: focusRegion() prefers the last played region */return await this.openPanel('journal',['JourneyPanel','Focus-sky']);}return await this.openPanel('sky',['ChapterPanel','Continue-sky']);}/*QF_PROBE_END*/
