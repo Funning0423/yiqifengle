@@ -1,0 +1,2 @@
+{"opened":true,"F1":{"writers":["region.node-lens","region.node-lens:orbit+entry"],"bgOnAt0_1":false,"ok":true},"F2":{"firstDevM":0,"maxStepM":0.289,"ok":true},"F3":{"entryDoneS":2.8,"lensShiftXM":0.664,"aimShiftXM":1.177,"ok":true},"F4":{"bgOn":true,"ok":true},"G1":{"otherOn":true,"ok":true},"G2":{"bgOnWhileHeld":false,"restoredOnExit":true,"ok":true},"G3":{"held":true,"bgOnAfterExit":false,"ok":true,"ownerShowsAgain":true},"G4":{"held":true,"bgOnAfterExit":false,"otherOn":true,"ok":true}}
+explore-entry-follow: ok

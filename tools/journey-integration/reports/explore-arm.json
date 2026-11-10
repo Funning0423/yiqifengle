@@ -40,11 +40,11 @@
   {
    "id": "A1/A2 first drag",
    "region": "skycity",
-   "minArmM": 12,
+   "minArmM": 11.99,
    "settledArmM": 12,
-   "maxLensMS": 17.3,
+   "maxLensMS": 9.1,
    "orbitDist": 12,
-   "firstDragGlideS": 3,
+   "firstDragGlideS": 5.74,
    "ok": true
   },
   {
