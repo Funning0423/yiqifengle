@@ -1,6 +1,6 @@
 {
  "status": "FAIL",
- "timeUTC": "2026-10-25T07:22:05.692Z",
+ "timeUTC": "2026-10-25T15:30:24.362Z",
  "limits": {
   "omegaDegS": 20,
   "alphaDegS2": 120,
@@ -128,44 +128,41 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -288,44 +285,41 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -448,44 +442,41 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -608,44 +599,41 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -768,44 +756,41 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -928,44 +913,41 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1088,44 +1070,41 @@
    ],
    "C3": "n/a",
    "seamRelative": null,
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 11.3601,
+     "viewDeg": 35.6282,
+     "fovDeg": 5
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
@@ -1143,20 +1122,20 @@
     {
      "t0": 5.8,
      "t1": 11.4,
-     "omega": 18.492,
+     "omega": 18.28,
      "omegaAt": 7.433,
-     "alpha": 28.236,
+     "alpha": 27.863,
      "alphaAt": 6.8,
-     "acc": 9.975,
+     "acc": 9.857,
      "accAt": 6.7,
      "jumps": []
     },
     {
      "t0": 11.4,
      "t1": 27,
-     "omega": 26.541,
+     "omega": 26.528,
      "omegaAt": 21.083,
-     "alpha": 51.308,
+     "alpha": 51.171,
      "alphaAt": 20.2,
      "acc": 19.842,
      "accAt": 26.7,
@@ -1173,22 +1152,22 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 42.692,
-    "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 21.868
+    "maxOmegaDegS": 42.705,
+    "maxAlphaDegS2": 158.038,
+    "maxAccMS2": 21.937
    },
    "segments": [
     {
      "t0": 0,
      "t1": 11.4,
-     "omega": 42.692,
+     "omega": 42.705,
      "omegaAt": 4.1,
      "omegaPhase": "B-c",
-     "alpha": 253.886,
-     "alphaAt": 3.6,
+     "alpha": 158.038,
+     "alphaAt": 4.433,
      "alphaPhase": "B-c",
-     "acc": 21.868,
-     "accAt": 4.8,
+     "acc": 21.937,
+     "accAt": 3.5,
      "accPhase": "B-c",
      "fovRate": 0,
      "jumps": 0
@@ -1196,10 +1175,10 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 26.542,
+     "omega": 26.53,
      "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 51.589,
+     "alpha": 51.45,
      "alphaAt": 20.2,
      "alphaPhase": "B-d",
      "acc": 19.932,
@@ -1214,52 +1193,49 @@
    "C3": "PASS",
    "seamRelative": {
     "posM": 0.0007,
-    "viewDeg": 0.0011,
+    "viewDeg": 0.0018,
     "fovDeg": 0
    },
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
+     "fovDeg": 3
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 77.8614,
-     "viewDeg": 70.8865,
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
      "fovDeg": 3
     }
    }
@@ -1272,20 +1248,20 @@
     {
      "t0": 5.8,
      "t1": 11.4,
-     "omega": 18.492,
+     "omega": 18.28,
      "omegaAt": 7.433,
-     "alpha": 28.236,
+     "alpha": 27.863,
      "alphaAt": 6.8,
-     "acc": 9.975,
+     "acc": 9.857,
      "accAt": 6.7,
      "jumps": []
     },
     {
      "t0": 11.4,
      "t1": 27,
-     "omega": 26.541,
+     "omega": 26.528,
      "omegaAt": 21.083,
-     "alpha": 51.308,
+     "alpha": 51.171,
      "alphaAt": 20.2,
      "acc": 19.842,
      "accAt": 26.7,
@@ -1302,22 +1278,22 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 42.692,
-    "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 21.868
+    "maxOmegaDegS": 42.705,
+    "maxAlphaDegS2": 158.038,
+    "maxAccMS2": 21.937
    },
    "segments": [
     {
      "t0": 0,
      "t1": 11.4,
-     "omega": 42.692,
+     "omega": 42.705,
      "omegaAt": 4.1,
      "omegaPhase": "B-c",
-     "alpha": 253.886,
-     "alphaAt": 3.6,
+     "alpha": 158.038,
+     "alphaAt": 4.433,
      "alphaPhase": "B-c",
-     "acc": 21.868,
-     "accAt": 4.8,
+     "acc": 21.937,
+     "accAt": 3.5,
      "accPhase": "B-c",
      "fovRate": 0,
      "jumps": 0
@@ -1325,10 +1301,10 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 26.542,
+     "omega": 26.53,
      "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 51.589,
+     "alpha": 51.45,
      "alphaAt": 20.2,
      "alphaPhase": "B-d",
      "acc": 19.932,
@@ -1343,52 +1319,49 @@
    "C3": "PASS",
    "seamRelative": {
     "posM": 0.0007,
-    "viewDeg": 0.0011,
+    "viewDeg": 0.0018,
     "fovDeg": 0
    },
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
+     "fovDeg": 3
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 77.8614,
-     "viewDeg": 70.8865,
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
      "fovDeg": 3
     }
    }
@@ -1401,20 +1374,20 @@
     {
      "t0": 5.8,
      "t1": 11.4,
-     "omega": 18.492,
+     "omega": 18.28,
      "omegaAt": 7.433,
-     "alpha": 28.236,
+     "alpha": 27.863,
      "alphaAt": 6.8,
-     "acc": 9.975,
+     "acc": 9.857,
      "accAt": 6.7,
      "jumps": []
     },
     {
      "t0": 11.4,
      "t1": 27,
-     "omega": 26.541,
+     "omega": 26.528,
      "omegaAt": 21.083,
-     "alpha": 51.308,
+     "alpha": 51.171,
      "alphaAt": 20.2,
      "acc": 19.842,
      "accAt": 26.7,
@@ -1431,22 +1404,22 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 42.692,
-    "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 21.868
+    "maxOmegaDegS": 42.705,
+    "maxAlphaDegS2": 158.038,
+    "maxAccMS2": 21.937
    },
    "segments": [
     {
      "t0": 0,
      "t1": 11.4,
-     "omega": 42.692,
+     "omega": 42.705,
      "omegaAt": 4.1,
      "omegaPhase": "B-c",
-     "alpha": 253.886,
-     "alphaAt": 3.6,
+     "alpha": 158.038,
+     "alphaAt": 4.433,
      "alphaPhase": "B-c",
-     "acc": 21.868,
-     "accAt": 4.8,
+     "acc": 21.937,
+     "accAt": 3.5,
      "accPhase": "B-c",
      "fovRate": 0,
      "jumps": 0
@@ -1454,10 +1427,10 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 26.542,
+     "omega": 26.53,
      "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 51.589,
+     "alpha": 51.45,
      "alphaAt": 20.2,
      "alphaPhase": "B-d",
      "acc": 19.932,
@@ -1472,52 +1445,49 @@
    "C3": "PASS",
    "seamRelative": {
     "posM": 0.0007,
-    "viewDeg": 0.0011,
+    "viewDeg": 0.0018,
     "fovDeg": 0
    },
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
+     "fovDeg": 3
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 77.8614,
-     "viewDeg": 70.8865,
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
      "fovDeg": 3
     }
    }
@@ -1530,20 +1500,20 @@
     {
      "t0": 5.8,
      "t1": 11.4,
-     "omega": 18.492,
+     "omega": 18.28,
      "omegaAt": 7.433,
-     "alpha": 28.236,
+     "alpha": 27.863,
      "alphaAt": 6.8,
-     "acc": 9.975,
+     "acc": 9.857,
      "accAt": 6.7,
      "jumps": []
     },
     {
      "t0": 11.4,
      "t1": 27,
-     "omega": 26.541,
+     "omega": 26.528,
      "omegaAt": 21.083,
-     "alpha": 51.308,
+     "alpha": 51.171,
      "alphaAt": 20.2,
      "acc": 19.842,
      "accAt": 26.7,
@@ -1560,22 +1530,22 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 42.692,
-    "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 21.868
+    "maxOmegaDegS": 42.705,
+    "maxAlphaDegS2": 158.038,
+    "maxAccMS2": 21.937
    },
    "segments": [
     {
      "t0": 0,
      "t1": 11.4,
-     "omega": 42.692,
+     "omega": 42.705,
      "omegaAt": 4.1,
      "omegaPhase": "B-c",
-     "alpha": 253.886,
-     "alphaAt": 3.6,
+     "alpha": 158.038,
+     "alphaAt": 4.433,
      "alphaPhase": "B-c",
-     "acc": 21.868,
-     "accAt": 4.8,
+     "acc": 21.937,
+     "accAt": 3.5,
      "accPhase": "B-c",
      "fovRate": 0,
      "jumps": 0
@@ -1583,10 +1553,10 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 26.542,
+     "omega": 26.53,
      "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 51.589,
+     "alpha": 51.45,
      "alphaAt": 20.2,
      "alphaPhase": "B-d",
      "acc": 19.932,
@@ -1601,52 +1571,49 @@
    "C3": "PASS",
    "seamRelative": {
     "posM": 0.0007,
-    "viewDeg": 0.0011,
+    "viewDeg": 0.0018,
     "fovDeg": 0
    },
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
+     "fovDeg": 3
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 77.8614,
-     "viewDeg": 70.8865,
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
      "fovDeg": 3
     }
    }
@@ -1659,20 +1626,20 @@
     {
      "t0": 5.8,
      "t1": 11.4,
-     "omega": 18.492,
+     "omega": 18.28,
      "omegaAt": 7.433,
-     "alpha": 28.236,
+     "alpha": 27.863,
      "alphaAt": 6.8,
-     "acc": 9.975,
+     "acc": 9.857,
      "accAt": 6.7,
      "jumps": []
     },
     {
      "t0": 11.4,
      "t1": 27,
-     "omega": 26.541,
+     "omega": 26.528,
      "omegaAt": 21.083,
-     "alpha": 51.308,
+     "alpha": 51.171,
      "alphaAt": 20.2,
      "acc": 19.842,
      "accAt": 26.7,
@@ -1689,22 +1656,22 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 42.692,
-    "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 21.868
+    "maxOmegaDegS": 42.705,
+    "maxAlphaDegS2": 158.038,
+    "maxAccMS2": 21.937
    },
    "segments": [
     {
      "t0": 0,
      "t1": 11.4,
-     "omega": 42.692,
+     "omega": 42.705,
      "omegaAt": 4.1,
      "omegaPhase": "B-c",
-     "alpha": 253.886,
-     "alphaAt": 3.6,
+     "alpha": 158.038,
+     "alphaAt": 4.433,
      "alphaPhase": "B-c",
-     "acc": 21.868,
-     "accAt": 4.8,
+     "acc": 21.937,
+     "accAt": 3.5,
      "accPhase": "B-c",
      "fovRate": 0,
      "jumps": 0
@@ -1712,10 +1679,10 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 26.542,
+     "omega": 26.53,
      "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 51.589,
+     "alpha": 51.45,
      "alphaAt": 20.2,
      "alphaPhase": "B-d",
      "acc": 19.932,
@@ -1730,52 +1697,49 @@
    "C3": "PASS",
    "seamRelative": {
     "posM": 0.0007,
-    "viewDeg": 0.0011,
+    "viewDeg": 0.0018,
     "fovDeg": 0
    },
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
+     "fovDeg": 3
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 77.8614,
-     "viewDeg": 70.8865,
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
      "fovDeg": 3
     }
    }
@@ -1788,20 +1752,20 @@
     {
      "t0": 5.8,
      "t1": 11.4,
-     "omega": 18.492,
+     "omega": 18.28,
      "omegaAt": 7.433,
-     "alpha": 28.236,
+     "alpha": 27.863,
      "alphaAt": 6.8,
-     "acc": 9.975,
+     "acc": 9.857,
      "accAt": 6.7,
      "jumps": []
     },
     {
      "t0": 11.4,
      "t1": 27,
-     "omega": 26.541,
+     "omega": 26.528,
      "omegaAt": 21.083,
-     "alpha": 51.308,
+     "alpha": 51.171,
      "alphaAt": 20.2,
      "acc": 19.842,
      "accAt": 26.7,
@@ -1818,22 +1782,22 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 42.692,
-    "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 21.868
+    "maxOmegaDegS": 42.705,
+    "maxAlphaDegS2": 158.038,
+    "maxAccMS2": 21.937
    },
    "segments": [
     {
      "t0": 0,
      "t1": 11.4,
-     "omega": 42.692,
+     "omega": 42.705,
      "omegaAt": 4.1,
      "omegaPhase": "B-c",
-     "alpha": 253.886,
-     "alphaAt": 3.6,
+     "alpha": 158.038,
+     "alphaAt": 4.433,
      "alphaPhase": "B-c",
-     "acc": 21.868,
-     "accAt": 4.8,
+     "acc": 21.937,
+     "accAt": 3.5,
      "accPhase": "B-c",
      "fovRate": 0,
      "jumps": 0
@@ -1841,10 +1805,10 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 26.542,
+     "omega": 26.53,
      "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 51.589,
+     "alpha": 51.45,
      "alphaAt": 20.2,
      "alphaPhase": "B-d",
      "acc": 19.932,
@@ -1859,52 +1823,49 @@
    "C3": "PASS",
    "seamRelative": {
     "posM": 0.0007,
-    "viewDeg": 0.0011,
+    "viewDeg": 0.0018,
     "fovDeg": 0
    },
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
+     "fovDeg": 3
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 77.8614,
-     "viewDeg": 70.8865,
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
      "fovDeg": 3
     }
    }
@@ -1917,20 +1878,20 @@
     {
      "t0": 5.8,
      "t1": 11.4,
-     "omega": 18.492,
+     "omega": 18.28,
      "omegaAt": 7.433,
-     "alpha": 28.236,
+     "alpha": 27.863,
      "alphaAt": 6.8,
-     "acc": 9.975,
+     "acc": 9.857,
      "accAt": 6.7,
      "jumps": []
     },
     {
      "t0": 11.4,
      "t1": 27,
-     "omega": 26.541,
+     "omega": 26.528,
      "omegaAt": 21.083,
-     "alpha": 51.308,
+     "alpha": 51.171,
      "alphaAt": 20.2,
      "acc": 19.842,
      "accAt": 26.7,
@@ -1947,22 +1908,22 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 42.692,
-    "maxAlphaDegS2": 253.886,
-    "maxAccMS2": 21.868
+    "maxOmegaDegS": 42.705,
+    "maxAlphaDegS2": 158.038,
+    "maxAccMS2": 21.937
    },
    "segments": [
     {
      "t0": 0,
      "t1": 11.4,
-     "omega": 42.692,
+     "omega": 42.705,
      "omegaAt": 4.1,
      "omegaPhase": "B-c",
-     "alpha": 253.886,
-     "alphaAt": 3.6,
+     "alpha": 158.038,
+     "alphaAt": 4.433,
      "alphaPhase": "B-c",
-     "acc": 21.868,
-     "accAt": 4.8,
+     "acc": 21.937,
+     "accAt": 3.5,
      "accPhase": "B-c",
      "fovRate": 0,
      "jumps": 0
@@ -1970,10 +1931,10 @@
     {
      "t0": 11.4,
      "t1": 36,
-     "omega": 26.542,
+     "omega": 26.53,
      "omegaAt": 21.083,
      "omegaPhase": "B-d",
-     "alpha": 51.589,
+     "alpha": 51.45,
      "alphaAt": 20.2,
      "alphaPhase": "B-d",
      "acc": 19.932,
@@ -1988,52 +1949,49 @@
    "C3": "PASS",
    "seamRelative": {
     "posM": 0.0007,
-    "viewDeg": 0.0011,
+    "viewDeg": 0.0018,
     "fovDeg": 0
    },
-   "C4": "PASS",
+   "C4": "FAIL",
    "start": {
     "name": "live lens → black → ride camera(0) → fade in (real RegionJourneyController)",
-    "ok": true,
+    "ok": false,
     "camWritesBeforeWalk": 0,
-    "firstWriteAlpha": 1,
+    "firstWriteAlpha": 0,
     "firstWriteVsRide0": {
-     "posM": 0,
-     "viewDeg": 0,
-     "fovDeg": 0
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
+     "fovDeg": 3
     },
     "switchFrame": {
-     "showAlpha": 1,
-     "nextCover": {
-      "a": 1,
-      "from": 1
-     },
-     "fadeInFrom": 1,
+     "showAlpha": 0,
+     "nextCover": null,
+     "fadeInFrom": null,
      "onFrameBeforeSwitch": 0
     },
-    "switchOk": true,
+    "switchOk": false,
     "sequence": [
-     "cover:1",
-     "camera@1",
      "show",
-     "cover:1",
-     "cover:0",
+     "camera@0",
      "ride",
-     "camera@1",
+     "camera@0",
      "onFrame",
-     "camera@1",
+     "camera@0",
+     "onFrame",
+     "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
      "onFrame",
      "camera@0",
-     "onFrame"
+     "onFrame",
+     "camera@0"
     ],
     "productionWired": true,
     "liveToRide0Hidden": {
-     "posM": 77.8614,
-     "viewDeg": 70.8865,
+     "posM": 74.7678,
+     "viewDeg": 69.1612,
      "fovDeg": 3
     }
    }
@@ -2054,13 +2012,13 @@
     "visibleJumps": 0,
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.736
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2074,18 +2032,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 18.618,
-     "omegaAt": 37.512,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 13.25,
+     "omegaAt": 29.895,
      "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.736,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.637,
+     "fovRate": 1.447,
      "jumps": 0
     }
    ],
@@ -2117,7 +2075,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2137,13 +2095,13 @@
     "visibleJumps": 0,
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.736
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2157,18 +2115,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 18.618,
-     "omegaAt": 37.512,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 13.25,
+     "omegaAt": 29.895,
      "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.736,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.638,
+     "fovRate": 1.447,
      "jumps": 0
     }
    ],
@@ -2200,7 +2158,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2220,13 +2178,13 @@
     "visibleJumps": 0,
     "firstJumps": [],
     "maxOmegaDegS": 19.174,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.736
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2240,18 +2198,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 18.618,
-     "omegaAt": 37.512,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 13.25,
+     "omegaAt": 29.895,
      "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.736,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 1.652,
+     "fovRate": 1.447,
      "jumps": 0
     }
    ],
@@ -2283,7 +2241,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2302,14 +2260,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.339,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.729
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.596
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2323,18 +2281,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.339,
-     "omegaAt": 37.395,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 11.944,
+     "omegaAt": 14.712,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.729,
-     "accAt": 22.745,
+     "acc": 2.596,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2366,7 +2324,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2385,14 +2343,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.482,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.664
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.596
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2406,18 +2364,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.482,
-     "omegaAt": 37.478,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 11.944,
+     "omegaAt": 14.712,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.664,
-     "accAt": 22.745,
+     "acc": 2.596,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2449,7 +2407,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2468,14 +2426,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.262,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.727
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.499
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2489,18 +2447,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.262,
-     "omegaAt": 37.395,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 10.717,
+     "omegaAt": 14.628,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.727,
-     "accAt": 22.745,
+     "acc": 2.499,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2532,7 +2490,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   },
@@ -2551,14 +2509,14 @@
    "C1detail": {
     "visibleJumps": 0,
     "firstJumps": [],
-    "maxOmegaDegS": 19.339,
-    "maxAlphaDegS2": 48.745,
-    "maxAccMS2": 2.729
+    "maxOmegaDegS": 19.174,
+    "maxAlphaDegS2": 37.142,
+    "maxAccMS2": 2.499
    },
    "segments": [
     {
      "t0": 0,
-     "t1": 9.295,
+     "t1": 9.095,
      "omega": 19.174,
      "omegaAt": 6.167,
      "omegaPhase": "walk-to-basket",
@@ -2572,18 +2530,18 @@
      "jumps": 0
     },
     {
-     "t0": 9.295,
-     "t1": 42.756,
-     "omega": 19.339,
-     "omegaAt": 37.395,
-     "omegaPhase": "door→board blend",
-     "alpha": 48.745,
-     "alphaAt": 12.312,
+     "t0": 9.095,
+     "t1": 34.128,
+     "omega": 10.643,
+     "omegaAt": 14.628,
+     "omegaPhase": "flight",
+     "alpha": 37.142,
+     "alphaAt": 9.278,
      "alphaPhase": "flight",
-     "acc": 2.729,
-     "accAt": 22.745,
+     "acc": 2.499,
+     "accAt": 13.278,
      "accPhase": "flight",
-     "fovRate": 0.634,
+     "fovRate": 1.671,
      "jumps": 0
     }
    ],
@@ -2615,7 +2573,7 @@
      "fovDeg": 0
     },
     "underBlack": false,
-    "cutAtS": 9.295,
+    "cutAtS": 9.095,
     "cutUnderBlack": true
    }
   }
@@ -2636,12 +2594,8 @@
   },
   {
    "id": "BG1 sail + balloon meadow→skycity background, day+night × 7 screens (tools/transitions/test_frame_background.cjs)",
-   "status": "PASS",
-   "tail": [
-    "{\"status\":\"PASS\",\"frames\":3346,\"worst\":{\"score\":0.15794189566061914,\"frame\":211,\"screen\":\"390x844\",\"night\":false,\"why\":\"tightest-clearance\",\"rec\":{\"frame\":211,\"t\":21.1,\"screen\":\"390x844\",\"night\":false,\"clearM\":6.331,\"nearHit\":false,\"back\":0,\"void\":0,\"domes\":0,\"horizonGap\":0,\"dc\":14,\"tris\":246,\"who\":\"meadow_terrain\"}},\"baseline\":{\"04-05\":125000,\"08-09\":160000}}",
-    "frame-background PASS follow 56 map 126",
-    "{\"frames\":5054,\"worst\":null,\"minClear\":12.37,\"minClearCam\":11.08,\"build05S\":36,\"accel\":2.45,\"climb\":24,\"bridgeStrata\":-9.63,\"seamLeak\":0,\"seamCamErr\":0.000789,\"farHits\":72592,\"handoffFade\":1,\"handoffT\":35.9,\"sunkBalloon\":0,\"meadowOff\":11.2,\"cityOn\":11.6,\"seam\":11.4}"
-   ]
+   "status": "FAIL",
+   "error": "test_frame_background failed: {\"status\":\"PASS\",\"frames\":3346,\"worst\":{\"score\":0.15794189566061914,\"frame\":211,\"screen\":\"390x844\",\"night\":false,\"why\":\"tightest-clearance\",\"rec\":{\"frame\":211,\"t\":21.1,\"screen\":\"390x844\",\"night\":false,\"clearM\":6.331,\"nearHit\":false,\"back\":0,\"void\":0,\"domes\":0,\"horizonGap\":0,\"dc\":14,\"tris\":246,\"who\":\"meadow_terrain\"}},\"baseline\":{\"04-05\":125000,\"08-09\":160000}}\nframe-background PASS follow 56 map 126\n:0,\"sunk\":0,\"backs\":[\"wind_bell_00:0.16\",\"wind_bell_01:0.91\",\"wind_bell_02:0.98\"]}\n    at balloonFrames (/workspace/wt-mlf/tools/transitions/test_frame_background.cjs:353:12)\n    at Object.<anonymous> (/workspace/wt-mlf/tools/transitions/test_frame_background.cjs:382:1)\n    at Module._compile (node:internal/modules/cjs/loader:1529:14)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)\n    at Module.load (node:internal/modules/cjs/loader:1275:32)\n    at Module._load (node:internal/modules/cjs/loader:1096:12)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)\n    at node:internal/main/run_main_module:28:49 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '=='\n}\n\nNode.js v20.19.2\n"
   },
   {
    "id": "BG2 lakeside leg: no below-horizon ray misses all geometry (hole to the clear colour), 7 screens, every 0.1 s",
@@ -2649,7 +2603,7 @@
    "screens": [
     {
      "screen": "390x844",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2659,7 +2613,7 @@
     },
     {
      "screen": "414x896",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2669,7 +2623,7 @@
     },
     {
      "screen": "360x780",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2679,7 +2633,7 @@
     },
     {
      "screen": "375x667",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2689,7 +2643,7 @@
     },
     {
      "screen": "320x568",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2699,7 +2653,7 @@
     },
     {
      "screen": "390x520",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
@@ -2709,7 +2663,7 @@
     },
     {
      "screen": "768x1024",
-     "frames": 425,
+     "frames": 342,
      "holeFrames": 0,
      "maxHoleRays": 0,
      "ofRays": 1566,
