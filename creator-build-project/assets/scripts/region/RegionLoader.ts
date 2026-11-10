@@ -38,6 +38,8 @@ export const REGIONS:Record<string,RegionDef>={
   spring:{bundle:'region_hotspring',prefabName:'env_hotspring'},
   // Fjord aurora boardwalk. Prefab name is the glTF file; Creator fills prefabUuid on import.
   fjord:{bundle:'region_fjord',prefabName:'env_fjord'},
+  // Desert oasis courtyard. Prefab name is the glTF file; Creator fills prefabUuid on import.
+  oasis:{bundle:'region_oasis',prefabName:'env_oasis'},
 };
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 const cloudseaPrefabs=new WeakMap<Prefab,Prefab>();

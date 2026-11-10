@@ -49,24 +49,24 @@ const RAIL=mk('rail',6),CLOUD=mk('cloud',8),SPRING=mk('spring',8),ALL=[...SHIPPE
 }
 { // ending seals (§13.5)
   const g={d:36,sp:44,gap:40};
-  const s=J.endingSeals(g,[]);assert.equal(s.length,10);assert.deepEqual(s.slice(0,5).map(x=>x.x),[-88,-44,0,44,88]);assert.deepEqual(s.slice(5).map(x=>x.x),[-88,-44,0,44,88]);
-  assert.equal(s[0].dy,4);assert.equal(s[2].dy,0);assert.equal(s[5].dy,40+4);assert.deepEqual(s.map(x=>x.earned),[true,true,true,true,false,false,false,false,false,false]);
+  const s=J.endingSeals(g,[]);assert.equal(s.length,J.REGION_DEFS.length);assert.deepEqual(s.slice(0,6).map(x=>x.x),[-110,-66,-22,22,66,110]);assert.deepEqual(s.slice(6).map(x=>x.x),[-88,-44,0,44,88]);
+  assert.equal(s[0].dy,6.25);assert.equal(s[2].dy,0.25);assert.equal(s[6].dy,40+4);assert.deepEqual(s.map(x=>x.earned),[true,true,true,true,false,false,false,false,false,false,false]);
   assert(J.endingSeals(g,['coast'])[4].earned);
   for(const [w,h] of [[320,568],[360,640],[375,667],[390,844],[414,896],[430,932],[768,1024]]){const k=E.endingLayoutChecks(w,h,0),L=E.endingLayout(w,h);assert(k.sealsFit&&L.girl.y1-L.girl.y0>=48-1e-6,w+'x'+h);assert(k.headBelowSeals&&k.girlClear,w+'x'+h+' '+JSON.stringify(k));}
   const src=fs.readFileSync(BUNDLE_FILE,'utf8');assert(/Shadow/.test(src)&&/44, 28, 14/.test(src),'soft per-seal shadow');assert(!/SealPlate|SealsBand|blur/i.test(src.replace(/~2\.2 pt blur/,'')),'no backing plate');
-  ok('ending: 10 seals, two rows 5+5 at Ø36/44/40 base geometry, soft shadow per seal, no plate');
+  ok('ending: 11 seals, two rows 6+5 at Ø36/44/40 base geometry, soft shadow per seal, no plate');
   // UI设计部 r3 cascade (c+b): ① margin 8 ② gap 6 ③ 2 rows Ø32/30/28 ④ 1 row (gap .25d, d=min(28,floor((W−40)/11))) ⑤ H<700 clearance 10 ⑥ shrink (≥48)
   const ORDER=['none','margin','gap','d32','d30','d28','row1','clear10','shrink'],S=E.ENDING_SEALS;
   assert.equal(S.headGap,6,'head gap 6 pt is the r3 spec value');assert.equal(S.minGirl,48,'48 pt minimum unchanged');
-  assert.equal(E.endingSingleRowD(320),22);assert.equal(E.endingSingleRowD(360),26);assert.equal(E.endingSingleRowD(430),28);
+  assert.equal(E.endingSingleRowD(320),20);assert.equal(E.endingSingleRowD(360),23);assert.equal(E.endingSingleRowD(430),28);
   const SIZES=[[320,568],[360,780],[375,667],[390,844],[393,852],[414,896],[430,932]],table=[];
   for(const [w,h] of SIZES){const L=E.endingLayout(w,h),k=E.endingLayoutChecks(w,h,0),G=L.seals,gh=L.girl.y1-L.girl.y0,st=L.cascade;
     assert(ORDER.includes(st),st);if(st==='clear10')assert(h<700,'clearance 10 only when H<700');assert.equal(G.clear,h<700&&ORDER.indexOf(st)>=7?10:15,w+'x'+h+' clearance');
     // cascade order: every earlier step must NOT fit the girl at full size (stop at the first that does)
     {const tr=L.cascadeTried,exp=ORDER.filter(x=>x!=='shrink'&&(x!=='clear10'||h<700));assert.deepEqual(tr,st==='shrink'?exp:exp.slice(0,exp.indexOf(st)+1),w+'x'+h+' tried in order ①→⑤ and stopped at the first fit');}
     if(st==='shrink')assert(gh<L.girlNative-1e-6);else assert(Math.abs(gh-L.girlNative)<1e-6,w+'x'+h+' full size once a step fits');
-    if(G.rows===1){const d=E.endingSingleRowD(w);assert.equal(G.d,d);assert(Math.abs(G.sp-1.25*d)<1e-9);assert(9*G.sp+d<=w-40+1e-6,'20 pt side margins');
-      const ss=J.endingSeals(G,[]);assert.deepEqual(ss.map(x=>x.dy),Array(10).fill(0));assert(Math.abs(ss[0].x+ss[9].x)<1e-9,'centred');for(let i=1;i<10;i++)assert(ss[i].x>ss[i-1].x,'left→right');}
+    if(G.rows===1){const d=E.endingSingleRowD(w),n=J.REGION_DEFS.length;assert.equal(G.d,d);assert(Math.abs(G.sp-1.25*d)<1e-9);assert((n-1)*G.sp+d<=w-40+1e-6,'20 pt side margins');
+      const ss=J.endingSeals(G,[]);assert.deepEqual(ss.map(x=>x.dy),Array(n).fill(0));assert(Math.abs(ss[0].x+ss[n-1].x)<1e-9,'centred');for(let i=1;i<n;i++)assert(ss[i].x>ss[i-1].x,'left→right');}
     else{assert([36,32,30,28].includes(G.d));assert(Math.abs(G.sp-44*G.d/36)<1e-9&&Math.abs(G.gap-40*G.d/36)<1e-9);}
     assert(L.girl.y0-G.bottom>=6-1e-6,w+'x'+h+' girl never overlaps a seal (head gap ≥ 6)');assert(gh>=48-1e-6,w+'x'+h+' girl ≥ 48 pt');
     for(const [kk,v] of Object.entries(k))assert(v,w+'x'+h+' '+kk);

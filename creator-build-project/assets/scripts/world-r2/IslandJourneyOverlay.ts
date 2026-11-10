@@ -16,7 +16,7 @@ import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type Prop
 const TAP_TARGET:Record<string,PropTapTarget>={bag:'bag',journal:'book',settings:'settings'};
 
 type Options={prewarm?:(region:string)=>void;invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
-type Page='bag'|'journal'|'settings'|'rest'|'update'|'tide'|'meadow'|'sky'|'lake';
+type Page='bag'|'journal'|'settings'|'rest'|'update'|'tide'|'meadow'|'sky'|'lake'|'oasis';
 export { CHAPTERS };
 /** Island presentation only. Closed: three compact utilities (bag / journey book / full settings). Regions are chapters
  * in the journey book, never a second wall of island buttons. The island rest opens from the cabin (openRest).

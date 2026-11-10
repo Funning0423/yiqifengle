@@ -37,6 +37,11 @@ export function requiresFjordScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r10-fjord-\d+$/.test(id);
 }
 
+/** 沙漠绿洲庭院 (r11-oasis-*) renders the live region_oasis scene. The board is painted into the sand-brick court. */
+export function requiresOasisScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r11-oasis-\d+$/.test(id);
+}
+
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }
