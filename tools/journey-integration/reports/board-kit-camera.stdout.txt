@@ -1,0 +1,21 @@
+ok   self-check: info-board overlap on a finalAspects screen FAILs, unmarked only REPORTs
+ok   finalAspects = []; 7 screens: pose = fixture (320x568/390x520 = keepout_r2 i_compact_hud) (quat/FOV identical, distance only), look-at offset 0 = fixture, offset moves along the ground only; 49 tiles world exact, projection worst 0.069 pt
+ok   BoardKit.ts / BoardProjection.ts write no camera (setEnterLevelEnd provider only)
+ok   self-checks: tiles at the edge, asymmetric bleed, corner cut each detected
+     EDGE 390x844: tiles ≥ 48.3 pt from edge · rim bleed L 0.0 / R 0.0 (asym 0.00) · rim y 293.3–570.3 vs HUD 200–698
+     EDGE 414x896: tiles ≥ 51.3 pt from edge · rim bleed L 0.0 / R 0.0 (asym 0.00) · rim y 311.3–605.4 vs HUD 201.7–750
+     EDGE 360x780: tiles ≥ 44.6 pt from edge · rim bleed L 0.0 / R 0.0 (asym 0.00) · rim y 271.1–526.9 vs HUD 199.1–634
+     EDGE 375x667: tiles ≥ 46.2 pt from edge · rim bleed L 0.0 / R 0.0 (asym 0.00) · rim y 213.0–476.7 vs HUD 194–521
+     EDGE 320x568: tiles ≥ 20.5 pt from edge · rim bleed L 0.0 / R 0.0 (asym 0.00) · rim y 168.0–425.7 vs HUD 131–474
+     EDGE 390x520: tiles ≥ 73.1 pt from edge · rim bleed L 0.0 / R 0.0 (asym 0.00) · rim y 157.8–383.7 vs HUD 131–426
+     EDGE 768x1024: tiles ≥ 150.0 pt from edge · rim bleed L 0.0 / R 0.0 (asym 0.00) · rim y 314.9–749.4 vs HUD 208.4–878
+     SOLVE 390x844 normal: offset 0 → D 19.94–31.09 m (at 19.94: far 40.2 pt, tiles 21.2 pt, bleed 0.0/0.0)
+     SOLVE 414x896 normal: offset 0 → D 19.94–32.00 m (at 19.94: far 41.4 pt, tiles 22.5 pt, bleed 0.0/0.0)
+     SOLVE 360x780 normal: offset 0 → D 19.96–28.64 m (at 19.96: far 38.8 pt, tiles 19.6 pt, bleed 0.0/0.0)
+     SOLVE 375x667 normal: offset 0 → D 17.67–24.31 m (at 17.67: far 37.9 pt, tiles 30.7 pt, bleed 0.0/0.0)
+     SOLVE 320x568 normal: offset 0 → NO distance satisfies edge rule + far ≥ 28 · look-at offset −1.5…+1.5 m: none works
+     SOLVE 320x568 compact: offset 0 → D 16.65–20.52 m (at 16.65: far 34.1 pt, tiles 17.3 pt, bleed 0.0/0.0) · best offset -0.50 m → D 16.42–20.30 m (at 16.42: far 34.1 pt, tiles 17.3 pt, bleed 0.0/0.0)
+     SOLVE 390x520 normal: offset 0 → NO distance satisfies edge rule + far ≥ 28 · look-at offset −1.5…+1.5 m: none works
+     SOLVE 390x520 compact: offset 0 → D 14.72–18.68 m (at 14.72: far 35.0 pt, tiles 45.0 pt, bleed 0.0/0.0) · best offset 0.00 m → D 14.72–18.68 m (at 14.72: far 35.0 pt, tiles 45.0 pt, bleed 0.0/0.0)
+     SOLVE 768x1024 normal: offset 0 → D 12.91–32.00 m (at 12.91: far 44.0 pt, tiles 40.9 pt, bleed 0.0/0.0)
+board-kit-camera: PASS

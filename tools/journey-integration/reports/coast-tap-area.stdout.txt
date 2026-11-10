@@ -1,0 +1,10 @@
+     390x844 D 23.306: far row effective 40.4×37.9 36.9×37.9 36.9×37.8 36.9×37.8 36.9×37.8 36.9×37.9 40.4×37.9 → short 36.9 pt (drawn cell 36.6×31.1); all tiles short ≥ 32.3; ±8 pt taps 29400, wrong 0; off-board -1,-1,-1,-1
+     414x896 D 23.307: far row effective 41.6×38.8 39.2×38.8 39.2×38.8 39.2×38.8 39.2×38.8 39.2×38.8 41.6×38.8 → short 38.8 pt (drawn cell 38.8×33.0); all tiles short ≥ 34.3; ±8 pt taps 29400, wrong 0; off-board -1,-1,-1,-1
+     360x780 D 23.332: far row effective 39.0×36.7 34.1×36.6 34.1×36.6 34.1×36.6 34.1×36.6 34.1×36.6 39.0×36.7 → short 34.1 pt (drawn cell 33.7×28.7); all tiles short ≥ 29.8; ±8 pt taps 29400, wrong 0; off-board -1,-1,-1,-1
+     375x667 D 19.424: far row effective 39.3×36.8 34.6×36.8 34.6×36.8 34.6×36.8 34.6×36.8 34.6×36.8 39.3×36.8 → short 34.6 pt (drawn cell 34.3×28.9); all tiles short ≥ 30.2; ±8 pt taps 29400, wrong 0; off-board -1,-1,-1,-1
+     320x568 D 16.991: far row effective 38.7×36.2 33.4×36.2 33.4×36.2 33.4×36.2 33.4×36.2 33.4×36.2 38.7×36.2 → short 33.4 pt (drawn cell 33.0×27.6); all tiles short ≥ 29.0; ±8 pt taps 29400, wrong 0; off-board -1,-1,-1,-1
+     390x520 D 17.721: far row effective 36.7×34.5 29.4×34.5 29.4×34.5 29.4×34.5 29.4×34.5 29.4×34.5 36.7×34.5 → short 29.4 pt (drawn cell 29.1×24.4); all tiles short ≥ 25.6; ±8 pt taps 29400, wrong 0; off-board -1,-1,-1,-1
+     768x1024 D 18.1335: far row effective 44.0×44.0 44.0×44.0 44.0×44.0 44.0×44.0 44.0×44.0 44.0×44.0 44.0×44.0 → short 44.0 pt (drawn cell 56.1×47.1); all tiles short ≥ 44.0; ±8 pt taps 29400, wrong 0; off-board -1,-1,-1,-1
+ok   self-checks: centre moved 16 pt → 20 wrong taps; tile 3 shrunk → short 26.7 pt < 28
+coast-tap-area: 7 screens × 49 tiles, 205800 random taps (seed 20261030, ±8 pt), 0 failures
+coast-tap-area: PASS

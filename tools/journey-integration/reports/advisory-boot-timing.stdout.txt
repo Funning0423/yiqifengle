@@ -1,0 +1,8 @@
+engine ready  300 ms → released 3033 vs 333 without advisory, added 2700 ms
+engine ready 1000 ms → released 3033 vs 1050 without advisory, added 1983 ms
+engine ready 2000 ms → released 3033 vs 2033 without advisory, added 1000 ms
+engine ready 2700 ms → released 3050 vs 2750 without advisory, added 300 ms
+engine ready 3000 ms → released 3350 vs 3050 without advisory, added 300 ms
+engine ready 4000 ms → released 4333 vs 4050 without advisory, added 283 ms
+engine ready 6000 ms → released 6317 vs 6033 without advisory, added 283 ms
+PASS advisory boot timing (parallel start, added = 3.0 s − engine, or the 300 ms fade when the engine is slower)

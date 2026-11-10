@@ -1,0 +1,3 @@
+ok   self-check: 1 injected neighbouring tap (320x568) → 1 differences
+coast-kit-equivalence: 336 runs on 7 screens (verified replays + 12 mainline levels), 3451 steps, 0 differences, fallback=0
+coast-kit-equivalence: PASS (rules state identical with the coast config on and off; off by default)
