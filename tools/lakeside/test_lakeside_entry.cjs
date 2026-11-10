@@ -34,11 +34,11 @@ t('stage → scene routing: lake ids use the lakeside lease and board chapter, o
  for(const id of ['r05-tide-01','r05-meadow-01','r05-sky-01','mainline-05','mainline-09'])assert(!LR.requiresLakesideScene({stageId:id}),id);
  const comp=fs.readFileSync(path.join(A,'scripts/world-r2/WorldNativeComposition.ts'),'utf8');
  assert(/requiresLakesideScene\(context\.selection\)\?createLakesideBoardBackground\(context\)/.test(comp),'composition routes lake to the lakeside lease');
- assert(/challenges:Record<string,number>=\{tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0,rail:0,cloud:0,spring:0\}/.test(comp));
+ assert(/challenges:Record<string,number>=\{tide:0,meadow:0,sky:0,lake:0,coast:0,snow:0,rail:0,cloud:0,spring:0,fjord:0\}/.test(comp));
  assert(/'region_lakeside'/.test(fs.readFileSync(path.join(A,'scripts/SharedBundles.ts'),'utf8')),'region_lakeside loads shared_effects first');
  assert(/enterRegion\('lake'\)/.test(fs.readFileSync(path.join(A,'scripts/WorldIntegrationBoot.ts'),'utf8')));});
 t('journey book: 4th chapter 风铃湖畔, x/6 challenges, no mainline stars, milestone 12, chapter art present',()=>{
- const P=H.load('ui/IslandPanels');assert.deepEqual(P.CHAPTERS.map(c=>c.id),['tide','meadow','sky','lake','coast','snow','rail','cloud','spring']);
+ const P=H.load('ui/IslandPanels');assert.deepEqual(P.CHAPTERS.map(c=>c.id),['tide','meadow','sky','lake','coast','snow','rail','cloud','spring','fjord']);
  const all=Array.from({length:12},()=>({bestStars:3}));
  assert.equal(P.chapterSummary({records:all},{lake:9},3).challenges,6);assert.equal(P.chapterSummary({records:all},{lake:2},3).stars,0);
  assert.equal(P.chapterSummary({records:all.map((r,i)=>i<11?r:{bestStars:0})},{},3).locked,true);assert.equal(P.chapterSummary({records:all},{},3).locked,false);

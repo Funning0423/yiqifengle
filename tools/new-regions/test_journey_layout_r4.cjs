@@ -29,7 +29,7 @@ for(const mode of ['day','night'])for(const [sk,S] of Object.entries(STATES))for
   const fu=(F.x1-F.x0)/p.width,PS=B.PAPER_INNER_SRC,IN={x0:F.x0+PS.left/PS.artPx*fu,x1:F.x1-PS.right/PS.artPx*fu}; // paper inner edge (pt)
   const rows=J.journeyRows({records:S.records,stages:S.stages,regionDone:S.challenges});
   const els=[...p.root.getComponentsInChildren(cc.UITransform).map(t=>t.node).filter(n=>/^(Focus-|Chapter-)/.test(n.name))];
-  const cells=els.filter(n=>n.name.startsWith('Chapter-')),card=els.find(n=>n.name.startsWith('Focus-'));assert.equal(cells.length,9,tag);assert(card,tag+' focus card');
+  const cells=els.filter(n=>n.name.startsWith('Chapter-')),card=els.find(n=>n.name.startsWith('Focus-'));assert.equal(cells.length,J.REGION_DEFS.length,tag);assert(card,tag+' focus card');
   const gb=cells.map(n=>box(n,W,Hh)),G={x0:Math.min(...gb.map(b=>b.x0)),x1:Math.max(...gb.map(b=>b.x1))},C=box(card,W,Hh);
   const q=v=>+(v/ptPer).toFixed(2); // layout pt (harness units / ptPer)
   const gap={gridL:q(G.x0-IN.x0),gridR:q(IN.x1-G.x1),cardL:q(C.x0-IN.x0),cardR:q(IN.x1-C.x1)};

@@ -141,7 +141,10 @@ export function createJourneyUi(h: JourneyUiHost) {
   /** Journey book (SPEC §13.1): fixed panel min(330, W−40) × 514 pt (458 when H < 700): progress, focus card, 3×3 seal grid. */
   function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void, _r5Gates?: any, island?: { stages?: any; lastPlayed?: any } | null): PopupPanel {
     const v = stack.view(), sc = popupScale(v.width, v.height), K = 1 / sc, short = v.height < 700;
-    const phPt = short ? 458 : 514, cardH = short ? 92 : 112, cellH = short ? 64 : 76, sealD = short ? 28 : 32, f = fitPt(v, phPt), pwPt = Math.min(330, Math.max(240, v.width - 40)) / f;
+    const phPt = short ? 458 : 514, gridRows = Math.ceil(REGION_DEFS.length / 3), packed = gridRows > 3;
+    const cardH = short ? (packed ? 78 : 92) : (packed ? 96 : 112), cellH = short ? (packed ? 54 : 64) : (packed ? 60 : 76), cellGap = packed ? 4 : 8, sealD = short ? (packed ? 22 : 28) : (packed ? 26 : 32);
+    const nameDy = short ? (packed ? 32 : 38) : (packed ? 36 : 46), statusDy = short ? (packed ? 44 : 53) : (packed ? 50 : 63), afterCard = packed ? 8 : 12;
+    const f = fitPt(v, phPt), pwPt = Math.min(330, Math.max(240, v.width - 40)) / f;
     const inp = journeyInput(journey, challenges, { stages: island?.stages ?? h.defaultStages(), lastPlayed: island?.lastPlayed ?? lastRegion() });
     const P = (x: number) => x * K * f, PW = P(pwPt), PH = P(phPt);
     const p = stack.open({ name: 'JourneyPanel', width: PW, height: PH, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
@@ -178,12 +181,12 @@ export function createJourneyUi(h: JourneyUiHost) {
     { const fv = viewOf(fr); p.tint.label(makeLabel(face, fitFocusGo(fv.go, fv.state === 'gated' ? fv.n : null, P(14), tw), tx, -P(22), P(14), { align: 'left', width: tw, name: 'Go' }), fv.enabled ? 'teal' : 'brown2'); }
     if (fr.isNew) redDot(p, face, tx + Math.min(tw, measure(fd.name, P(18))) + P(6), P(30), P(7));
     pressable(card, face, () => { markRegionSeen(focusId); openChapter(focusId); });
-    // 3×3 seal grid (SPEC §13.1): all 9 regions; whole cell taps (≥44 pt); focus region = 2 pt teal ring; far = not tappable.
-    const GW = (IW - P(16)) / 3, GH = P(cellH), gy0 = P(116) + CH + P(12), nodes: Node[] = [];
+    // Seal grid: 3 columns (SPEC §13.1). A tenth region adds a fourth row inside the same panel. Whole cell taps (≥44 pt); focus = 2 pt teal ring; far = not tappable.
+    const GW = (IW - P(16)) / 3, GH = P(cellH), gy0 = P(116) + CH + P(afterCard), nodes: Node[] = [];
     const gateNs = rows.map(r => viewOf(r)).filter(v => v.n != null && (v.state === 'gated' || v.state === 'locked')).map(v => v.n!);
     const fit = cellFitStep(gateNs, P(STATUS_PT), GW - P(4), P(2), P); lastCellFit = { step: fit.step, widestPt: fit.widest / P(1), availPt: fit.width / P(1) };
     rows.forEach((r, i) => {
-      const col = i % 3, row = Math.floor(i / 3), cx = band.cx - IW / 2 + GW / 2 + col * (GW + P(8)), cyc = gy0 + row * (GH + P(8)) + GH / 2;
+      const col = i % 3, row = Math.floor(i / 3), cx = band.cx - IW / 2 + GW / 2 + col * (GW + P(8)), cyc = gy0 + row * (GH + P(cellGap)) + GH / 2;
       const n = uiNode('Chapter-' + r.id, p.body, GW, GH), q = p.at(cx, cyc); n.setPosition(q[0], q[1], 0);
       const c = uiNode('Face', n, GW, GH), far = r.state === 'far', locked = r.state === 'locked', focus = r.id === focusId; let down = false;
       const bg = c.addComponent(Graphics);
@@ -191,7 +194,7 @@ export function createJourneyUi(h: JourneyUiHost) {
         if (focus) { gg.strokeColor = rgba(hex([0x37, 0x7F, 0x6C], night), a); gg.lineWidth = P(2); gg.roundRect(-GW / 2 + P(1), -GH / 2 + P(1), GW - P(2), GH - P(2), P(11)); gg.stroke(); } });
       const top = GH / 2, sy = top - P(short ? 3 : 4) - P(sealD) / 2;
       if (far) { /* P3 r4: 远方 = no data → never a seal */ } else { const sp = artSprite(c, 'popup/reward_seal_' + r.id, 0, sy, P(sealD), P(sealD), 'Seal'); p.tint.sprite(sp, 'ui', [255, 255, 255], locked ? 166 : 255); sp.grayscale = locked; }
-      const nm = rowName(r), ny = top - P(short ? 38 : 46), sty = top - P(short ? 53 : 63);
+      const nm = rowName(r), ny = top - P(nameDy), sty = top - P(statusDy);
       p.tint.label(makeLabel(c, nm, 0, ny, P(12.5), { width: GW - P(4), name: 'Name' }), far || locked ? 'brown2' : 'brown');
       const rv = viewOf(r), hot = rv.state === 'progress' || rv.state === 'open';
       const gc = rv.n != null && (rv.state === 'gated' || rv.state === 'locked'), cw = gc ? fit.width : GW - P(4);
@@ -301,7 +304,7 @@ export function createJourneyUi(h: JourneyUiHost) {
     p.tint.label(makeLabel(n, t, 0, 0, fs, { width: lw, name: 'Label' }), 'brown2');
     (n as any).__disabled = true; return n;
   }
-  /** Ending seals (SPEC §13.5): 9 holders in two rows 5+4, no backing plate; each seal carries a small soft shadow
+  /** Ending seals: one holder per region (5+5 once the fjord joins), no backing plate; each seal carries a small soft shadow
    *  (colour 44,28,14, seal alpha × 0.42, ~2.2 pt blur, 2.5 pt down); unearned = cream blank seal (readable).
    *  Drop-in 240 ms each, 60 ms step, easeOutCubic. */
   function buildEndingSeals(parent: Node, tint: TintSet, ui: (p: Node, name: string, w: number, h: number) => Node, geo: { d: number; sp: number; gap: number; y: number }, yOf: (y: number) => number) {

@@ -32,6 +32,11 @@ export function requiresHotspringScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r09-spring-\d+$/.test(id);
 }
 
+/** 峡湾极光栈道 (r10-fjord-*) renders the live region_fjord scene. The board sits on the wooden pier. */
+export function requiresFjordScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r10-fjord-\d+$/.test(id);
+}
+
 export function requiresSkycityScene(selection:RegionSelection):boolean {
  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
 }

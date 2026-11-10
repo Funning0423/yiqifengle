@@ -1,12 +1,12 @@
 /** Journey book / chapter page / ending seals logic (UI设计部 new-regions SPEC v1.1 e05a034e, approved). Pure: no 'cc'.
  *  Progress counts stages (not regions); the denominator is Σ stages of the regions that have level data, never fixed. */
-export type RegionKey = 'tide' | 'meadow' | 'sky' | 'lake' | 'coast' | 'snow' | 'rail' | 'cloud' | 'spring';
+export type RegionKey = 'tide' | 'meadow' | 'sky' | 'lake' | 'coast' | 'snow' | 'rail' | 'cloud' | 'spring' | 'fjord';
 export type RowState = 'done' | 'progress' | 'open' | 'locked' | 'far';
 /** SPEC §13.2: `requires` = all must hold; 'main:N' = mainline N has ≥1 star, a region id = that region fully cleared.
  *  `label` = the ≤5-char condition shown on a known-locked cell. */
 export interface RegionUnlock { requires: ReadonlyArray<string>; label: string }
 export interface RegionDef { id: RegionKey; name: string; short: string; subtitle?: string; description: string; stages: number; color: number[]; provider: 'mainline' | 'r5'; unlock: RegionUnlock }
-/** 9 regions (SPEC §13 / nine/PLAN.md §3 names). Full name: focus card, region page; short: grid cells. */
+/** Regions in journey order (SPEC §13, then later regions appended). Full name: focus card, region page; short: grid cells (≤4). */
 export const REGION_DEFS: ReadonlyArray<RegionDef> = [
   { id: 'tide', name: '潮汐小径', short: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。', stages: 4, color: [0x5F, 0xA8, 0xC8], provider: 'mainline', unlock: { requires: [], label: '' } },
   { id: 'meadow', name: '花粉草甸', short: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。', stages: 4, color: [0x7D, 0xB5, 0x5A], provider: 'mainline', unlock: { requires: ['main:4'], label: '主线04后' } },
@@ -17,6 +17,7 @@ export const REGION_DEFS: ReadonlyArray<RegionDef> = [
   { id: 'rail', name: '秋日铁路', short: '秋日铁路', description: '踩着落叶，去站台听风铃。', stages: 6, color: [0xC9, 0x77, 0x3A], provider: 'r5', unlock: { requires: ['snow'], label: '雪山通关后' } },
   { id: 'cloud', name: '黎明云海', short: '黎明云海', description: '踩着晨光，去云台上听风铃。', stages: 8, color: [0xE8, 0xA0, 0xA8], provider: 'r5', unlock: { requires: ['rail'], label: '铁路通关后' } },
   { id: 'spring', name: '温泉谷', short: '温泉谷', description: '踩着石阶，去温泉边听风铃。', stages: 8, color: [0x6F, 0xB8, 0xA8], provider: 'r5', unlock: { requires: ['rail', 'cloud'], label: '铁路云海后' } },
+  { id: 'fjord', name: '峡湾极光栈道', short: '峡湾栈道', description: '沿着木栈道，去峡湾上看极光。', stages: 8, color: [0x3A, 0xB8, 0xC4], provider: 'r5', unlock: { requires: ['spring'], label: '温泉谷后' } },
 ];
 /** Same journey record as the provider (progress-journal LAKE_GATE_RECORD / COAST_GATE_RECORD = 11): mainline 12 ≥1 star. */
 export const LAKE_GATE_RECORD = 11, COAST_GATE_RECORD = 11;
@@ -74,11 +75,16 @@ export function focusRegion(inp: JourneyInput, rows = journeyRows(inp)): RegionK
   const live = rows.find(r => r.state === 'progress' || r.state === 'open'); if (live) return live.id;
   const done = rows.filter(r => r.state === 'done'); return (done.length ? done[done.length - 1] : rows[0]).id;
 }
-/** Ending seals (SPEC §13.5): two rows 5 + 4, row 2 offset half a pitch and `gap` lower; each row droops 1.0·(i−c)². */
+/** Ending seals. The original nine stay 5+4; a later region joins the shorter row until the two rows are even, then starts a centred single row. Each row droops 1.0·(i−c)². */
 export function sealRows9(sp: number, gap: number, rows: 1 | 2 = 2): Array<{ x: number; dy: number }> {
-  const out = [];
-  if (rows === 1) { for (let i = 0; i < 9; i++) out.push({ x: (i - 4) * sp, dy: 0 }); return out; }   // UI设计部 r3 ④: one flat centred row, left→right
-  for (let i = 0; i < 9; i++) { const c = i < 5 ? i - 2 : i - 6.5; out.push({ x: c * sp, dy: (i < 5 ? 0 : gap) + c * c }); } return out;
+  const n = REGION_DEFS.length, out = [];
+  if (rows === 1) { for (let i = 0; i < n; i++) out.push({ x: (i - (n - 1) / 2) * sp, dy: 0 }); return out; }
+  const top = Math.ceil(n / 2);
+  for (let i = 0; i < n; i++) {
+    const row = i < top ? 0 : 1, j = row === 0 ? i : i - top, count = row === 0 ? top : n - top, c = j - (count - 1) / 2;
+    out.push({ x: c * sp, dy: (row === 0 ? 0 : gap) + c * c });
+  }
+  return out;
 }
 /** Ending seals earned: the 4 shipped regions are always shown earned on the ending (unchanged behaviour); the others only when the r5 journal claimed them (claimedRegions, noted by WorldNativeComposition.islandGates()). */
 let claimedNoted: string[] = [];
