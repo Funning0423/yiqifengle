@@ -1,0 +1,9 @@
+PASS R1-mustfail 19bd812a lake placement (prepare root 19,18.85,100.5) is caught → lake lens min 0.00 m, lens under lake 101, her LOS blocked 54 (first flight-1.51 s LK_terrain_i), seat under lake true
+PASS R1 C1 hold / pre-lift rise / lift-off lens vs the lake copy (adapter places it from ride S6) → lake lens min >3 m, under 0, LOS blocked 0, seat under false
+PASS R2-mustfail 19bd812a T-02 node-lens (finstart #38) caught on the skycity mesh → min 0.03 m @t 312.66 skycity:env_sky_ruins, enclosed samples 6
+PASS R3-mustfail 19bd812a flight lateral move (finstart #159) caught on the skycity mesh → min 0.10 m @t 357.43 skycity:env_sky_static_palette, enclosed 0
+PASS R2 T-02: full9c S4>S6 rail (board entry → rail → stand hold, and from S6), 7 screens, skycity mesh → min 0.50 m skycity:env_sky_ruins, enclosed 0, samples 4992
+PASS R3 flight lens (lift-off → touchdown, 7 screens) vs skycity + lake meshes → min 2.97 m skycity:env_sky_static_palette, enclosed 0, samples 1960
+PASS R4-mustfail 19bd812a pre-walk lens (m 407–431) vs clouds_city_sea/clouds_floor left at the origin → min 0.00 m @t 265.50 cloud:clouds_floor, enclosed 0
+PASS R4 meadow pre-walk lens (every start, 7 screens, sail meadow frame) vs the clouds placed as paint(0) places them → min >3 m , enclosed 0, samples 42378
+{"status":"PASS","fails":0}

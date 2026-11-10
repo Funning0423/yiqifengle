@@ -1,0 +1,1 @@
+const L=require('./lib.cjs');for(const [x,z] of JSON.parse(process.argv[2])){const hs=[];for(const o of L.J.island){o.bb??=L.J.bbox(o.tris);if(x<o.bb[0][0]||x>o.bb[1][0]||z<o.bb[0][2]||z>o.bb[1][2])continue;const t=L.J.rayHit([x,8,z],[0,-1,0],20,o.tris);if(t!==null)hs.push([o.name,+(8-t).toFixed(3)]);}console.log(x,z,JSON.stringify(hs));}

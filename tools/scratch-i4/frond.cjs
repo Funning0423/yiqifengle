@@ -1,0 +1,3 @@
+const J=require('../journey-integration/journey-scene.cjs');const [X,Z,Y]=process.argv.slice(2).map(Number);
+const o=J.island.find(o=>/palm_young/.test(o.name));const t=o.tris;let ps=[];for(let k=0;k<t.length;k+=3){const h=t[k+1]-Y;if(h<0||h>1.8)continue;const d=Math.hypot(t[k]-X,t[k+2]-Z);if(d<0.7)ps.push([+t[k].toFixed(2),+h.toFixed(2),+t[k+2].toFixed(2),+d.toFixed(3)]);}
+ps.sort((a,b)=>a[3]-b[3]);console.log(ps.slice(0,6));let tr=[];for(let k=0;k<t.length;k+=3)if(t[k+1]<0.7)tr.push([t[k],t[k+2]]);const cx=tr.reduce((a,p)=>a+p[0],0)/tr.length,cz=tr.reduce((a,p)=>a+p[1],0)/tr.length;console.log('trunk base',cx.toFixed(2),cz.toFixed(2),'maxY',Math.max(...t.filter((_,i)=>i%3==1)).toFixed(2));
