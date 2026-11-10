@@ -82,10 +82,11 @@ export const LAKESIDE_CAMERA_LAYOUT={
    *  target = main (older readers). Her stop is the v4 end (stopLocal); see docs/r5/cine/b18_endpoint_v2.md. */
   portrait:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,main:{position:[2,6,33] as Vec,target:[.5,.7,2] as Vec,fovVerticalDeg:56},short:{position:[2.5,6.5,34] as Vec,target:[-1.9,-.5,0] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:50,refAspect:390/844,maxFovDeg:75},
   /** kit-ON fusion board lens. Used ONLY when lakesideKitAssetsEnabled() — kit OFF keeps `portrait` sightseeing above.
-   *  L6 v4: main (h/w ≥ splitHW) is [0,15.7,28.35]→[0,1.616,1.862], fov 55, pitch −28°. Tilted up from the −32° pass so
-   *  the far tree crowns (y 11, z −57) sit just inside the top of a 390×844 frame. Bottom rays still meet open water
-   *  near z 17.5, clear of the dark near-foam sheet at z ≳ 19. short is unchanged. */
-  portraitFusion:{position:[0,15.7,28.35] as Vec,target:[0,1.616,1.862] as Vec,main:{position:[0,15.7,28.35] as Vec,target:[0,1.616,1.862] as Vec,fovVerticalDeg:55},short:{position:[0,10.2,24] as Vec,target:[0,.1,10] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:55,refAspect:390/844,maxFovDeg:75},
+   *  L6 v5: main (h/w ≥ splitHW) is [0,12.75,22.75]→[0,1.427,1.589], fov 72.3, pitch −28.15°. The far tree crowns
+   *  (y 11.1, z −57) sit 15% down a 430×932 frame. Near-edge cells stay ≥48 px, so the board cannot also shrink:
+   *  a 55° lens that keeps that cell size leaves only ~5% above the crowns. Bottom rays meet open water near z 16.6,
+   *  clear of the dark near-foam sheet at z ≳ 19. short is unchanged. */
+  portraitFusion:{position:[0,12.75,22.75] as Vec,target:[0,1.427,1.589] as Vec,main:{position:[0,12.75,22.75] as Vec,target:[0,1.427,1.589] as Vec,fovVerticalDeg:72.3},short:{position:[0,10.2,24] as Vec,target:[0,.1,10] as Vec,fovVerticalDeg:50},splitHW:2.0,fovVerticalDeg:72.3,refAspect:390/844,maxFovDeg:75},
   grid:{halfX:3.85,zNear:15.85,zFar:8.15,centre:[0,0,12] as Vec}},
 } as const;
 const rotY=(deg:number,p:Vec):Vec=>{const t=deg*Math.PI/180,c=Math.cos(t),s=Math.sin(t);return [c*p[0]+s*p[2],p[1],-s*p[0]+c*p[2]];};

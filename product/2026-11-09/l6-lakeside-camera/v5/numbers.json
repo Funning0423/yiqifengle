@@ -1,0 +1,24 @@
+{
+  "pose": {
+    "v4": { "position": [0, 15.7, 28.35], "target": [0, 1.616, 1.862], "fovVerticalDeg": 55, "pitchDeg": -28 },
+    "v5": { "position": [0, 12.75, 22.75], "target": [0, 1.427, 1.589], "fovVerticalDeg": 72.3, "pitchDeg": -28.15 }
+  },
+  "v4": {
+    "360x780": { "skyPct": 5.4, "boardWidthPct": 86.9, "nearCellPx": 44.72, "bottomGapPx": 31.6 },
+    "390x844": { "skyPct": 5.4, "boardWidthPct": 86.9, "nearCellPx": 48.44, "bottomGapPx": 36.6 },
+    "402x874": { "skyPct": 5.6, "boardWidthPct": 86.9, "nearCellPx": 49.93, "bottomGapPx": 40.7 },
+    "430x932": { "skyPct": 5.5, "boardWidthPct": 86.9, "nearCellPx": 53.41, "bottomGapPx": 44.5 }
+  },
+  "v5": {
+    "360x780": { "pitch": -28.15, "fov": 72.36, "skyPct": 15.22, "boardWidthPct": 94.3, "boardHeightOverWidth": 0.675, "nearCellPx": 48.48, "bottomGapPx": 4.5, "safeMinPx": 4.5, "boardTopFrac": 0.657, "hudGapPx": 356.5 },
+    "390x844": { "pitch": -28.15, "fov": 72.3, "skyPct": 15.18, "boardWidthPct": 94.3, "boardHeightOverWidth": 0.675, "nearCellPx": 52.52, "bottomGapPx": 7.3, "safeMinPx": 7.3, "boardTopFrac": 0.657, "hudGapPx": 398.7 },
+    "402x874": { "pitch": -28.15, "fov": 72.55, "skyPct": 15.34, "boardWidthPct": 94.3, "boardHeightOverWidth": 0.675, "nearCellPx": 54.13, "bottomGapPx": 10.5, "safeMinPx": 10.5, "boardTopFrac": 0.656, "hudGapPx": 417.8 },
+    "430x932": { "pitch": -28.15, "fov": 72.38, "skyPct": 15.23, "boardWidthPct": 94.3, "boardHeightOverWidth": 0.675, "nearCellPx": 57.9, "bottomGapPx": 12.2, "safeMinPx": 12.2, "boardTopFrac": 0.657, "hudGapPx": 456.3 }
+  },
+  "notes": {
+    "sky": "屏顶到远岸树冠 [0, 11.1, -57] 的屏高占比",
+    "bottomGapPx": "近边格角到安全区底边（屏高减 34）的像素",
+    "boardWidthPct": "近边 z=15.85、x=±3.85 的投影宽度占屏宽",
+    "v4Source": "同一套投影，改参数前对 [0,15.7,28.35]→[0,1.616,1.862] fov 55 的量测"
+  }
+}
