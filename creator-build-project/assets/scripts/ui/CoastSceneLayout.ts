@@ -52,4 +52,12 @@ export const COAST_REUSE_SOURCES: Readonly<Record<string, CoastReuseSource>> = O
   reuse_palm_tall: { count: 2, src: 'env_prop_palm_tall_01', from: 'island' }, reuse_palm_lean: { count: 1, src: 'env_prop_palm_lean_01', from: 'island' },
 });
 export const COAST_ISLAND_REUSE = Object.freeze(Object.keys(COAST_REUSE_SOURCES).filter((k) => COAST_REUSE_SOURCES[k].from === 'island'));
+/** Beacon (风铃格) marker: coast-local positions of the beacon_line marker for a stage's beacon cells (engine index i: column i%7,
+ *  row floor(i/7); coast-local x = column-3, z = row-3, the same frame the slabs use). Static: the route ORDER and the lit state are
+ *  not visible to the background lease (regional snapshot has no beaconRoute/beaconCursor); see docs/handoff/coast01-creator-import.md. */
+export function coastBeaconMarks(cells: ReadonlyArray<number> | null | undefined): V3[] {
+  const out: V3[] = []; const seen = new Set<number>();
+  for (const i of cells || []) { if (!Number.isInteger(i) || i < 0 || i > 48 || seen.has(i)) continue; seen.add(i); out.push([i % 7 - 3, 0, Math.floor(i / 7) - 3]); }
+  return out;
+}
 export const COAST_MATERIAL_KEYS = Object.freeze(Object.keys(COAST_MESH_FLAGS));

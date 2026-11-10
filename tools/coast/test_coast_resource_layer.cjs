@@ -15,13 +15,13 @@ const FILES = [
   ['board/piece_scallop.png', 9765, 'c2838c6e7a66788ac05c85ff738fbc99a0e0f397b4db90378e4092492bb0205f'],
   ['board/piece_star.png', 10350, '88797b7d415f7060d8ed695fdbc2fea7c2dbfea1e824eebd91fc751e48614eb7'],
   ['data/coast_layout.json', 20441, 'cf0c75babfadedea8c19dd43da008eadb9e682ea02c5fb2e4474faa498fca1df'],
-  ['models/coast_board.glb', 482660, 'da9cd5ca5769994b8a2f92807989cdfae10ba7665681972de1de9c06e9ce9819'],
+  ['models/coast_board.glb', 485732, '8a672bc5be1333c9159425ab16af3e57511da1811e2d786aa72f452d72b226d4'],
   ['models/coast_props.glb', 202416, '800fdae8615af771273e771b80c7b3897f4837b6280c78f2003d3f57ecfb302c'],
   ['models/coast_reuse.glb', 66652, '7efd0b238df78671e912581b1fc19df45a1b3f208286d5687cacd1c3d959c803'],
   ['models/coast_rocks.glb', 128172, '6f8d580bfa9d2bd9bca1df9abec282d864bc1cdcbacc2b1e8aa34d9c72d00634'],
   ['models/coast_terrain.glb', 507684, '193c98784b2c7e8f1eda526b9d82c985e9a74a96eebb2572fb61fef6124f684c'],
-  ['textures/coast_palette_256.png', 3163, '8d2965387aacb15729d0cec51f81c3e40af50a31fe1360b69fe9de468f18170d'],
-  ['textures/coast_palette_sand_256.png', 3258, '8ce5d5a9d86171b6c9b32f46286fdecc615632564cd34ee777c03851cd570f5f'],
+  ['textures/coast_palette_256.png', 3186, '04a5554c23e6543d0ee0893116dbb41036af9c4666ded1d27adae92ae0efeda5'],
+  ['textures/coast_palette_sand_256.png', 3274, '662b0de8cda15510fdbc5e2111a2e6019011b40d838de9893154035dfc950b6e'],
 ];
 const META_DIRS = [REL, REL + '/board', REL + '/data', REL + '/models', REL + '/textures'];
 assert.equal(FILES.length, 14);

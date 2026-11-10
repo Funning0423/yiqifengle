@@ -2,7 +2,7 @@
  *  perspective size per tile (far row smaller), a contact shadow (foreshortened ellipse on the slab top, drawn with Graphics, no new
  *  asset) and the slabs' lighting tint. Read-only on the camera: it only consumes BoardProjection numbers. Not used by the default
  *  board; ManagedMobileBoardUI is unchanged. Only built while the coast config is on (BoardProjection.setCoastBoardKit). */
-import { _decorator, Component, Node, UITransform, Sprite, SpriteFrame, Graphics, Color, assetManager, director, Material, Camera, DirectionalLight, Layers, Quat, isValid } from 'cc';
+import { _decorator, Component, Node, UITransform, Sprite, SpriteFrame, Graphics, Color, assetManager, director, Material, Camera, DirectionalLight, Layers, Quat, isValid, instantiate } from 'cc';
 import { COAST_KIT, kitBoardPose } from './BoardKit';
 import { bgCamWant } from '../region/BgCamGate';
 import { createSceneFade } from '../region/BoardBackgroundFade';
@@ -12,7 +12,8 @@ import { coastBoardKitFromFlag, coastBoardSurfaceY, kitPiecePlacement, projected
 import { ISLAND_PROPS } from '../world-r2/IslandPropsLayout';
 import type { LevelBackgroundFactory } from '../world-r2/LevelBackground';
 import { qaSkipAllowed } from '../world-r2/QaSkip';
-import { COAST_REUSE_SOURCES } from './CoastSceneLayout';
+import { COAST_REUSE_SOURCES, coastBeaconMarks } from './CoastSceneLayout';
+import RegionalAPI from '../regional-r05/runtime/index.js';
 import { coastIslandMaterial, loadCoastScene } from './CoastSceneLoader';
 const { ccclass } = _decorator;
 @ccclass('CoastBoardPieces')
@@ -125,6 +126,21 @@ export async function orchestrateCoastEntry(input: {
  *  yaw 180) on the island's own layers, so the island sea/sky/light reach them; the lease camera copies the world camera's
  *  visibility/clear and never writes the world camera. Kit off (?qfcoastkit=0 / __qfCoastBoardKit=false) = the 2D tray on the
  *  island board picture (DEFAULT_KIT), which is what COAST01 looked like before this kit was wired. */
+/** Beacon (风铃格) marker: the layout's single beacon_line instance (a lamp-gold frame on the slab shoulder + a small scallop lamp
+ *  at the near-right corner, 80 triangles) is moved onto the stage's beacon cells (config.beacons) and cloned per extra cell; stages
+ *  without beacons hide it (it used to sit on cell 18 for every stage). Static marker: order / lit state are not visible here. */
+export function placeCoastBeacons(root: Node | null, stageId: string): { cells: number[]; marks: number } {
+  const tmpl = root && isValid(root) ? root.children.find((c) => c.name === 'beacon_line') || null : null;
+  let cells: number[] = [];
+  try { const st = (RegionalAPI as any)?.getStage?.(stageId); cells = Array.isArray(st?.config?.beacons) ? st.config.beacons.slice() : []; } catch { cells = []; }
+  const at = coastBeaconMarks(cells);
+  if (!tmpl) return { cells, marks: 0 };
+  if (!at.length) { tmpl.active = false; return { cells, marks: 0 }; }
+  const y = tmpl.position.y;
+  at.forEach((p, k) => { const n = k === 0 ? tmpl : instantiate(tmpl); if (k > 0) { n.name = 'beacon_line'; root!.addChild(n); } n.setPosition(p[0], y + p[1], p[2]); n.active = true; });
+  try { console.info('[QF_COAST] ' + JSON.stringify({ event: 'beacon-marks', stageId, cells, marks: at.length })); } catch { /* console gone */ }
+  return { cells, marks: at.length };
+}
 export const COAST_BOARD_CAMERA_PRIORITY = 44;
 function coastWorldCamera(scene: Node | null): Camera | null {
   if (!scene) return null; let best: Camera | null = null;
@@ -154,6 +170,7 @@ export const createCoastBoardBackground: LevelBackgroundFactory = async (ctx) =>
   if (ctx.token.cancelled) { if (handle) handle.dispose(); if (isValid(rig)) rig.destroy(); throw new CoastEntryRejected('coast-load-cancelled', 'cancelled during coast scene load'); }
   if (!handle) { if (isValid(rig)) rig.destroy(); throw new CoastEntryRejected('coast-resources-unavailable', 'region_coast bundle, layout, models, or material did not mount'); }
   if (!handle.typesAccepted) { handle.dispose(); if (isValid(rig)) rig.destroy(); throw new CoastEntryRejected('coast-contract-not-accepted', 'typed assets are not a Creator load'); }
+  const beacons = placeCoastBeacons(handle.root, ctx.selection.stageId);
   const h = handle, world = coastWorldCamera(scene);
   let disposed = false, visible = false;
   const camNode = new Node('CoastBoardCamera'); rig.addChild(camNode); const camera = camNode.addComponent(Camera);
@@ -172,7 +189,7 @@ export const createCoastBoardBackground: LevelBackgroundFactory = async (ctx) =>
     setVisible: (v: boolean) => { if (disposed) return; visible = v; bgCamWant(camera, v); },
     setPaused: () => { },
     setFade: (a: number) => { if (!disposed) fade(a); },
-    diagnostics: () => ({ renderer: 'coast-scene', planned: h.planned, placed: h.placed, reusePlaced: h.reusePlaced, visible, root: isValid(h.root) ? [h.root.worldPosition.x, h.root.worldPosition.y, h.root.worldPosition.z] : null, camera: lastPose, engineEvidence: 'creator-bundle-mounted' }),
+    diagnostics: () => ({ renderer: 'coast-scene', beacons, planned: h.planned, placed: h.placed, reusePlaced: h.reusePlaced, visible, root: isValid(h.root) ? [h.root.worldPosition.x, h.root.worldPosition.y, h.root.worldPosition.z] : null, camera: lastPose, engineEvidence: 'creator-bundle-mounted' }),
     dispose,
   };
 };
