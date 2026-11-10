@@ -102,7 +102,10 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   landFillNearGlbs: ['LK_terrain.glb'] as const,
   landFillFarGlbs: ['LK_far_hills.glb', 'LK_far_shore.glb'] as const,
   landFillNearLinear: [0.104, 0.196, 0.025] as const, // day: grass back to the reference (fit, 390x844)
-  landFillFarLinear: [0.043, 0.087, 0.107] as const, // day: far hills + snow back to the reference, cool haze
+  /** PR79 sunset (Funning accept PNG 20261105 = r5 still: far hills inside the warm r5 fog read salmon ~200/135/115): day far fill
+   *  warm haze, was the r5h3 cool haze [0.043, 0.087, 0.107]. Box Blender stand-in: hills 92/127/151 -> ~200/136/123 sRGB with the
+   *  sunset backdrop (LAKESIDE_SUNSET_SKY). Proxy - the Mac same-camera day shot decides. Night value unchanged. */
+  landFillFarLinear: [0.5, 0.13, 0.02] as const,
   /** r4 prop fill (VB, Grok Bot): the SAME flat emissive fill on four more classes, each with its own per-mode value in
    *  lakesideModeLighting (foliageFillLinear / wallFillLinear / rockFillLinear / cloudFillLinear). Still never filled: water
    *  (waterGlbs), bridge (LK_bridge, LK_bridge_steps), small props (posts, lanterns, boats, barrels, ...), reeds/flowers/grass cards.
@@ -335,6 +338,64 @@ export function lakesideFogEnd(p: { fogStart: number; fogMaxAt: number; fogMaxAm
 export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
 const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
 export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
+/** PR79 sunset sky (scene design, merge of scene/lakeside-board-fusion into cursor/l6-lakeside-camera). The Funning accept PNG
+ *  20261105 is renders/lakeside_r5_still_graded.png (r5 blend, CAM_board [0,13.2,26.5] pitch -22.5, vFOV 61.93): its warm
+ *  "sunset" is the r5 volumetric fog (scatter 1/0.62/0.38, 180x170x28 m) over the far hills + the dusk world ramp, which the
+ *  r5h3 Cocos port dropped (no volumetrics; day clear colour = the r5h3 zenith blue #1c8fb8, so LK_far_hills sat on blue sky).
+ *  This is that look as an unlit vertex-colour backdrop sphere drawn by the board camera only, by day only (night keeps its
+ *  clear colour): sRGB bytes sampled from the accept PNG per elevation (deg, from the sphere centre) x azimuth (deg, + = right
+ *  of the board view -Z), clamped outside the sampled window. builtin-unlit shows SRGBToLinear(vertex colour) then gamma out,
+ *  i.e. the bytes as authored. Proxy look from the box (Blender preview); the Mac same-camera shot decides. */
+export const LAKESIDE_SUNSET_SKY = Object.freeze({
+  dayOnly: true as const,
+  radius: 400, center: [0, 12, 20] as const, segments: 48,
+  ringsDeg: [-90, -30, -10, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 14, 20, 35, 60, 90] as const,
+  elevDeg: [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8] as const,
+  azDeg: [-16, -8, 0, 8, 16] as const,
+  srgb: [
+    [[151,115,85], [159,118,90], [175,124,84], [240,136,94], [254,142,99]],
+    [[153,114,96], [162,117,98], [179,125,89], [248,138,97], [255,144,106]],
+    [[159,119,102], [170,124,108], [184,128,100], [251,141,101], [255,148,113]],
+    [[167,128,114], [176,131,113], [197,134,111], [252,143,107], [254,180,158]],
+    [[169,129,116], [178,133,115], [216,141,127], [254,181,160], [254,184,159]],
+    [[172,131,117], [183,134,117], [236,144,127], [254,152,129], [253,189,161]],
+    [[175,132,118], [188,136,118], [250,148,118], [255,158,137], [252,169,141]],
+    [[179,135,120], [196,138,119], [254,159,132], [254,162,142], [251,170,144]],
+    [[188,139,123], [206,141,122], [255,170,149], [254,173,147], [250,172,143]],
+    [[197,142,125], [223,146,126], [255,174,155], [254,179,149], [249,175,137]],
+    [[202,144,127], [232,148,130], [255,178,158], [254,178,148], [248,177,136]],
+  ] as const,
+});
+const lerpIdx = (xs: readonly number[], v: number): [number, number, number] => {
+  if (v <= xs[0]) return [0, 0, 0]; const n = xs.length - 1; if (v >= xs[n]) return [n, n, 0];
+  let i = 0; while (i < n - 1 && v > xs[i + 1]) i++; return [i, i + 1, (v - xs[i]) / (xs[i + 1] - xs[i])];
+};
+/** Bilinear sRGB byte colour of the sunset backdrop at a direction (elevation / azimuth in degrees), clamped to the table. */
+export function lakesideSunsetSkyColor(elevDeg: number, azDeg: number): [number, number, number] {
+  const S = LAKESIDE_SUNSET_SKY, [e0, e1, te] = lerpIdx(S.elevDeg, elevDeg), [a0, a1, ta] = lerpIdx(S.azDeg, azDeg), out: [number, number, number] = [0, 0, 0];
+  for (let k = 0; k < 3; k++) {
+    const top = S.srgb[e0][a0][k] + (S.srgb[e0][a1][k] - S.srgb[e0][a0][k]) * ta, bot = S.srgb[e1][a0][k] + (S.srgb[e1][a1][k] - S.srgb[e1][a0][k]) * ta;
+    out[k] = Math.round(top + (bot - top) * te);
+  }
+  return out;
+}
+/** UV-sphere geometry of the backdrop (scenery-local, faces seen from inside; caller sets cull none): positions xyz, colours RGBA
+ *  bytes, triangle indices. Rings = ringsDeg (poles collapse), azimuth 0 = -Z, + = +X. Pure, no cc import. */
+export function lakesideSunsetSkyGeometry(): { positions: number[]; colors: number[]; indices: number[] } {
+  const S = LAKESIDE_SUNSET_SKY, seg = S.segments, R = S.radius, c = S.center, positions: number[] = [], colors: number[] = [], indices: number[] = [];
+  for (const e of S.ringsDeg) {
+    const el = e * Math.PI / 180, y = Math.sin(el) * R, h = Math.cos(el) * R;
+    for (let j = 0; j <= seg; j++) {
+      const azd = -180 + 360 * j / seg, az = azd * Math.PI / 180;
+      positions.push(+(c[0] + Math.sin(az) * h).toFixed(3), +(c[1] + y).toFixed(3), +(c[2] - Math.cos(az) * h).toFixed(3));
+      const col = lakesideSunsetSkyColor(e, azd); colors.push(col[0], col[1], col[2], 255);
+    }
+  }
+  for (let i = 0; i < S.ringsDeg.length - 1; i++) for (let j = 0; j < seg; j++) {
+    const a = i * (seg + 1) + j, b = a + seg + 1; indices.push(a, b, a + 1, a + 1, b, b + 1);
+  }
+  return { positions, colors, indices };
+}
 /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
 export const LAKESIDE_CLEAR_COLOR = '#f2b98a';
 /** Day clear colour, sRGB bytes as '#rrggbb' (clear colour is never light-encoded). dir mode: the r5h3 sky clear

@@ -15,7 +15,7 @@ run('single source: day = LAKESIDE_DIR_LIGHT_PARAMS.landFill*, night its own, bo
  const Dy=D.lakesideModeLighting('day'),N=D.lakesideModeLighting('night');
  assert.equal(Dy.landFillNearLinear,P.landFillNearLinear);assert.equal(Dy.landFillFarLinear,P.landFillFarLinear);
  assert.equal(N.landFillNearLinear,D.LAKESIDE_NIGHT_LIGHT_PARAMS.landFillNearLinear);assert.equal(N.landFillFarLinear,D.LAKESIDE_NIGHT_LIGHT_PARAMS.landFillFarLinear);
- assert.deepEqual([...P.landFillNearLinear],[0.104,0.196,0.025]);assert.deepEqual([...P.landFillFarLinear],[0.043,0.087,0.107]);
+ assert.deepEqual([...P.landFillNearLinear],[0.104,0.196,0.025]);assert.deepEqual([...P.landFillFarLinear],[0.5,0.13,0.02]);/* PR79 sunset warm far haze (was r5h3 cool 0.043/0.087/0.107) */
  // r4 prop fill: foliage / wall / rock / cloud, same single source (day = P, night = its own), values locked
  const PF={foliageFillLinear:[[0.019,0.065,0],[0.0006,0.0058,0.0029]],wallFillLinear:[[0.023,0.02,0.017],[0.0085,0.013,0.0232]],rockFillLinear:[[0.079,0.079,0.079],[0.0049,0.0116,0.0356]],cloudFillLinear:[[0.33,0.24,0.218],[0.0078,0.0091,0.0145]],plantFillLinear:[[0.03,0.09,0.04],[0.016,0.048,0.052]],propFillLinear:[[0.06,0.045,0.035],[0.0015,0.016,0.026]],lineFillLinear:[[0.42,0.5,0.52],[0.2,0.3,0.36]]};
  for(const k of Object.keys(PF)){assert.equal(Dy[k],P[k],k+' day = P');assert.equal(N[k],D.LAKESIDE_NIGHT_LIGHT_PARAMS[k],k+' night own');assert.deepEqual(Array.from(P[k]),PF[k][0],k+' day');assert.deepEqual(Array.from(N[k]),PF[k][1],k+' night');}
