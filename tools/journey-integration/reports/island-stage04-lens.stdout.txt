@@ -1,0 +1,4 @@
+entry lean_01 episodes []
+departure lean_01 episodes []
+{"boardLens":"source","wired":true,"fail":0,"sample":{"yawDegS":15.7,"pitchDegS":7.3,"accP99":44,"ms":6.65,"stepM":0.222,"fovPerFrame":0.112,"groundM":99,"solidM":3,"hiddenS":0.23,"faceHiddenS":0.2,"margin":0.365,"capsule":0,"totalS":7.71},"entry":{"yawDegS":18.8,"pitchDegS":3.9,"accP99":98,"ms":0,"stepM":0,"fovPerFrame":0,"groundM":99,"solidM":3,"hiddenS":0,"faceHiddenS":0,"margin":0.1,"capsule":0,"totalS":7.11}}
+island-stage04-lens: PASS
