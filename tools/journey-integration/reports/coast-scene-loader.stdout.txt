@@ -1,0 +1,56 @@
+ok   226 instances (r6: no blob / reuse_cloud), runtime layout has no piece_* (got 226)
+ok   TRS == coastshot inst(): setPosition(p), setRotationFromEuler(tilt0, rz*180/PI, tilt1), setScale(s)
+ok   coastshot.js still uses the same euler/scale/shadow rule (text pin)
+ok   COAST_ROOT == layout placement (-0.6,-0.845,21.5) yaw 180
+ok   ramp_start local -> world (-0.6,0,8.4) == island_walk.ramp_start_world
+ok   world = (pos.x-x, pos.y+y, pos.z-z)
+ok   coast_board.glb: no materials, palette TEXCOORD_0, no COLOR_0 (M_env_palette via resolveMaterial)
+ok   coast_props.glb: no materials, palette TEXCOORD_0, no COLOR_0 (M_env_palette via resolveMaterial)
+ok   coast_reuse.glb: no materials, palette TEXCOORD_0, no COLOR_0 (M_env_palette via resolveMaterial)
+ok   coast_rocks.glb: no materials, palette TEXCOORD_0, no COLOR_0 (M_env_palette via resolveMaterial)
+ok   coast_terrain.glb: no materials, palette TEXCOORD_0, no COLOR_0 (M_env_palette via resolveMaterial)
+ok   all 135 non-reuse instances resolve to a glb node (missing: )
+info reuse:true instances (island props, not in this bundle): 91 [reuse_rock_s0,reuse_grass_a,reuse_rock_s1,reuse_flowers,reuse_rock_s2,reuse_grass_b,reuse_rock_1,reuse_rock_0,reuse_rock_2,reuse_bush,reuse_palm_tall,reuse_palm_lean]
+ok   island env_palette_256.png unchanged (frozen)
+ok   coast_palette_256 256x256
+ok   coast_palette_sand_256 == coast_palette_256 mixed 38% toward #E9D7B0 (COAST_SAND_TINT) (0 bad channels)
+ok   tint DATA in CoastSceneLayout
+ok   coast_palette == island in every non-rewritten band (incl. emissive band 13); rewritten bands 0,11,12
+ok   all 30935 UVs at texel centres (coast_reuse.glb: island-kept u along the band, v at band centre), emissive band 13 only on emissive meshes (0 bad)
+ok   flag off: no engine call, no log, nothing added (engine calls 0)
+ok   export loadCoastScene + globalThis.__qfCoast.loadCoastScene/unloadCoastScene registered
+ok   flag on: placed 135 + reuse 91, 0 errors
+ok   every placement on the detached, inactive root
+ok   one attach under the world node at the end, then active
+ok   opaque meshes: clone of island M_env_palette with mainTexture=coast_palette; translucent/unlit: resolveMaterial result as is (0 bad)
+ok   exactly two palette clones of the island base material: coast_palette + coast_palette_sand (got 2)
+ok   resolveReuse asked only for the island palm rigs: reuse_palm_tall,reuse_palm_lean
+ok   baked reuse: 88/88 wrappers, child = coast_reuse.glb node src, palette clone (rock_s*: coast_palette_sand), norm DATA on the child (0 bad)
+ok   reuse_rock_s* share the reuse_rock_* mesh nodes
+ok   island M_env_palette itself never modified
+ok   no builtin / vertex-colour fallback material in the loader source (only m.copy(island))
+ok   root TRS + child TRS applied
+ok   dispose: root + palette clone destroyed, layout+5 glbs+coast_palette+coast_palette_sand decRef once, island templates/materials untouched (idempotent)
+ok   load failure: console.error [QF_COAST], nothing shown
+ok   missing resolveReuse: console.error [QF_COAST], nothing loaded
+ok   missing resolveMaterial: console.error [QF_COAST] (no builtin fallback)
+ok   unresolved reuse name: console.error [QF_COAST] naming it + count
+ok   material unavailable: console.error [QF_COAST], mesh not mounted with any fallback
+ok   mainTexture missing: console.error [QF_COAST] per palette mesh, none mounted (no island colours), island material untouched
+ok   mainTexture throw: console.error [QF_COAST] per palette mesh, none mounted (no island colours), island material untouched
+ok   mainTexture noop: console.error [QF_COAST] per palette mesh, none mounted (no island colours), island material untouched
+ok   cancelled at check 1: nothing shown, all loaded assets released
+ok   cancelled at check 2: nothing shown, all loaded assets released
+ok   cancelled at check 3: nothing shown, all loaded assets released
+ok   COAST_REUSE_SOURCES == the 12 reuse names / 91 instances in the layout
+ok   baked reuse node missing: console.error [QF_COAST] naming it + count, not mounted
+ok   pinned (kit-off/frozen) scripts/regional-r05/runtime/regional-session.js
+ok   pinned (kit-off/frozen) scripts/regional-r05/runtime/rule-guide.js
+ok   pinned (kit-off/frozen) scripts/CharacterMotion.ts
+ok   pinned (kit-off/frozen) scripts/world-r2/WorldNativeComposition.ts
+ok   pinned (kit-off/frozen) scripts/world-r1/WorldFlowComponent.ts
+ok   pinned (kit-off/frozen) scripts/WorldIntegrationBoot.ts
+ok   pinned (kit-off/frozen) scripts/regional-r05/runtime/coast-kit.js
+ok   no main-package script references the loader (it only runs from the region_coast bundle on the kit path)
+ok   no hand-written .meta in region_coast/scripts
+PASS coast-scene-loader
