@@ -45,7 +45,7 @@ const parts = [];
 function part(name, unlit, build) { const m = mesh(); build(m); parts.push({ name, unlit: !!unlit, m }); }
 
 const woodA = rgba(176, 118, 64), woodB = rgba(148, 96, 52), seam = rgba(92, 60, 36), grid = rgba(244, 240, 228);
-const cellA = rgba(222, 190, 140), cellB = rgba(210, 178, 130);
+const cellA = rgba(214, 166, 108), cellB = rgba(202, 154, 100), grain = rgba(168, 122, 74);
 part('FJ_platform', false, m => {
   const yb = 0.62;
   addQuad(m, [X0, yb, Z0], [X1, yb, Z0], [X1, yb, Z1], [X0, yb, Z1], rgba(74, 48, 30));
@@ -70,7 +70,11 @@ part('FJ_platform', false, m => {
   for (let row = 0; row < 7; row++) for (let col = 0; col < 7; col++) {
     const colr = (row + col) % 2 ? cellA : cellB;
     const x0 = edges[col] + halfL, x1 = edges[col + 1] - halfL, z0 = edges[row] + halfL, z1 = edges[row + 1] - halfL;
-    addQuad(m, [x0, Y, z1], [x1, Y, z1], [x1, Y, z0], [x0, Y, z0], colr, mix(colr, rgba(255, 240, 220), 0.2), colr, mix(colr, rgba(255, 246, 230), 0.08));
+    const warm = mix(colr, rgba(232, 186, 120), 0.22);
+    addQuad(m, [x0, Y, z1], [x1, Y, z1], [x1, Y, z0], [x0, Y, z0], warm, colr, mix(colr, rgba(160, 116, 72), 0.12), colr);
+    const gx = x0 + (x1 - x0) * (0.35 + ((row + col) % 3) * 0.12);
+    const gy = Y + 0.00005;
+    addQuad(m, [gx, gy, z1], [gx + 0.028, gy, z1], [gx + 0.028, gy, z0], [gx, gy, z0], grain, mix(grain, colr, 0.35), grain, mix(grain, warm, 0.25));
   }
   for (let i = 0; i <= 7; i++) {
     const x = edges[i];
@@ -194,11 +198,36 @@ part('FJ_falls', true, m => {
   fall(3.28, -5.2, 0.4, 5.6, 0.12);
   const foamLine = (xIn, xOut, z0, z1) => {
     const edge = rgba(232, 242, 246, 190), fade = rgba(210, 228, 234, 0);
-    addQuad(m, [xIn, 0.33, z0], [xOut, 0.33, z0], [xOut, 0.34, z1], [xIn, 0.34, z1], edge, fade, fade, edge);
+    addQuad(m, [xIn, 0.33, z0], [xOut, 0.33, z0], [xOut, 0.35, z1], [xIn, 0.35, z1], rgba(240, 248, 250, 230), fade, fade, rgba(236, 246, 248, 160));
   };
   foamLine(-2.5, -3.2, 0.6, -8.4);
   foamLine(2.55, 3.25, 0.4, -8.6);
   foamLine(-7, 7, -12.2, -13.4);
+  const wake = (cx, cz, radius, a0, a1, w) => {
+    const n = 8;
+    for (let i = 0; i < n; i++) {
+      const t0 = i / n, t1 = (i + 1) / n;
+      const ang = (t) => a0 + (a1 - a0) * t;
+      const at = (t, rad) => [cx + Math.cos(ang(t)) * rad, 0.315, cz + Math.sin(ang(t)) * rad];
+      const fade = Math.sin(((t0 + t1) / 2) * Math.PI);
+      const ink = rgba(214, 234, 232, 150 * fade), gone = rgba(214, 234, 232, 0);
+      addQuad(m, at(t0, radius), at(t1, radius), at(t1, radius + w), at(t0, radius + w), ink, ink, gone, gone);
+    }
+  };
+  wake(0, -0.6, 2.85, Math.PI * 0.18, Math.PI * 0.82, 0.16);
+  wake(-1.15, -4.7, 0.7, 0.1, 1.5, 0.12);
+  wake(1.4, -5.5, 0.65, Math.PI + 0.05, Math.PI + 1.4, 0.11);
+  const streak = (x0, z0, x1, z1) => {
+    const lit = rgba(214, 236, 232, 190), soft = rgba(214, 236, 232, 0);
+    const dx = x1 - x0, dz = z1 - z0, len = Math.hypot(dx, dz) || 1, px = -dz / len * 0.07, pz = dx / len * 0.07;
+    addQuad(m, [x0 - px, 0.33, z0 - pz], [x1 - px, 0.33, z1 - pz], [x1 + px, 0.34, z1 + pz], [x0 + px, 0.34, z0 + pz], soft, lit, lit, soft);
+  };
+  streak(-2.2, -2.7, 2.2, -2.85);
+  streak(-1.5, -3.5, 1.4, -3.7);
+  streak(-2.72, -1.8, -2.62, 1.5);
+  streak(2.62, -2.0, 2.74, 1.3);
+  streak(-1.8, -5.2, -0.5, -4.85);
+  streak(0.7, -6.0, 2.1, -5.55);
 });
 
 part('FJ_trees', false, m => {
@@ -266,11 +295,13 @@ part('FJ_water', true, m => {
   const yAt = (i, k) => 0.26 + Math.sin(i * 1.7 + k * 0.8) * 0.03 + Math.cos(k * 1.3) * 0.018;
   const colorAt = (i, k) => {
     const u = i / cols, v = k / rows;
-    let c = mix(mix(deep, mid, Math.min(1, v * 1.4)), far, Math.max(0, v - 0.45) / 0.55);
+    let c = mix(rgba(8, 32, 68), rgba(22, 70, 112), Math.min(1, v * 1.8));
+    c = mix(c, rgba(86, 132, 162), Math.max(0, (v - 0.5) / 0.5));
     const aur = u < 0.5 ? mix(green, cyan, u * 2) : mix(cyan, violet, (u - 0.5) * 2);
-    const band = Math.exp(-((v - 0.4) * (v - 0.4)) / 0.012);
-    c = mix(c, aur, 0.72 * band);
-    c = mix(c, rgba(214, 236, 230), 0.22 * Math.max(0, Math.sin(u * 10 + v * 16)));
+    const band = Math.exp(-((v - 0.34) * (v - 0.34)) / 0.018);
+    c = mix(c, aur, 0.34 * band);
+    const ripple = Math.pow(Math.max(0, Math.sin(u * 16 + v * 28)), 2);
+    c = mix(c, rgba(186, 214, 216), (v < 0.5 ? 0.2 : 0.08) * ripple);
     return c;
   };
   for (let k = 0; k < rows; k++) for (let i = 0; i < cols; i++) {
@@ -283,24 +314,37 @@ part('FJ_water', true, m => {
 });
 
 part('FJ_mountains', false, m => {
-  const mount = (x, z, h, rx, tint) => {
-    const snow = rgba(236, 242, 248), foot = mix(tint, rgba(40, 48, 58), 0.2);
-    const y0 = 0.5;
-    const top = [x, y0 + h, z];
-    const ring = [[x + rx, y0, z + rx * 0.15], [x + rx * 0.15, y0, z + rx * 0.85], [x - rx, y0, z], [x, y0, z - rx * 0.7]];
-    for (let i = 0; i < 4; i++) addTri(m, top, ring[i], ring[(i + 1) % 4], snow, foot, mix(tint, foot, 0.35));
+  const peak = (x, z, h, w, rock, dark, snow, y0) => {
+    const yS = y0 + h * 0.6, yP = y0 + h;
+    const L = [x - w, y0, z + w * 0.18], R = [x + w * 0.82, y0, z + w * 0.28], B = [x + w * 0.04, y0, z - w * 0.5];
+    const shoulder = [x - w * 0.16, yS, z + 0.04], tip = [x + w * 0.2, yP, z - 0.06];
+    const spur = [x + w * 0.48, y0 + h * 0.4, z + w * 0.12];
+    addTri(m, L, shoulder, tip, rock, rock, mix(rock, rgba(220, 228, 234), 0.1));
+    addTri(m, shoulder, R, tip, dark, dark, mix(dark, rock, 0.35));
+    addTri(m, R, B, tip, mix(dark, rgba(24, 28, 34), 0.18), dark, rock);
+    addTri(m, B, L, shoulder, mix(rock, rgba(255, 255, 255), 0.06), dark, rock);
+    addTri(m, R, spur, tip, dark, mix(dark, rock, 0.4), mix(rock, dark, 0.5));
+    const sL = [x - w * 0.26, yS, z + 0.1], sR = [x + w * 0.3, yS, z + 0.16], sB = [x + 0.04, yS, z - 0.18];
+    const cap = rgba(244, 248, 252), shade = mix(snow, rgba(186, 198, 210), 0.35);
+    addTri(m, sL, tip, sR, cap, cap, shade);
+    addTri(m, sR, tip, sB, shade, cap, snow);
+    addTri(m, sB, tip, sL, snow, cap, cap);
   };
-  mount(-6.2, -12.3, 3.2, 3.8, rgba(70, 80, 94));
-  mount(-1.2, -12.6, 3.8, 3.5, rgba(78, 88, 102));
-  mount(4.2, -12.4, 3.1, 3.6, rgba(66, 76, 90));
-  mount(-8, -23, 3.2, 3.2, rgba(112, 128, 148));
-  mount(-2, -24, 3.6, 3.0, rgba(124, 140, 158));
-  mount(5, -23.5, 3.1, 3.1, rgba(118, 134, 152));
-  mount(-6, -32, 2.4, 3.6, rgba(168, 182, 198));
-  mount(2, -33, 2.6, 3.4, rgba(176, 188, 204));
-  const shore = rgba(150, 158, 148), shoreD = rgba(96, 112, 118);
-  addQuad(m, [-14, 0.32, -11.4], [14, 0.32, -11.2], [12, 1.5, -15.6], [-12, 1.5, -15.8], shore, shore, shoreD, shoreD);
-  addQuad(m, [-9, 1.15, -16.4], [9, 1.15, -16.2], [7, 1.7, -20], [-7, 1.7, -20.2], shoreD, shoreD, mix(shoreD, rgba(150, 164, 176), 0.4), mix(shoreD, rgba(150, 164, 176), 0.4));
+  const near = [rgba(78, 88, 102), rgba(46, 54, 64)], mid = [rgba(118, 136, 158), rgba(82, 100, 122)], far = [rgba(164, 180, 198), rgba(140, 158, 178)];
+  const white = rgba(236, 242, 248), pale = rgba(214, 224, 234);
+  peak(-5.6, -12.4, 2.5, 2.15, near[0], near[1], white, 0.5);
+  peak(-0.3, -12.7, 1.85, 1.65, near[0], near[1], white, 0.5);
+  peak(4.8, -12.5, 2.25, 1.95, near[0], near[1], white, 0.5);
+  peak(-7.2, -18.2, 2.3, 2.5, mid[0], mid[1], pale, 0.4);
+  peak(-2.4, -18.8, 2.7, 2.15, mid[0], mid[1], pale, 0.4);
+  peak(2.6, -18.4, 2.05, 2.3, mid[0], mid[1], pale, 0.4);
+  peak(7.4, -19, 1.7, 1.9, mid[0], mid[1], pale, 0.4);
+  peak(-8, -26, 1.55, 2.7, far[0], far[1], pale, 0.3);
+  peak(-1.5, -27, 1.8, 2.5, far[0], far[1], pale, 0.3);
+  peak(5, -26.5, 1.4, 2.3, far[0], far[1], pale, 0.3);
+  const shore = rgba(150, 158, 148), shoreD = rgba(108, 124, 132);
+  addQuad(m, [-14, 0.32, -11.4], [14, 0.32, -11.2], [12, 1.35, -15.2], [-12, 1.35, -15.4], shore, shore, shoreD, shoreD);
+  addQuad(m, [-10, 0.9, -17], [10, 0.9, -16.8], [8, 1.45, -22], [-8, 1.45, -22.2], mix(shoreD, mid[0], 0.35), mix(shoreD, mid[0], 0.35), mix(far[0], rgba(180, 196, 210), 0.4), mix(far[0], rgba(180, 196, 210), 0.4));
 });
 
 part('FJ_fog', true, m => {
@@ -322,33 +366,38 @@ part('FJ_stars', true, m => {
     const c = warm ? rgba(255, 236, 210) : rgba(230, 238, 255);
     addQuad(m, [x - s, y - s, z], [x + s, y - s, z], [x + s, y + s, z], [x - s, y + s, z], c);
   };
-  const stars = [[-1.6, 15.5, -14, 0.05, 0], [1.4, 17.2, -16, 0.04, 1], [-0.2, 18.6, -18, 0.045, 0],
-    [2.8, 14.8, -13, 0.04, 0], [-3.2, 16.4, -15, 0.04, 1], [0.6, 20, -20, 0.035, 0]];
+  const stars = [[-2.4, 16.2, -18, 0.035, 0], [1.1, 17.4, -19, 0.028, 1], [-0.4, 19.2, -22, 0.032, 0],
+    [3.2, 15.6, -17, 0.03, 0], [-4.1, 14.8, -16, 0.026, 1], [0.7, 21, -24, 0.024, 0],
+    [-1.8, 18.4, -21, 0.03, 0], [2.4, 19.6, -23, 0.022, 1], [-3.4, 17.8, -20, 0.028, 0],
+    [4.6, 16.4, -18, 0.024, 0], [-0.8, 15.2, -16, 0.02, 1], [1.8, 14.6, -15, 0.022, 0],
+    [-5.2, 16.8, -19, 0.02, 0], [0.2, 20.4, -25, 0.02, 0], [3.6, 18.2, -21, 0.026, 1]];
   for (const s of stars) star(s[0], s[1], s[2], s[3], s[4]);
 });
 
 part('FJ_aurora', true, m => {
-  // Curtains face the camera (constant depth) so they read as ribbons, not edge-on streaks.
-  const curtain = (y0, y1, z, x0, x1, stops, alpha) => {
-    const n = 12;
+  // Wavy sheets. The lower edge stays bright and the colour fades upward, with no hard rim.
+  const ribbon = (yBase, height, z, phase, amp, x0, x1, stops, alpha) => {
+    const n = 24;
     const at = (t) => t < 0.5 ? mix(stops[0], stops[1], t * 2) : mix(stops[1], stops[2], (t - 0.5) * 2);
     for (let i = 0; i < n; i++) {
       const t0 = i / n, t1 = (i + 1) / n;
+      const wave = (t) => Math.sin(t * Math.PI * 2 + phase) * amp + Math.sin(t * Math.PI) * amp * 0.45;
       const xa = x0 + (x1 - x0) * t0, xb = x0 + (x1 - x0) * t1;
-      const bow = (t) => Math.sin(t * Math.PI) * 0.35;
-      const ya = y0 + bow(t0), yb = y0 + bow(t1);
-      const ha = y1 + bow(t0) * 0.4, hb = y1 + bow(t1) * 0.4;
-      const loA = ya + (ha - ya) * 0.32, loB = yb + (hb - yb) * 0.32;
-      const hiA = ya + (ha - ya) * 0.68, hiB = yb + (hb - yb) * 0.68;
-      const edge = Math.min(1, Math.min(t0, 1 - t0) / 0.28);
+      const y0 = yBase + wave(t0), y1 = yBase + wave(t1);
+      const z0 = z + Math.sin(t0 * Math.PI) * 0.8, z1 = z + Math.sin(t1 * Math.PI) * 0.8;
+      const edge = Math.min(1, Math.min(t0, 1 - t0) / 0.2);
       const c0 = at(t0), c1 = at(t1);
-      const fade = (c, a) => rgba(c[0], c[1], c[2], a * edge);
-      addQuad(m, [xa, ya, z], [xb, yb, z], [xb, loB, z], [xa, loA, z], fade(c0, 0), fade(c1, 0), fade(c1, alpha), fade(c0, alpha));
-      addQuad(m, [xa, loA, z], [xb, loB, z], [xb, hiB, z], [xa, hiA, z], fade(c0, alpha), fade(c1, alpha), fade(c1, alpha), fade(c0, alpha));
-      addQuad(m, [xa, hiA, z], [xb, hiB, z], [xb, hb, z], [xa, ha, z], fade(c0, alpha), fade(c1, alpha), fade(c1, 0), fade(c0, 0));
+      const bot = (c) => rgba(c[0], c[1], c[2], alpha * edge);
+      const mid = (c) => rgba(c[0], c[1], c[2], alpha * 0.38 * edge);
+      const top = (c) => rgba(c[0], c[1], c[2], 0);
+      const m0 = y0 + height * 0.4, m1 = y1 + height * 0.4;
+      addQuad(m, [xa, y0, z0], [xb, y1, z1], [xb, m1, z1 - 0.15], [xa, m0, z0 - 0.15], bot(c0), bot(c1), mid(c1), mid(c0));
+      addQuad(m, [xa, m0, z0 - 0.15], [xb, m1, z1 - 0.15], [xb, y1 + height, z1], [xa, y0 + height, z0], mid(c0), mid(c1), top(c1), top(c0));
     }
   };
-  curtain(6.4, 11.6, -11, -4.2, 4.2, [rgba(120, 230, 150), rgba(64, 214, 206), rgba(170, 140, 236)], 200);
+  const green = rgba(128, 236, 158), cyan = rgba(72, 220, 210), purple = rgba(176, 146, 240);
+  ribbon(7.0, 3.8, -11, 0.3, 0.9, -5.4, 5.4, [green, cyan, purple], 168);
+  ribbon(8.4, 3.4, -13.5, 2.2, 0.75, -5.8, 5.8, [cyan, purple, green], 96);
 });
 
 function pack() {
