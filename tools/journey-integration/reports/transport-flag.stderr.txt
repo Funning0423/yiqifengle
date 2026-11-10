@@ -1,2 +1,0 @@
-[QF_TRANSPORT] {"event":"bridge-ignored","via":"query","requested":"bridge","kept":"sail-or-balloon"}
-[QF_TRANSPORT] {"event":"bridge-ignored","via":"argument","requested":"bridge","kept":"island-meadow"}
